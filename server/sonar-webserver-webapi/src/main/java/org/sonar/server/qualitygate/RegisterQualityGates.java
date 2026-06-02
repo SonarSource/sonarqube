@@ -107,11 +107,16 @@ public class RegisterQualityGates implements Startable {
   }
 
   private void updateQualityGates(DbSession dbSession, List<QualityGateDto> builtinQualityGates) {
-    Map<String, String> uuidToKeyMetric = dbClient.metricDao().selectAll(dbSession).stream()
+    List<MetricDto> allMetrics = dbClient.metricDao().selectAll(dbSession);
+    Map<String, String> uuidToKeyMetric = allMetrics.stream()
       .collect(toMap(MetricDto::getUuid, MetricDto::getKey));
+    Set<String> enabledMetricKeys = allMetrics.stream()
+      .filter(MetricDto::isEnabled)
+      .map(MetricDto::getKey)
+      .collect(Collectors.toSet());
 
     builtinQualityGates.forEach(qualityGate -> {
-      updateQualityConditionsIfRequired(dbSession, qualityGate, uuidToKeyMetric);
+      updateQualityConditionsIfRequired(dbSession, qualityGate, uuidToKeyMetric, enabledMetricKeys);
       if (!qualityGate.isBuiltIn()) {
         qualityGate.setBuiltIn(true);
         qualityGateDao.update(qualityGate, dbSession);
@@ -120,13 +125,14 @@ public class RegisterQualityGates implements Startable {
     });
   }
 
-  private void updateQualityConditionsIfRequired(DbSession dbSession, QualityGateDto builtinQualityGate, Map<String, String> uuidToKeyMetric) {
+  private void updateQualityConditionsIfRequired(DbSession dbSession, QualityGateDto builtinQualityGate, Map<String, String> uuidToKeyMetric,
+    Set<String> enabledMetricKeys) {
     List<QualityGateCondition> qualityGateConditions = getQualityGateConditions(dbSession, builtinQualityGate, uuidToKeyMetric);
 
-    List<QualityGateCondition> qgConditionsDeleted = removeExtraConditions(dbSession, builtinQualityGate, qualityGateConditions);
+    List<QualityGateCondition> qgConditionsDeleted = removeExtraConditions(dbSession, builtinQualityGate, qualityGateConditions, enabledMetricKeys);
     qgConditionsDeleted.addAll(removeDuplicatedConditions(dbSession, builtinQualityGate, qualityGateConditions));
 
-    List<QualityGateCondition> qgConditionsAdded = addMissingConditions(dbSession, builtinQualityGate, qualityGateConditions);
+    List<QualityGateCondition> qgConditionsAdded = addMissingConditions(dbSession, builtinQualityGate, qualityGateConditions, enabledMetricKeys);
 
     if (!qgConditionsAdded.isEmpty() || !qgConditionsDeleted.isEmpty()) {
       LOGGER.info("Quality Gate's conditions of [{}] has been updated", builtinQualityGate.getName());
@@ -140,9 +146,11 @@ public class RegisterQualityGates implements Startable {
       .toList();
   }
 
-  private List<QualityGateCondition> removeExtraConditions(DbSession dbSession, QualityGateDto builtinQualityGate, List<QualityGateCondition> qualityGateConditions) {
+  private List<QualityGateCondition> removeExtraConditions(DbSession dbSession, QualityGateDto builtinQualityGate,
+    List<QualityGateCondition> qualityGateConditions, Set<String> enabledMetricKeys) {
     List<QualityGateCondition> qgConditionsToBeDeleted = new ArrayList<>(qualityGateConditions);
     List<QualityGateCondition> gateConditions = builtInQualityGateMap.get(builtinQualityGate.getName()).getConditions().stream()
+      .filter(conditionDef -> enabledMetricKeys.contains(conditionDef.getMetricKey()))
       .map(conditionDef -> new QualityGateCondition()
         .setMetricKey(conditionDef.getMetricKey())
         .setOperator(conditionDef.getOperator().getDbValue())
@@ -167,8 +175,16 @@ public class RegisterQualityGates implements Startable {
   }
 
   private List<QualityGateCondition> addMissingConditions(DbSession dbSession, QualityGateDto builtinQualityGate,
-    List<QualityGateCondition> qualityGateConditions) {
+    List<QualityGateCondition> qualityGateConditions, Set<String> enabledMetricKeys) {
     List<QualityGateCondition> gateConditions = builtInQualityGateMap.get(builtinQualityGate.getName()).getConditions().stream()
+      .filter(conditionDef -> {
+        if (!enabledMetricKeys.contains(conditionDef.getMetricKey())) {
+          LOGGER.warn("Skipping condition on metric '{}' for quality gate '{}': metric not found or not enabled.",
+            conditionDef.getMetricKey(), builtinQualityGate.getName());
+          return false;
+        }
+        return true;
+      })
       .map(conditionDef -> new QualityGateCondition()
         .setMetricKey(conditionDef.getMetricKey())
         .setOperator(conditionDef.getOperator().getDbValue())

@@ -47,6 +47,7 @@ import org.sonar.server.qualitygate.builtin.SonarWayQualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
@@ -54,12 +55,12 @@ import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
-import static org.mockito.Mockito.mock;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.PERCENT;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_GREATER_THAN;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_LESS_THAN;
+import static org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN;
 
 @RunWith(DataProviderRunner.class)
 public class RegisterQualityGatesIT {
@@ -330,6 +331,119 @@ public class RegisterQualityGatesIT {
       .setErrorThreshold(errorThreshold);
     gateConditionDao.insert(newCondition, dbSession);
     return newCondition;
+  }
+
+  @Test
+  public void start_whenBuiltInQgHasConditionWithDisabledMetric_shouldRemoveConditionFromDb() {
+    // Simulate Enterprise→Developer downgrade:
+    // In Enterprise: both metrics enabled, both conditions in DB
+    // In Developer: plugin metric disabled → startup must remove the orphaned condition
+    MetricDto enabledMetric = dbClient.metricDao().insert(dbSession,
+      newMetricDto().setKey(NEW_VIOLATIONS_KEY).setValueType(INT.name()).setHidden(false).setDirection(0));
+    String pluginMetricKey = "plugin_only_metric";
+    MetricDto disabledPluginMetric = dbClient.metricDao().insert(dbSession,
+      newMetricDto().setKey(pluginMetricKey).setValueType(INT.name()).setHidden(false).setDirection(0).setEnabled(false));
+
+    // Simulate DB state left by Enterprise: QG exists with both conditions
+    QualityGateDto existingQg = qualityGateDao.insert(dbSession, new QualityGateDto()
+      .setName("Plugin QG")
+      .setUuid(Uuids.createFast())
+      .setBuiltIn(true)
+      .setAiCodeSupported(true)
+      .setCreatedAt(new Date()));
+    gateConditionDao.insert(new QualityGateConditionDto()
+      .setUuid(Uuids.createFast())
+      .setQualityGateUuid(existingQg.getUuid())
+      .setMetricUuid(enabledMetric.getUuid())
+      .setOperator(OPERATOR_GREATER_THAN)
+      .setErrorThreshold("0"), dbSession);
+    gateConditionDao.insert(new QualityGateConditionDto()
+      .setUuid(Uuids.createFast())
+      .setQualityGateUuid(existingQg.getUuid())
+      .setMetricUuid(disabledPluginMetric.getUuid())
+      .setOperator(OPERATOR_GREATER_THAN)
+      .setErrorThreshold("5"), dbSession);
+    dbSession.commit();
+
+    RegisterQualityGates underTestWithCustomQg = new RegisterQualityGates(dbClient,
+      new BuiltInQualityGate[]{buildQualityGate("Plugin QG", List.of(
+        new Condition(NEW_VIOLATIONS_KEY, GREATER_THAN, "0"),
+        new Condition(pluginMetricKey, GREATER_THAN, "5")))},
+      qualityGateConditionsUpdater,
+      new SequenceUuidFactory(),
+      System2.INSTANCE);
+
+    underTestWithCustomQg.start();
+
+    assertThat(gateConditionDao.selectForQualityGate(dbSession, existingQg.getUuid()))
+      .extracting(QualityGateConditionDto::getMetricUuid)
+      .containsExactly(enabledMetric.getUuid())
+      .doesNotContain(disabledPluginMetric.getUuid());
+  }
+
+  @Test
+  public void start_whenBuiltInQgHasConditionWithUnknownMetric_shouldSkipUnknownConditionAndLogWarning() {
+    dbClient.metricDao().insert(dbSession,
+      newMetricDto().setKey(NEW_VIOLATIONS_KEY).setValueType(INT.name()).setHidden(false).setDirection(0));
+    dbSession.commit();
+
+    String unknownMetricKey = "plugin_only_metric";
+    RegisterQualityGates underTestWithCustomQg = new RegisterQualityGates(dbClient,
+      new BuiltInQualityGate[]{buildQualityGate("Plugin QG", List.of(
+        new Condition(NEW_VIOLATIONS_KEY, GREATER_THAN, "0"),
+        new Condition(unknownMetricKey, GREATER_THAN, "5")))},
+      qualityGateConditionsUpdater,
+      new SequenceUuidFactory(),
+      System2.INSTANCE);
+
+    underTestWithCustomQg.start();
+
+    MetricDto newViolations = metricDao.selectByKey(dbSession, NEW_VIOLATIONS_KEY);
+    QualityGateDto qualityGateDto = qualityGateDao.selectByName(dbSession, "Plugin QG");
+    assertThat(qualityGateDto).isNotNull();
+    assertThat(gateConditionDao.selectForQualityGate(dbSession, qualityGateDto.getUuid()))
+      .extracting(QualityGateConditionDto::getMetricUuid)
+      .containsExactly(newViolations.getUuid());
+    assertThat(logTester.logs(Level.WARN))
+      .anyMatch(log -> log.contains(unknownMetricKey) && log.contains("metric not found"));
+  }
+
+  @Test
+  public void start_whenAllConditionsOfBuiltInQgUseUnknownMetrics_shouldCreateQgWithoutConditions() {
+    String unknownMetricKey = "sca_metric_key";
+    RegisterQualityGates underTestWithCustomQg = new RegisterQualityGates(dbClient,
+      new BuiltInQualityGate[]{buildQualityGate("Plugin-only QG", List.of(
+        new Condition(unknownMetricKey, GREATER_THAN, "9")))},
+      qualityGateConditionsUpdater,
+      new SequenceUuidFactory(),
+      System2.INSTANCE);
+
+    underTestWithCustomQg.start();
+
+    QualityGateDto qualityGateDto = qualityGateDao.selectByName(dbSession, "Plugin-only QG");
+    assertThat(qualityGateDto).isNotNull();
+    assertThat(gateConditionDao.selectForQualityGate(dbSession, qualityGateDto.getUuid())).isEmpty();
+    assertThat(logTester.logs(Level.WARN))
+      .anyMatch(log -> log.contains(unknownMetricKey) && log.contains("metric not found"));
+  }
+
+  private static BuiltInQualityGate buildQualityGate(String name, List<Condition> conditions) {
+    return new BuiltInQualityGate() {
+      @Override
+      public String getName() {
+        return name;
+      }
+
+      @Override
+      public boolean supportsAiCode() {
+        return true;
+      }
+
+      @Override
+      public List<Condition> getConditions() {
+        return conditions;
+      }
+    };
   }
 
 }
