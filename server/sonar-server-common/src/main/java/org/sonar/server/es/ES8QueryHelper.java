@@ -146,6 +146,26 @@ public final class ES8QueryHelper {
     return Query.of(q -> q.range(r -> r.number(n -> n.field(field).lt(value))));
   }
 
+  // ========== UNTYPED RANGE QUERIES ==========
+  // For date fields stored as epoch_millis, or any field where the type cannot be inferred,
+  // the untyped variant accepts an opaque value.
+
+  public static Query untypedRangeQueryGte(String field, long value) {
+    return Query.of(q -> q.range(r -> r.untyped(u -> u.field(field).gte(co.elastic.clients.json.JsonData.of(value)))));
+  }
+
+  public static Query untypedRangeQueryGt(String field, long value) {
+    return Query.of(q -> q.range(r -> r.untyped(u -> u.field(field).gt(co.elastic.clients.json.JsonData.of(value)))));
+  }
+
+  public static Query untypedRangeQueryLt(String field, long value) {
+    return Query.of(q -> q.range(r -> r.untyped(u -> u.field(field).lt(co.elastic.clients.json.JsonData.of(value)))));
+  }
+
+  public static Query untypedRangeQueryLte(String field, long value) {
+    return Query.of(q -> q.range(r -> r.untyped(u -> u.field(field).lte(co.elastic.clients.json.JsonData.of(value)))));
+  }
+
   // ========== EXISTS QUERIES ==========
 
   public static Query existsQuery(String field) {

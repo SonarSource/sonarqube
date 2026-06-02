@@ -19,14 +19,12 @@
  */
 package org.sonar.server.issue.index;
 
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.TotalHitsRelation;
 import com.google.common.collect.Iterators;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.apache.lucene.search.TotalHits;
-import org.apache.lucene.search.TotalHits.Relation;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHit;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.db.component.ComponentDto;
@@ -61,17 +59,20 @@ class IssueIndexTest extends IssueIndexTestCommon {
 
     IssueQuery.Builder query = IssueQuery.builder();
     // There are 12 issues in total, with 10 issues per page, the page 2 should only contain 2 elements
-    SearchResponse result = underTest.search(query.build(), new SearchOptions().setPage(2, 10));
-    assertThat(result.getHits().getHits()).hasSize(2);
-    assertThat(result.getHits().getTotalHits()).isEqualTo(new TotalHits(12, TotalHits.Relation.EQUAL_TO));
+    var result = underTest.search(query.build(), new SearchOptions().setPage(2, 10));
+    assertThat(result.hits().hits()).hasSize(2);
+    assertThat(result.hits().total().value()).isEqualTo(12L);
+    assertThat(result.hits().total().relation()).isEqualTo(TotalHitsRelation.Eq);
 
     result = underTest.search(IssueQuery.builder().build(), new SearchOptions().setOffset(0).setLimit(5));
-    assertThat(result.getHits().getHits()).hasSize(5);
-    assertThat(result.getHits().getTotalHits()).isEqualTo(new TotalHits(12, TotalHits.Relation.EQUAL_TO));
+    assertThat(result.hits().hits()).hasSize(5);
+    assertThat(result.hits().total().value()).isEqualTo(12L);
+    assertThat(result.hits().total().relation()).isEqualTo(TotalHitsRelation.Eq);
 
     result = underTest.search(IssueQuery.builder().build(), new SearchOptions().setOffset(2).setLimit(10));
-    assertThat(result.getHits().getHits()).hasSize(10);
-    assertThat(result.getHits().getTotalHits()).isEqualTo(new TotalHits(12, TotalHits.Relation.EQUAL_TO));
+    assertThat(result.hits().hits()).hasSize(10);
+    assertThat(result.hits().total().value()).isEqualTo(12L);
+    assertThat(result.hits().total().relation()).isEqualTo(TotalHitsRelation.Eq);
   }
 
   @Test
@@ -86,8 +87,8 @@ class IssueIndexTest extends IssueIndexTestCommon {
     indexIssues(issues.toArray(new IssueDoc[]{}));
 
     IssueQuery.Builder query = IssueQuery.builder();
-    SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(500));
-    assertThat(result.getHits().getHits()).hasSize(SearchOptions.MAX_PAGE_SIZE);
+    var result = underTest.search(query.build(), new SearchOptions().setLimit(500));
+    assertThat(result.hits().hits()).hasSize(SearchOptions.MAX_PAGE_SIZE);
   }
 
   // SONAR-14224
@@ -103,10 +104,10 @@ class IssueIndexTest extends IssueIndexTestCommon {
     indexIssues(issues.toArray(new IssueDoc[]{}));
 
     IssueQuery.Builder query = IssueQuery.builder();
-    SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(500));
-    assertThat(result.getHits().getHits()).hasSize(SearchOptions.MAX_PAGE_SIZE);
-    assertThat(result.getHits().getTotalHits().value).isEqualTo(11_000L);
-    assertThat(result.getHits().getTotalHits().relation).isEqualTo(Relation.EQUAL_TO);
+    var result = underTest.search(query.build(), new SearchOptions().setLimit(500));
+    assertThat(result.hits().hits()).hasSize(SearchOptions.MAX_PAGE_SIZE);
+    assertThat(result.hits().total().value()).isEqualTo(11_000L);
+    assertThat(result.hits().total().relation()).isEqualTo(TotalHitsRelation.Eq);
   }
 
   @Test
@@ -125,11 +126,11 @@ class IssueIndexTest extends IssueIndexTestCommon {
     IssueQuery.Builder query = IssueQuery.builder();
     query.directories(singletonList(parentPath));
 
-    SearchResponse result = underTest.search(query.build(), new SearchOptions().setLimit(500));
+    var result = underTest.search(query.build(), new SearchOptions().setLimit(500));
 
-    assertThat(result.getHits().getHits())
+    assertThat(result.hits().hits())
       .hasSize(3)
-      .extracting(SearchHit::getId)
+      .extracting(Hit::id)
       .containsExactlyInAnyOrder("i1", "i2", "i3");
   }
 
@@ -146,11 +147,11 @@ class IssueIndexTest extends IssueIndexTestCommon {
     indexIssues(issues.toArray(new IssueDoc[]{}));
     IssueQuery.Builder query = IssueQuery.builder().asc(true);
 
-    SearchResponse result = underTest.search(query.sort(IssueQuery.SORT_BY_CREATION_DATE).build(), new SearchOptions());
+    var result = underTest.search(query.sort(IssueQuery.SORT_BY_CREATION_DATE).build(), new SearchOptions());
 
-    SearchHit[] hits = result.getHits().getHits();
+    List<Hit<Object>> hits = result.hits().hits();
     for (int i = 1; i <= 9; i++) {
-      assertThat(hits[i - 1].getId()).isEqualTo("I" + i);
+      assertThat(hits.get(i - 1).id()).isEqualTo("I" + i);
     }
   }
 
@@ -167,14 +168,14 @@ class IssueIndexTest extends IssueIndexTestCommon {
     indexIssues(issues.toArray(new IssueDoc[]{}));
     IssueQuery.Builder query = IssueQuery.builder().asc(true);
 
-    SearchResponse result = underTest.search(query.sort(IssueQuery.SORT_BY_CREATION_DATE).build(), new SearchOptions());
+    var result = underTest.search(query.sort(IssueQuery.SORT_BY_CREATION_DATE).build(), new SearchOptions());
 
-    SearchHit[] originalHits = result.getHits().getHits();
+    List<Hit<Object>> originalHits = result.hits().hits();
     for (int i = 0; i < 4; i++) {
       result = underTest.search(query.sort(IssueQuery.SORT_BY_CREATION_DATE).build(), new SearchOptions());
-      for (int j = 0; j < originalHits.length; j++) {
-        SearchHit[] hits = result.getHits().getHits();
-        assertThat(originalHits[j].getId()).isEqualTo(hits[j].getId());
+      List<Hit<Object>> hits = result.hits().hits();
+      for (int j = 0; j < originalHits.size(); j++) {
+        assertThat(originalHits.get(j).id()).isEqualTo(hits.get(j).id());
       }
     }
 

@@ -19,9 +19,8 @@
  */
 package org.sonar.server.issue.index;
 
-import java.util.Arrays;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import java.util.List;
-import org.elasticsearch.search.SearchHit;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -69,8 +68,8 @@ public class IssueIndexTestCommon {
    * Execute the search request and return the document ids of results.
    */
   protected List<String> searchAndReturnKeys(IssueQuery.Builder query) {
-    return Arrays.stream(underTest.search(query.build(), new SearchOptions()).getHits().getHits())
-      .map(SearchHit::getId)
+    return underTest.search(query.build(), new SearchOptions()).hits().hits().stream()
+      .map(Hit::id)
       .toList();
   }
 

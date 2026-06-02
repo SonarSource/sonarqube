@@ -22,6 +22,7 @@ package org.sonar.server.es;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import java.util.Collections;
 import java.util.List;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
@@ -58,6 +59,10 @@ public class Sorting {
 
   public List<Field> getFields(String name) {
     return fields.get(name);
+  }
+
+  public List<Field> getDefaultFields() {
+    return Collections.unmodifiableList(defaultFields);
   }
 
   public List<FieldSortBuilder> fill(String name, boolean asc) {

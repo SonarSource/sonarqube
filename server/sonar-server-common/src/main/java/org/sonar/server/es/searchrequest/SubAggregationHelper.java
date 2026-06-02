@@ -49,6 +49,8 @@ public class SubAggregationHelper {
   private static final int MAXIMUM_NUMBER_OF_SELECTED_ITEMS_WHOSE_DOC_COUNT_WILL_BE_CALCULATED = 50;
   private static final Collector<CharSequence, ?, String> PIPE_JOINER = Collectors.joining("|");
 
+  private static final String DEFAULT_SUB_AGGREGATION_NAME_V2 = "subAggregation";
+
   @CheckForNull
   private final AbstractAggregationBuilder<?> subAggregation;
   private final BucketOrder order;
@@ -56,6 +58,7 @@ public class SubAggregationHelper {
   private final Aggregation subAggregationV2;
   @CheckForNull
   private final List<NamedValue<SortOrder>> orderV2;
+  private final String subAggregationNameV2;
 
   public SubAggregationHelper() {
     this((AbstractAggregationBuilder<?>) null, null);
@@ -70,13 +73,25 @@ public class SubAggregationHelper {
     this.order = order == null ? ORDER_BY_BUCKET_SIZE_DESC : order;
     this.subAggregationV2 = null;
     this.orderV2 = null;
+    this.subAggregationNameV2 = DEFAULT_SUB_AGGREGATION_NAME_V2;
   }
 
   public SubAggregationHelper(@Nullable Aggregation subAggregationV2, @Nullable List<NamedValue<SortOrder>> orderV2) {
+    this(subAggregationV2, orderV2, DEFAULT_SUB_AGGREGATION_NAME_V2);
+  }
+
+  /**
+   * @param subAggregationNameV2 the key under which the {@code subAggregationV2} will be registered. Must match any
+   *   bucket-order reference in {@code orderV2} that points at the sub-aggregation (e.g. ordering buckets by an effort
+   *   sum named "effort" requires the helper to register the sum under that same name).
+   */
+  public SubAggregationHelper(@Nullable Aggregation subAggregationV2, @Nullable List<NamedValue<SortOrder>> orderV2,
+    String subAggregationNameV2) {
     this.subAggregation = null;
     this.order = ORDER_BY_BUCKET_SIZE_DESC;
     this.subAggregationV2 = subAggregationV2;
     this.orderV2 = orderV2;
+    this.subAggregationNameV2 = subAggregationNameV2;
   }
 
   public TermsAggregationBuilder buildTermsAggregation(String name,
@@ -131,7 +146,7 @@ public class SubAggregationHelper {
         return t;
       });
       if (subAggregationV2 != null) {
-        a.aggregations("subAggregation", subAggregationV2);
+        a.aggregations(subAggregationNameV2, subAggregationV2);
       }
       return a;
     });
@@ -153,7 +168,7 @@ public class SubAggregationHelper {
         .field(topAggregation.getFilterScope().getFieldName())
         .include(i -> i.regexp(includes)));
       if (subAggregationV2 != null) {
-        a.aggregations("subAggregation", subAggregationV2);
+        a.aggregations(subAggregationNameV2, subAggregationV2);
       }
       return a;
     });

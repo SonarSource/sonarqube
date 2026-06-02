@@ -27,6 +27,8 @@ import co.elastic.clients.elasticsearch._types.aggregations.FilterAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.FiltersAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.FiltersBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.GlobalAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.LongTermsAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.LongTermsBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.MissingAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.NestedAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.RangeAggregate;
@@ -131,6 +133,7 @@ public class Facets {
     switch (aggregate._kind()) {
       case Missing -> processMissingAggregationV2(name, aggregate.missing());
       case Sterms -> processTermsAggregationV2(name, aggregate.sterms());
+      case Lterms -> processLongTermsAggregationV2(name, aggregate.lterms());
       case Filter -> processFilterAggregation(name, aggregate.filter());
       case DateHistogram -> processDateHistogramV2(name, aggregate.dateHistogram());
       case Sum -> processSumV2(name, aggregate.sum());
@@ -208,6 +211,35 @@ public class Facets {
         facet.put(value.getKeyAsString(), Math.round(((Sum) aggregationList.get(0)).getValue()));
       } else {
         facet.put(value.getKeyAsString(), value.getDocCount());
+      }
+    }
+  }
+
+  void processLongTermsAggregationV2(String name, LongTermsAggregate aggregation) {
+    String facetName = name;
+    if (facetName.contains("__") && !facetName.startsWith("__")) {
+      facetName = facetName.substring(0, facetName.indexOf("__"));
+    }
+    facetName = facetName.replace(SELECTED_SUB_AGG_NAME_SUFFIX, "");
+    LinkedHashMap<String, Long> facet = getOrCreateFacet(facetName);
+
+    Buckets<LongTermsBucket> buckets = aggregation.buckets();
+    if (buckets == null || buckets.array().isEmpty()) {
+      return;
+    }
+
+    for (LongTermsBucket bucket : buckets.array()) {
+      String key = bucket.keyAsString() != null ? bucket.keyAsString() : Long.toString(bucket.key());
+      Map<String, Aggregate> subAggs = bucket.aggregations();
+      if (subAggs != null && subAggs.size() == 1) {
+        Aggregate subAgg = subAggs.values().iterator().next();
+        if (subAgg.isSum()) {
+          facet.put(key, Math.round(subAgg.sum().value()));
+        } else {
+          facet.put(key, bucket.docCount());
+        }
+      } else {
+        facet.put(key, bucket.docCount());
       }
     }
   }

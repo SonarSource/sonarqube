@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.index;
 
-import org.elasticsearch.action.search.SearchResponse;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
@@ -79,7 +78,6 @@ class IssueIndexSortTest extends IssueIndexTestCommon {
       newDoc("I2", project.uuid(), file).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(true);
-    SearchResponse result = underTest.search(query.build(), new SearchOptions());
     assertThatSearchReturnsOnly(query, "I1", "I2");
 
     query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(false);
@@ -96,7 +94,6 @@ class IssueIndexSortTest extends IssueIndexTestCommon {
       newDoc("I2", project.uuid(), file).setFuncUpdateDate(parseDateTime("2014-09-24T00:00:00+0100")));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(true);
-    SearchResponse result = underTest.search(query.build(), new SearchOptions());
     assertThatSearchReturnsOnly(query, "I1", "I2");
 
     query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(false);
@@ -114,7 +111,6 @@ class IssueIndexSortTest extends IssueIndexTestCommon {
       newDoc("I3", project.uuid(), file).setFuncCloseDate(null));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(true);
-    SearchResponse result = underTest.search(query.build(), new SearchOptions());
     assertThatSearchReturnsOnly(query, "I3", "I1", "I2");
 
     query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(false);

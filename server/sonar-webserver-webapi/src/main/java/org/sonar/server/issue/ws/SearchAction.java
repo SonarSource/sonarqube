@@ -33,9 +33,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.lucene.search.TotalHits;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHit;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.Severity;
@@ -616,10 +615,9 @@ public class SearchAction implements IssuesWsAction {
       String.join(",", facetsRequiringProjectParameter));
 
     // execute request
-    SearchResponse result = issueIndex.search(query, options);
-    result.getHits();
-    List<String> issueKeys = Arrays.stream(result.getHits().getHits())
-      .map(SearchHit::getId)
+    SearchResponse<Object> result = issueIndex.search(query, options);
+    List<String> issueKeys = result.hits().hits().stream()
+      .map(Hit::id)
       .toList();
 
     // load the additional information to be returned in response
@@ -641,14 +639,14 @@ public class SearchAction implements IssuesWsAction {
     Set<String> complianceFacets = transformComplianceFacets(facets, options.getComplianceFacets(), request.getCategoriesByStandard());
 
     // FIXME allow long in Paging
-    Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) getTotalHits(result).value);
+    Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) getTotalHits(result));
     List<String> allFacets = Stream.concat(complianceFacets.stream(), getSupportedFacets().stream()).toList();
     return searchResponseFormat.formatSearch(additionalFields, data, paging, facets, userSession.isLoggedIn(), allFacets);
   }
 
-  private static TotalHits getTotalHits(SearchResponse response) {
-    return ofNullable(response.getHits().getTotalHits()).orElseThrow(() -> new IllegalStateException("Could not get total hits of search " +
-      "results"));
+  private static long getTotalHits(SearchResponse<Object> response) {
+    return ofNullable(response.hits().total()).orElseThrow(() -> new IllegalStateException("Could not get total hits of search " +
+      "results")).value();
   }
 
   private SearchOptions createSearchOptionsFromRequest(SearchRequest request) {

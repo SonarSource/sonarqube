@@ -20,7 +20,6 @@
 package org.sonar.server.issue.index;
 
 import java.util.Map;
-import org.elasticsearch.action.search.SearchResponse;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.Severity;
 import org.sonar.db.component.ComponentDto;
@@ -101,7 +100,7 @@ class IssueIndexSecurityHotspotsTest extends IssueIndexTestCommon {
 
   @SafeVarargs
   private final void assertThatFacetHasOnly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
-    SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
+    var result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
     Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly(facet, "effort");
     assertThat(facets.get(facet)).containsOnly(expectedEntries);

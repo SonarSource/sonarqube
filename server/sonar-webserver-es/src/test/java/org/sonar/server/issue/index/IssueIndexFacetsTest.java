@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.elasticsearch.action.search.SearchResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -409,7 +408,7 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
     );
 
     IssueQuery query = IssueQuery.builder().build();
-    SearchResponse result = underTest.search(query, new SearchOptions().addComplianceFacets(singletonList("test:V1")));
+    var result = underTest.search(query, new SearchOptions().addComplianceFacets(singletonList("test:V1")));
     Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly("compliance", "effort");
     assertThat(facets.get("compliance")).containsOnly(entry("r1", 2L), entry("r2", 1L));
@@ -608,7 +607,7 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
       .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2014-09-08T00:00:00+0100"))
       .build();
-    SearchResponse result = underTest.search(query, options);
+    var result = underTest.search(query, options);
     Map<String, Long> buckets = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(buckets).containsOnly(
       entry("2014-08-31", 0L),
@@ -637,7 +636,7 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
       .createdBefore(endDate)
       .timeZone(plus14)
       .build();
-    SearchResponse resultPlus14 = underTest.search(queryPlus14, options);
+    var resultPlus14 = underTest.search(queryPlus14, options);
     Map<String, Long> bucketsPlus14 = new Facets(resultPlus14, plus14).get("createdAt");
     assertThat(bucketsPlus14).containsOnly(
       entry("2014-09-01", 0L),
@@ -654,7 +653,7 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
       .createdBefore(endDate)
       .timeZone(minus11)
       .build();
-    SearchResponse resultMinus11 = underTest.search(queryMinus11, options);
+    var resultMinus11 = underTest.search(queryMinus11, options);
     Map<String, Long> bucketsMinus11 = new Facets(resultMinus11, minus11).get("createdAt");
     assertThat(bucketsMinus11).containsOnly(
       entry("2014-08-31", 1L),
@@ -671,7 +670,7 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
   void facet_on_created_at_with_less_than_20_weeks() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
-    SearchResponse result = underTest.search(IssueQuery.builder()
+    var result = underTest.search(IssueQuery.builder()
         .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
         .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
       options);
@@ -687,7 +686,7 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
   void facet_on_created_at_with_less_than_20_months() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
-    SearchResponse result = underTest.search(IssueQuery.builder()
+    var result = underTest.search(IssueQuery.builder()
         .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
         .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
       options);
@@ -705,7 +704,7 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
   void facet_on_created_at_with_more_than_20_months() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
-    SearchResponse result = underTest.search(IssueQuery.builder()
+    var result = underTest.search(IssueQuery.builder()
         .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
         .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       options);
@@ -723,7 +722,7 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
   void facet_on_created_at_with_one_day() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
-    SearchResponse result = underTest.search(IssueQuery.builder()
+    var result = underTest.search(IssueQuery.builder()
         .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
         .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
       options);
@@ -736,7 +735,7 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
   void facet_on_created_at_with_bounds_outside_of_data() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
-    SearchResponse result = underTest.search(IssueQuery.builder()
+    var result = underTest.search(IssueQuery.builder()
       .createdAfter(parseDateTime("2009-01-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2016-01-01T00:00:00+0100"))
       .build(), options);
@@ -756,7 +755,7 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
   void facet_on_created_at_without_start_bound() {
     SearchOptions searchOptions = fixtureForCreatedAtFacet();
 
-    SearchResponse result = underTest.search(IssueQuery.builder()
+    var result = underTest.search(IssueQuery.builder()
         .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       searchOptions);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
@@ -772,7 +771,7 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
   void facet_on_created_at_without_issues() {
     SearchOptions searchOptions = new SearchOptions().addFacets("createdAt");
 
-    SearchResponse result = underTest.search(IssueQuery.builder().build(), searchOptions);
+    var result = underTest.search(IssueQuery.builder().build(), searchOptions);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone().toZoneId()).get("createdAt");
     assertThat(createdAt).isNull();
   }
@@ -1004,7 +1003,7 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
 
   @SafeVarargs
   private void assertThatFacetHasExactly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
-    SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
+    var result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
     Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly(facet, "effort");
     assertThat(facets.get(facet)).containsExactly(expectedEntries);
@@ -1012,14 +1011,14 @@ class IssueIndexFacetsTest extends IssueIndexTestCommon {
 
   @SafeVarargs
   private void assertThatFacetHasOnly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
-    SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
+    var result = underTest.search(query.build(), new SearchOptions().addFacets(singletonList(facet)));
     Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.getNames()).containsOnly(facet, "effort");
     assertThat(facets.get(facet)).containsOnly(expectedEntries);
   }
 
   private void assertThatFacetHasSize(IssueQuery issueQuery, String facet, int expectedSize) {
-    SearchResponse result = underTest.search(issueQuery, new SearchOptions().addFacets(singletonList(facet)));
+    var result = underTest.search(issueQuery, new SearchOptions().addFacets(singletonList(facet)));
     Facets facets = new Facets(result, system2.getDefaultTimeZone().toZoneId());
     assertThat(facets.get(facet)).hasSize(expectedSize);
   }

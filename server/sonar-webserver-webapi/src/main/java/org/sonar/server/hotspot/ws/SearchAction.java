@@ -33,9 +33,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.lucene.search.TotalHits;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHit;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.server.ws.Change;
@@ -370,20 +369,19 @@ public class SearchAction implements HotspotsWsAction {
   }
 
   private SearchResponseData searchHotspots(WsRequest wsRequest, DbSession dbSession, @Nullable ProjectAndBranch projectorApp) {
-    SearchResponse result = doIndexSearch(wsRequest, dbSession, projectorApp);
-    result.getHits();
-    List<String> issueKeys = Arrays.stream(result.getHits().getHits())
-      .map(SearchHit::getId)
+    SearchResponse<Object> result = doIndexSearch(wsRequest, dbSession, projectorApp);
+    List<String> issueKeys = result.hits().hits().stream()
+      .map(Hit::id)
       .toList();
 
     List<IssueDto> hotspots = toIssueDtos(dbSession, issueKeys);
 
-    Paging paging = forPageIndex(wsRequest.getPage()).withPageSize(wsRequest.getIndex()).andTotal((int) getTotalHits(result).value);
+    Paging paging = forPageIndex(wsRequest.getPage()).withPageSize(wsRequest.getIndex()).andTotal((int) getTotalHits(result));
     return new SearchResponseData(paging, hotspots);
   }
 
-  private static TotalHits getTotalHits(SearchResponse response) {
-    return ofNullable(response.getHits().getTotalHits()).orElseThrow(() -> new IllegalStateException("Could not get total hits of search results"));
+  private static long getTotalHits(SearchResponse<Object> response) {
+    return ofNullable(response.hits().total()).orElseThrow(() -> new IllegalStateException("Could not get total hits of search results")).value();
   }
 
   private List<IssueDto> toIssueDtos(DbSession dbSession, List<String> issueKeys) {
@@ -398,7 +396,7 @@ public class SearchAction implements HotspotsWsAction {
       .toList();
   }
 
-  private SearchResponse doIndexSearch(WsRequest wsRequest, DbSession dbSession, @Nullable ProjectAndBranch projectOrAppAndBranch) {
+  private SearchResponse<Object> doIndexSearch(WsRequest wsRequest, DbSession dbSession, @Nullable ProjectAndBranch projectOrAppAndBranch) {
     var builder = IssueQuery.builder()
       .types(singleton(RuleType.SECURITY_HOTSPOT.name()))
       .sort(IssueQuery.SORT_HOTSPOTS)
