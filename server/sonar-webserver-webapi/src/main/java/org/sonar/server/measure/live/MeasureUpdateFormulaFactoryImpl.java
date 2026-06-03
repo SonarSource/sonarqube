@@ -31,6 +31,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.rule.RuleType;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
+import org.sonar.api.measures.SeverityValues;
 import org.sonar.server.measure.ImpactMeasureBuilder;
 import org.sonar.server.measure.Rating;
 
@@ -58,6 +59,12 @@ import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RE
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT;
+import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUE_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_ISSUE_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUE_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_SEVERITY;
 import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
 import static org.sonar.server.measure.Rating.RATING_BY_SOFTWARE_QUALITY_SEVERITY;
 import static org.sonar.server.metric.IssueCountMetrics.ISSUES_IN_SANDBOX;
@@ -409,7 +416,43 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
           .map(RATING_BY_SOFTWARE_QUALITY_SEVERITY::get)
           .orElse(Rating.A);
         context.setValue(rating);
-      }));
+      }),
+
+    new MeasureUpdateFormula(NEW_BUGS_SEVERITY, true, true, new MaxValueChildren(),
+      (context, issues) -> context.setValue(
+        issues.getHighestSeverityOfUnresolved(RuleType.BUG, true)
+          .map(SeverityValues::fromRuleSeverity)
+          .orElse(SeverityValues.NO_ISSUES))),
+
+    new MeasureUpdateFormula(NEW_VULNERABILITIES_SEVERITY, true, true, new MaxValueChildren(),
+      (context, issues) -> context.setValue(
+        issues.getHighestSeverityOfUnresolved(RuleType.VULNERABILITY, true)
+          .map(SeverityValues::fromRuleSeverity)
+          .orElse(SeverityValues.NO_ISSUES))),
+
+    new MeasureUpdateFormula(NEW_CODE_SMELLS_SEVERITY, true, true, new MaxValueChildren(),
+      (context, issues) -> context.setValue(
+        issues.getHighestSeverityOfUnresolved(RuleType.CODE_SMELL, true)
+          .map(SeverityValues::fromRuleSeverity)
+          .orElse(SeverityValues.NO_ISSUES))),
+
+    new MeasureUpdateFormula(NEW_RELIABILITY_ISSUE_SEVERITY, true, true, new MaxValueChildren(),
+      (context, issues) -> context.setValue(
+        issues.getHighestSeverityOfUnresolved(SoftwareQuality.RELIABILITY, true)
+          .map(SeverityValues::fromImpactSeverity)
+          .orElse(SeverityValues.NO_ISSUES))),
+
+    new MeasureUpdateFormula(NEW_SECURITY_ISSUE_SEVERITY, true, true, new MaxValueChildren(),
+      (context, issues) -> context.setValue(
+        issues.getHighestSeverityOfUnresolved(SoftwareQuality.SECURITY, true)
+          .map(SeverityValues::fromImpactSeverity)
+          .orElse(SeverityValues.NO_ISSUES))),
+
+    new MeasureUpdateFormula(NEW_MAINTAINABILITY_ISSUE_SEVERITY, true, true, new MaxValueChildren(),
+      (context, issues) -> context.setValue(
+        issues.getHighestSeverityOfUnresolved(SoftwareQuality.MAINTAINABILITY, true)
+          .map(SeverityValues::fromImpactSeverity)
+          .orElse(SeverityValues.NO_ISSUES))));
 
   private static final Set<Metric> FORMULA_METRICS = MeasureUpdateFormulaFactory.extractMetrics(FORMULAS);
 
@@ -453,6 +496,17 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
       if (max.isPresent()) {
         int currentRating = context.getValue(formula.getMetric()).map(Double::intValue).orElse(Rating.A.getIndex());
         context.setValue(Rating.valueOf(Math.max(currentRating, max.getAsInt())));
+      }
+    }
+  }
+
+  private static class MaxValueChildren implements BiConsumer<MeasureUpdateFormula.Context, MeasureUpdateFormula> {
+    @Override
+    public void accept(MeasureUpdateFormula.Context context, MeasureUpdateFormula formula) {
+      OptionalInt max = context.getChildrenValues().stream().mapToInt(Double::intValue).max();
+      if (max.isPresent()) {
+        int current = context.getValue(formula.getMetric()).map(Double::intValue).orElse(SeverityValues.NO_ISSUES);
+        context.setValue(Math.max(current, max.getAsInt()));
       }
     }
   }

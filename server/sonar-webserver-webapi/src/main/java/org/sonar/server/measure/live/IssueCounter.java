@@ -301,18 +301,23 @@ class IssueCounter {
 
   private static class HighestSeverity {
     private int absolute = SeverityUtil.getOrdinalFromSeverity(INFO);
-    private int leak = SeverityUtil.getOrdinalFromSeverity(INFO);
+    @Nullable
+    private Integer leak = null;
 
     void add(IssueGroupDto group) {
       int severity = SeverityUtil.getOrdinalFromSeverity(group.getSeverity());
       absolute = Math.max(severity, absolute);
       if (group.isInLeak()) {
-        leak = Math.max(severity, leak);
+        leak = leak == null ? severity : Math.max(severity, leak);
       }
     }
 
+    @CheckForNull
     String severity(boolean inLeak) {
-      return SeverityUtil.getSeverityFromOrdinal(inLeak ? leak : absolute);
+      if (inLeak) {
+        return leak == null ? null : SeverityUtil.getSeverityFromOrdinal(leak);
+      }
+      return SeverityUtil.getSeverityFromOrdinal(absolute);
     }
   }
 
