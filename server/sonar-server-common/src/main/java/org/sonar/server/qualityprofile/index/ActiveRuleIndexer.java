@@ -27,10 +27,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
@@ -51,7 +50,6 @@ import org.sonar.server.es.ResilientIndexer;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
 
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.qualityprofile.index.ActiveRuleDoc.docIdOf;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
@@ -83,7 +81,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     try (DbSession dbSession = dbClient.openSession(false)) {
       BulkIndexer bulkIndexer = createBulkIndexer(bulkSize, IndexingListener.FAIL_ON_ERROR);
       bulkIndexer.start();
-      dbClient.activeRuleDao().scrollAllForIndexing(dbSession, ar -> bulkIndexer.add(newIndexRequest(ar)));
+      dbClient.activeRuleDao().scrollAllForIndexing(dbSession, ar -> bulkIndexer.add(newBulkOperation(ar)));
       bulkIndexer.stop();
     }
   }
@@ -164,7 +162,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     dbClient.activeRuleDao().scrollByUuidsForIndexing(dbSession, toActiveRuleUuids(activeRuleItems),
       i -> {
         remaining.remove(docIdOf(i.getUuid()));
-        bulkIndexer.add(newIndexRequest(i));
+        bulkIndexer.add(newBulkOperation(i));
       });
 
     // the remaining ids reference rows that don't exist in db. They must
@@ -192,14 +190,17 @@ public class ActiveRuleIndexer implements ResilientIndexer {
       RulesProfileDto profile = dbClient.qualityProfileDao().selectRuleProfile(dbSession, ruleProfileUUid);
       if (profile == null) {
         // profile does not exist anymore in db --> related documents must be deleted from index rules/activeRule
-        SearchRequest search = EsClient.prepareSearch(TYPE_ACTIVE_RULE.getMainType())
-          .source(new SearchSourceBuilder().query(QueryBuilders.boolQuery().must(termQuery(FIELD_ACTIVE_RULE_PROFILE_UUID, ruleProfileUUid))));
+        SearchRequest search = SearchRequest.of(s -> s
+          .index(TYPE_ACTIVE_RULE.getMainType().getIndex().getName())
+          .query(Query.of(q -> q.bool(bq -> bq.must(m -> m.term(t -> t.field(FIELD_ACTIVE_RULE_PROFILE_UUID).value(ruleProfileUUid))))))
+          .sort(so -> so.field(f -> f.field("_doc")))
+          .size(100));
         profileResult = BulkIndexer.delete(esClient, TYPE_ACTIVE_RULE, search);
 
       } else {
         BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, IndexingListener.FAIL_ON_ERROR);
         bulkIndexer.start();
-        dbClient.activeRuleDao().scrollByRuleProfileForIndexing(dbSession, ruleProfileUUid, i -> bulkIndexer.add(newIndexRequest(i)));
+        dbClient.activeRuleDao().scrollByRuleProfileForIndexing(dbSession, ruleProfileUUid, i -> bulkIndexer.add(newBulkOperation(i)));
         profileResult = bulkIndexer.stop();
       }
 
@@ -221,7 +222,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     return new BulkIndexer(esClient, TYPE_ACTIVE_RULE, size, listener);
   }
 
-  private static IndexRequest newIndexRequest(IndexedActiveRuleDto dto) {
+  private static BulkOperation newBulkOperation(IndexedActiveRuleDto dto) {
     ActiveRuleDoc doc = new ActiveRuleDoc(dto.getUuid())
       .setRuleUuid(dto.getRuleUuid())
       .setRuleProfileUuid(dto.getRuleProfileUuid())
@@ -231,7 +232,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
     // all the fields must be present, even if value is null
     String inheritance = dto.getInheritance();
     doc.setInheritance(inheritance == null ? ActiveRuleInheritance.NONE.name() : inheritance);
-    return doc.toIndexRequest();
+    return doc.toBulkOperation();
   }
 
   private static EsQueueDto newQueueDto(String docId, String docIdType, @Nullable String routing) {

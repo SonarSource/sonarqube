@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
-import org.elasticsearch.cluster.metadata.IndexMetadata;
-import org.elasticsearch.common.settings.Settings;
 import org.sonar.api.config.Configuration;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexType.IndexMainType;
@@ -44,7 +42,7 @@ public abstract class NewIndex<T extends NewIndex<T>> {
   private static final String ENABLED = "enabled";
   private final Index index;
   private final Map<String, IndexRelationType> relations = new LinkedHashMap<>();
-  private final Settings.Builder settings = DefaultIndexSettings.defaults();
+  private final Map<String, Object> settings = DefaultIndexSettings.defaults();
   private final Map<String, Object> attributes = new TreeMap<>();
   private final Map<String, Object> properties = new TreeMap<>();
   private final Map<String, String> customHashMetadata = new TreeMap<>();
@@ -64,9 +62,9 @@ public abstract class NewIndex<T extends NewIndex<T>> {
       .orElse(settingsConfiguration.getDefaultNbOfShards());
     int replicas = clusterMode ? config.getInt(SEARCH_REPLICAS.getKey()).orElse(1) : 0;
 
-    settings.put(IndexMetadata.SETTING_NUMBER_OF_SHARDS, shards);
-    settings.put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, replicas);
-    settings.put("index.max_ngram_diff", DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH - DefaultIndexSettings.MINIMUM_NGRAM_LENGTH);
+    settings.put("index.number_of_shards", Integer.toString(shards));
+    settings.put("index.number_of_replicas", Integer.toString(replicas));
+    settings.put("index.max_ngram_diff", Integer.toString(DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH - DefaultIndexSettings.MINIMUM_NGRAM_LENGTH));
   }
 
   private void configureDefaultAttributes() {
@@ -99,13 +97,14 @@ public abstract class NewIndex<T extends NewIndex<T>> {
     return relations.values().stream();
   }
 
-  Settings.Builder getSettings() {
+  Map<String, Object> getSettings() {
     return settings;
   }
 
   @CheckForNull
   public String getSetting(String key) {
-    return settings.get(key);
+    Object value = settings.get(key);
+    return value == null ? null : value.toString();
   }
 
   protected TypeMapping createTypeMapping(IndexMainType mainType) {

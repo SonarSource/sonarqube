@@ -79,25 +79,25 @@ class FacetsTest {
   }
 
   @Test
-  void should_call_processMissingAggregationV2_when_isMissing() {
+  void should_call_processMissingAggregation_when_isMissing() {
     Aggregate mockAggregate = getMockAggregate(Aggregate.Kind.Missing);
     MissingAggregate mockMissing = mock(MissingAggregate.class);
     when(mockAggregate.missing()).thenReturn(mockMissing);
 
-    facets.processAggregationV2(testName, mockAggregate);
+    facets.processAggregation(testName, mockAggregate);
 
-    verify(facets, times(1)).processMissingAggregationV2(testName, mockMissing);
+    verify(facets, times(1)).processMissingAggregation(testName, mockMissing);
   }
 
   @Test
-  void should_call_processTermsAggregationV2_when_isSterms() {
+  void should_call_processTermsAggregation_when_isSterms() {
     Aggregate mockAggregate = getMockAggregate(Aggregate.Kind.Sterms);
     StringTermsAggregate mockTerms = mock(StringTermsAggregate.class);
     when(mockAggregate.sterms()).thenReturn(mockTerms);
 
-    facets.processAggregationV2(testName, mockAggregate);
+    facets.processAggregation(testName, mockAggregate);
 
-    verify(facets, times(1)).processTermsAggregationV2(testName, mockTerms);
+    verify(facets, times(1)).processTermsAggregation(testName, mockTerms);
   }
 
   @Test
@@ -106,31 +106,31 @@ class FacetsTest {
     FilterAggregate mockFilter = mock(FilterAggregate.class);
     when(mockAggregate.filter()).thenReturn(mockFilter);
 
-    facets.processAggregationV2(testName, mockAggregate);
+    facets.processAggregation(testName, mockAggregate);
 
     verify(facets, times(1)).processFilterAggregation(testName, mockFilter);
   }
 
   @Test
-  void should_call_processDateHistogramV2_when_isDateHistogram() {
+  void should_call_processDateHistogram_when_isDateHistogram() {
     Aggregate mockAggregate = getMockAggregate(Aggregate.Kind.DateHistogram);
     DateHistogramAggregate mockHistogram = mock(DateHistogramAggregate.class);
     when(mockAggregate.dateHistogram()).thenReturn(mockHistogram);
 
-    facets.processAggregationV2(testName, mockAggregate);
+    facets.processAggregation(testName, mockAggregate);
 
-    verify(facets, times(1)).processDateHistogramV2(testName, mockHistogram);
+    verify(facets, times(1)).processDateHistogram(testName, mockHistogram);
   }
 
   @Test
-  void should_call_processSumV2_when_isSum() {
+  void should_call_processSum_when_isSum() {
     Aggregate mockAggregate = getMockAggregate(Aggregate.Kind.Sum);
     SumAggregate mockSum = mock(SumAggregate.class);
     when(mockAggregate.sum()).thenReturn(mockSum);
 
-    facets.processAggregationV2(testName, mockAggregate);
+    facets.processAggregation(testName, mockAggregate);
 
-    verify(facets, times(1)).processSumV2(testName, mockSum);
+    verify(facets, times(1)).processSum(testName, mockSum);
   }
 
   @Test
@@ -139,7 +139,7 @@ class FacetsTest {
     GlobalAggregate mockGlobal = mock(GlobalAggregate.class);
     when(mockAggregate.global()).thenReturn(mockGlobal);
 
-    facets.processAggregationV2(testName, mockAggregate);
+    facets.processAggregation(testName, mockAggregate);
 
     verify(facets, times(1)).processGlobalAggregation(testName, mockGlobal);
   }
@@ -150,7 +150,7 @@ class FacetsTest {
     NestedAggregate mockNested = mock(NestedAggregate.class);
     when(mockAggregate.nested()).thenReturn(mockNested);
 
-    facets.processAggregationV2(testName, mockAggregate);
+    facets.processAggregation(testName, mockAggregate);
 
     verify(facets, times(1)).processNestedAggregation(testName, mockNested);
   }
@@ -161,7 +161,7 @@ class FacetsTest {
     ReverseNestedAggregate mockReverseNested = mock(ReverseNestedAggregate.class);
     when(mockAggregate.reverseNested()).thenReturn(mockReverseNested);
 
-    facets.processAggregationV2(testName, mockAggregate);
+    facets.processAggregation(testName, mockAggregate);
 
     verify(facets, times(1)).processReverseNestedAggregation(testName, mockReverseNested);
   }
@@ -172,7 +172,7 @@ class FacetsTest {
     FiltersAggregate mockFilters = mock(FiltersAggregate.class);
     when(mockAggregate.filters()).thenReturn(mockFilters);
 
-    facets.processAggregationV2(testName, mockAggregate);
+    facets.processAggregation(testName, mockAggregate);
 
     verify(facets, times(1)).processFiltersAggregation(testName, mockFilters);
   }
@@ -183,7 +183,7 @@ class FacetsTest {
     ChildrenAggregate mockChildren = mock(ChildrenAggregate.class);
     when(mockAggregate.children()).thenReturn(mockChildren);
 
-    facets.processAggregationV2(testName, mockAggregate);
+    facets.processAggregation(testName, mockAggregate);
 
     verify(facets, times(1)).processChildrenAggregation(testName, mockChildren);
   }
@@ -192,7 +192,7 @@ class FacetsTest {
   void should_throw_IllegalArgumentException_for_unsupported_type() {
     Aggregate mockAggregate = getMockAggregate(Aggregate.Kind.Boxplot);
 
-    assertThrows(IllegalArgumentException.class, () -> facets.processAggregationV2(testName, mockAggregate),
+    assertThrows(IllegalArgumentException.class, () -> facets.processAggregation(testName, mockAggregate),
       "Should throw an IllegalArgumentException for unsupported types.");
   }
 
@@ -204,68 +204,68 @@ class FacetsTest {
   }
 
   @Test
-  void processSumV2_should_put_rounded_value_to_total_key() {
+  void processSum_should_put_rounded_value_to_total_key() {
     SumAggregate mockSum = mock(SumAggregate.class);
     when(mockSum.value()).thenReturn(12345.678);
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(testName);
 
-    facets.processSumV2(testName, mockSum);
+    facets.processSum(testName, mockSum);
 
     assertEquals(1, capturedFacet.size());
     assertEquals(12346L, capturedFacet.get(Facets.TOTAL).longValue());
   }
 
   @Test
-  void processGlobalAggregation_should_delegate_to_processSubAggregationsV2() {
+  void processGlobalAggregation_should_delegate_to_processSubAggregations() {
     GlobalAggregate mockGlobal = mock(GlobalAggregate.class);
     Map<String, Aggregate> mockSubAggs = Collections.singletonMap("sub_agg", mock(Aggregate.class));
     when(mockGlobal.aggregations()).thenReturn(mockSubAggs);
     doNothing().when(facets)
-      .processSubAggregationsV2(anyString(), anyMap());
+      .processSubAggregations(anyString(), anyMap());
     facets.processGlobalAggregation(testName, mockGlobal);
 
-    verify(facets, times(1)).processSubAggregationsV2(testName, mockSubAggs);
+    verify(facets, times(1)).processSubAggregations(testName, mockSubAggs);
   }
 
   @Test
-  void processNestedAggregation_should_delegate_to_processSubAggregationsV2() {
+  void processNestedAggregation_should_delegate_to_processSubAggregations() {
     NestedAggregate mockNested = mock(NestedAggregate.class);
     Map<String, Aggregate> mockSubAggs = Collections.singletonMap("sub_agg", mock(Aggregate.class));
     when(mockNested.aggregations()).thenReturn(mockSubAggs);
     doNothing().when(facets)
-      .processSubAggregationsV2(anyString(), anyMap());
+      .processSubAggregations(anyString(), anyMap());
 
     facets.processNestedAggregation(testName, mockNested);
 
-    verify(facets, times(1)).processSubAggregationsV2(testName, mockSubAggs);
+    verify(facets, times(1)).processSubAggregations(testName, mockSubAggs);
   }
 
   @Test
-  void processReverseNestedAggregation_should_delegate_to_processSubAggregationsV2() {
+  void processReverseNestedAggregation_should_delegate_to_processSubAggregations() {
     ReverseNestedAggregate mockReverseNested = mock(ReverseNestedAggregate.class);
     Map<String, Aggregate> mockSubAggs = Collections.singletonMap("sub_agg", mock(Aggregate.class));
     when(mockReverseNested.aggregations()).thenReturn(mockSubAggs);
     doNothing().when(facets)
-      .processSubAggregationsV2(anyString(), anyMap());
+      .processSubAggregations(anyString(), anyMap());
 
     facets.processReverseNestedAggregation(testName, mockReverseNested);
 
-    verify(facets, times(1)).processSubAggregationsV2(testName, mockSubAggs);
+    verify(facets, times(1)).processSubAggregations(testName, mockSubAggs);
   }
 
   @Test
-  void processChildrenAggregation_should_delegate_to_processSubAggregationsV2() {
+  void processChildrenAggregation_should_delegate_to_processSubAggregations() {
     ChildrenAggregate mockChildren = mock(co.elastic.clients.elasticsearch._types.aggregations.ChildrenAggregate.class);
     Map<String, Aggregate> mockSubAggs = Collections.singletonMap("sub_agg", mock(Aggregate.class));
 
     when(mockChildren.aggregations()).thenReturn(mockSubAggs);
     doNothing().when(facets)
-      .processSubAggregationsV2(anyString(), anyMap());
+      .processSubAggregations(anyString(), anyMap());
 
     facets.processChildrenAggregation(testName, mockChildren);
 
-    verify(facets, times(1)).processSubAggregationsV2(testName, mockSubAggs);
+    verify(facets, times(1)).processSubAggregations(testName, mockSubAggs);
   }
 
   @Test
@@ -291,7 +291,7 @@ class FacetsTest {
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(facetName);
 
-    facets.processMissingAggregationV2(aggName, mockAgg);
+    facets.processMissingAggregation(aggName, mockAgg);
 
     verify(facets, times(1)).getOrCreateFacet(facetName);
 
@@ -315,7 +315,7 @@ class FacetsTest {
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(facetName);
 
-    facets.processMissingAggregationV2(aggName, mockAgg);
+    facets.processMissingAggregation(aggName, mockAgg);
 
     verify(facets, times(1)).getOrCreateFacet(facetName);
     assertEquals(docCount, capturedFacet.get("").longValue(), "Facet value should be the doc count as fallback");
@@ -334,7 +334,7 @@ class FacetsTest {
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(facetName);
 
-    facets.processMissingAggregationV2(aggName, mockAgg);
+    facets.processMissingAggregation(aggName, mockAgg);
 
     verify(facets, times(1)).getOrCreateFacet(facetName);
 
@@ -347,10 +347,10 @@ class FacetsTest {
     MissingAggregate mockAgg = mock(MissingAggregate.class);
     when(mockAgg.docCount()).thenReturn(0L);
 
-    facets.processMissingAggregationV2(aggName, mockAgg);
+    facets.processMissingAggregation(aggName, mockAgg);
 
     verify(facets, never()).getOrCreateFacet(anyString());
-    verify(facets, times(1)).processMissingAggregationV2(anyString(), any());
+    verify(facets, times(1)).processMissingAggregation(anyString(), any());
     verifyNoMoreInteractions(facets);
   }
 
@@ -366,7 +366,7 @@ class FacetsTest {
 
     mockGetOrCreateFacet(baseName);
 
-    facets.processTermsAggregationV2(testNameAgg, mockAgg);
+    facets.processTermsAggregation(testNameAgg, mockAgg);
 
     verify(facets, times(1)).getOrCreateFacet(baseName);
   }
@@ -383,7 +383,7 @@ class FacetsTest {
 
     mockGetOrCreateFacet("module");
 
-    facets.processTermsAggregationV2(complexName, mockAgg);
+    facets.processTermsAggregation(complexName, mockAgg);
 
     verify(facets, times(1)).getOrCreateFacet("module");
   }
@@ -393,11 +393,11 @@ class FacetsTest {
     final String parentName = "project_name";
     Map<String, Aggregate> emptyAggs = Collections.emptyMap();
 
-    facets.processSubAggregationsV2(parentName, emptyAggs);
+    facets.processSubAggregations(parentName, emptyAggs);
 
-    verify(facets, never()).processAggregationV2(anyString(), any(Aggregate.class));
+    verify(facets, never()).processAggregation(anyString(), any(Aggregate.class));
 
-    verify(facets, times(1)).processSubAggregationsV2(anyString(), anyMap());
+    verify(facets, times(1)).processSubAggregations(anyString(), anyMap());
     verifyNoMoreInteractions(facets);
   }
 
@@ -426,15 +426,15 @@ class FacetsTest {
     DateHistogramAggregate mockAgg = mock(DateHistogramAggregate.class);
     when(mockAgg.buckets()).thenReturn(null);
 
-    facets.processDateHistogramV2(aggName, mockAgg);
+    facets.processDateHistogram(aggName, mockAgg);
 
     verify(facets, times(1)).getOrCreateFacet(anyString());
-    verify(facets, times(1)).processDateHistogramV2(anyString(), any());
+    verify(facets, times(1)).processDateHistogram(anyString(), any());
     verifyNoMoreInteractions(facets);
   }
 
   @Test
-  void processDateHistogramV2_should_process_buckets_with_docCount() {
+  void processDateHistogram_should_process_buckets_with_docCount() {
     final String aggName = "createdAt";
     final String timestamp1 = "2025-01-15T10:30:00+0000";
     final String timestamp2 = "2025-01-16T14:45:00+0000";
@@ -450,7 +450,7 @@ class FacetsTest {
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(aggName);
 
-    facets.processDateHistogramV2(aggName, mockAgg);
+    facets.processDateHistogram(aggName, mockAgg);
 
     verify(facets, times(1)).getOrCreateFacet(aggName);
     assertEquals(2, capturedFacet.size());
@@ -459,7 +459,7 @@ class FacetsTest {
   }
 
   @Test
-  void processDateHistogramV2_should_use_effort_sum_when_available() {
+  void processDateHistogram_should_use_effort_sum_when_available() {
     final String aggName = "createdAt";
     final String timestamp = "2025-01-15T10:30:00+0000";
     final long docCount = 5L;
@@ -479,14 +479,14 @@ class FacetsTest {
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(aggName);
 
-    facets.processDateHistogramV2(aggName, mockAgg);
+    facets.processDateHistogram(aggName, mockAgg);
 
     assertEquals(1, capturedFacet.size());
     assertEquals(Math.round(effortValue), capturedFacet.get("2025-01-15").longValue());
   }
 
   @Test
-  void processDateHistogramV2_should_fallback_to_docCount_when_effort_not_sum() {
+  void processDateHistogram_should_fallback_to_docCount_when_effort_not_sum() {
     final String aggName = "createdAt";
     final String timestamp = "2025-01-15T10:30:00+0000";
     final long docCount = 15L;
@@ -501,14 +501,14 @@ class FacetsTest {
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(aggName);
 
-    facets.processDateHistogramV2(aggName, mockAgg);
+    facets.processDateHistogram(aggName, mockAgg);
 
     assertEquals(1, capturedFacet.size());
     assertEquals(docCount, capturedFacet.get("2025-01-15").longValue());
   }
 
   @Test
-  void processDateHistogramV2_should_return_when_buckets_is_empty() {
+  void processDateHistogram_should_return_when_buckets_is_empty() {
     final String aggName = "createdAt";
     DateHistogramAggregate mockAgg = mock(DateHistogramAggregate.class);
     Buckets<DateHistogramBucket> mockBuckets = mock(Buckets.class);
@@ -517,13 +517,13 @@ class FacetsTest {
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(aggName);
 
-    facets.processDateHistogramV2(aggName, mockAgg);
+    facets.processDateHistogram(aggName, mockAgg);
 
     assertEquals(0, capturedFacet.size());
   }
 
   @Test
-  void processSubAggregationsV2_should_process_multiple_aggregations_in_order() {
+  void processSubAggregations_should_process_multiple_aggregations_in_order() {
     final String parentName = "parent_agg";
     Aggregate agg1 = mock(Aggregate.class);
     Aggregate agg2 = mock(Aggregate.class);
@@ -532,16 +532,16 @@ class FacetsTest {
     subAggs.put("sub_agg_1", agg1);
     subAggs.put("sub_agg_2", agg2);
 
-    doNothing().when(facets).processAggregationV2(anyString(), any(Aggregate.class));
+    doNothing().when(facets).processAggregation(anyString(), any(Aggregate.class));
 
-    facets.processSubAggregationsV2(parentName, subAggs);
+    facets.processSubAggregations(parentName, subAggs);
 
-    verify(facets, times(1)).processAggregationV2(parentName, agg1);
-    verify(facets, times(1)).processAggregationV2(parentName, agg2);
+    verify(facets, times(1)).processAggregation(parentName, agg1);
+    verify(facets, times(1)).processAggregation(parentName, agg2);
   }
 
   @Test
-  void processSubAggregationsV2_should_prioritize_matching_parent_name() {
+  void processSubAggregations_should_prioritize_matching_parent_name() {
     final String parentName = "severity_filter";
     Aggregate matchingAgg = mock(Aggregate.class);
     Aggregate otherAgg = mock(Aggregate.class);
@@ -550,16 +550,16 @@ class FacetsTest {
     subAggs.put("other_agg", otherAgg);
     subAggs.put("severity_filter", matchingAgg);
 
-    doNothing().when(facets).processAggregationV2(anyString(), any(Aggregate.class));
+    doNothing().when(facets).processAggregation(anyString(), any(Aggregate.class));
 
-    facets.processSubAggregationsV2(parentName, subAggs);
+    facets.processSubAggregations(parentName, subAggs);
 
-    verify(facets, times(1)).processAggregationV2(parentName, matchingAgg);
-    verify(facets, times(1)).processAggregationV2(parentName, otherAgg);
+    verify(facets, times(1)).processAggregation(parentName, matchingAgg);
+    verify(facets, times(1)).processAggregation(parentName, otherAgg);
   }
 
   @Test
-  void processTermsAggregationV2_should_process_buckets_with_docCount() {
+  void processTermsAggregation_should_process_buckets_with_docCount() {
     final String aggName = "tags";
     final String key1 = "security";
     final String key2 = "performance";
@@ -584,7 +584,7 @@ class FacetsTest {
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(aggName);
 
-    facets.processTermsAggregationV2(aggName, mockAgg);
+    facets.processTermsAggregation(aggName, mockAgg);
 
     verify(facets, times(1)).getOrCreateFacet(aggName);
     assertEquals(2, capturedFacet.size());
@@ -593,7 +593,7 @@ class FacetsTest {
   }
 
   @Test
-  void processTermsAggregationV2_should_use_sum_aggregation_when_present() {
+  void processTermsAggregation_should_use_sum_aggregation_when_present() {
     final String aggName = "tags";
     final String key = "security";
     final double sumValue = 42.7;
@@ -615,14 +615,14 @@ class FacetsTest {
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(aggName);
 
-    facets.processTermsAggregationV2(aggName, mockAgg);
+    facets.processTermsAggregation(aggName, mockAgg);
 
     assertEquals(1, capturedFacet.size());
     assertEquals(Math.round(sumValue), capturedFacet.get(key).longValue());
   }
 
   @Test
-  void processTermsAggregationV2_should_use_docCount_when_subAgg_not_sum() {
+  void processTermsAggregation_should_use_docCount_when_subAgg_not_sum() {
     final String aggName = "tags";
     final String key = "security";
     final long docCount = 15L;
@@ -642,27 +642,27 @@ class FacetsTest {
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(aggName);
 
-    facets.processTermsAggregationV2(aggName, mockAgg);
+    facets.processTermsAggregation(aggName, mockAgg);
 
     assertEquals(1, capturedFacet.size());
     assertEquals(docCount, capturedFacet.get(key).longValue());
   }
 
   @Test
-  void processTermsAggregationV2_should_return_when_buckets_null() {
+  void processTermsAggregation_should_return_when_buckets_null() {
     final String aggName = "tags";
     StringTermsAggregate mockAgg = mock(StringTermsAggregate.class);
     when(mockAgg.buckets()).thenReturn(null);
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(aggName);
 
-    facets.processTermsAggregationV2(aggName, mockAgg);
+    facets.processTermsAggregation(aggName, mockAgg);
 
     assertEquals(0, capturedFacet.size());
   }
 
   @Test
-  void processTermsAggregationV2_should_return_when_buckets_empty() {
+  void processTermsAggregation_should_return_when_buckets_empty() {
     final String aggName = "tags";
     StringTermsAggregate mockAgg = mock(StringTermsAggregate.class);
     Buckets<StringTermsBucket> mockBuckets = mock(Buckets.class);
@@ -671,7 +671,7 @@ class FacetsTest {
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(aggName);
 
-    facets.processTermsAggregationV2(aggName, mockAgg);
+    facets.processTermsAggregation(aggName, mockAgg);
 
     assertEquals(0, capturedFacet.size());
   }
@@ -703,7 +703,7 @@ class FacetsTest {
     when(mockAgg.buckets()).thenReturn(mockBuckets);
 
     LinkedHashMap<String, Long> capturedFacet = mockGetOrCreateFacet(aggName);
-    doNothing().when(facets).processSubAggregationsV2(anyString(), anyMap());
+    doNothing().when(facets).processSubAggregations(anyString(), anyMap());
 
     facets.processFiltersAggregation(aggName, mockAgg);
 
@@ -711,8 +711,8 @@ class FacetsTest {
     assertEquals(2, capturedFacet.size());
     assertEquals(docCount1, capturedFacet.get(key1).longValue());
     assertEquals(docCount2, capturedFacet.get(key2).longValue());
-    verify(facets, times(1)).processSubAggregationsV2(eq(key1), anyMap());
-    verify(facets, times(1)).processSubAggregationsV2(eq(key2), anyMap());
+    verify(facets, times(1)).processSubAggregations(eq(key1), anyMap());
+    verify(facets, times(1)).processSubAggregations(eq(key2), anyMap());
   }
 
   @Test
@@ -730,11 +730,11 @@ class FacetsTest {
     when(mockBuckets.array()).thenReturn(Collections.singletonList(bucket));
     when(mockAgg.buckets()).thenReturn(mockBuckets);
 
-    doNothing().when(facets).processSubAggregationsV2(anyString(), anyMap());
+    doNothing().when(facets).processSubAggregations(anyString(), anyMap());
 
     facets.processFiltersAggregation(aggName, mockAgg);
 
-    verify(facets, times(1)).processSubAggregationsV2(aggName, subAggs);
+    verify(facets, times(1)).processSubAggregations(aggName, subAggs);
   }
 
   @Test
@@ -746,7 +746,7 @@ class FacetsTest {
     facets.processFiltersAggregation(aggName, mockAgg);
 
     verify(facets, never()).getOrCreateFacet(anyString());
-    verify(facets, never()).processSubAggregationsV2(anyString(), anyMap());
+    verify(facets, never()).processSubAggregations(anyString(), anyMap());
   }
 
 }

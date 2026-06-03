@@ -19,11 +19,8 @@
  */
 package org.sonar.application.process;
 
-import java.net.ConnectException;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Test;
 import org.sonar.application.es.EsConnector;
 import org.sonar.process.ProcessId;
@@ -35,7 +32,6 @@ import static org.mockito.Mockito.when;
 public class EsManagedProcessTest {
 
   private final static int WAIT_FOR_UP_TIMEOUT = 1;
-  private final static int WAIT_FOR_UP_TIMEOUT_LONG = 2;
 
   @Test
   public void isOperational_should_return_false_if_status_is_unknown() {
@@ -48,7 +44,7 @@ public class EsManagedProcessTest {
   @Test
   public void isOperational_should_return_false_if_Elasticsearch_is_RED() {
     EsConnector esConnector = mock(EsConnector.class);
-    when(esConnector.getClusterHealthStatus()).thenReturn(Optional.of(ClusterHealthStatus.RED));
+    when(esConnector.getClusterHealthStatus()).thenReturn(Optional.of(HealthStatus.Red));
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
     assertThat(underTest.isOperational()).isFalse();
   }
@@ -56,7 +52,7 @@ public class EsManagedProcessTest {
   @Test
   public void isOperational_should_return_true_if_Elasticsearch_is_YELLOW() {
     EsConnector esConnector = mock(EsConnector.class);
-    when(esConnector.getClusterHealthStatus()).thenReturn(Optional.of(ClusterHealthStatus.YELLOW));
+    when(esConnector.getClusterHealthStatus()).thenReturn(Optional.of(HealthStatus.Yellow));
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
     assertThat(underTest.isOperational()).isTrue();
   }
@@ -64,7 +60,7 @@ public class EsManagedProcessTest {
   @Test
   public void isOperational_should_return_true_if_Elasticsearch_is_GREEN() {
     EsConnector esConnector = mock(EsConnector.class);
-    when(esConnector.getClusterHealthStatus()).thenReturn(Optional.of(ClusterHealthStatus.GREEN));
+    when(esConnector.getClusterHealthStatus()).thenReturn(Optional.of(HealthStatus.Green));
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
     assertThat(underTest.isOperational()).isTrue();
   }
@@ -72,11 +68,11 @@ public class EsManagedProcessTest {
   @Test
   public void isOperational_should_return_true_if_Elasticsearch_was_GREEN_once() {
     EsConnector esConnector = mock(EsConnector.class);
-    when(esConnector.getClusterHealthStatus()).thenReturn(Optional.of(ClusterHealthStatus.GREEN));
+    when(esConnector.getClusterHealthStatus()).thenReturn(Optional.of(HealthStatus.Green));
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
     assertThat(underTest.isOperational()).isTrue();
 
-    when(esConnector.getClusterHealthStatus()).thenReturn(Optional.of(ClusterHealthStatus.RED));
+    when(esConnector.getClusterHealthStatus()).thenReturn(Optional.of(HealthStatus.Red));
     assertThat(underTest.isOperational()).isTrue();
   }
 
@@ -85,7 +81,7 @@ public class EsManagedProcessTest {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus())
       .thenReturn(Optional.empty())
-      .thenReturn(Optional.of(ClusterHealthStatus.GREEN));
+      .thenReturn(Optional.of(HealthStatus.Green));
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
     assertThat(underTest.isOperational()).isTrue();
   }
@@ -95,51 +91,6 @@ public class EsManagedProcessTest {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus())
       .thenThrow(new RuntimeException("test"));
-    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
-    assertThat(underTest.isOperational()).isFalse();
-  }
-
-  @Test
-  public void isOperational_should_return_false_if_ElasticsearchException_with_connection_refused_thrown() {
-    EsConnector esConnector = mock(EsConnector.class);
-    when(esConnector.getClusterHealthStatus())
-      .thenThrow(new ElasticsearchException("Connection refused"));
-    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
-    assertThat(underTest.isOperational()).isFalse();
-  }
-
-  @Test
-  public void isOperational_should_return_false_if_ElasticsearchException_with_connection_timeout_thrown() {
-    EsConnector esConnector = mock(EsConnector.class);
-    when(esConnector.getClusterHealthStatus())
-      .thenThrow(new ElasticsearchException(new ExecutionException(new ConnectException("Timeout connecting to [/127.0.0.1:9001]"))));
-    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT_LONG);
-    assertThat(underTest.isOperational()).isFalse();
-  }
-
-  @Test
-  public void isOperational_should_not_be_os_language_sensitive() {
-    EsConnector esConnector = mock(EsConnector.class);
-    when(esConnector.getClusterHealthStatus())
-      .thenThrow(new ElasticsearchException(new ExecutionException(new ConnectException("Connexion refusée"))));
-    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT_LONG);
-    assertThat(underTest.isOperational()).isFalse();
-  }
-
-  @Test
-  public void isOperational_if_exception_root_cause_returned_by_ES_is_not_ConnectException_should_return_false() {
-    EsConnector esConnector = mock(EsConnector.class);
-    when(esConnector.getClusterHealthStatus())
-      .thenThrow(new ElasticsearchException(new ExecutionException(new Exception("Connexion refusée"))));
-    EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT_LONG);
-    assertThat(underTest.isOperational()).isFalse();
-  }
-
-  @Test
-  public void isOperational_should_return_false_if_ElasticsearchException_thrown() {
-    EsConnector esConnector = mock(EsConnector.class);
-    when(esConnector.getClusterHealthStatus())
-      .thenThrow(new ElasticsearchException("test"));
     EsManagedProcess underTest = new EsManagedProcess(mock(Process.class), ProcessId.ELASTICSEARCH, esConnector, WAIT_FOR_UP_TIMEOUT);
     assertThat(underTest.isOperational()).isFalse();
   }

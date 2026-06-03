@@ -40,10 +40,14 @@ public final class ES8QueryHelper {
     // Utility class
   }
 
-  // ========== MATCH ALL ==========
+  // ========== MATCH ALL / MATCH NONE ==========
 
   public static Query matchAllQuery() {
     return Query.of(q -> q.matchAll(m -> m));
+  }
+
+  public static Query matchNoneQuery() {
+    return Query.of(q -> q.matchNone(m -> m));
   }
 
   // ========== TERM QUERIES ==========
@@ -67,7 +71,28 @@ public final class ES8QueryHelper {
     return Query.of(q -> q.terms(t -> t.field(field).terms(tv -> tv.value(fieldValues))));
   }
 
+  /**
+   * Builds a terms query that matches no document when {@code values} is null or empty
+   * (parity with the ES7 {@code QueryBuilders.termsQuery} behavior). Use this when an
+   * empty filter set should narrow results to nothing — e.g. an anonymous user filtering
+   * on their own favorites.
+   */
   public static Query termsQuery(String field, @Nullable Collection<String> values) {
+    if (values == null || values.isEmpty()) {
+      return matchNoneQuery();
+    }
+    List<FieldValue> fieldValues = values.stream()
+      .map(FieldValue::of)
+      .toList();
+    return Query.of(q -> q.terms(t -> t.field(field).terms(tv -> tv.value(fieldValues))));
+  }
+
+  /**
+   * Builds a terms query that degenerates into {@code match_all} when {@code values} is
+   * null or empty. Use this when an empty filter set means "no constraint" — i.e. the
+   * filter should be a no-op rather than excluding everything.
+   */
+  public static Query termsQueryOrMatchAll(String field, @Nullable Collection<String> values) {
     if (values == null || values.isEmpty()) {
       return matchAllQuery();
     }

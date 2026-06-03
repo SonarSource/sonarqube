@@ -25,7 +25,7 @@ import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import org.assertj.core.api.Condition;
 import org.elasticsearch.client.Node;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.RestClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,9 +72,9 @@ public class EsClientProviderTest {
     settings.setProperty(ES_PORT.getKey(), 8080);
 
     EsClient client = underTest.provide(settings.asConfig());
-    RestHighLevelClient nativeClient = client.nativeClient();
-    assertThat(nativeClient.getLowLevelClient().getNodes()).hasSize(1);
-    Node node = nativeClient.getLowLevelClient().getNodes().get(0);
+    RestClient restClient = client.nativeRestClient();
+    assertThat(restClient.getNodes()).hasSize(1);
+    Node node = restClient.getNodes().get(0);
     assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(9000);
 
@@ -88,14 +88,14 @@ public class EsClientProviderTest {
     settings.setProperty(CLUSTER_SEARCH_HOSTS.getKey(), format("%s:8080,%s:8081", localhostHostname, localhostHostname));
 
     EsClient client = underTest.provide(settings.asConfig());
-    RestHighLevelClient nativeClient = client.nativeClient();
-    assertThat(nativeClient.getLowLevelClient().getNodes()).hasSize(2);
+    RestClient restClient = client.nativeRestClient();
+    assertThat(restClient.getNodes()).hasSize(2);
 
-    Node node = nativeClient.getLowLevelClient().getNodes().get(0);
+    Node node = restClient.getNodes().get(0);
     assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(8080);
 
-    node = nativeClient.getLowLevelClient().getNodes().get(1);
+    node = restClient.getNodes().get(1);
     assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(8081);
 
@@ -133,14 +133,14 @@ public class EsClientProviderTest {
     settings.setProperty(CLUSTER_SEARCH_HOSTS.getKey(), format("%s,%s:8081", localhostHostname, localhostHostname));
 
     EsClient client = underTest.provide(settings.asConfig());
-    RestHighLevelClient nativeClient = client.nativeClient();
-    assertThat(nativeClient.getLowLevelClient().getNodes()).hasSize(2);
+    RestClient restClient = client.nativeRestClient();
+    assertThat(restClient.getNodes()).hasSize(2);
 
-    Node node = nativeClient.getLowLevelClient().getNodes().get(0);
+    Node node = restClient.getNodes().get(0);
     assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(9001);
 
-    node = nativeClient.getLowLevelClient().getNodes().get(1);
+    node = restClient.getNodes().get(1);
     assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(8081);
 
@@ -158,9 +158,9 @@ public class EsClientProviderTest {
     settings.setProperty(CLUSTER_SEARCH_HOSTS.getKey(), format("%s,%s:8081", localhostHostname, localhostHostname));
 
     EsClient client = underTest.provide(settings.asConfig());
-    RestHighLevelClient nativeClient = client.nativeClient();
+    RestClient restClient = client.nativeRestClient();
 
-    Node node = nativeClient.getLowLevelClient().getNodes().get(0);
+    Node node = restClient.getNodes().get(0);
     assertThat(node.getHost().getSchemeName()).isEqualTo("https");
 
     assertThat(logTester.logs(Level.INFO))

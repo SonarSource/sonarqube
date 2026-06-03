@@ -55,6 +55,7 @@ public class IndexCreator implements Startable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexCreator.class);
   public static final String INDEX_BLOCKS_READ_ONLY_ALLOW_DELETE = "index.blocks.read_only_allow_delete";
+  private static final ObjectMapper JSON = new ObjectMapper();
 
   private final MetadataIndexDefinition metadataIndexDefinition;
   private final MetadataIndex metadataIndex;
@@ -154,9 +155,15 @@ public class IndexCreator implements Startable {
       builtIndex.getRelationTypes().forEach(relationType -> metadataIndex.setInitialized(relationType, false));
     }
 
+    String settingsJson;
+    try {
+      settingsJson = JSON.writeValueAsString(Map.of("settings", builtIndex.getSettings()));
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Cannot serialize settings for index " + index.getName(), e);
+    }
     CreateIndexResponse indexResponse = client.createIndexV2(cir -> cir
       .index(index.getName())
-      .withJson(new StringReader("{\"settings\":" + builtIndex.getSettings().toString() + "}"))
+      .withJson(new StringReader(settingsJson))
     );
 
     if (!indexResponse.acknowledged()) {
@@ -171,11 +178,9 @@ public class IndexCreator implements Startable {
         try {
           return pmr
             .index(builtIndex.getMainType().getIndex().getName())
-            .withJson(new StringReader(
-              new ObjectMapper().writeValueAsString(builtIndex.getAttributes())
-            ));
+            .withJson(new StringReader(JSON.writeValueAsString(builtIndex.getAttributes())));
         } catch (JsonProcessingException e) {
-          throw new IllegalStateException("Cannot serialize mapping for index" + builtIndex.getMainType().getIndex().getName(), e);
+          throw new IllegalStateException("Cannot serialize mapping for index " + builtIndex.getMainType().getIndex().getName(), e);
         }
       }
     );

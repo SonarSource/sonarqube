@@ -25,16 +25,10 @@ import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.join.query.JoinQueryBuilders;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIELD_ALLOW_ANYONE;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIELD_GROUP_IDS;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIELD_USER_IDS;
@@ -47,35 +41,6 @@ public class WebAuthorizationTypeSupport {
 
   public WebAuthorizationTypeSupport(UserSession userSession) {
     this.userSession = userSession;
-  }
-
-  /**
-   * Build a filter to restrict query to the documents on which
-   * user has read access.
-   *
-   * @deprecated Use {@link #createQueryFilterV2()} instead. This method uses the old Elasticsearch API.
-   */
-  @Deprecated(since = "2025.6", forRemoval = true)
-  public QueryBuilder createQueryFilter() {
-    BoolQueryBuilder filter = boolQuery();
-
-    // anyone
-    filter.should(QueryBuilders.termQuery(FIELD_ALLOW_ANYONE, true));
-
-    // users
-    Optional.ofNullable(userSession.getUuid())
-      .ifPresent(uuid -> filter.should(termQuery(FIELD_USER_IDS, uuid)));
-
-    // groups
-    userSession.getGroups()
-      .stream()
-      .map(GroupDto::getUuid)
-      .forEach(groupUuid -> filter.should(termQuery(FIELD_GROUP_IDS, groupUuid)));
-
-    return JoinQueryBuilders.hasParentQuery(
-      TYPE_AUTHORIZATION,
-      QueryBuilders.boolQuery().filter(filter),
-      false);
   }
 
   /**
@@ -100,11 +65,11 @@ public class WebAuthorizationTypeSupport {
     shouldQueries.addAll(
       userSession.getGroups()
         .stream()
-        .map(groupDto -> Query.of(q -> q.term(t -> t
+        .map(GroupDto::getUuid)
+        .map(groupUuid -> Query.of(q -> q.term(t -> t
           .field(FIELD_GROUP_IDS)
-          .value(groupDto.getUuid()))))
-        .toList()
-    );
+          .value(groupUuid))))
+        .toList());
 
     BoolQuery boolQuery = BoolQuery.of(b -> b.should(shouldQueries));
 
@@ -114,4 +79,3 @@ public class WebAuthorizationTypeSupport {
       .score(false))));
   }
 }
-

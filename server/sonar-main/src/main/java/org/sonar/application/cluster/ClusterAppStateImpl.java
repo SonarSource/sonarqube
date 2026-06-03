@@ -33,8 +33,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.AppStateListener;
@@ -226,7 +226,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
   private boolean isElasticSearchOperational() {
     try {
       return esConnector.getClusterHealthStatus()
-        .filter(t -> ClusterHealthStatus.GREEN.equals(t) || ClusterHealthStatus.YELLOW.equals(t))
+        .filter(t -> t == HealthStatus.Green || t == HealthStatus.Yellow)
         .isPresent();
     } catch (ElasticsearchException e) {
       LOGGER.warn("Cannot check at current time whether Elasticsearch is operational", e);

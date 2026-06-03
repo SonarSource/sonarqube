@@ -103,8 +103,6 @@ import static org.sonar.core.rule.RuleType.VULNERABILITY;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.searchrequest.TopAggregationDefinition.NON_STICKY;
-import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_EXTRA_FILTER;
-import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_OTHER_SUBAGGREGATION;
 import static org.sonar.server.issue.index.Facet.ASSIGNED_TO_ME;
 import static org.sonar.server.issue.index.Facet.ASSIGNEES;
 import static org.sonar.server.issue.index.Facet.AUTHOR;
@@ -473,15 +471,11 @@ public class IssueIndex {
   private void addOwaspAsvsFilter(String fieldName, Facet facet, IssueQuery query, AllFilters allFilters) {
     if (!CollectionUtils.isEmpty(query.owaspAsvs40())) {
       Set<String> requirements = calculateRequirementsForOwaspAsvs40Params(query);
-      // empty requirements must match nothing (mirrors ES7 termsQuery behavior with empty collection)
-      Query securityCategoryFilter = requirements.isEmpty()
-        ? ES8QueryHelper.boolQuery(b -> b.mustNot(ES8QueryHelper.matchAllQuery()))
-        : ES8QueryHelper.termsQuery(fieldName, requirements);
       allFilters.addFilterV2(
         fieldName,
         facet.getFilterScope(),
         ES8QueryHelper.boolQuery(b -> b
-          .must(securityCategoryFilter)
+          .must(ES8QueryHelper.termsQuery(fieldName, requirements))
           .must(getQueryV2ForSecurityCategory())));
     }
   }
@@ -1215,7 +1209,7 @@ public class IssueIndex {
     return searchSecurityReportsWithDistribution(projectUuid, isViewOrApp, builder -> Arrays.stream(SecurityStandards.OwaspAsvs.values())
       .forEach(owaspAsvs -> builder.put(owaspAsvs.category(),
         newSecurityReportSubAggregations(
-          termsQueryOrNoMatch(version.prefix(),
+          ES8QueryHelper.termsQuery(version.prefix(),
             SecurityStandards.getRequirementsForCategoryAndLevel(owaspAsvs, level)),
           version.prefix()))), version.label(), level);
   }
@@ -1225,20 +1219,9 @@ public class IssueIndex {
     String name = "l" + level;
     return searchSecurityReportsWithLevelDistribution(projectUuid, isViewOrApp, builder -> builder.put(name,
       newSecurityReportSubAggregations(
-        termsQueryOrNoMatch(version.prefix(),
+        ES8QueryHelper.termsQuery(version.prefix(),
           SecurityStandards.OWASP_ASVS_REQUIREMENTS_BY_LEVEL.get(version).get(level)),
         version.prefix())), version.label(), Integer.toString(level));
-  }
-
-  /**
-   * Like ES8QueryHelper.termsQuery but returns a no-match query when values is empty
-   * (matching ES7 termsQuery semantics, not the helper's matchAll fallback).
-   */
-  private static Query termsQueryOrNoMatch(String field, Collection<String> values) {
-    if (values.isEmpty()) {
-      return ES8QueryHelper.boolQuery(b -> b.mustNot(ES8QueryHelper.matchAllQuery()));
-    }
-    return ES8QueryHelper.termsQuery(field, values);
   }
 
   public List<SecurityStandardCategoryStatistics> getOwaspMobileTop10Report(String projectUuid, boolean isViewOrApp,

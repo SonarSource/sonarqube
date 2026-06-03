@@ -24,11 +24,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Construct sorting criteria of ES requests. Sortable fields must be previously
@@ -63,27 +58,6 @@ public class Sorting {
 
   public List<Field> getDefaultFields() {
     return Collections.unmodifiableList(defaultFields);
-  }
-
-  public List<FieldSortBuilder> fill(String name, boolean asc) {
-    List<Field> list = fields.get(name);
-    checkArgument(!list.isEmpty(), "Bad sort field: %s", name);
-    return doFill(list, asc);
-  }
-
-  public List<FieldSortBuilder> fillDefault() {
-    return doFill(defaultFields, true);
-  }
-
-  private static List<FieldSortBuilder> doFill(List<Field> fields, boolean asc) {
-    return fields.stream().map(field -> {
-      FieldSortBuilder sortBuilder = SortBuilders.fieldSort(field.name);
-      boolean effectiveAsc = asc != field.reverse;
-      sortBuilder.order(effectiveAsc ? SortOrder.ASC : SortOrder.DESC);
-      boolean effectiveMissingLast = asc == field.missingLast;
-      sortBuilder.missing(effectiveMissingLast ? "_last" : "_first");
-      return sortBuilder;
-    }).toList();
   }
 
   public static class Field {

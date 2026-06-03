@@ -19,9 +19,9 @@
  */
 package org.sonar.server.es.response;
 
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +41,7 @@ public class ClusterStatsResponseTest {
     JsonObject jsonObject = getExampleAsJsonObject();
     ClusterStatsResponse clusterStatsResponse = ClusterStatsResponse.toClusterStatsResponse(jsonObject);
 
-    assertThat(clusterStatsResponse.getHealthStatus()).isEqualTo(ClusterHealthStatus.YELLOW);
+    assertThat(clusterStatsResponse.getHealthStatus()).isEqualTo(HealthStatus.Yellow);
     assertThat(clusterStatsResponse.getNodeCount()).isEqualTo(3);
   }
 

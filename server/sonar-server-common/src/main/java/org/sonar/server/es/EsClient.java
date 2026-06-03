@@ -48,6 +48,9 @@ import co.elastic.clients.elasticsearch.indices.PutMappingRequest;
 import co.elastic.clients.elasticsearch.indices.PutMappingResponse;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import co.elastic.clients.util.ObjectBuilder;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -132,8 +135,18 @@ public class EsClient implements Closeable {
     this.restClient = restClient;
     this.restHighLevelClient = new MinimalRestHighLevelClient(restClient);
 
-    // Create new Java API Client using the same RestClient
-    RestClientTransport transport = new RestClientTransport(this.restClient, new JacksonJsonpMapper());
+    // Create new Java API Client using the same RestClient.
+    // The default JacksonJsonpMapper uses Include.NON_NULL (drops nulls) and serializes Date as
+    // epoch millis. We override both so that:
+    //   - nulls survive (BaseDoc.getNullableField() needs to distinguish "field is null" from
+    //     "field is missing"),
+    //   - Date is serialized as an ISO-8601 string, matching the ES7 RestHighLevelClient behavior
+    //     and the "date_time||epoch_millis" mapping format used across indices.
+    ObjectMapper objectMapper = new ObjectMapper()
+      .configure(SerializationFeature.INDENT_OUTPUT, false)
+      .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+      .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+    RestClientTransport transport = new RestClientTransport(this.restClient, new JacksonJsonpMapper(objectMapper));
     this.elasticsearchClient = new ElasticsearchClient(transport);
 
     this.gson = new GsonBuilder().create();
@@ -438,6 +451,22 @@ public class EsClient implements Closeable {
    */
   RestHighLevelClient nativeClient() {
     return restHighLevelClient;
+  }
+
+  /**
+   * Internal usage only - exposes the new ES8 Java API client for components that need direct
+   * access (e.g. {@link co.elastic.clients.elasticsearch._helpers.bulk.BulkIngester}).
+   */
+  ElasticsearchClient nativeClientV2() {
+    return elasticsearchClient;
+  }
+
+  /**
+   * Internal usage only - exposes the underlying low-level REST client used by the ES8 transport.
+   * Used by tests to inspect the configured nodes.
+   */
+  RestClient nativeRestClient() {
+    return restClient;
   }
 
   static class MinimalRestHighLevelClient extends RestHighLevelClient {

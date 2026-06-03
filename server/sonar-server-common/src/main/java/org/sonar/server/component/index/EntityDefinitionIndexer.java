@@ -27,9 +27,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
@@ -141,7 +140,7 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
 
     dbClient.entityDao().selectByUuids(dbSession, entityUuids).forEach(dto -> {
       remaining.remove(dto.getUuid());
-      bulkIndexer.add(toDocument(dto).toIndexRequest());
+      bulkIndexer.add(toDocument(dto).toBulkOperation());
     });
 
     // the remaining uuids reference projects that don't exist in db. They must
@@ -160,11 +159,11 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
     bulk.start();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      bulk.add(toDocument(entity).toIndexRequest());
+      bulk.add(toDocument(entity).toBulkOperation());
 
       if (entity.getQualifier().equals("VW")) {
         dbClient.portfolioDao().selectTree(dbSession, entity.getUuid()).forEach(sub ->
-          bulk.add(toDocument(sub).toIndexRequest()));
+          bulk.add(toDocument(sub).toBulkOperation()));
       }
     }
 
@@ -181,13 +180,13 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
         if (dto.getAuthUuid() == null) {
           corruptedEntities.add(dto);
         } else {
-          bulk.add(toDocument(dto).toIndexRequest());
+          bulk.add(toDocument(dto).toBulkOperation());
         }
       });
       if (!corruptedEntities.isEmpty()) {
         attemptToFixCorruptedEntities(dbSession, corruptedEntities);
         List<EntityDto> fixedEntities = dbClient.entityDao().selectByUuids(dbSession, corruptedEntities.stream().map(EntityDto::getUuid).toList());
-        fixedEntities.forEach(entity -> bulk.add(toDocument(entity).toIndexRequest()));
+        fixedEntities.forEach(entity -> bulk.add(toDocument(entity).toBulkOperation()));
       }
     }
 
@@ -212,9 +211,12 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
   }
 
   private static void addProjectDeletionToBulkIndexer(BulkIndexer bulkIndexer, String projectUuid) {
-    SearchRequest searchRequest = EsClient.prepareSearch(TYPE_COMPONENT.getMainType())
-      .source(new SearchSourceBuilder().query(QueryBuilders.termQuery(ComponentIndexDefinition.FIELD_UUID, projectUuid)))
-      .routing(AuthorizationDoc.idOf(projectUuid));
+    SearchRequest searchRequest = SearchRequest.of(s -> s
+      .index(TYPE_COMPONENT.getMainType().getIndex().getName())
+      .query(Query.of(q -> q.term(t -> t.field(ComponentIndexDefinition.FIELD_UUID).value(projectUuid))))
+      .routing(AuthorizationDoc.idOf(projectUuid))
+      .sort(so -> so.field(f -> f.field("_doc")))
+      .size(100));
     bulkIndexer.addDeletion(searchRequest);
   }
 
@@ -224,7 +226,7 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
     bulk.start();
     Arrays.stream(docs)
       .map(EntityDefinitionIndexer::toDocument)
-      .map(BaseDoc::toIndexRequest)
+      .map(BaseDoc::toBulkOperation)
       .forEach(bulk::add);
     bulk.stop();
   }

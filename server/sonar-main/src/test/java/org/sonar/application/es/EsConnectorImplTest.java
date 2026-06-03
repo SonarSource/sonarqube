@@ -28,19 +28,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import okhttp3.tls.HandshakeCertificates;
 import okhttp3.tls.HeldCertificate;
-import org.elasticsearch.ElasticsearchStatusException;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class EsConnectorImplTest {
 
@@ -55,11 +56,12 @@ public class EsConnectorImplTest {
     "  \"relocating_shards\" : 0," +
     "  \"initializing_shards\" : 0," +
     "  \"unassigned_shards\" : 1," +
+    "  \"unassigned_primary_shards\" : 0," +
     "  \"delayed_unassigned_shards\": 0," +
     "  \"number_of_pending_tasks\" : 0," +
     "  \"number_of_in_flight_fetch\": 0," +
     "  \"task_max_waiting_in_queue_millis\": 0," +
-    "  \"active_shards_percent_as_number\": 50.0" +
+    "  \"active_shards_percent_as_number\": \"50.0\"" +
     "}";
 
   private static final String JSON_ERROR_RESPONSE = "{" +
@@ -98,11 +100,12 @@ public class EsConnectorImplTest {
   }
 
   @Test
-  public void should_rethrow_if_es_exception() {
+  public void should_return_empty_if_server_responds_with_error() {
     mockServerResponse(500, JSON_ERROR_RESPONSE);
 
-    assertThatThrownBy(() -> underTest.getClusterHealthStatus())
-      .isInstanceOf(ElasticsearchStatusException.class);
+    // The ES8 client wraps HTTP-level failures in an IOException-derived exception which is
+    // caught and translated to Optional.empty() by EsConnectorImpl.
+    assertThat(underTest.getClusterHealthStatus()).isEmpty();
   }
 
   @Test
@@ -110,7 +113,7 @@ public class EsConnectorImplTest {
     mockServerResponse(200, JSON_SUCCESS_RESPONSE);
 
     assertThat(underTest.getClusterHealthStatus())
-      .hasValue(ClusterHealthStatus.YELLOW);
+      .hasValue(HealthStatus.Yellow);
   }
 
   @Test
@@ -123,7 +126,7 @@ public class EsConnectorImplTest {
       password, null, null);
 
     assertThat(esConnector.getClusterHealthStatus())
-      .hasValue(ClusterHealthStatus.YELLOW);
+      .hasValue(HealthStatus.Yellow);
     assertThat(mockWebServer.takeRequest().getHeader("Authorization")).isEqualTo("Basic " + expectedAuth);
   }
 
@@ -140,7 +143,7 @@ public class EsConnectorImplTest {
     EsConnectorImpl esConnector = new EsConnectorImpl(Sets.newHashSet(HostAndPort.fromParts(mockWebServer.getHostName(),
       mockWebServer.getPort())), null, keyStorePath, password);
 
-    assertThat(esConnector.getClusterHealthStatus()).hasValue(ClusterHealthStatus.YELLOW);
+    assertThat(esConnector.getClusterHealthStatus()).hasValue(HealthStatus.Yellow);
   }
 
   private HandshakeCertificates createCertificate(String hostName, Path keyStorePath, String password)
@@ -167,16 +170,26 @@ public class EsConnectorImplTest {
   }
 
   private void mockServerResponse(int httpCode, String jsonResponse) {
-    mockWebServer.enqueue(new MockResponse()
-      .setResponseCode(200)
-      .setBody(ES_INFO_RESPONSE)
-      .setHeader("Content-Type", "application/json")
-      .setHeader("X-elastic-product", "Elasticsearch"));
-    mockWebServer.enqueue(new MockResponse()
-      .setResponseCode(httpCode)
-      .setBody(jsonResponse)
-      .setHeader("Content-Type", "application/json")
-      .setHeader("X-elastic-product", "Elasticsearch"));
+    // Dispatch based on the request path: GET / returns the version info (used by ES8 client
+    // for its initial product check), GET /_cluster/health returns the test-specified response.
+    mockWebServer.setDispatcher(new Dispatcher() {
+      @Override
+      public MockResponse dispatch(RecordedRequest request) {
+        String path = request.getPath() == null ? "" : request.getPath();
+        if (path.startsWith("/_cluster/health")) {
+          return new MockResponse()
+            .setResponseCode(httpCode)
+            .setBody(jsonResponse)
+            .setHeader("Content-Type", "application/json")
+            .setHeader("X-elastic-product", "Elasticsearch");
+        }
+        return new MockResponse()
+          .setResponseCode(200)
+          .setBody(ES_INFO_RESPONSE)
+          .setHeader("Content-Type", "application/json")
+          .setHeader("X-elastic-product", "Elasticsearch");
+      }
+    });
   }
 
 }

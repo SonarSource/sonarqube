@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.monitoring.cluster;
 
+import java.util.Locale;
 import org.sonar.api.server.ServerSide;
 import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
@@ -46,7 +47,7 @@ public class EsClusterStateSection implements SystemInfoSection, Global {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
     protobuf.setName("Search State");
     ClusterStatsResponse stats = esClient.clusterStats();
-    setAttribute(protobuf, "State", stats.getHealthStatus().name());
+    setAttribute(protobuf, "State", stats.getHealthStatus().name().toUpperCase(Locale.ROOT));
     setAttribute(protobuf, "Nodes", stats.getNodeCount());
     return protobuf.build();
   }

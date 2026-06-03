@@ -19,6 +19,12 @@
  */
 package org.sonar.application.es;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
+import co.elastic.clients.elasticsearch._types.Time;
+import co.elastic.clients.elasticsearch.cluster.HealthResponse;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.google.common.net.HostAndPort;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,24 +47,18 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.elasticsearch.core.TimeValue.timeValueSeconds;
-
 public class EsConnectorImpl implements EsConnector {
   private static final String ES_USERNAME = "elastic";
+  private static final Time HEALTH_TIMEOUT = Time.of(t -> t.time("30s"));
 
   private static final Logger LOG = LoggerFactory.getLogger(EsConnectorImpl.class);
 
-  private final AtomicReference<RestHighLevelClient> restClient = new AtomicReference<>(null);
+  private final AtomicReference<EsClient> esClient = new AtomicReference<>(null);
   private final Set<HostAndPort> hostAndPorts;
   private final String searchPassword;
   private final Path keyStorePath;
@@ -73,11 +73,11 @@ public class EsConnectorImpl implements EsConnector {
   }
 
   @Override
-  public Optional<ClusterHealthStatus> getClusterHealthStatus() {
+  public Optional<HealthStatus> getClusterHealthStatus() {
     try {
-      ClusterHealthResponse healthResponse = getRestHighLevelClient().cluster()
-        .health(new ClusterHealthRequest().waitForYellowStatus().timeout(timeValueSeconds(30)), RequestOptions.DEFAULT);
-      return Optional.of(healthResponse.getStatus());
+      HealthResponse healthResponse = getEsClient().client.cluster()
+        .health(h -> h.waitForStatus(HealthStatus.Yellow).timeout(HEALTH_TIMEOUT));
+      return Optional.of(healthResponse.status());
     } catch (IOException e) {
       LOG.trace("Failed to check health status ", e);
       return Optional.empty();
@@ -86,28 +86,28 @@ public class EsConnectorImpl implements EsConnector {
 
   @Override
   public void stop() {
-    RestHighLevelClient restHighLevelClient = restClient.get();
-    if (restHighLevelClient != null) {
+    EsClient client = esClient.get();
+    if (client != null) {
       try {
-        restHighLevelClient.close();
+        client.restClient.close();
       } catch (IOException e) {
         LOG.warn("Error occurred while closing Rest Client", e);
       }
     }
   }
 
-  private RestHighLevelClient getRestHighLevelClient() {
-    RestHighLevelClient res = this.restClient.get();
+  private EsClient getEsClient() {
+    EsClient res = this.esClient.get();
     if (res != null) {
       return res;
     }
 
-    RestHighLevelClient restHighLevelClient = buildRestHighLevelClient();
-    this.restClient.set(restHighLevelClient);
-    return restHighLevelClient;
+    EsClient created = buildEsClient();
+    this.esClient.set(created);
+    return created;
   }
 
-  private RestHighLevelClient buildRestHighLevelClient() {
+  private EsClient buildEsClient() {
     HttpHost[] httpHosts = hostAndPorts.stream()
       .map(this::toHttpHost)
       .toArray(HttpHost[]::new);
@@ -132,7 +132,9 @@ public class EsConnectorImpl implements EsConnector {
 
         return httpClientBuilder;
       });
-    return new RestHighLevelClient(builder);
+    RestClient restClient = builder.build();
+    RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+    return new EsClient(restClient, new ElasticsearchClient(transport));
   }
 
   private HttpHost toHttpHost(HostAndPort host) {
@@ -166,5 +168,11 @@ public class EsConnectorImpl implements EsConnector {
     } catch (IOException | GeneralSecurityException e) {
       throw new IllegalStateException("Failed to setup SSL context on ES client", e);
     }
+  }
+
+  /**
+   * Holds the ES8 client together with the underlying RestClient so we can close the latter on stop().
+   */
+  private record EsClient(RestClient restClient, ElasticsearchClient client) {
   }
 }

@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.http.HttpHost;
-import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -54,10 +53,8 @@ public class EsClientProvider {
 
   @Bean("EsClient")
   public EsClient provide(Configuration config) {
-    Settings.Builder esSettings = Settings.builder();
-
-    // mandatory property defined by bootstrap process
-    esSettings.put("cluster.name", config.get(CLUSTER_NAME.getKey()).get());
+    // mandatory property defined by bootstrap process — validated by the .get() below
+    config.get(CLUSTER_NAME.getKey()).orElseThrow(() -> new IllegalStateException("Missing setting " + CLUSTER_NAME.getKey()));
 
     boolean clusterEnabled = config.getBoolean(CLUSTER_ENABLED.getKey()).orElse(false);
     boolean searchNode = !clusterEnabled || SEARCH.equals(NodeType.parse(config.get(CLUSTER_NODE_TYPE.getKey()).orElse(null)));

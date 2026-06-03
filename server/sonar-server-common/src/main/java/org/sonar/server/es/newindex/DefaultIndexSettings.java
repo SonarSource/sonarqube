@@ -20,9 +20,8 @@
 package org.sonar.server.es.newindex;
 
 import java.util.Arrays;
-import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
-import org.elasticsearch.cluster.metadata.IndexMetadata;
-import org.elasticsearch.common.settings.Settings;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class DefaultIndexSettings {
 
@@ -59,8 +58,6 @@ public class DefaultIndexSettings {
   public static final String CUSTOM = "custom";
   public static final String KEYWORD = "keyword";
   public static final String CLASSIC = "classic";
-  public static final RefreshPolicy REFRESH_IMMEDIATE = RefreshPolicy.IMMEDIATE;
-  public static final RefreshPolicy REFRESH_NONE = RefreshPolicy.NONE;
 
   public static final String TRUNCATE = "truncate";
 
@@ -80,15 +77,15 @@ public class DefaultIndexSettings {
     // only static stuff
   }
 
-  public static Settings.Builder defaults() {
-    Settings.Builder builder = Settings.builder()
-      .put(IndexMetadata.SETTING_NUMBER_OF_SHARDS, 1)
-      .put("index.refresh_interval", "30s");
+  public static Map<String, Object> defaults() {
+    Map<String, Object> settings = new LinkedHashMap<>();
+    settings.put("index.number_of_shards", "1");
+    settings.put("index.refresh_interval", "30s");
 
     Arrays.stream(DefaultIndexSettingsElement.values())
       .map(DefaultIndexSettingsElement::settings)
-      .forEach(builder::put);
+      .forEach(settings::putAll);
 
-    return builder;
+    return settings;
   }
 }

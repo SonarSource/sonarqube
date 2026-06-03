@@ -19,13 +19,13 @@
  */
 package org.sonar.server.es;
 
+import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.server.es.IndexType.IndexMainType;
 import org.sonar.server.es.IndexType.IndexRelationType;
 
@@ -156,12 +156,14 @@ public abstract class BaseDoc {
     checkState(this.parentId != null, SETPARENT_NOT_CALLED);
   }
 
-  public IndexRequest toIndexRequest() {
+  public BulkOperation toBulkOperation() {
     IndexMainType mainType = this.indexType.getMainType();
-    return new IndexRequest(mainType.getIndex().getName())
+    String routing = getRouting().orElse(null);
+    return BulkOperation.of(b -> b.index(i -> i
+      .index(mainType.getIndex().getName())
       .id(getId())
-      .routing(getRouting().orElse(null))
-      .source(getFields());
+      .routing(routing)
+      .document(getFields())));
   }
 
   private static Date epochSecondsToDate(Number value) {

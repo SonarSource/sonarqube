@@ -25,32 +25,19 @@ import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchScrollRequest;
-import org.elasticsearch.core.TimeValue;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.joda.time.format.ISODateTimeFormat;
 
 public class EsUtils {
 
-  public static final int SCROLL_TIME_IN_MINUTES = 3;
   public static final int SEARCH_AFTER_PAGE_SIZE = 500;
 
   /**
@@ -60,31 +47,6 @@ public class EsUtils {
 
   private EsUtils() {
     // only static methods
-  }
-
-  public static <D extends BaseDoc> List<D> convertToDocs(SearchHits hits, Function<Map<String, Object>, D> converter) {
-    List<D> docs = new ArrayList<>();
-    for (SearchHit hit : hits.getHits()) {
-      docs.add(converter.apply(hit.getSourceAsMap()));
-    }
-    return docs;
-  }
-
-  public static Map<String, Long> termsToMap(Terms terms) {
-    LinkedHashMap<String, Long> map = new LinkedHashMap<>();
-    List<? extends Terms.Bucket> buckets = terms.getBuckets();
-    for (Terms.Bucket bucket : buckets) {
-      map.put(bucket.getKeyAsString(), bucket.getDocCount());
-    }
-    return map;
-  }
-
-  public static List<String> termsKeys(Terms terms) {
-    terms.getBuckets();
-    return terms.getBuckets()
-      .stream()
-      .map(Terms.Bucket::getKeyAsString)
-      .toList();
   }
 
   @CheckForNull
@@ -101,16 +63,6 @@ public class EsUtils {
       return ISODateTimeFormat.dateTime().print(date.getTime());
     }
     return null;
-  }
-
-  /**
-   * Optimize scolling, by specifying document sorting.
-   * @see <a href="https://www.elastic.co/guide/en/elasticsearch/reference/2.4/search-request-scroll.html#search-request-scroll">Elasticsearch scroll documentation</a>
-   * @deprecated ES scroll API is deprecated in favor of search_after API for deep pagination.
-   */
-  @Deprecated(since = "2025.6", forRemoval = true)
-  public static void optimizeScrollRequest(SearchSourceBuilder esSearch) {
-    esSearch.sort("_doc", SortOrder.ASC);
   }
 
   /**
@@ -139,65 +91,12 @@ public class EsUtils {
   }
 
   /**
-   * ES 7 and earlier: Iterate through search results using scroll API
-   * @deprecated ES scroll API is deprecated in favor of search_after API for deep pagination.
-   */
-  @Deprecated(since = "2025.6", forRemoval = true)
-  public static <I> Iterator<I> scrollIds(EsClient esClient, SearchResponse scrollResponse, Function<String, I> idConverter) {
-    return new IdScrollIterator<>(esClient, scrollResponse, idConverter);
-  }
-
-  /**
    * ES 8: Iterate through search results using search_after API
    * This is the recommended approach for deep pagination in ES 8.
    * @see <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after">Elasticsearch search_after documentation</a>
    */
   public static <T, I> Iterator<I> searchAfterIds(EsClient esClient, SearchRequest initialRequest, Class<T> tClass, Function<String, I> idConverter) {
     return new SearchAfterIterator<>(esClient, initialRequest, tClass, idConverter);
-  }
-
-  /**
-   * ES 7 and earlier: Iterator to scroll through search results using scroll API
-   * @deprecated ES scroll API is deprecated in favor of search_after API for deep pagination.
-   */
-  @Deprecated(since = "2025.6", forRemoval = true)
-  private static class IdScrollIterator<I> implements Iterator<I> {
-
-    private final EsClient esClient;
-    private final String scrollId;
-    private final Function<String, I> idConverter;
-
-    private final Queue<SearchHit> hits = new ArrayDeque<>();
-
-    private IdScrollIterator(EsClient esClient, SearchResponse scrollResponse, Function<String, I> idConverter) {
-      this.esClient = esClient;
-      this.scrollId = scrollResponse.getScrollId();
-      this.idConverter = idConverter;
-      Collections.addAll(hits, scrollResponse.getHits().getHits());
-    }
-
-    @Override
-    public boolean hasNext() {
-      if (hits.isEmpty()) {
-        SearchScrollRequest esRequest = new SearchScrollRequest(scrollId)
-          .scroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
-        Collections.addAll(hits, esClient.scroll(esRequest).getHits().getHits());
-      }
-      return !hits.isEmpty();
-    }
-
-    @Override
-    public I next() {
-      if (!hasNext()) {
-        throw new NoSuchElementException();
-      }
-      return idConverter.apply(hits.poll().getId());
-    }
-
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException("Cannot remove item when scrolling");
-    }
   }
 
   private static class SearchAfterIterator<T, I> implements Iterator<I> {

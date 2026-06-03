@@ -430,9 +430,18 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
       String indexName = index.getMainType().getIndex().getName();
       deleteIndexIfExists(indexName);
 
-      // create index
+      // create index — bridge the ES8 Map representation to the ES7 Settings.Builder
+      // used by this test fixture, which still talks to the embedded ES7 test node.
       Settings.Builder settings = Settings.builder();
-      settings.put(index.getSettings());
+      Map<String, Object> indexSettings = index.getSettings();
+      for (Map.Entry<String, Object> entry : indexSettings.entrySet()) {
+        Object value = entry.getValue();
+        if (value instanceof List<?> list) {
+          settings.putList(entry.getKey(), list.stream().map(Object::toString).toList());
+        } else if (value != null) {
+          settings.put(entry.getKey(), value.toString());
+        }
+      }
 
       CreateIndexResponse indexResponse = createIndex(indexName, settings);
 

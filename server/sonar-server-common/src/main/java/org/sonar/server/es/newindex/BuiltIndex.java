@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import org.elasticsearch.common.settings.Settings;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.IndexType.IndexRelationType;
 
@@ -42,13 +41,13 @@ import static org.sonar.server.es.newindex.DefaultIndexSettings.TYPE;
 public final class BuiltIndex<T extends NewIndex<T>> {
   private final IndexType.IndexMainType mainType;
   private final Set<IndexRelationType> relationTypes;
-  private final Settings settings;
+  private final Map<String, Object> settings;
   private final Map<String, Object> attributes;
   private final Map<String, String> customHashMetadata;
 
   BuiltIndex(T newIndex) {
     this.mainType = newIndex.getMainType();
-    this.settings = newIndex.getSettings().build();
+    this.settings = ImmutableSortedMap.copyOf(newIndex.getSettings());
     this.relationTypes = newIndex.getRelationsStream().collect(Collectors.toSet());
     this.attributes = buildAttributes(newIndex);
     this.customHashMetadata = newIndex.getCustomHashMetadata();
@@ -116,7 +115,7 @@ public final class BuiltIndex<T extends NewIndex<T>> {
     return relationTypes;
   }
 
-  public Settings getSettings() {
+  public Map<String, Object> getSettings() {
     return settings;
   }
 

@@ -27,9 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.db.component.ComponentQualifiers;
@@ -54,8 +54,6 @@ import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
 import static java.util.Collections.emptyList;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
@@ -246,7 +244,7 @@ public class IssueIndexer implements EventIndexer, AnalysisIndexer, NeedAuthoriz
     try (IssueIterator issues = issueIteratorFactory.createForIssueKeys(itemsByIssueKey.keySet())) {
       while (issues.hasNext()) {
         IssueDoc issue = issues.next();
-        bulkIndexer.add(newIndexRequest(issue));
+        bulkIndexer.add(newBulkOperation(issue));
         itemsByIssueKey.removeAll(issue.getId());
       }
     }
@@ -284,7 +282,7 @@ public class IssueIndexer implements EventIndexer, AnalysisIndexer, NeedAuthoriz
         if (issues.hasNext()) {
           do {
             IssueDoc doc = issues.next();
-            bulkIndexer.add(newIndexRequest(doc));
+            bulkIndexer.add(newBulkOperation(doc));
           } while (issues.hasNext());
         } else {
           // branch does not exist or has no issues. In both cases,
@@ -320,33 +318,41 @@ public class IssueIndexer implements EventIndexer, AnalysisIndexer, NeedAuthoriz
     bulk.start();
     while (issues.hasNext()) {
       IssueDoc issue = issues.next();
-      bulk.add(newIndexRequest(issue));
+      bulk.add(newBulkOperation(issue));
     }
     bulk.stop();
   }
 
-  private static IndexRequest newIndexRequest(IssueDoc issue) {
-    return new IndexRequest(TYPE_ISSUE.getMainType().getIndex().getName())
+  private static BulkOperation newBulkOperation(IssueDoc issue) {
+    String routing = issue.getRouting().orElseThrow(() -> new IllegalStateException("IssueDoc should define a routing"));
+    return BulkOperation.of(b -> b.index(i -> i
+      .index(TYPE_ISSUE.getMainType().getIndex().getName())
       .id(issue.getId())
-      .routing(issue.getRouting().orElseThrow(() -> new IllegalStateException("IssueDoc should define a routing")))
-      .source(issue.getFields());
+      .routing(routing)
+      .document(issue.getFields())));
   }
 
   private static void addProjectDeletionToBulkIndexer(BulkIndexer bulkIndexer, String projectUuid) {
-    SearchRequest search = EsClient.prepareSearch(TYPE_ISSUE.getMainType())
+    SearchRequest search = SearchRequest.of(s -> s
+      .index(TYPE_ISSUE.getMainType().getIndex().getName())
       .routing(AuthorizationDoc.idOf(projectUuid))
-      .source(new SearchSourceBuilder().query(boolQuery().must(termQuery(FIELD_ISSUE_PROJECT_UUID, projectUuid))));
+      .query(Query.of(q -> q.bool(bq -> bq.must(m -> m.term(t -> t.field(FIELD_ISSUE_PROJECT_UUID).value(projectUuid))))))
+      .sort(so -> so.field(f -> f.field("_doc")))
+      .size(100));
 
     bulkIndexer.addDeletion(search);
   }
 
   private static void addBranchDeletionToBulkIndexer(BulkIndexer bulkIndexer, String projectUUid, String branchUuid) {
-    SearchRequest search = EsClient.prepareSearch(TYPE_ISSUE.getMainType())
+    SearchRequest search = SearchRequest.of(s -> s
+      .index(TYPE_ISSUE.getMainType().getIndex().getName())
       // routing is based on the parent (See BaseDoc#getRouting).
       // The parent is set to the projectUUid when an issue is indexed (See IssueDoc#setProjectUuid). We need to set it here
       // so that the search finds the indexed docs to be deleted.
       .routing(AuthorizationDoc.idOf(projectUUid))
-      .source(new SearchSourceBuilder().query(boolQuery().must(termQuery(FIELD_ISSUE_BRANCH_UUID, branchUuid))));
+      .query(Query.of(q -> q.bool(bq -> bq.must(m -> m.term(t -> t.field(FIELD_ISSUE_BRANCH_UUID).value(branchUuid))))))
+      .sort(so -> so.field(f -> f.field("_doc")))
+      .size(100));
 
     bulkIndexer.addDeletion(search);
   }

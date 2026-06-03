@@ -136,7 +136,7 @@ public class PermissionIndexer implements EventIndexer {
 
       authorizations.stream()
         .filter(scope.getEntityPredicate())
-        .map(dto -> AuthorizationDoc.fromDto(indexType, dto).toIndexRequest())
+        .map(dto -> AuthorizationDoc.fromDto(indexType, dto).toBulkOperation())
         .forEach(bulkIndexer::add);
 
       bulkIndexer.stop();
@@ -167,7 +167,7 @@ public class PermissionIndexer implements EventIndexer {
       .collect(Collectors.toSet());
     permissionIndexerDao.selectByUuids(dbClient, dbSession, remainingEntityUuids).forEach(p -> {
       remainingEntityUuids.remove(p.getEntityUuid());
-      bulkIndexers.forEach(bi -> bi.add(AuthorizationDoc.fromDto(bi.getIndexType(), p).toIndexRequest()));
+      bulkIndexers.forEach(bi -> bi.add(AuthorizationDoc.fromDto(bi.getIndexType(), p).toBulkOperation()));
     });
 
     // the remaining references on entities that don't exist in db. They must

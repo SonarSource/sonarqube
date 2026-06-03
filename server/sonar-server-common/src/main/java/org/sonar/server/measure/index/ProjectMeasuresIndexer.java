@@ -158,7 +158,7 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
     for (String projectUuid : projectUuids) {
       try (ProjectMeasuresIndexerIterator rowIt = ProjectMeasuresIndexerIterator.create(dbSession, dbClient, projectUuid)) {
         while (rowIt.hasNext()) {
-          bulkIndexer.add(toProjectMeasuresDoc(rowIt.next()).toIndexRequest());
+          bulkIndexer.add(toProjectMeasuresDoc(rowIt.next()).toBulkOperation());
           projectToDelete.remove(projectUuid);
         }
       }
@@ -188,7 +188,7 @@ public class ProjectMeasuresIndexer implements EventIndexer, AnalysisIndexer, Ne
         bulkIndexer.start();
         while (rowIt.hasNext()) {
           ProjectMeasures doc = rowIt.next();
-          bulkIndexer.add(toProjectMeasuresDoc(doc).toIndexRequest());
+          bulkIndexer.add(toProjectMeasuresDoc(doc).toBulkOperation());
         }
         bulkIndexer.stop();
       }

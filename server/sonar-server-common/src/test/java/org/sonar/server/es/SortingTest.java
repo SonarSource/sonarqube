@@ -20,12 +20,9 @@
 package org.sonar.server.es;
 
 import java.util.List;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class SortingTest {
 
@@ -47,87 +44,53 @@ public class SortingTest {
   }
 
   @Test
-  public void ascending_sort_on_single_field() {
+  public void getFields_returns_registered_fields_for_name() {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt");
 
-    List<FieldSortBuilder> fields = sorting.fill("updatedAt", true);
+    List<Sorting.Field> fields = sorting.getFields("updatedAt");
     assertThat(fields).hasSize(1);
-    expectField(fields.get(0), "updatedAt", "_first", SortOrder.ASC);
+    assertThat(fields.get(0).getName()).isEqualTo("updatedAt");
+    assertThat(fields.get(0).isReverse()).isFalse();
+    assertThat(fields.get(0).isMissingLast()).isFalse();
   }
 
   @Test
-  public void descending_sort_on_single_field() {
+  public void getFields_returns_empty_list_for_unknown_field() {
     Sorting sorting = new Sorting();
-    sorting.add("updatedAt");
+    sorting.add("file");
 
-    List<FieldSortBuilder> fields = sorting.fill("updatedAt", false);
-    assertThat(fields).hasSize(1);
-    expectField(fields.get(0), "updatedAt", "_last", SortOrder.DESC);
+    assertThat(sorting.getFields("unknown")).isEmpty();
   }
 
   @Test
-  public void ascending_sort_on_single_field_with_missing_in_last_position() {
-    Sorting sorting = new Sorting();
-    sorting.add("updatedAt").missingLast();
-
-    List<FieldSortBuilder> fields = sorting.fill("updatedAt", true);
-    assertThat(fields).hasSize(1);
-    expectField(fields.get(0), "updatedAt", "_last", SortOrder.ASC);
-  }
-
-  @Test
-  public void descending_sort_on_single_field_with_missing_in_last_position() {
-    Sorting sorting = new Sorting();
-    sorting.add("updatedAt").missingLast();
-
-    List<FieldSortBuilder> fields = sorting.fill("updatedAt", false);
-    assertThat(fields).hasSize(1);
-    expectField(fields.get(0), "updatedAt", "_first", SortOrder.DESC);
-  }
-
-  @Test
-  public void sort_on_multiple_fields() {
-    // asc => file asc, line asc, severity desc, key asc
+  public void getFields_returns_fields_with_reverse_and_missingLast_flags() {
     Sorting sorting = new Sorting();
     sorting.add("fileLine", "file");
     sorting.add("fileLine", "line");
     sorting.add("fileLine", "severity").reverse();
     sorting.add("fileLine", "key").missingLast();
 
-    List<FieldSortBuilder> fields = sorting.fill("fileLine", true);
+    List<Sorting.Field> fields = sorting.getFields("fileLine");
     assertThat(fields).hasSize(4);
-    expectField(fields.get(0), "file", "_first", SortOrder.ASC);
-    expectField(fields.get(1), "line", "_first", SortOrder.ASC);
-    expectField(fields.get(2), "severity", "_first", SortOrder.DESC);
-    expectField(fields.get(3), "key", "_last", SortOrder.ASC);
+    assertThat(fields.get(0).getName()).isEqualTo("file");
+    assertThat(fields.get(0).isReverse()).isFalse();
+    assertThat(fields.get(1).getName()).isEqualTo("line");
+    assertThat(fields.get(2).getName()).isEqualTo("severity");
+    assertThat(fields.get(2).isReverse()).isTrue();
+    assertThat(fields.get(3).getName()).isEqualTo("key");
+    assertThat(fields.get(3).isMissingLast()).isTrue();
   }
 
   @Test
-  public void fail_if_unknown_field() {
-    Sorting sorting = new Sorting();
-    sorting.add("file");
-
-    try {
-      sorting.fill("unknown", true);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e.getMessage()).isEqualTo("Bad sort field: unknown");
-    }
-  }
-
-  @Test
-  public void default_sorting() {
+  public void getDefaultFields_returns_registered_default_fields() {
     Sorting sorting = new Sorting();
     sorting.addDefault("file");
+    sorting.addDefault("key");
 
-    List<FieldSortBuilder> fields = sorting.fillDefault();
-    assertThat(fields).hasSize(1);
-  }
-
-  private void expectField(FieldSortBuilder field, String expectedField, String expectedMissing, SortOrder expectedSort) {
-    assertThat(field.getFieldName()).isEqualTo(expectedField);
-    assertThat(field.missing()).isEqualTo(expectedMissing);
-    assertThat(field.order()).isEqualTo(expectedSort);
+    List<Sorting.Field> fields = sorting.getDefaultFields();
+    assertThat(fields).hasSize(2);
+    assertThat(fields.get(0).getName()).isEqualTo("file");
+    assertThat(fields.get(1).getName()).isEqualTo("key");
   }
 }

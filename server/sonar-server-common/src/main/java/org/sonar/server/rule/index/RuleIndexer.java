@@ -81,7 +81,7 @@ public class RuleIndexer implements ResilientIndexer {
     try (DbSession dbSession = dbClient.openSession(false)) {
       BulkIndexer bulk = createBulkIndexer(bulkSize, IndexingListener.FAIL_ON_ERROR);
       bulk.start();
-      dbClient.ruleDao().selectIndexingRules(dbSession, dto -> bulk.add(ruleDocOf(dto).toIndexRequest()));
+      dbClient.ruleDao().selectIndexingRules(dbSession, dto -> bulk.add(ruleDocOf(dto).toBulkOperation()));
       bulk.stop();
     }
   }
@@ -138,7 +138,7 @@ public class RuleIndexer implements ResilientIndexer {
 
     dbClient.ruleDao().selectIndexingRulesByKeys(dbSession, ruleUuids,
       r -> {
-        bulkIndexer.add(ruleDocOf(r).toIndexRequest());
+        bulkIndexer.add(ruleDocOf(r).toBulkOperation());
         ruleUuids.remove(r.getUuid());
       });
 

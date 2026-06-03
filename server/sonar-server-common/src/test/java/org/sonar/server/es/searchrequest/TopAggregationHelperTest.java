@@ -19,28 +19,20 @@
  */
 package org.sonar.server.es.searchrequest;
 
-import java.util.Arrays;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import java.util.Optional;
-import java.util.Random;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.MinAggregationBuilder;
 import org.junit.Test;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_EXTRA_FILTER;
-import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_OTHER_SUBAGGREGATION;
+import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_EXTRA_FILTER_V2;
+import static org.sonar.server.es.searchrequest.TopAggregationHelper.NO_OTHER_SUBAGGREGATION_V2;
 
 public class TopAggregationHelperTest {
 
@@ -50,192 +42,187 @@ public class TopAggregationHelperTest {
   private TopAggregationHelper underTest = new TopAggregationHelper(filtersComputer, subAggregationHelper);
 
   @Test
-  public void buildTopAggregation_fails_with_ISE_if_no_subaggregation_added_by_lambda() {
+  public void buildTopAggregationV2_fails_with_ISE_if_no_subaggregation_added_by_lambda() {
     String aggregationName = "name";
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
 
-    assertThatThrownBy(() -> underTest.buildTopAggregation(aggregationName, topAggregation, NO_EXTRA_FILTER, NO_OTHER_SUBAGGREGATION))
+    assertThatThrownBy(() -> underTest.buildTopAggregationV2(aggregationName, topAggregation, NO_EXTRA_FILTER_V2, NO_OTHER_SUBAGGREGATION_V2))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("no sub-aggregation has been added to top-aggregation " + aggregationName);
   }
 
   @Test
-  public void buildTopAggregation_adds_subAggregation_from_lambda_parameter() {
+  public void buildTopAggregationV2_adds_subAggregation_from_lambda_parameter() {
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
-    AggregationBuilder[] subAggs = IntStream.range(0, 1 + new Random().nextInt(12))
-      .mapToObj(i -> AggregationBuilders.min("subAgg_" + i))
-      .toArray(AggregationBuilder[]::new);
+    String[] subAggNames = IntStream.range(0, 5)
+      .mapToObj(i -> "subAgg_" + i)
+      .toArray(String[]::new);
     String topAggregationName = secure().nextAlphabetic(10);
 
-    AggregationBuilder aggregationBuilder = underTest.buildTopAggregation(topAggregationName, topAggregation,
-      NO_EXTRA_FILTER, t -> Arrays.stream(subAggs).forEach(t::subAggregation));
+    Aggregation aggregation = underTest.buildTopAggregationV2(topAggregationName, topAggregation,
+      NO_EXTRA_FILTER_V2, subAggs -> {
+        for (String name : subAggNames) {
+          subAggs.put(name, Aggregation.of(a -> a.min(m -> m.field("f"))));
+        }
+      });
 
-    assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
-    assertThat(aggregationBuilder.getSubAggregations()).hasSize(subAggs.length);
-    assertThat(aggregationBuilder.getSubAggregations()).containsExactlyInAnyOrder(subAggs);
+    assertThat(aggregation.isFilter()).isTrue();
+    assertThat(aggregation.aggregations()).hasSize(subAggNames.length);
+    assertThat(aggregation.aggregations().keySet()).containsExactlyInAnyOrder(subAggNames);
   }
 
   @Test
-  public void buildTopAggregation_adds_filter_from_FiltersComputer_for_TopAggregation() {
+  public void buildTopAggregationV2_adds_filter_from_FiltersComputer_for_TopAggregation() {
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
-    SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
-    BoolQueryBuilder computerFilter = boolQuery();
-    BoolQueryBuilder otherFilter = boolQuery();
-    when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.of(computerFilter));
-    when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
-    MinAggregationBuilder subAggregation = AggregationBuilders.min("donut");
+    Query computerFilter = Query.of(q -> q.term(t -> t.field("f").value("v")));
+    when(filtersComputer.getTopAggregationFilterV2(topAggregation)).thenReturn(Optional.of(computerFilter));
+    Aggregation subAgg = Aggregation.of(a -> a.min(m -> m.field("donut")));
     String topAggregationName = secure().nextAlphabetic(10);
 
-    FilterAggregationBuilder aggregationBuilder = underTest.buildTopAggregation(topAggregationName, topAggregation,
-      NO_EXTRA_FILTER, t -> t.subAggregation(subAggregation));
+    Aggregation aggregation = underTest.buildTopAggregationV2(topAggregationName, topAggregation,
+      NO_EXTRA_FILTER_V2, subAggs -> subAggs.put("sub", subAgg));
 
-    assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
-    assertThat(aggregationBuilder.getFilter()).isSameAs(computerFilter);
+    assertThat(aggregation.isFilter()).isTrue();
+    Query filter = aggregation.filter();
+    assertThat(filter.isBool()).isTrue();
+    assertThat(filter.bool().must()).hasSize(1);
   }
 
   @Test
-  public void buildTopAggregation_has_empty_filter_when_FiltersComputer_returns_empty_for_TopAggregation() {
+  public void buildTopAggregationV2_has_empty_bool_filter_when_FiltersComputer_returns_empty() {
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
-    SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
-    BoolQueryBuilder otherFilter = boolQuery();
-    when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.empty());
-    when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
-    MinAggregationBuilder subAggregation = AggregationBuilders.min("donut");
+    when(filtersComputer.getTopAggregationFilterV2(topAggregation)).thenReturn(Optional.empty());
     String topAggregationName = secure().nextAlphabetic(10);
 
-    FilterAggregationBuilder aggregationBuilder = underTest.buildTopAggregation(topAggregationName, topAggregation,
-      NO_EXTRA_FILTER, t -> t.subAggregation(subAggregation));
+    Aggregation aggregation = underTest.buildTopAggregationV2(topAggregationName, topAggregation,
+      NO_EXTRA_FILTER_V2, subAggs -> subAggs.put("sub", Aggregation.of(a -> a.min(m -> m.field("f")))));
 
-    assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
-    assertThat(aggregationBuilder.getFilter()).isEqualTo(boolQuery()).isNotSameAs(otherFilter);
+    assertThat(aggregation.isFilter()).isTrue();
+    Query filter = aggregation.filter();
+    assertThat(filter.isBool()).isTrue();
   }
 
   @Test
-  public void buildTopAggregation_adds_filter_from_FiltersComputer_for_TopAggregation_and_extra_one() {
+  public void buildTopAggregationV2_adds_filter_and_extra_filter_from_lambda() {
     String topAggregationName = secure().nextAlphabetic(10);
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
-    SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
-    BoolQueryBuilder computerFilter = boolQuery();
-    BoolQueryBuilder otherFilter = boolQuery();
-    BoolQueryBuilder extraFilter = boolQuery();
-    when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.of(computerFilter));
-    when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
-    MinAggregationBuilder subAggregation = AggregationBuilders.min("donut");
+    Query computerFilter = Query.of(q -> q.term(t -> t.field("f").value("v")));
+    Query extraFilter = Query.of(q -> q.term(t -> t.field("extra").value("x")));
+    when(filtersComputer.getTopAggregationFilterV2(topAggregation)).thenReturn(Optional.of(computerFilter));
 
-    FilterAggregationBuilder aggregationBuilder = underTest.buildTopAggregation(topAggregationName, topAggregation,
-      t -> t.must(extraFilter), t -> t.subAggregation(subAggregation));
+    Aggregation aggregation = underTest.buildTopAggregationV2(topAggregationName, topAggregation,
+      b -> b.must(extraFilter),
+      subAggs -> subAggs.put("sub", Aggregation.of(a -> a.min(m -> m.field("f")))));
 
-    assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
-    assertThat(aggregationBuilder.getFilter()).isEqualTo(computerFilter);
-    assertThat(((BoolQueryBuilder) aggregationBuilder.getFilter()).must()).containsExactly(extraFilter);
+    assertThat(aggregation.isFilter()).isTrue();
+    Query filter = aggregation.filter();
+    assertThat(filter.isBool()).isTrue();
+    assertThat(filter.bool().must()).hasSize(2);
   }
 
   @Test
-  public void buildTopAggregation_does_not_add_subaggregation_from_subAggregationHelper() {
+  public void buildTopAggregationV2_does_not_add_subaggregation_from_subAggregationHelper() {
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
-    when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.empty());
-    MinAggregationBuilder subAggregation = AggregationBuilders.min("donut");
+    when(filtersComputer.getTopAggregationFilterV2(topAggregation)).thenReturn(Optional.empty());
     String topAggregationName = secure().nextAlphabetic(10);
 
-    underTest.buildTopAggregation(topAggregationName, topAggregation, NO_EXTRA_FILTER, t -> t.subAggregation(subAggregation));
+    underTest.buildTopAggregationV2(topAggregationName, topAggregation, NO_EXTRA_FILTER_V2,
+      subAggs -> subAggs.put("sub", Aggregation.of(a -> a.min(m -> m.field("f")))));
 
     verifyNoInteractions(subAggregationHelper);
   }
 
   @Test
-  public void buildTermTopAggregation_adds_term_subaggregation_from_subAggregationHelper() {
+  public void buildTermTopAggregationV2_adds_term_subaggregation_from_subAggregationHelper() {
     String topAggregationName = secure().nextAlphabetic(10);
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
-    TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
-    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
+    Aggregation termSubAgg = Aggregation.of(a -> a.terms(t -> t.field("foo")));
+    when(subAggregationHelper.buildTermsAggregationV2(topAggregation, null)).thenReturn(termSubAgg);
 
-    FilterAggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(
+    Aggregation aggregation = underTest.buildTermTopAggregationV2(
       topAggregationName, topAggregation, null,
-      NO_EXTRA_FILTER, NO_OTHER_SUBAGGREGATION);
+      NO_EXTRA_FILTER_V2, NO_OTHER_SUBAGGREGATION_V2);
 
-    assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
-    assertThat(aggregationBuilder.getSubAggregations()).hasSize(1);
-    assertThat(aggregationBuilder.getSubAggregations().iterator().next()).isSameAs(termSubAgg);
+    assertThat(aggregation.isFilter()).isTrue();
+    assertThat(aggregation.aggregations()).containsKey(topAggregationName);
+    assertThat(aggregation.aggregations().get(topAggregationName)).isSameAs(termSubAgg);
   }
 
   @Test
-  public void buildTermTopAggregation_adds_subAggregation_from_lambda_parameter() {
+  public void buildTermTopAggregationV2_adds_additional_subAggregations_from_lambda() {
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
-    AggregationBuilder[] subAggs = IntStream.range(0, 1 + new Random().nextInt(12))
-      .mapToObj(i -> AggregationBuilders.min("subAgg_" + i))
-      .toArray(AggregationBuilder[]::new);
+    String[] extraAggNames = IntStream.range(0, 5)
+      .mapToObj(i -> "subAgg_" + i)
+      .toArray(String[]::new);
     String topAggregationName = secure().nextAlphabetic(10);
-    TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
-    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
-    AggregationBuilder[] allSubAggs = Stream.concat(Arrays.stream(subAggs), Stream.of(termSubAgg)).toArray(AggregationBuilder[]::new);
+    Aggregation termSubAgg = Aggregation.of(a -> a.terms(t -> t.field("foo")));
+    when(subAggregationHelper.buildTermsAggregationV2(topAggregation, null)).thenReturn(termSubAgg);
 
-    AggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(
+    Aggregation aggregation = underTest.buildTermTopAggregationV2(
       topAggregationName, topAggregation, null,
-      NO_EXTRA_FILTER, t -> Arrays.stream(subAggs).forEach(t::subAggregation));
+      NO_EXTRA_FILTER_V2, subAggs -> {
+        for (String name : extraAggNames) {
+          subAggs.put(name, Aggregation.of(a -> a.min(m -> m.field("f"))));
+        }
+      });
 
-    assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
-    assertThat(aggregationBuilder.getSubAggregations()).hasSize(allSubAggs.length);
-    assertThat(aggregationBuilder.getSubAggregations()).containsExactlyInAnyOrder(allSubAggs);
+    assertThat(aggregation.isFilter()).isTrue();
+    assertThat(aggregation.aggregations()).hasSize(extraAggNames.length + 1);
+    assertThat(aggregation.aggregations()).containsKey(topAggregationName);
   }
 
   @Test
-  public void buildTermTopAggregation_adds_filter_from_FiltersComputer_for_TopAggregation() {
+  public void buildTermTopAggregationV2_adds_filter_from_FiltersComputer_for_TopAggregation() {
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
-    SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
-    BoolQueryBuilder computerFilter = boolQuery();
-    BoolQueryBuilder otherFilter = boolQuery();
-    when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.of(computerFilter));
-    when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
+    Query computerFilter = Query.of(q -> q.term(t -> t.field("f").value("v")));
+    when(filtersComputer.getTopAggregationFilterV2(topAggregation)).thenReturn(Optional.of(computerFilter));
     String topAggregationName = secure().nextAlphabetic(10);
-    TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
-    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
+    Aggregation termSubAgg = Aggregation.of(a -> a.terms(t -> t.field("foo")));
+    when(subAggregationHelper.buildTermsAggregationV2(topAggregation, null)).thenReturn(termSubAgg);
 
-    FilterAggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(
+    Aggregation aggregation = underTest.buildTermTopAggregationV2(
       topAggregationName, topAggregation, null,
-      NO_EXTRA_FILTER, NO_OTHER_SUBAGGREGATION);
+      NO_EXTRA_FILTER_V2, NO_OTHER_SUBAGGREGATION_V2);
 
-    assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
-    assertThat(aggregationBuilder.getFilter()).isSameAs(computerFilter);
+    assertThat(aggregation.isFilter()).isTrue();
+    Query filter = aggregation.filter();
+    assertThat(filter.isBool()).isTrue();
+    assertThat(filter.bool().must()).hasSize(1);
   }
 
   @Test
-  public void buildTermTopAggregation_has_empty_filter_when_FiltersComputer_returns_empty_for_TopAggregation() {
+  public void buildTermTopAggregationV2_has_empty_bool_filter_when_FiltersComputer_returns_empty() {
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
-    SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
-    BoolQueryBuilder otherFilter = boolQuery();
-    when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.empty());
-    when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
+    when(filtersComputer.getTopAggregationFilterV2(topAggregation)).thenReturn(Optional.empty());
     String topAggregationName = secure().nextAlphabetic(10);
-    TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
-    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
+    Aggregation termSubAgg = Aggregation.of(a -> a.terms(t -> t.field("foo")));
+    when(subAggregationHelper.buildTermsAggregationV2(topAggregation, null)).thenReturn(termSubAgg);
 
-    FilterAggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(
+    Aggregation aggregation = underTest.buildTermTopAggregationV2(
       topAggregationName, topAggregation, null,
-      NO_EXTRA_FILTER, NO_OTHER_SUBAGGREGATION);
+      NO_EXTRA_FILTER_V2, NO_OTHER_SUBAGGREGATION_V2);
 
-    assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
-    assertThat(aggregationBuilder.getFilter()).isEqualTo(boolQuery()).isNotSameAs(otherFilter);
+    assertThat(aggregation.isFilter()).isTrue();
+    assertThat(aggregation.filter().isBool()).isTrue();
   }
 
   @Test
-  public void buildTermTopAggregation_adds_filter_from_FiltersComputer_for_TopAggregation_and_extra_one() {
+  public void buildTermTopAggregationV2_adds_filter_and_extra_filter_from_lambda() {
     String topAggregationName = secure().nextAlphabetic(10);
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
-    SimpleFieldTopAggregationDefinition otherTopAggregation = new SimpleFieldTopAggregationDefinition("acme", false);
-    BoolQueryBuilder computerFilter = boolQuery();
-    BoolQueryBuilder otherFilter = boolQuery();
-    BoolQueryBuilder extraFilter = boolQuery();
-    when(filtersComputer.getTopAggregationFilter(topAggregation)).thenReturn(Optional.of(computerFilter));
-    when(filtersComputer.getTopAggregationFilter(otherTopAggregation)).thenReturn(Optional.of(otherFilter));
-    TermsAggregationBuilder termSubAgg = AggregationBuilders.terms("foo");
-    when(subAggregationHelper.buildTermsAggregation(topAggregationName, topAggregation, null)).thenReturn(termSubAgg);
+    Query computerFilter = Query.of(q -> q.term(t -> t.field("f").value("v")));
+    Query extraFilter = Query.of(q -> q.term(t -> t.field("extra").value("x")));
+    when(filtersComputer.getTopAggregationFilterV2(topAggregation)).thenReturn(Optional.of(computerFilter));
+    Aggregation termSubAgg = Aggregation.of(a -> a.terms(t -> t.field("foo")));
+    when(subAggregationHelper.buildTermsAggregationV2(topAggregation, null)).thenReturn(termSubAgg);
 
-    FilterAggregationBuilder aggregationBuilder = underTest.buildTermTopAggregation(
+    Aggregation aggregation = underTest.buildTermTopAggregationV2(
       topAggregationName, topAggregation, null,
-      t -> t.must(extraFilter), NO_OTHER_SUBAGGREGATION);
+      b -> b.must(extraFilter), NO_OTHER_SUBAGGREGATION_V2);
 
-    assertThat(aggregationBuilder.getName()).isEqualTo(topAggregationName);
-    assertThat(aggregationBuilder.getFilter()).isEqualTo(computerFilter);
-    assertThat(((BoolQueryBuilder) aggregationBuilder.getFilter()).must()).containsExactly(extraFilter);
+    assertThat(aggregation.isFilter()).isTrue();
+    Query filter = aggregation.filter();
+    assertThat(filter.isBool()).isTrue();
+    assertThat(filter.bool().must()).hasSize(2);
   }
 }

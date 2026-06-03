@@ -19,11 +19,11 @@
  */
 package org.sonar.application.es;
 
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import java.util.Optional;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
 
 public interface EsConnector {
-  Optional<ClusterHealthStatus> getClusterHealthStatus();
+  Optional<HealthStatus> getClusterHealthStatus();
 
   void stop();
 }

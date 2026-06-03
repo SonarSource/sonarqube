@@ -19,40 +19,31 @@
  */
 package org.sonar.server.es;
 
+import co.elastic.clients.elasticsearch._helpers.bulk.BulkIngester;
+import co.elastic.clients.elasticsearch._helpers.bulk.BulkListener;
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.Time;
+import co.elastic.clients.elasticsearch.core.BulkRequest;
+import co.elastic.clients.elasticsearch.core.BulkResponse;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
+import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
 import co.elastic.clients.json.JsonData;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.Multiset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.bulk.BackoffPolicy;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.action.bulk.BulkProcessor.Listener;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchScrollRequest;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.common.document.DocumentField;
-import org.elasticsearch.common.unit.ByteSizeUnit;
-import org.elasticsearch.common.unit.ByteSizeValue;
-import org.elasticsearch.core.TimeValue;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.log.Profiler;
@@ -63,26 +54,48 @@ import static java.lang.String.format;
 /**
  * Helper to bulk requests in an efficient way :
  * <ul>
- * <li>bulk request is sent on the wire when its size is higher than 5Mb</li>
+ * <li>bulk request is sent on the wire when its size is higher than 1Mb</li>
  * <li>on large table indexing, replicas and automatic refresh can be temporarily disabled</li>
  * </ul>
  */
 public class BulkIndexer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BulkIndexer.class);
-  private static final ByteSizeValue FLUSH_BYTE_SIZE = new ByteSizeValue(1, ByteSizeUnit.MB);
-  private static final int FLUSH_ACTIONS = -1;
+  // Approximate flush boundary for the synchronous path. The ES7 BulkProcessor batched by serialized
+  // byte size; here we batch by operation count, which is cheap to track and produces request sizes
+  // in the same ballpark for typical document sizes.
+  private static final int FLUSH_ACTIONS = 1000;
+  // 1 MB — used by the async (BulkIngester) mode
+  private static final long FLUSH_BYTE_SIZE = 1024L * 1024L;
   private static final String REFRESH_INTERVAL_SETTING = "index.refresh_interval";
   private static final String SETTING_NUMBER_OF_REPLICAS = "index.number_of_replicas";
   private static final int DEFAULT_NUMBER_OF_SHARDS = 5;
+  private static final String DOC_TYPE = "_doc";
+  // Retry parameters matching the ES7 BulkProcessor BackoffPolicy.exponentialBackoff() defaults
+  // (50ms initial delay, 8 retries with exponential growth). ES rejects bulk items under load
+  // with HTTP 429 / es_rejected_execution_exception; retrying with backoff is what kept large
+  // recovery and initial indexing reliable on busy clusters.
+  private static final int MAX_RETRIES = 8;
+  private static final long INITIAL_BACKOFF_MS = 50;
+  private static final String REJECTED_EXECUTION_TYPE = "es_rejected_execution_exception";
 
   private final EsClient esClient;
 
   private final IndexType indexType;
-  private final BulkProcessor bulkProcessor;
+  // Set when sizeHandler.getConcurrentRequests() >= 1 — async path via the ES8 BulkIngester helper.
+  @Nullable
+  private final BulkIngester<Void> bulkIngester;
+  // Set when sizeHandler.getConcurrentRequests() == 0 — synchronous path that flushes in the calling
+  // thread. The ES7 BulkProcessor allowed setConcurrentRequests(0); the ES8 BulkIngester does not
+  // (maxConcurrentRequests(0) hangs — see https://github.com/elastic/elasticsearch-java/issues/532),
+  // so synchronous callers go through esClient.bulkV2 directly. This preserves the contract that
+  // IndexingListener#onSuccess (which may touch the caller's DbSession) runs on the calling thread.
+  @Nullable
+  private final List<BulkOperation> pendingOperations;
   private final IndexingResult result = new IndexingResult();
   private final IndexingListener indexingListener;
   private final SizeHandler sizeHandler;
+  private final BulkIngesterListener listener;
 
   public BulkIndexer(EsClient client, IndexType indexType, Size size) {
     this(client, indexType, size, IndexingListener.FAIL_ON_ERROR);
@@ -93,15 +106,19 @@ public class BulkIndexer {
     this.indexType = indexType;
     this.sizeHandler = size.createHandler(Runtime2.INSTANCE);
     this.indexingListener = indexingListener;
-    BulkProcessorListener bulkProcessorListener = new BulkProcessorListener();
-    this.bulkProcessor = BulkProcessor.builder(
-      client::bulkAsync,
-      bulkProcessorListener)
-      .setBackoffPolicy(BackoffPolicy.exponentialBackoff())
-      .setBulkSize(FLUSH_BYTE_SIZE)
-      .setBulkActions(FLUSH_ACTIONS)
-      .setConcurrentRequests(sizeHandler.getConcurrentRequests())
-      .build();
+    this.listener = new BulkIngesterListener();
+    int concurrentRequests = sizeHandler.getConcurrentRequests();
+    if (concurrentRequests == 0) {
+      this.bulkIngester = null;
+      this.pendingOperations = new ArrayList<>();
+    } else {
+      this.pendingOperations = null;
+      this.bulkIngester = BulkIngester.of(b -> b
+        .client(client.nativeClientV2())
+        .maxSize(FLUSH_BYTE_SIZE)
+        .maxConcurrentRequests(concurrentRequests)
+        .listener(listener));
+    }
   }
 
   public IndexType getIndexType() {
@@ -117,11 +134,10 @@ public class BulkIndexer {
    * @return the number of documents successfully indexed
    */
   public IndexingResult stop() {
-    try {
-      bulkProcessor.awaitClose(1, TimeUnit.MINUTES);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new IllegalStateException("Elasticsearch bulk requests still being executed after 1 minute", e);
+    if (bulkIngester != null) {
+      bulkIngester.close();
+    } else {
+      flushPending();
     }
 
     esClient.refreshV2(indexType.getMainType().getIndex());
@@ -131,69 +147,130 @@ public class BulkIndexer {
     return result;
   }
 
-  public void add(IndexRequest request) {
+  public void add(BulkOperation operation) {
     result.incrementRequests();
-    bulkProcessor.add(request);
-  }
-
-  public void add(DeleteRequest request) {
-    result.incrementRequests();
-    bulkProcessor.add(request);
-  }
-
-  public void add(DocWriteRequest request) {
-    result.incrementRequests();
-    bulkProcessor.add(request);
-  }
-
-  public void addDeletion(SearchRequest searchRequest) {
-    // TODO to be replaced by delete_by_query that is back in ES5
-    searchRequest
-      .scroll(TimeValue.timeValueMinutes(5))
-      .source()
-      .sort("_doc", SortOrder.ASC)
-      .size(100)
-      // load only doc ids, not _source fields
-      .fetchSource(false);
-
-    // this search is synchronous. An optimization would be to be non-blocking,
-    // but it requires to tracking pending requests in close().
-    // Same semaphore can't be reused because of potential deadlock (requires to acquire
-    // two locks)
-    SearchResponse searchResponse = esClient.search(searchRequest);
-
-    while (true) {
-      SearchHit[] hits = searchResponse.getHits().getHits();
-      for (SearchHit hit : hits) {
-        DocumentField routing = hit.field("_routing");
-        DeleteRequest deleteRequest = new DeleteRequest(hit.getIndex(), hit.getType(), hit.getId());
-        if (routing != null) {
-          deleteRequest.routing(routing.getValue());
-        }
-        add(deleteRequest);
-      }
-
-      String scrollId = searchResponse.getScrollId();
-      if (scrollId == null) {
-        break;
-      }
-      searchResponse = esClient.scroll(new SearchScrollRequest(scrollId).scroll(TimeValue.timeValueMinutes(5)));
-      if (hits.length == 0) {
-        esClient.clearScrollV2(csr -> csr.scrollId(scrollId));
-        break;
+    if (bulkIngester != null) {
+      bulkIngester.add(operation);
+    } else {
+      pendingOperations.add(operation);
+      if (pendingOperations.size() >= FLUSH_ACTIONS) {
+        flushPending();
       }
     }
   }
 
+  private void flushPending() {
+    if (pendingOperations.isEmpty()) {
+      return;
+    }
+    // Snapshot the operations and clear the buffer before sending: the ES8 BulkRequest.Builder
+    // stores the list by reference (via _listAddAll), so clearing pendingOperations after passing
+    // it to the builder would also empty the builder's internal list — yielding an empty bulk
+    // body and "[parse_exception] request body is required" from ES.
+    List<BulkOperation> batch = List.copyOf(pendingOperations);
+    pendingOperations.clear();
+    BulkRequest request = BulkRequest.of(b -> b.operations(batch));
+    long executionId = System.nanoTime();
+    listener.beforeBulk(executionId, request, Collections.emptyList());
+    try {
+      BulkResponse response = executeBulkWithRetry(batch);
+      listener.afterBulk(executionId, request, Collections.emptyList(), response);
+    } catch (Exception e) {
+      listener.afterBulk(executionId, request, Collections.emptyList(), e);
+      throw e;
+    }
+  }
+
+  /**
+   * Execute a bulk request, retrying rejected items with exponential backoff. Matches the
+   * resilience the ES7 BulkProcessor provided via {@code BackoffPolicy.exponentialBackoff()}.
+   * Operations that succeed or fail with a non-retryable error are kept as-is in the response;
+   * only items rejected with {@code es_rejected_execution_exception} are resubmitted.
+   */
+  private BulkResponse executeBulkWithRetry(List<BulkOperation> batch) {
+    BulkResponse response = esClient.bulkV2(b -> b.operations(batch));
+    List<BulkResponseItem> mergedItems = new ArrayList<>(response.items());
+    long backoffMs = INITIAL_BACKOFF_MS;
+    for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      List<Integer> retryIndices = new ArrayList<>();
+      for (int i = 0; i < mergedItems.size(); i++) {
+        if (isRetryable(mergedItems.get(i))) {
+          retryIndices.add(i);
+        }
+      }
+      if (retryIndices.isEmpty()) {
+        break;
+      }
+      sleepForBackoff(backoffMs);
+      backoffMs *= 2;
+      List<BulkOperation> retryOps = retryIndices.stream().map(batch::get).toList();
+      BulkResponse retryResponse = esClient.bulkV2(b -> b.operations(retryOps));
+      for (int k = 0; k < retryIndices.size(); k++) {
+        mergedItems.set(retryIndices.get(k), retryResponse.items().get(k));
+      }
+    }
+    BulkResponse original = response;
+    return BulkResponse.of(b -> b.took(original.took()).errors(mergedItems.stream().anyMatch(i -> i.error() != null)).items(mergedItems));
+  }
+
+  private static boolean isRetryable(BulkResponseItem item) {
+    return item.error() != null && REJECTED_EXECUTION_TYPE.equals(item.error().type());
+  }
+
+  private static void sleepForBackoff(long millis) {
+    try {
+      Thread.sleep(millis);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException("Interrupted while waiting to retry bulk request", e);
+    }
+  }
+
+  public void addDeletion(SearchRequest searchRequest) {
+    // Search via search_after pagination and delete each hit by its own index/id/routing.
+    // Reading the index per-hit matters when the search targets more than one index:
+    // delete operations must point to the same index the hit came from, otherwise ES will
+    // silently drop the operation. We also read routing per-hit so that documents in
+    // parent/child indices are deleted with the correct routing value.
+    List<FieldValue> lastSortValues = null;
+    while (true) {
+      final List<FieldValue> searchAfter = lastSortValues;
+      SearchResponse<Void> response = esClient.searchV2(b -> {
+        b.index(searchRequest.index())
+          .query(searchRequest.query())
+          .size(searchRequest.size())
+          .source(s -> s.fetch(false))
+          .storedFields("_routing");
+        if (searchRequest.sort() != null && !searchRequest.sort().isEmpty()) {
+          b.sort(searchRequest.sort());
+        }
+        if (searchAfter != null) {
+          b.searchAfter(searchAfter);
+        }
+        return b;
+      }, Void.class);
+
+      List<Hit<Void>> hits = response.hits().hits();
+      if (hits.isEmpty()) {
+        return;
+      }
+      for (Hit<Void> hit : hits) {
+        String hitIndex = hit.index();
+        String id = hit.id();
+        String routing = hit.routing();
+        add(BulkOperation.of(b -> b.delete(d -> d.index(hitIndex).id(id).routing(routing))));
+      }
+      lastSortValues = hits.get(hits.size() - 1).sort();
+    }
+  }
+
   public void addDeletion(IndexType indexType, String id) {
-    add(new DeleteRequest(indexType.getMainType().getIndex().getName())
-      .id(id));
+    addDeletion(indexType, id, null);
   }
 
   public void addDeletion(IndexType indexType, String id, @Nullable String routing) {
-    add(new DeleteRequest(indexType.getMainType().getIndex().getName())
-      .id(id)
-      .routing(routing));
+    String index = indexType.getMainType().getIndex().getName();
+    add(BulkOperation.of(b -> b.delete(d -> d.index(index).id(id).routing(routing))));
   }
 
   /**
@@ -209,64 +286,83 @@ public class BulkIndexer {
     return bulk.stop();
   }
 
-  private final class BulkProcessorListener implements Listener {
-    // a map containing per each request the associated profiler
-    private final Map<BulkRequest, Profiler> profilerByRequest = new ConcurrentHashMap<>();
+  private final class BulkIngesterListener implements BulkListener<Void> {
+    // a map containing per executionId the associated profiler
+    private final Map<Long, Profiler> profilerByExecutionId = new ConcurrentHashMap<>();
 
     @Override
-    public void beforeBulk(long executionId, BulkRequest request) {
+    public void beforeBulk(long executionId, BulkRequest request, List<Void> contexts) {
       final Profiler profiler = Profiler.createIfTrace(EsClient.LOGGER);
       profiler.start();
-      profilerByRequest.put(request, profiler);
+      profilerByExecutionId.put(executionId, profiler);
     }
 
     @Override
-    public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-      stopProfiler(request);
+    public void afterBulk(long executionId, BulkRequest request, List<Void> contexts, BulkResponse response) {
+      stopProfiler(executionId, request);
       List<DocId> successDocIds = new ArrayList<>();
-      for (BulkItemResponse item : response.getItems()) {
-        if (item.isFailed()) {
-          LOGGER.error("index [{}], type [{}], id [{}], message [{}]", item.getIndex(), item.getType(), item.getId(), item.getFailureMessage());
+      // ES8 BulkIngester does not retry rejected items natively. Re-submit items that came back
+      // with es_rejected_execution_exception so we keep the resilience the ES7 BulkProcessor had
+      // via BackoffPolicy.exponentialBackoff() — see SONAR-26745. Note: we do not apply a backoff
+      // delay here because we are on the ingester's listener thread; the natural throttling
+      // happens through BulkIngester.maxConcurrentRequests.
+      List<BulkOperation> operations = request.operations();
+      for (int i = 0; i < response.items().size(); i++) {
+        BulkResponseItem item = response.items().get(i);
+        if (isRetryable(item)) {
+          if (bulkIngester != null && i < operations.size()) {
+            bulkIngester.add(operations.get(i));
+          } else {
+            LOGGER.error("index [{}], id [{}], message [{}]", item.index(), item.id(), item.error().reason());
+          }
+        } else if (item.error() != null) {
+          LOGGER.error("index [{}], id [{}], message [{}]", item.index(), item.id(), item.error().reason());
         } else {
           result.incrementSuccess();
-          successDocIds.add(new DocId(item.getIndex(), item.getType(), item.getId()));
+          successDocIds.add(new DocId(item.index(), DOC_TYPE, item.id()));
         }
       }
       indexingListener.onSuccess(successDocIds);
     }
 
     @Override
-    public void afterBulk(long executionId, BulkRequest request, Throwable e) {
-      LOGGER.error("Fail to execute bulk index request: {}", request, e);
-      stopProfiler(request);
+    public void afterBulk(long executionId, BulkRequest request, List<Void> contexts, Throwable failure) {
+      LOGGER.error("Fail to execute bulk index request: {}", request, failure);
+      stopProfiler(executionId, request);
     }
 
-    private void stopProfiler(BulkRequest request) {
-      final Profiler profiler = profilerByRequest.get(request);
+    private void stopProfiler(long executionId, BulkRequest request) {
+      final Profiler profiler = profilerByExecutionId.get(executionId);
       if (Objects.nonNull(profiler) && profiler.isTraceEnabled()) {
         profiler.stopTrace(toString(request));
       }
-      profilerByRequest.remove(request);
+      profilerByExecutionId.remove(executionId);
     }
 
     private String toString(BulkRequest bulkRequest) {
       StringBuilder message = new StringBuilder();
       message.append("Bulk[");
       Multiset<BulkRequestKey> groupedRequests = LinkedHashMultiset.create();
-      for (int i = 0; i < bulkRequest.requests().size(); i++) {
-        DocWriteRequest item = bulkRequest.requests().get(i);
+      for (BulkOperation op : bulkRequest.operations()) {
         String requestType;
-        if (item instanceof IndexRequest) {
+        String index;
+        if (op.isIndex()) {
           requestType = "index";
-        } else if (item instanceof UpdateRequest) {
+          index = op.index().index();
+        } else if (op.isUpdate()) {
           requestType = "update";
-        } else if (item instanceof DeleteRequest) {
+          index = op.update().index();
+        } else if (op.isDelete()) {
           requestType = "delete";
+          index = op.delete().index();
+        } else if (op.isCreate()) {
+          requestType = "create";
+          index = op.create().index();
         } else {
           // Cannot happen, not allowed by BulkRequest's contract
-          throw new IllegalStateException("Unsupported bulk request type: " + item.getClass());
+          throw new IllegalStateException("Unsupported bulk operation kind: " + op._kind());
         }
-        groupedRequests.add(new BulkRequestKey(requestType, item.index(), item.type()));
+        groupedRequests.add(new BulkRequestKey(requestType, index, DOC_TYPE));
       }
 
       Set<Multiset.Entry<BulkRequestKey>> entrySet = groupedRequests.entrySet();
@@ -356,7 +452,7 @@ public class BulkIndexer {
 
   static class SizeHandler {
     /**
-     * @see BulkProcessor.Builder#setConcurrentRequests(int)
+     * @see BulkIngester.Builder#maxConcurrentRequests(Integer)
      */
     int getConcurrentRequests() {
       // in the same thread by default

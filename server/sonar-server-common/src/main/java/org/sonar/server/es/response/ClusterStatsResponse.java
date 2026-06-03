@@ -19,18 +19,18 @@
  */
 package org.sonar.server.es.response;
 
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import com.google.gson.JsonObject;
 import javax.annotation.concurrent.Immutable;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
 
 @Immutable
 public class ClusterStatsResponse {
 
-  private final ClusterHealthStatus healthStatus;
+  private final HealthStatus healthStatus;
   private final int nodeCount;
 
   private ClusterStatsResponse(JsonObject clusterStatsJson) {
-    this.healthStatus = ClusterHealthStatus.fromString(clusterStatsJson.get("status").getAsString());
+    this.healthStatus = HealthStatus._DESERIALIZER.parse(clusterStatsJson.get("status").getAsString());
     this.nodeCount = clusterStatsJson.getAsJsonObject("nodes").getAsJsonObject("count").get("total").getAsInt();
   }
 
@@ -38,7 +38,7 @@ public class ClusterStatsResponse {
     return new ClusterStatsResponse(jsonObject);
   }
 
-  public ClusterHealthStatus getHealthStatus() {
+  public HealthStatus getHealthStatus() {
     return healthStatus;
   }
 

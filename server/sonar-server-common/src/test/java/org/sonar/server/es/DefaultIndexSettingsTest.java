@@ -19,7 +19,7 @@
  */
 package org.sonar.server.es;
 
-import org.elasticsearch.common.settings.Settings;
+import java.util.Map;
 import org.junit.Test;
 import org.sonar.server.es.newindex.DefaultIndexSettings;
 import org.sonar.test.TestUtils;
@@ -31,7 +31,7 @@ public class DefaultIndexSettingsTest {
 
   @Test
   public void defaults() {
-    Settings settings = DefaultIndexSettings.defaults().build();
+    Map<String, Object> settings = DefaultIndexSettings.defaults();
 
     // test some values
     assertThat(settings.get("index.number_of_shards")).isEqualTo("1");

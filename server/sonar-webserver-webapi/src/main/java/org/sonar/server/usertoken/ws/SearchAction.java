@@ -31,8 +31,8 @@ import org.sonar.db.user.UserTokenDto;
 import org.sonarqube.ws.UserTokens.SearchWsResponse;
 import org.sonarqube.ws.UserTokens.SearchWsResponse.UserToken;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Optional.ofNullable;
-import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.ACTION_SEARCH;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;

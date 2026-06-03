@@ -21,6 +21,7 @@ package org.sonar.server.es;
 
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.Buckets;
+import co.elastic.clients.elasticsearch._types.aggregations.ChildrenAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.DateHistogramAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.DateHistogramBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.FilterAggregate;
@@ -37,6 +38,8 @@ import co.elastic.clients.elasticsearch._types.aggregations.ReverseNestedAggrega
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.SumAggregate;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,17 +53,6 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.HasAggregations;
-import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
-import org.elasticsearch.search.aggregations.bucket.filter.Filter;
-import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
-import org.elasticsearch.search.aggregations.bucket.missing.Missing;
-import org.elasticsearch.search.aggregations.bucket.nested.ReverseNested;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.Sum;
 
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
@@ -82,61 +74,25 @@ public class Facets {
     this.timeZone = timeZone;
   }
 
-  /**
-   * @deprecated Use the constructor that accepts co.elastic.clients.elasticsearch.core.SearchResponse instead.
-   * That constructor is based on the new Elasticsearch Java API Client (8.x).
-   */
-  @Deprecated(since = "2025.6", forRemoval = true)
-  public Facets(SearchResponse response, ZoneId timeZone) {
-    this.facetsByName = new LinkedHashMap<>();
-    this.timeZone = timeZone;
-    Aggregations aggregations = response.getAggregations();
-    if (aggregations != null) {
-      for (Aggregation facet : aggregations) {
-        processAggregation(facet);
-      }
-    }
-  }
-
-  public <T> Facets(co.elastic.clients.elasticsearch.core.SearchResponse<T> response, ZoneId timeZone) {
+  public <T> Facets(SearchResponse<T> response, ZoneId timeZone) {
     this.facetsByName = new LinkedHashMap<>();
     this.timeZone = timeZone;
     Map<String, Aggregate> aggregations = response.aggregations();
     if (aggregations != null) {
       for (Map.Entry<String, Aggregate> entry : aggregations.entrySet()) {
-        processAggregationV2(entry.getKey(), entry.getValue());
+        processAggregation(entry.getKey(), entry.getValue());
       }
     }
   }
 
-  private void processAggregation(Aggregation aggregation) {
-    if (Missing.class.isAssignableFrom(aggregation.getClass())) {
-      processMissingAggregation((Missing) aggregation);
-    } else if (Terms.class.isAssignableFrom(aggregation.getClass())) {
-      processTermsAggregation((Terms) aggregation);
-    } else if (Filter.class.isAssignableFrom(aggregation.getClass())) {
-      processSubAggregations((Filter) aggregation);
-    } else if (HasAggregations.class.isAssignableFrom(aggregation.getClass())) {
-      processSubAggregations((HasAggregations) aggregation);
-    } else if (Histogram.class.isAssignableFrom(aggregation.getClass())) {
-      processDateHistogram((Histogram) aggregation);
-    } else if (Sum.class.isAssignableFrom(aggregation.getClass())) {
-      processSum((Sum) aggregation);
-    } else if (MultiBucketsAggregation.class.isAssignableFrom(aggregation.getClass())) {
-      processMultiBucketAggregation((MultiBucketsAggregation) aggregation);
-    } else {
-      throw new IllegalArgumentException("Aggregation type not supported yet: " + aggregation.getClass());
-    }
-  }
-
-  void processAggregationV2(String name, Aggregate aggregate) {
+  void processAggregation(String name, Aggregate aggregate) {
     switch (aggregate._kind()) {
-      case Missing -> processMissingAggregationV2(name, aggregate.missing());
-      case Sterms -> processTermsAggregationV2(name, aggregate.sterms());
-      case Lterms -> processLongTermsAggregationV2(name, aggregate.lterms());
+      case Missing -> processMissingAggregation(name, aggregate.missing());
+      case Sterms -> processTermsAggregation(name, aggregate.sterms());
+      case Lterms -> processLongTermsAggregation(name, aggregate.lterms());
       case Filter -> processFilterAggregation(name, aggregate.filter());
-      case DateHistogram -> processDateHistogramV2(name, aggregate.dateHistogram());
-      case Sum -> processSumV2(name, aggregate.sum());
+      case DateHistogram -> processDateHistogram(name, aggregate.dateHistogram());
+      case Sum -> processSum(name, aggregate.sum());
       case Global -> processGlobalAggregation(name, aggregate.global());
       case Nested -> processNestedAggregation(name, aggregate.nested());
       case ReverseNested -> processReverseNestedAggregation(name, aggregate.reverseNested());
@@ -167,19 +123,7 @@ public class Facets {
     return from + "-" + to;
   }
 
-  private void processMissingAggregation(Missing aggregation) {
-    long docCount = aggregation.getDocCount();
-    if (docCount > 0L) {
-      LinkedHashMap<String, Long> facet = getOrCreateFacet(aggregation.getName().replace("_missing", ""));
-      if (aggregation.getAggregations().getAsMap().containsKey(FACET_MODE_EFFORT)) {
-        facet.put("", Math.round(((Sum) aggregation.getAggregations().get(FACET_MODE_EFFORT)).getValue()));
-      } else {
-        facet.put("", docCount);
-      }
-    }
-  }
-
-  void processMissingAggregationV2(String name, MissingAggregate aggregation) {
+  void processMissingAggregation(String name, MissingAggregate aggregation) {
     long docCount = aggregation.docCount();
     if (docCount > 0L) {
       LinkedHashMap<String, Long> facet = getOrCreateFacet(name.replace("_missing", ""));
@@ -197,25 +141,7 @@ public class Facets {
     }
   }
 
-  private void processTermsAggregation(Terms aggregation) {
-    String facetName = aggregation.getName();
-    // TODO document this naming convention
-    if (facetName.contains("__") && !facetName.startsWith("__")) {
-      facetName = facetName.substring(0, facetName.indexOf("__"));
-    }
-    facetName = facetName.replace(SELECTED_SUB_AGG_NAME_SUFFIX, "");
-    LinkedHashMap<String, Long> facet = getOrCreateFacet(facetName);
-    for (Terms.Bucket value : aggregation.getBuckets()) {
-      List<Aggregation> aggregationList = value.getAggregations().asList();
-      if (aggregationList.size() == 1) {
-        facet.put(value.getKeyAsString(), Math.round(((Sum) aggregationList.get(0)).getValue()));
-      } else {
-        facet.put(value.getKeyAsString(), value.getDocCount());
-      }
-    }
-  }
-
-  void processLongTermsAggregationV2(String name, LongTermsAggregate aggregation) {
+  void processLongTermsAggregation(String name, LongTermsAggregate aggregation) {
     String facetName = name;
     if (facetName.contains("__") && !facetName.startsWith("__")) {
       facetName = facetName.substring(0, facetName.indexOf("__"));
@@ -244,7 +170,7 @@ public class Facets {
     }
   }
 
-  void processTermsAggregationV2(String name, StringTermsAggregate aggregation) {
+  void processTermsAggregation(String name, StringTermsAggregate aggregation) {
     String facetName = name;
     if (facetName.contains("__") && !facetName.startsWith("__")) {
       facetName = facetName.substring(0, facetName.indexOf("__"));
@@ -273,21 +199,7 @@ public class Facets {
     }
   }
 
-  private void processSubAggregations(HasAggregations aggregation) {
-    if (Filter.class.isAssignableFrom(aggregation.getClass())) {
-      Filter filter = (Filter) aggregation;
-      if (filter.getName().startsWith(NO_DATA_PREFIX)) {
-        LinkedHashMap<String, Long> facet = getOrCreateFacet(filter.getName().replaceFirst(NO_DATA_PREFIX, ""));
-        facet.put("NO_DATA", ((Filter) aggregation).getDocCount());
-      }
-    }
-
-    for (Aggregation sub : getOrderedAggregations(aggregation)) {
-      processAggregation(sub);
-    }
-  }
-
-  void processSubAggregationsV2(String parentName, Map<String, Aggregate> subAggregations) {
+  void processSubAggregations(String parentName, Map<String, Aggregate> subAggregations) {
     if (subAggregations.isEmpty()) {
       return;
     }
@@ -301,26 +213,8 @@ public class Facets {
     for (Map.Entry<String, Aggregate> entry : orderedEntries) {
       // For NO_DATA filter sub-aggregations, use the sub-aggregation's own name so the NO_DATA_PREFIX check fires.
       String childName = entry.getKey().startsWith(NO_DATA_PREFIX) ? entry.getKey() : parentName;
-      processAggregationV2(childName, entry.getValue());
+      processAggregation(childName, entry.getValue());
     }
-  }
-
-  private static List<Aggregation> getOrderedAggregations(HasAggregations topAggregation) {
-    String topAggregationName = ((Aggregation) topAggregation).getName();
-    List<Aggregation> orderedAggregations = new ArrayList<>();
-    for (Aggregation aggregation : topAggregation.getAggregations()) {
-      if (isNameMatchingTopAggregation(topAggregationName, aggregation.getName())) {
-        orderedAggregations.add(0, aggregation);
-      } else {
-        orderedAggregations.add(aggregation);
-      }
-    }
-    return orderedAggregations;
-  }
-
-  private static boolean isNameMatchingTopAggregation(String topAggregationName, String aggregationName) {
-    return aggregationName.equals(topAggregationName) ||
-      aggregationName.equals(FILTER_BY_RULE_PREFIX + topAggregationName.replace(FILTER_SUFFIX, ""));
   }
 
   static boolean isNameMatchingParent(String parentName, String aggregationName) {
@@ -328,38 +222,30 @@ public class Facets {
       aggregationName.equals(FILTER_BY_RULE_PREFIX + parentName.replace(FILTER_SUFFIX, ""));
   }
 
-  private void processDateHistogram(Histogram aggregation) {
-    LinkedHashMap<String, Long> facet = getOrCreateFacet(aggregation.getName());
-    for (Histogram.Bucket value : aggregation.getBuckets()) {
-      String day = dateTimeToDate(value.getKeyAsString(), timeZone);
-      if (value.getAggregations().getAsMap().containsKey(FACET_MODE_EFFORT)) {
-        facet.put(day, Math.round(((Sum) value.getAggregations().get(FACET_MODE_EFFORT)).getValue()));
-      } else {
-        facet.put(day, value.getDocCount());
-      }
-    }
-  }
-
-  void processDateHistogramV2(String name, DateHistogramAggregate aggregation) {
+  void processDateHistogram(String name, DateHistogramAggregate aggregation) {
     LinkedHashMap<String, Long> facet = getOrCreateFacet(name);
     Buckets<DateHistogramBucket> buckets = aggregation.buckets();
     if (buckets == null || buckets.array().isEmpty()) {
       return;
     }
     for (DateHistogramBucket bucket : buckets.array()) {
-      if (bucket.keyAsString() != null) {
-        String day = dateTimeToDate(bucket.keyAsString(), timeZone);
-        Map<String, Aggregate> subAggs = bucket.aggregations();
-        if (subAggs != null && subAggs.containsKey(FACET_MODE_EFFORT)) {
-          Aggregate effortAgg = subAggs.get(FACET_MODE_EFFORT);
-          if (effortAgg.isSum()) {
-            facet.put(day, Math.round(effortAgg.sum().value()));
-          } else {
-            facet.put(day, bucket.docCount());
-          }
+      // The ES8 client only populates keyAsString when the date_histogram aggregation specifies
+      // an explicit `format`. Fall back to formatting bucket.key() (epoch millis) so that buckets
+      // are never silently dropped — matches the ES7 client behavior where key_as_string was
+      // always available.
+      String day = bucket.keyAsString() != null
+        ? dateTimeToDate(bucket.keyAsString(), timeZone)
+        : epochMillisToDate(bucket.key(), timeZone);
+      Map<String, Aggregate> subAggs = bucket.aggregations();
+      if (subAggs != null && subAggs.containsKey(FACET_MODE_EFFORT)) {
+        Aggregate effortAgg = subAggs.get(FACET_MODE_EFFORT);
+        if (effortAgg.isSum()) {
+          facet.put(day, Math.round(effortAgg.sum().value()));
         } else {
           facet.put(day, bucket.docCount());
         }
+      } else {
+        facet.put(day, bucket.docCount());
       }
     }
   }
@@ -369,26 +255,12 @@ public class Facets {
     return date.toInstant().atZone(timeZone).toLocalDate().toString();
   }
 
-  private void processSum(Sum aggregation) {
-    getOrCreateFacet(aggregation.getName()).put(TOTAL, Math.round(aggregation.getValue()));
+  static String epochMillisToDate(long epochMillis, ZoneId timeZone) {
+    return Instant.ofEpochMilli(epochMillis).atZone(timeZone).toLocalDate().toString();
   }
 
-  void processSumV2(String name, SumAggregate aggregation) {
+  void processSum(String name, SumAggregate aggregation) {
     getOrCreateFacet(name).put(TOTAL, Math.round(aggregation.value()));
-  }
-
-  private void processMultiBucketAggregation(MultiBucketsAggregation aggregation) {
-    LinkedHashMap<String, Long> facet = getOrCreateFacet(aggregation.getName());
-    aggregation.getBuckets().forEach(bucket -> {
-      if (!bucket.getAggregations().asList().isEmpty()) {
-        Aggregation next = bucket.getAggregations().iterator().next();
-        if (next instanceof ReverseNested reverseNestedBucket) {
-          facet.put(bucket.getKeyAsString(), reverseNestedBucket.getDocCount());
-        }
-      } else {
-        facet.put(bucket.getKeyAsString(), bucket.getDocCount());
-      }
-    });
   }
 
   void processFilterAggregation(String name, FilterAggregate aggregation) {
@@ -396,23 +268,23 @@ public class Facets {
       LinkedHashMap<String, Long> facet = getOrCreateFacet(NO_DATA_PREFIX_PATTERN.matcher(name).replaceFirst(""));
       facet.put("NO_DATA", aggregation.docCount());
     }
-    processSubAggregationsV2(name, aggregation.aggregations());
+    processSubAggregations(name, aggregation.aggregations());
   }
 
   void processGlobalAggregation(String name, GlobalAggregate aggregation) {
-    processSubAggregationsV2(name, aggregation.aggregations());
+    processSubAggregations(name, aggregation.aggregations());
   }
 
   void processNestedAggregation(String name, NestedAggregate aggregation) {
-    processSubAggregationsV2(name, aggregation.aggregations());
+    processSubAggregations(name, aggregation.aggregations());
   }
 
   void processReverseNestedAggregation(String name, ReverseNestedAggregate aggregation) {
-    processSubAggregationsV2(name, aggregation.aggregations());
+    processSubAggregations(name, aggregation.aggregations());
   }
 
-  void processChildrenAggregation(String name, co.elastic.clients.elasticsearch._types.aggregations.ChildrenAggregate aggregation) {
-    processSubAggregationsV2(name, aggregation.aggregations());
+  void processChildrenAggregation(String name, ChildrenAggregate aggregation) {
+    processSubAggregations(name, aggregation.aggregations());
   }
 
   public void processFiltersAggregation(String name, FiltersAggregate aggregation) {
@@ -438,7 +310,7 @@ public class Facets {
       long docCount = getBucketDocCount(bucket);
 
       facet.put(bucketKey, docCount);
-      processSubAggregationsV2(bucketKey, bucket.aggregations());
+      processSubAggregations(bucketKey, bucket.aggregations());
     }
   }
 
@@ -467,7 +339,7 @@ public class Facets {
       // Since we do not have a specific key for each bucket, we cannot populate the facet map with meaningful keys.
       // Therefore, we only process sub-aggregations for each bucket. For more details, see:
       // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-filters-aggregation.html
-      processSubAggregationsV2(name, bucket.aggregations());
+      processSubAggregations(name, bucket.aggregations());
     }
   }
 

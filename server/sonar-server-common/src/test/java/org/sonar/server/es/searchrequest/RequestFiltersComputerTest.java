@@ -19,17 +19,16 @@
  */
 package org.sonar.server.es.searchrequest;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Test;
 import org.sonar.server.es.searchrequest.RequestFiltersComputer.AllFilters;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.FilterScope;
@@ -40,7 +39,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.mockito.Mockito.mock;
 import static org.sonar.server.es.searchrequest.RequestFiltersComputer.newAllFilters;
 import static org.sonar.server.es.searchrequest.TopAggregationDefinition.NON_STICKY;
@@ -51,123 +49,118 @@ public class RequestFiltersComputerTest {
   private static final Random RANDOM = new Random();
 
   @Test
-  public void getTopAggregationFilters_fails_with_IAE_when_no_TopAggregation_provided_in_constructor() {
+  public void getTopAggregationFilterV2_fails_with_IAE_when_no_TopAggregation_provided_in_constructor() {
     RequestFiltersComputer underTest = new RequestFiltersComputer(newAllFilters(), Collections.emptySet());
 
-    assertThatThrownBy(() -> underTest.getTopAggregationFilter(mock(TopAggregationDefinition.class)))
+    assertThatThrownBy(() -> underTest.getTopAggregationFilterV2(mock(TopAggregationDefinition.class)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("topAggregation must have been declared in constructor");
   }
 
   @Test
-  public void getTopAggregationFilters_fails_with_IAE_when_TopAggregation_was_not_provided_in_constructor() {
+  public void getTopAggregationFilterV2_fails_with_IAE_when_TopAggregation_was_not_provided_in_constructor() {
     Set<TopAggregationDefinition<?>> atLeastOneTopAggs = randomNonEmptyTopAggregations(RANDOM::nextBoolean);
     RequestFiltersComputer underTest = new RequestFiltersComputer(newAllFilters(), atLeastOneTopAggs);
 
-    atLeastOneTopAggs.forEach(underTest::getTopAggregationFilter);
-    assertThatThrownBy(() -> underTest.getTopAggregationFilter(mock(TopAggregationDefinition.class)))
+    atLeastOneTopAggs.forEach(underTest::getTopAggregationFilterV2);
+    assertThatThrownBy(() -> underTest.getTopAggregationFilterV2(mock(TopAggregationDefinition.class)))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("topAggregation must have been declared in constructor");
   }
 
   @Test
-  public void getQueryFilters_returns_empty_if_AllFilters_is_empty() {
+  public void getQueryFiltersV2_returns_empty_if_AllFilters_is_empty() {
     Set<TopAggregationDefinition<?>> atLeastOneTopAggs = randomNonEmptyTopAggregations(RANDOM::nextBoolean);
     RequestFiltersComputer underTest = new RequestFiltersComputer(newAllFilters(), atLeastOneTopAggs);
 
-    assertThat(underTest.getQueryFilters()).isEmpty();
+    assertThat(underTest.getQueryFiltersV2()).isEmpty();
   }
 
   @Test
-  public void getPostFilters_returns_empty_if_AllFilters_is_empty() {
+  public void getPostFiltersV2_returns_empty_if_AllFilters_is_empty() {
     Set<TopAggregationDefinition<?>> atLeastOneTopAggs = randomNonEmptyTopAggregations(RANDOM::nextBoolean);
     RequestFiltersComputer underTest = new RequestFiltersComputer(newAllFilters(), atLeastOneTopAggs);
 
-    assertThat(underTest.getPostFilters()).isEmpty();
+    assertThat(underTest.getPostFiltersV2()).isEmpty();
   }
 
   @Test
-  public void getTopAggregationFilter_returns_empty_if_AllFilters_is_empty() {
+  public void getTopAggregationFilterV2_returns_empty_if_AllFilters_is_empty() {
     Set<TopAggregationDefinition<?>> atLeastOneTopAggs = randomNonEmptyTopAggregations(RANDOM::nextBoolean);
     RequestFiltersComputer underTest = new RequestFiltersComputer(newAllFilters(), atLeastOneTopAggs);
 
-    atLeastOneTopAggs.forEach(topAgg -> assertThat(underTest.getTopAggregationFilter(topAgg)).isEmpty());
+    atLeastOneTopAggs.forEach(topAgg -> assertThat(underTest.getTopAggregationFilterV2(topAgg)).isEmpty());
   }
 
   @Test
-  public void getQueryFilters_contains_all_filters_when_no_declared_topAggregation() {
+  public void getQueryFiltersV2_contains_all_filters_when_no_declared_topAggregation() {
     AllFilters allFilters = randomNonEmptyAllFilters();
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, Collections.emptySet());
 
-    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(allFilters.stream()));
+    assertQueryEquals(underTest.getQueryFiltersV2(), toBoolQuery(allFilters.streamV2()));
   }
 
   @Test
-  public void getPostFilters_returns_empty_when_no_declared_topAggregation() {
+  public void getPostFiltersV2_returns_empty_when_no_declared_topAggregation() {
     AllFilters allFilters = randomNonEmptyAllFilters();
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, Collections.emptySet());
 
-    assertThat(underTest.getPostFilters()).isEmpty();
+    assertThat(underTest.getPostFiltersV2()).isEmpty();
   }
 
   @Test
-  public void getQueryFilters_contains_all_filters_when_no_declared_sticky_topAggregation() {
+  public void getQueryFiltersV2_contains_all_filters_when_no_declared_sticky_topAggregation() {
     AllFilters allFilters = randomNonEmptyAllFilters();
     Set<TopAggregationDefinition<?>> atLeastOneNonStickyTopAggs = randomNonEmptyTopAggregations(() -> false);
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, atLeastOneNonStickyTopAggs);
 
-    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(allFilters.stream()));
+    assertQueryEquals(underTest.getQueryFiltersV2(), toBoolQuery(allFilters.streamV2()));
   }
 
   @Test
-  public void getPostFilters_returns_empty_when_no_declared_sticky_topAggregation() {
+  public void getPostFiltersV2_returns_empty_when_no_declared_sticky_topAggregation() {
     AllFilters allFilters = randomNonEmptyAllFilters();
     Set<TopAggregationDefinition<?>> atLeastOneNonStickyTopAggs = randomNonEmptyTopAggregations(() -> false);
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, atLeastOneNonStickyTopAggs);
 
-    assertThat(underTest.getPostFilters()).isEmpty();
+    assertThat(underTest.getPostFiltersV2()).isEmpty();
   }
 
   @Test
-  public void getTopAggregationFilters_return_empty_when_no_declared_sticky_topAggregation() {
+  public void getTopAggregationFiltersV2_return_empty_when_no_declared_sticky_topAggregation() {
     AllFilters allFilters = randomNonEmptyAllFilters();
     Set<TopAggregationDefinition<?>> atLeastOneNonStickyTopAggs = randomNonEmptyTopAggregations(() -> false);
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, atLeastOneNonStickyTopAggs);
 
-    atLeastOneNonStickyTopAggs.forEach(topAgg -> assertThat(underTest.getTopAggregationFilter(topAgg)).isEmpty());
+    atLeastOneNonStickyTopAggs.forEach(topAgg -> assertThat(underTest.getTopAggregationFilterV2(topAgg)).isEmpty());
   }
 
   @Test
   public void filters_on_field_of_sticky_TopAggregation_go_to_PostFilters_and_TopAgg_Filters_on_other_fields() {
     AllFilters allFilters = newAllFilters();
-    // has topAggs and two filters
     String field1 = "field1";
     SimpleFieldFilterScope filterScopeField1 = new SimpleFieldFilterScope(field1);
     SimpleFieldTopAggregationDefinition stickyTopAggField1 = new SimpleFieldTopAggregationDefinition(field1, STICKY);
     SimpleFieldTopAggregationDefinition nonStickyTopAggField1 = new SimpleFieldTopAggregationDefinition(field1, NON_STICKY);
-    QueryBuilder filterField1_1 = newQuery();
-    QueryBuilder filterField1_2 = newQuery();
-    allFilters.addFilter("filter_field1_1", filterScopeField1, filterField1_1);
-    allFilters.addFilter("filter_field1_2", filterScopeField1, filterField1_2);
-    // has topAggs and one filter
+    Query filterField1A = newQuery();
+    Query filterField1B = newQuery();
+    allFilters.addFilterV2("filter_field1_1", filterScopeField1, filterField1A);
+    allFilters.addFilterV2("filter_field1_2", filterScopeField1, filterField1B);
     String field2 = "field2";
     SimpleFieldFilterScope filterScopeField2 = new SimpleFieldFilterScope(field2);
     SimpleFieldTopAggregationDefinition stickyTopAggField2 = new SimpleFieldTopAggregationDefinition(field2, STICKY);
     SimpleFieldTopAggregationDefinition nonStickyTopAggField2 = new SimpleFieldTopAggregationDefinition(field2, NON_STICKY);
-    QueryBuilder filterField2 = newQuery();
-    allFilters.addFilter("filter_field2", filterScopeField2, filterField2);
-    // has only non-sticky top-agg and one filter
+    Query filterField2 = newQuery();
+    allFilters.addFilterV2("filter_field2", filterScopeField2, filterField2);
     String field3 = "field3";
     SimpleFieldFilterScope filterScopeField3 = new SimpleFieldFilterScope(field3);
     SimpleFieldTopAggregationDefinition nonStickyTopAggField3 = new SimpleFieldTopAggregationDefinition(field3, NON_STICKY);
-    QueryBuilder filterField3 = newQuery();
-    allFilters.addFilter("filter_field3", filterScopeField3, filterField3);
-    // has one filter but no top agg
+    Query filterField3 = newQuery();
+    allFilters.addFilterV2("filter_field3", filterScopeField3, filterField3);
     String field4 = "field4";
     SimpleFieldFilterScope filterScopeField4 = new SimpleFieldFilterScope(field4);
-    QueryBuilder filterField4 = newQuery();
-    allFilters.addFilter("filter_field4", filterScopeField4, filterField4);
-    // has top-aggs by no filter
+    Query filterField4 = newQuery();
+    allFilters.addFilterV2("filter_field4", filterScopeField4, filterField4);
     String field5 = "field5";
     SimpleFieldTopAggregationDefinition stickyTopAggField5 = new SimpleFieldTopAggregationDefinition(field5, STICKY);
     SimpleFieldTopAggregationDefinition nonStickyTopAggField5 = new SimpleFieldTopAggregationDefinition(field5, NON_STICKY);
@@ -179,12 +172,12 @@ public class RequestFiltersComputerTest {
 
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, declaredTopAggregations);
 
-    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(filterField3, filterField4));
-    QueryBuilder[] postFilters = {filterField1_1, filterField1_2, filterField2};
-    assertThat(underTest.getPostFilters()).contains(toBoolQuery(postFilters));
+    assertQueryEquals(underTest.getQueryFiltersV2(), toBoolQuery(filterField3, filterField4));
+    Query[] postFilters = {filterField1A, filterField1B, filterField2};
+    assertQueryEquals(underTest.getPostFiltersV2(), toBoolQuery(postFilters));
     assertTopAggregationFilter(underTest, stickyTopAggField1, filterField2);
     assertTopAggregationFilter(underTest, nonStickyTopAggField1, postFilters);
-    assertTopAggregationFilter(underTest, stickyTopAggField2, filterField1_1, filterField1_2);
+    assertTopAggregationFilter(underTest, stickyTopAggField2, filterField1A, filterField1B);
     assertTopAggregationFilter(underTest, nonStickyTopAggField2, postFilters);
     assertTopAggregationFilter(underTest, nonStickyTopAggField3, postFilters);
     assertTopAggregationFilter(underTest, stickyTopAggField5, postFilters);
@@ -192,33 +185,31 @@ public class RequestFiltersComputerTest {
   }
 
   @Test
-  public void getTopAggregationFilters_returns_empty_on_sticky_field_TopAgg_when_no_other_sticky_TopAgg() {
+  public void getTopAggregationFiltersV2_returns_empty_on_sticky_field_TopAgg_when_no_other_sticky_TopAgg() {
     AllFilters allFilters = newAllFilters();
-    // has topAggs and two filters
     String field1 = "field1";
     SimpleFieldFilterScope filterScopeField1 = new SimpleFieldFilterScope(field1);
     SimpleFieldTopAggregationDefinition stickyTopAggField1 = new SimpleFieldTopAggregationDefinition(field1, STICKY);
     SimpleFieldTopAggregationDefinition nonStickyTopAggField1 = new SimpleFieldTopAggregationDefinition(field1, NON_STICKY);
-    QueryBuilder filterField1_1 = newQuery();
-    QueryBuilder filterField1_2 = newQuery();
-    allFilters.addFilter("filter_field1_1", filterScopeField1, filterField1_1);
-    allFilters.addFilter("filter_field1_2", filterScopeField1, filterField1_2);
-    // has only non-sticky top-agg and one filter
+    Query filterField1A = newQuery();
+    Query filterField1B = newQuery();
+    allFilters.addFilterV2("filter_field1_1", filterScopeField1, filterField1A);
+    allFilters.addFilterV2("filter_field1_2", filterScopeField1, filterField1B);
     String field2 = "field2";
     SimpleFieldFilterScope filterScopeField2 = new SimpleFieldFilterScope(field2);
     SimpleFieldTopAggregationDefinition nonStickyTopAggField2 = new SimpleFieldTopAggregationDefinition(field2, NON_STICKY);
-    QueryBuilder filterField2 = newQuery();
-    allFilters.addFilter("filter_field2", filterScopeField2, filterField2);
+    Query filterField2 = newQuery();
+    allFilters.addFilterV2("filter_field2", filterScopeField2, filterField2);
     Set<TopAggregationDefinition<?>> declaredTopAggregations = ImmutableSet.of(
       stickyTopAggField1, nonStickyTopAggField1,
       nonStickyTopAggField2);
 
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, declaredTopAggregations);
 
-    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(filterField2));
-    QueryBuilder[] postFilters = {filterField1_1, filterField1_2};
-    assertThat(underTest.getPostFilters()).contains(toBoolQuery(postFilters));
-    assertThat(underTest.getTopAggregationFilter(stickyTopAggField1)).isEmpty();
+    assertQueryEquals(underTest.getQueryFiltersV2(), toBoolQuery(filterField2));
+    Query[] postFilters = {filterField1A, filterField1B};
+    assertQueryEquals(underTest.getPostFiltersV2(), toBoolQuery(postFilters));
+    assertThat(underTest.getTopAggregationFilterV2(stickyTopAggField1)).isEmpty();
     assertTopAggregationFilter(underTest, nonStickyTopAggField1, postFilters);
     assertTopAggregationFilter(underTest, nonStickyTopAggField2, postFilters);
   }
@@ -234,31 +225,25 @@ public class RequestFiltersComputerTest {
     String nestField_value5 = "nestedField_value5";
 
     AllFilters allFilters = newAllFilters();
-    // has topAggs and two filters
     NestedFieldFilterScope<String> filterScopeNestField_value1 = new NestedFieldFilterScope<>(field1, nestField, nestField_value1);
     NestedFieldTopAggregationDefinition<String> stickyTopAggField1 = newNestedFieldTopAggDef(field1, nestField, nestField_value1, STICKY);
     NestedFieldTopAggregationDefinition<String> nonStickyTopAggField1 = newNestedFieldTopAggDef(field1, nestField, nestField_value1, NON_STICKY);
-    QueryBuilder filterField1_1 = newQuery();
-    QueryBuilder filterField1_2 = newQuery();
-    allFilters.addFilter("filter_field1_1", filterScopeNestField_value1, filterField1_1);
-    allFilters.addFilter("filter_field1_2", filterScopeNestField_value1, filterField1_2);
-    // has topAggs and one filter
+    Query filterField1A = newQuery();
+    Query filterField1B = newQuery();
+    allFilters.addFilterV2("filter_field1_1", filterScopeNestField_value1, filterField1A);
+    allFilters.addFilterV2("filter_field1_2", filterScopeNestField_value1, filterField1B);
     NestedFieldFilterScope<String> filterScopeNestField_value2 = new NestedFieldFilterScope<>(field1, nestField, nestField_value2);
     NestedFieldTopAggregationDefinition<String> stickyTopAggField2 = newNestedFieldTopAggDef(field1, nestField, nestField_value2, STICKY);
     NestedFieldTopAggregationDefinition<String> nonStickyTopAggField2 = newNestedFieldTopAggDef(field1, nestField, nestField_value2, NON_STICKY);
-    QueryBuilder filterField2 = newQuery();
-    allFilters.addFilter("filter_field2", filterScopeNestField_value2, filterField2);
-    // has only non-sticky top-agg and one filter
+    Query filterField2 = newQuery();
+    allFilters.addFilterV2("filter_field2", filterScopeNestField_value2, filterField2);
     NestedFieldFilterScope<String> filterScopeField3 = new NestedFieldFilterScope<>(field1, nestField, nestField_value3);
     NestedFieldTopAggregationDefinition<String> nonStickyTopAggField3 = newNestedFieldTopAggDef(field1, nestField, nestField_value3, NON_STICKY);
-    QueryBuilder filterField3 = newQuery();
-    allFilters.addFilter("filter_field3", filterScopeField3, filterField3);
-    // has one filter but no top agg
+    Query filterField3 = newQuery();
+    allFilters.addFilterV2("filter_field3", filterScopeField3, filterField3);
     NestedFieldFilterScope<String> filterScopeField4 = new NestedFieldFilterScope<>(field1, nestField, nestField_value4);
-    QueryBuilder filterField4 = newQuery();
-    allFilters.addFilter("filter_field4", filterScopeField4, filterField4);
-    // has top-aggs by no filter
-    String field5 = "field5";
+    Query filterField4 = newQuery();
+    allFilters.addFilterV2("filter_field4", filterScopeField4, filterField4);
     NestedFieldTopAggregationDefinition<String> stickyTopAggField5 = newNestedFieldTopAggDef(field1, nestField, nestField_value5, STICKY);
     NestedFieldTopAggregationDefinition<String> nonStickyTopAggField5 = newNestedFieldTopAggDef(field1, nestField, nestField_value5, NON_STICKY);
     Set<TopAggregationDefinition<?>> declaredTopAggregations = ImmutableSet.of(
@@ -269,12 +254,12 @@ public class RequestFiltersComputerTest {
 
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, declaredTopAggregations);
 
-    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(filterField3, filterField4));
-    QueryBuilder[] postFilters = {filterField1_1, filterField1_2, filterField2};
-    assertThat(underTest.getPostFilters()).contains(toBoolQuery(postFilters));
+    assertQueryEquals(underTest.getQueryFiltersV2(), toBoolQuery(filterField3, filterField4));
+    Query[] postFilters = {filterField1A, filterField1B, filterField2};
+    assertQueryEquals(underTest.getPostFiltersV2(), toBoolQuery(postFilters));
     assertTopAggregationFilter(underTest, stickyTopAggField1, filterField2);
     assertTopAggregationFilter(underTest, nonStickyTopAggField1, postFilters);
-    assertTopAggregationFilter(underTest, stickyTopAggField2, filterField1_1, filterField1_2);
+    assertTopAggregationFilter(underTest, stickyTopAggField2, filterField1A, filterField1B);
     assertTopAggregationFilter(underTest, nonStickyTopAggField2, postFilters);
     assertTopAggregationFilter(underTest, nonStickyTopAggField3, postFilters);
     assertTopAggregationFilter(underTest, stickyTopAggField5, postFilters);
@@ -291,49 +276,43 @@ public class RequestFiltersComputerTest {
     String nestField_value2 = "nestedField_value2";
 
     AllFilters allFilters = newAllFilters();
-    // filter without top aggregation
-    QueryBuilder queryFilter = newQuery("query_filter");
-    allFilters.addFilter("query_filter", new SimpleFieldFilterScope("text"), queryFilter);
-    // nestedField of field1 with value1: has topAggs and two filters
+    Query queryFilter = newQuery("query_filter");
+    allFilters.addFilterV2("query_filter", new SimpleFieldFilterScope("text"), queryFilter);
     NestedFieldFilterScope<String> filterScopeNestField1_value1 = new NestedFieldFilterScope<>(field1, nestField, nestField_value1);
     NestedFieldTopAggregationDefinition<String> stickyTopAggNestedField1_value1 = newNestedFieldTopAggDef(field1, nestField, nestField_value1, STICKY);
     NestedFieldTopAggregationDefinition<String> nonStickyTopAggNestedField1_value1 = newNestedFieldTopAggDef(field1, nestField, nestField_value1, NON_STICKY);
-    QueryBuilder filterNestedField1_value1_1 = newQuery("filterNestedField1_value1_1");
-    QueryBuilder filterNestedField1_value1_2 = newQuery("filterNestedField1_value1_2");
-    allFilters.addFilter("filter_nested_field1_value1_1", filterScopeNestField1_value1, filterNestedField1_value1_1);
-    allFilters.addFilter("filter_nested_field1_value1_2", filterScopeNestField1_value1, filterNestedField1_value1_2);
-    // nestedField of field1 with value2: has topAggs and two filters
+    Query filterNestedField1Value1A = newQuery("filterNestedField1Value1A");
+    Query filterNestedField1Value1B = newQuery("filterNestedField1Value1B");
+    allFilters.addFilterV2("filter_nested_field1_value1_1", filterScopeNestField1_value1, filterNestedField1Value1A);
+    allFilters.addFilterV2("filter_nested_field1_value1_2", filterScopeNestField1_value1, filterNestedField1Value1B);
     NestedFieldFilterScope<String> filterScopeNestField1_value2 = new NestedFieldFilterScope<>(field1, nestField, nestField_value2);
     NestedFieldTopAggregationDefinition<String> stickyTopAggNestedField1_value2 = newNestedFieldTopAggDef(field1, nestField, nestField_value2, STICKY);
     NestedFieldTopAggregationDefinition<String> nonStickyTopAggNestedField1_value2 = newNestedFieldTopAggDef(field1, nestField, nestField_value2, NON_STICKY);
-    QueryBuilder filterNestedField1_value2_1 = newQuery("filterNestedField1_value2_1");
-    QueryBuilder filterNestedField1_value2_2 = newQuery("filterNestedField1_value2_2");
-    allFilters.addFilter("filter_nested_field1_value2_1", filterScopeNestField1_value2, filterNestedField1_value2_1);
-    allFilters.addFilter("filter_nested_field1_value2_2", filterScopeNestField1_value2, filterNestedField1_value2_2);
-    // [EDGE CASE] topAgg directly on field1: has topAggs and two filters
+    Query filterNestedField1Value2A = newQuery("filterNestedField1Value2A");
+    Query filterNestedField1Value2B = newQuery("filterNestedField1Value2B");
+    allFilters.addFilterV2("filter_nested_field1_value2_1", filterScopeNestField1_value2, filterNestedField1Value2A);
+    allFilters.addFilterV2("filter_nested_field1_value2_2", filterScopeNestField1_value2, filterNestedField1Value2B);
     SimpleFieldFilterScope filterScopeField1 = new SimpleFieldFilterScope(field1);
     SimpleFieldTopAggregationDefinition stickyTopAggField1 = new SimpleFieldTopAggregationDefinition(field1, STICKY);
     SimpleFieldTopAggregationDefinition nonStickyTopAggField1 = new SimpleFieldTopAggregationDefinition(field1, NON_STICKY);
-    QueryBuilder filterField1_1 = newQuery("filterField1_1");
-    QueryBuilder filterField1_2 = newQuery("filterField1_2");
-    allFilters.addFilter("filter_field1_1", filterScopeField1, filterField1_1);
-    allFilters.addFilter("filter_field1_2", filterScopeField1, filterField1_2);
-    // other field: has topAggs and two filters too
+    Query filterField1A = newQuery("filterField1A");
+    Query filterField1B = newQuery("filterField1B");
+    allFilters.addFilterV2("filter_field1_1", filterScopeField1, filterField1A);
+    allFilters.addFilterV2("filter_field1_2", filterScopeField1, filterField1B);
     SimpleFieldFilterScope filterScopeField2 = new SimpleFieldFilterScope(field2);
     SimpleFieldTopAggregationDefinition stickyTopAggField2 = new SimpleFieldTopAggregationDefinition(field2, STICKY);
     SimpleFieldTopAggregationDefinition nonStickyTopAggField2 = new SimpleFieldTopAggregationDefinition(field2, NON_STICKY);
-    QueryBuilder filterField2_1 = newQuery("filterField2_1");
-    QueryBuilder filterField2_2 = newQuery("filterField2_2");
-    allFilters.addFilter("filter_field2_1", filterScopeField2, filterField2_1);
-    allFilters.addFilter("filter_field2_2", filterScopeField2, filterField2_2);
-    // nestedField of another field (even though nestedField name and values are the same): has topAggs and two filters
+    Query filterField2A = newQuery("filterField2A");
+    Query filterField2B = newQuery("filterField2B");
+    allFilters.addFilterV2("filter_field2_1", filterScopeField2, filterField2A);
+    allFilters.addFilterV2("filter_field2_2", filterScopeField2, filterField2B);
     NestedFieldFilterScope<String> filterScopeNestField3_value = new NestedFieldFilterScope<>(field3, nestField, nestField_value1);
     NestedFieldTopAggregationDefinition<String> stickyTopAggNestedField3 = newNestedFieldTopAggDef(field3, nestField, nestField_value1, STICKY);
     NestedFieldTopAggregationDefinition<String> nonStickyTopAggNestedField3 = newNestedFieldTopAggDef(field3, nestField, nestField_value1, NON_STICKY);
-    QueryBuilder filterNestedField3_1 = newQuery("filterNestedField3_1");
-    QueryBuilder filterNestedField3_2 = newQuery("filterNestedField3_2");
-    allFilters.addFilter("filter_nested_field3_1", filterScopeNestField3_value, filterNestedField3_1);
-    allFilters.addFilter("filter_nested_field3_2", filterScopeNestField3_value, filterNestedField3_2);
+    Query filterNestedField3A = newQuery("filterNestedField3A");
+    Query filterNestedField3B = newQuery("filterNestedField3B");
+    allFilters.addFilterV2("filter_nested_field3_1", filterScopeNestField3_value, filterNestedField3A);
+    allFilters.addFilterV2("filter_nested_field3_2", filterScopeNestField3_value, filterNestedField3B);
     Set<TopAggregationDefinition<?>> declaredTopAggregations = ImmutableSet.of(
       stickyTopAggNestedField1_value1, nonStickyTopAggNestedField1_value1,
       stickyTopAggNestedField1_value2, nonStickyTopAggNestedField1_value2,
@@ -343,109 +322,105 @@ public class RequestFiltersComputerTest {
 
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, declaredTopAggregations);
 
-    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(queryFilter));
-    QueryBuilder[] postFilters = {
-      filterNestedField1_value1_1, filterNestedField1_value1_2,
-      filterNestedField1_value2_1, filterNestedField1_value2_2,
-      filterField1_1, filterField1_2,
-      filterField2_1, filterField2_2,
-      filterNestedField3_1, filterNestedField3_2};
-    assertThat(underTest.getPostFilters()).contains(toBoolQuery(postFilters));
+    assertQueryEquals(underTest.getQueryFiltersV2(), toBoolQuery(queryFilter));
+    Query[] postFilters = {
+      filterNestedField1Value1A, filterNestedField1Value1B,
+      filterNestedField1Value2A, filterNestedField1Value2B,
+      filterField1A, filterField1B,
+      filterField2A, filterField2B,
+      filterNestedField3A, filterNestedField3B};
+    assertQueryEquals(underTest.getPostFiltersV2(), toBoolQuery(postFilters));
     assertTopAggregationFilter(underTest, stickyTopAggNestedField1_value1,
-      filterNestedField1_value2_1, filterNestedField1_value2_2,
-      filterField1_1, filterField1_2,
-      filterField2_1, filterField2_2,
-      filterNestedField3_1, filterNestedField3_2);
+      filterNestedField1Value2A, filterNestedField1Value2B,
+      filterField1A, filterField1B,
+      filterField2A, filterField2B,
+      filterNestedField3A, filterNestedField3B);
     assertTopAggregationFilter(underTest, nonStickyTopAggNestedField1_value1, postFilters);
     assertTopAggregationFilter(underTest, stickyTopAggNestedField1_value2,
-      filterNestedField1_value1_1, filterNestedField1_value1_2,
-      filterField1_1, filterField1_2,
-      filterField2_1, filterField2_2,
-      filterNestedField3_1, filterNestedField3_2);
+      filterNestedField1Value1A, filterNestedField1Value1B,
+      filterField1A, filterField1B,
+      filterField2A, filterField2B,
+      filterNestedField3A, filterNestedField3B);
     assertTopAggregationFilter(underTest, nonStickyTopAggNestedField1_value2, postFilters);
     assertTopAggregationFilter(underTest, stickyTopAggField1,
-      filterField2_1, filterField2_2,
-      filterNestedField3_1, filterNestedField3_2);
+      filterField2A, filterField2B,
+      filterNestedField3A, filterNestedField3B);
     assertTopAggregationFilter(underTest, nonStickyTopAggField1, postFilters);
     assertTopAggregationFilter(underTest, stickyTopAggField2,
-      filterNestedField1_value1_1, filterNestedField1_value1_2,
-      filterNestedField1_value2_1, filterNestedField1_value2_2,
-      filterField1_1, filterField1_2,
-      filterNestedField3_1, filterNestedField3_2);
+      filterNestedField1Value1A, filterNestedField1Value1B,
+      filterNestedField1Value2A, filterNestedField1Value2B,
+      filterField1A, filterField1B,
+      filterNestedField3A, filterNestedField3B);
     assertTopAggregationFilter(underTest, nonStickyTopAggField2, postFilters);
     assertTopAggregationFilter(underTest, stickyTopAggNestedField3,
-      filterNestedField1_value1_1, filterNestedField1_value1_2,
-      filterNestedField1_value2_1, filterNestedField1_value2_2,
-      filterField1_1, filterField1_2,
-      filterField2_1, filterField2_2);
+      filterNestedField1Value1A, filterNestedField1Value1B,
+      filterNestedField1Value2A, filterNestedField1Value2B,
+      filterField1A, filterField1B,
+      filterField2A, filterField2B);
     assertTopAggregationFilter(underTest, nonStickyTopAggNestedField3, postFilters);
   }
 
   @Test
-  public void getTopAggregationFilters_returns_empty_on_sticky_nestedField_TopAgg_when_no_other_sticky_TopAgg() {
+  public void getTopAggregationFiltersV2_returns_empty_on_sticky_nestedField_TopAgg_when_no_other_sticky_TopAgg() {
     String field1 = "field";
     String nestField = "nestedField";
     String nestField_value1 = "nestedField_value1";
     String nestField_value2 = "nestedField_value2";
 
     AllFilters allFilters = newAllFilters();
-    // has topAggs and two filters
     NestedFieldFilterScope<String> filterScopeField1 = new NestedFieldFilterScope<>(field1, nestField, nestField_value1);
     NestedFieldTopAggregationDefinition<String> stickyTopAggField1 = newNestedFieldTopAggDef(field1, nestField, nestField_value1, STICKY);
     NestedFieldTopAggregationDefinition<String> nonStickyTopAggField1 = newNestedFieldTopAggDef(field1, nestField, nestField_value1, NON_STICKY);
-    QueryBuilder filterField1_1 = newQuery();
-    QueryBuilder filterField1_2 = newQuery();
-    allFilters.addFilter("filter_field1_1", filterScopeField1, filterField1_1);
-    allFilters.addFilter("filter_field1_2", filterScopeField1, filterField1_2);
-    // has only non-sticky top-agg and one filter
+    Query filterField1A = newQuery();
+    Query filterField1B = newQuery();
+    allFilters.addFilterV2("filter_field1_1", filterScopeField1, filterField1A);
+    allFilters.addFilterV2("filter_field1_2", filterScopeField1, filterField1B);
     NestedFieldFilterScope<String> filterScopeField2 = new NestedFieldFilterScope<>(field1, nestField, nestField_value2);
     NestedFieldTopAggregationDefinition<String> nonStickyTopAggField2 = newNestedFieldTopAggDef(field1, nestField, nestField_value2, NON_STICKY);
-    QueryBuilder filterField2 = newQuery();
-    allFilters.addFilter("filter_field2", filterScopeField2, filterField2);
+    Query filterField2 = newQuery();
+    allFilters.addFilterV2("filter_field2", filterScopeField2, filterField2);
     Set<TopAggregationDefinition<?>> declaredTopAggregations = ImmutableSet.of(
       stickyTopAggField1, nonStickyTopAggField1,
       nonStickyTopAggField2);
 
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, declaredTopAggregations);
 
-    assertThat(underTest.getQueryFilters()).contains(toBoolQuery(filterField2));
-    QueryBuilder[] postFilters = {filterField1_1, filterField1_2};
-    assertThat(underTest.getPostFilters()).contains(toBoolQuery(postFilters));
-    assertThat(underTest.getTopAggregationFilter(stickyTopAggField1)).isEmpty();
+    assertQueryEquals(underTest.getQueryFiltersV2(), toBoolQuery(filterField2));
+    Query[] postFilters = {filterField1A, filterField1B};
+    assertQueryEquals(underTest.getPostFiltersV2(), toBoolQuery(postFilters));
+    assertThat(underTest.getTopAggregationFilterV2(stickyTopAggField1)).isEmpty();
     assertTopAggregationFilter(underTest, nonStickyTopAggField1, postFilters);
     assertTopAggregationFilter(underTest, nonStickyTopAggField2, postFilters);
   }
 
   @Test
-  public void getQueryFilters_returns_empty_when_all_filters_have_sticky_TopAggs() {
+  public void getQueryFiltersV2_returns_empty_when_all_filters_have_sticky_TopAggs() {
     AllFilters allFilters = newAllFilters();
-    // has topAggs and two filters
     String field1 = "field1";
     SimpleFieldFilterScope filterScopeField1 = new SimpleFieldFilterScope(field1);
     SimpleFieldTopAggregationDefinition stickyTopAggField1 = new SimpleFieldTopAggregationDefinition(field1, STICKY);
     SimpleFieldTopAggregationDefinition nonStickyTopAggField1 = new SimpleFieldTopAggregationDefinition(field1, NON_STICKY);
-    QueryBuilder filterField1_1 = newQuery();
-    QueryBuilder filterField1_2 = newQuery();
-    allFilters.addFilter("filter_field1_1", filterScopeField1, filterField1_1);
-    allFilters.addFilter("filter_field1_2", filterScopeField1, filterField1_2);
-    // has only sticky top-agg and one filter
+    Query filterField1A = newQuery();
+    Query filterField1B = newQuery();
+    allFilters.addFilterV2("filter_field1_1", filterScopeField1, filterField1A);
+    allFilters.addFilterV2("filter_field1_2", filterScopeField1, filterField1B);
     String field2 = "field2";
     SimpleFieldFilterScope filterScopeField2 = new SimpleFieldFilterScope(field2);
     SimpleFieldTopAggregationDefinition stickyTopAggField2 = new SimpleFieldTopAggregationDefinition(field2, STICKY);
-    QueryBuilder filterField2 = newQuery();
-    allFilters.addFilter("filter_field2", filterScopeField2, filterField2);
+    Query filterField2 = newQuery();
+    allFilters.addFilterV2("filter_field2", filterScopeField2, filterField2);
     Set<TopAggregationDefinition<?>> declaredTopAggregations = ImmutableSet.of(
       stickyTopAggField1, nonStickyTopAggField1,
       stickyTopAggField2);
 
     RequestFiltersComputer underTest = new RequestFiltersComputer(allFilters, declaredTopAggregations);
 
-    assertThat(underTest.getQueryFilters()).isEmpty();
-    QueryBuilder[] postFilters = {filterField1_1, filterField1_2, filterField2};
-    assertThat(underTest.getPostFilters()).contains(toBoolQuery(postFilters));
+    assertThat(underTest.getQueryFiltersV2()).isEmpty();
+    Query[] postFilters = {filterField1A, filterField1B, filterField2};
+    assertQueryEquals(underTest.getPostFiltersV2(), toBoolQuery(postFilters));
     assertTopAggregationFilter(underTest, stickyTopAggField1, filterField2);
     assertTopAggregationFilter(underTest, nonStickyTopAggField1, postFilters);
-    assertTopAggregationFilter(underTest, stickyTopAggField2, filterField1_1, filterField1_2);
+    assertTopAggregationFilter(underTest, stickyTopAggField2, filterField1A, filterField1B);
   }
 
   private static Set<TopAggregationDefinition<?>> randomNonEmptyTopAggregations(Supplier<Boolean> isSticky) {
@@ -454,26 +429,27 @@ public class RequestFiltersComputerTest {
       .collect(toSet());
   }
 
-  private static BoolQueryBuilder toBoolQuery(QueryBuilder first, QueryBuilder... others) {
-    return toBoolQuery(Stream.concat(
-      Stream.of(first), Arrays.stream(others)));
+  private static Query toBoolQuery(Query first, Query... others) {
+    return toBoolQuery(Stream.concat(Stream.of(first), Arrays.stream(others)));
   }
 
-  private static BoolQueryBuilder toBoolQuery(QueryBuilder[] subQueries) {
+  private static Query toBoolQuery(Query[] subQueries) {
     return toBoolQuery(Arrays.stream(subQueries));
   }
 
-  private static BoolQueryBuilder toBoolQuery(Stream<QueryBuilder> stream) {
-    BoolQueryBuilder res = boolQuery();
-    stream.forEach(res::must);
-    checkState(res.hasClauses(), "empty stream is not supported");
-    return res;
+  private static Query toBoolQuery(Stream<Query> stream) {
+    List<Query> queries = stream.toList();
+    checkState(!queries.isEmpty(), "empty stream is not supported");
+    return Query.of(q -> q.bool(b -> {
+      queries.forEach(b::must);
+      return b;
+    }));
   }
 
   private static AllFilters randomNonEmptyAllFilters() {
     AllFilters res = newAllFilters();
     IntStream.range(0, 1 + RANDOM.nextInt(22))
-      .forEach(i -> res.addFilter("filter_" + i, mock(FilterScope.class), newQuery()));
+      .forEach(i -> res.addFilterV2("filter_" + i, mock(FilterScope.class), newQuery()));
     return res;
   }
 
@@ -483,24 +459,26 @@ public class RequestFiltersComputerTest {
 
   private static int queryCounter = 0;
 
-  /**
-   * Creates unique queries
-   */
-  private static QueryBuilder newQuery() {
-    return QueryBuilders.termQuery("query_" + (queryCounter++), "foo");
+  private static Query newQuery() {
+    return Query.of(q -> q.term(t -> t.field("query_" + (queryCounter++)).value("foo")));
   }
 
-  private static QueryBuilder newQuery(String label) {
-    return QueryBuilders.termQuery("query_" + label, "foo");
+  private static Query newQuery(String label) {
+    return Query.of(q -> q.term(t -> t.field("query_" + label).value("foo")));
   }
 
   private static void assertTopAggregationFilter(RequestFiltersComputer underTest,
-    TopAggregationDefinition<?> topAggregation, QueryBuilder firstFilter, QueryBuilder... otherFilters) {
-    assertThat(underTest.getTopAggregationFilter(topAggregation)).contains(toBoolQuery(firstFilter, otherFilters));
+    TopAggregationDefinition<?> topAggregation, Query firstFilter, Query... otherFilters) {
+    assertQueryEquals(underTest.getTopAggregationFilterV2(topAggregation), toBoolQuery(firstFilter, otherFilters));
   }
 
   private static void assertTopAggregationFilter(RequestFiltersComputer underTest,
-    TopAggregationDefinition<?> topAggregation, QueryBuilder[] filters) {
-    assertThat(underTest.getTopAggregationFilter(topAggregation)).contains(toBoolQuery(filters));
+    TopAggregationDefinition<?> topAggregation, Query[] filters) {
+    assertQueryEquals(underTest.getTopAggregationFilterV2(topAggregation), toBoolQuery(filters));
+  }
+
+  private static void assertQueryEquals(java.util.Optional<Query> actual, Query expected) {
+    assertThat(actual).isPresent();
+    assertThat(actual.get()).hasToString(expected.toString());
   }
 }

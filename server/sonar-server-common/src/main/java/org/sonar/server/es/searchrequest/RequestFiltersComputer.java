@@ -31,8 +31,6 @@ import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.sonar.server.es.ES8QueryHelper;
 import org.sonar.server.es.searchrequest.TopAggregationDefinition.FilterScope;
 
@@ -41,7 +39,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 
 /**
  * Computes filters of a given ES search request given all the filters to apply and the top-aggregations to include in
@@ -60,62 +57,17 @@ public class RequestFiltersComputer {
   private static final String DUPLICATE_MESSAGE = "Duplicate: %s";
 
   private final Set<TopAggregationDefinition<?>> topAggregations;
-  private final Map<FilterNameAndScope, QueryBuilder> postFilters;
-  private final Map<FilterNameAndScope, QueryBuilder> queryFilters;
   private final Map<FilterNameAndScope, Query> postFiltersV2;
   private final Map<FilterNameAndScope, Query> queryFiltersV2;
 
   public RequestFiltersComputer(AllFilters allFilters, Set<TopAggregationDefinition<?>> topAggregations) {
     this.topAggregations = ImmutableSet.copyOf(topAggregations);
-    this.postFilters = computePostFilters((AllFiltersImpl) allFilters, topAggregations);
-    this.queryFilters = computeQueryFilter((AllFiltersImpl) allFilters, postFilters);
     this.postFiltersV2 = computePostFiltersV2((AllFiltersImpl) allFilters, topAggregations);
     this.queryFiltersV2 = computeQueryFilterV2((AllFiltersImpl) allFilters, postFiltersV2);
   }
 
   public static AllFilters newAllFilters() {
     return new AllFiltersImpl();
-  }
-
-  /**
-   * Any filter of the query which can not be applied to all top-aggregations must be applied as a PostFilter.
-   * <p>
-   * A filter with a given {@link FilterScope} can not be applied to the query when at least one sticky top-aggregation
-   * is enabled which has the same {@link FilterScope}.
-   */
-  private static Map<FilterNameAndScope, QueryBuilder> computePostFilters(AllFiltersImpl allFilters,
-    Set<TopAggregationDefinition<?>> topAggregations) {
-    Set<FilterScope> enabledStickyTopAggregationtedFieldNames = topAggregations.stream()
-      .filter(TopAggregationDefinition::isSticky)
-      .map(TopAggregationDefinition::getFilterScope)
-      .collect(Collectors.toSet());
-
-    // use LinkedHashMap over MoreCollectors.uniqueIndex to preserve order and write UTs more easily
-    Map<FilterNameAndScope, QueryBuilder> res = new LinkedHashMap<>();
-    allFilters.internalStream()
-      .filter(e -> enabledStickyTopAggregationtedFieldNames.contains(e.getKey().filterScope()))
-      .forEach(e -> checkState(res.put(e.getKey(), e.getValue()) == null, DUPLICATE_MESSAGE, e.getKey()));
-    return res;
-  }
-
-  /**
-   * Filters which can be applied directly to the query are only the filters which can also be applied to all
-   * aggregations.
-   * <p>
-   * Aggregations are scoped by the filter of the query. If any top-aggregation need to not be applied a filter
-   * (typical case is a filter on the field aggregated to implement sticky facet behavior), this filter can
-   * not be applied to the query and therefor must be applied as PostFilter.
-   */
-  private static Map<FilterNameAndScope, QueryBuilder> computeQueryFilter(AllFiltersImpl allFilters,
-    Map<FilterNameAndScope, QueryBuilder> postFilters) {
-    Set<FilterNameAndScope> postFilterKeys = postFilters.keySet();
-
-    // use LinkedHashMap over MoreCollectors.uniqueIndex to preserve order and write UTs more easily
-    Map<FilterNameAndScope, QueryBuilder> res = new LinkedHashMap<>();
-    allFilters.internalStream()
-      .filter(e -> !postFilterKeys.contains(e.getKey()))
-      .forEach(e -> checkState(res.put(e.getKey(), e.getValue()) == null, DUPLICATE_MESSAGE, e.getKey()));
-    return res;
   }
 
   private static Map<FilterNameAndScope, Query> computePostFiltersV2(AllFiltersImpl allFilters,
@@ -143,51 +95,6 @@ public class RequestFiltersComputer {
     return res;
   }
 
-  /**
-   * The {@link BoolQueryBuilder} to apply directly to the query in the ES request.
-   * <p>
-   * There could be no filter to apply to the query in the (unexpected but supported) case where all filters
-   * need to be applied as PostFilter because none of them can be applied to all top-aggregations.
-   */
-  public Optional<BoolQueryBuilder> getQueryFilters() {
-    return toBoolQuery(this.queryFilters, (e, v) -> true);
-  }
-
-  /**
-   * The {@link BoolQueryBuilder} to add to the ES request as PostFilter
-   * (see {@link org.elasticsearch.action.search.SearchRequestBuilder#setPostFilter(QueryBuilder)}).
-   * <p>
-   * There may be no PostFilter to apply at all. Typical case is when all filters apply to both the query and
-   * all aggregations. (corner case: when there is no filter at all...)
-   */
-  public Optional<BoolQueryBuilder> getPostFilters() {
-    return toBoolQuery(postFilters, (e, v) -> true);
-  }
-
-  /**
-   * The {@link BoolQueryBuilder} to apply to the top aggregation for the specified {@link SimpleFieldTopAggregationDefinition}.
-   * <p>
-   * The filter of the aggregations for a top-aggregation will either be:
-   * <ul>
-   *     <li>the same as PostFilter, if the top-aggregation is non-sticky or none have the same FilterScope as
-   *         {@code topAggregation}</li>
-   *     <li>or the same as PostFilter minus any filter which applies to the same {@link FilterScope} of
-   *         {@code topAggregation}for the (<strong>if it's sticky</strong>)</li>
-   * </ul>
-   *
-   * @throws IllegalArgumentException if specified {@link TopAggregationDefinition} has not been specified in the constructor
-   */
-  public Optional<BoolQueryBuilder> getTopAggregationFilter(TopAggregationDefinition<?> topAggregation) {
-    checkArgument(topAggregations.contains(topAggregation), "topAggregation must have been declared in constructor");
-    return toBoolQuery(
-      postFilters,
-      (e, v) -> !topAggregation.isSticky() || !topAggregation.getFilterScope().intersect(e.filterScope()));
-  }
-
-  public Optional<BoolQueryBuilder> getPostFiltersExcluding(String filterNameToExclude) {
-    return toBoolQuery(postFilters, (e, v) -> !e.filterName().equals(filterNameToExclude));
-  }
-
   public Optional<Query> getQueryFiltersV2() {
     return toBoolQueryV2(this.queryFiltersV2, (e, v) -> true);
   }
@@ -205,25 +112,6 @@ public class RequestFiltersComputer {
 
   public Optional<Query> getPostFiltersExcludingV2(String filterNameToExclude) {
     return toBoolQueryV2(postFiltersV2, (e, v) -> !e.filterName().equals(filterNameToExclude));
-  }
-
-  private static Optional<BoolQueryBuilder> toBoolQuery(Map<FilterNameAndScope, QueryBuilder> queryFilters,
-    BiPredicate<FilterNameAndScope, QueryBuilder> predicate) {
-    if (queryFilters.isEmpty()) {
-      return empty();
-    }
-
-    List<QueryBuilder> selectQueryBuilders = queryFilters.entrySet().stream()
-      .filter(e -> predicate.test(e.getKey(), e.getValue()))
-      .map(Map.Entry::getValue)
-      .toList();
-    if (selectQueryBuilders.isEmpty()) {
-      return empty();
-    }
-
-    BoolQueryBuilder res = boolQuery();
-    selectQueryBuilders.forEach(res::must);
-    return of(res);
   }
 
   private static Optional<Query> toBoolQueryV2(Map<FilterNameAndScope, Query> queryFilters,
@@ -251,43 +139,13 @@ public class RequestFiltersComputer {
     /**
      * @throws IllegalArgumentException if a filter with the specified name has already been added
      */
-    AllFilters addFilter(String name, FilterScope filterScope, @Nullable QueryBuilder filter);
-
-    /**
-     * ES 8 variant: adds an ES 8 {@link Query} filter alongside the legacy {@link QueryBuilder} ones.
-     * V1 and V2 filters live in independent maps; populate whichever your call path needs.
-     *
-     * @throws IllegalArgumentException if a filter with the specified name has already been added
-     */
     AllFilters addFilterV2(String name, FilterScope filterScope, @Nullable Query filter);
-
-    Stream<QueryBuilder> stream();
 
     Stream<Query> streamV2();
   }
 
   private static class AllFiltersImpl implements AllFilters {
-    /**
-     * Usage of LinkedHashMap only benefits unit tests by providing predictability of the order of the filters.
-     * ES doesn't care of the order.
-     */
-    private final Map<FilterNameAndScope, QueryBuilder> filters = new LinkedHashMap<>();
     private final Map<FilterNameAndScope, Query> filtersV2 = new LinkedHashMap<>();
-
-    @Override
-    public AllFilters addFilter(String name, FilterScope filterScope, @Nullable QueryBuilder filter) {
-      requireNonNull(name, "name can't be null");
-      requireNonNull(filterScope, "filterScope can't be null");
-
-      if (filter == null) {
-        return this;
-      }
-
-      checkArgument(
-        filters.put(new FilterNameAndScope(name, filterScope), filter) == null,
-        "A filter with name %s has already been added", name);
-      return this;
-    }
 
     @Override
     public AllFilters addFilterV2(String name, FilterScope filterScope, @Nullable Query filter) {
@@ -305,17 +163,8 @@ public class RequestFiltersComputer {
     }
 
     @Override
-    public Stream<QueryBuilder> stream() {
-      return filters.values().stream();
-    }
-
-    @Override
     public Stream<Query> streamV2() {
       return filtersV2.values().stream();
-    }
-
-    private Stream<Map.Entry<FilterNameAndScope, QueryBuilder>> internalStream() {
-      return filters.entrySet().stream();
     }
 
     private Stream<Map.Entry<FilterNameAndScope, Query>> internalStreamV2() {

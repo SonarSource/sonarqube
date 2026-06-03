@@ -19,10 +19,11 @@
  */
 package org.sonar.application.cluster;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.ErrorResponse;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import java.net.InetAddress;
 import java.util.Optional;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -95,8 +96,8 @@ public class ClusterAppStateImplTest {
     EsConnector esConnectorMock = mock(EsConnector.class);
     when(esConnectorMock.getClusterHealthStatus())
       .thenReturn(Optional.empty())
-      .thenReturn(Optional.of(ClusterHealthStatus.RED))
-      .thenReturn(Optional.of(ClusterHealthStatus.GREEN));
+      .thenReturn(Optional.of(HealthStatus.Red))
+      .thenReturn(Optional.of(HealthStatus.Green));
     try (ClusterAppStateImpl underTest = createClusterAppState(esConnectorMock)) {
       underTest.addListener(listener);
 
@@ -110,7 +111,10 @@ public class ClusterAppStateImplTest {
   @Test
   public void isOperational_whenElasticsearchException_tryAgain() {
     EsConnector esConnectorMock = mock();
-    doThrow(new ElasticsearchException("failed to connect")).when(esConnectorMock).getClusterHealthStatus();
+    ErrorResponse errorResponse = ErrorResponse.of(r -> r
+      .status(500)
+      .error(e -> e.type("failed_to_connect").reason("failed to connect")));
+    doThrow(new ElasticsearchException("cluster.health", errorResponse)).when(esConnectorMock).getClusterHealthStatus();
 
     try (ClusterAppStateImpl underTest = createClusterAppState(esConnectorMock)) {
       boolean operational = underTest.isOperational(ProcessId.ELASTICSEARCH, false);

@@ -42,15 +42,15 @@ class IndexDefinitionHash {
   static String of(BuiltIndex<?> index) {
     IndexType.IndexMainType mainType = index.getMainType();
     return of(
-      index.getSettings().toString(),
+      index.getSettings(),
       Map.of(mainType.getIndex(), mainType),
       index.getRelationTypes().stream().collect(Collectors.toMap(IndexType.IndexRelationType::getName, Function.identity())),
       index.getAttributes(),
       index.getCustomHashMetadata());
   }
 
-  private static String of(String str, Map<?, ?>... maps) {
-    StringBuilder sb = new StringBuilder(str);
+  private static String of(Map<?, ?>... maps) {
+    StringBuilder sb = new StringBuilder();
     for (Map<?, ?> map : maps) {
       appendMap(sb, map);
     }

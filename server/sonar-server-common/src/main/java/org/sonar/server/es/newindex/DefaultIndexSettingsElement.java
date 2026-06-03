@@ -21,10 +21,11 @@ package org.sonar.server.es.newindex;
 
 import com.google.common.collect.ImmutableSortedMap;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.SortedMap;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.settings.Settings.Builder;
 
 import static org.sonar.server.es.newindex.DefaultIndexSettings.ANALYSIS;
 import static org.sonar.server.es.newindex.DefaultIndexSettings.ANALYZER;
@@ -297,7 +298,7 @@ public enum DefaultIndexSettingsElement {
   private final String type;
   private final String name;
 
-  private Builder builder = Settings.builder();
+  private final Map<String, Object> settings = new LinkedHashMap<>();
 
   DefaultIndexSettingsElement(String type) {
     this.type = type;
@@ -330,19 +331,19 @@ public enum DefaultIndexSettingsElement {
   }
 
   private void put(String setting, String value) {
-    builder = builder.put(setting, value);
+    settings.put(setting, value);
   }
 
   private void putList(String setting, String... values) {
-    builder = builder.putList(setting, values);
+    settings.put(setting, List.of(values));
   }
 
   private String localName(String settingSuffix) {
     return ANALYSIS + DELIMITER + type + DELIMITER + name + DELIMITER + settingSuffix;
   }
 
-  public Settings settings() {
-    return builder.build();
+  public Map<String, Object> settings() {
+    return settings;
   }
 
   protected abstract void setup();

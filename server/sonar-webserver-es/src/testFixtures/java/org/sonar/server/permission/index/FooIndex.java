@@ -19,11 +19,10 @@
  */
 package org.sonar.server.permission.index;
 
-import java.util.Arrays;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import java.util.List;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import java.util.Map;
 import org.sonar.server.es.EsClient;
 
 import static org.sonar.server.permission.index.FooIndexDefinition.DESCRIPTOR;
@@ -39,13 +38,15 @@ public class FooIndex {
   }
 
   public boolean hasAccessToProject(String projectUuid) {
-    SearchHits hits = esClient.search(EsClient.prepareSearch(DESCRIPTOR.getName())
-        .source(new SearchSourceBuilder().query(QueryBuilders.boolQuery()
-          .must(QueryBuilders.termQuery(FooIndexDefinition.FIELD_PROJECT_UUID, projectUuid))
-          .filter(authorizationTypeSupport.createQueryFilter()))))
-      .getHits();
-    List<String> names = Arrays.stream(hits.getHits())
-      .map(h -> h.getSourceAsMap().get(FooIndexDefinition.FIELD_NAME).toString())
+    Query authQuery = authorizationTypeSupport.createQueryFilterV2();
+    SearchResponse<Map> response = esClient.searchV2(req -> req
+      .index(DESCRIPTOR.getName())
+      .query(q -> q.bool(b -> b
+        .must(m -> m.term(t -> t.field(FooIndexDefinition.FIELD_PROJECT_UUID).value(projectUuid)))
+        .filter(authQuery))),
+      Map.class);
+    List<String> names = response.hits().hits().stream()
+      .map(h -> h.source().get(FooIndexDefinition.FIELD_NAME).toString())
       .toList();
     return names.size() == 2 && names.contains("bar") && names.contains("baz");
   }

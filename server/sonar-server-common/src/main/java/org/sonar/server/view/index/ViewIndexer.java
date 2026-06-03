@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.elasticsearch.action.index.IndexRequest;
+import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -119,17 +119,19 @@ public class ViewIndexer implements ResilientIndexer {
   }
 
   private void doIndex(BulkIndexer bulk, ViewDoc viewDoc, boolean needClearCache) {
-    bulk.add(newIndexRequest(viewDoc));
+    bulk.add(newBulkOperation(viewDoc));
     if (needClearCache) {
       clearLookupCache(viewDoc.uuid());
     }
   }
 
-  private static IndexRequest newIndexRequest(ViewDoc doc) {
-    return new IndexRequest(TYPE_VIEW.getIndex().getName())
+  private static BulkOperation newBulkOperation(ViewDoc doc) {
+    String routing = doc.getRouting().orElse(null);
+    return BulkOperation.of(b -> b.index(i -> i
+      .index(TYPE_VIEW.getIndex().getName())
       .id(doc.getId())
-      .routing(doc.getRouting().orElse(null))
-      .source(doc.getFields());
+      .routing(routing)
+      .document(doc.getFields())));
   }
 
   private void clearLookupCache(String viewUuid) {

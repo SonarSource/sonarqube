@@ -24,8 +24,6 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Map;
-import org.elasticsearch.cluster.metadata.IndexMetadata;
-import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
@@ -68,10 +66,10 @@ public class NewIndexTest {
   @Test
   @UseDataProvider("indexWithAndWithoutRelations")
   public void verify_default_index_settings_in_standalone(Index index) {
-    Settings underTest = new SimplestNewIndex(IndexType.main(index, "foo"), defaultSettingsConfiguration)
-      .getSettings().build();
+    Map<String, Object> underTest = new SimplestNewIndex(IndexType.main(index, "foo"), defaultSettingsConfiguration)
+      .getSettings();
 
-    assertThat(underTest.get("index.number_of_shards")).isNotEmpty();
+    assertThat(underTest.get("index.number_of_shards")).asString().isNotEmpty();
     // index.mapper.dynamic is deprecated and should not be set anymore
     assertThat(underTest.get("index.mapper.dynamic")).isNull();
     assertThat(underTest.get("index.refresh_interval")).isEqualTo("30s");
@@ -86,11 +84,11 @@ public class NewIndexTest {
   @UseDataProvider("indexWithAndWithoutRelations")
   public void verify_default_index_settings_in_cluster(Index index) {
     settings.setProperty(CLUSTER_ENABLED.getKey(), "true");
-    Settings underTest = new SimplestNewIndex(IndexType.main(index, "foo"), defaultSettingsConfiguration).getSettings().build();
+    Map<String, Object> underTest = new SimplestNewIndex(IndexType.main(index, "foo"), defaultSettingsConfiguration).getSettings();
 
     // _all field is deprecated in ES 6.X and will be removed in 7.X
     assertThat(underTest.get("_all")).isNull();
-    assertThat(underTest.get("index.number_of_shards")).isNotEmpty();
+    assertThat(underTest.get("index.number_of_shards")).asString().isNotEmpty();
     assertThat(underTest.get("index.refresh_interval")).isEqualTo("30s");
     // setting "mapping.single_type" has been dropped in 6.X because multi type indices are not supported anymore
     assertThat(underTest.get("mapping.single_type")).isNull();
@@ -227,8 +225,9 @@ public class NewIndexTest {
   public void default_shards_and_replicas(Index index) {
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
-    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+    assertThat(newIndex.getSettings())
+      .containsEntry("index.number_of_shards", "5")
+      .containsEntry("index.number_of_replicas", "0");
   }
 
   @Test
@@ -237,8 +236,9 @@ public class NewIndexTest {
     settings.setProperty(CLUSTER_ENABLED.getKey(), "true");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
-    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
+    assertThat(newIndex.getSettings())
+      .containsEntry("index.number_of_shards", "5")
+      .containsEntry("index.number_of_replicas", "1");
   }
 
   @Test
@@ -247,9 +247,9 @@ public class NewIndexTest {
     settings.setProperty("sonar.search." + index.getName() + ".shards", "3");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSetting(IndexMetadata.SETTING_NUMBER_OF_SHARDS)).isEqualTo("3");
+    assertThat(newIndex.getSetting("index.number_of_shards")).isEqualTo("3");
     // keep default value
-    assertThat(newIndex.getSetting(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+    assertThat(newIndex.getSetting("index.number_of_replicas")).isEqualTo("0");
   }
 
   @Test
@@ -257,7 +257,7 @@ public class NewIndexTest {
   public void default_number_of_replicas_on_standalone_instance_must_be_0(Index index) {
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+    assertThat(newIndex.getSettings()).containsEntry("index.number_of_replicas", "0");
   }
 
   @Test
@@ -266,7 +266,7 @@ public class NewIndexTest {
     settings.setProperty(CLUSTER_ENABLED.getKey(), "false");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+    assertThat(newIndex.getSettings()).containsEntry("index.number_of_replicas", "0");
   }
 
   @Test
@@ -275,7 +275,7 @@ public class NewIndexTest {
     settings.setProperty(CLUSTER_ENABLED.getKey(), "true");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
+    assertThat(newIndex.getSettings()).containsEntry("index.number_of_replicas", "1");
   }
 
   @Test
@@ -285,7 +285,7 @@ public class NewIndexTest {
     settings.setProperty(SEARCH_REPLICAS.getKey(), "0");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+    assertThat(newIndex.getSettings()).containsEntry("index.number_of_replicas", "0");
   }
 
   @Test
@@ -295,7 +295,7 @@ public class NewIndexTest {
     settings.setProperty(SEARCH_REPLICAS.getKey(), "3");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), newBuilder(settings.asConfig()).setDefaultNbOfShards(5).build());
 
-    assertThat(newIndex.getSettings().get(IndexMetadata.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("3");
+    assertThat(newIndex.getSettings()).containsEntry("index.number_of_replicas", "3");
   }
 
   @Test

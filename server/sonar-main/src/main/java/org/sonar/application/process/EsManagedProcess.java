@@ -19,9 +19,7 @@
  */
 package org.sonar.application.process;
 
-import java.net.ConnectException;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.es.EsConnector;
@@ -92,29 +90,19 @@ public class EsManagedProcess extends AbstractManagedProcess {
       return esConnector.getClusterHealthStatus()
         .map(EsManagedProcess::convert)
         .orElse(CONNECTION_REFUSED);
-    } catch (ElasticsearchException e) {
-      if (e.getRootCause() instanceof ConnectException) {
-        return CONNECTION_REFUSED;
-      }
-      LOG.error("Failed to check status", e);
-      return KO;
     } catch (Exception e) {
       LOG.error("Failed to check status", e);
       return KO;
     }
   }
 
-  private static Status convert(ClusterHealthStatus clusterHealthStatus) {
-    switch (clusterHealthStatus) {
-      case GREEN:
-        return GREEN;
-      case YELLOW:
-        return YELLOW;
-      case RED:
-        return RED;
-      default:
-        return KO;
-    }
+  private static Status convert(HealthStatus healthStatus) {
+    return switch (healthStatus) {
+      case Green -> GREEN;
+      case Yellow -> YELLOW;
+      case Red -> RED;
+      default -> KO;
+    };
   }
 
   enum Status {
