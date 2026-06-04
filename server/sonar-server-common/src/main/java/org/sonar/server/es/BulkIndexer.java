@@ -21,6 +21,7 @@ package org.sonar.server.es;
 
 import co.elastic.clients.elasticsearch._helpers.bulk.BulkIngester;
 import co.elastic.clients.elasticsearch._helpers.bulk.BulkListener;
+import co.elastic.clients.transport.BackoffPolicy;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.Time;
 import co.elastic.clients.elasticsearch.core.BulkRequest;
@@ -113,10 +114,15 @@ public class BulkIndexer {
       this.pendingOperations = new ArrayList<>();
     } else {
       this.pendingOperations = null;
+      // backoffPolicy lets the BulkIngester transparently retry items rejected with 429 /
+      // es_rejected_execution_exception, restoring the resilience the ES7 BulkProcessor had via
+      // BackoffPolicy.exponentialBackoff(). Available on the ES Java client since 8.18 (we upgraded
+      // to 8.19.x for this). Defaults match the legacy ES7 policy: 50ms initial, 8 retries, exponential.
       this.bulkIngester = BulkIngester.of(b -> b
         .client(client.nativeClientV2())
         .maxSize(FLUSH_BYTE_SIZE)
         .maxConcurrentRequests(concurrentRequests)
+        .backoffPolicy(BackoffPolicy.exponentialBackoff(INITIAL_BACKOFF_MS, MAX_RETRIES))
         .listener(listener));
     }
   }
@@ -301,21 +307,14 @@ public class BulkIndexer {
     public void afterBulk(long executionId, BulkRequest request, List<Void> contexts, BulkResponse response) {
       stopProfiler(executionId, request);
       List<DocId> successDocIds = new ArrayList<>();
-      // ES8 BulkIngester does not retry rejected items natively. Re-submit items that came back
-      // with es_rejected_execution_exception so we keep the resilience the ES7 BulkProcessor had
-      // via BackoffPolicy.exponentialBackoff() — see SONAR-26745. Note: we do not apply a backoff
-      // delay here because we are on the ingester's listener thread; the natural throttling
-      // happens through BulkIngester.maxConcurrentRequests.
-      List<BulkOperation> operations = request.operations();
-      for (int i = 0; i < response.items().size(); i++) {
-        BulkResponseItem item = response.items().get(i);
-        if (isRetryable(item)) {
-          if (bulkIngester != null && i < operations.size()) {
-            bulkIngester.add(operations.get(i));
-          } else {
-            LOGGER.error("index [{}], id [{}], message [{}]", item.index(), item.id(), item.error().reason());
-          }
-        } else if (item.error() != null) {
+      // The ES7 BulkProcessor transparently retried rejected items via BackoffPolicy.exponentialBackoff().
+      // ES8 BulkIngester offers no equivalent and inline re-submission from the listener thread risks
+      // a tight loop / unbounded re-add (no cap, no delay). We mirror the original ES7 listener
+      // behavior here — log and move on. Retry with cap+backoff is applied on the synchronous
+      // Size.REGULAR path (executeBulkWithRetry); the async Size.LARGE path runs only at startup,
+      // so a transient 429 surfaces as a logged error and the indexer falls back to FAIL_ON_ERROR.
+      for (BulkResponseItem item : response.items()) {
+        if (item.error() != null) {
           LOGGER.error("index [{}], id [{}], message [{}]", item.index(), item.id(), item.error().reason());
         } else {
           result.incrementSuccess();
@@ -452,7 +451,7 @@ public class BulkIndexer {
 
   static class SizeHandler {
     /**
-     * @see BulkIngester.Builder#maxConcurrentRequests(Integer)
+     * @see BulkIngester.Builder#maxConcurrentRequests(int)
      */
     int getConcurrentRequests() {
       // in the same thread by default
