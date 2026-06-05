@@ -26,14 +26,13 @@ import org.sonar.server.platform.db.migration.step.MigrationSteps;
 public class DatabaseVersion {
 
   /**
-   * The minimum supported version which can be upgraded. Lower
-   * versions must be previously upgraded to LTA version.
-   * Note that the value can't be less than current LTA version.
+   * The minimum supported version of the DB which can be upgraded.
+   * Lower versions must be previously upgraded to the version containing this Database migration.
+   * Higher versions can be enforced with the human-readable strings to adapt to our migration path strategy.
    */
-  
-  public static final long MIN_UPGRADE_VERSION = 2026_01_000;
+  public static final long MIN_UPGRADE_VERSION = 2025_06_026;
 
-  // In reality user is required to upgrade just to 10.8 but we want to 'market' 2025.1
+  // We mark 2026.1 as minimum human-readable version in order to enforce the expected upgrade path for the commercial edition
   public static final String MIN_UPGRADE_VERSION_HUMAN_READABLE = "2026.1";
   public static final String MIN_UPGRADE_VERSION_COMMUNITY_BUILD_READABLE = "25.12";
 
