@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.sonar.core.metric.ScaMetrics;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -53,35 +54,35 @@ import static org.sonar.db.component.DbTagsReader.readDbTags;
 
 public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMeasuresIndexerIterator.ProjectMeasures> {
 
-  public static final Set<String> METRIC_KEYS = ImmutableSortedSet.of(
-    NCLOC_KEY,
-    CoreMetrics.LINES_KEY,
-    CoreMetrics.DUPLICATED_LINES_DENSITY_KEY,
-    CoreMetrics.COVERAGE_KEY,
-    CoreMetrics.SQALE_RATING_KEY,
-    CoreMetrics.RELIABILITY_RATING_KEY,
-    CoreMetrics.SECURITY_RATING_KEY,
-    CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY,
-    CoreMetrics.SECURITY_REVIEW_RATING_KEY,
-    CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY,
-    CoreMetrics.ALERT_STATUS_KEY,
-    CoreMetrics.NEW_SECURITY_RATING_KEY,
-    CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY,
-    CoreMetrics.NEW_SECURITY_REVIEW_RATING_KEY,
-    CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY,
-    CoreMetrics.NEW_COVERAGE_KEY,
-    CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY,
-    CoreMetrics.NEW_LINES_KEY,
-    CoreMetrics.NEW_RELIABILITY_RATING_KEY,
-
+  public static final Set<String> METRIC_KEYS = ImmutableSortedSet.<String>naturalOrder()
+    .add(NCLOC_KEY)
+    .add(CoreMetrics.LINES_KEY)
+    .add(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY)
+    .add(CoreMetrics.COVERAGE_KEY)
+    .add(CoreMetrics.SQALE_RATING_KEY)
+    .add(CoreMetrics.RELIABILITY_RATING_KEY)
+    .add(CoreMetrics.SECURITY_RATING_KEY)
+    .add(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY)
+    .add(CoreMetrics.SECURITY_REVIEW_RATING_KEY)
+    .add(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY)
+    .add(CoreMetrics.ALERT_STATUS_KEY)
+    .add(CoreMetrics.NEW_SECURITY_RATING_KEY)
+    .add(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY)
+    .add(CoreMetrics.NEW_SECURITY_REVIEW_RATING_KEY)
+    .add(CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY)
+    .add(CoreMetrics.NEW_COVERAGE_KEY)
+    .add(CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY)
+    .add(CoreMetrics.NEW_LINES_KEY)
+    .add(CoreMetrics.NEW_RELIABILITY_RATING_KEY)
     //Ratings based on software quality
-    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY,
-    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY,
-    SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY,
-    SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY,
-    SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY,
-    SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY
-  );
+    .add(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY)
+    .add(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY)
+    .add(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY)
+    .add(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY)
+    .add(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY)
+    .add(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY)
+    .addAll(ScaMetrics.INDEXED_RATING_KEYS)
+    .build();
 
   private static final Gson GSON = new Gson();
 

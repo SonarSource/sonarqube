@@ -19,6 +19,7 @@
  */
 package org.sonar.server.measure.live;
 
+import org.sonar.core.metric.ScaMetrics;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -74,6 +75,10 @@ import static org.sonar.server.security.SecurityReviewRating.computePercent;
 import static org.sonar.server.security.SecurityReviewRating.computeRating;
 
 public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFactory {
+
+  private static final Metric<?> SCA_RATING_ANY_ISSUE_METRIC = ScaMetrics.SCA_RATING_ANY_ISSUE;
+  private static final Metric<?> NEW_SCA_RATING_ANY_ISSUE_METRIC = ScaMetrics.NEW_SCA_RATING_ANY_ISSUE;
+
   private static final List<MeasureUpdateFormula> FORMULAS = asList(
     new MeasureUpdateFormula(CODE_SMELLS, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.CODE_SMELL, false))),
@@ -452,9 +457,31 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
       (context, issues) -> context.setValue(
         issues.getHighestSeverityOfUnresolved(SoftwareQuality.MAINTAINABILITY, true)
           .map(SeverityValues::fromImpactSeverity)
-          .orElse(SeverityValues.NO_ISSUES))));
+          .orElse(SeverityValues.NO_ISSUES))),
+    newScaRatingFormula(SCA_RATING_ANY_ISSUE_METRIC, false),
+    newScaRatingFormula(NEW_SCA_RATING_ANY_ISSUE_METRIC, true));
 
   private static final Set<Metric> FORMULA_METRICS = MeasureUpdateFormulaFactory.extractMetrics(FORMULAS);
+
+  private static MeasureUpdateFormula newScaRatingFormula(Metric<?> metric, boolean onNewCode) {
+    return new MeasureUpdateFormula(metric, onNewCode, false,
+      (context, formula) -> {},
+      (context, issues) -> getValueIfRegistered(context, metric)
+        .map(v -> Rating.valueOf(v.intValue()))
+        .ifPresent(context::setValue),
+      List.of(metric));
+  }
+
+  // SCA metrics are only registered when the SCA plugin loads them via a Metrics extension.
+  // On editions without that extension, MeasureMatrix.getMeasure throws IllegalArgumentException
+  // for the unregistered key; treat that as "no value" so the passthrough is a safe no-op.
+  private static Optional<Double> getValueIfRegistered(MeasureUpdateFormula.Context context, Metric<?> metric) {
+    try {
+      return context.getValue(metric);
+    } catch (IllegalArgumentException e) {
+      return Optional.empty();
+    }
+  }
 
   private static double debtDensity(Metric<?> maintainabilityRemediationEffortMetric, MeasureUpdateFormula.Context context) {
     double debt = Math.max(context.getValue(maintainabilityRemediationEffortMetric).orElse(0.0D), 0.0D);

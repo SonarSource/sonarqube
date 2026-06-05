@@ -263,7 +263,9 @@ class SearchProjectsActionIT {
       "new_software_quality_security_rating",
       "software_quality_maintainability_rating",
       "software_quality_reliability_rating",
-      "software_quality_security_rating");
+      "software_quality_security_rating",
+      "sca_rating_any_issue",
+      "new_sca_rating_any_issue");
 
     Param asc = def.param("asc");
     assertThat(asc.defaultValue()).isEqualTo("true");
@@ -285,7 +287,9 @@ class SearchProjectsActionIT {
       "new_software_quality_security_rating",
       "software_quality_maintainability_rating",
       "software_quality_reliability_rating",
-      "software_quality_security_rating");
+      "software_quality_security_rating",
+      "sca_rating_any_issue",
+      "new_sca_rating_any_issue");
   }
 
   @Test

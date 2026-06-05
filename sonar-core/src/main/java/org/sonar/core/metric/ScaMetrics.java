@@ -21,6 +21,7 @@ package org.sonar.core.metric;
 
 import java.util.Map;
 import java.util.Set;
+import org.sonar.api.measures.Metric;
 
 /**
  * Normally SCA metrics are only available when using Enterprise Edition or up
@@ -92,6 +93,32 @@ public class ScaMetrics {
   public static final String SCA_COUNT_LICENSING_KEY = String.format(BASE_KEY_FORMAT, SCA_COUNT_PREFIX, SCA_METRIC_ISSUE_TYPE_LICENSING);
   public static final String SCA_COUNT_MALWARE_KEY = String.format(BASE_KEY_FORMAT, SCA_COUNT_PREFIX, SCA_METRIC_ISSUE_TYPE_MALWARE);
   public static final String SCA_COUNT_ANY_SECURITY_KEY = String.format(BASE_KEY_FORMAT, SCA_COUNT_PREFIX, SCA_METRIC_ISSUE_TYPE_ANY_SECURITY);
+
+  // Must be kept in sync with com.sonar.sca.metrics.ScaMetrics.INDEXED_RATING_KEYS
+  public static final Set<String> INDEXED_RATING_KEYS = Set.of(
+    SCA_RATING_ANY_ISSUE_KEY,
+    NEW_SCA_RATING_ANY_ISSUE_KEY);
+
+  // Must be kept in sync with com.sonar.sca.metrics.ScaMetrics.buildRatingThresholdMetric
+  public static final Metric<Integer> SCA_RATING_ANY_ISSUE = new Metric.Builder(
+    SCA_RATING_ANY_ISSUE_KEY, "Dependency risk rating", Metric.ValueType.RATING)
+    .setDescription("Dependency risk rating")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setDomain("DependencyRisks")
+    .setBestValue(1.0)
+    .setWorstValue(5.0)
+    .setOptimizedBestValue(true)
+    .create();
+
+  public static final Metric<Integer> NEW_SCA_RATING_ANY_ISSUE = new Metric.Builder(
+    NEW_SCA_RATING_ANY_ISSUE_KEY, "Dependency risk rating on new code", Metric.ValueType.RATING)
+    .setDescription("Dependency risk rating on new code")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setDomain("DependencyRisks")
+    .setBestValue(1.0)
+    .setWorstValue(5.0)
+    .setOptimizedBestValue(true)
+    .create();
 
   public static final Set<String> SCA_METRICS_KEYS = Set.of(
     NEW_SCA_RATING_ANY_ISSUE_KEY,

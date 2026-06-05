@@ -88,6 +88,8 @@ import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALIT
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY;
+import static org.sonar.core.metric.ScaMetrics.NEW_SCA_RATING_ANY_ISSUE_KEY;
+import static org.sonar.core.metric.ScaMetrics.SCA_RATING_ANY_ISSUE_KEY;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.SearchOptions.MAX_PAGE_SIZE;
 import static org.sonar.server.es.searchrequest.TopAggregationDefinition.STICKY;
@@ -161,6 +163,8 @@ public class ProjectMeasuresIndex {
 
     SECURITY_HOTSPOTS_REVIEWED(new RangeMeasureFacet(SECURITY_HOTSPOTS_REVIEWED_KEY, SECURITY_REVIEW_RATING_THRESHOLDS)),
     NEW_SECURITY_HOTSPOTS_REVIEWED(new RangeMeasureFacet(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, SECURITY_REVIEW_RATING_THRESHOLDS)),
+    SCA_RATING_ANY_ISSUE(new RatingMeasureFacet(SCA_RATING_ANY_ISSUE_KEY)),
+    NEW_SCA_RATING_ANY_ISSUE(new RatingMeasureFacet(NEW_SCA_RATING_ANY_ISSUE_KEY)),
     ALERT_STATUS(new MeasureFacet(ALERT_STATUS_KEY, ProjectMeasuresIndex::buildAlertStatusFacetV2)),
     LANGUAGES(FILTER_LANGUAGES, FIELD_LANGUAGES, STICKY, ProjectMeasuresIndex::buildLanguageFacetV2),
     QUALIFIER(FILTER_QUALIFIER, FIELD_QUALIFIER, STICKY, ProjectMeasuresIndex::buildQualifierFacetV2),
