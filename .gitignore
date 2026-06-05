@@ -71,5 +71,3 @@ scripts/patches/*license*.txt
 !scripts/patches/postgres.sh
 gherkin-features/
 
-# claude code
-.claude/
