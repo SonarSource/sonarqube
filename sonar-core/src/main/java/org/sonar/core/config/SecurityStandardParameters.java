@@ -44,6 +44,7 @@ public class SecurityStandardParameters {
   public static final String PARAM_STIG = "stig";
   public static final String PARAM_STIG_ASD_V5R3 = "stig-ASD_V5R3";
   public static final String PARAM_CASA = "casa";
+  public static final String PARAM_CRA = "cra";
 
   private SecurityStandardParameters() {
     // class cannot be instantiated
