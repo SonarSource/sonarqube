@@ -71,3 +71,6 @@ scripts/patches/*license*.txt
 !scripts/patches/postgres.sh
 gherkin-features/
 
+# claude code — ignore everything under .claude/ EXCEPT the committed, shared skills subtree
+.claude/*
+!.claude/skills/
