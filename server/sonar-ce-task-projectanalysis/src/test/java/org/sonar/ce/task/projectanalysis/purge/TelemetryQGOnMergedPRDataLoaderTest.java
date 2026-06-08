@@ -41,6 +41,7 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.purge.PurgeConfiguration;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeMapper;
+import org.sonar.server.telemetry.AgenticQGProjectResolver;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 import org.sonar.telemetry.core.schema.Metric;
@@ -79,6 +80,8 @@ class TelemetryQGOnMergedPRDataLoaderTest {
   private PurgeMapper purgeMapper;
   @Mock
   private Configuration configuration;
+  @Mock
+  private AgenticQGProjectResolver agenticQGProjectResolver;
 
   @InjectMocks
   private TelemetryQGOnMergedPRDataLoader underTest;
@@ -200,6 +203,50 @@ class TelemetryQGOnMergedPRDataLoaderTest {
     underTest.resetMetrics();
 
     assertThat(underTest.getMetrics()).isEmpty();
+  }
+
+  @Test
+  void calculateMetrics_whenProjectHasAgenticQGAndHasFailedPRs_emitsAgenticFailedMetric() {
+    when(agenticQGProjectResolver.isAgenticQGProject(session, PROJECT_UUID)).thenReturn(true);
+    BranchDto prBranch = createBranchDto(PR_UUID, BranchType.PULL_REQUEST);
+    when(purgeDao.getStaleBranchesToPurge(conf, purgeMapper, ROOT_UUID)).thenReturn(singletonList(prBranch));
+    when(measureDao.selectByComponentUuidsAndMetricKeys(session, List.of(PR_UUID), singletonList(ALERT_STATUS_KEY))).thenReturn(List.of(ERROR_QG_MEASURE));
+
+    underTest.calculateMetrics(session, conf);
+
+    assertThat(underTest.getMetrics())
+      .filteredOn(m -> "agentic_qg_pr_merge_failed_count".equals(m.getKey()))
+      .hasSize(1)
+      .first()
+      .satisfies(m -> assertThat(m.getValue()).isEqualTo(1L));
+  }
+
+  @Test
+  void calculateMetrics_whenProjectDoesNotHaveAgenticQG_doesNotEmitAgenticMetric() {
+    when(agenticQGProjectResolver.isAgenticQGProject(session, PROJECT_UUID)).thenReturn(false);
+    BranchDto prBranch = createBranchDto(PR_UUID, BranchType.PULL_REQUEST);
+    when(purgeDao.getStaleBranchesToPurge(conf, purgeMapper, ROOT_UUID)).thenReturn(singletonList(prBranch));
+    when(measureDao.selectByComponentUuidsAndMetricKeys(session, List.of(PR_UUID), singletonList(ALERT_STATUS_KEY))).thenReturn(List.of(ERROR_QG_MEASURE));
+
+    underTest.calculateMetrics(session, conf);
+
+    assertThat(underTest.getMetrics())
+      .extracting(Metric::getKey)
+      .doesNotContain("agentic_qg_pr_merge_failed_count");
+  }
+
+  @Test
+  void calculateMetrics_whenProjectHasAgenticQGButAllPRsPassed_doesNotEmitAgenticFailedMetric() {
+    lenient().when(agenticQGProjectResolver.isAgenticQGProject(session, PROJECT_UUID)).thenReturn(true);
+    BranchDto prBranch = createBranchDto(PR_UUID, BranchType.PULL_REQUEST);
+    when(purgeDao.getStaleBranchesToPurge(conf, purgeMapper, ROOT_UUID)).thenReturn(singletonList(prBranch));
+    when(measureDao.selectByComponentUuidsAndMetricKeys(session, List.of(PR_UUID), singletonList(ALERT_STATUS_KEY))).thenReturn(List.of(OK_QG_MEASURE));
+
+    underTest.calculateMetrics(session, conf);
+
+    assertThat(underTest.getMetrics())
+      .extracting(Metric::getKey)
+      .doesNotContain("agentic_qg_pr_merge_failed_count");
   }
 
   private static Stream<Arguments> provideQgStatusScenarios() {

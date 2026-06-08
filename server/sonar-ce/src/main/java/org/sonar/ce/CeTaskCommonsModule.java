@@ -25,6 +25,7 @@ import org.sonar.ce.task.projectanalysis.purge.ProjectCleaner;
 import org.sonar.ce.task.projectanalysis.purge.TelemetryQGOnMergedPRProvider;
 import org.sonar.core.platform.Module;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
+import org.sonar.server.telemetry.AgenticQGProjectResolver;
 import org.sonar.telemetry.core.TelemetryClient;
 
 /**
@@ -35,6 +36,7 @@ public class CeTaskCommonsModule extends Module {
   protected void configureModule() {
     add(
       DefaultPeriodCleaner.class,
+      AgenticQGProjectResolver.class,
       TelemetryQGOnMergedPRProvider.class,
       TelemetryQGOnMergedPRDataLoader.class,
       ProjectCleaner.class,

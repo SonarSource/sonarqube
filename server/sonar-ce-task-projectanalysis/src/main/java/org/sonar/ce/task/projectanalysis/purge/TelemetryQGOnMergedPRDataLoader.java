@@ -36,6 +36,7 @@ import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.purge.PurgeConfiguration;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeMapper;
+import org.sonar.server.telemetry.AgenticQGProjectResolver;
 import org.sonar.telemetry.core.Granularity;
 import org.sonar.telemetry.core.TelemetryDataType;
 import org.sonar.telemetry.core.schema.Metric;
@@ -52,19 +53,23 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABL
 public class TelemetryQGOnMergedPRDataLoader {
   private static final String FAILED_COUNT_METRIC = "project_pr_qg_failed_count";
   private static final String PASSED_COUNT_METRIC = "project_pr_qg_passed_count";
+  private static final String AGENTIC_FAILED_METRIC = "agentic_qg_pr_merge_failed_count";
   private final PurgeDao purgeDao;
   private final MeasureDao measureDao;
   private final Configuration configuration;
+  private final AgenticQGProjectResolver agenticQGProjectResolver;
   private Set<Metric> metrics = new HashSet<>();
 
   enum QualityGateStatus {
     OK, ERROR
   }
 
-  public TelemetryQGOnMergedPRDataLoader(PurgeDao purgeDao, MeasureDao measureDao, Configuration configuration) {
+  public TelemetryQGOnMergedPRDataLoader(PurgeDao purgeDao, MeasureDao measureDao, Configuration configuration,
+    AgenticQGProjectResolver agenticQGProjectResolver) {
     this.measureDao = measureDao;
     this.purgeDao = purgeDao;
     this.configuration = configuration;
+    this.agenticQGProjectResolver = agenticQGProjectResolver;
   }
 
   public Set<Metric> getMetrics() {
@@ -96,6 +101,14 @@ public class TelemetryQGOnMergedPRDataLoader {
       );
       metrics.add(passedMetric);
     }
+    addAgenticMetricIfApplicable(session, conf, qgStatusesCount);
+  }
+
+  private void addAgenticMetricIfApplicable(DbSession session, PurgeConfiguration conf, Map<String, Long> qgStatusesCount) {
+    if (!qgStatusesCount.containsKey(ERROR.name()) || !agenticQGProjectResolver.isAgenticQGProject(session, conf.projectUuid())) {
+      return;
+    }
+    metrics.add(new ProjectMetric(AGENTIC_FAILED_METRIC, qgStatusesCount.get(ERROR.name()), conf.projectUuid(), TelemetryDataType.INTEGER, Granularity.ADHOC));
   }
 
   public void resetMetrics() {
