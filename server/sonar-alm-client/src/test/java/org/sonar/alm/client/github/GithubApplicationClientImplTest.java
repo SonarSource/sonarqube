@@ -258,7 +258,7 @@ public class GithubApplicationClientImplTest {
 
     assertThatThrownBy(() -> underTest.checkAppPermissions(githubAppConfiguration))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Missing permissions; permission granted on pull_requests is 'read', should be 'write', checks is 'read', should be 'write'");
+      .hasMessage("Missing permissions; permission granted on checks is 'read', should be 'write', pull_requests is 'read', should be 'write'");
   }
 
   @Test

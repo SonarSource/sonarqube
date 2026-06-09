@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.Clock;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -48,6 +47,7 @@ import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubAppInstallation;
+import org.sonar.auth.github.GithubAppPermissions;
 import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.GithubBinding;
 import org.sonar.auth.github.GithubBinding.GsonGithubRepository;
@@ -73,8 +73,6 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   private static final Pattern TRAILING_SLASH_PATTERN = Pattern.compile("/$");
 
   protected static final Gson GSON = new Gson();
-  protected static final String WRITE_PERMISSION_NAME = "write";
-  protected static final String READ_PERMISSION_NAME = "read";
   protected static final String FAILED_TO_REQUEST_BEGIN_MSG = "Failed to request ";
 
   private static final TypeToken<List<GsonRepositoryTeam>> REPOSITORY_TEAM_LIST_TYPE = new TypeToken<>() {
@@ -168,10 +166,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   public void checkAppPermissions(GithubAppConfiguration githubAppConfiguration) {
     AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
 
-    Map<String, String> permissions = new HashMap<>();
-    permissions.put("checks", WRITE_PERMISSION_NAME);
-    permissions.put("pull_requests", WRITE_PERMISSION_NAME);
-    permissions.put("metadata", READ_PERMISSION_NAME);
+    Map<String, String> permissions = GithubAppPermissions.REQUIRED_PERMISSIONS;
 
     String endPoint = "/app";
     GetResponse response;
@@ -188,6 +183,8 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       List<String> missingPermissions = permissions.entrySet().stream()
         .filter(permission -> !Objects.equals(permission.getValue(), perms.get(permission.getKey())))
         .map(Map.Entry::getKey)
+        // sorted for a deterministic message: REQUIRED_PERMISSIONS is a Map.of, whose iteration order is randomized per JVM
+        .sorted()
         .toList();
 
       if (!missingPermissions.isEmpty()) {
