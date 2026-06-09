@@ -1,0 +1,5 @@
+{
+  "githubAppUrl": "https://github.com/organizations/my-org/settings/apps/new",
+  "manifest": "{\"name\":\"SonarQube\",\"url\":\"https://sonarqube.example.com\",\"redirect_url\":\"https://sonarqube.example.com/github/manifest/callback\",\"callback_urls\":[\"https://sonarqube.example.com\"],\"setup_url\":\"https://sonarqube.example.com/admin/settings?category=almintegration\",\"public\":true,\"default_permissions\":{\"administration\":\"read\",\"checks\":\"write\",\"contents\":\"read\",\"emails\":\"read\",\"members\":\"read\",\"metadata\":\"read\",\"organization_administration\":\"read\",\"organization_projects\":\"read\",\"pull_requests\":\"write\"},\"default_events\":[],\"request_oauth_on_install\":true}",
+  "state": "5f3a9c1e7b2d4a8f6c0e1d2b3a4c5e6f"
+}
