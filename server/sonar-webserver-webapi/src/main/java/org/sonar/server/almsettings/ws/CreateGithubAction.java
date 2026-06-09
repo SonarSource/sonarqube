@@ -25,10 +25,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.user.UserSession;
 
-import static org.apache.commons.lang3.Strings.CS;
 import static org.sonar.db.alm.setting.ALM.GITHUB;
 
 public class CreateGithubAction implements AlmSettingsWsAction {
@@ -110,15 +108,13 @@ public class CreateGithubAction implements AlmSettingsWsAction {
     String key = request.mandatoryParam(PARAM_KEY);
     almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, key);
 
-    dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
-      .setAlm(GITHUB)
-      .setKey(key)
-      .setUrl(CS.removeEnd(request.mandatoryParam(PARAM_URL), "/"))
-      .setAppId(request.mandatoryParam(PARAM_APP_ID))
-      .setPrivateKey(request.mandatoryParam(PARAM_PRIVATE_KEY))
-      .setClientId(request.mandatoryParam(PARAM_CLIENT_ID))
-      .setClientSecret(request.mandatoryParam(PARAM_CLIENT_SECRET))
-      .setWebhookSecret(request.getParam(PARAM_WEBHOOK_SECRET).emptyAsNull().or(() -> null)));
+    almSettingsSupport.createGithubSetting(dbSession, new AlmSettingsSupport.NewGithubSetting(key,
+      request.mandatoryParam(PARAM_URL),
+      request.mandatoryParam(PARAM_APP_ID),
+      request.mandatoryParam(PARAM_PRIVATE_KEY),
+      request.mandatoryParam(PARAM_CLIENT_ID),
+      request.mandatoryParam(PARAM_CLIENT_SECRET),
+      request.getParam(PARAM_WEBHOOK_SECRET).emptyAsNull().or(() -> null)));
 
     dbSession.commit();
   }
