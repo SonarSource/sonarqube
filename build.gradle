@@ -404,7 +404,7 @@ subprojects {
       dependency('ch.qos.logback.access:logback-access-tomcat:2.0.12')
       dependency 'commons-codec:commons-codec:1.22.0'
       dependency 'commons-dbutils:commons-dbutils:1.8.1'
-      dependency 'commons-io:commons-io:2.21.0'
+      dependency 'commons-io:commons-io:2.22.0'
       imports { mavenBom 'com.fasterxml.jackson:jackson-bom:2.21.2' }
       dependencySet(group: 'com.github.scribejava', version: '8.3.3') {
         entry 'scribejava-apis'
