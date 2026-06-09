@@ -476,7 +476,7 @@ subprojects {
         entry 'xmlunit-core'
         entry 'xmlunit-matchers'
       }
-      dependency 'at.yawk.lz4:lz4-java:1.10.4'
+      dependency 'at.yawk.lz4:lz4-java:1.11.0'
       dependency 'org.littleshoot:littleproxy:1.1.2'
       dependency 'net.sf.trove4j:core:3.1.0'
       dependency 'nl.jqno.equalsverifier:equalsverifier:3.17.3'
