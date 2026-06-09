@@ -39,6 +39,11 @@ public class AlmSettingsWsModule extends Module {
       //Github alm settings
       CreateGithubAction.class,
       UpdateGithubAction.class,
+      //Github App Manifest flow
+      GithubAppManifestGenerator.class,
+      GithubManifestStateStore.class,
+      CreateGithubFromManifestAction.class,
+      GithubManifestCallbackFilter.class,
       //Gitlab alm settings
       CreateGitlabAction.class,
       UpdateGitlabAction.class,

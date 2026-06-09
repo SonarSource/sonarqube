@@ -245,31 +245,39 @@ public class GithubConfigurationService {
   }
 
   public GithubConfiguration createConfiguration(GithubConfiguration configuration) {
-    throwIfConfigurationAlreadyExists();
-
-    boolean enableAutoProvisioning = isTypeAutoProvisioning(configuration.provisioningType());
     try (DbSession dbSession = dbClient.openSession(false)) {
-      setProperty(dbSession, GITHUB_ENABLED, String.valueOf(configuration.enabled()));
-      setProperty(dbSession, GITHUB_CLIENT_ID, configuration.clientId());
-      setProperty(dbSession, GITHUB_CLIENT_SECRET, configuration.clientSecret());
-      setProperty(dbSession, GITHUB_APP_ID, configuration.applicationId());
-      setProperty(dbSession, GITHUB_PRIVATE_KEY, configuration.privateKey());
-      setProperty(dbSession, GITHUB_GROUPS_SYNC, String.valueOf(configuration.synchronizeGroups()));
-      setProperty(dbSession, GITHUB_API_URL, configuration.apiUrl());
-      setProperty(dbSession, GITHUB_WEB_URL, configuration.webUrl());
-      setProperty(dbSession, GITHUB_ORGANIZATIONS, String.join(",", configuration.allowedOrganizations()));
-      setInternalProperty(dbSession, GITHUB_PROVISIONING, String.valueOf(enableAutoProvisioning));
-      setProperty(dbSession, GITHUB_ALLOW_USERS_TO_SIGN_UP, String.valueOf(configuration.allowUsersToSignUp()));
-      setProperty(dbSession, GITHUB_PROVISION_PROJECT_VISIBILITY, String.valueOf(configuration.provisionProjectVisibility()));
-      setPropertyAsEmpty(dbSession, GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE, configuration.userConsentRequiredAfterUpgrade());
-      if (enableAutoProvisioning) {
-        triggerRun(configuration);
-      }
-      GithubConfiguration createdConfiguration = getConfiguration(UNIQUE_GITHUB_CONFIGURATION_ID, dbSession);
+      GithubConfiguration createdConfiguration = createConfiguration(dbSession, configuration);
       dbSession.commit();
       return createdConfiguration;
     }
+  }
 
+  /**
+   * Writes the configuration using the provided session but does NOT commit it, so the caller can persist
+   * it atomically together with other changes (e.g. a DevOps binding) and commit once. The caller owns the
+   * transaction and is responsible for committing or rolling back.
+   */
+  public GithubConfiguration createConfiguration(DbSession dbSession, GithubConfiguration configuration) {
+    throwIfConfigurationAlreadyExists();
+
+    boolean enableAutoProvisioning = isTypeAutoProvisioning(configuration.provisioningType());
+    setProperty(dbSession, GITHUB_ENABLED, String.valueOf(configuration.enabled()));
+    setProperty(dbSession, GITHUB_CLIENT_ID, configuration.clientId());
+    setProperty(dbSession, GITHUB_CLIENT_SECRET, configuration.clientSecret());
+    setProperty(dbSession, GITHUB_APP_ID, configuration.applicationId());
+    setProperty(dbSession, GITHUB_PRIVATE_KEY, configuration.privateKey());
+    setProperty(dbSession, GITHUB_GROUPS_SYNC, String.valueOf(configuration.synchronizeGroups()));
+    setProperty(dbSession, GITHUB_API_URL, configuration.apiUrl());
+    setProperty(dbSession, GITHUB_WEB_URL, configuration.webUrl());
+    setProperty(dbSession, GITHUB_ORGANIZATIONS, String.join(",", configuration.allowedOrganizations()));
+    setInternalProperty(dbSession, GITHUB_PROVISIONING, String.valueOf(enableAutoProvisioning));
+    setProperty(dbSession, GITHUB_ALLOW_USERS_TO_SIGN_UP, String.valueOf(configuration.allowUsersToSignUp()));
+    setProperty(dbSession, GITHUB_PROVISION_PROJECT_VISIBILITY, String.valueOf(configuration.provisionProjectVisibility()));
+    setPropertyAsEmpty(dbSession, GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE, configuration.userConsentRequiredAfterUpgrade());
+    if (enableAutoProvisioning) {
+      triggerRun(configuration);
+    }
+    return getConfiguration(UNIQUE_GITHUB_CONFIGURATION_ID, dbSession);
   }
 
   private void throwIfConfigurationAlreadyExists() {
