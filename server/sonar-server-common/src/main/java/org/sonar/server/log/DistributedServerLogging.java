@@ -21,6 +21,9 @@ package org.sonar.server.log;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.hazelcast.cluster.Member;
+import com.hazelcast.core.EntryAdapter;
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.replicatedmap.ReplicatedMap;
 import jakarta.inject.Inject;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,6 +38,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -46,6 +50,7 @@ import okio.BufferedSource;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
@@ -72,6 +77,7 @@ public class DistributedServerLogging extends ServerLogging {
   private static final Logger LOGGER = LoggerFactory.getLogger(DistributedServerLogging.class);
   private final HazelcastMember hazelcastMember;
   private final OkHttpClient client;
+  private UUID logLevelListenerUuid;
 
   @Inject
   public DistributedServerLogging(Configuration config, ServerProcessLogging serverProcessLogging, Database database, HazelcastMember hazelcastMember) {
@@ -94,20 +100,84 @@ public class DistributedServerLogging extends ServerLogging {
   @Override
   public void start() {
     super.start();
+    registerLogLevelListener();
     loadLogLevelFromHazelcast();
+  }
+
+  @Override
+  public void stop() {
+    unregisterLogLevelListener();
+    super.stop();
   }
 
   private void loadLogLevelFromHazelcast() {
     try {
       Map<String, String> runtimeConfig = hazelcastMember.getReplicatedMap(RUNTIME_CONFIG);
-      final String logLevelStr = runtimeConfig.get(LOG_LEVEL_KEY);
-      if (logLevelStr != null) {
-        final LoggerLevel level = LoggerLevel.valueOf(logLevelStr);
-        changeLevel(level);
-        LOGGER.debug("Applied runtime log level '{}' from Hazelcast", level);
-      }
+      applyLogLevel(runtimeConfig.get(LOG_LEVEL_KEY));
     } catch (Exception e) {
       LOGGER.warn("Failed to load log level from Hazelcast", e);
+    }
+  }
+
+  /**
+   * The initial {@link #loadLogLevelFromHazelcast()} read is a one-shot snapshot taken at startup. On a freshly-joined
+   * node the {@link RUNTIME_CONFIG} replicated map may not be synchronized yet, so the read can return {@code null} and
+   * the cluster log level would never be applied to this node. Registering an entry listener guarantees the level is
+   * (re)applied as soon as it is replicated to this member.
+   */
+  private void registerLogLevelListener() {
+    try {
+      logLevelListenerUuid = runtimeConfigReplicatedMap().addEntryListener(new LogLevelListener());
+    } catch (Exception e) {
+      LOGGER.warn("Failed to register log level listener on Hazelcast", e);
+    }
+  }
+
+  private void unregisterLogLevelListener() {
+    if (logLevelListenerUuid == null) {
+      return;
+    }
+    try {
+      runtimeConfigReplicatedMap().removeEntryListener(logLevelListenerUuid);
+    } catch (Exception e) {
+      LOGGER.warn("Failed to unregister log level listener from Hazelcast", e);
+    } finally {
+      logLevelListenerUuid = null;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private ReplicatedMap<String, String> runtimeConfigReplicatedMap() {
+    // HazelcastMember.getReplicatedMap is documented to be castable to ReplicatedMap to benefit from listeners
+    return (ReplicatedMap<String, String>) (ReplicatedMap<?, ?>) hazelcastMember.getReplicatedMap(RUNTIME_CONFIG);
+  }
+
+  private void applyLogLevel(@Nullable String logLevelStr) {
+    if (logLevelStr == null) {
+      return;
+    }
+    try {
+      final LoggerLevel level = LoggerLevel.valueOf(logLevelStr);
+      changeLevel(level);
+      LOGGER.info("Applied runtime log level '{}' from Hazelcast", level);
+    } catch (Exception e) {
+      LOGGER.warn("Failed to apply runtime log level '{}' from Hazelcast", logLevelStr, e);
+    }
+  }
+
+  private class LogLevelListener extends EntryAdapter<String, String> {
+    @Override
+    public void entryAdded(EntryEvent<String, String> event) {
+      if (LOG_LEVEL_KEY.equals(event.getKey())) {
+        applyLogLevel(event.getValue());
+      }
+    }
+
+    @Override
+    public void entryUpdated(EntryEvent<String, String> event) {
+      if (LOG_LEVEL_KEY.equals(event.getKey())) {
+        applyLogLevel(event.getValue());
+      }
     }
   }
 
