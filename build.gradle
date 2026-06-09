@@ -288,7 +288,7 @@ subprojects {
       // do not conflict with com.sun.mail:javax.mail
       exclude group: 'javax.mail', module: 'mail'
       resolutionStrategy {
-        force 'net.java.dev.jna:jna:5.18.1'
+        force 'net.java.dev.jna:jna:5.19.0'
         // at.yawk.lz4:lz4-java is a drop-in replacement for org.lz4:lz4-java and declares the same capability.
         // Prefer the newer fork over the version pulled in transitively by various libraries.
         capabilitiesResolution.withCapability('org.lz4:lz4-java') {
