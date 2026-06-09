@@ -552,7 +552,7 @@ subprojects {
         entry 'spring-security-saml2-service-provider'
       }
       dependency 'org.mybatis:mybatis:3.5.19'
-      dependencySet(group: 'org.slf4j', version: '2.0.17') {
+      dependencySet(group: 'org.slf4j', version: '2.0.18') {
         entry 'jcl-over-slf4j'
         entry 'jul-to-slf4j'
         entry 'log4j-over-slf4j'
