@@ -36,6 +36,8 @@ import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.Strings.CS;
+import static org.sonar.db.alm.setting.ALM.GITHUB;
 import static org.sonar.db.permission.ProjectPermission.ADMIN;
 
 @ServerSide
@@ -88,6 +90,31 @@ public class AlmSettingsSupport {
     ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
     userSession.checkEntityPermission(projectPermission, project);
     return project;
+  }
+
+  /**
+   * Values needed to persist a GitHub ALM setting, bundled so the same insertion logic can be shared by
+   * the manual {@code create_github} web service and the GitHub App Manifest flow.
+   */
+  public record NewGithubSetting(String key, String url, String appId, String privateKey, String clientId,
+    String clientSecret, @Nullable String webhookSecret) {
+  }
+
+  /**
+   * Inserts a new GitHub ALM setting. Shared by the manual {@code create_github} web service and the
+   * GitHub App Manifest flow so both persist credentials identically (encryption and auditing are
+   * handled by the DAO).
+   */
+  public void createGithubSetting(DbSession dbSession, NewGithubSetting setting) {
+    dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
+      .setAlm(GITHUB)
+      .setKey(setting.key())
+      .setUrl(CS.removeEnd(setting.url(), "/"))
+      .setAppId(setting.appId())
+      .setPrivateKey(setting.privateKey())
+      .setClientId(setting.clientId())
+      .setClientSecret(setting.clientSecret())
+      .setWebhookSecret(setting.webhookSecret()));
   }
 
   public AlmSettingDto getAlmSetting(DbSession dbSession, String almSetting) {
