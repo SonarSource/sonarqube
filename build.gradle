@@ -522,7 +522,7 @@ subprojects {
         exclude 'org.slf4j:slf4j-api'
       }
       dependency 'org.cyclonedx:cyclonedx-core-java:12.2.0'
-      dependency 'com.fasterxml.staxmate:staxmate:2.4.1'
+      dependency 'com.fasterxml.staxmate:staxmate:2.4.2'
       dependency "co.elastic.clients:elasticsearch-java:${elasticSearchJavaClientVersion}"
       dependency 'org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r'
       dependency('org.tmatesoft.svnkit:svnkit:1.10.11')
