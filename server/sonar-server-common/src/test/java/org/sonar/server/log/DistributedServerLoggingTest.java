@@ -21,6 +21,9 @@ package org.sonar.server.log;
 
 import com.hazelcast.cluster.Cluster;
 import com.hazelcast.cluster.Member;
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryListener;
+import com.hazelcast.replicatedmap.ReplicatedMap;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -39,7 +42,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.Database;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
@@ -52,12 +58,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.PROCESS_KEY;
+import static org.sonar.process.cluster.hz.HazelcastObjects.LOG_LEVEL_KEY;
+import static org.sonar.process.cluster.hz.HazelcastObjects.RUNTIME_CONFIG;
 
+@SuppressWarnings("deprecation")
 public class DistributedServerLoggingTest {
 
   @Rule
@@ -189,34 +203,34 @@ public class DistributedServerLoggingTest {
   @Test
   public void start_whenLogLevelExistsInHazelcast_shouldApplyLogLevel() {
     ServerProcessLogging mockServerProcessLogging = mock();
-    Map<Object, Object> runtimeConfig = new java.util.HashMap<>();
-    runtimeConfig.put(org.sonar.process.cluster.hz.HazelcastObjects.LOG_LEVEL_KEY, "DEBUG");
-    when(hazelcastMember.getReplicatedMap(org.sonar.process.cluster.hz.HazelcastObjects.RUNTIME_CONFIG)).thenReturn(runtimeConfig);
+    ReplicatedMap<String, String> runtimeConfig = mock();
+    when(runtimeConfig.get(LOG_LEVEL_KEY)).thenReturn("DEBUG");
+    doReturn(runtimeConfig).when(hazelcastMember).getReplicatedMap(RUNTIME_CONFIG);
 
-    DistributedServerLogging spyInstance = org.mockito.Mockito.spy(new DistributedServerLogging(settings.asConfig(), mockServerProcessLogging,
+    DistributedServerLogging spyInstance = spy(new DistributedServerLogging(settings.asConfig(), mockServerProcessLogging,
       database, hazelcastMember, client));
     spyInstance.start();
 
-    verify(spyInstance).changeLevel(org.sonar.api.utils.log.LoggerLevel.DEBUG);
+    verify(spyInstance).changeLevel(LoggerLevel.DEBUG);
   }
 
   @Test
   public void start_whenLogLevelDoesNotExistInHazelcast_shouldNotChangeLogLevel() {
     ServerProcessLogging mockServerProcessLogging = mock();
-    Map<Object, Object> runtimeConfig = new java.util.HashMap<>();
-    when(hazelcastMember.getReplicatedMap(org.sonar.process.cluster.hz.HazelcastObjects.RUNTIME_CONFIG)).thenReturn(runtimeConfig);
+    ReplicatedMap<String, String> runtimeConfig = mock();
+    doReturn(runtimeConfig).when(hazelcastMember).getReplicatedMap(RUNTIME_CONFIG);
 
-    DistributedServerLogging spyInstance = org.mockito.Mockito.spy(new DistributedServerLogging(settings.asConfig(), mockServerProcessLogging,
+    DistributedServerLogging spyInstance = spy(new DistributedServerLogging(settings.asConfig(), mockServerProcessLogging,
       database, hazelcastMember, client));
     spyInstance.start();
 
-    verify(spyInstance, org.mockito.Mockito.never()).changeLevel(any(org.sonar.api.utils.log.LoggerLevel.class));
+    verify(spyInstance, never()).changeLevel(any(LoggerLevel.class));
   }
 
   @Test
   public void start_whenHazelcastThrowsException_shouldNotFail() {
     ServerProcessLogging mockServerProcessLogging = mock();
-    when(hazelcastMember.getReplicatedMap(org.sonar.process.cluster.hz.HazelcastObjects.RUNTIME_CONFIG)).thenThrow(new RuntimeException("Hazelcast error"));
+    when(hazelcastMember.getReplicatedMap(RUNTIME_CONFIG)).thenThrow(new RuntimeException("Hazelcast error"));
 
     DistributedServerLogging newInstance = new DistributedServerLogging(settings.asConfig(), mockServerProcessLogging,
       database, hazelcastMember, client);
@@ -224,6 +238,133 @@ public class DistributedServerLoggingTest {
     newInstance.start();
 
     assertThat(newInstance).isNotNull();
+  }
+
+  @Test
+  public void start_shouldRegisterListenerBeforeReadingLogLevel() {
+    ReplicatedMap<String, String> runtimeConfig = mock();
+    doReturn(runtimeConfig).when(hazelcastMember).getReplicatedMap(RUNTIME_CONFIG);
+
+    DistributedServerLogging newInstance = new DistributedServerLogging(settings.asConfig(), serverProcessLogging,
+      database, hazelcastMember, client);
+    newInstance.start();
+
+    InOrder inOrder = inOrder(runtimeConfig);
+    inOrder.verify(runtimeConfig).addEntryListener(any(EntryListener.class));
+    inOrder.verify(runtimeConfig).get(LOG_LEVEL_KEY);
+  }
+
+  @Test
+  public void start_whenLogLevelInHazelcastIsInvalid_shouldNotFail() {
+    ReplicatedMap<String, String> runtimeConfig = mock();
+    when(runtimeConfig.get(LOG_LEVEL_KEY)).thenReturn("INVALID_LEVEL");
+    doReturn(runtimeConfig).when(hazelcastMember).getReplicatedMap(RUNTIME_CONFIG);
+
+    DistributedServerLogging newInstance = new DistributedServerLogging(settings.asConfig(), serverProcessLogging,
+      database, hazelcastMember, client);
+
+    newInstance.start();
+
+    assertThat(newInstance).isNotNull();
+  }
+
+  @Test
+  public void entryListener_whenLogLevelIsInvalid_shouldNotFail() {
+    ReplicatedMap<String, String> runtimeConfig = mock();
+    doReturn(runtimeConfig).when(hazelcastMember).getReplicatedMap(RUNTIME_CONFIG);
+    DistributedServerLogging spyInstance = spy(new DistributedServerLogging(settings.asConfig(), serverProcessLogging,
+      database, hazelcastMember, client));
+    spyInstance.start();
+    EntryListener<String, String> listener = captureRegisteredListener(runtimeConfig);
+
+    listener.entryAdded(newEntryEvent(LOG_LEVEL_KEY, "INVALID_LEVEL"));
+
+    verify(spyInstance, never()).changeLevel(any(LoggerLevel.class));
+  }
+
+  @Test
+  public void start_shouldRegisterEntryListenerOnRuntimeConfigMap() {
+    ReplicatedMap<String, String> runtimeConfig = mock();
+    doReturn(runtimeConfig).when(hazelcastMember).getReplicatedMap(RUNTIME_CONFIG);
+
+    DistributedServerLogging newInstance = new DistributedServerLogging(settings.asConfig(), serverProcessLogging,
+      database, hazelcastMember, client);
+    newInstance.start();
+
+    verify(runtimeConfig).addEntryListener(any(EntryListener.class));
+  }
+
+  @Test
+  public void entryListener_whenLogLevelEntryAdded_shouldApplyLogLevel() {
+    ReplicatedMap<String, String> runtimeConfig = mock();
+    doReturn(runtimeConfig).when(hazelcastMember).getReplicatedMap(RUNTIME_CONFIG);
+    DistributedServerLogging spyInstance = spy(new DistributedServerLogging(settings.asConfig(), serverProcessLogging,
+      database, hazelcastMember, client));
+    doNothing().when(spyInstance).changeLevel(any(LoggerLevel.class));
+    spyInstance.start();
+    EntryListener<String, String> listener = captureRegisteredListener(runtimeConfig);
+
+    listener.entryAdded(newEntryEvent(LOG_LEVEL_KEY, "DEBUG"));
+
+    verify(spyInstance).changeLevel(LoggerLevel.DEBUG);
+  }
+
+  @Test
+  public void entryListener_whenLogLevelEntryUpdated_shouldApplyLogLevel() {
+    ReplicatedMap<String, String> runtimeConfig = mock();
+    doReturn(runtimeConfig).when(hazelcastMember).getReplicatedMap(RUNTIME_CONFIG);
+    DistributedServerLogging spyInstance = spy(new DistributedServerLogging(settings.asConfig(), serverProcessLogging,
+      database, hazelcastMember, client));
+    doNothing().when(spyInstance).changeLevel(any(LoggerLevel.class));
+    spyInstance.start();
+    EntryListener<String, String> listener = captureRegisteredListener(runtimeConfig);
+
+    listener.entryUpdated(newEntryEvent(LOG_LEVEL_KEY, "TRACE"));
+
+    verify(spyInstance).changeLevel(LoggerLevel.TRACE);
+  }
+
+  @Test
+  public void entryListener_whenOtherKeyChanges_shouldNotChangeLogLevel() {
+    ReplicatedMap<String, String> runtimeConfig = mock();
+    doReturn(runtimeConfig).when(hazelcastMember).getReplicatedMap(RUNTIME_CONFIG);
+    DistributedServerLogging spyInstance = spy(new DistributedServerLogging(settings.asConfig(), serverProcessLogging,
+      database, hazelcastMember, client));
+    spyInstance.start();
+    EntryListener<String, String> listener = captureRegisteredListener(runtimeConfig);
+
+    listener.entryAdded(newEntryEvent("some.other.key", "DEBUG"));
+
+    verify(spyInstance, never()).changeLevel(any(LoggerLevel.class));
+  }
+
+  @Test
+  public void stop_shouldRemoveEntryListener() {
+    ReplicatedMap<String, String> runtimeConfig = mock();
+    UUID listenerUuid = UUID.fromString("00000000-0000-0000-0000-0000000000aa");
+    when(runtimeConfig.addEntryListener(any(EntryListener.class))).thenReturn(listenerUuid);
+    doReturn(runtimeConfig).when(hazelcastMember).getReplicatedMap(RUNTIME_CONFIG);
+
+    DistributedServerLogging newInstance = new DistributedServerLogging(settings.asConfig(), serverProcessLogging,
+      database, hazelcastMember, client);
+    newInstance.start();
+    newInstance.stop();
+
+    verify(runtimeConfig).removeEntryListener(listenerUuid);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static EntryListener<String, String> captureRegisteredListener(ReplicatedMap<String, String> runtimeConfig) {
+    ArgumentCaptor<EntryListener> captor = ArgumentCaptor.forClass(EntryListener.class);
+    verify(runtimeConfig).addEntryListener(captor.capture());
+    return captor.getValue();
+  }
+
+  private static EntryEvent<String, String> newEntryEvent(String key, String value) {
+    EntryEvent<String, String> event = mock();
+    when(event.getKey()).thenReturn(key);
+    when(event.getValue()).thenReturn(value);
+    return event;
   }
 
   @Test
