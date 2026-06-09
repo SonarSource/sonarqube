@@ -61,7 +61,10 @@ import static org.sonar.core.rule.RuleType.CODE_SMELL;
 import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
 import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.server.tester.UserSessionRule.standalone;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class AssignActionIT {
 
   private static final String PREVIOUS_ASSIGNEE = "previous";

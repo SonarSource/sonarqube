@@ -59,7 +59,10 @@ import static org.sonar.server.authentication.UserRegistrarImpl.SQ_AUTHORITY;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source.local;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source.realm;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class UserRegistrarImplIT {
   private static final String USER_LOGIN = "johndoo";
 

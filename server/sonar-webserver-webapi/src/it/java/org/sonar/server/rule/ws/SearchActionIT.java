@@ -38,6 +38,7 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -126,6 +127,7 @@ import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_RULE_KEY;
 import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SEVERITIES;
 import static org.sonarqube.ws.Rules.Rule.DescriptionSection.Context.newBuilder;
 
+@Tag("elasticsearch")
 class SearchActionIT {
 
   private static final String JAVA = "java";

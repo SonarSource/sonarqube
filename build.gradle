@@ -470,6 +470,7 @@ subprojects {
       dependency 'jakarta.annotation:jakarta.annotation-api:3.0.0'
       dependency 'jakarta.inject:jakarta.inject-api:2.0.1'
       dependency 'jakarta.servlet:jakarta.servlet-api:6.1.0'
+      dependency 'joda-time:joda-time:2.13.0'
       dependency 'junit:junit:4.13.2'
       dependencySet(group: 'org.xmlunit', version: '2.11.0') {
         entry 'xmlunit-core'
@@ -522,18 +523,8 @@ subprojects {
       }
       dependency 'org.cyclonedx:cyclonedx-core-java:12.1.0'
       dependency 'com.fasterxml.staxmate:staxmate:2.4.1'
-      // Old Elasticsearch REST High Level Client (7.x) - Keep temporarily for compatibility
-      dependency("org.elasticsearch.client:elasticsearch-rest-high-level-client:${elasticSearchClientVersion}") {
-        exclude 'org.apache.logging.log4j:log4j-core'
-      }
-      dependency "org.elasticsearch.plugin:transport-netty4-client:${elasticSearchClientVersion}"
-      dependency 'org.elasticsearch:mocksocket:1.2'
-
-      // New Elasticsearch Java API Client (8.x) - For migration
       dependency "co.elastic.clients:elasticsearch-java:${elasticSearchJavaClientVersion}"
       dependency 'org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r'
-      dependency "org.codelibs.elasticsearch.module:analysis-common:7.17.22"
-      dependency "org.codelibs.elasticsearch.module:reindex:7.17.22"
       dependency('org.tmatesoft.svnkit:svnkit:1.10.11')
       dependency 'org.hamcrest:hamcrest:3.0'
       dependency 'org.jsoup:jsoup:1.22.1'
@@ -750,6 +741,27 @@ subprojects {
         println failedTest
       }
       println ""
+    }
+  }
+
+  // Route tests by @Tag("elasticsearch") / @Category(ElasticsearchTest.class) rather than by module.
+  // -PexcludeElasticsearchTests → junit CI job (no ES cluster needed)
+  // -PincludeElasticsearchTests → es-junit CI job (requires live ES cluster)
+  // Neither property → all tests run (default for local/IDE runs)
+  // Only applied to tasks already using JUnit Platform; modules still on the
+  // JUnit 4 native runner (e.g. sonar-markdown, sonar-duplications) are left alone.
+  if (project.hasProperty('excludeElasticsearchTests') || project.hasProperty('includeElasticsearchTests')) {
+    afterEvaluate {
+      tasks.withType(Test).configureEach { testTask ->
+        if (testTask.options instanceof org.gradle.api.tasks.testing.junitplatform.JUnitPlatformOptions) {
+          def platformOptions = testTask.options as org.gradle.api.tasks.testing.junitplatform.JUnitPlatformOptions
+          if (project.hasProperty('excludeElasticsearchTests')) {
+            platformOptions.excludeTags.addAll(['elasticsearch', 'org.sonar.test.tags.ElasticsearchTest'])
+          } else if (project.hasProperty('includeElasticsearchTests')) {
+            platformOptions.includeTags.addAll(['elasticsearch', 'org.sonar.test.tags.ElasticsearchTest'])
+          }
+        }
+      }
     }
   }
 

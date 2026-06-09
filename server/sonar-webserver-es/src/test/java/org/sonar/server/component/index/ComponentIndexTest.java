@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import org.assertj.core.api.ListAssert;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -39,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentQualifiers.FILE;
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 
+@Tag("elasticsearch")
 public abstract class ComponentIndexTest {
 
   @RegisterExtension

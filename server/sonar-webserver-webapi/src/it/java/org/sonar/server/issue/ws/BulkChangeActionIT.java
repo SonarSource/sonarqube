@@ -110,7 +110,10 @@ import static org.sonar.server.issue.notification.IssuesChangesNotificationBuild
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.projectOf;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.ruleOf;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.userOf;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class BulkChangeActionIT {
 
   private static long NOW = 2_000_000_000_000L;

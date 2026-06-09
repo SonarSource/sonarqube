@@ -61,7 +61,6 @@ dependencies {
     // please keep list ordered
     api 'org.slf4j:slf4j-api'
 
-    api 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
     api 'co.elastic.clients:elasticsearch-java'
     api 'org.sonarsource.api.plugin:sonar-plugin-api'
     api project(':server:sonar-ce')
@@ -382,7 +381,7 @@ zip {
     // If the change is expected, modify the expectedSize to be whatever the archiveSize is rounded down to the nearest 10MB.
     // The calculation below will also tell you the number you should use here.
     // If this is not expected, try performing a Gradle clean and refreshing dependencies.
-    def expectedSize = 920_000_000
+    def expectedSize = 900_000_000
     // We set a tolerance to avoid failing the build for small differences in the archive size.
     def tolerance = 15_000_000
     def minArchiveSize = expectedSize - tolerance

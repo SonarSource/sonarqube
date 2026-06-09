@@ -53,8 +53,11 @@ import static org.sonar.server.language.LanguageTesting.newLanguage;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
 @RunWith(DataProviderRunner.class)
+@Category(ElasticsearchTest.class)
 public class ShowActionIT {
 
   private final static Language XOO1 = newLanguage("xoo1");

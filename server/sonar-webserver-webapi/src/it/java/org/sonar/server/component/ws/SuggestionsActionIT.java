@@ -73,7 +73,9 @@ import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_RECENTLY_BROWSED;
 import static org.sonar.server.component.ws.SuggestionsAction.SHORT_INPUT_WARNING;
 import static org.sonar.test.JsonAssert.assertJson;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@org.junit.experimental.categories.Category(ElasticsearchTest.class)
 public class SuggestionsActionIT {
   private static final String[] SUGGESTION_QUALIFIERS = Stream.of(SuggestionCategory.values())
     .map(SuggestionCategory::getQualifier)

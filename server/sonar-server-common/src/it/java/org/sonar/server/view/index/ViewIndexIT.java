@@ -21,6 +21,7 @@ package org.sonar.server.view.index;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.server.es.EsTester;
 
@@ -29,6 +30,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 
+@Tag("elasticsearch")
 class ViewIndexIT {
 
   @RegisterExtension

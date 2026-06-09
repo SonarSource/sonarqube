@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.Severity;
@@ -54,6 +55,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@Tag("elasticsearch")
 class QProfileRulesImplIT {
 
   @RegisterExtension

@@ -19,10 +19,9 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import java.util.Locale;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
@@ -42,8 +41,8 @@ public class EsStateSection implements SystemInfoSection {
     this.esClient = esClient;
   }
 
-  private ClusterHealthStatus getStateAsEnum() {
-    return esClient.clusterHealth(new ClusterHealthRequest()).getStatus();
+  private HealthStatus getStateAsEnum() {
+    return esClient.clusterHealthV2(req -> req).status();
   }
 
   @Override
@@ -51,11 +50,15 @@ public class EsStateSection implements SystemInfoSection {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
     protobuf.setName("Search State");
     try {
-      setAttribute(protobuf, "State", getStateAsEnum().name());
+      // ES8 HealthStatus enum is mixed-case (Green/Yellow/Red); webapp expects upper-case
+      // for the System Info "State" field (see StatusIndicator.tsx ICON_MAP).
+      setAttribute(protobuf, "State", getStateAsEnum().name().toUpperCase(Locale.ENGLISH));
       completeNodeAttributes(protobuf);
     } catch (Exception es) {
       LoggerFactory.getLogger(EsStateSection.class).warn("Failed to retrieve ES attributes. There will be only a single \"state\" attribute.", es);
-      setAttribute(protobuf, "State", es.getCause() instanceof ElasticsearchException ? es.getCause().getMessage() : es.getMessage());
+      Throwable cause = es.getCause();
+      setAttribute(protobuf, "State",
+        cause instanceof ElasticsearchException ? cause.getMessage() : es.getMessage());
     }
     return protobuf.build();
   }

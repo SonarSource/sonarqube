@@ -19,6 +19,10 @@
  */
 package org.sonar.server.measure.index;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.query_dsl.ChildScoreMode;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -26,11 +30,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.apache.lucene.search.join.ScoreMode;
 import org.assertj.core.groups.Tuple;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,12 +57,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.server.es.EsClient.prepareSearch;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 import static org.sonar.server.es.Indexers.EntityEvent.CREATION;
 import static org.sonar.server.es.Indexers.EntityEvent.DELETION;
@@ -76,7 +71,10 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_UUID;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class ProjectMeasuresIndexerIT {
 
   private final System2 system2 = System2.INSTANCE;
@@ -355,30 +353,27 @@ public class ProjectMeasuresIndexerIT {
   }
 
   private void assertThatProjectHasTag(ProjectDto project, String expectedTag) {
-    SearchRequest request = prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
-      .source(new SearchSourceBuilder()
-        .query(boolQuery()
-          .filter(termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()))
-          .filter(termQuery(FIELD_TAGS, expectedTag))));
-
-    assertThat(es.client().search(request).getHits().getHits())
-      .extracting(SearchHit::getId)
-      .contains(project.getUuid());
+    Query query = Query.of(q -> q.bool(b -> b
+      .filter(Query.of(t -> t.term(tq -> tq.field(FIELD_INDEX_TYPE).value(TYPE_PROJECT_MEASURES.getName()))))
+      .filter(Query.of(t -> t.term(tq -> tq.field(FIELD_TAGS).value(expectedTag))))));
+    assertThat(searchIds(query)).contains(project.getUuid());
   }
 
   private void assertThatProjectHasMeasure(ProjectDto project, String metric, Double value) {
-    SearchRequest request = prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
-      .source(new SearchSourceBuilder()
-        .query(nestedQuery(
-          FIELD_MEASURES,
-          boolQuery()
-            .filter(termQuery(FIELD_MEASURES_MEASURE_KEY, metric))
-            .filter(termQuery(FIELD_MEASURES_MEASURE_VALUE, value)),
-          ScoreMode.Avg)));
+    Query nested = Query.of(q -> q.nested(n -> n
+      .path(FIELD_MEASURES)
+      .query(Query.of(qq -> qq.bool(b -> b
+        .filter(Query.of(t -> t.term(tq -> tq.field(FIELD_MEASURES_MEASURE_KEY).value(metric))))
+        .filter(Query.of(t -> t.term(tq -> tq.field(FIELD_MEASURES_MEASURE_VALUE).value(value)))))))
+      .scoreMode(ChildScoreMode.Avg)));
+    assertThat(searchIds(nested)).contains(project.getUuid());
+  }
 
-    assertThat(es.client().search(request).getHits().getHits())
-      .extracting(SearchHit::getId)
-      .contains(project.getUuid());
+  private List<String> searchIds(Query query) {
+    return es.client().searchV2(s -> s
+      .index(TYPE_PROJECT_MEASURES.getMainType().getIndex().getName())
+      .query(query)
+      .size(1000), Void.class).hits().hits().stream().map(Hit::id).toList();
   }
 
   private void assertThatEsQueueTableHasSize(int expectedSize) {
@@ -392,7 +387,7 @@ public class ProjectMeasuresIndexerIT {
 
   private void assertThatIndexContainsCreationDate(ProjectData... projectDatas) {
     List<Map<String, Object>> documents = es.getDocuments(TYPE_PROJECT_MEASURES).stream()
-      .map(org.elasticsearch.search.SearchHit::getSourceAsMap)
+      .map(Hit::source)
       .toList();
 
     List<Tuple> expected = Arrays.stream(projectDatas).map(
@@ -432,17 +427,12 @@ public class ProjectMeasuresIndexerIT {
   }
 
   private void assertThatQualifierIs(String qualifier, String... componentsUuid) {
-    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
-      .query(boolQuery()
-        .filter(termQuery(FIELD_INDEX_TYPE, TYPE_PROJECT_MEASURES.getName()))
-        .filter(termQuery(FIELD_QUALIFIER, qualifier))
-        .filter(termsQuery(FIELD_UUID, componentsUuid)));
-
-    SearchRequest request = prepareSearch(TYPE_PROJECT_MEASURES.getMainType())
-      .source(searchSourceBuilder);
-    assertThat(es.client().search(request).getHits().getHits())
-      .extracting(SearchHit::getId)
-      .containsExactlyInAnyOrder(componentsUuid);
+    List<FieldValue> uuidValues = Arrays.stream(componentsUuid).map(FieldValue::of).toList();
+    Query query = Query.of(q -> q.bool(b -> b
+      .filter(Query.of(t -> t.term(tq -> tq.field(FIELD_INDEX_TYPE).value(TYPE_PROJECT_MEASURES.getName()))))
+      .filter(Query.of(t -> t.term(tq -> tq.field(FIELD_QUALIFIER).value(qualifier))))
+      .filter(Query.of(t -> t.terms(tq -> tq.field(FIELD_UUID).terms(tv -> tv.value(uuidValues)))))));
+    assertThat(searchIds(query)).containsExactlyInAnyOrder(componentsUuid);
   }
 
   private IndexingResult recover() {

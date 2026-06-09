@@ -22,8 +22,8 @@ package org.sonar.server.component.index;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +39,6 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.es.IndexingResult;
@@ -49,7 +48,6 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.TYPE_COMPONENT;
@@ -58,7 +56,10 @@ import static org.sonar.server.es.Indexers.EntityEvent.DELETION;
 import static org.sonar.server.es.Indexers.EntityEvent.PERMISSION_CHANGE;
 import static org.sonar.server.es.Indexers.EntityEvent.PROJECT_TAGS_UPDATE;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class EntityDefinitionIndexerIT {
 
   private System2 system2 = System2.INSTANCE;
@@ -332,14 +333,13 @@ public class EntityDefinitionIndexerIT {
   }
 
   private void assertThatEntityHasName(String uuid, String expectedName) {
-    SearchHit[] hits = es.client()
-      .search(EsClient.prepareSearch(TYPE_COMPONENT.getMainType())
-        .source(new SearchSourceBuilder()
-          .query(matchQuery(SORTABLE_ANALYZER.subField(FIELD_NAME), expectedName))))
-      .getHits()
-      .getHits();
+    String field = SORTABLE_ANALYZER.subField(FIELD_NAME);
+    var hits = es.client().searchV2(s -> s
+      .index(TYPE_COMPONENT.getMainType().getIndex().getName())
+      .query(Query.of(q -> q.match(m -> m.field(field).query(expectedName)))), Void.class)
+      .hits().hits();
     assertThat(hits)
-      .extracting(SearchHit::getId)
+      .extracting(Hit::id)
       .contains(uuid);
   }
 }

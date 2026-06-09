@@ -28,6 +28,7 @@ import java.util.Random;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 import org.sonar.api.PropertyType;
@@ -86,6 +87,7 @@ import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.OVERRIDES;
 
+@Tag("elasticsearch")
 class QProfileRuleImplIT {
 
   private System2 system2 = new AlwaysIncreasingSystem2();

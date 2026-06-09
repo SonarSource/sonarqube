@@ -73,7 +73,10 @@ import static org.sonar.core.rule.RuleTypeMapper.toApiRuleType;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class RuleCreatorIT {
 
   private static final long NOW = 1_704_067_200_000L;

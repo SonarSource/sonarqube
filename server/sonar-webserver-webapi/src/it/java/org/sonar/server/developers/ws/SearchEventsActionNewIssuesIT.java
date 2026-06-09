@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.Random;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
@@ -62,6 +63,7 @@ import static org.sonar.db.component.BranchType.BRANCH;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_FROM;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_PROJECTS;
 
+@Tag("elasticsearch")
 class SearchEventsActionNewIssuesIT {
 
   private static final RuleType[] RULE_TYPES_EXCEPT_HOTSPOT = Stream.of(RuleType.values())

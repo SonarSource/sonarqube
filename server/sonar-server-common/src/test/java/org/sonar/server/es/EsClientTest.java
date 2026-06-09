@@ -259,6 +259,67 @@ public class EsClientTest {
   }
 
   @Test
+  public void execute_wraps_exception_in_ElasticsearchException() {
+    EsClient.EsRequestExecutor<Void> failingExecutor = () -> {
+      throw new IOException("network failure");
+    };
+    assertThatThrownBy(() -> underTest.execute(failingExecutor))
+      .isInstanceOf(ElasticsearchException.class)
+      .hasMessageContaining("Fail to execute es request")
+      .hasCauseInstanceOf(IOException.class);
+  }
+
+  @Test
+  public void nativeClientV2_returns_non_null_client() {
+    assertThat(underTest.nativeClientV2()).isNotNull();
+  }
+
+  @Test
+  public void newInstance_with_hosts_only_constructor_succeeds() {
+    EsClient esClient = new EsClient(new HttpHost("localhost", 9200));
+    assertThat(esClient.nativeClientV2()).isNotNull();
+    assertThat(esClient.nativeRestClient()).isNotNull();
+  }
+
+  @Test
+  public void newInstance_whenKeyStorePathInvalid_shouldThrowIllegalState() {
+    HttpHost host = new HttpHost("localhost", 9200);
+    assertThatThrownBy(() -> new EsClient(null, "/path/does/not/exist.p12", "ignored", host))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Failed to setup SSL context");
+  }
+
+  @Test
+  public void waitForStatusV2_wraps_underlying_failure_in_ElasticsearchException() throws IOException {
+    // No mockWebServer enqueue → the request fails → exercises waitForStatusV2 → clusterHealthV2 → execute() error path
+    when(restClient.performRequest(argThat(r -> r != null)))
+      .thenThrow(new IOException("boom"));
+
+    assertThatThrownBy(() -> underTest.waitForStatusV2(co.elastic.clients.elasticsearch._types.HealthStatus.Yellow))
+      .isInstanceOf(ElasticsearchException.class);
+  }
+
+
+  @Test
+  public void nativeRestClient_returns_injected_rest_client() {
+    assertThat(underTest.nativeRestClient()).isSameAs(restClient);
+  }
+
+  @Test
+  public void should_call_indices_stat_api_with_specific_indices() throws Exception {
+    HttpEntity entity = mock(HttpEntity.class);
+    when(entity.getContent()).thenReturn(new ByteArrayInputStream(EXAMPLE_INDICES_STATS_JSON.getBytes()));
+    Response response = mock(Response.class);
+    when(response.getEntity()).thenReturn(entity);
+    when(restClient.performRequest(argThat(new RawRequestMatcher(
+      "GET",
+      "/index-1,index-2/_stats"))))
+      .thenReturn(response);
+
+    assertThat(underTest.indicesStats("index-1", "index-2")).isNotNull();
+  }
+
+  @Test
   public void should_add_authentication_header() throws InterruptedException {
     mockWebServer.enqueue(new MockResponse()
       .setResponseCode(200)

@@ -41,7 +41,10 @@ import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class PersistAdHocRulesStepIT extends BaseStepTest {
 
   @Rule
@@ -91,7 +94,7 @@ public class PersistAdHocRulesStepIT extends BaseStepTest {
     assertThat(reloaded.getName()).isEqualTo("eslint:no-cond-assign");
 
     assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isOne();
-    assertThat(es.getDocuments(RuleIndexDefinition.TYPE_RULE).iterator().next().getId()).isEqualTo(reloaded.getUuid());
+    assertThat(es.getDocuments(RuleIndexDefinition.TYPE_RULE).iterator().next().id()).isEqualTo(reloaded.getUuid());
   }
 
   @Test

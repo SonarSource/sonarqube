@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import com.google.protobuf.ProtocolStringList;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService.Action;
@@ -63,6 +64,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.test.JsonAssert.assertJson;
 
+@Tag("elasticsearch")
 class TagsActionIT {
 
   @RegisterExtension

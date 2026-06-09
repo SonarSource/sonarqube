@@ -55,8 +55,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.user.UserTesting.newLocalUser;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
 @RunWith(DataProviderRunner.class)
+@Category(ElasticsearchTest.class)
 public class UserUpdaterCreateIT {
 
   private static final String DEFAULT_LOGIN = "marius";

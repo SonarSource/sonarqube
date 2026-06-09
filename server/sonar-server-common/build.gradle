@@ -19,8 +19,8 @@ dependencies {
   api 'org.apache.commons:commons-email2-jakarta'
   api 'org.apache.commons:commons-lang3'
   api 'org.bouncycastle:bcprov-jdk18on'
-  api 'org.elasticsearch.client:elasticsearch-rest-high-level-client'
   api 'co.elastic.clients:elasticsearch-java'
+  api 'joda-time:joda-time'
   api 'org.slf4j:slf4j-api'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
   api project(':server:sonar-db-dao')
@@ -41,7 +41,6 @@ dependencies {
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
-  testImplementation 'org.elasticsearch.plugin:transport-netty4-client'
   testImplementation 'ch.qos.logback:logback-core'
   testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.icegreen:greenmail'
@@ -72,10 +71,6 @@ dependencies {
   testFixturesApi testFixtures(project(':server:sonar-db-dao'))
 
   testFixturesCompileOnly 'com.github.spotbugs:spotbugs-annotations'
-  testFixturesImplementation 'org.elasticsearch.plugin:transport-netty4-client'
-  testFixturesImplementation 'org.codelibs.elasticsearch.module:analysis-common'
-  testFixturesImplementation 'org.codelibs.elasticsearch.module:reindex'
-  testFixturesImplementation 'org.elasticsearch:mocksocket'
   testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
 
 

@@ -19,19 +19,14 @@
  */
 package org.sonar.server.rule.index;
 
-import java.io.IOException;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.indices.analyze.AnalyzeToken;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.search.TotalHits;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.indices.AnalyzeRequest;
-import org.elasticsearch.client.indices.AnalyzeResponse;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Index;
 import org.sonar.server.es.IndexDefinition;
@@ -39,7 +34,6 @@ import org.sonar.server.es.IndexType;
 import org.sonar.server.es.newindex.NewIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.server.es.newindex.DefaultIndexSettingsElement.ENGLISH_HTML_ANALYZER;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION;
@@ -47,7 +41,10 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_REPOSITORY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class RuleIndexDefinitionIT {
 
   private MapSettings settings = new MapSettings();
@@ -88,8 +85,8 @@ public class RuleIndexDefinitionIT {
   public void support_long_html_description() {
     String longText = StringUtils.repeat("The quick brown fox jumps over the lazy dog ", 700);
 
-    List<AnalyzeResponse.AnalyzeToken> tokens = analyzeIndexedTokens(longText);
-    assertThat(tokens).extracting(AnalyzeResponse.AnalyzeToken::getTerm).containsOnly(
+    List<AnalyzeToken> tokens = analyzeIndexedTokens(longText);
+    assertThat(tokens).extracting(AnalyzeToken::token).containsOnly(
       "quick", "brown", "fox", "jump", "over", "lazi", "dog");
 
     // the following method fails if PUT fails
@@ -99,18 +96,20 @@ public class RuleIndexDefinitionIT {
       FIELD_RULE_REPOSITORY, "java",
       FIELD_RULE_KEY, "java:S001")));
     assertThat(tester.countDocuments(TYPE_RULE)).isOne();
-    assertThat(tester.client().search(EsClient.prepareSearch(TYPE_RULE)
-      .source(new SearchSourceBuilder()
-        .query(matchQuery(ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION), "brown fox jumps lazy"))))
-      .getHits().getTotalHits()).isEqualTo(new TotalHits(1, TotalHits.Relation.EQUAL_TO));
+    String htmlField = ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION);
+    long matches = tester.client().searchV2(s -> s
+      .index(TYPE_RULE.getMainType().getIndex().getName())
+      .query(Query.of(q -> q.match(m -> m.field(htmlField).query("brown fox jumps lazy"))))
+      .trackTotalHits(t -> t.enabled(true)), Void.class).hits().total().value();
+    assertThat(matches).isEqualTo(1L);
   }
 
   @Test
   public void remove_html_characters_of_html_description() {
     String text = "<p>html <i>line</i></p>";
-    List<AnalyzeResponse.AnalyzeToken> tokens = analyzeIndexedTokens(text);
+    List<AnalyzeToken> tokens = analyzeIndexedTokens(text);
 
-    assertThat(tokens).extracting("term").containsOnly("html", "line");
+    assertThat(tokens).extracting(AnalyzeToken::token).containsOnly("html", "line");
   }
 
   @Test
@@ -118,17 +117,15 @@ public class RuleIndexDefinitionIT {
     String text = "this is a small list of words";
     // "this", "is", "a" and "of" are not indexed.
     // Plural "words" is converted to singular "word"
-    List<AnalyzeResponse.AnalyzeToken> tokens = analyzeIndexedTokens(text);
-    assertThat(tokens).extracting("term").containsOnly("small", "list", "word");
+    List<AnalyzeToken> tokens = analyzeIndexedTokens(text);
+    assertThat(tokens).extracting(AnalyzeToken::token).containsOnly("small", "list", "word");
   }
 
-  private List<AnalyzeResponse.AnalyzeToken> analyzeIndexedTokens(String text) {
-    try {
-      return tester.nativeClient().indices()
-        .analyze(AnalyzeRequest.withField(TYPE_RULE.getIndex().getName(), ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION), text), RequestOptions.DEFAULT)
-        .getTokens();
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not analyze indexed tokens for text: " + text);
-    }
+  private List<AnalyzeToken> analyzeIndexedTokens(String text) {
+    String field = ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION);
+    return tester.client().analyzeV2(a -> a
+      .index(TYPE_RULE.getMainType().getIndex().getName())
+      .field(field)
+      .text(text)).tokens();
   }
 }

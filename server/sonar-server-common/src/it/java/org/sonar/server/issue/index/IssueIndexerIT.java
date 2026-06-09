@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
-import org.elasticsearch.search.SearchHit;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.MockedStatic;
@@ -83,7 +83,10 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.SUB_FIELD_SOFTWA
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
 import static org.sonar.server.security.SecurityStandards.SANS_TOP_25_POROUS_DEFENSES;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class IssueIndexerIT {
 
   @Rule
@@ -276,7 +279,7 @@ public class IssueIndexerIT {
     underTest.indexOnAnalysis(projectData.getMainBranchComponent().uuid());
 
     assertThat(es.getDocuments(TYPE_ISSUE))
-      .extracting(SearchHit::getId)
+      .extracting(Hit::id)
       .containsExactlyInAnyOrder(issue.getKey(), "orphan");
   }
 
@@ -728,7 +731,7 @@ public class IssueIndexerIT {
 
   private void assertThatIndexHasOnly(IssueDto... expectedIssues) {
     assertThat(es.getDocuments(TYPE_ISSUE))
-      .extracting(SearchHit::getId)
+      .extracting(Hit::id)
       .containsExactlyInAnyOrder(Arrays.stream(expectedIssues).map(IssueDto::getKey).toArray(String[]::new));
   }
 

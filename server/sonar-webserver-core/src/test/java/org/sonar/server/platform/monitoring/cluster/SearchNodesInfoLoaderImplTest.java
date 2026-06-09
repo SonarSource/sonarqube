@@ -27,7 +27,10 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class SearchNodesInfoLoaderImplTest {
 
   @Rule

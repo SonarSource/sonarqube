@@ -21,8 +21,10 @@ package org.sonar.server.es;
 
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import java.util.ArrayDeque;
 import java.util.Date;
@@ -78,7 +80,7 @@ public class EsUtils {
   public static void optimizeSearchAfterRequest(SearchRequest.Builder esSearch, String sortField) {
     // Sort by sortField to ensure deterministic ordering for search_after pagination
     // This sortField has doc_values enabled and provides a unique sort key for reliable pagination
-    esSearch.sort(s -> s.field(f -> f.field(sortField).order(co.elastic.clients.elasticsearch._types.SortOrder.Asc)));
+    esSearch.sort(s -> s.field(f -> f.field(sortField).order(SortOrder.Asc)));
   }
 
   /**
@@ -124,7 +126,7 @@ public class EsUtils {
         return;
       }
 
-      co.elastic.clients.elasticsearch.core.SearchResponse<T> response;
+      SearchResponse<T> response;
 
       if (isFirstRequest) {
         // For the first request, use the initial request but disable source fetching

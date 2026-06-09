@@ -65,7 +65,10 @@ import static org.sonar.server.issue.notification.IssuesChangesNotificationBuild
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.projectOf;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.ruleOf;
 import static org.sonar.server.issue.notification.IssuesChangesNotificationBuilderTesting.userOf;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class IssueUpdaterIT {
 
   private static final long NOW = 1_704_067_200_000L;

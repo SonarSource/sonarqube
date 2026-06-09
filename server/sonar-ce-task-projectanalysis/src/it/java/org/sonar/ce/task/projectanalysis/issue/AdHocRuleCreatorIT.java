@@ -40,7 +40,10 @@ import org.sonar.server.rule.index.RuleIndexer;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class AdHocRuleCreatorIT {
 
   @org.junit.Rule

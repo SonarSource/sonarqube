@@ -46,7 +46,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 import static org.sonar.test.JsonAssert.assertJson;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class SearchActionIT {
   @Rule
   public EsTester es = EsTester.create();

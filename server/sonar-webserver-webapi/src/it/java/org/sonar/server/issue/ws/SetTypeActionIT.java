@@ -88,8 +88,11 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonar.db.permission.ProjectPermission.USER;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
 @RunWith(DataProviderRunner.class)
+@Category(ElasticsearchTest.class)
 public class SetTypeActionIT {
 
   @Rule

@@ -21,12 +21,12 @@ package org.sonar.server.es;
 
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.TotalHits;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.lucene.search.TotalHits;
 
 import static java.util.Optional.ofNullable;
 
@@ -38,19 +38,13 @@ public class SearchIdResult<ID> {
 
   public <T> SearchIdResult(SearchResponse<T> response, Function<String, ID> converter, ZoneId timeZone) {
     this.facets = new Facets(response, timeZone);
-    this.total = getTotalHits(response).value;
+    this.total = getTotalHits(response);
     this.uuids = convertToIds(response.hits().hits(), converter);
   }
 
-  private static <T> TotalHits getTotalHits(SearchResponse<T> response) {
+  private static <T> long getTotalHits(SearchResponse<T> response) {
     return ofNullable(response.hits().total())
-      .map(total -> {
-        TotalHits.Relation relation = switch (total.relation()) {
-          case Eq -> TotalHits.Relation.EQUAL_TO;
-          case Gte -> TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO;
-        };
-        return new TotalHits(total.value(), relation);
-      })
+      .map(TotalHits::value)
       .orElseThrow(() -> new IllegalStateException("Could not get total hits of search results"));
   }
 

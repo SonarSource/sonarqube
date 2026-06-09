@@ -19,68 +19,30 @@
  */
 package org.sonar.server.es;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
+import co.elastic.clients.elasticsearch._types.Refresh;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.ServerSocket;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.http.HttpHost;
-import org.elasticsearch.ElasticsearchStatusException;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchScrollRequest;
-import org.elasticsearch.action.support.master.AcknowledgedResponse;
-import org.elasticsearch.analysis.common.CommonAnalysisPlugin;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.CreateIndexResponse;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.cluster.routing.allocation.DiskThresholdSettings;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.core.TimeValue;
-import org.elasticsearch.discovery.DiscoveryModule;
-import org.elasticsearch.env.Environment;
-import org.elasticsearch.env.NodeEnvironment;
-import org.elasticsearch.http.BindHttpException;
-import org.elasticsearch.http.HttpTransportSettings;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.index.reindex.DeleteByQueryRequest;
-import org.elasticsearch.indices.recovery.RecoverySettings;
-import org.elasticsearch.join.ParentJoinPlugin;
-import org.elasticsearch.node.InternalSettingsPreparer;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeValidationException;
-import org.elasticsearch.reindex.ReindexPlugin;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
-import org.elasticsearch.transport.Netty4Plugin;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
@@ -96,39 +58,25 @@ import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.sonar.server.es.Index.ALL_INDICES;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 
+/**
+ * JUnit test fixture that connects to a real Elasticsearch 8.x server and exposes the SonarQube
+ * {@link EsClient} bound to it. Replaces the previous embedded ES7 {@code Node}.
+ *
+ * <p>The ES host is read from the {@code ES_HOST} and {@code ES_PORT} environment variables
+ * (defaulting to {@code localhost:9200}). In CI the {@code ES JUnit} job provides an
+ * Elasticsearch service container that sets those variables. Locally, start an ES 8.x instance
+ * and export them accordingly.
+ */
 public class EsTester extends ExternalResource implements AfterEachCallback {
 
-  private static final int MIN_PORT = 1;
-  private static final int MAX_PORT = 49151;
-  private static final int MIN_NON_ROOT_PORT = 1025;
   private static final Logger LOG = LoggerFactory.getLogger(EsTester.class);
+  private static final ObjectMapper JSON = new ObjectMapper();
 
-  static {
-    System.setProperty("log4j.shutdownHookEnabled", "false");
-    // we can not shutdown logging when tests are running or the next test that runs within the
-    // same JVM will try to initialize logging after a security manager has been installed and
-    // this will fail
-    System.setProperty("es.log4j.shutdownEnabled", "false");
-    System.setProperty("log4j2.disable.jmx", "true");
-    System.setProperty("log4j.skipJansi", "true"); // jython has this crazy shaded Jansi version that log4j2 tries to load
-
-    if (!Strings.hasLength(System.getProperty("tests.es.logger.level"))) {
-      System.setProperty("tests.es.logger.level", "WARN");
-    }
-  }
-
-  private static final Node SHARED_NODE = createNode();
-  private static final EsClient ES_REST_CLIENT = createEsRestClient(SHARED_NODE);
+  private static final EsClient ES_REST_CLIENT = createEsRestClient();
 
   private static final AtomicBoolean CORE_INDICES_CREATED = new AtomicBoolean(false);
   private static final Set<String> CORE_INDICES_NAMES = new HashSet<>();
@@ -180,11 +128,11 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
   @Override
   protected void after() {
     if (isCustom) {
-      // delete non-core indices
-      String[] existingIndices = getIndicesNames();
-      Stream.of(existingIndices)
-        .filter(i -> !CORE_INDICES_NAMES.contains(i))
-        .forEach(EsTester::deleteIndexIfExists);
+      for (String index : getIndicesNames()) {
+        if (!CORE_INDICES_NAMES.contains(index)) {
+          deleteIndexIfExists(index);
+        }
+      }
     }
 
     deleteAllDocumentsInIndexes();
@@ -192,49 +140,70 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
 
   private void deleteAllDocumentsInIndexes() {
     try {
-      ES_REST_CLIENT.nativeClient()
-        .deleteByQuery(new DeleteByQueryRequest(ALL_INDICES.getName()).setQuery(QueryBuilders.matchAllQuery()).setRefresh(true).setWaitForActiveShards(1), RequestOptions.DEFAULT);
-      ES_REST_CLIENT.forcemergeV2(req -> req);
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not delete data from _all indices", e);
-    }
-  }
+      // Defensive: reset any write-block left by a test that crashed before its unlockWrites() call.
+      // Without this, deleteByQuery below would fail with 403 cluster_block_exception and the pollution
+      // would cascade into all subsequent tests sharing the long-lived ES container.
+      resetWriteBlocks();
 
-  private static String[] getIndicesNames() {
-    String[] existingIndices;
-    try {
-      existingIndices = ES_REST_CLIENT.nativeClient().indices().get(new GetIndexRequest(ALL_INDICES.getName()), RequestOptions.DEFAULT).getIndices();
-    } catch (ElasticsearchStatusException e) {
-      if (e.status().getStatus() == 404) {
-        existingIndices = new String[0];
-      } else {
+      ES_REST_CLIENT.deleteByQueryV2(d -> d
+        .index(ALL_INDICES.getName())
+        .query(Query.of(q -> q.matchAll(m -> m)))
+        .refresh(true)
+        .waitForCompletion(true));
+      ES_REST_CLIENT.forcemergeV2(req -> req);
+    } catch (ElasticsearchException e) {
+      // Ignore 404 — no indices exist yet, nothing to delete
+      Throwable cause = e.getCause();
+      if (!(cause instanceof co.elastic.clients.elasticsearch._types.ElasticsearchException esException
+        && esException.status() == 404)) {
         throw e;
       }
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not get indicies", e);
     }
-    return existingIndices;
   }
 
-  private static EsClient createEsRestClient(Node sharedNode) {
-    assertThat(sharedNode.isClosed()).isFalse();
+  private static void resetWriteBlocks() {
+    try {
+      ES_REST_CLIENT.putSettingsV2(req -> req
+        .index(ALL_INDICES.getName())
+        .settings(s -> s.otherSettings(Map.of("index.blocks.write", JsonData.of(false)))));
+    } catch (ElasticsearchException e) {
+      // Ignore 404 — no indices yet, nothing to reset
+      Throwable cause = e.getCause();
+      if (!(cause instanceof co.elastic.clients.elasticsearch._types.ElasticsearchException esException
+        && esException.status() == 404)) {
+        throw e;
+      }
+    }
+  }
 
-    String host = sharedNode.settings().get(HttpTransportSettings.SETTING_HTTP_BIND_HOST.getKey());
-    Integer port = sharedNode.settings().getAsInt(HttpTransportSettings.SETTING_HTTP_PORT.getKey(), -1);
-    return new EsClient(new HttpHost(host, port));
+  private static List<String> getIndicesNames() {
+    try {
+      return new ArrayList<>(ES_REST_CLIENT.getIndexV2(ALL_INDICES.getName()).result().keySet());
+    } catch (org.sonar.server.es.ElasticsearchException e) {
+      Throwable cause = e.getCause();
+      if (cause instanceof co.elastic.clients.elasticsearch._types.ElasticsearchException esException
+        && esException.status() == 404) {
+        return List.of();
+      }
+      throw e;
+    }
+  }
+
+  private static EsClient createEsRestClient() {
+    String host = System.getenv().getOrDefault("ES_HOST", "localhost");
+    int port = Integer.parseInt(System.getenv().getOrDefault("ES_PORT", "9200"));
+    LOG.info("EsTester connecting to Elasticsearch at {}:{}", host, port);
+    return new EsClient(new HttpHost(host, port, "http"));
   }
 
   public EsClient client() {
     return ES_REST_CLIENT;
   }
 
-  public RestHighLevelClient nativeClient() {
-    return ES_REST_CLIENT.nativeClient();
-  }
-
-  public void putDocuments(IndexType indexType, BaseDoc... docs) {
+  @SafeVarargs
+  public final void putDocuments(IndexType indexType, BaseDoc... docs) {
     co.elastic.clients.elasticsearch.core.BulkResponse bulkResponse = ES_REST_CLIENT.bulkV2(b -> {
-      b.refresh(co.elastic.clients.elasticsearch._types.Refresh.True);
+      b.refresh(Refresh.True);
       for (BaseDoc doc : docs) {
         IndexType.IndexMainType mainType = indexType.getMainType();
         String routing = doc.getRouting().orElse(null);
@@ -262,10 +231,11 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
     }
   }
 
-  public void putDocuments(IndexType indexType, Map<String, Object>... docs) {
+  @SafeVarargs
+  public final void putDocuments(IndexType indexType, Map<String, Object>... docs) {
     try {
       co.elastic.clients.elasticsearch.core.BulkResponse bulkResponse = ES_REST_CLIENT.bulkV2(b -> {
-        b.refresh(co.elastic.clients.elasticsearch._types.Refresh.True);
+        b.refresh(Refresh.True);
         for (Map<String, Object> doc : docs) {
           IndexType.IndexMainType mainType = indexType.getMainType();
           b.operations(op -> op.index(idx -> idx
@@ -291,23 +261,22 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
   }
 
   public long countDocuments(Index index) {
-    SearchRequest searchRequest = EsClient.prepareSearch(index.getName())
-      .source(new SearchSourceBuilder()
-        .query(QueryBuilders.matchAllQuery())
-        .size(0));
-
-    return ES_REST_CLIENT.search(searchRequest)
-      .getHits().getTotalHits().value;
+    SearchResponse<Void> response = ES_REST_CLIENT.searchV2(s -> s
+      .index(index.getName())
+      .query(Query.of(q -> q.matchAll(m -> m)))
+      .size(0)
+      .trackTotalHits(t -> t.enabled(true)), Void.class);
+    return response.hits().total() == null ? 0L : response.hits().total().value();
   }
 
   public long countDocuments(IndexType indexType) {
-    SearchRequest searchRequest = EsClient.prepareSearch(indexType.getMainType())
-      .source(new SearchSourceBuilder()
-        .query(getDocumentsQuery(indexType))
-        .size(0));
-
-    return ES_REST_CLIENT.search(searchRequest)
-      .getHits().getTotalHits().value;
+    IndexType.IndexMainType mainType = indexType.getMainType();
+    SearchResponse<Void> response = ES_REST_CLIENT.searchV2(s -> s
+      .index(mainType.getIndex().getName())
+      .query(getDocumentsQuery(indexType))
+      .size(0)
+      .trackTotalHits(t -> t.enabled(true)), Void.class);
+    return response.hits().total() == null ? 0L : response.hits().total().value();
   }
 
   /**
@@ -315,59 +284,64 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
    * Results are not sorted.
    */
   public <E extends BaseDoc> List<E> getDocuments(IndexType indexType, final Class<E> docClass) {
-    List<SearchHit> hits = getDocuments(indexType);
-    return new ArrayList<>(Collections2.transform(hits, input -> {
+    List<Hit<Map<String, Object>>> hits = getDocuments(indexType);
+    List<E> result = new ArrayList<>(hits.size());
+    for (Hit<Map<String, Object>> hit : hits) {
       try {
-        return (E) ConstructorUtils.invokeConstructor(docClass, input.getSourceAsMap());
+        @SuppressWarnings("unchecked")
+        E doc = (E) ConstructorUtils.invokeConstructor(docClass, hit.source());
+        result.add(doc);
       } catch (Exception e) {
         throw Throwables.propagate(e);
-      }
-    }));
-  }
-
-  /**
-   * Get all the indexed documents (no paginated results) of the specified type. Results are not sorted.
-   */
-  public List<SearchHit> getDocuments(IndexType indexType) {
-    IndexType.IndexMainType mainType = indexType.getMainType();
-
-    SearchRequest searchRequest = EsClient.prepareSearch(mainType.getIndex().getName())
-      .source(new SearchSourceBuilder()
-        .query(getDocumentsQuery(indexType)));
-    return getDocuments(searchRequest);
-  }
-
-  private List<SearchHit> getDocuments(SearchRequest req) {
-    req.scroll(new TimeValue(60000));
-    req.source()
-      .size(100)
-      .sort("_doc", SortOrder.ASC);
-
-    SearchResponse response = ES_REST_CLIENT.search(req);
-    List<SearchHit> result = newArrayList();
-    while (true) {
-      Iterables.addAll(result, response.getHits());
-      response = ES_REST_CLIENT.scroll(new SearchScrollRequest(response.getScrollId()).scroll(new TimeValue(600000)));
-      // Break condition: No hits are returned
-      if (response.getHits().getHits().length == 0) {
-        String scrollId = response.getScrollId();
-        ES_REST_CLIENT.clearScrollV2( clr -> clr.scrollId(scrollId));
-        break;
       }
     }
     return result;
   }
 
-  private QueryBuilder getDocumentsQuery(IndexType indexType) {
-    if (!indexType.getMainType().getIndex().acceptsRelations()) {
-      return matchAllQuery();
-    }
+  /**
+   * Get all the indexed documents (no paginated results) of the specified type. Results are not sorted.
+   */
+  public List<Hit<Map<String, Object>>> getDocuments(IndexType indexType) {
+    IndexType.IndexMainType mainType = indexType.getMainType();
+    return searchAllPaginated(mainType.getIndex().getName(), getDocumentsQuery(indexType));
+  }
 
-    if (indexType instanceof IndexRelationType) {
-      return new TermQueryBuilder(FIELD_INDEX_TYPE, ((IndexRelationType) indexType).getName());
+  private static List<Hit<Map<String, Object>>> searchAllPaginated(String indexName, Query query) {
+    int pageSize = 100;
+    List<Hit<Map<String, Object>>> all = new ArrayList<>();
+    List<FieldValue> searchAfter = null;
+    while (true) {
+      final List<FieldValue> sa = searchAfter;
+      @SuppressWarnings({"rawtypes", "unchecked"})
+      Class<Map<String, Object>> mapClass = (Class) Map.class;
+      SearchResponse<Map<String, Object>> response = ES_REST_CLIENT.searchV2(s -> {
+        s.index(indexName)
+          .query(query)
+          .size(pageSize)
+          .sort(so -> so.field(f -> f.field("_doc").order(SortOrder.Asc)));
+        if (sa != null) {
+          s.searchAfter(sa);
+        }
+        return s;
+      }, mapClass);
+      List<Hit<Map<String, Object>>> hits = response.hits().hits();
+      if (hits.isEmpty()) {
+        return all;
+      }
+      all.addAll(hits);
+      searchAfter = hits.get(hits.size() - 1).sort();
     }
-    if (indexType instanceof IndexType.IndexMainType) {
-      return new TermQueryBuilder(FIELD_INDEX_TYPE, ((IndexType.IndexMainType) indexType).getType());
+  }
+
+  private static Query getDocumentsQuery(IndexType indexType) {
+    if (!indexType.getMainType().getIndex().acceptsRelations()) {
+      return Query.of(q -> q.matchAll(m -> m));
+    }
+    if (indexType instanceof IndexRelationType relation) {
+      return Query.of(q -> q.term(t -> t.field(FIELD_INDEX_TYPE).value(relation.getName())));
+    }
+    if (indexType instanceof IndexType.IndexMainType mainType) {
+      return Query.of(q -> q.term(t -> t.field(FIELD_INDEX_TYPE).value(mainType.getType())));
     }
     throw new IllegalArgumentException("Unsupported IndexType " + indexType.getClass());
   }
@@ -375,15 +349,16 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
   /**
    * Get a list of a specific field from all indexed documents.
    */
+  @SuppressWarnings("unchecked")
   public <T> List<T> getDocumentFieldValues(IndexType indexType, final String fieldNameToReturn) {
     return getDocuments(indexType)
       .stream()
-      .map(input -> (T) input.getSourceAsMap().get(fieldNameToReturn))
+      .map(hit -> (T) hit.source().get(fieldNameToReturn))
       .toList();
   }
 
   public List<String> getIds(IndexType indexType) {
-    return getDocuments(indexType).stream().map(SearchHit::getId).toList();
+    return getDocuments(indexType).stream().map(Hit::id).toList();
   }
 
   public void lockWrites(IndexType index) {
@@ -394,7 +369,7 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
     setIndexSettings(index.getMainType().getIndex().getName(), ImmutableMap.of("index.blocks.write", "false"));
   }
 
-  private void setIndexSettings(String index, Map<String, Object> settings) {
+  private static void setIndexSettings(String index, Map<String, Object> settings) {
     Map<String, JsonData> jsonSettings = new HashMap<>();
     settings.forEach((key, value) -> jsonSettings.put(key, JsonData.of(value)));
 
@@ -406,16 +381,16 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
 
   private static void deleteIndexIfExists(String name) {
     try {
-      AcknowledgedResponse response = ES_REST_CLIENT.nativeClient().indices().delete(new DeleteIndexRequest(name), RequestOptions.DEFAULT);
-      checkState(response.isAcknowledged(), "Fail to drop the index " + name);
-    } catch (ElasticsearchStatusException e) {
-      if (e.status().getStatus() == 404) {
-        // ignore, index not found
-      } else {
-        throw e;
+      ES_REST_CLIENT.deleteIndexV2(name);
+    } catch (org.sonar.server.es.ElasticsearchException e) {
+      // EsClient.execute() wraps the ES8 exception; unwrap to check for 404 (index not found).
+      Throwable cause = e.getCause();
+      if (cause instanceof co.elastic.clients.elasticsearch._types.ElasticsearchException esException
+        && esException.status() == 404) {
+        // index doesn't exist — nothing to delete, that's fine
+        return;
       }
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not delete index", e);
+      throw e;
     }
   }
 
@@ -426,161 +401,42 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
     List<BuiltIndex> result = new ArrayList<>();
     for (NewIndex newIndex : context.getIndices().values()) {
       BuiltIndex index = newIndex.build();
-
       String indexName = index.getMainType().getIndex().getName();
       deleteIndexIfExists(indexName);
 
-      // create index — bridge the ES8 Map representation to the ES7 Settings.Builder
-      // used by this test fixture, which still talks to the embedded ES7 test node.
-      Settings.Builder settings = Settings.builder();
-      Map<String, Object> indexSettings = index.getSettings();
-      for (Map.Entry<String, Object> entry : indexSettings.entrySet()) {
-        Object value = entry.getValue();
-        if (value instanceof List<?> list) {
-          settings.putList(entry.getKey(), list.stream().map(Object::toString).toList());
-        } else if (value != null) {
-          settings.put(entry.getKey(), value.toString());
-        }
+      String settingsJson;
+      try {
+        settingsJson = JSON.writeValueAsString(Map.of("settings", index.getSettings()));
+      } catch (JsonProcessingException e) {
+        throw new IllegalStateException("Cannot serialize settings for index " + indexName, e);
       }
-
-      CreateIndexResponse indexResponse = createIndex(indexName, settings);
-
-      if (!indexResponse.isAcknowledged()) {
+      boolean acked = ES_REST_CLIENT.createIndexV2(cir -> cir
+        .index(indexName)
+        .withJson(new StringReader(settingsJson))
+      ).acknowledged();
+      if (!acked) {
         throw new IllegalStateException("Failed to create index " + indexName);
       }
 
-      waitForClusterYellowStatus(indexName);
+      ES_REST_CLIENT.waitForStatusV2(HealthStatus.Yellow);
 
-      // create types
-      String typeName = index.getMainType().getType();
-      putIndexMapping(index, indexName, typeName);
+      String mappingJson;
+      try {
+        mappingJson = JSON.writeValueAsString(index.getAttributes());
+      } catch (JsonProcessingException e) {
+        throw new IllegalStateException("Cannot serialize mapping for index " + indexName, e);
+      }
+      boolean mappingAcked = ES_REST_CLIENT.putMappingV2(pmr -> pmr
+        .index(indexName)
+        .withJson(new StringReader(mappingJson))
+      ).acknowledged();
+      if (!mappingAcked) {
+        throw new IllegalStateException("Failed to create mapping for index " + indexName);
+      }
 
-      waitForClusterYellowStatus(indexName);
-
+      ES_REST_CLIENT.waitForStatusV2(HealthStatus.Yellow);
       result.add(index);
     }
     return result;
   }
-
-  private static void waitForClusterYellowStatus(String indexName) {
-    try {
-      ES_REST_CLIENT.nativeClient().cluster().health(new ClusterHealthRequest(indexName).waitForStatus(ClusterHealthStatus.YELLOW), RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not query for index health status");
-    }
-  }
-
-  private static void putIndexMapping(BuiltIndex index, String indexName, String typeName) {
-    try {
-      AcknowledgedResponse mappingResponse = ES_REST_CLIENT.nativeClient().indices().putMapping(new PutMappingRequest(indexName)
-        .type(typeName)
-        .source(index.getAttributes()), RequestOptions.DEFAULT);
-
-      if (!mappingResponse.isAcknowledged()) {
-        throw new IllegalStateException("Failed to create type " + typeName);
-      }
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not query for put index mapping");
-    }
-  }
-
-  private static CreateIndexResponse createIndex(String indexName, Settings.Builder settings) {
-    CreateIndexResponse indexResponse;
-    try {
-      indexResponse = ES_REST_CLIENT.nativeClient().indices()
-        .create(new CreateIndexRequest(indexName).settings(settings), RequestOptions.DEFAULT);
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not create index");
-    }
-    return indexResponse;
-  }
-
-  private static Node createNode() {
-    try {
-      Path tempDir = Files.createTempDirectory("EsTester");
-      tempDir.toFile().deleteOnExit();
-      int i = 10;
-      while (i > 0) {
-        int httpPort = getNextAvailable();
-        try {
-          Node node = startNode(tempDir, httpPort);
-          LOG.info("EsTester running ElasticSearch on HTTP port {}", httpPort);
-          return node;
-        } catch (BindHttpException e) {
-          i--;
-        }
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to start embedded Elasticsearch", e);
-    }
-    throw new IllegalStateException("Failed to find an open port to connect EsTester's Elasticsearch instance after 10 attempts");
-  }
-
-  private static Node startNode(Path tempDir, int httpPort) throws NodeValidationException {
-    Settings settings = Settings.builder()
-      .put(Environment.PATH_HOME_SETTING.getKey(), tempDir)
-      .put("node.name", "EsTester")
-      .put(NodeEnvironment.MAX_LOCAL_STORAGE_NODES_SETTING.getKey(), Integer.MAX_VALUE)
-      .put("logger.level", "INFO")
-      .put("action.auto_create_index", false)
-      // allows to drop all indices at once using `_all`
-      // this parameter will default to true in ES 8.X
-      .put("action.destructive_requires_name", false)
-      // Default the watermarks to absurdly low to prevent the tests
-      // from failing on nodes without enough disk space
-      .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_LOW_DISK_WATERMARK_SETTING.getKey(), "1b")
-      .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_HIGH_DISK_WATERMARK_SETTING.getKey(), "1b")
-      .put(DiskThresholdSettings.CLUSTER_ROUTING_ALLOCATION_DISK_FLOOD_STAGE_WATERMARK_SETTING.getKey(), "1b")
-      // always reduce this - it can make tests really slow
-      .put(RecoverySettings.INDICES_RECOVERY_RETRY_DELAY_STATE_SYNC_SETTING.getKey(), TimeValue.timeValueMillis(20))
-      .put(HttpTransportSettings.SETTING_HTTP_PORT.getKey(), httpPort)
-      .put(HttpTransportSettings.SETTING_HTTP_BIND_HOST.getKey(), "localhost")
-      .put(DiscoveryModule.DISCOVERY_TYPE_SETTING.getKey(), "single-node")
-      .build();
-    Node node = new Node(InternalSettingsPreparer.prepareEnvironment(settings, Collections.emptyMap(), null, null),
-      ImmutableList.of(
-        CommonAnalysisPlugin.class,
-        ReindexPlugin.class,
-        // Netty4Plugin provides http and tcp transport
-        Netty4Plugin.class,
-        // install ParentJoin plugin required to create field of type "join"
-        ParentJoinPlugin.class),
-      true) {
-    };
-    return node.start();
-  }
-
-  public static int getNextAvailable() {
-    Random random = new Random();
-    int maxAttempts = 10;
-    int i = maxAttempts;
-    while (i > 0) {
-      int port = MIN_NON_ROOT_PORT + random.nextInt(MAX_PORT - MIN_NON_ROOT_PORT);
-      if (available(port)) {
-        return port;
-      }
-      i--;
-    }
-
-    throw new NoSuchElementException(format("Could not find an available port in %s attempts", maxAttempts));
-  }
-
-  private static boolean available(int port) {
-    checkArgument(validPort(port), "Invalid port: %s", port);
-
-    try (ServerSocket ss = new ServerSocket(port)) {
-      ss.setReuseAddress(true);
-      try (DatagramSocket ds = new DatagramSocket(port)) {
-        ds.setReuseAddress(true);
-      }
-      return true;
-    } catch (IOException var13) {
-      return false;
-    }
-  }
-
-  private static boolean validPort(int fromPort) {
-    return fromPort >= MIN_PORT && fromPort <= MAX_PORT;
-  }
-
 }

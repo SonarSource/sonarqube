@@ -104,7 +104,10 @@ import static org.sonar.server.almintegration.ws.github.ImportGithubProjectActio
 import static org.sonar.server.tester.UserSessionRule.standalone;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_TYPE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NEW_CODE_DEFINITION_VALUE;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class ImportGithubProjectActionIT {
 
   private static final String PROJECT_KEY_NAME = "PROJECT_NAME";

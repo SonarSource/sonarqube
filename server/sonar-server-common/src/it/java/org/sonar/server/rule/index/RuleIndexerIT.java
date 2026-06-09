@@ -59,8 +59,11 @@ import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 import static org.sonar.server.security.SecurityStandards.CWES_BY_SQ_CATEGORY;
 import static org.sonar.server.security.SecurityStandards.SQ_CATEGORY_KEYS_ORDERING;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
 @RunWith(DataProviderRunner.class)
+@Category(ElasticsearchTest.class)
 public class RuleIndexerIT {
 
   private static final String VALID_HOTSPOT_RULE_DESCRIPTION = """

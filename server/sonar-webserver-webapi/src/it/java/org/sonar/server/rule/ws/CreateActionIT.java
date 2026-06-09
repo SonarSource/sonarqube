@@ -56,7 +56,10 @@ import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
 import static org.sonar.test.JsonAssert.assertJson;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class CreateActionIT {
 
   private final System2 system2 = mock(System2.class);

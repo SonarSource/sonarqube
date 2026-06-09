@@ -28,6 +28,7 @@ dependencies {
   api 'com.github.spotbugs:spotbugs-annotations'
   api 'com.google.protobuf:protobuf-java'
   api 'com.googlecode.java-diff-utils:diffutils'
+  api 'org.apache.logging.log4j:log4j-api'
   api 'org.mybatis:mybatis'
   api 'org.sonarsource.api.plugin:sonar-plugin-api'
 

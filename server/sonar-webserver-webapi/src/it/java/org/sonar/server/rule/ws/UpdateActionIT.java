@@ -21,6 +21,7 @@ package org.sonar.server.rule.ws;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.resources.Languages;
@@ -73,6 +74,7 @@ import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_TYPE;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_TAGS;
 import static org.sonar.test.JsonAssert.assertJson;
 
+@Tag("elasticsearch")
 class UpdateActionIT {
 
   private static final long PAST = 10000L;

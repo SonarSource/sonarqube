@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -40,6 +41,7 @@ import static org.sonar.server.es.newindex.FakeIndexDefinition.EXCPECTED_TYPE_FA
 import static org.sonar.server.es.newindex.FakeIndexDefinition.INDEX;
 import static org.sonar.server.es.newindex.FakeIndexDefinition.TYPE_FAKE;
 
+@Tag("elasticsearch")
 class BulkIndexerIT {
 
   private final TestSystem2 testSystem2 = new TestSystem2().setNow(1_000L);

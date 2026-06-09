@@ -54,7 +54,10 @@ import static org.mockito.Mockito.spy;
 import static org.slf4j.event.Level.ERROR;
 import static org.slf4j.event.Level.INFO;
 import static org.slf4j.event.Level.TRACE;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class RecoveryIndexerTest {
 
   private static final long PAST = 1_000L;

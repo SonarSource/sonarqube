@@ -46,7 +46,10 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.TYPE_PROJECT_MEASURES;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.GT;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.Operator.LT;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class ProjectMeasuresIndexTextSearchTest {
 
   private static final String NCLOC = "ncloc";

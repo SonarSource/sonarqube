@@ -107,8 +107,11 @@ import static org.sonar.db.protobuf.DbIssues.MessageFormattingType.CODE;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.DEFAULT_KEY;
 import static org.sonar.db.rule.RuleDto.Format.HTML;
 import static org.sonar.db.rule.RuleDto.Format.MARKDOWN;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
 @RunWith(DataProviderRunner.class)
+@Category(ElasticsearchTest.class)
 public class ShowActionIT {
   private static final Random RANDOM = new Random();
   public static final DbIssues.MessageFormatting MESSAGE_FORMATTING = DbIssues.MessageFormatting.newBuilder().setStart(0).setEnd(4).setType(CODE).build();

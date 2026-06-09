@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
@@ -56,6 +57,7 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.test.JsonAssert.assertJson;
 
+@Tag("elasticsearch")
 class AuthorsActionIT {
   @RegisterExtension
   private final DbTester db = DbTester.create();

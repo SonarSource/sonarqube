@@ -46,7 +46,10 @@ import org.sonar.server.ws.WsActionTester;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public abstract class BasePermissionWsIT<A extends PermissionsWsAction> {
 
   @Rule

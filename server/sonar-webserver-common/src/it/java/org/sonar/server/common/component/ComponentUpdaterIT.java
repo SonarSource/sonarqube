@@ -82,7 +82,12 @@ import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.server.common.component.ComponentUpdater.ENABLED_FOR_ALL_PROJECTS;
 import static org.sonar.server.common.component.ComponentUpdater.SUGGESTION_FEATURE_ENABLED_PROPERTY;
+import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
+@Tag("elasticsearch")
 public class ComponentUpdaterIT {
 
   private static final String DEFAULT_PROJECT_KEY = "project-key";

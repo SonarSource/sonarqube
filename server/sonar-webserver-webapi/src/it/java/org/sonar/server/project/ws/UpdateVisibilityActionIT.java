@@ -82,7 +82,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_PROJECT_ADMINS_PROPERTY;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class UpdateVisibilityActionIT {
   private static final String PARAM_VISIBILITY = "visibility";
   private static final String PARAM_PROJECT = "project";

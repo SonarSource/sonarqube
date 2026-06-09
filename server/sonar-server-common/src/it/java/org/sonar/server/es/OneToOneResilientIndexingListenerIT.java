@@ -34,7 +34,10 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class OneToOneResilientIndexingListenerIT {
 
   @Rule

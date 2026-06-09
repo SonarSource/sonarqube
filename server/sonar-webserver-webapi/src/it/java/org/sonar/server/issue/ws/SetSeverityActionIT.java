@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.impact.Severity;
@@ -85,6 +86,7 @@ import static org.sonar.db.issue.IssueTesting.newIssue;
 import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonar.db.permission.ProjectPermission.USER;
 
+@Tag("elasticsearch")
 class SetSeverityActionIT {
 
   @RegisterExtension

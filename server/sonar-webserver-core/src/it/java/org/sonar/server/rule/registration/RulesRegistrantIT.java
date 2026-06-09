@@ -32,6 +32,7 @@ import com.google.common.collect.Sets;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -124,6 +125,7 @@ import static org.sonar.db.rule.RuleDescriptionSectionDto.builder;
 import static org.sonar.db.rule.RuleDescriptionSectionDto.createDefaultRuleDescriptionSection;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 
+@Tag("elasticsearch")
 class RulesRegistrantIT {
 
   private static final String FAKE_PLUGIN_KEY = "unittest";

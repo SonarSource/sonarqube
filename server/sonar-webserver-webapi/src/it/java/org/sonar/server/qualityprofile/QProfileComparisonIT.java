@@ -27,6 +27,7 @@ import org.assertj.core.data.MapEntry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.Severity;
@@ -65,6 +66,7 @@ import static org.sonar.api.issue.impact.Severity.MEDIUM;
 import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 
+@Tag("elasticsearch")
 class QProfileComparisonIT {
 
   @RegisterExtension

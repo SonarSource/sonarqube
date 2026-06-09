@@ -20,6 +20,7 @@
 package org.sonar.server.developers.ws;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
@@ -54,6 +55,7 @@ import static org.sonar.db.event.EventTesting.newEvent;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_FROM;
 import static org.sonar.server.developers.ws.SearchEventsAction.PARAM_PROJECTS;
 
+@Tag("elasticsearch")
 class SearchEventsActionQualityGateIT {
 
   @RegisterExtension

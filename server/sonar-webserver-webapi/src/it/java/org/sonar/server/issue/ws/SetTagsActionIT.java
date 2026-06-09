@@ -72,7 +72,10 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class SetTagsActionIT {
 
   @Rule

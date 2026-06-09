@@ -35,8 +35,11 @@ import org.sonar.server.es.newindex.FakeIndexDefinition;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
 @RunWith(DataProviderRunner.class)
+@Category(ElasticsearchTest.class)
 public class MetadataIndexIT {
 
   @Rule

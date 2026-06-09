@@ -21,6 +21,7 @@ package org.sonar.server.es;
 
 import java.util.Iterator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.config.internal.MapSettings;
@@ -30,6 +31,7 @@ import org.sonar.server.platform.db.migration.es.MigrationEsClient;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.es.newindex.SettingsConfiguration.newBuilder;
 
+@Tag("elasticsearch")
 class MigrationEsClientImplTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();

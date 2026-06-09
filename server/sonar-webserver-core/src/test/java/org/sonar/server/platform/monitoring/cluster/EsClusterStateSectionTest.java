@@ -26,7 +26,10 @@ import org.sonar.server.es.EsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class EsClusterStateSectionTest {
 
   @Rule

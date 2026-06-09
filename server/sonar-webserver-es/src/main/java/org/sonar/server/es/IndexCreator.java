@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
@@ -170,7 +170,7 @@ public class IndexCreator implements Startable {
       throw new IllegalStateException("Failed to create index [" + index.getName() + "]");
     }
 
-    client.waitForStatus(ClusterHealthStatus.YELLOW);
+    client.waitForStatusV2(HealthStatus.Yellow);
 
     LOGGER.info("Create mapping {}", builtIndex.getMainType().getIndex().getName());
 
@@ -188,7 +188,7 @@ public class IndexCreator implements Startable {
     if (!putMappingResponse.acknowledged()) {
       throw new IllegalStateException("Failed to create mapping " + builtIndex.getMainType().getIndex().getName());
     }
-    client.waitForStatus(ClusterHealthStatus.YELLOW);
+    client.waitForStatusV2(HealthStatus.Yellow);
   }
 
   private void deleteIndex(String indexName) {

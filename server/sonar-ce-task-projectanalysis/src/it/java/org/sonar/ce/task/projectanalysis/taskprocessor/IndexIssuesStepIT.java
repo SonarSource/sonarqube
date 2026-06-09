@@ -37,7 +37,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.sonar.ce.task.projectanalysis.taskprocessor.ContextUtils.EMPTY_CONTEXT;
 import static org.sonar.db.component.BranchType.BRANCH;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class IndexIssuesStepIT {
   private final String ENTITY_UUID = "entity_uuid";
   private final String BRANCH_UUID = "branch_uuid";

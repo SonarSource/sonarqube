@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -48,6 +49,7 @@ import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFIL
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.language.LanguageTesting.newLanguages;
 
+@Tag("elasticsearch")
 class CreateActionIT {
 
   private static final String XOO_LANGUAGE = "xoo";

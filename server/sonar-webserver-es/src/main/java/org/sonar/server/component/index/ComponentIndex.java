@@ -21,9 +21,13 @@ package org.sonar.server.component.index;
 
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.FiltersAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.FiltersBucket;
+import co.elastic.clients.elasticsearch._types.aggregations.TopHitsAggregate;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.HighlighterEncoder;
+import co.elastic.clients.elasticsearch.core.search.TotalHits;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +37,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.apache.lucene.search.TotalHits;
 import org.sonar.api.utils.System2;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
@@ -164,7 +167,7 @@ public class ComponentIndex {
               .sort(sort -> sort.field(f -> f.field(FIELD_NAME).order(SortOrder.Asc)))
               .source(s -> s.fetch(false))
               .highlight(h -> h
-                .encoder(co.elastic.clients.elasticsearch.core.search.HighlighterEncoder.Html)
+                .encoder(HighlighterEncoder.Html)
                 .preTags("<mark>")
                 .postTags("</mark>")
                 .fields(FIELD_NAME, hf -> hf
@@ -208,7 +211,7 @@ public class ComponentIndex {
   }
 
   private static ComponentIndexResults aggregationsToQualifiersV2(SearchResponse<Void> response) {
-    co.elastic.clients.elasticsearch._types.aggregations.FiltersAggregate filtersAgg =
+    FiltersAggregate filtersAgg =
       response.aggregations().get(FILTERS_AGGREGATION_NAME).filters();
 
     return ComponentIndexResults.newBuilder()
@@ -219,24 +222,18 @@ public class ComponentIndex {
   }
 
   private static ComponentHitsPerQualifier bucketToQualifierV2(String key, FiltersBucket bucket) {
-    co.elastic.clients.elasticsearch._types.aggregations.TopHitsAggregate topHitsAgg =
+    TopHitsAggregate topHitsAgg =
       bucket.aggregations().get(DOCS_AGGREGATION_NAME).topHits();
 
     return new ComponentHitsPerQualifier(
       key,
       ComponentHit.fromSearchHitsV2(topHitsAgg.hits().hits()),
-      getTotalHitsV2(topHitsAgg.hits().total()).value);
+      getTotalHitsV2(topHitsAgg.hits().total()));
   }
 
-  private static TotalHits getTotalHitsV2(@Nullable co.elastic.clients.elasticsearch.core.search.TotalHits totalHits) {
+  private static long getTotalHitsV2(@Nullable TotalHits totalHits) {
     return ofNullable(totalHits)
-      .map(total -> {
-        TotalHits.Relation relation = switch (total.relation()) {
-          case Eq -> TotalHits.Relation.EQUAL_TO;
-          case Gte -> TotalHits.Relation.GREATER_THAN_OR_EQUAL_TO;
-        };
-        return new TotalHits(total.value(), relation);
-      })
+      .map(TotalHits::value)
       .orElseThrow(() -> new IllegalStateException("Could not get total hits of search results"));
   }
 }

@@ -61,7 +61,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.INHERITED;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class QProfileTreeImplIT {
 
   private System2 system2 = new AlwaysIncreasingSystem2();

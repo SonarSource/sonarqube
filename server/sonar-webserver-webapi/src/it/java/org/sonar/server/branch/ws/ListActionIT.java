@@ -64,7 +64,10 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.permission.ProjectPermission.SCAN;
 import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.test.JsonAssert.assertJson;
+import org.junit.experimental.categories.Category;
+import org.sonar.test.tags.ElasticsearchTest;
 
+@Category(ElasticsearchTest.class)
 public class ListActionIT {
 
   @Rule

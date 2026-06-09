@@ -19,13 +19,15 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.test.tags.ElasticsearchTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,6 +36,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.process.systeminfo.SystemInfoUtils.attribute;
 import static org.sonar.server.platform.monitoring.SystemInfoTesting.assertThatAttributeIs;
 
+@Category(ElasticsearchTest.class)
 public class EsStateSectionTest {
 
   @Rule
@@ -48,7 +51,7 @@ public class EsStateSectionTest {
 
   @Test
   public void es_state() {
-    assertThatAttributeIs(underTest.toProtobuf(), "State", ClusterHealthStatus.GREEN.name());
+    assertThatAttributeIs(underTest.toProtobuf(), "State", HealthStatus.Green.name().toUpperCase());
   }
 
   @Test
@@ -64,7 +67,7 @@ public class EsStateSectionTest {
   public void attributes_displays_exception_message_when_cause_null_when_client_fails() {
     EsClient esClientMock = mock(EsClient.class);
     EsStateSection underTest = new EsStateSection(esClientMock);
-    when(esClientMock.clusterHealth(any())).thenThrow(new RuntimeException("RuntimeException with no cause"));
+    when(esClientMock.clusterHealthV2(any())).thenThrow(new RuntimeException("RuntimeException with no cause"));
 
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
     assertThatAttributeIs(section, "State", "RuntimeException with no cause");
@@ -74,7 +77,7 @@ public class EsStateSectionTest {
   public void attributes_displays_exception_message_when_cause_is_not_ElasticSearchException_when_client_fails() {
     EsClient esClientMock = mock(EsClient.class);
     EsStateSection underTest = new EsStateSection(esClientMock);
-    when(esClientMock.clusterHealth(any())).thenThrow(new RuntimeException("RuntimeException with cause not ES", new IllegalArgumentException("some cause message")));
+    when(esClientMock.clusterHealthV2(any())).thenThrow(new RuntimeException("RuntimeException with cause not ES", new IllegalArgumentException("some cause message")));
 
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
     assertThatAttributeIs(section, "State", "RuntimeException with cause not ES");
@@ -84,7 +87,9 @@ public class EsStateSectionTest {
   public void attributes_displays_cause_message_when_cause_is_ElasticSearchException_when_client_fails() {
     EsClient esClientMock = mock(EsClient.class);
     EsStateSection underTest = new EsStateSection(esClientMock);
-    when(esClientMock.clusterHealth(any())).thenThrow(new RuntimeException("RuntimeException with ES cause", new ElasticsearchException("some cause message")));
+    ElasticsearchException esCause = mock(ElasticsearchException.class);
+    when(esCause.getMessage()).thenReturn("some cause message");
+    when(esClientMock.clusterHealthV2(any())).thenThrow(new RuntimeException("RuntimeException with ES cause", esCause));
 
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
     assertThatAttributeIs(section, "State", "some cause message");
