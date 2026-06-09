@@ -37,6 +37,7 @@ import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DbClient;
+import org.sonarsource.measures.server.MeasuresServerPlatformLevel1Module;
 import org.sonarsource.metrics.server.bean.MetricsServerPlatformLevel1Module;
 import org.sonarsource.users.server.bean.UsersServerPlatformLevel1Module;
 import org.sonar.db.DefaultDatabase;
@@ -156,6 +157,8 @@ public class PlatformLevel1 extends PlatformLevel {
     addAll(UsersServerPlatformLevel1Module.components());
     // metrics
     addAll(MetricsServerPlatformLevel1Module.components());
+    // measures
+    addAll(MeasuresServerPlatformLevel1Module.components());
 
     // cluster
     add(DefaultNodeInformation.class);

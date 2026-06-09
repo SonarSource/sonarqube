@@ -336,6 +336,7 @@ import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 import org.sonarsource.compliancereports.reports.ComplianceReportService;
 import org.sonarsource.compliancereports.reports.MetadataLoader;
 import org.sonarsource.compliancereports.reports.MetadataRules;
+import org.sonarsource.measures.server.MeasuresServerComponents;
 import org.sonarsource.metrics.server.bean.MetricsServerComponents;
 import org.sonarsource.organizations.server.OrganizationsServiceServerImpl;
 import org.sonarsource.users.server.bean.UsersServerComponents;
@@ -806,6 +807,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
     // registered via metrics-server-app
     addAll(MetricsServerComponents.components());
+
+    // registered via measures-server-app
+    addAll(MeasuresServerComponents.components());
 
     // registered via sonar-unified-events
     addAll(EventsWebComponents.components());
