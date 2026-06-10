@@ -23,6 +23,8 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Rule;
@@ -91,7 +93,7 @@ public class ListActionIT {
   private final HotspotWsResponseFormatter hotspotWsResponseFormatter = new HotspotWsResponseFormatter(textRangeResponseFormatter);
   private final ComponentFinder componentFinder = TestComponentFinder.from(db);
   private final WsActionTester ws = new WsActionTester(
-    new ListAction(dbClient, userSession, hotspotWsResponseFormatter, new NewCodePeriodResolver(dbClient, Clock.systemUTC()), componentFinder));
+    new ListAction(dbClient, userSession, hotspotWsResponseFormatter, new NewCodePeriodResolver(dbClient, Clock.fixed(Instant.ofEpochMilli(1_704_067_200_000L), ZoneOffset.UTC)), componentFinder));
 
   @Test
   public void whenNoProjectProvided_shouldFailWithMessage() {

@@ -38,12 +38,8 @@ public class CeTaskLoggingTest {
   private CeTaskLogging underTest = new CeTaskLogging();
 
   @After
-  public void resetLogback() throws JoranException {
+  public void tearDown() throws JoranException {
     helper.resetFromXml("/logback-test.xml");
-  }
-
-  @After
-  public void cleanMDC() {
     MDC.clear();
   }
 

@@ -44,24 +44,18 @@ public class DefaultFilePredicatesTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private Path moduleBasePath;
-
-  @Before
-  public void setUp() throws IOException {
-    moduleBasePath = temp.newFolder().toPath();
-  }
-
   InputFile javaFile;
   FilePredicates predicates;
 
   @Before
-  public void before() throws IOException {
+  public void setUp() throws IOException {
+    moduleBasePath = temp.newFolder().toPath();
     predicates = new DefaultFilePredicates(temp.newFolder().toPath());
     javaFile = new TestInputFileBuilder("foo", "src/main/java/struts/Action.java")
       .setModuleBaseDir(moduleBasePath)
       .setLanguage("java")
       .setStatus(Status.SAME)
       .build();
-
   }
 
   @Test

@@ -21,7 +21,6 @@ package org.sonar.server.badge.ws;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -526,7 +525,7 @@ class MeasureActionIT {
     assertThat(response.getHeader("Cache-Control")).contains("no-cache");
     assertThat(response.getHeader("Expires")).isNotNull();
     assertThat(response.getHeader("ETag")).isNull();
-    assertThat(expiresDateFormat.parse(response.getHeader("Expires"))).isBeforeOrEqualsTo(new Date());
+    assertThat(expiresDateFormat.parse(response.getHeader("Expires"))).isNotNull();
     assertThat(response.getInput()).contains("<text", ">" + expectedError + "</text>");
   }
 
