@@ -21,6 +21,8 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -103,7 +105,7 @@ class SearchActionFacetsIT {
   private final PermissionIndexer permissionIndexer = new PermissionIndexer(db.getDbClient(), es.client(), issueIndexer);
   private final IssueQueryComplianceStandardService complianceStandardService = new IssueQueryComplianceStandardService(metadataRules,
     db.getDbClient());
-  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(db.getDbClient(), Clock.systemUTC(), userSession,
+  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(db.getDbClient(), Clock.fixed(Instant.ofEpochMilli(1_704_067_200_000L), ZoneOffset.UTC), userSession,
     complianceStandardService);
   private final SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSession, db.getDbClient(),
     new TransitionService(userSession, null));

@@ -21,8 +21,9 @@ package org.sonar.telemetry.legacy;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -348,7 +349,7 @@ class TelemetryDataLoaderImplIT {
 
   @Test
   void send_branch_measures_data() {
-    Long analysisDate = ZonedDateTime.now(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    Long analysisDate = LocalDate.of(2024, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
 
     MetricDto qg = db.measures().insertMetric(m -> m.setKey(ALERT_STATUS_KEY));
 

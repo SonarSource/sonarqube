@@ -23,6 +23,8 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Rule;
@@ -117,7 +119,7 @@ public class ListActionIT {
   private final SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), languages, new TextRangeResponseFormatter(), userFormatter);
   private final ComponentFinder componentFinder = TestComponentFinder.from(db);
   private final WsActionTester ws = new WsActionTester(
-    new ListAction(userSession, dbClient, new NewCodePeriodResolver(dbClient, Clock.systemUTC()), searchResponseLoader, searchResponseFormat, componentFinder));
+    new ListAction(userSession, dbClient, new NewCodePeriodResolver(dbClient, Clock.fixed(Instant.ofEpochMilli(1_704_067_200_000L), ZoneOffset.UTC)), searchResponseLoader, searchResponseFormat, componentFinder));
 
   @Test
   public void whenNoComponentOrProjectProvided_shouldFailWithMessage() {

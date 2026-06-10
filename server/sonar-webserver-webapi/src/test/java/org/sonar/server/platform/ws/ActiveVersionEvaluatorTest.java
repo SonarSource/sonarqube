@@ -19,8 +19,11 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneOffset;
 import java.util.Collections;
+import java.util.Date;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,13 +69,13 @@ class ActiveVersionEvaluatorTest {
 
   @Test
   void evaluateIfActiveVersion_whenInstalledVersionIsPastLtaAndWithinSixMonthFromLta_shouldReturnVersionIsActive() {
-    Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.MONTH, -5);
-    calendar.set(Calendar.DAY_OF_MONTH, 1);
+    Date fiveMonthsAgo = Date.from(LocalDate.of(2024, Month.JANUARY, 1).minusMonths(5).atStartOfDay(ZoneOffset.UTC).toInstant());
+
+    when(system2.now()).thenReturn(LocalDate.of(2024, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli());
 
     when(sonarQubeVersion.get()).thenReturn(parse("8.9.5"));
     SortedSet<Release> releases = getReleases();
-    releases.stream().filter(r -> r.getVersion().equals(Version.create("9.9"))).findFirst().get().setDate(calendar.getTime());
+    releases.stream().filter(r -> r.getVersion().equals(Version.create("9.9"))).findFirst().get().setDate(fiveMonthsAgo);
     when(sonar.getAllReleases(any())).thenReturn(releases);
 
     assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isTrue();
@@ -80,15 +83,13 @@ class ActiveVersionEvaluatorTest {
 
   @Test
   void evaluateIfActiveVersion_whenInstalledVersionIsPastLtaAndAfterSixMonthFromLta_shouldReturnVersionNotActive() {
-    Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.MONTH, -7);
-    calendar.set(Calendar.DAY_OF_MONTH, 1);
+    Date sevenMonthsAgo = Date.from(LocalDate.of(2024, Month.JANUARY, 1).minusMonths(7).atStartOfDay(ZoneOffset.UTC).toInstant());
 
-    when(system2.now()).thenCallRealMethod();
+    when(system2.now()).thenReturn(LocalDate.of(2024, Month.JANUARY, 1).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli());
 
     when(sonarQubeVersion.get()).thenReturn(parse("8.9.5"));
     SortedSet<Release> releases = getReleases();
-    releases.stream().filter(r -> r.getVersion().equals(Version.create("9.9"))).findFirst().get().setDate(calendar.getTime());
+    releases.stream().filter(r -> r.getVersion().equals(Version.create("9.9"))).findFirst().get().setDate(sevenMonthsAgo);
     when(sonar.getAllReleases(any())).thenReturn(releases);
 
     assertThat(underTest.evaluateIfActiveVersion(updateCenter)).isFalse();

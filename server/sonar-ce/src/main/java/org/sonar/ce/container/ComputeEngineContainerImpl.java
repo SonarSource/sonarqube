@@ -488,6 +488,18 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     // registered via sonar-unified-events
     level4Container.add(toArray(EventsCeComponents.components()));
 
+    addClusterOrStandaloneComponents(level4Container, props);
+
+    level4Container.getParent().getOptionalComponentByType(CECoreExtensionsInstaller.class)
+      .orElseThrow(() -> new IllegalStateException("Core extension loading mechanism is not available"))
+      .install(level4Container, hasPlatformLevel4OrNone(), noAdditionalSideFilter());
+
+    level4Container.getParent().getOptionalComponentByType(ServerExtensionInstaller.class)
+      .orElseThrow(() -> new IllegalStateException("Core extension loading mechanism is not available"))
+      .installExtensions(level4Container);
+  }
+
+  private static void addClusterOrStandaloneComponents(SpringComponentContainer level4Container, Props props) {
     if (props.valueAsBoolean(CLUSTER_ENABLED.getKey())) {
       level4Container.add(
         new CeCleaningModule(),
@@ -507,14 +519,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
         ServerLogging.class,
         StandaloneCeDistributedInformation.class);
     }
-
-    level4Container.getParent().getOptionalComponentByType(CECoreExtensionsInstaller.class)
-      .orElseThrow(() -> new IllegalStateException("Core extension loading mechanism is not available"))
-      .install(level4Container, hasPlatformLevel4OrNone(), noAdditionalSideFilter());
-
-    level4Container.getParent().getOptionalComponentByType(ServerExtensionInstaller.class)
-      .orElseThrow(() -> new IllegalStateException("Core extension loading mechanism is not available"))
-      .installExtensions(level4Container);
   }
 
   private static Object[] startupComponents() {

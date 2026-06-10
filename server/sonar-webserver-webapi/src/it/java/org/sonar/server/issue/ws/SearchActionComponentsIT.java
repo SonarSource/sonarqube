@@ -20,6 +20,8 @@
 package org.sonar.server.issue.ws;
 
 import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
@@ -119,7 +121,7 @@ class SearchActionComponentsIT {
   private final MetadataRules metadataRules = new MetadataRules(metadataLoader);
   private final IssueQueryComplianceStandardService complianceStandardService = new IssueQueryComplianceStandardService(metadataRules,
     db.getDbClient());
-  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSession, complianceStandardService);
+  private final IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.fixed(Instant.ofEpochMilli(1_704_067_200_000L), ZoneOffset.UTC), userSession, complianceStandardService);
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private final IssueWorkflow issueWorkflow = new IssueWorkflow(
     new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(issueFieldsSetter), new CodeQualityIssueWorkflowDefinition(), mock(TaintChecker.class)),
