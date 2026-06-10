@@ -23,6 +23,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
@@ -46,6 +48,7 @@ import org.sonar.alm.client.gitlab.GsonApp;
 import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubAppConfiguration;
+import org.sonar.auth.github.GithubAppCredentials;
 import org.sonar.auth.github.GithubAppInstallation;
 import org.sonar.auth.github.GithubAppPermissions;
 import org.sonar.auth.github.GithubApplicationClient;
@@ -62,6 +65,7 @@ import org.sonarqube.ws.client.HttpException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -356,6 +360,26 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       throw new IllegalArgumentException();
     } catch (IOException e) {
       throw new IllegalStateException("Failed to create GitHub's user access token", e);
+    }
+  }
+
+  @Override
+  public GithubAppCredentials convertAppManifest(String apiEndpoint, String code) {
+    String endpoint = "/app-manifests/" + URLEncoder.encode(code, StandardCharsets.UTF_8) + "/conversions";
+    try {
+      // Unauthenticated call: the GitHub App does not exist yet, so no JWT/app token is available.
+      ApplicationHttpClient.Response response = githubApplicationHttpClient.post(apiEndpoint, null, endpoint);
+
+      if (response.getCode() != HTTP_CREATED && response.getCode() != HTTP_OK) {
+        throw new IllegalStateException(
+          "Failed to create the GitHub App from manifest. GitHub returned code " + response.getCode() + ". " + response.getContent().orElse(""));
+      }
+
+      return response.getContent()
+        .map(content -> GSON.fromJson(content, GithubAppCredentials.class))
+        .orElseThrow(() -> new IllegalStateException("Failed to create the GitHub App from manifest, response body was empty"));
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to create the GitHub App from manifest", e);
     }
   }
 

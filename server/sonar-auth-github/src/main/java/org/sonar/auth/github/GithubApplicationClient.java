@@ -44,6 +44,21 @@ public interface GithubApplicationClient {
   UserAccessToken createUserAccessToken(String appUrl, String clientId, String clientSecret, String code);
 
   /**
+   * Convert a temporary code obtained through the GitHub App Manifest flow into the newly created
+   * App's credentials (app id, client id, client secret, private key, webhook secret).
+   *
+   * See https://docs.github.com/en/apps/sharing-github-apps/registering-a-github-app-from-a-manifest
+   *
+   * This call is unauthenticated: the App does not exist yet when it is made. The temporary code is
+   * single-use and expires one hour after the manifest flow was initiated.
+   *
+   * @param apiEndpoint the GitHub API endpoint (e.g. {@code https://api.github.com})
+   * @param code the temporary code returned by GitHub on the manifest flow redirect
+   * @throws IllegalStateException if the exchange failed (network issue, invalid/expired code, etc.)
+   */
+  GithubAppCredentials convertAppManifest(String apiEndpoint, String code);
+
+  /**
    * Create an installation access token for the specified installation ID.
    *
    * IMPORTANT: each call consumes one hit of the App GLOBAL quotas (5'000 hits per hour).

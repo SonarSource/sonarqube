@@ -48,6 +48,7 @@ import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubAppConfiguration;
+import org.sonar.auth.github.GithubAppCredentials;
 import org.sonar.auth.github.GithubAppInstallation;
 import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.GithubBinding;
@@ -363,6 +364,77 @@ public class GithubApplicationClientImplTest {
       .extracting(UserAccessToken::getValue, UserAccessToken::getAuthorizationHeaderPrefix)
       .containsOnly(token, "token");
     verify(githubApplicationHttpClient).post(appUrl, null, "/login/oauth/access_token?client_id=clientId&client_secret=clientSecret&code=code");
+  }
+
+  @Test
+  public void convertAppManifest_returns_credentials() throws IOException {
+    String apiEndpoint = "https://api.github.com";
+    String endpoint = "/app-manifests/the-code/conversions";
+    String json = """
+      {
+        "id": 12345,
+        "slug": "sonarqube",
+        "client_id": "Iv1.abc123",
+        "client_secret": "the-client-secret",
+        "webhook_secret": "the-webhook-secret",
+        "pem": "-----BEGIN RSA PRIVATE KEY-----\\nMIIE\\n-----END RSA PRIVATE KEY-----\\n",
+        "html_url": "https://github.com/apps/sonarqube"
+      }""";
+    when(githubApplicationHttpClient.post(apiEndpoint, null, endpoint)).thenReturn(new Response(HTTP_CREATED, json));
+
+    GithubAppCredentials credentials = underTest.convertAppManifest(apiEndpoint, "the-code");
+
+    assertThat(credentials.getAppId()).isEqualTo("12345");
+    assertThat(credentials.clientId()).isEqualTo("Iv1.abc123");
+    assertThat(credentials.clientSecret()).isEqualTo("the-client-secret");
+    assertThat(credentials.webhookSecret()).isEqualTo("the-webhook-secret");
+    assertThat(credentials.pem()).contains("BEGIN RSA PRIVATE KEY");
+    verify(githubApplicationHttpClient).post(apiEndpoint, null, endpoint);
+  }
+
+  @Test
+  public void convertAppManifest_urlEncodesCodeInEndpoint() throws IOException {
+    String apiEndpoint = "https://api.github.com";
+    String code = "a/b c?d";
+    String endpoint = "/app-manifests/a%2Fb+c%3Fd/conversions";
+    when(githubApplicationHttpClient.post(apiEndpoint, null, endpoint)).thenReturn(new Response(HTTP_CREATED, "{\"id\":1}"));
+
+    underTest.convertAppManifest(apiEndpoint, code);
+
+    verify(githubApplicationHttpClient).post(apiEndpoint, null, endpoint);
+  }
+
+  @Test
+  public void convertAppManifest_whenResponseCodeIsNotCreatedOrOk_throws() throws IOException {
+    String apiEndpoint = "https://api.github.com";
+    String endpoint = "/app-manifests/the-code/conversions";
+    when(githubApplicationHttpClient.post(apiEndpoint, null, endpoint)).thenReturn(new Response(422, "{\"message\":\"boom\"}"));
+
+    assertThatThrownBy(() -> underTest.convertAppManifest(apiEndpoint, "the-code"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Failed to create the GitHub App from manifest");
+  }
+
+  @Test
+  public void convertAppManifest_whenResponseBodyIsEmpty_throws() throws IOException {
+    String apiEndpoint = "https://api.github.com";
+    String endpoint = "/app-manifests/the-code/conversions";
+    when(githubApplicationHttpClient.post(apiEndpoint, null, endpoint)).thenReturn(new Response(HTTP_CREATED, null));
+
+    assertThatThrownBy(() -> underTest.convertAppManifest(apiEndpoint, "the-code"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("response body was empty");
+  }
+
+  @Test
+  public void convertAppManifest_whenRequestFails_throws() throws IOException {
+    String apiEndpoint = "https://api.github.com";
+    String endpoint = "/app-manifests/the-code/conversions";
+    when(githubApplicationHttpClient.post(apiEndpoint, null, endpoint)).thenThrow(new IOException("OOPS"));
+
+    assertThatThrownBy(() -> underTest.convertAppManifest(apiEndpoint, "the-code"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Failed to create the GitHub App from manifest");
   }
 
   @Test
