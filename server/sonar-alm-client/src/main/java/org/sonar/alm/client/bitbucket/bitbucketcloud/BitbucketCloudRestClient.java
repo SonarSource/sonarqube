@@ -24,8 +24,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import jakarta.inject.Inject;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -62,9 +60,6 @@ public class BitbucketCloudRestClient {
   protected static final String OAUTH_CONSUMER_NOT_PRIVATE = "Configure the OAuth consumer in the Bitbucket workspace to be a private consumer";
   protected static final String BBC_FAIL_WITH_RESPONSE = "Bitbucket Cloud API call to [%s] failed with %s http code. Bitbucket Cloud response content : [%s]";
   protected static final String BBC_FAIL_WITH_ERROR = "Bitbucket Cloud API call to [%s] failed with error: %s";
-  protected static final String APP_PASSWORD_DEPRECATION_MESSAGE = """
-     - Note: Bitbucket App Passwords are deprecated and may cause authentication failures. Consider updating to API tokens using the SonarQube UI.
-    """;
 
   protected static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json; charset=utf-8");
 
@@ -121,12 +116,6 @@ public class BitbucketCloudRestClient {
    * Validate parameters provided.
    */
   public void validateAppPassword(String encodedCredentials, String workspace) {
-    // Validate token format - App Passwords are no longer supported
-    if (isLikelyAppPassword(encodedCredentials)) {
-      throw new IllegalArgumentException(
-        "Bitbucket App Passwords are no longer supported. Please update your configuration to use API tokens");
-    }
-
     try {
       doGetWithBasicAuth(encodedCredentials, buildUrl("/repositories/" + workspace), r -> null);
     } catch (NotFoundException | IllegalStateException e) {
@@ -206,10 +195,6 @@ public class BitbucketCloudRestClient {
     try {
       return doCall(request, handler);
     } catch (BitbucketCloudException e) {
-      // Check if this might be due to app password deprecation
-      if ((e.getHttpCode() == 401 || e.getHttpCode() == 403 || e.getHttpCode() == 404) && isLikelyAppPassword(encodedCredentials)) {
-        throw new IllegalArgumentException(e.getMessage() + APP_PASSWORD_DEPRECATION_MESSAGE, e);
-      }
       throw new IllegalStateException(e.getMessage(), e);
     }
   }
@@ -317,20 +302,5 @@ public class BitbucketCloudRestClient {
 
   public static Gson buildGson() {
     return new GsonBuilder().create();
-  }
-
-  private static boolean isLikelyAppPassword(String encodedCredentials) {
-    try {
-      String decoded = new String(Base64.getDecoder().decode(encodedCredentials), StandardCharsets.UTF_8);
-      int colonIndex = decoded.indexOf(':');
-      if (colonIndex == -1) {
-        return false;
-      }
-      String password = decoded.substring(colonIndex + 1);
-      // API tokens start with ATAT, access tokens start with ATCT
-      return !password.startsWith("ATAT") && !password.startsWith("ATCT");
-    } catch (IllegalArgumentException e) {
-      return false;
-    }
   }
 }

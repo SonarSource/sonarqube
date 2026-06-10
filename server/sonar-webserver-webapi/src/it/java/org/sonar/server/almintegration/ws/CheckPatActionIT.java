@@ -52,8 +52,6 @@ import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 public class CheckPatActionIT {
 
   public static final String PAT_SECRET = "pat-secret";
-  private static final String BITBUCKET_CLOUD_API_TOKEN_PREFIX = "ATAT";
-  private static final String BITBUCKET_CLOUD_ACCESS_TOKEN_PREFIX = "ATCT";
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -144,11 +142,10 @@ public class CheckPatActionIT {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
     AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
-    String validToken = BITBUCKET_CLOUD_API_TOKEN_PREFIX + PAT_SECRET;
     db.almPats().insert(dto -> {
       dto.setAlmSettingUuid(almSetting.getUuid());
       dto.setUserUuid(user.getUuid());
-      dto.setPersonalAccessToken(validToken);
+      dto.setPersonalAccessToken(PAT_SECRET);
     });
 
     ws.newRequest()
@@ -156,7 +153,7 @@ public class CheckPatActionIT {
       .execute();
 
     assertThat(almSetting.getAppId()).isNotNull();
-    verify(bitbucketCloudRestClient).validateAppPassword(validToken, almSetting.getAppId());
+    verify(bitbucketCloudRestClient).validateAppPassword(PAT_SECRET, almSetting.getAppId());
   }
 
   @Test
@@ -195,26 +192,6 @@ public class CheckPatActionIT {
   }
 
   @Test
-  public void check_pat_for_bitbucketcloud_with_atct_prefix() {
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
-    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
-    String validToken = BITBUCKET_CLOUD_ACCESS_TOKEN_PREFIX + PAT_SECRET;
-    db.almPats().insert(dto -> {
-      dto.setAlmSettingUuid(almSetting.getUuid());
-      dto.setUserUuid(user.getUuid());
-      dto.setPersonalAccessToken(validToken);
-    });
-
-    ws.newRequest()
-      .setParam("almSetting", almSetting.getKey())
-      .execute();
-
-    assertThat(almSetting.getAppId()).isNotNull();
-    verify(bitbucketCloudRestClient).validateAppPassword(validToken, almSetting.getAppId());
-  }
-
-  @Test
   public void fail_when_personal_access_token_is_invalid_for_bitbucketcloud() {
     doThrow(new IllegalArgumentException("Invalid personal access token"))
       .when(bitbucketCloudRestClient).validateAppPassword(anyString(), anyString());
@@ -222,11 +199,10 @@ public class CheckPatActionIT {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);
     AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting();
-    String validToken = BITBUCKET_CLOUD_API_TOKEN_PREFIX + PAT_SECRET;
     db.almPats().insert(dto -> {
       dto.setAlmSettingUuid(almSetting.getUuid());
       dto.setUserUuid(user.getUuid());
-      dto.setPersonalAccessToken(validToken);
+      dto.setPersonalAccessToken(PAT_SECRET);
     });
 
     TestRequest request = ws.newRequest().setParam("almSetting", almSetting.getKey());
