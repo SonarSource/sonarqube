@@ -2,10 +2,10 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.sonar.build.LicenseReader
+import org.sonar.build.WriteDependencyLicensesTask
 import org.cyclonedx.model.ExternalReference
 
 plugins {
-  id "com.github.hierynomus.license-report"
   id "com.gradleup.shadow"
   id "de.undercouch.download"
   id "org.cyclonedx.bom"
@@ -110,8 +110,9 @@ task verifySonarProperties(type: Verify) {
 }
 
 
-downloadLicenses {
-  dependencyConfiguration = 'appLicenses'
+tasks.register('generateLicenseReport', WriteDependencyLicensesTask) {
+  configurationName = 'appLicenses'
+  outputDir = layout.buildDirectory.dir('reports/dependency-license')
 }
 
 tasks.register('downloadJres') {
@@ -137,9 +138,9 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
   }
 
   if(release) {
-    dependsOn tasks.downloadLicenses
+    dependsOn tasks.generateLicenseReport
     into("${archiveDir}/licenses/") {
-      from(tasks.downloadLicenses.outputs) {
+      from(tasks.generateLicenseReport.outputs) {
         include 'dependency-license.json'
         filter(LicenseReader)
       }

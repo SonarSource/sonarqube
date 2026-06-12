@@ -1,5 +1,3 @@
-import nl.javadude.gradle.plugins.license.License
-
 plugins {
   id "org.jsonschema2pojo" version "1.3.3"
 }
@@ -18,12 +16,16 @@ jsonSchema2Pojo {
   includeJsr305Annotations = true
 }
 
-license {
-  exclude("org/sonar/sarif/pojo/**/*")
+afterEvaluate {
+  spotless {
+    java {
+      targetExclude 'src/main/java/org/sonar/sarif/pojo/**', 'build/**'
+    }
+  }
 }
 
-tasks.withType(License).configureEach { licenseTask ->
-  licenseTask.mustRunAfter(tasks.named("generateJsonSchema2Pojo"))
+tasks.matching { it.name.startsWith('spotless') }.configureEach { spotlessTask ->
+  spotlessTask.mustRunAfter(tasks.named("generateJsonSchema2Pojo"))
 }
 
 // Produce Java 17 bytecode while making sure the code does not use any APIs from Java 21
