@@ -5,8 +5,7 @@ import static org.gradle.api.JavaVersion.VERSION_21
 
 plugins {
   // Ordered alphabetically
-  id 'com.github.hierynomus.license' version '0.16.1'
-  id "com.github.hierynomus.license-report" version "0.16.1" apply false
+  id 'com.diffplug.spotless' version '7.0.4'
   id 'com.gradleup.shadow' version '9.2.2' apply false
   id 'com.google.protobuf' version '0.8.19' apply false
   id 'com.jfrog.artifactory' version '6.0.4'
@@ -217,7 +216,7 @@ tasks.named('wrapper') {
 }
 
 subprojects {
-  apply plugin: 'com.github.hierynomus.license'
+  apply plugin: 'com.diffplug.spotless'
   apply plugin: 'io.spring.dependency-management'
   apply plugin: 'jacoco'
   apply plugin: 'java-library'
@@ -680,7 +679,6 @@ subprojects {
     }
   }
   build.dependsOn(generatePackageInfo)
-  generatePackageInfo.finalizedBy(licenseFormat)
 
   jacocoTestReport {
     reports {
@@ -805,20 +803,48 @@ subprojects {
     }
   }
 
-  license {
-    header = rootProject.file('HEADER')
-    ignoreFailures = project.hasProperty('ignoreLicenseFailures') ? project.getProperty('ignoreLicenseFailures').toBoolean() : true
-    strictCheck true
-    encoding = 'UTF-8'
-    mapping {
-      java = 'SLASHSTAR_STYLE'
-      js = 'SLASHSTAR_STYLE'
-      ts = 'SLASHSTAR_STYLE'
-      tsx = 'SLASHSTAR_STYLE'
-      css = 'SLASHSTAR_STYLE'
+  def lenient = project.hasProperty('ignoreLicenseFailures')
+          ? project.getProperty('ignoreLicenseFailures').toBoolean()
+          : true
+  def headerFile = project.path.startsWith(':private')
+          ? rootProject.file('private/LICENSE.spotless')
+          : rootProject.file('HEADER.spotless')
+
+  // Delimiter regex matches the first line that is NOT part of a `/* ... */` license header
+  // (rejects the literal `/*` opener line, ` *` body/closer lines, and blank lines).
+  // This preserves any content between the header and the first code line, e.g. JSDoc, eslint-disable
+  // directives, secondary `//` attribution blocks.
+  def headerDelimiter = '(?m)^(?!/\\*\\s*$| \\*|\\s*$).+'
+
+  spotless {
+    enforceCheck = !lenient
+    encoding 'UTF-8'
+    java {
+      target 'src/main/java/**/*.java',
+             'src/test/java/**/*.java',
+             'src/testFixtures/java/**/*.java',
+             'src/it/java/**/*.java',
+             'src/bbt/java/**/*.java'
+      targetExclude 'build/**'
+      licenseHeaderFile headerFile, headerDelimiter
     }
-    includes(['**/*.java', '**/*.js', '**/*.ts', '**/*.tsx', '**/*.css'])
+    format 'javascript', {
+      target 'src/**/*.js'
+      targetExclude 'build/**', 'node_modules/**'
+      licenseHeaderFile headerFile, headerDelimiter
+    }
+    format 'typescript', {
+      target 'src/**/*.ts', 'src/**/*.tsx'
+      targetExclude 'build/**', 'node_modules/**'
+      licenseHeaderFile headerFile, headerDelimiter
+    }
+    format 'css', {
+      target 'src/**/*.css'
+      targetExclude 'build/**', 'node_modules/**'
+      licenseHeaderFile headerFile, headerDelimiter
+    }
   }
+  generatePackageInfo.finalizedBy(tasks.named('spotlessJavaApply'))
 
   tasks.withType(GenerateModuleMetadata) {
     enabled = false

@@ -73,7 +73,7 @@ Then open the root file `build.gradle` as a project in IntelliJ or Eclipse.
 | ./gradlew command                | Description                               |
 | -------------------------------- | ----------------------------------------- |
 | `dependencies`                   | list dependencies                         |
-| `licenseFormat --rerun-tasks`    | fix source headers by applying HEADER.txt |
+| `spotlessApply`                  | fix source headers by applying HEADER     |
 | `wrapper --gradle-version 5.2.1` | upgrade wrapper                           |
 
 ## Building with UI changes
