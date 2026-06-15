@@ -70,6 +70,11 @@ public class WebServerProcessLogging extends ServerProcessLogging {
     logLevelConfigBuilder.offUnlessTrace("org.apache.catalina.core.StandardContext");
     logLevelConfigBuilder.offUnlessTrace("org.apache.catalina.core.StandardService");
 
+    // Spring's DispatcherServlet logs a WARN on this category for every request to an unmapped URL (e.g. a
+    // non-existent /api/v2 endpoint) before the exception handler turns it into a clean 404. The legacy Web API v1
+    // logs nothing in that case, so we silence it here to keep parity (still visible when running at TRACE).
+    logLevelConfigBuilder.offUnlessTrace("org.springframework.web.servlet.PageNotFound");
+
     LOGGER_NAMES_TO_TURN_OFF.forEach(loggerName -> logLevelConfigBuilder.immutableLevel(loggerName, Level.OFF));
   }
 
