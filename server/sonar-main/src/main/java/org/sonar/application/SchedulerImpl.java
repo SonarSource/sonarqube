@@ -234,12 +234,27 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
   private void stopImpl() {
     try {
-      appState.tryToReleaseWebLeaderLock();
+      tryToReleaseWebLeaderLock();
       stopAll();
       finalizeStop();
     } catch (InterruptedException e) {
       LOG.debug("Stop interrupted", e);
       Thread.currentThread().interrupt();
+    }
+  }
+
+  /**
+   * Releasing the web leader lock is best-effort: it relies on the cluster state held by Hazelcast, which may already
+   * have been shut down concurrently by its own JVM shutdown hook when the node is being stopped (e.g. on Ctrl+C, or
+   * when stopped through the Windows service wrapper). Such a failure must not prevent {@link #stopAll()} from running,
+   * otherwise the child processes (Web Server, Compute Engine) would be left running as orphans. See SONAR-28028.
+   * If the lock is not released here, any other node calling this method will eventually release it.
+   */
+  private void tryToReleaseWebLeaderLock() {
+    try {
+      appState.tryToReleaseWebLeaderLock();
+    } catch (RuntimeException e) {
+      LOG.debug("Failed to release the web leader lock while stopping (cluster state may already be shut down)", e);
     }
   }
 

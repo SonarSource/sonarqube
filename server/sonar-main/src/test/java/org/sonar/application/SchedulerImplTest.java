@@ -142,6 +142,34 @@ public class SchedulerImplTest {
   }
 
   @Test
+  public void stop_stopsAllChildProcesses_evenIfReleasingWebLeaderLockFails() throws Exception {
+    TestAppSettings settings = new TestAppSettings();
+    // Simulates SONAR-28028: Hazelcast is shut down concurrently (e.g. by its own JVM shutdown hook on Ctrl+C),
+    // so releasing the web leader lock throws. This must not prevent the child processes from being stopped.
+    AppState failingAppState = new TestAppState() {
+      @Override
+      public void tryToReleaseWebLeaderLock() {
+        throw new IllegalStateException("Hazelcast instance is not active!");
+      }
+    };
+    SchedulerImpl underTest = new SchedulerImpl(settings, appReloader, javaCommandFactory, processLauncher, failingAppState)
+      .setProcessWatcherDelayMs(1L);
+    underTest.schedule();
+    processLauncher.waitForProcessAlive(ELASTICSEARCH).signalAsOperational();
+    processLauncher.waitForProcessAlive(WEB_SERVER).signalAsOperational();
+    processLauncher.waitForProcessAlive(COMPUTE_ENGINE).signalAsOperational();
+
+    underTest.stop();
+
+    // despite the failure to release the web leader lock, all child processes are stopped (no orphans)
+    assertThat(orderedStops).containsExactly(COMPUTE_ENGINE, WEB_SERVER, ELASTICSEARCH);
+    processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isFalse());
+
+    // does nothing because scheduler is already terminated
+    underTest.awaitTermination();
+  }
+
+  @Test
   public void start_and_hard_stop_sequence_of_ES_WEB_CE_in_order() throws Exception {
     TestAppSettings settings = new TestAppSettings();
     SchedulerImpl underTest = newScheduler(settings, false);
