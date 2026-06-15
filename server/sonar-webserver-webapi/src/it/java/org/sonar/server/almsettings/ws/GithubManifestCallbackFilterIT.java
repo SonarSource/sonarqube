@@ -45,7 +45,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_API_URL;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_APP_ID;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_CLIENT_ID;
 import static org.sonar.auth.github.GitHubSettings.GITHUB_ENABLED;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_ORGANIZATIONS;
+import static org.sonar.auth.github.GitHubSettings.GITHUB_PROVISIONING;
 
 public class GithubManifestCallbackFilterIT {
 
@@ -149,6 +154,11 @@ public class GithubManifestCallbackFilterIT {
 
     assertThat(db.getDbClient().almSettingDao().selectByKey(db.getSession(), "my-key")).isPresent();
     assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), GITHUB_ENABLED)).isNotNull();
+    assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), GITHUB_CLIENT_ID).getValue()).isEqualTo("client-id");
+    assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), GITHUB_APP_ID).getValue()).isEqualTo("12345");
+    assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), GITHUB_API_URL).getValue()).isEqualTo("https://api.github.com/");
+    assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), GITHUB_ORGANIZATIONS).getValue()).isEqualTo("my-org");
+    assertThat(db.getDbClient().internalPropertiesDao().selectByKey(db.getSession(), GITHUB_PROVISIONING)).contains("false");
     assertThat(captureRedirect()).isEqualTo("https://github.com/apps/sonarqube/installations/new");
   }
 
@@ -171,6 +181,28 @@ public class GithubManifestCallbackFilterIT {
     // The whole transaction is rolled back: no GitHub authentication configuration is left behind.
     assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), GITHUB_ENABLED)).isNull();
     assertThat(captureRedirect()).contains("almManifestResult=error");
+  }
+
+  @Test
+  public void doFilter_whenAuthConfigAlreadyExists_skipsAuthSetupAndPersistsDevopsBinding() throws Exception {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
+    // Pre-existing GitHub auth config makes createConfiguration throw BadRequestException.
+    db.properties().insertProperty(GITHUB_ENABLED, "true", null);
+    String state = stateStore.create("my-key", "my-org", user.getUuid(), true, true);
+    GithubAppCredentials credentials = new GithubAppCredentials(12345L, "sonarqube", "client-id", "client-secret",
+      "webhook-secret", "the-pem", "https://github.com/apps/sonarqube");
+    when(githubApplicationClient.convertAppManifest("https://api.github.com", "the-code")).thenReturn(credentials);
+    when(request.getParameter("code")).thenReturn("the-code");
+    when(request.getParameter("state")).thenReturn(state);
+
+    underTest.doFilter(request, response, chain);
+
+    // DevOps binding is still created despite skipped auth setup.
+    assertThat(db.getDbClient().almSettingDao().selectByKey(db.getSession(), "my-key")).isPresent();
+    // Pre-existing config is left untouched (GITHUB_ENABLED still "true", not overwritten).
+    assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), GITHUB_ENABLED).getValue()).isEqualTo("true");
+    assertThat(captureRedirect()).isEqualTo("https://github.com/apps/sonarqube/installations/new");
   }
 
   @Test
