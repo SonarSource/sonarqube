@@ -332,7 +332,7 @@ subprojects {
       dependency 'com.sonarsource.security:sonar-security-plugin:11.32.0.46839'
       dependency 'com.sonarsource.security:sonar-security-python-frontend-plugin:11.32.0.46839'
       dependency 'com.sonarsource.security:sonar-security-vbnet-frontend-plugin:11.32.0.46839'
-      dependency 'com.sonarsource.slang:sonar-apex-plugin:1.24.0.2040'
+      dependency 'com.sonarsource.slang:sonar-apex-plugin:1.25.0.2398'
       dependency 'org.sonarsource.slang:sonar-ruby-plugin:1.22.0.1992'
       dependency 'org.sonarsource.slang:sonar-scala-plugin:1.23.0.2394'
       dependency 'com.sonarsource.swift:sonar-swift-plugin:5.3.0.12759'
