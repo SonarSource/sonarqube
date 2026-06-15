@@ -19,17 +19,13 @@
  */
 package org.sonar.server.v2.common;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -67,6 +63,11 @@ import org.springframework.web.context.request.async.AsyncRequestTimeoutExceptio
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class RestResponseEntityExceptionHandlerTest {
 
@@ -74,6 +75,12 @@ class RestResponseEntityExceptionHandlerTest {
 
   @RegisterExtension
   private final LogTesterJUnit5 logs = new LogTesterJUnit5();
+
+  @BeforeEach
+  void setUp() {
+    // Client errors are logged at DEBUG by the library; capture them so the level can be asserted.
+    logs.setLevel(Level.DEBUG);
+  }
 
   // region client
 
@@ -88,7 +95,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.INVALID_REQUEST_FORMAT.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.INVALID_REQUEST_FORMAT.getMessage());
+    assertThat(logs.logs(Level.DEBUG)).contains(ErrorMessages.INVALID_REQUEST_FORMAT.getMessage());
   }
 
   @Test
@@ -126,7 +133,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.INVALID_PARAMETER_TYPE.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.INVALID_PARAMETER_TYPE.getMessage());
+    assertThat(logs.logs(Level.DEBUG)).contains(ErrorMessages.INVALID_PARAMETER_TYPE.getMessage());
   }
 
   @Test
@@ -154,7 +161,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.METHOD_NOT_SUPPORTED.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.METHOD_NOT_SUPPORTED.getMessage());
+    assertThat(logs.logs(Level.DEBUG)).contains(ErrorMessages.METHOD_NOT_SUPPORTED.getMessage());
   }
 
   @Test
@@ -168,7 +175,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.UNSUPPORTED_MEDIA_TYPE.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.UNSUPPORTED_MEDIA_TYPE.getMessage());
+    assertThat(logs.logs(Level.DEBUG)).contains(ErrorMessages.UNSUPPORTED_MEDIA_TYPE.getMessage());
   }
 
   @Test
@@ -182,7 +189,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.UNACCEPTABLE_MEDIA_TYPE.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.UNACCEPTABLE_MEDIA_TYPE.getMessage());
+    assertThat(logs.logs(Level.DEBUG)).contains(ErrorMessages.UNACCEPTABLE_MEDIA_TYPE.getMessage());
   }
 
   @Test
@@ -199,7 +206,7 @@ class RestResponseEntityExceptionHandlerTest {
                                                                         */);
 
     // Verify logging
-    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.INVALID_INPUT_PROVIDED.getMessage());
+    assertThat(logs.logs(Level.DEBUG)).contains(ErrorMessages.INVALID_INPUT_PROVIDED.getMessage());
   }
 
   @Test
@@ -227,7 +234,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.BAD_REQUEST.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.BAD_REQUEST.getMessage());
+    assertThat(logs.logs(Level.DEBUG)).contains(ErrorMessages.BAD_REQUEST.getMessage());
   }
 
   static Stream<Arguments> badRequestsProvider() {
@@ -282,16 +289,15 @@ class RestResponseEntityExceptionHandlerTest {
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
     assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().message()).isEqualTo(ex.getMessage() /* ErrorMessages.INVALID_STATE.getMessage() */);
+    assertThat(response.getBody().message()).isEqualTo(ex.getMessage());
 
     // Verify logging
     assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.INVALID_STATE.getMessage());
   }
 
-  @ParameterizedTest
-  @MethodSource("resourceNotFoundExceptionProvider")
-  void handleResourceNotFoundException_shouldReturnNotFound(Exception ex) {
-    ResponseEntity<RestError> response = underTest.handleResourceNotFoundException(ex);
+  @Test
+  void handleResourceNotFoundException_shouldReturnNotFound() {
+    ResponseEntity<RestError> response = underTest.handleResourceNotFoundException(new FileNotFoundException("File not found"));
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     assertThat(response.getBody()).isNotNull();
@@ -301,9 +307,24 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(logs.logs(Level.ERROR)).contains(ErrorMessages.RESOURCE_NOT_FOUND.getMessage());
   }
 
-  static Stream<Arguments> resourceNotFoundExceptionProvider() {
+  @ParameterizedTest
+  @MethodSource("endpointNotFoundExceptionProvider")
+  void handleEndpointNotFoundException_shouldReturnNotFoundWithoutErrorLog(Exception ex) {
+    logs.setLevel(Level.DEBUG);
+    ResponseEntity<RestError> response = underTest.handleEndpointNotFoundException(ex);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().message()).isEqualTo(ErrorMessages.RESOURCE_NOT_FOUND.getMessage());
+
+    // A request to a non-existent endpoint is a normal client 404: it must not pollute logs at ERROR.
+    assertThat(logs.logs(Level.ERROR)).isEmpty();
+    assertThat(logs.logs(Level.DEBUG)).contains(ErrorMessages.RESOURCE_NOT_FOUND.getMessage());
+  }
+
+  static Stream<Arguments> endpointNotFoundExceptionProvider() {
     return Stream.of(
-        Arguments.of(new FileNotFoundException("File not found")),
+        Arguments.of(mock(NoResourceFoundException.class)),
         Arguments.of(new NoHandlerFoundException("GET", "URL", HttpHeaders.EMPTY)));
   }
 
@@ -330,7 +351,7 @@ class RestResponseEntityExceptionHandlerTest {
     assertThat(response.getBody().message()).isEqualTo(ErrorMessages.SIZE_EXCEEDED.getMessage());
 
     // Verify logging
-    assertThat(logs.logs(Level.WARN)).contains(ErrorMessages.SIZE_EXCEEDED.getMessage());
+    assertThat(logs.logs(Level.DEBUG)).contains(ErrorMessages.SIZE_EXCEEDED.getMessage());
   }
 
   @Test
