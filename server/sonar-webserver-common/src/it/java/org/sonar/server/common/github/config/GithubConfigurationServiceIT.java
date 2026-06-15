@@ -46,7 +46,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -312,6 +314,60 @@ public class GithubConfigurationServiceIT {
   }
 
   @Test
+  public void updateConfiguration_whenWebURLChangesWithoutSecret_shouldFail() {
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(JIT));
+
+    UpdateGithubConfigurationRequest updateWebUrlRequest = builder()
+      .githubConfigurationId(UNIQUE_GITHUB_CONFIGURATION_ID)
+      .webUrl(withValueOrThrow("http://malicious.url"))
+      .build();
+
+    assertThatThrownBy(() -> githubConfigurationService.updateConfiguration(updateWebUrlRequest))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("For security reasons, API and Web urls can't be updated without providing the private key.");
+  }
+
+  @Test
+  public void updateConfiguration_whenFieldNotInRequest_shouldDeleteUserConsentPropertyFromDb() {
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(JIT));
+    verifySettingExistsButEmpty(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE);
+
+    UpdateGithubConfigurationRequest updateRequest = builder()
+      .githubConfigurationId(UNIQUE_GITHUB_CONFIGURATION_ID)
+      .enabled(withValueOrThrow(true))
+      .build();
+
+    githubConfigurationService.updateConfiguration(updateRequest);
+
+    verifySettingWasDeleted(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE);
+  }
+
+  @Test
+  public void updateConfiguration_whenPartialUpdate_shouldSyncAllStringPropertiesToThreadLocalSettings() {
+    githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(JIT));
+
+    UpdateGithubConfigurationRequest updateRequest = builder()
+      .githubConfigurationId(UNIQUE_GITHUB_CONFIGURATION_ID)
+      .enabled(withValueOrThrow(true))
+      .build();
+
+    githubConfigurationService.updateConfiguration(updateRequest);
+
+    verify(threadLocalSettings).setProperty(GITHUB_ENABLED, "true");
+    verify(threadLocalSettings).setProperty(GITHUB_CLIENT_ID, (String) null);
+    verify(threadLocalSettings).setProperty(GITHUB_CLIENT_SECRET, (String) null);
+    verify(threadLocalSettings).setProperty(GITHUB_APP_ID, (String) null);
+    verify(threadLocalSettings).setProperty(GITHUB_PRIVATE_KEY, (String) null);
+    verify(threadLocalSettings).setProperty(GITHUB_GROUPS_SYNC, (String) null);
+    verify(threadLocalSettings).setProperty(GITHUB_API_URL, (String) null);
+    verify(threadLocalSettings).setProperty(GITHUB_WEB_URL, (String) null);
+    verify(threadLocalSettings).setProperty(GITHUB_ORGANIZATIONS, (String) null);
+    verify(threadLocalSettings).setProperty(GITHUB_ALLOW_USERS_TO_SIGN_UP, (String) null);
+    verify(threadLocalSettings).setProperty(GITHUB_PROVISION_PROJECT_VISIBILITY, (String) null);
+    verify(threadLocalSettings).setProperty(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE, false);
+  }
+
+  @Test
   public void updateConfiguration_whenDisablingUserConsentFlagAndJITProvisioning_shouldNotScheduleSync() {
     githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING));
     reset(managedInstanceService);
@@ -420,6 +476,18 @@ public class GithubConfigurationServiceIT {
   }
 
   @Test
+  public void createConfiguration_whenInstanceIsAlreadyManagedByGithub_shouldCreateConfiguration() {
+    when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
+    when(managedInstanceService.getProviderName()).thenReturn(GitHubIdentityProvider.KEY);
+    GithubConfiguration configuration = buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING);
+
+    GithubConfiguration created = githubConfigurationService.createConfiguration(configuration);
+
+    assertConfigurationIsCorrect(configuration, created);
+    verify(managedInstanceService).queueSynchronisationTask();
+  }
+
+  @Test
   public void createConfiguration_whenJitProvisioning_shouldCreateCorrectConfiguration() {
     GithubConfiguration configuration = buildGithubConfigurationWithUserConsentTrue(JIT);
 
@@ -430,6 +498,16 @@ public class GithubConfigurationServiceIT {
     verifyCommonSettings(configuration);
     verifyNoInteractions(managedInstanceService);
 
+  }
+
+  @Test
+  public void createConfiguration_whenUserConsentNotRequired_shouldNotStoreConsentProperty() {
+    GithubConfiguration configuration = buildGithubConfiguration(JIT, false);
+
+    GithubConfiguration created = githubConfigurationService.createConfiguration(configuration);
+
+    assertThat(created.userConsentRequiredAfterUpgrade()).isFalse();
+    verifySettingWasDeleted(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE);
   }
 
   private void verifyCommonSettings(GithubConfiguration configuration) {
@@ -483,6 +561,7 @@ public class GithubConfigurationServiceIT {
     DbSession dbSession = dbTester.getSession();
     dbTester.getDbClient().externalGroupDao().insert(dbSession, new ExternalGroupDto("12", "12", GitHubIdentityProvider.KEY));
     dbTester.getDbClient().externalGroupDao().insert(dbSession, new ExternalGroupDto("34", "34", GitHubIdentityProvider.KEY));
+    dbTester.getDbClient().githubOrganizationGroupDao().insert(dbSession, new GithubOrganizationGroupDto("55", "org1", "group1"));
     dbSession.commit();
     githubConfigurationService.createConfiguration(buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING));
     githubConfigurationService.deleteConfiguration("github-configuration");
@@ -502,6 +581,7 @@ public class GithubConfigurationServiceIT {
     assertPropertyIsDeleted(GITHUB_USER_CONSENT_FOR_PERMISSIONS_REQUIRED_AFTER_UPGRADE);
 
     assertThat(dbTester.getDbClient().externalGroupDao().selectByIdentityProvider(dbTester.getSession(), GitHubIdentityProvider.KEY)).isEmpty();
+    assertThat(dbTester.getDbClient().githubOrganizationGroupDao().findAll(dbTester.getSession())).hasSize(1);
   }
 
   private void assertPropertyIsDeleted(String property) {
@@ -527,8 +607,9 @@ public class GithubConfigurationServiceIT {
     GithubConfiguration configuration = buildGithubConfigurationWithUserConsentTrue(JIT);
     when(configuration.enabled()).thenReturn(true);
 
-    githubConfigurationService.validate(configuration);
+    Optional<String> result = githubConfigurationService.validate(configuration);
 
+    assertThat(result).isEmpty();
     verify(githubGlobalSettingsValidator)
       .validate(configuration.applicationId(), configuration.clientId(), configuration.clientSecret(), configuration.privateKey(), configuration.apiUrl());
   }
@@ -538,8 +619,9 @@ public class GithubConfigurationServiceIT {
     GithubConfiguration configuration = buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING);
     when(configuration.enabled()).thenReturn(true);
 
-    githubConfigurationService.validate(configuration);
+    Optional<String> result = githubConfigurationService.validate(configuration);
 
+    assertThat(result).isEmpty();
     verify(githubGlobalSettingsValidator)
       .validate(configuration.applicationId(), configuration.clientId(), configuration.clientSecret(), configuration.privateKey(), configuration.apiUrl());
   }
@@ -548,9 +630,9 @@ public class GithubConfigurationServiceIT {
   public void validate_whenConfigurationIsInValid_returnsExceptionMessage() {
     GithubConfiguration configuration = buildGithubConfigurationWithUserConsentTrue(AUTO_PROVISIONING);
     when(configuration.enabled()).thenReturn(true);
-
-    Exception exception = new IllegalStateException("Invalid configuration");
-    when(githubConfigurationService.validate(configuration)).thenThrow(exception);
+    doThrow(new IllegalStateException("Invalid configuration"))
+      .when(githubGlobalSettingsValidator)
+      .validate(anyString(), anyString(), anyString(), anyString(), anyString());
 
     Optional<String> message = githubConfigurationService.validate(configuration);
 

@@ -190,6 +190,34 @@ public class DefaultGithubConfigurationControllerTest {
   }
 
   @Test
+  public void search_whenUserIsNotAdministrator_shouldReturnForbidden() throws Exception {
+    userSession.logIn().setNonSystemAdministrator();
+
+    mockMvc.perform(get(GITHUB_CONFIGURATION_ENDPOINT))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+  }
+
+  @Test
+  public void fetchConfiguration_whenConfigIsValid_errorMessageIsAbsent() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    when(githubConfigurationService.getConfiguration("existing-id")).thenReturn(GITHUB_CONFIGURATION);
+    when(githubConfigurationService.validate(any())).thenReturn(Optional.empty());
+
+    mockMvc.perform(get(GITHUB_CONFIGURATION_ENDPOINT + "/existing-id"))
+      .andExpectAll(
+        status().isOk(),
+        content().json("""
+          {
+            "id": "existing-id",
+            "enabled": true,
+            "errorMessage": null
+          }
+          """));
+  }
+
+  @Test
   public void updateConfiguration_whenUserIsNotAdministrator_shouldReturnForbidden() throws Exception {
     userSession.logIn().setNonSystemAdministrator();
 
@@ -288,6 +316,18 @@ public class DefaultGithubConfigurationControllerTest {
       NonNullUpdatedValue.undefined(),
       NonNullUpdatedValue.undefined()
     ));
+  }
+
+  @Test
+  public void updateConfiguration_whenAllowedOrganizationsIsNull_shouldReturnBadRequest() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+
+    mockMvc.perform(patch(GITHUB_CONFIGURATION_ENDPOINT + "/existing-id")
+      .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
+      .content("{\"allowedOrganizations\": null}"))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"allowedOrganizations must not be null\"}"));
   }
 
   @Test
