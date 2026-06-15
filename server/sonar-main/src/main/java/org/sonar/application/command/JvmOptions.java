@@ -154,6 +154,10 @@ public class JvmOptions<T extends JvmOptions> {
     return new ArrayList<>(options);
   }
 
+  public boolean containsOptionStartingWith(String prefix) {
+    return options.stream().anyMatch(o -> o.startsWith(prefix));
+  }
+
   @Override
   public String toString() {
     return options.toString();

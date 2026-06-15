@@ -195,7 +195,10 @@ public class CommandFactoryImpl implements CommandFactory {
 
   private <T extends JvmOptions> void addProxyJvmOptions(JvmOptions<T> jvmOptions) {
     for (String key : PROXY_PROPERTY_KEYS) {
-      getPropsValue(key).ifPresent(val -> jvmOptions.add("-D" + key + "=" + val));
+      // skip if user already set this property in process-level javaOpts
+      if (!jvmOptions.containsOptionStartingWith("-D" + key + "=")) {
+        getPropsValue(key).ifPresent(val -> jvmOptions.add("-D" + key + "=" + val));
+      }
     }
 
     // defaults of HTTPS are the same than HTTP defaults

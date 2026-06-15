@@ -23,6 +23,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -232,6 +233,30 @@ public class CommandFactoryImplTest {
       .contains(entry("sonar.cluster.enabled", "false"));
 
     assertThat(command.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS");
+  }
+
+  @Test
+  public void createWebCommand_does_not_override_nonProxyHosts_set_in_javaOpts() {
+    Properties props = new Properties();
+    props.setProperty("sonar.web.javaOpts", "-Dhttp.nonProxyHosts=telemetry.*|*.sonarqube.io");
+    JavaCommand command = newFactory(props).createWebCommand(true);
+
+    List<String> jvmOptions = command.getJvmOptions().getAll();
+    long nonProxyHostsCount = jvmOptions.stream().filter(o -> o.startsWith("-Dhttp.nonProxyHosts=")).count();
+    assertThat(nonProxyHostsCount).isOne();
+    assertThat(jvmOptions).contains("-Dhttp.nonProxyHosts=telemetry.*|*.sonarqube.io");
+  }
+
+  @Test
+  public void createCeCommand_does_not_override_nonProxyHosts_set_in_javaOpts() {
+    Properties props = new Properties();
+    props.setProperty("sonar.ce.javaOpts", "-Dhttp.nonProxyHosts=telemetry.*|*.sonarqube.io");
+    JavaCommand command = newFactory(props).createCeCommand();
+
+    List<String> jvmOptions = command.getJvmOptions().getAll();
+    long nonProxyHostsCount = jvmOptions.stream().filter(o -> o.startsWith("-Dhttp.nonProxyHosts=")).count();
+    assertThat(nonProxyHostsCount).isOne();
+    assertThat(jvmOptions).contains("-Dhttp.nonProxyHosts=telemetry.*|*.sonarqube.io");
   }
 
   @Test
