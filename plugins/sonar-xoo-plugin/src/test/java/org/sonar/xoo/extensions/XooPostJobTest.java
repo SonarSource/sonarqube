@@ -22,7 +22,7 @@ package org.sonar.xoo.extensions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.postjob.PostJobContext;
-import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
+import org.sonar.scanner.plugin.api.impl.postjob.DefaultPostJobDescriptor;
 import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;

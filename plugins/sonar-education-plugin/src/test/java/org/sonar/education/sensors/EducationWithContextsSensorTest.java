@@ -21,9 +21,9 @@ package org.sonar.education.sensors;
 
 import java.io.IOException;
 import org.junit.Test;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultFileSystem;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.education.sensors.EducationWithContextsSensor.EDUCATION_WITH_CONTEXTS_RULE_KEY;

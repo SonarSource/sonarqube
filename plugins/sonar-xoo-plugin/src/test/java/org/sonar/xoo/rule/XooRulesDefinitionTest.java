@@ -25,7 +25,7 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.server.RulesDefinitionContext;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.scanner.plugin.api.impl.internal.SonarRuntimeImpl;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
