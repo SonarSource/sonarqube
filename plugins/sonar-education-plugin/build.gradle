@@ -10,7 +10,7 @@ dependencies {
     testImplementation 'junit:junit'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mockito:mockito-core'
-    testImplementation project(':sonar-plugin-api-impl')
+    testImplementation 'org.sonarsource.scanner.engine:sensor-test-fixtures'
 }
 
 jar {

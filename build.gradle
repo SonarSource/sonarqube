@@ -611,6 +611,8 @@ subprojects {
       dependency 'com.google.code.findbugs:jsr305:3.0.2'
       // Scanner Engine
       dependencySet(group: 'org.sonarsource.scanner.engine', version: "${scannerEngineVersion}") {
+        entry 'plugin-api-scanner-impl'
+        entry 'sensor-test-fixtures'
         entry 'sonar-scanner-engine-community'
         entry 'scanner-engine-protocol-server'
         entry 'protobuf-utils'

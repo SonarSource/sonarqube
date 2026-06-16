@@ -18,7 +18,6 @@ dependencies {
 
   testCompileOnly 'com.github.spotbugs:spotbugs-annotations'
 
-  testImplementation 'com.google.guava:guava'
   testImplementation 'com.tngtech.java:junit-dataprovider'
   testImplementation 'junit:junit'
   testImplementation 'org.junit.jupiter:junit-jupiter-api'
