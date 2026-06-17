@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,9 +94,15 @@ public abstract class BasePullAction implements WsAction {
       .setResponseExample(getClass().getResource(resourceExample))
       .setDescription(format("This endpoint fetches and returns all (unless filtered by optional params) the %s for a given branch. " +
         "The %s returned are not paginated, so the response size can be big. Requires project 'Browse' permission.", issueType, issueType))
-      .setSince(sinceVersion)
-      .setChangelog(new Change("10.3", "The response field 'creationDate' contains the functional issue creation date " +
-        "instead of the database operation date"));
+      .setSince(sinceVersion);
+
+    configureAction(action);
+
+    List<Change> changes = new ArrayList<>();
+    changes.add(new Change("10.3", "The response field 'creationDate' contains the functional issue creation date " +
+      "instead of the database operation date"));
+    changes.addAll(getAdditionalChanges());
+    action.setChangelog(changes.toArray(new Change[0]));
 
     action.createParam(PROJECT_KEY_PARAM)
       .setRequired(true)
@@ -121,6 +128,15 @@ public abstract class BasePullAction implements WsAction {
 
   protected void additionalParams(WebService.NewAction action) {
     // define additional parameters if needed
+  }
+
+  protected void configureAction(WebService.NewAction action) {
+    // override to configure action metadata (e.g., setDeprecatedSince)
+  }
+
+  protected List<Change> getAdditionalChanges() {
+    // override to add additional changelog entries
+    return emptyList();
   }
 
   @Override

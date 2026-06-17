@@ -94,7 +94,9 @@ public class ChangeStatusAction implements HotspotsWsAction {
       .setDescription("Change the status of a Security Hotpot.<br/>" +
         "Requires the 'Administer Security Hotspot' permission.")
       .setSince("8.1")
+      .setDeprecatedSince("2026.4")
       .setChangelog(
+        new Change("2026.4", "Deprecated. Use /api/issues instead."),
         new Change("2025.1", String.format("The following '%s' values are not deprecated anymore: %s",
           PARAM_RESOLUTION, String.join(", ", SECURITY_HOTSPOT_RESOLUTIONS))),
         new Change("2025.1", String.format("The following '%s' values are not deprecated anymore: %s",

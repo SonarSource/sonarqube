@@ -73,10 +73,12 @@ public class AssignAction implements HotspotsWsAction {
     WebService.NewAction action = controller.createAction(ACTION_ASSIGN)
       .setDescription("Assign a hotspot to an active user. Requires authentication and Browse permission on project")
       .setSince("8.2")
+      .setDeprecatedSince("2026.4")
       .setHandler(this)
       .setInternal(true)
       .setPost(true)
       .setChangelog(
+        new Change("2026.4", "Deprecated. Use /api/issues instead."),
         new Change("8.9", "Parameter 'assignee' is no longer mandatory"));
 
     action.createParam(PARAM_HOTSPOT_KEY)

@@ -22,6 +22,7 @@ package org.sonar.server.hotspot.ws;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -64,9 +65,12 @@ public class EditCommentAction implements HotspotsWsAction {
       .setDescription("Edit a comment.<br/>" +
         "Requires authentication and the following permission: 'Browse' on the project of the specified hotspot.")
       .setSince("8.2")
+      .setDeprecatedSince("2026.4")
       .setHandler(this)
       .setPost(true)
       .setInternal(true)
+      .setChangelog(
+        new Change("2026.4", "Deprecated. Use /api/issues instead."))
       .setResponseExample(getClass().getResource("edit-comment-example.json"));
 
     action.createParam(PARAM_COMMENT)

@@ -19,9 +19,12 @@
  */
 package org.sonar.server.hotspot.ws;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -48,6 +51,18 @@ public class PullAction extends BasePullAction implements HotspotsWsAction {
     super(system2, componentFinder, dbClient, userSession, protobufObjectGenerator, ACTION_NAME,
       ISSUE_TYPE, "", SINCE_VERSION, RESOURCE_EXAMPLE);
     this.dbClient = dbClient;
+  }
+
+  @Override
+  protected void configureAction(WebService.NewAction action) {
+    action.setDeprecatedSince("2026.4");
+  }
+
+  @Override
+  protected List<Change> getAdditionalChanges() {
+    List<Change> changes = new ArrayList<>();
+    changes.add(new Change("2026.4", "Deprecated. Use /api/issues instead."));
+    return changes;
   }
 
   @Override

@@ -243,7 +243,9 @@ public class SearchAction implements HotspotsWsAction {
         + "For applications, it also requires 'Browse' permission on its child projects. <br>"
         + "When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("8.1")
+      .setDeprecatedSince("2026.4")
       .setChangelog(
+        new Change("2026.4", "Deprecated. Use /api/issues instead."),
         new Change(V_2025_6, format(NEW_PARAM_ADDED_MESSAGE, PARAM_COMPLIANCE_STANDARDS)),
         new Change("10.7", format("Added parameter '%s' and '%s'", PARAM_STIG_ASD_V5R3, PARAM_CASA)),
         new Change("10.2", format("Parameter '%s' renamed to '%s'", PARAM_PROJECT_KEY, PARAM_PROJECT)),
