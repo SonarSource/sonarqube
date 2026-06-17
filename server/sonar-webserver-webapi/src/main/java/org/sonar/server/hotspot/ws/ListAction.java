@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.core.rule.RuleType;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -99,8 +100,12 @@ public class ListAction implements HotspotsWsAction {
       .setInternal(true)
       .setDescription("List Security Hotpots. This endpoint is used in degraded mode, when issue indexing is running." +
         "<br>Total number of Security Hotspots will be always equal to a page size, as counting all issues is not supported. " +
-        "<br>Requires the 'Browse' permission on the specified project. ")
-      .setSince("10.2");
+        "<br>Requires the 'Browse' permission on the specified project.")
+      .setSince("10.2")
+      .setDeprecatedSince("2026.4")
+      .setChangelog(
+        new Change("2026.4", "Deprecated. Use /api/issues instead.")
+        );
 
     action.addPagingParams(100, MAX_PAGE_SIZE);
     action.createParam(PARAM_PROJECT)

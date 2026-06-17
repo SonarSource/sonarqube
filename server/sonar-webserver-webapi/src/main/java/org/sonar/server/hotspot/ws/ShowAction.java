@@ -104,7 +104,9 @@ public class ShowAction implements HotspotsWsAction {
       .setHandler(this)
       .setDescription("Provides the details of a Security Hotspot.")
       .setSince("8.1")
+      .setDeprecatedSince("2026.4")
       .setChangelog(
+        new Change("2026.4", "Deprecated. Use /api/issues instead."),
         new Change("10.1", "Add the 'codeVariants' response field"),
         new Change("9.5", "The fields rule.riskDescription, rule.fixRecommendations, rule.vulnerabilityDescription of the response are deprecated."
           + " /api/rules/show endpoint should be used to fetch rule descriptions."),
