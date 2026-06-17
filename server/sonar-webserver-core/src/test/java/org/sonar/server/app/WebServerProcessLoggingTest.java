@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Stream;
 import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -70,8 +70,10 @@ class WebServerProcessLoggingTest {
     props.set(PATH_LOGS.getKey(), logDir.getAbsolutePath());
   }
 
-  @AfterAll
-  static void resetLogback() throws JoranException {
+  @AfterEach
+  void resetLogback() throws JoranException {
+    // Reset Logback after each test so the per-test @TempDir log files (web.log, deprecation.log) are closed
+    // before JUnit deletes the temp directory. Windows cannot delete files that are still held open.
     new LogbackHelper().resetFromXml("/logback-test.xml");
   }
 
