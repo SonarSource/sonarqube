@@ -1004,7 +1004,7 @@ public class IssueIndex {
     return Optional.of(topAggregation);
   }
 
-  private static CalendarInterval computeDateHistogramBucketSize(Duration timeSpan) {
+  static CalendarInterval computeDateHistogramBucketSize(Duration timeSpan) {
     if (timeSpan.isShorterThan(TWENTY_DAYS)) {
       return CalendarInterval.Day;
     }
