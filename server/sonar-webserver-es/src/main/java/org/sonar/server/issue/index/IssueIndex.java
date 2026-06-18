@@ -178,6 +178,8 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SQ_S
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STATUS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STIG_ASD_V5R3;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_MQR_SORT_RANK;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STANDARD_SORT_RANK;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TYPE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_VULNERABILITY_PROBABILITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_LINKED_TICKET_STATUS;
@@ -231,6 +233,7 @@ public class IssueIndex {
 
   private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
   private static final String FACET_SUFFIX_MISSING = "_missing";
+  private static final String SORT_MISSING_LAST = "_last";
   private static final String IS_ASSIGNED_FILTER = "__isAssigned";
   private static final TopAggregationDefinition<?> COMPLIANCE_AGG_DEF = new SimpleFieldTopAggregationDefinition(COMPLIANCE_FILTER_FACET_NAME,
     true);
@@ -276,8 +279,10 @@ public class IssueIndex {
     this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_FILE_PATH);
     this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_LINE);
     this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_KEY);
-
-    // by default order by created date, project, file, line and issue key (in order to be deterministic when same ms)
+    this.sorting.add(IssueQuery.SORT_BY_TYPE_SEVERITY, FIELD_ISSUE_STANDARD_SORT_RANK).reverse();
+    this.sorting.add(IssueQuery.SORT_BY_TYPE_SEVERITY, FIELD_ISSUE_KEY);
+    this.sorting.add(IssueQuery.SORT_BY_QUALITY_SEVERITY, FIELD_ISSUE_MQR_SORT_RANK).reverse();
+    this.sorting.add(IssueQuery.SORT_BY_QUALITY_SEVERITY, FIELD_ISSUE_KEY);
     this.sorting.addDefault(FIELD_ISSUE_FUNC_CREATED_AT).reverse();
     this.sorting.addDefault(FIELD_ISSUE_PROJECT_UUID);
     this.sorting.addDefault(FIELD_ISSUE_FILE_PATH);
@@ -365,9 +370,9 @@ public class IssueIndex {
   }
 
   private List<SortOptions> createSortOptions(IssueQuery query) {
-    List<Sorting.Field> sortFields;
-    boolean asc;
     String sortField = query.sort();
+    boolean asc;
+    List<Sorting.Field> sortFields;
     if (sortField != null) {
       asc = Boolean.TRUE.equals(query.asc());
       sortFields = sorting.getFields(sortField);
@@ -385,7 +390,7 @@ public class IssueIndex {
     return SortOptions.of(s -> s.field(f -> f
       .field(field.getName())
       .order(effectiveAsc ? SortOrder.Asc : SortOrder.Desc)
-      .missing(fv -> fv.stringValue(effectiveMissingLast ? "_last" : "_first"))));
+      .missing(fv -> fv.stringValue(effectiveMissingLast ? SORT_MISSING_LAST : "_first"))));
   }
 
   private AllFilters createAllFilters(IssueQuery query) {
