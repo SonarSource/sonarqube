@@ -19,12 +19,17 @@
  */
 package org.sonar.server.issue.index;
 
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.Severity;
+import org.sonar.api.issue.impact.Severity;
+import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.SearchOptions;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -55,11 +60,11 @@ class IssueIndexSortTest extends IssueIndexTestCommon {
     ComponentDto file = newFileDto(project);
 
     indexIssues(
-      newDoc("I1", project.uuid(), file).setSeverity(Severity.BLOCKER),
-      newDoc("I2", project.uuid(), file).setSeverity(Severity.INFO),
-      newDoc("I3", project.uuid(), file).setSeverity(Severity.MINOR),
-      newDoc("I4", project.uuid(), file).setSeverity(Severity.CRITICAL),
-      newDoc("I5", project.uuid(), file).setSeverity(Severity.MAJOR));
+      newDoc("I1", project.uuid(), file).setSeverity(org.sonar.api.rule.Severity.BLOCKER),
+      newDoc("I2", project.uuid(), file).setSeverity(org.sonar.api.rule.Severity.INFO),
+      newDoc("I3", project.uuid(), file).setSeverity(org.sonar.api.rule.Severity.MINOR),
+      newDoc("I4", project.uuid(), file).setSeverity(org.sonar.api.rule.Severity.CRITICAL),
+      newDoc("I5", project.uuid(), file).setSeverity(org.sonar.api.rule.Severity.MAJOR));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(true);
     assertThatSearchReturnsOnly(query, "I2", "I3", "I5", "I4", "I1");
@@ -145,31 +150,39 @@ class IssueIndexSortTest extends IssueIndexTestCommon {
   }
 
   @Test
-  void default_sort_is_by_creation_date_then_project_then_file_then_line_then_issue_key() {
-    ComponentDto project1 = newPrivateProjectDto("P1");
-    ComponentDto file1 = newFileDto(project1, null, "F1").setPath("src/main/xoo/org/sonar/samples/File.xoo");
-    ComponentDto file2 = newFileDto(project1, null, "F2").setPath("src/main/xoo/org/sonar/samples/File2.xoo");
-
-    ComponentDto project2 = newPrivateProjectDto("P2");
-    ComponentDto file3 = newFileDto(project2, null, "F3").setPath("src/main/xoo/org/sonar/samples/File3.xoo");
+  void sort_by_type_severity_uses_combined_type_and_severity_rank() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
 
     indexIssues(
-      // file F1 from project P1
-      newDoc("F1_1", project1.uuid(), file1).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("F1_2", project1.uuid(), file1).setLine(null).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("F1_3", project1.uuid(), file1).setLine(25).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("BLOCKER_VULN", project.uuid(), file).setSeverity(org.sonar.api.rule.Severity.BLOCKER).setType(RuleType.VULNERABILITY),
+      newDoc("BLOCKER_BUG", project.uuid(), file).setSeverity(org.sonar.api.rule.Severity.BLOCKER).setType(RuleType.BUG),
+      newDoc("BLOCKER_SMELL", project.uuid(), file).setSeverity(org.sonar.api.rule.Severity.BLOCKER).setType(RuleType.CODE_SMELL),
+      newDoc("MAJOR_VULN", project.uuid(), file).setSeverity(org.sonar.api.rule.Severity.MAJOR).setType(RuleType.VULNERABILITY),
+      newDoc("INFO_SMELL", project.uuid(), file).setSeverity(org.sonar.api.rule.Severity.INFO).setType(RuleType.CODE_SMELL));
 
-      // file F2 from project P1
-      newDoc("F2_1", project1.uuid(), file2).setLine(9).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("F2_2", project1.uuid(), file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      // two issues on the same line -> sort by key
-      newDoc("F2_3", project1.uuid(), file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_TYPE_SEVERITY).asc(true);
+    assertThatSearchReturnsInOrder(query, "BLOCKER_VULN", "MAJOR_VULN", "BLOCKER_BUG", "BLOCKER_SMELL", "INFO_SMELL");
+  }
 
-      // file F3 from project P2
-      newDoc("F3_1", project2.uuid(), file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")),
-      newDoc("F3_2", project2.uuid(), file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")));
+  @Test
+  void sort_by_quality_severity_uses_combined_quality_and_severity_rank() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
 
-    assertThatSearchReturnsOnly(IssueQuery.builder(), "F3_1", "F1_2", "F1_1", "F1_3", "F2_1", "F2_2", "F2_3", "F3_2");
+    indexIssues(
+      newDoc("HIGH_SEC", project.uuid(), file).setImpacts(Map.of(SoftwareQuality.SECURITY, Severity.HIGH)),
+      newDoc("HIGH_REL", project.uuid(), file).setImpacts(Map.of(SoftwareQuality.RELIABILITY, Severity.HIGH)),
+      newDoc("MEDIUM_SEC", project.uuid(), file).setImpacts(Map.of(SoftwareQuality.SECURITY, Severity.MEDIUM)),
+      newDoc("LOW_MAINT", project.uuid(), file).setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW)));
+
+    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_QUALITY_SEVERITY).asc(true);
+    assertThatSearchReturnsInOrder(query, "HIGH_SEC", "MEDIUM_SEC", "HIGH_REL", "LOW_MAINT");
+  }
+
+  private void assertThatSearchReturnsInOrder(IssueQuery.Builder query, String... expectedIssueKeys) {
+    List<String> keys = searchAndReturnKeys(query);
+    assertThat(keys).containsExactly(expectedIssueKeys);
   }
 
 }
