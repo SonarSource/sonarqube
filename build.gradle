@@ -371,15 +371,15 @@ subprojects {
       dependency 'com.sonarsource.text:sonar-text-developer-plugin:2.45.0.11557'
       dependency 'com.sonarsource.text:sonar-text-enterprise-plugin:2.45.0.11557'
       dependency 'com.sonarsource.jcl:sonar-jcl-plugin:1.5.0.2979'
-      dependency 'com.sonarsource.architecture:sonar-architecture-plugin:2.26.0.9391'
-      dependency 'com.sonarsource.architecture:sonar-architecture-java-frontend-plugin:2.26.0.9391'
-      dependency 'com.sonarsource.architecture:sonar-architecture-javascript-frontend-plugin:2.26.0.9391'
+      dependency 'com.sonarsource.architecture:sonar-architecture-plugin:2.33.0.10425'
+      dependency 'com.sonarsource.architecture:sonar-architecture-java-frontend-plugin:2.33.0.10425'
+      dependency 'com.sonarsource.architecture:sonar-architecture-javascript-frontend-plugin:2.33.0.10425'
 
       // Webapp
       dependency "org.sonarsource.sonarqube:webapp-assets:$webappVersion"
 
       // Shared libraries from sonarqube-unification
-      dependencySet(group: 'org.sonarsource.sonarqube', version: '1.12.0.3864') {
+      dependencySet(group: 'org.sonarsource.sonarqube', version: '1.15.0.5023') {
         entry 'sonar-db-commons'
         entry 'sonar-db-commons-testfixtures'
         entry 'sonar-spring'
@@ -398,6 +398,7 @@ subprojects {
       }
       dependencySet(group: 'com.sonarsource.sonarqube', version: "$architectureApiVersion") {
         entry 'architecture-api'
+        entry 'architecture-datastructure'
         entry 'architecture-unified-app'
         entry 'architecture-server-app'
       }
@@ -448,6 +449,7 @@ subprojects {
         exclude 'org.codehaus.mojo:animal-sniffer-annotations'
       }
       dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
+      dependency "com.google.protobuf:protobuf-java-util:${protobufVersion}"
       dependency 'com.h2database:h2:2.3.232'
       dependencySet(group: 'com.hazelcast', version: '5.7.0') {
         entry 'hazelcast'
