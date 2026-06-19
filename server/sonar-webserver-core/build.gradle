@@ -23,6 +23,7 @@ dependencies {
   api 'ch.qos.logback:logback-core'
   api 'com.google.code.gson:gson'
   api 'com.google.protobuf:protobuf-java'
+  api 'com.google.protobuf:protobuf-java-util'
   api 'io.jsonwebtoken:jjwt-api'
   api 'io.jsonwebtoken:jjwt-impl'
   api 'org.apache.logging.log4j:log4j-api'

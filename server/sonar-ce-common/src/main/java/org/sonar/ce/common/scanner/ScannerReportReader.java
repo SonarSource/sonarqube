@@ -76,7 +76,5 @@ public interface ScannerReportReader {
 
   File readDependencyFilesArchive();
 
-  CloseableIterator<ScannerReport.AnalysisData> readAnalysisData();
-
   CloseableIterator<ScannerReport.IssueResolution> readIssueResolution(int componentRef);
 }

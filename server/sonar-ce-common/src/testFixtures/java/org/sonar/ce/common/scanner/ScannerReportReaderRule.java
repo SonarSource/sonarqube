@@ -65,7 +65,6 @@ public class ScannerReportReaderRule implements TestRule, ScannerReportReader, A
   private byte[] analysisCache;
   private List<ScannerReport.TelemetryEntry> telemetryEntries = new ArrayList<>();
   private File dependencyFilesArchive;
-  private List<ScannerReport.AnalysisData> analysisData = new ArrayList<>();
   private Map<Integer, List<ScannerReport.IssueResolution>> issueResolutionData = new HashMap<>();
 
   @Override
@@ -350,11 +349,6 @@ public class ScannerReportReaderRule implements TestRule, ScannerReportReader, A
   public ScannerReportReaderRule putTelemetry(List<ScannerReport.TelemetryEntry> telemetryEntries) {
     this.telemetryEntries = telemetryEntries;
     return this;
-  }
-
-  @Override
-  public CloseableIterator<ScannerReport.AnalysisData> readAnalysisData() {
-    return CloseableIterator.from(analysisData.iterator());
   }
 
   @Override
