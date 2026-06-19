@@ -299,8 +299,10 @@ import org.sonar.server.setting.ws.SettingsWsModule;
 import org.sonar.server.source.ws.SourceWsModule;
 import org.sonar.server.startup.LogServerId;
 import org.sonar.server.telemetry.AgenticQGProjectResolver;
+import org.sonar.server.telemetry.AgenticQPProjectResolver;
 import org.sonar.server.telemetry.TelemetryAgenticQGAdoptionProvider;
 import org.sonar.server.telemetry.TelemetryAgenticQGNcdOutcomeProvider;
+import org.sonar.server.telemetry.TelemetryAgenticQPAdoptionProvider;
 import org.sonar.server.telemetry.TelemetryQualityGateBeforeNcdStartProvider;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.WebAnalyticsLoaderImpl;
@@ -750,6 +752,8 @@ public class PlatformLevel4 extends PlatformLevel {
       AgenticQGProjectResolver.class,
       TelemetryAgenticQGAdoptionProvider.class,
       TelemetryAgenticQGNcdOutcomeProvider.class,
+      AgenticQPProjectResolver.class,
+      TelemetryAgenticQPAdoptionProvider.class,
 
       // Reports telemetry
       TelemetryApplicationSubscriptionsProvider.class,

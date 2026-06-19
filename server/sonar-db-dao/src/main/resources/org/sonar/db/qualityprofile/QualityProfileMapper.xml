@@ -223,6 +223,16 @@
                                   separator=",">#{language, jdbcType=VARCHAR}</foreach>
   </select>
 
+  <select id="selectBuiltInByName" parameterType="String" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.uuid
+    where
+      rp.name = #{name, jdbcType=VARCHAR}
+      and rp.is_built_in = ${_true}
+  </select>
+
   <select id="selectByUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select
     <include refid="qProfileColumns"/>

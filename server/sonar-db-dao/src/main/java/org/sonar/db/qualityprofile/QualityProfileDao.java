@@ -215,6 +215,10 @@ public class QualityProfileDao implements Dao {
     return mapper(dbSession).selectByNameAndLanguages(name, languages);
   }
 
+  public List<QProfileDto> selectBuiltInByName(DbSession dbSession, String name) {
+    return mapper(dbSession).selectBuiltInByName(name);
+  }
+
   public Map<String, Long> countProjectsByProfiles(DbSession dbSession, List<QProfileDto> profiles) {
     List<String> profileUuids = profiles.stream().map(QProfileDto::getKee).toList();
     return KeyLongValue.toMap(executeLargeInputs(profileUuids, partition -> mapper(dbSession).countProjectsByProfiles(partition)));
