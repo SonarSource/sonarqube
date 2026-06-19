@@ -72,6 +72,8 @@ public interface QualityProfileMapper {
 
   List<QProfileDto> selectByNameAndLanguages(@Param("name") String name, @Param("languages") Collection<String> languages);
 
+  List<QProfileDto> selectBuiltInByName(@Param("name") String name);
+
   @CheckForNull
   QProfileDto selectByUuid(String uuid);
 
