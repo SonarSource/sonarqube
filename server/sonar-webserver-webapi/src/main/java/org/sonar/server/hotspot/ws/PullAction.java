@@ -61,7 +61,8 @@ public class PullAction extends BasePullAction implements HotspotsWsAction {
   @Override
   protected List<Change> getAdditionalChanges() {
     List<Change> changes = new ArrayList<>();
-    changes.add(new Change("2026.4", "Deprecated. Use /api/issues instead."));
+    changes.add(new Change("2026.4", "Hotspots are deprecated and replaced by security issues (software quality) and vulnerabilities (type). " +
+        "Please use the API of security issues / vulnerabilities instead."));
     return changes;
   }
 
