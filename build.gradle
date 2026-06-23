@@ -351,7 +351,7 @@ subprojects {
       dependency 'org.sonarsource.python:sonar-python-plugin:5.23.0.33560'
       dependency 'org.sonarsource.rust:sonar-rust-plugin:1.5.0.2901'
       dependency 'com.sonarsource.python:sonar-python-enterprise-plugin:5.23.0.33560'
-      dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:3.6.0.9326'
+      dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:3.7.0.9514'
       dependency "org.sonarsource.api.plugin:sonar-plugin-api:$pluginApiVersion"
       dependency "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures:$pluginApiVersion"
       dependency "org.sonarsource.sonarqube:users-api:$usersApiVersion"
