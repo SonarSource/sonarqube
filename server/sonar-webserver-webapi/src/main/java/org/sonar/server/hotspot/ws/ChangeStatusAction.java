@@ -96,7 +96,8 @@ public class ChangeStatusAction implements HotspotsWsAction {
       .setSince("8.1")
       .setDeprecatedSince("2026.4")
       .setChangelog(
-        new Change("2026.4", "Deprecated. Use /api/issues instead."),
+        new Change("2026.4", "Hotspots are deprecated and replaced by security issues (software quality) and vulnerabilities (type). " +
+        "Please use the API of security issues / vulnerabilities instead."),
         new Change("2025.1", String.format("The following '%s' values are not deprecated anymore: %s",
           PARAM_RESOLUTION, String.join(", ", SECURITY_HOTSPOT_RESOLUTIONS))),
         new Change("2025.1", String.format("The following '%s' values are not deprecated anymore: %s",

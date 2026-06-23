@@ -104,7 +104,8 @@ public class ListAction implements HotspotsWsAction {
       .setSince("10.2")
       .setDeprecatedSince("2026.4")
       .setChangelog(
-        new Change("2026.4", "Deprecated. Use /api/issues instead.")
+        new Change("2026.4", "Hotspots are deprecated and replaced by security issues (software quality) and vulnerabilities (type). " +
+        "Please use the API of security issues / vulnerabilities instead.")
         );
 
     action.addPagingParams(100, MAX_PAGE_SIZE);

@@ -78,7 +78,8 @@ public class AssignAction implements HotspotsWsAction {
       .setInternal(true)
       .setPost(true)
       .setChangelog(
-        new Change("2026.4", "Deprecated. Use /api/issues instead."),
+        new Change("2026.4", "Hotspots are deprecated and replaced by security issues (software quality) and vulnerabilities (type). " +
+        "Please use the API of security issues / vulnerabilities instead."),
         new Change("8.9", "Parameter 'assignee' is no longer mandatory"));
 
     action.createParam(PARAM_HOTSPOT_KEY)
