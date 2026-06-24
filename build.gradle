@@ -250,6 +250,13 @@ subprojects {
   sonar {
     properties {
       property 'sonar.moduleKey', project.group + ':' + project.name
+      // Tests tagged @Tag("elasticsearch") run in the separate ES QA CI job (run-es-qa.sh),
+      // which relocates its JaCoCo report to build/reports/jacoco/es-qa/jacocoEsQaReport.xml.
+      // List both that report and the standard unit-test report so coverage from
+      // Elasticsearch-backed tests (e.g. IssueIndex) is included in analysis. Missing paths
+      // are ignored by the scanner, so modules without an ES QA report are unaffected.
+      property 'sonar.coverage.jacoco.xmlReportPaths',
+        'build/reports/jacoco/test/jacocoTestReport.xml,build/reports/jacoco/es-qa/jacocoEsQaReport.xml'
     }
   }
 
