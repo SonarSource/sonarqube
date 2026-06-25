@@ -34,6 +34,8 @@ dependencies {
 
     testImplementation testFixtures(project(':server:sonar-server-common'))
     testImplementation testFixtures(project(':server:sonar-webserver-auth'))
+    testImplementation 'org.sonarsource.sonarqube:organizations-api'
+    testImplementation 'org.sonarsource.sonarqube:organizations-server-app'
 
     testFixturesApi 'org.springframework:spring-test'
 
