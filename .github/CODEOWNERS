@@ -7,5 +7,6 @@ gradle.properties @SonarSource/platform-server-squad
 /private/core-extension-jfrog/ @sonarsource/orchestration-integrations-squad
 /private/core-extension-software-quality-reports/ @sonarsource/orchestration-reporting-squad
 /private/it-governance/ @sonarsource/orchestration-reporting-squad
+/private/it-architecture/ @SonarSource/quality-architecture-squad
 /server/sonar-db-migration/src/main/java/org/sonar/server/platform/db/migration/version/ @SonarSource/platform-server-squad
 /.claude/skills/capability-extraction/ @sonarsource/platform-enterprise-architecture
