@@ -49,7 +49,14 @@
 
   <select id="countUsersByQuery" parameterType="map" resultType="int">
     select count(distinct(u.uuid))
-    <include refid="sqlQueryJoins"/>
+    <choose>
+      <when test="query.withAtLeastOnePermission()">
+        <include refid="sqlQueryJoins"/>
+      </when>
+      <otherwise>
+        from users u
+      </otherwise>
+    </choose>
     <where>
       <include refid="sqlQueryFilters"/>
     </where>
