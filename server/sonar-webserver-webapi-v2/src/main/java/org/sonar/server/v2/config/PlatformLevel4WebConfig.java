@@ -50,12 +50,20 @@ import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;
 import org.sonar.server.v2.api.user.controller.DefaultUserController;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
+import org.sonar.server.resolver.DefaultsArgumentResolver;
 import org.sonar.server.v2.common.DeprecatedHandler;
 import org.sonar.server.v2.common.WebApiV2MetricsInterceptor;
 import org.sonar.server.v2.security.WebSecurityConfig;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
+import java.util.ArrayList;
+import java.util.List;
 
 @org.springframework.context.annotation.Configuration
 @Import({
@@ -107,5 +115,23 @@ public class PlatformLevel4WebConfig implements WebMvcConfigurer {
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(new DeprecatedHandler(userSession));
     registry.addInterceptor(new WebApiV2MetricsInterceptor(metrics, config));
+  }
+
+  @Bean
+  public static BeanPostProcessor defaultsArgumentResolverPrepender() {
+    return new BeanPostProcessor() {
+      @Override
+      public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        if (bean instanceof RequestMappingHandlerAdapter adapter) {
+          List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
+          resolvers.add(new DefaultsArgumentResolver());
+          if (adapter.getArgumentResolvers() != null) {
+            resolvers.addAll(adapter.getArgumentResolvers());
+          }
+          adapter.setArgumentResolvers(resolvers);
+        }
+        return bean;
+      }
+    };
   }
 }

@@ -22,6 +22,7 @@ package org.sonar.server.resolver;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.stream.Stream;
+import org.springframework.web.method.HandlerMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -328,5 +329,51 @@ class DefaultsArgumentResolverTest {
     public void methodWithEnterpriseId(@EnterpriseId @RequestParam String enterpriseId) {
       //empty for tests
     }
+  }
+
+  // Interface with annotations on method parameters — the concrete implementation does NOT repeat them.
+  interface TestApiInterface {
+    void methodWithOrgId(@OrganizationId @RequestParam String organizationId);
+    void methodWithOrgKey(@OrganizationKey @RequestParam String organizationKey);
+  }
+
+  static class TestControllerImplementingInterface implements TestApiInterface {
+    @Override
+    public void methodWithOrgId(String organizationId) {
+      //empty for tests
+    }
+
+    @Override
+    public void methodWithOrgKey(String organizationKey) {
+      //empty for tests
+    }
+  }
+
+  @Test
+  void supportsParameter_withAnnotationOnInterfaceOnly_returnsTrue() throws Exception {
+    Method method = TestControllerImplementingInterface.class.getMethod("methodWithOrgId", String.class);
+    MethodParameter parameter = new HandlerMethod(new TestControllerImplementingInterface(), method).getMethodParameters()[0];
+
+    assertThat(underTest.supportsParameter(parameter)).isTrue();
+  }
+
+  @Test
+  void resolveArgument_withAnnotationOnInterfaceOnly_returnsDefault() throws Exception {
+    Method method = TestControllerImplementingInterface.class.getMethod("methodWithOrgId", String.class);
+    MethodParameter parameter = new HandlerMethod(new TestControllerImplementingInterface(), method).getMethodParameters()[0];
+
+    Object result = underTest.resolveArgument(parameter, null, null, null);
+
+    assertThat(result).isEqualTo(DefaultOrganizationProvider.ID.toString());
+  }
+
+  @Test
+  void resolveArgument_withOrgKeyAnnotationOnInterfaceOnly_returnsDefault() throws Exception {
+    Method method = TestControllerImplementingInterface.class.getMethod("methodWithOrgKey", String.class);
+    MethodParameter parameter = new HandlerMethod(new TestControllerImplementingInterface(), method).getMethodParameters()[0];
+
+    Object result = underTest.resolveArgument(parameter, null, null, null);
+
+    assertThat(result).isEqualTo(DefaultOrganizationProvider.KEY);
   }
 }

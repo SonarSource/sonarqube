@@ -70,7 +70,9 @@ public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
     if (parameter.hasParameterAnnotation(ParameterObject.class)) {
       return true;
     }
-    return hasAnnotation(parameter.getParameter());
+    // Use MethodParameter's annotation lookup so that annotations declared on interface
+    // method parameters are found (raw java.lang.reflect.Parameter only sees the concrete method).
+    return hasAnnotation(parameter);
   }
 
   @Override
@@ -80,8 +82,8 @@ public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
     NativeWebRequest webRequest,
     @Nullable WebDataBinderFactory binderFactory) throws Exception {
 
-    if (hasAnnotation(parameter.getParameter())) {
-      return getDefault(parameter.getParameter());
+    if (hasAnnotation(parameter)) {
+      return getDefault(parameter);
     }
 
     Object boundObject = delegate.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
@@ -142,6 +144,15 @@ public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
   }
 
   @CheckForNull
+  private static String getDefault(MethodParameter parameter) {
+    return ANNOTATIONS.entrySet().stream()
+      .filter(entry -> parameter.getParameterAnnotation(entry.getKey()) != null)
+      .map(Map.Entry::getValue)
+      .findFirst()
+      .orElse(null);
+  }
+
+  @CheckForNull
   private static String getDefault(AnnotatedElement element) {
     return ANNOTATIONS.entrySet().stream()
       .filter(entry -> element.getAnnotation(entry.getKey()) != null)
@@ -150,9 +161,9 @@ public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
       .orElse(null);
   }
 
-  private static boolean hasAnnotation(AnnotatedElement element) {
+  private static boolean hasAnnotation(MethodParameter parameter) {
     return ANNOTATIONS.keySet().stream()
-      .anyMatch(element::isAnnotationPresent);
+      .anyMatch(parameter::hasParameterAnnotation);
   }
 
 }

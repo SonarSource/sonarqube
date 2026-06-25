@@ -31,7 +31,10 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.server.monitoring.ServerMonitoringMetrics;
 import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
+import org.sonarsource.organizations.api.rest.OrganizationId;
+import org.sonarsource.organizations.server.DefaultOrganizationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ContextConfiguration;
@@ -40,6 +43,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -51,6 +55,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -99,6 +104,30 @@ public class PlatformLevel4WebConfigTest {
       .anyMatch(msg -> msg.contains("Web service is deprecated since test"));
   }
 
+  @Test
+  public void defaultsArgumentResolverPrepender_injectsDefaultOrganizationId_whenParamAbsentFromRequest() throws Exception {
+    // organizationId is @RequestParam(required=true) on the interface only — the BPP must prepend
+    // DefaultsArgumentResolver before RequestParamMethodArgumentResolver, otherwise the missing
+    // param would cause a 400 instead of being filled with the server-mode default.
+    mockMvc.perform(get("/test-wiring/org-id"))
+      .andExpect(status().isOk())
+      .andExpect(content().string(DefaultOrganizationProvider.ID.toString()));
+  }
+
+  // Interface with @OrganizationId on the parameter — the concrete implementation does NOT repeat it.
+  interface OrgApi {
+    @GetMapping("/test-wiring/org-id")
+    String getOrgId(@OrganizationId @RequestParam(value = "organizationId", required = true) String organizationId);
+  }
+
+  @RestController
+  static class OrgController implements OrgApi {
+    @Override
+    public String getOrgId(String organizationId) {
+      return organizationId;
+    }
+  }
+
   @RestController
   static class TestController {
     @GetMapping("/test-wiring/ok")
@@ -145,6 +174,16 @@ public class PlatformLevel4WebConfigTest {
     @Bean
     public TestController testController() {
       return new TestController();
+    }
+
+    @Bean
+    public OrgController orgController() {
+      return new OrgController();
+    }
+
+    @Bean
+    public static BeanPostProcessor defaultsArgumentResolverPrepender() {
+      return PlatformLevel4WebConfig.defaultsArgumentResolverPrepender();
     }
   }
 }
