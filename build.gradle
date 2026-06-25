@@ -395,6 +395,11 @@ subprojects {
         entry 'measures-api'
         entry 'measures-server-app'
       }
+      dependencySet(group: 'com.sonarsource.sonarqube', version: "$architectureApiVersion") {
+        entry 'architecture-api'
+        entry 'architecture-unified-app'
+        entry 'architecture-server-app'
+      }
       // Keep in sync with sonar-sca's dependency management
       dependency "org.sonarsource.sonarqube:sonar-feature-flags-api:$featureFlagsApiVersion"
       dependency "org.sonarsource.sonarqube:sonar-events-server:$eventsApiVersion"
