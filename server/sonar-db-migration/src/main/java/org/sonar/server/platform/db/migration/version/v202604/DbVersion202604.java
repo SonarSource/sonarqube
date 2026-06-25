@@ -38,6 +38,7 @@ public class DbVersion202604 implements DbVersion {
       .add(2026_04_007, "Create index 'sca_issues_releases_updated_at' on 'sca_issues_releases.updated_at'", CreateIndexOnScaIssuesReleasesUpdatedAt.class)
       .add(2026_04_008, "Set portfolios as private when their matching component is private", SetPrivatePortfoliosFromPrivateComponents.class)
       .add(2026_04_009, "Decommission 'Sonar way for AI Code' quality gate", DecommissionSonarWayForAiCodeQualityGate.class)
-      .add(2026_04_010, "Add organization_uuid to sca_encountered_licenses and update unique index", AddOrganizationUuidToScaEncounteredLicenses.class);
+      .add(2026_04_010, "Add organization_uuid to sca_encountered_licenses and update unique index", AddOrganizationUuidToScaEncounteredLicenses.class)
+      .add(2026_04_011, "Create table 'architecture_models'", CreateArchitectureModelsTable.class);
   }
 }
