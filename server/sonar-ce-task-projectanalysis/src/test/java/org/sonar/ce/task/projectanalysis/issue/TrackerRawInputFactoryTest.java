@@ -391,7 +391,11 @@ class TrackerRawInputFactoryTest {
     assertThat(issue.tags()).isEmpty();
     assertInitializedExternalIssue(issue, expectedStatus);
 
-    assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
+    if (!IssueType.SECURITY_HOTSPOT.equals(issueType)) {
+      assertThat(issue.impacts()).containsExactlyEntriesOf(Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM));
+    } else {
+      assertThat(issue.impacts()).isEmpty();
+    }
   }
 
   private static Stream<Arguments> ruleTypeAndStatusByIssueType() {
@@ -400,6 +404,57 @@ class TrackerRawInputFactoryTest {
       Arguments.of(IssueType.BUG, RuleType.BUG, STATUS_OPEN),
       Arguments.of(IssueType.VULNERABILITY, RuleType.VULNERABILITY, STATUS_OPEN),
       Arguments.of(IssueType.SECURITY_HOTSPOT, RuleType.SECURITY_HOTSPOT, STATUS_TO_REVIEW));
+  }
+
+  @Test
+  void load_external_hotspots_from_report_should_not_map_impacts() {
+    // Security Hotspots cannot be mapped to a Software Quality, so external hotspot issues must have no impacts. It may happen that a hotspot
+    // rule contains impacts (however, it shouldn't). See SONAR-30563.
+    registerRule(RuleKey.of("external_eslint", "S001"), "rule", r -> r.addDefaultImpact(MAINTAINABILITY, LOW).setIsAdHoc(true));
+    ScannerReport.ExternalIssue reportIssue = ScannerReport.ExternalIssue.newBuilder()
+      .setTextRange(newTextRange(2))
+      .setMsg("the message")
+      .setEngineId("eslint")
+      .setRuleId("S001")
+      .setSeverity(Constants.Severity.BLOCKER)
+      .setEffort(20L)
+      .setType(IssueType.SECURITY_HOTSPOT)
+      .addImpacts(ScannerReport.Impact.newBuilder().setSoftwareQuality(ScannerReport.SoftwareQuality.MAINTAINABILITY)
+        .setSeverity(ScannerReport.ImpactSeverity.ImpactSeverity_MEDIUM).build())
+      .build();
+    reportReader.putExternalIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues).hasSize(1);
+    DefaultIssue issue = Iterators.getOnlyElement(issues.iterator());
+
+    assertThat(issue.type()).isEqualTo(RuleType.SECURITY_HOTSPOT);
+    assertThat(issue.status()).isEqualTo(STATUS_TO_REVIEW);
+    assertThat(issue.impacts()).isEmpty();
+  }
+
+  @Test
+  void load_hotspots_from_report_should_not_map_impacts() {
+    // Security Hotspots cannot be mapped to a Software Quality, so hotspot issues from a report must have no impacts.
+    // It may happen that a hotspot rule contains impacts (however, it shouldn't). See SONAR-30563.
+    RuleKey ruleKey = RuleKey.of("java", "S001");
+    markRuleAsActive(ruleKey);
+    registerRule(ruleKey, "name", r -> r.setType(RuleType.SECURITY_HOTSPOT).addDefaultImpact(MAINTAINABILITY, LOW));
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setTextRange(newTextRange(2))
+      .setMsg("the message")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .build();
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), singletonList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues).hasSize(1);
+    DefaultIssue issue = Iterators.getOnlyElement(issues.iterator());
+
+    assertThat(issue.impacts()).isEmpty();
   }
 
   @ParameterizedTest
@@ -587,7 +642,8 @@ class TrackerRawInputFactoryTest {
   }
 
   private void markRuleAsActive(RuleKey ruleKey) {
-    activeRulesHolder.put(new ActiveRule(ruleKey, Severity.CRITICAL, emptyMap(), 1_000L, null, "qp1", Map.of(MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM)));
+    activeRulesHolder.put(new ActiveRule(ruleKey, Severity.CRITICAL, emptyMap(), 1_000L, null, "qp1", Map.of(MAINTAINABILITY,
+      org.sonar.api.issue.impact.Severity.MEDIUM)));
   }
 
   private void registerRule(RuleKey ruleKey, String name) {

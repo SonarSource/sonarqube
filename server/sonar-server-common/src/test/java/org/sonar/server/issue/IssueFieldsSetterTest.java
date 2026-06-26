@@ -859,6 +859,27 @@ class IssueFieldsSetterTest {
   }
 
   @Test
+  void setImpacts_whenIssueIsManualSeveritySecurityHotspot_shouldNotThrow() {
+    // Security Hotspots cannot be mapped to a Software Quality, so they must be excluded from the
+    // manual-severity migration branch. Without the guard, convertToSoftwareQuality(SECURITY_HOTSPOT)
+    // throws and fails the CE task. See SONAR-30563.
+    Set<DefaultImpact> currentImpacts = Set.of();
+
+    issue.setManualSeverity(true);
+    issue.setSeverity(org.sonar.api.rule.Severity.BLOCKER);
+    issue.setType(RuleType.SECURITY_HOTSPOT);
+    // Simulate a hotspot that already has an impact stored in the DB from before SONAR-30563.
+    issue.addImpact(SoftwareQuality.SECURITY, Severity.LOW, false);
+
+    boolean updated = underTest.setImpacts(issue, currentImpacts, context);
+
+    assertThat(updated).isTrue();
+    // The migration branch is skipped for hotspots, so the impact severity is left untouched.
+    assertThat(issue.getImpacts()).containsExactly(new DefaultImpact(SoftwareQuality.SECURITY, Severity.LOW, false));
+    assertThat(issue.changes()).isEmpty();
+  }
+
+  @Test
   void setCodeVariants_whenCodeVariantsUnchanged_shouldNotBeUpdated() {
     Set<String> currentCodeVariants = new HashSet<>(Arrays.asList("linux", "windows"));
     Set<String> newCodeVariants = new HashSet<>(Arrays.asList("windows", "linux"));
