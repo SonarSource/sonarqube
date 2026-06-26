@@ -285,7 +285,6 @@ public class PurgeDao implements Dao {
     commands.deleteReportSubscriptions(branchUuid);
     commands.deleteIssuesFixed(branchUuid);
     commands.deleteScaActivity(branchUuid);
-    commands.deleteArchitectureGraphs(branchUuid);
     commands.deleteIssueStatsByRuleKey(aggregationType, branchUuid);
   }
 

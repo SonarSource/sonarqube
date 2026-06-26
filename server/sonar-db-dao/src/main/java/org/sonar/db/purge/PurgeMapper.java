@@ -222,8 +222,6 @@ public interface PurgeMapper {
 
   void deleteScaLicenseProfileProjectsByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  void deleteArchitectureGraphsByBranchUuid(@Param("branchUuid") String branchUuid);
-
   void deleteIssueStatsByRuleKey(@Param("aggregationType") String aggregationType, @Param("aggregationId") String aggregationId);
 
 }
