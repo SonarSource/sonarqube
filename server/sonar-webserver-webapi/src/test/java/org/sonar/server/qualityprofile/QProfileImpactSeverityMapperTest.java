@@ -44,11 +44,20 @@ class QProfileImpactSeverityMapperTest {
   }
 
   @Test
+  void mapImpactSeverities_whenSecurityHotspotWithNonEmptyImpacts_shouldReturnEmptyMap() {
+    Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> result = QProfileImpactSeverityMapper.mapImpactSeverities(Severity.MAJOR,
+      Map.of(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH),
+      RuleType.SECURITY_HOTSPOT);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
   void mapImpactSeverities_whenSeverityIsNull_shouldReturnRuleImpacts() {
     Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts = Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.HIGH);
     Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> result = QProfileImpactSeverityMapper.mapImpactSeverities(null,
       impacts,
-      RuleType.SECURITY_HOTSPOT);
+      RuleType.CODE_SMELL);
 
     assertThat(result).isEqualTo(impacts);
   }
@@ -108,6 +117,15 @@ class QProfileImpactSeverityMapperTest {
     assertThat(result).hasSize(2)
       .containsEntry(SoftwareQuality.RELIABILITY, org.sonar.api.issue.impact.Severity.LOW)
       .containsEntry(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.INFO);
+  }
+
+  @Test
+  void mapSeverity_whenSecurityHotspot_shouldReturnRuleSeverity() {
+    String severity = QProfileImpactSeverityMapper.mapSeverity(
+      Map.of(SoftwareQuality.SECURITY, org.sonar.api.issue.impact.Severity.HIGH),
+      RuleType.SECURITY_HOTSPOT, Severity.BLOCKER);
+
+    assertThat(severity).isEqualTo(Severity.BLOCKER);
   }
 
   @Test

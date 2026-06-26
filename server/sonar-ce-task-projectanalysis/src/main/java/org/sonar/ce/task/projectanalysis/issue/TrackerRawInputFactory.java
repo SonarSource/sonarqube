@@ -217,15 +217,20 @@ public class TrackerRawInputFactory {
     private Map<SoftwareQuality, Severity> replaceDefaultWithOverriddenImpactsForIssue(RuleKey ruleKey, List<Impact> overriddenImpactsList) {
       // Rule can't be inactive (see contract of IssueVisitor)
       ActiveRule activeRule = activeRulesHolder.get(ruleKey).orElseThrow(() -> new IllegalStateException("Rule " + ruleKey + " is not active"));
-      return replaceDefaultWithOverriddenImpacts(ruleKey, activeRule, overriddenImpactsList);
+      RuleType ruleType = ruleRepository.getByKey(ruleKey).getType();
+      return replaceDefaultWithOverriddenImpacts(ruleKey, ruleType, activeRule, overriddenImpactsList);
     }
 
-    private Map<SoftwareQuality, Severity> replaceDefaultWithOverriddenImpactsForExternalIssue(RuleKey ruleKey, List<Impact> overriddenImpactsList) {
-      return replaceDefaultWithOverriddenImpacts(ruleKey, null, overriddenImpactsList);
+    private Map<SoftwareQuality, Severity> replaceDefaultWithOverriddenImpactsForExternalIssue(RuleKey ruleKey, RuleType ruleType, List<Impact> overriddenImpactsList) {
+      return replaceDefaultWithOverriddenImpacts(ruleKey, ruleType, null, overriddenImpactsList);
     }
 
-    private Map<SoftwareQuality, Severity> replaceDefaultWithOverriddenImpacts(RuleKey ruleKey, @Nullable ActiveRule activeRule,
+    private Map<SoftwareQuality, Severity> replaceDefaultWithOverriddenImpacts(RuleKey ruleKey, @Nullable RuleType ruleType, @Nullable ActiveRule activeRule,
       List<Impact> overriddenImpactsList) {
+      if (ruleType == RuleType.SECURITY_HOTSPOT) {
+        // Security Hotspots cannot be mapped to a Software Quality. See SONAR-30563.
+        return Map.of();
+      }
       EnumMap<SoftwareQuality, Severity> impacts = new EnumMap<>(SoftwareQuality.class);
       impacts.putAll(ruleRepository.getByKey(ruleKey).getDefaultImpacts());
       if (activeRule != null) {
@@ -273,7 +278,7 @@ public class TrackerRawInputFactory {
       Rule existingRule = ruleRepository.getByKey(ruleKey);
       issue.setSeverity(determineDeprecatedSeverity(reportExternalIssue, existingRule));
       issue.setType(determineDeprecatedType(reportExternalIssue, existingRule));
-      issue.replaceImpacts(replaceDefaultWithOverriddenImpactsForExternalIssue(issue.ruleKey(), reportExternalIssue.getImpactsList()));
+      issue.replaceImpacts(replaceDefaultWithOverriddenImpactsForExternalIssue(issue.ruleKey(), issue.type(), reportExternalIssue.getImpactsList()));
 
       init(issue, issue.type() == RuleType.SECURITY_HOTSPOT ? STATUS_TO_REVIEW : STATUS_OPEN);
 

@@ -41,6 +41,9 @@ public class QProfileImpactSeverityMapper {
   }
 
   public static Map<SoftwareQuality, Severity> mapImpactSeverities(@Nullable String severity, Map<SoftwareQuality, Severity> ruleImpacts, RuleType ruleType) {
+    if (ruleType == RuleType.SECURITY_HOTSPOT) {
+      return Map.of();
+    }
     Map<SoftwareQuality, Severity> result = ruleImpacts.isEmpty() ? Map.of() : new EnumMap<>(ruleImpacts);
     if (severity == null || ruleImpacts.isEmpty()) {
       return result;
@@ -54,6 +57,9 @@ public class QProfileImpactSeverityMapper {
 
   @CheckForNull
   public static String mapSeverity(Map<SoftwareQuality, Severity> impacts, RuleType ruleType, @Nullable String ruleSeverity) {
+    if (ruleType == RuleType.SECURITY_HOTSPOT) {
+      return ruleSeverity;
+    }
     SoftwareQuality softwareQuality = ImpactMapper.convertToSoftwareQuality(toApiRuleType(ruleType));
     if (impacts.containsKey(softwareQuality)) {
       return ImpactSeverityMapper.mapRuleSeverity(impacts.get(softwareQuality));
