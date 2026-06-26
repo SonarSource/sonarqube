@@ -38,7 +38,7 @@ public class DropTableBuilderTest {
   @Test
   public void drop_tables_on_mssql() {
     assertThat(new DropTableBuilder(new MsSql(), "issues")
-      .build()).containsOnly("drop table issues");
+      .build()).containsOnly("drop table if exists issues");
   }
 
   @Test

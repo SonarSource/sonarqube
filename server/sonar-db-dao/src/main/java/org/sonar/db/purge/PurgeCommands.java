@@ -530,13 +530,6 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  public void deleteArchitectureGraphs(String branchUuid) {
-    profiler.start("deleteArchitectureGraphs (architecture_graphs)");
-    purgeMapper.deleteArchitectureGraphsByBranchUuid(branchUuid);
-    session.commit();
-    profiler.stop();
-  }
-
   public void deleteIssueStatsByRuleKey(AggregationType aggregationType, String aggregationId) {
     profiler.start("deleteIssueStatsByRuleKey (issue_stats_by_rule_key)");
     purgeMapper.deleteIssueStatsByRuleKey(aggregationType.toString(), aggregationId);
