@@ -14,11 +14,38 @@ concurrency:
 
 jobs:
   build:
-    runs-on: sonar-s-public
+    # EsTester-based tests connect to a live Elasticsearch at localhost:9200 (see
+    # org.sonar.test.tags.ElasticsearchTest). To run them here (instead of excluding them, which
+    # would drop their coverage) we attach Elasticsearch as a Docker service container. Per the
+    # Platform "Docker Service Containers - GitHub" guide, service containers require a *-sidecar
+    # runner AND a job `container:`, and must NOT declare a `ports:` mapping (the service ports are
+    # auto-exposed on localhost inside the worker container).
+    runs-on: sonar-s-sidecar
     name: Build, JUnit and SonarQube
+    container: 275878209202.dkr.ecr.eu-central-1.amazonaws.com/base:latest
+    defaults:
+      run:
+        # base:latest defaults to sh; switch to bash for any inline run steps.
+        shell: bash --noprofile --norc -euo pipefail {0}
     permissions:
       id-token: write
       contents: write
+    services:
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.19.14
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: "false"
+          action.auto_create_index: "false"
+          action.destructive_requires_name: "false"
+          ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+        # No `ports:` mapping: forbidden on self-hosted sidecar runners. The service is reachable
+        # at localhost:9200 from the worker container, which is where EsTester connects.
+        options: >-
+          --health-cmd "curl -fsS http://localhost:9200/_cluster/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
@@ -36,4 +63,7 @@ jobs:
           artifactory-deployer-role: qa-deployer
           sonar-platform: next
           run-shadow-scans: true
+          # No -PexcludeElasticsearchTests/-PincludeElasticsearchTests: the default runs all tests
+          # (ES and non-ES) in one pass, so every test feeds the single jacocoTestReport and the
+          # SonarQube coverage measurement stays complete.
           gradle-args: "jacocoTestReport -Dsonar.projectKey=sonarqube -Dsonar.organization=sonarsource -Dsonar.exclusions=**/design-system/theme/**,**/legacy-design-system/**"
