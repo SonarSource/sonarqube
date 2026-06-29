@@ -19,6 +19,7 @@
  */
 package org.sonar.server.project.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -82,10 +83,13 @@ public class DeleteAction implements ProjectsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, key);
-      BranchDto mainBranch = componentFinder.getMainBranch(dbSession, project);
+      @Nullable String mainBranchUuid = dbClient.branchDao()
+        .selectMainBranchByProjectUuid(dbSession, project.getUuid())
+        .map(BranchDto::getUuid)
+        .orElse(null);
       checkPermission(project);
       componentCleanerService.deleteEntity(dbSession, project);
-      projectLifeCycleListeners.onProjectsDeleted(singleton(new DeletedProject(Project.fromProjectDtoWithTags(project), mainBranch.getUuid())));
+      projectLifeCycleListeners.onProjectsDeleted(singleton(new DeletedProject(Project.fromProjectDtoWithTags(project), mainBranchUuid)));
     }
 
     response.noContent();
