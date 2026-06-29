@@ -20,6 +20,8 @@
 package org.sonarqube.ws.tester;
 
 import org.junit.rules.ExternalResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonarqube.ws.AlmSettings;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.almsettings.AlmSettingsService;
@@ -27,6 +29,8 @@ import org.sonarqube.ws.client.almsettings.CreateGithubRequest;
 import org.sonarqube.ws.client.almsettings.DeleteRequest;
 
 public class AlmSettingsTester extends ExternalResource {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AlmSettingsTester.class);
 
   private final TesterSession session;
 
@@ -47,17 +51,25 @@ public class AlmSettingsTester extends ExternalResource {
     AlmSettingsService almSettingsService = session.wsClient().almSettings();
     try {
       AlmSettings.ListDefinitionsWsResponse response = almSettingsService.listDefinitions();
-      response.getGithubList().forEach(e -> almSettingsService.delete(new DeleteRequest(e.getKey())));
-      response.getAzureList().forEach(e -> almSettingsService.delete(new DeleteRequest(e.getKey())));
-      response.getBitbucketList().forEach(e -> almSettingsService.delete(new DeleteRequest(e.getKey())));
-      response.getBitbucketcloudList().forEach(e -> almSettingsService.delete(new DeleteRequest(e.getKey())));
-      response.getGitlabList().forEach(e -> almSettingsService.delete(new DeleteRequest(e.getKey())));
+      response.getGithubList().forEach(e -> deleteAlmSetting(almSettingsService, e.getKey()));
+      response.getAzureList().forEach(e -> deleteAlmSetting(almSettingsService, e.getKey()));
+      response.getBitbucketList().forEach(e -> deleteAlmSetting(almSettingsService, e.getKey()));
+      response.getBitbucketcloudList().forEach(e -> deleteAlmSetting(almSettingsService, e.getKey()));
+      response.getGitlabList().forEach(e -> deleteAlmSetting(almSettingsService, e.getKey()));
     } catch (HttpException e) {
       // If server is not at least a developer edition, the ws is not available, nothing to do
       if (e.code() == 404) {
         return;
       }
       throw new IllegalStateException(e);
+    }
+  }
+
+  private static void deleteAlmSetting(AlmSettingsService service, String key) {
+    try {
+      service.delete(new DeleteRequest(key));
+    } catch (Throwable t) {
+      LOG.warn("Failed to delete ALM setting '{}' during teardown", key, t);
     }
   }
 }

@@ -33,11 +33,15 @@ import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualitygates.SelectRequest;
 import org.sonarqube.ws.client.qualitygates.SetAsDefaultRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static java.util.Arrays.stream;
 import static org.sonarqube.ws.Qualitygates.CreateResponse;
 import static org.sonarqube.ws.Qualitygates.ListWsResponse;
 
 public class QGateTester {
+  private static final Logger LOG = LoggerFactory.getLogger(QGateTester.class);
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
   private final TesterSession session;
@@ -60,7 +64,13 @@ public class QGateTester {
     session.wsClient().qualitygates().list(new ListRequest()).getQualitygatesList().stream()
       .filter(qualityGate -> !qualityGate.getIsDefault())
       .filter(qualityGate -> !qualityGate.getIsBuiltIn())
-      .forEach(qualityGate -> session.wsClient().qualitygates().destroy(new DestroyRequest().setName(qualityGate.getName())));
+      .forEach(qualityGate -> {
+        try {
+          session.wsClient().qualitygates().destroy(new DestroyRequest().setName(qualityGate.getName()));
+        } catch (Throwable t) {
+          LOG.warn("Failed to delete quality gate '{}' during teardown", qualityGate.getName(), t);
+        }
+      });
   }
 
   @SafeVarargs

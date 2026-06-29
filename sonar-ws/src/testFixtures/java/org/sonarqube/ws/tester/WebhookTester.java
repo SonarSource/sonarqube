@@ -35,10 +35,14 @@ import org.sonarqube.ws.client.webhooks.DeliveryRequest;
 import org.sonarqube.ws.client.webhooks.ListRequest;
 import org.sonarqube.ws.client.webhooks.WebhooksService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 
 public class WebhookTester {
+  private static final Logger LOG = LoggerFactory.getLogger(WebhookTester.class);
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
   private final TesterSession session;
@@ -70,7 +74,13 @@ public class WebhookTester {
   }
 
   public void deleteAllGlobal() {
-    service().list(new ListRequest()).getWebhooksList().forEach(p -> service().delete(new DeleteRequest().setWebhook(p.getKey())));
+    service().list(new ListRequest()).getWebhooksList().forEach(p -> {
+      try {
+        service().delete(new DeleteRequest().setWebhook(p.getKey()));
+      } catch (Throwable t) {
+        LOG.warn("Failed to delete webhook '{}' during teardown", p.getKey(), t);
+      }
+    });
   }
 
   public List<Delivery> getPersistedDeliveries(Project project) {

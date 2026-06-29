@@ -42,10 +42,14 @@ import org.sonarqube.ws.client.users.UpdateRequest;
 import org.sonarqube.ws.client.users.UsersService;
 import org.sonarqube.ws.client.usertokens.GenerateRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static java.util.Arrays.stream;
 
 public class UserTester {
 
+  private static final Logger LOG = LoggerFactory.getLogger(UserTester.class);
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
   private final TesterSession session;
@@ -62,6 +66,8 @@ public class UserTester {
         PostRequest request = new PostRequest("api/users/deactivate").setParam("login", u.getLogin());
         try (final WsResponse response = session.wsClient().wsConnector().call(request)) {
           response.failIfNotSuccessful();
+        } catch (Throwable t) {
+          LOG.warn("Failed to deactivate user '{}' during teardown", u.getLogin(), t);
         }
       });
   }

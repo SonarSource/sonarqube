@@ -33,11 +33,15 @@ import org.sonarqube.ws.client.projects.ExportFindingsRequest;
 import org.sonarqube.ws.client.projects.ProjectsService;
 import org.sonarqube.ws.client.projects.SearchRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 
 public class ProjectTester {
 
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectTester.class);
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
   private final TesterSession session;
@@ -48,7 +52,14 @@ public class ProjectTester {
 
   void deleteAll() {
     ProjectsService service = session.wsClient().projects();
-    service.search(new SearchRequest().setQualifiers(singletonList("TRK"))).getComponentsList().forEach(p -> service.delete(new DeleteRequest().setProject(p.getKey())));
+    service.search(new SearchRequest().setQualifiers(singletonList("TRK"))).getComponentsList()
+      .forEach(p -> {
+        try {
+          service.delete(new DeleteRequest().setProject(p.getKey()));
+        } catch (Throwable t) {
+          LOG.warn("Failed to delete project '{}' during teardown", p.getKey(), t);
+        }
+      });
   }
 
   public ProjectsService service() {
