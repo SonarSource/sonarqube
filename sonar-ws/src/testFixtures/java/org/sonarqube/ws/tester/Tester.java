@@ -27,10 +27,13 @@ import com.sonar.orchestrator.junit4.OrchestratorRule;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -72,6 +75,7 @@ import static org.sonarqube.ws.client.HttpConnector.DEFAULT_READ_TIMEOUT_MILLISE
  * When used with JUnit5, the tester can be started and stopped in the same pattern as Junit4 for @ClassRule or @Rule using the flag  #useJunit5ClassInitialization
  */
 public class Tester extends ExternalResource implements TesterSession, BeforeEachCallback, AfterEachCallback, BeforeAllCallback, AfterAllCallback {
+  private static final Logger LOG = LoggerFactory.getLogger(Tester.class);
   private static final String ADMIN_CRYPTED_PASSWORD = "100000$R9xDN18ebKxA3ZTaputi6wDt+fcKhP2h3GgAjGbcBlCSlkMLENxw9wziHS46QIW3fWOjEMpeyEts+pNuPXSbYA==";
   private static final String ADMIN_SALT = "pSDhsn3IM3KCa74CRRf7T7Vx+OE=";
   static final String FORCE_AUTHENTICATION_PROPERTY_NAME = "sonar.forceAuthentication";
@@ -147,29 +151,48 @@ public class Tester extends ExternalResource implements TesterSession, BeforeEac
 
   @Override
   public void after() {
-    waitForCeTasksToFinish();
+    List<Throwable> errors = new ArrayList<>();
 
-    deactivateScim();
-
-    users().deleteAll();
-    projects().deleteAll();
-    settings().deleteAll();
-    qGates().deleteAll();
-    qProfiles().deleteAll();
-    webhooks().deleteAllGlobal();
-    almSettings().deleteAll();
-    groups().deleteAllGenerated();
+    runSafely("waitForCeTasksToFinish", this::waitForCeTasksToFinish, errors);
+    runSafely("deactivateScim", this::deactivateScim, errors);
+    runSafely("users.deleteAll", () -> users().deleteAll(), errors);
+    runSafely("projects.deleteAll", () -> projects().deleteAll(), errors);
+    runSafely("settings.deleteAll", () -> settings().deleteAll(), errors);
+    runSafely("qGates.deleteAll", () -> qGates().deleteAll(), errors);
+    runSafely("qProfiles.deleteAll", () -> qProfiles().deleteAll(), errors);
+    runSafely("webhooks.deleteAllGlobal", () -> webhooks().deleteAllGlobal(), errors);
+    runSafely("almSettings.deleteAll", () -> almSettings().deleteAll(), errors);
+    runSafely("groups.deleteAllGenerated", () -> groups().deleteAllGenerated(), errors);
 
     Edition edition = orchestrator.getDistribution().getEdition();
     if (edition.equals(ENTERPRISE)) {
-      applications().deleteAll();
-      views().deleteAll();
-      applications().deleteAll();
+      runSafely("applications.deleteAll", () -> applications().deleteAll(), errors);
+      runSafely("views.deleteAll", () -> views().deleteAll(), errors);
+      runSafely("applications.deleteAll(2)", () -> applications().deleteAll(), errors);
     } else if (edition.equals(DEVELOPER)) {
-      applications().deleteAll();
+      runSafely("applications.deleteAll", () -> applications().deleteAll(), errors);
     }
 
-    setForceAuthentication(enableForceAuthentication);
+    runSafely("setForceAuthentication", () -> setForceAuthentication(enableForceAuthentication), errors);
+
+    if (!errors.isEmpty()) {
+      String labels = errors.stream()
+        .map(t -> t.getMessage() != null ? t.getMessage() : t.getClass().getSimpleName())
+        .collect(Collectors.joining(", "));
+      IllegalStateException aggregated = new IllegalStateException(
+        "Tester.after() had " + errors.size() + " cleanup failure(s): " + labels);
+      errors.forEach(aggregated::addSuppressed);
+      throw aggregated;
+    }
+  }
+
+  private static void runSafely(String label, Runnable action, List<Throwable> errors) {
+    try {
+      action.run();
+    } catch (Throwable t) {
+      LOG.warn("Tester.after() cleanup step [{}] failed: {}", label, t.getMessage(), t);
+      errors.add(t);
+    }
   }
 
   public void deactivateScim() {

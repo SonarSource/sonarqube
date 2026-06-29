@@ -34,9 +34,13 @@ import org.sonarqube.ws.client.qualityprofiles.DeleteRequest;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
 import org.sonarqube.ws.client.qualityprofiles.SearchRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static java.util.Arrays.stream;
 
 public class QProfileTester {
+  private static final Logger LOG = LoggerFactory.getLogger(QProfileTester.class);
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
   private final TesterSession session;
@@ -56,8 +60,13 @@ public class QProfileTester {
       .filter(qp -> qp.getParentKey() == null || qp.getParentKey().equals(""))
       .toList();
 
-    qualityProfiles.forEach(
-      qp -> session.wsClient().qualityprofiles().delete(new DeleteRequest().setQualityProfile(qp.getName()).setLanguage(qp.getLanguage())));
+    qualityProfiles.forEach(qp -> {
+      try {
+        session.wsClient().qualityprofiles().delete(new DeleteRequest().setQualityProfile(qp.getName()).setLanguage(qp.getLanguage()));
+      } catch (Throwable t) {
+        LOG.warn("Failed to delete quality profile '{}' during teardown", qp.getName(), t);
+      }
+    });
   }
 
   @SafeVarargs

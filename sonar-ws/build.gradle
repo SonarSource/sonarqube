@@ -35,6 +35,7 @@ dependencies {
   testFixturesApi 'com.google.guava:guava'
   testFixturesApi 'org.assertj:assertj-core'
   testFixturesApi 'org.junit.jupiter:junit-jupiter-api'
+  testFixturesApi 'org.slf4j:slf4j-api'
   testFixturesApi 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
   testFixturesApi 'commons-io:commons-io'
 }

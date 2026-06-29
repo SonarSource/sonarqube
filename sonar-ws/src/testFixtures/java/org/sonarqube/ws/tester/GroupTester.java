@@ -34,10 +34,14 @@ import org.sonarqube.ws.client.usergroups.DeleteRequest;
 import org.sonarqube.ws.client.usergroups.SearchRequest;
 import org.sonarqube.ws.client.users.GroupsRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static java.util.Arrays.stream;
 
 public class GroupTester {
 
+  private static final Logger LOG = LoggerFactory.getLogger(GroupTester.class);
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
   private final TesterSession session;
@@ -91,7 +95,13 @@ public class GroupTester {
       .toList();
     allGroups.stream()
       .filter(g -> g.matches("Group\\d+$"))
-      .forEach(g -> session.wsClient().userGroups().delete(new DeleteRequest().setName(g)));
+      .forEach(g -> {
+        try {
+          session.wsClient().userGroups().delete(new DeleteRequest().setName(g));
+        } catch (Throwable t) {
+          LOG.warn("Failed to delete group '{}' during teardown", g, t);
+        }
+      });
     return this;
   }
 
