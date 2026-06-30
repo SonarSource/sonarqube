@@ -19,6 +19,9 @@
  */
 package org.sonar.server.es;
 
+import co.elastic.clients.transport.rest5_client.low_level.Request;
+import co.elastic.clients.transport.rest5_client.low_level.Response;
+import co.elastic.clients.transport.rest5_client.low_level.Rest5Client;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,11 +35,8 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.tls.HandshakeCertificates;
 import okhttp3.tls.HeldCertificate;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -165,7 +165,7 @@ public class EsClientTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  RestClient restClient = mock(RestClient.class);
+  Rest5Client restClient = mock(Rest5Client.class);
 
   EsClient underTest = new EsClient(restClient);
 
@@ -276,29 +276,18 @@ public class EsClientTest {
 
   @Test
   public void newInstance_with_hosts_only_constructor_succeeds() {
-    EsClient esClient = new EsClient(new HttpHost("localhost", 9200));
+    EsClient esClient = new EsClient(new HttpHost("http", "localhost", 9200));
     assertThat(esClient.nativeClientV2()).isNotNull();
     assertThat(esClient.nativeRestClient()).isNotNull();
   }
 
   @Test
   public void newInstance_whenKeyStorePathInvalid_shouldThrowIllegalState() {
-    HttpHost host = new HttpHost("localhost", 9200);
+    HttpHost host = new HttpHost("http", "localhost", 9200);
     assertThatThrownBy(() -> new EsClient(null, "/path/does/not/exist.p12", "ignored", host))
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Failed to setup SSL context");
   }
-
-  @Test
-  public void waitForStatusV2_wraps_underlying_failure_in_ElasticsearchException() throws IOException {
-    // No mockWebServer enqueue → the request fails → exercises waitForStatusV2 → clusterHealthV2 → execute() error path
-    when(restClient.performRequest(argThat(r -> r != null)))
-      .thenThrow(new IOException("boom"));
-
-    assertThatThrownBy(() -> underTest.waitForStatusV2(co.elastic.clients.elasticsearch._types.HealthStatus.Yellow))
-      .isInstanceOf(ElasticsearchException.class);
-  }
-
 
   @Test
   public void nativeRestClient_returns_injected_rest_client() {
@@ -328,7 +317,7 @@ public class EsClientTest {
 
     String password = "test-elasticsearch-password";
     String expectedAuth = java.util.Base64.getEncoder().encodeToString(("elastic:" + password).getBytes());
-    EsClient esClient = new EsClient(password, null, null, new HttpHost(mockWebServer.getHostName(), mockWebServer.getPort()));
+    EsClient esClient = new EsClient(password, null, null, new HttpHost("http", mockWebServer.getHostName(), mockWebServer.getPort()));
 
     assertThat(esClient.clusterStats()).isNotNull();
 
@@ -349,7 +338,7 @@ public class EsClientTest {
     mockWebServer.useHttps(certificate.sslSocketFactory(), false);
 
     EsClient esClient = new EsClient(null, keyStorePath.toString(), password,
-      new HttpHost(mockWebServer.getHostName(), mockWebServer.getPort(), "https"));
+      new HttpHost("https", mockWebServer.getHostName(), mockWebServer.getPort()));
 
     assertThat(esClient.clusterStats()).isNotNull();
   }

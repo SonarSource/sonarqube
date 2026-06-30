@@ -8,6 +8,7 @@ sonar {
 
 dependencies {
   // please keep the list grouped by configuration and ordered by name
+  api 'org.apache.httpcomponents:httpclient'
   api 'com.google.guava:guava'
   api 'com.google.protobuf:protobuf-java'
   api 'com.hazelcast:hazelcast'
