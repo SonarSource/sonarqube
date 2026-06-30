@@ -41,6 +41,7 @@ public class DbVersion202604 implements DbVersion {
       .add(2026_04_010, "Add organization_uuid to sca_encountered_licenses and update unique index", AddOrganizationUuidToScaEncounteredLicenses.class)
       .add(2026_04_011, "Create table 'architecture_models'", CreateArchitectureModelsTable.class)
       .add(2026_04_012, "Drop table 'architecture_graphs'", DropArchitectureGraphsTable.class)
-      .add(2026_04_013, "Add architectureadmin permission to existing project admins", AddArchitectureAdminPermissionToProjectAdmins.class);
+      .add(2026_04_013, "Add architectureadmin permission to existing project admins", AddArchitectureAdminPermissionToProjectAdmins.class)
+      .add(2026_04_014, "Add 'signature_type' to 'sca_ir_cve_locations'", AddSignatureTypeToScaIrCveLocations.class);
   }
 }
