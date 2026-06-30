@@ -42,7 +42,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
-import org.apache.http.HttpHost;
+import org.apache.hc.core5.http.HttpHost;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.rules.ExternalResource;
@@ -63,12 +63,12 @@ import static org.sonar.server.es.Index.ALL_INDICES;
 import static org.sonar.server.es.IndexType.FIELD_INDEX_TYPE;
 
 /**
- * JUnit test fixture that connects to a real Elasticsearch 8.x server and exposes the SonarQube
+ * JUnit test fixture that connects to a real Elasticsearch 9.x server and exposes the SonarQube
  * {@link EsClient} bound to it. Replaces the previous embedded ES7 {@code Node}.
  *
  * <p>The ES host is read from the {@code ES_HOST} and {@code ES_PORT} environment variables
  * (defaulting to {@code localhost:9200}). In CI the {@code ES JUnit} job provides an
- * Elasticsearch service container that sets those variables. Locally, start an ES 8.x instance
+ * Elasticsearch service container that sets those variables. Locally, start an ES 9.x instance
  * and export them accordingly.
  */
 public class EsTester extends ExternalResource implements AfterEachCallback {
@@ -178,7 +178,7 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
 
   private static List<String> getIndicesNames() {
     try {
-      return new ArrayList<>(ES_REST_CLIENT.getIndexV2(ALL_INDICES.getName()).result().keySet());
+      return new ArrayList<>(ES_REST_CLIENT.getIndexV2(ALL_INDICES.getName()).indices().keySet());
     } catch (org.sonar.server.es.ElasticsearchException e) {
       Throwable cause = e.getCause();
       if (cause instanceof co.elastic.clients.elasticsearch._types.ElasticsearchException esException
@@ -193,7 +193,7 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
     String host = System.getenv().getOrDefault("ES_HOST", "localhost");
     int port = Integer.parseInt(System.getenv().getOrDefault("ES_PORT", "9200"));
     LOG.info("EsTester connecting to Elasticsearch at {}:{}", host, port);
-    return new EsClient(new HttpHost(host, port, "http"));
+    return new EsClient(new HttpHost("http", host, port));
   }
 
   public EsClient client() {

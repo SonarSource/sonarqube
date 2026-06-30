@@ -25,6 +25,7 @@ import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.CalendarInterval;
+import co.elastic.clients.elasticsearch._types.aggregations.FieldDateMath;
 import co.elastic.clients.elasticsearch._types.aggregations.FilterAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.NestedAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
@@ -991,8 +992,8 @@ public class IssueIndex {
             .format(DateUtils.DATETIME_FORMAT)
             .timeZone(timeZone)
             .extendedBounds(eb -> eb
-              .min(co.elastic.clients.elasticsearch._types.aggregations.FieldDateMath.of(b -> b.value((double) effectiveStart)))
-              .max(co.elastic.clients.elasticsearch._types.aggregations.FieldDateMath.of(b -> b.value((double) effectiveEnd))));
+              .min(FieldDateMath.of(b -> b.value(effectiveStart)))
+              .max(FieldDateMath.of(b -> b.value(effectiveEnd))));
           return dh;
         });
         if (hasQueryEffortFacet(query)) {
@@ -1042,11 +1043,11 @@ public class IssueIndex {
     if (minAgg == null || !minAgg.isMin()) {
       return OptionalLong.empty();
     }
-    double actualValue = minAgg.min().value();
-    if (Double.isInfinite(actualValue) || Double.isNaN(actualValue)) {
+    Double actualValue = minAgg.min().value();
+    if (actualValue == null || Double.isInfinite(actualValue) || Double.isNaN(actualValue)) {
       return OptionalLong.empty();
     }
-    return OptionalLong.of((long) actualValue);
+    return OptionalLong.of(actualValue.longValue());
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchOptions options, TopAggregationHelper aggregationHelper,
@@ -1160,11 +1161,13 @@ public class IssueIndex {
       FilterAggregate projectFilter = agg.filter();
       StringTermsAggregate branchTerms = projectFilter.aggregations().get("branchUuid").sterms();
       for (StringTermsBucket branchBucket : branchTerms.buckets().array()) {
-        long count = (long) branchBucket.aggregations().get(AGG_COUNT).valueCount().value();
+        Double countValue = branchBucket.aggregations().get(AGG_COUNT).valueCount().value();
+        long count = countValue != null ? countValue.longValue() : 0L;
         if (count < 1L) {
           continue;
         }
-        long lastIssueDate = (long) branchBucket.aggregations().get("maxFuncCreatedAt").max().value();
+        Double maxValue = branchBucket.aggregations().get("maxFuncCreatedAt").max().value();
+        long lastIssueDate = maxValue != null ? maxValue.longValue() : 0L;
         results.add(new ProjectStatistics(branchBucket.key().stringValue(), count, lastIssueDate));
       }
     });
@@ -1482,10 +1485,10 @@ public class IssueIndex {
     OptionalInt severityRating = severityAggregationDetails.getRating();
     Map<String, Long> severityDistribution = severityAggregationDetails.getDistribution();
 
-    long toReviewSecurityHotspots = (long) categoryAggs.get(AGG_TO_REVIEW_SECURITY_HOTSPOTS)
-      .filter().aggregations().get(AGG_COUNT).valueCount().value();
-    long reviewedSecurityHotspots = (long) categoryAggs.get(AGG_REVIEWED_SECURITY_HOTSPOTS)
-      .filter().aggregations().get(AGG_COUNT).valueCount().value();
+    long toReviewSecurityHotspots = Optional.ofNullable(categoryAggs.get(AGG_TO_REVIEW_SECURITY_HOTSPOTS)
+      .filter().aggregations().get(AGG_COUNT).valueCount().value()).map(Double::longValue).orElse(0L);
+    long reviewedSecurityHotspots = Optional.ofNullable(categoryAggs.get(AGG_REVIEWED_SECURITY_HOTSPOTS)
+      .filter().aggregations().get(AGG_COUNT).valueCount().value()).map(Double::longValue).orElse(0L);
 
     Optional<Double> percent = computePercent(toReviewSecurityHotspots, reviewedSecurityHotspots);
     Integer securityReviewRating = computeRating(percent.orElse(null)).getIndex();
@@ -1503,17 +1506,17 @@ public class IssueIndex {
       severityBuckets = nested.aggregations().get(ISSUES_WITH_SECURITY_IMPACT).filter()
         .aggregations().get(AGG_IMPACT_SEVERITIES).sterms().buckets().array();
       vulnerabilities = severityBuckets.stream()
-        .mapToLong(b -> (long) b.aggregations().get(AGG_COUNT).valueCount().value()).sum();
+        .mapToLong(b -> Optional.ofNullable(b.aggregations().get(AGG_COUNT).valueCount().value()).map(Double::longValue).orElse(0L)).sum();
       severityRating = severityBuckets.stream()
-        .filter(b -> (long) b.aggregations().get(AGG_COUNT).valueCount().value() != 0)
+        .filter(b -> Optional.ofNullable(b.aggregations().get(AGG_COUNT).valueCount().value()).map(Double::longValue).orElse(0L) != 0)
         .mapToInt(b -> org.sonar.api.issue.impact.Severity.valueOf(b.key().stringValue()).ordinal() + 1)
         .max();
     } else {
       severityBuckets = severitiesAggregate.sterms().buckets().array();
       vulnerabilities = severityBuckets.stream()
-        .mapToLong(b -> (long) b.aggregations().get(AGG_COUNT).valueCount().value()).sum();
+        .mapToLong(b -> Optional.ofNullable(b.aggregations().get(AGG_COUNT).valueCount().value()).map(Double::longValue).orElse(0L)).sum();
       severityRating = severityBuckets.stream()
-        .filter(b -> (long) b.aggregations().get(AGG_COUNT).valueCount().value() != 0)
+        .filter(b -> Optional.ofNullable(b.aggregations().get(AGG_COUNT).valueCount().value()).map(Double::longValue).orElse(0L) != 0)
         .mapToInt(b -> Severity.ALL.indexOf(b.key().stringValue()) + 1)
         .max();
     }
