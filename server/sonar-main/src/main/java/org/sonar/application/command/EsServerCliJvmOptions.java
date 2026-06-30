@@ -21,25 +21,18 @@ package org.sonar.application.command;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.sonar.application.es.EsInstallation;
 
 class EsServerCliJvmOptions extends JvmOptions<EsServerCliJvmOptions> {
 
-  public EsServerCliJvmOptions(EsInstallation esInstallation) {
-    super(mandatoryOptions(esInstallation));
+  public EsServerCliJvmOptions() {
+    super(mandatoryOptions());
   }
 
-  private static Map<String, String> mandatoryOptions(EsInstallation esInstallation) {
-    Map<String, String> res = LinkedHashMap.newLinkedHashMap(9);
+  private static Map<String, String> mandatoryOptions() {
+    Map<String, String> res = LinkedHashMap.newLinkedHashMap(3);
     res.put("-Xms4m", "");
     res.put("-Xmx64m", "");
     res.put("-XX:+UseSerialGC", "");
-    res.put("-Dcli.name=", "server");
-    res.put("-Dcli.script=", "./bin/elasticsearch");
-    res.put("-Dcli.libs=", "lib/tools/server-cli");
-    res.put("-Des.path.home=", esInstallation.getHomeDirectory().getAbsolutePath());
-    res.put("-Des.path.conf=", esInstallation.getConfDirectory().getAbsolutePath());
-    res.put("-Des.distribution.type=", "tar");
     return res;
   }
 }

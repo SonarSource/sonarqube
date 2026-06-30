@@ -26,7 +26,9 @@ import co.elastic.clients.elasticsearch._types.aggregations.FiltersBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.TopHitsAggregate;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.HighlightField;
 import co.elastic.clients.elasticsearch.core.search.HighlighterEncoder;
+import co.elastic.clients.util.NamedValue;
 import co.elastic.clients.elasticsearch.core.search.TotalHits;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
@@ -170,13 +172,13 @@ public class ComponentIndex {
                 .encoder(HighlighterEncoder.Html)
                 .preTags("<mark>")
                 .postTags("</mark>")
-                .fields(FIELD_NAME, hf -> hf
+                .fields(NamedValue.of(FIELD_NAME, HighlightField.of(hf -> hf
                   .type("fvh")
                   .matchedFields(
                     Stream.concat(
                         Stream.of(FIELD_NAME),
                         Arrays.stream(NAME_ANALYZERS).map(a -> a.subField(FIELD_NAME)))
-                      .toList())))))),
+                      .toList())))))))),
       Void.class);
 
     return aggregationsToQualifiersV2(response);

@@ -123,7 +123,7 @@ public class ElasticSearchMetricTask implements MonitoringTask {
   private long updateAndGetReadOnlyIndicesCount() {
     try {
       final GetIndicesSettingsResponse settingsResponse = esClient.getSettingsV2(req -> req.index("*"));
-      final Map<String, IndexState> indices = settingsResponse.result();
+      final Map<String, IndexState> indices = settingsResponse.settings();
 
       long readOnlyCount = 0;
       for (Map.Entry<String, IndexState> entry : indices.entrySet()) {

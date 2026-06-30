@@ -217,7 +217,7 @@ class IndexCreatorTest {
    * — same shape that the ES7 {@code MappingMetadata.getSourceAsMap()} produced.
    */
   private Map<String, Map<String, Object>> mappings() {
-    return es.client().getMappingV2(req -> req.index("*")).result().entrySet()
+    return es.client().getMappingV2(req -> req.index("*")).mappings().entrySet()
       .stream()
       .collect(Collectors.toMap(
         Map.Entry::getKey,
