@@ -20,13 +20,32 @@
 package org.sonar.server.permission;
 
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.db.DbSession;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.ProjectPermission;
+import org.sonar.db.permission.UserPermissionDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 
 public interface PermissionService {
 
   List<GlobalPermission> getGlobalPermissions();
 
   List<ProjectPermission> getAllProjectPermissions();
+
+  /**
+   * Returns the permissions held by the given groups, filtered to only include permissions
+   * that are enabled for the current edition/configuration.
+   */
+  List<GroupPermissionDto> findGroupPermissions(DbSession dbSession, List<GroupDto> groups, @Nullable EntityDto entity);
+
+  /**
+   * Returns the permissions held by the given users, filtered to only include permissions
+   * that are enabled for the current edition/configuration.
+   */
+  List<UserPermissionDto> findUserPermissions(DbSession dbSession, List<UserDto> users, @Nullable EntityDto entity);
 
 }

@@ -20,9 +20,12 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Date;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -34,6 +37,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.permission.DefaultTemplatesResolver;
 import org.sonar.server.common.permission.DefaultTemplatesResolverImpl;
+import org.sonar.server.component.ComponentTypes;
 import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.l18n.I18nRule;
@@ -45,6 +49,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -63,11 +69,17 @@ public class SearchTemplatesActionIT extends BasePermissionWsIT<SearchTemplatesA
 
   private ComponentTypesRule resourceTypesWithViews = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT, ComponentQualifiers.VIEW, ComponentQualifiers.APP);
   private ComponentTypesRule resourceTypesWithoutViews = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
-  private PermissionService permissionServiceWithViews = new PermissionServiceImpl(resourceTypesWithViews);
+  private PermissionService permissionServiceWithViews = developerEditionPermissionService(resourceTypesWithViews);
   private PermissionService permissionServiceWithoutViews = new PermissionServiceImpl(resourceTypesWithoutViews);
   private DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(dbClient, resourceTypesWithViews);
 
   private WsActionTester underTestWithoutViews;
+
+  private static PermissionServiceImpl developerEditionPermissionService(ComponentTypes componentTypes) {
+    PlatformEditionProvider editionProvider = mock(PlatformEditionProvider.class);
+    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+    return new PermissionServiceImpl(componentTypes, editionProvider);
+  }
 
   @Override
   protected SearchTemplatesAction buildWsAction() {
@@ -211,7 +223,7 @@ public class SearchTemplatesActionIT extends BasePermissionWsIT<SearchTemplatesA
 
   @Test
   public void fail_if_not_logged_in() {
-    assertThatThrownBy(() ->  {
+    assertThatThrownBy(() -> {
       userSession.anonymous();
       newRequest().execute();
     })
@@ -302,6 +314,11 @@ public class SearchTemplatesActionIT extends BasePermissionWsIT<SearchTemplatesA
           +
           "    }," +
           "    {" +
+          "      \"key\": \"architectureadmin\"," +
+          "      \"name\": \"Administer Architecture\"," +
+          "      \"description\": \"Allows to manage intended architecture of a project.\"" +
+          "    }," +
+          "    {" +
           "      \"key\": \"scan\"," +
           "      \"name\": \"Execute Analysis\"," +
           "      \"description\": \"Ability to execute analyses, and to get all settings required to perform the analysis, even the secured ones like the scm account password, the jira account password, and so on.\""
@@ -368,12 +385,12 @@ public class SearchTemplatesActionIT extends BasePermissionWsIT<SearchTemplatesA
 
   private void addPermissionTemplateWithProjectCreator(String templateUuid, ProjectPermission permission, String templateName) {
     dbClient.permissionTemplateCharacteristicDao().insert(dbSession, new PermissionTemplateCharacteristicDto()
-        .setUuid(Uuids.createFast())
-        .setWithProjectCreator(true)
-        .setTemplateUuid(templateUuid)
-        .setPermission(permission.getKey())
-        .setCreatedAt(1_000_000_000L)
-        .setUpdatedAt(2_000_000_000L),
+      .setUuid(Uuids.createFast())
+      .setWithProjectCreator(true)
+      .setTemplateUuid(templateUuid)
+      .setPermission(permission.getKey())
+      .setCreatedAt(1_000_000_000L)
+      .setUpdatedAt(2_000_000_000L),
       templateName);
     db.commit();
   }

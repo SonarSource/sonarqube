@@ -20,7 +20,6 @@
 package org.sonar.db.permission;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public enum GlobalPermission {
 
@@ -35,8 +34,6 @@ public enum GlobalPermission {
    */
   APPLICATION_CREATOR("applicationcreator"),
   PORTFOLIO_CREATOR("portfoliocreator");
-
-  public static final String ALL_ON_ONE_LINE = Arrays.stream(values()).map(GlobalPermission::getKey).collect(Collectors.joining(", "));
 
   private final String key;
 

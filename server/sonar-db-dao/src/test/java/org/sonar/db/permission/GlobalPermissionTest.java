@@ -54,9 +54,4 @@ class GlobalPermissionTest {
     assertThat(GlobalPermission.contains(non_existing_permission)).isFalse();
   }
 
-  @Test
-  void all_in_one_line_contains_all_permissions() {
-    assertThat("admin, gateadmin, profileadmin, provisioning, scan, applicationcreator, " +
-      "portfoliocreator").isEqualTo(GlobalPermission.ALL_ON_ONE_LINE);
-  }
 }

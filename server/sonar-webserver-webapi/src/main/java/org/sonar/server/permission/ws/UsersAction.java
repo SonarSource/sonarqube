@@ -40,19 +40,18 @@ import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.common.avatar.AvatarResolver;
 import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.RequestValidator;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.Permissions.UsersWsResponse;
 
 import static com.google.common.base.Strings.emptyToNull;
-import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
 import static org.sonar.db.permission.PermissionQuery.RESULTS_MAX_SIZE;
 import static org.sonar.db.permission.PermissionQuery.SEARCH_QUERY_MIN_LENGTH;
-import static org.sonar.server.permission.RequestValidator.validateGlobalPermission;
 import static org.sonar.server.permission.ws.WsParameters.createProjectParameters;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -66,9 +65,10 @@ public class UsersAction implements PermissionsWsAction {
   private final WsParameters wsParameters;
   private final RequestValidator requestValidator;
   private final ManagedInstanceService managedInstanceService;
+  private final PermissionService permissionService;
 
   public UsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, AvatarResolver avatarResolver, WsParameters wsParameters,
-    RequestValidator requestValidator, ManagedInstanceService managedInstanceService) {
+    RequestValidator requestValidator, ManagedInstanceService managedInstanceService, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
@@ -76,6 +76,7 @@ public class UsersAction implements PermissionsWsAction {
     this.wsParameters = wsParameters;
     this.requestValidator = requestValidator;
     this.managedInstanceService = managedInstanceService;
+    this.permissionService = permissionService;
   }
 
   @Override
@@ -116,7 +117,7 @@ public class UsersAction implements PermissionsWsAction {
       PermissionQuery query = buildPermissionQuery(request, entity);
       List<UserDto> users = findUsers(dbSession, query);
       int total = dbClient.userPermissionDao().countUsersByQuery(dbSession, query);
-      List<UserPermissionDto> userPermissions = findUserPermissions(dbSession, users, entity);
+      List<UserPermissionDto> userPermissions = permissionService.findUserPermissions(dbSession, users, entity);
       Paging paging = Paging.forPageIndex(request.mandatoryParamAsInt(Param.PAGE)).withPageSize(query.getPageSize()).andTotal(total);
       Map<String, Boolean> userUuidToIsManaged = managedInstanceService.getUserUuidToManaged(dbSession, getUserUuids(users));
       UsersWsResponse usersWsResponse = buildResponse(users, userPermissions, userUuidToIsManaged, paging);
@@ -145,7 +146,7 @@ public class UsersAction implements PermissionsWsAction {
       if (entity != null) {
         requestValidator.validateProjectPermission(permission);
       } else {
-        validateGlobalPermission(permission);
+        requestValidator.validateGlobalPermission(permission);
       }
     }
 
@@ -182,16 +183,4 @@ public class UsersAction implements PermissionsWsAction {
     return Ordering.explicit(orderedUuids).onResultOf(UserDto::getUuid).immutableSortedCopy(dbClient.userDao().selectByUuids(dbSession, orderedUuids));
   }
 
-  private List<UserPermissionDto> findUserPermissions(DbSession dbSession, List<UserDto> users, @Nullable EntityDto entity) {
-    if (users.isEmpty()) {
-      return emptyList();
-    }
-    List<String> userUuids = users.stream().map(UserDto::getUuid).toList();
-    PermissionQuery.Builder queryBuilder = PermissionQuery.builder()
-      .withAtLeastOnePermission();
-    if (entity != null) {
-      queryBuilder.setEntityUuid(entity.getUuid());
-    }
-    return dbClient.userPermissionDao().selectUserPermissionsByQuery(dbSession, queryBuilder.build(), userUuids);
-  }
 }

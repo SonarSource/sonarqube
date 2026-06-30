@@ -33,6 +33,12 @@
           "withProjectCreator": false
         },
         {
+          "key": "architectureadmin",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
           "key": "scan",
           "usersCount": 0,
           "groupsCount": 0,
@@ -79,6 +85,12 @@
           "withProjectCreator": false
         },
         {
+          "key": "architectureadmin",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
           "key": "scan",
           "usersCount": 0,
           "groupsCount": 0,
@@ -119,6 +131,12 @@
         },
         {
           "key": "securityhotspotadmin",
+          "usersCount": 0,
+          "groupsCount": 0,
+          "withProjectCreator": false
+        },
+        {
+          "key": "architectureadmin",
           "usersCount": 0,
           "groupsCount": 0,
           "withProjectCreator": false

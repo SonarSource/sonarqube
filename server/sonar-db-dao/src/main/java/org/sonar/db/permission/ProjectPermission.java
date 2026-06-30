@@ -29,6 +29,7 @@ public enum ProjectPermission {
   USER("user"),
   ADMIN("admin"),
   CODEVIEWER("codeviewer"),
+  ARCHITECTURE_ADMIN("architectureadmin"),
   ISSUE_ADMIN("issueadmin"),
   SECURITYHOTSPOT_ADMIN("securityhotspotadmin"),
   SCAN("scan");

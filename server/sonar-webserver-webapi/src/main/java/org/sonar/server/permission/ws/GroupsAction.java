@@ -41,11 +41,11 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.management.ManagedInstanceService;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.Group;
 import org.sonarqube.ws.Permissions.WsGroupsResponse;
 
-import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
@@ -61,14 +61,16 @@ public class GroupsAction implements PermissionsWsAction {
   private final PermissionWsSupport wsSupport;
   private final WsParameters wsParameters;
   private final ManagedInstanceService managedInstanceService;
+  private final PermissionService permissionService;
 
   public GroupsAction(DbClient dbClient, UserSession userSession, PermissionWsSupport wsSupport, WsParameters wsParameters,
-    ManagedInstanceService managedInstanceService) {
+    ManagedInstanceService managedInstanceService, PermissionService permissionService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
     this.wsParameters = wsParameters;
     this.managedInstanceService = managedInstanceService;
+    this.permissionService = permissionService;
   }
 
   @Override
@@ -109,7 +111,7 @@ public class GroupsAction implements PermissionsWsAction {
       PermissionQuery query = buildPermissionQuery(request, project);
       List<GroupDto> groups = findGroups(dbSession, query);
       int total = dbClient.groupPermissionDao().countGroupsByQuery(dbSession, query);
-      List<GroupPermissionDto> groupsWithPermission = findGroupPermissions(dbSession, groups, project);
+      List<GroupPermissionDto> groupsWithPermission = permissionService.findGroupPermissions(dbSession, groups, project);
       Map<String, Boolean> groupUuidToIsManaged = managedInstanceService.getGroupUuidToManaged(dbSession, getUserUuids(groups));
       Paging paging = Paging.forPageIndex(request.mandatoryParamAsInt(Param.PAGE)).withPageSize(query.getPageSize()).andTotal(total);
       WsGroupsResponse groupsResponse = buildResponse(groups, groupsWithPermission, groupUuidToIsManaged, paging);
@@ -168,11 +170,4 @@ public class GroupsAction implements PermissionsWsAction {
     return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
   }
 
-  private List<GroupPermissionDto> findGroupPermissions(DbSession dbSession, List<GroupDto> groups, @Nullable EntityDto entity) {
-    if (groups.isEmpty()) {
-      return emptyList();
-    }
-    List<String> uuids = groups.stream().map(GroupDto::getUuid).toList();
-    return dbClient.groupPermissionDao().selectByGroupUuids(dbSession, uuids, entity != null ? entity.getUuid() : null);
-  }
 }

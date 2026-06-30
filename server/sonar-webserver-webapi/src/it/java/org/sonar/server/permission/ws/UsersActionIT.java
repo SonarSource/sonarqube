@@ -64,14 +64,14 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_U
 public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
 
   private final ComponentTypes componentTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
-  private final PermissionService permissionService = new PermissionServiceImpl(componentTypes);
-  private final WsParameters wsParameters = new WsParameters(permissionService);
-  private final RequestValidator requestValidator = new RequestValidator(permissionService);
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
 
   @Override
   protected UsersAction buildWsAction() {
-    return new UsersAction(db.getDbClient(), userSession, newPermissionWsSupport(), new AvatarResolverImpl(), wsParameters, requestValidator, managedInstanceService);
+    PermissionService permissionService = new PermissionServiceImpl(componentTypes, db.getDbClient());
+    WsParameters wsParameters = new WsParameters(permissionService);
+    RequestValidator requestValidator = new RequestValidator(permissionService);
+    return new UsersAction(db.getDbClient(), userSession, newPermissionWsSupport(), new AvatarResolverImpl(), wsParameters, requestValidator, managedInstanceService, permissionService);
   }
 
   @Test

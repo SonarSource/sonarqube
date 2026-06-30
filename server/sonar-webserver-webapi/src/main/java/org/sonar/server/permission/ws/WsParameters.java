@@ -21,7 +21,6 @@ package org.sonar.server.permission.ws;
 
 import com.google.common.base.Joiner;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.permission.PermissionService;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
@@ -45,12 +44,13 @@ public class WsParameters {
 
   public WsParameters(PermissionService permissionService) {
     this.permissionService = permissionService;
+    String allGlobalPermissionsOnOneLine = Joiner.on(", ").join(permissionService.getGlobalPermissions());
     String allProjectsPermissionsOnOneLine = Joiner.on(", ").join(permissionService.getAllProjectPermissions());
     permissionParamDescription = String.format("<ul>" +
       "<li>Possible values for global permissions: %s</li>" +
       "<li>Possible values for project permissions %s</li>" +
       "</ul>",
-      GlobalPermission.ALL_ON_ONE_LINE,
+      allGlobalPermissionsOnOneLine,
       allProjectsPermissionsOnOneLine);
     projectPermissionParamDescription = String.format("Permission" +
       "<ul>" +
