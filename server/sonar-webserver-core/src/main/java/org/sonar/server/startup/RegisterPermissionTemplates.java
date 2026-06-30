@@ -97,6 +97,7 @@ public class RegisterPermissionTemplates implements Startable {
     Optional<GroupDto> admins = dbClient.groupDao().selectByName(dbSession, DefaultGroups.ADMINISTRATORS);
     if (admins.isPresent()) {
       insertGroupPermission(dbSession, template, ProjectPermission.ADMIN, admins.get());
+      insertGroupPermission(dbSession, template, ProjectPermission.ARCHITECTURE_ADMIN, admins.get());
     } else {
       LOG.error("Cannot setup default permission for group: " + DefaultGroups.ADMINISTRATORS);
     }

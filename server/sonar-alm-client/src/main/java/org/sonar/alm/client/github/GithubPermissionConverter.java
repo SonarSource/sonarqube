@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,8 +63,8 @@ public class GithubPermissionConverter {
     new GsonRepositoryPermissions(true, true, true, true, true), ADMIN_GITHUB_ROLE
   );
 
-  public Map<ProjectPermission, Boolean> toSonarqubeRolesToHasPermissions(Set<ProjectPermission> sonarqubeRoles) {
-    return Stream.of(ProjectPermission.values())
+  public Map<ProjectPermission, Boolean> toSonarqubeRolesToHasPermissions(List<ProjectPermission> allPermissions, Set<ProjectPermission> sonarqubeRoles) {
+    return allPermissions.stream()
       .collect(toMap(identity(), sonarqubeRoles::contains));
   }
 

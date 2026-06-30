@@ -33,7 +33,7 @@ package org.sonar.test.tags;
  *   -e "action.auto_create_index=false" \
  *   -e "action.destructive_requires_name=false" \
  *   -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
- *   docker.elastic.co/elasticsearch/elasticsearch:8.19.14
+ *   docker.elastic.co/elasticsearch/elasticsearch:8.19.17
  * </pre>
  */
 public interface ElasticsearchTest {

@@ -25,8 +25,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.sonar.db.permission.GlobalPermission;
-import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.component.ComponentType;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.server.exceptions.BadRequestException;
@@ -40,22 +38,25 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_Q
 
 public class RequestValidator {
   public static final String MSG_TEMPLATE_WITH_SAME_NAME = "A template with the name '%s' already exists (case insensitive).";
+  private final String allGlobalPermissionsOnOneLine;
   private final String allProjectsPermissionsOnOneLine;
+  private final PermissionService permissionService;
 
   public RequestValidator(PermissionService permissionService) {
+    this.permissionService = permissionService;
+    allGlobalPermissionsOnOneLine = Joiner.on(", ").join(permissionService.getGlobalPermissions());
     allProjectsPermissionsOnOneLine = Joiner.on(", ").join(permissionService.getAllProjectPermissions());
   }
 
   public String validateProjectPermission(String permission) {
-    BadRequestException.checkRequest(ProjectPermission.contains(permission),
-      String.format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION,
-        allProjectsPermissionsOnOneLine, permission));
+    BadRequestException.checkRequest(permissionService.getAllProjectPermissions().stream().anyMatch(p -> p.getKey().equals(permission)),
+      String.format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, allProjectsPermissionsOnOneLine, permission));
     return permission;
   }
 
-  public static void validateGlobalPermission(String permission) {
-    checkRequest(GlobalPermission.contains(permission),
-      format("The '%s' parameter for global permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, GlobalPermission.ALL_ON_ONE_LINE, permission));
+  public void validateGlobalPermission(String permission) {
+    checkRequest(permissionService.getGlobalPermissions().stream().anyMatch(p -> p.getKey().equals(permission)),
+      format("The '%s' parameter for global permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, allGlobalPermissionsOnOneLine, permission));
   }
 
   public static void validateQualifier(@Nullable String qualifier, ComponentTypes componentTypes) {

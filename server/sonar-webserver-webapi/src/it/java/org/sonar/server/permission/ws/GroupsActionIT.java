@@ -64,16 +64,16 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
   private GroupDto group1;
   private GroupDto group2;
   private final ComponentTypes componentTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
-  private final PermissionService permissionService = new PermissionServiceImpl(componentTypes);
-  private final WsParameters wsParameters = new WsParameters(permissionService);
   private final ManagedInstanceService managedInstanceService = mock(ManagedInstanceService.class);
 
   @Override
   protected GroupsAction buildWsAction() {
+    PermissionService permissionService = new PermissionServiceImpl(componentTypes, db.getDbClient());
+    WsParameters wsParameters = new WsParameters(permissionService);
     return new GroupsAction(
       db.getDbClient(),
       userSession,
-      newPermissionWsSupport(), wsParameters, managedInstanceService);
+      newPermissionWsSupport(), wsParameters, managedInstanceService, permissionService);
   }
 
   @Before
