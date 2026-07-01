@@ -29,7 +29,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @param mainBranchUuid refer to the main branch of the project deleted, is null when this record is used for a portfolio
  */
 public record DeletedProject(Project project, @Nullable String mainBranchUuid) {
-  public DeletedProject(Project project, String mainBranchUuid) {
+  public DeletedProject(Project project, @Nullable String mainBranchUuid) {
     this.project = checkNotNull(project, "project can't be null");
     this.mainBranchUuid = mainBranchUuid;
   }
