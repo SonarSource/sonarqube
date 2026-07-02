@@ -25,6 +25,8 @@
     "org.sonarsource.slang:sonar-scala-plugin",
     "org.sonarsource.sonarqube:enterprises-api",
     "org.sonarsource.sonarqube:enterprises-server-app",
+    "org.sonarsource.sonarqube:measures-api",
+    "org.sonarsource.sonarqube:measures-server-app",
     "org.sonarsource.sonarqube:metrics-api",
     "org.sonarsource.sonarqube:metrics-server-app",
     "org.sonarsource.sonarqube:organizations-api",
