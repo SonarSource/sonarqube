@@ -179,7 +179,7 @@ class ElasticSearchMetricTaskTest {
     when(indexState.settings().index().blocks().readOnlyAllowDelete()).thenReturn(true);
 
     indices.put("test-index", indexState);
-    when(settingsResponse.settings()).thenReturn(indices);
+    when(settingsResponse.result()).thenReturn(indices);
     when(esClient.getSettingsV2(any())).thenReturn(settingsResponse);
 
     // Mock node stats so hasLowDiskSpace() can be called (disk metrics should be updated even when indices are read-only)
@@ -213,7 +213,7 @@ class ElasticSearchMetricTaskTest {
 
     // Mock index settings with no readonly blocks
     GetIndicesSettingsResponse settingsResponse = mock(GetIndicesSettingsResponse.class);
-    when(settingsResponse.settings()).thenReturn(new HashMap<>());
+    when(settingsResponse.result()).thenReturn(new HashMap<>());
     when(esClient.getSettingsV2(any())).thenReturn(settingsResponse);
 
     // Mock node stats with low disk space (2% free)
@@ -245,7 +245,7 @@ class ElasticSearchMetricTaskTest {
 
     // Mock index settings with no readonly blocks
     GetIndicesSettingsResponse settingsResponse = mock(GetIndicesSettingsResponse.class);
-    when(settingsResponse.settings()).thenReturn(new HashMap<>());
+    when(settingsResponse.result()).thenReturn(new HashMap<>());
     when(esClient.getSettingsV2(any())).thenReturn(settingsResponse);
 
     // Mock node stats with sufficient disk space (50% free)
@@ -314,7 +314,7 @@ class ElasticSearchMetricTaskTest {
     when(normalIndex.settings().index().blocks().readOnlyAllowDelete()).thenReturn(false);
     indices.put("measures-index", normalIndex);
 
-    when(settingsResponse.settings()).thenReturn(indices);
+    when(settingsResponse.result()).thenReturn(indices);
     when(esClient.getSettingsV2(any())).thenReturn(settingsResponse);
 
     underTest.run();
@@ -355,7 +355,7 @@ class ElasticSearchMetricTaskTest {
     when(readOnlyIndex.settings().index().blocks().readOnlyAllowDelete()).thenReturn(true);
     indices.put("readonly-index", readOnlyIndex);
 
-    when(settingsResponse.settings()).thenReturn(indices);
+    when(settingsResponse.result()).thenReturn(indices);
     when(esClient.getSettingsV2(any())).thenReturn(settingsResponse);
 
     underTest.run();
@@ -376,7 +376,7 @@ class ElasticSearchMetricTaskTest {
 
     // Mock index settings with no readonly blocks
     GetIndicesSettingsResponse settingsResponse = mock(GetIndicesSettingsResponse.class);
-    when(settingsResponse.settings()).thenReturn(new HashMap<>());
+    when(settingsResponse.result()).thenReturn(new HashMap<>());
     when(esClient.getSettingsV2(any())).thenReturn(settingsResponse);
 
     // Mock node stats with multiple nodes at different disk usage levels
@@ -428,7 +428,7 @@ class ElasticSearchMetricTaskTest {
 
     // Mock index settings with no readonly blocks
     GetIndicesSettingsResponse settingsResponse = mock(GetIndicesSettingsResponse.class);
-    when(settingsResponse.settings()).thenReturn(new HashMap<>());
+    when(settingsResponse.result()).thenReturn(new HashMap<>());
     when(esClient.getSettingsV2(any())).thenReturn(settingsResponse);
 
     // Mock node stats with multiple nodes below threshold (default 5%)
@@ -482,7 +482,7 @@ class ElasticSearchMetricTaskTest {
 
     // Mock index settings with no readonly blocks
     GetIndicesSettingsResponse settingsResponse = mock(GetIndicesSettingsResponse.class);
-    when(settingsResponse.settings()).thenReturn(new HashMap<>());
+    when(settingsResponse.result()).thenReturn(new HashMap<>());
     when(esClient.getSettingsV2(any())).thenReturn(settingsResponse);
 
     // Mock node stats with zero total bytes (edge case)

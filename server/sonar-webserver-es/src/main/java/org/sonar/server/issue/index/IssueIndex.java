@@ -1160,11 +1160,11 @@ public class IssueIndex {
       FilterAggregate projectFilter = agg.filter();
       StringTermsAggregate branchTerms = projectFilter.aggregations().get("branchUuid").sterms();
       for (StringTermsBucket branchBucket : branchTerms.buckets().array()) {
-        long count = branchBucket.aggregations().get(AGG_COUNT).valueCount().value().longValue();
+        long count = (long) branchBucket.aggregations().get(AGG_COUNT).valueCount().value();
         if (count < 1L) {
           continue;
         }
-        long lastIssueDate = branchBucket.aggregations().get("maxFuncCreatedAt").max().value().longValue();
+        long lastIssueDate = (long) branchBucket.aggregations().get("maxFuncCreatedAt").max().value();
         results.add(new ProjectStatistics(branchBucket.key().stringValue(), count, lastIssueDate));
       }
     });
@@ -1482,10 +1482,10 @@ public class IssueIndex {
     OptionalInt severityRating = severityAggregationDetails.getRating();
     Map<String, Long> severityDistribution = severityAggregationDetails.getDistribution();
 
-    long toReviewSecurityHotspots = categoryAggs.get(AGG_TO_REVIEW_SECURITY_HOTSPOTS)
-      .filter().aggregations().get(AGG_COUNT).valueCount().value().longValue();
-    long reviewedSecurityHotspots = categoryAggs.get(AGG_REVIEWED_SECURITY_HOTSPOTS)
-      .filter().aggregations().get(AGG_COUNT).valueCount().value().longValue();
+    long toReviewSecurityHotspots = (long) categoryAggs.get(AGG_TO_REVIEW_SECURITY_HOTSPOTS)
+      .filter().aggregations().get(AGG_COUNT).valueCount().value();
+    long reviewedSecurityHotspots = (long) categoryAggs.get(AGG_REVIEWED_SECURITY_HOTSPOTS)
+      .filter().aggregations().get(AGG_COUNT).valueCount().value();
 
     Optional<Double> percent = computePercent(toReviewSecurityHotspots, reviewedSecurityHotspots);
     Integer securityReviewRating = computeRating(percent.orElse(null)).getIndex();
@@ -1503,17 +1503,17 @@ public class IssueIndex {
       severityBuckets = nested.aggregations().get(ISSUES_WITH_SECURITY_IMPACT).filter()
         .aggregations().get(AGG_IMPACT_SEVERITIES).sterms().buckets().array();
       vulnerabilities = severityBuckets.stream()
-        .mapToLong(b -> b.aggregations().get(AGG_COUNT).valueCount().value().longValue()).sum();
+        .mapToLong(b -> (long) b.aggregations().get(AGG_COUNT).valueCount().value()).sum();
       severityRating = severityBuckets.stream()
-        .filter(b -> b.aggregations().get(AGG_COUNT).valueCount().value().longValue() != 0)
+        .filter(b -> (long) b.aggregations().get(AGG_COUNT).valueCount().value() != 0)
         .mapToInt(b -> org.sonar.api.issue.impact.Severity.valueOf(b.key().stringValue()).ordinal() + 1)
         .max();
     } else {
       severityBuckets = severitiesAggregate.sterms().buckets().array();
       vulnerabilities = severityBuckets.stream()
-        .mapToLong(b -> b.aggregations().get(AGG_COUNT).valueCount().value().longValue()).sum();
+        .mapToLong(b -> (long) b.aggregations().get(AGG_COUNT).valueCount().value()).sum();
       severityRating = severityBuckets.stream()
-        .filter(b -> b.aggregations().get(AGG_COUNT).valueCount().value().longValue() != 0)
+        .filter(b -> (long) b.aggregations().get(AGG_COUNT).valueCount().value() != 0)
         .mapToInt(b -> Severity.ALL.indexOf(b.key().stringValue()) + 1)
         .max();
     }
