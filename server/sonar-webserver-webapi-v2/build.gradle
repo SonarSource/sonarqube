@@ -11,7 +11,6 @@ sonarqube {
 
 dependencies {
     // please keep the list grouped by configuration and ordered by name
-    api 'org.apache.httpcomponents:httpclient'
     api 'org.springdoc:springdoc-openapi-starter-webmvc-api'
     api 'org.springframework.security:spring-security-config'
     api 'org.springframework.security:spring-security-web'

@@ -19,13 +19,13 @@
  */
 package org.sonar.server.es;
 
-import co.elastic.clients.transport.rest5_client.low_level.Node;
-import co.elastic.clients.transport.rest5_client.low_level.Rest5Client;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import org.assertj.core.api.Condition;
+import org.elasticsearch.client.Node;
+import org.elasticsearch.client.RestClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,10 +72,10 @@ public class EsClientProviderTest {
     settings.setProperty(ES_PORT.getKey(), 8080);
 
     EsClient client = underTest.provide(settings.asConfig());
-    Rest5Client restClient = client.nativeRestClient();
+    RestClient restClient = client.nativeRestClient();
     assertThat(restClient.getNodes()).hasSize(1);
     Node node = restClient.getNodes().get(0);
-    assertThat(node.getHost().getHostName()).isEqualTo(localhostHostname);
+    assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(9000);
 
     assertThat(logTester.logs(Level.INFO)).has(new Condition<>(s -> s.contains("Connected to local Elasticsearch: [http://" + localhostHostname + ":9000]"), ""));
@@ -88,15 +88,15 @@ public class EsClientProviderTest {
     settings.setProperty(CLUSTER_SEARCH_HOSTS.getKey(), format("%s:8080,%s:8081", localhostHostname, localhostHostname));
 
     EsClient client = underTest.provide(settings.asConfig());
-    Rest5Client restClient = client.nativeRestClient();
+    RestClient restClient = client.nativeRestClient();
     assertThat(restClient.getNodes()).hasSize(2);
 
     Node node = restClient.getNodes().get(0);
-    assertThat(node.getHost().getHostName()).isEqualTo(localhostHostname);
+    assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(8080);
 
     node = restClient.getNodes().get(1);
-    assertThat(node.getHost().getHostName()).isEqualTo(localhostHostname);
+    assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(8081);
 
     assertThat(logTester.logs(Level.INFO))
@@ -133,15 +133,15 @@ public class EsClientProviderTest {
     settings.setProperty(CLUSTER_SEARCH_HOSTS.getKey(), format("%s,%s:8081", localhostHostname, localhostHostname));
 
     EsClient client = underTest.provide(settings.asConfig());
-    Rest5Client restClient = client.nativeRestClient();
+    RestClient restClient = client.nativeRestClient();
     assertThat(restClient.getNodes()).hasSize(2);
 
     Node node = restClient.getNodes().get(0);
-    assertThat(node.getHost().getHostName()).isEqualTo(localhostHostname);
+    assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(9001);
 
     node = restClient.getNodes().get(1);
-    assertThat(node.getHost().getHostName()).isEqualTo(localhostHostname);
+    assertThat(node.getHost().getAddress().getHostName()).isEqualTo(localhostHostname);
     assertThat(node.getHost().getPort()).isEqualTo(8081);
 
     assertThat(logTester.logs(Level.INFO))
@@ -158,7 +158,7 @@ public class EsClientProviderTest {
     settings.setProperty(CLUSTER_SEARCH_HOSTS.getKey(), format("%s,%s:8081", localhostHostname, localhostHostname));
 
     EsClient client = underTest.provide(settings.asConfig());
-    Rest5Client restClient = client.nativeRestClient();
+    RestClient restClient = client.nativeRestClient();
 
     Node node = restClient.getNodes().get(0);
     assertThat(node.getHost().getSchemeName()).isEqualTo("https");

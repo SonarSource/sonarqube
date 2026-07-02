@@ -230,7 +230,7 @@ public class IndexCreator implements Startable {
     Set<String> definedNames = definitions.stream()
       .map(t -> t.getMainType().getIndex().getName())
       .collect(Collectors.toSet());
-    return client.getIndexV2("_all").indices().keySet()
+    return client.getIndexV2("_all").result().keySet()
       .stream()
       .filter(definedNames::contains)
       .filter(index -> !DESCRIPTOR.getName().equals(index))

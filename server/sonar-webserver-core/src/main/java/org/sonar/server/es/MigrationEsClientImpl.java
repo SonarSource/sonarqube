@@ -37,7 +37,7 @@ public class MigrationEsClientImpl implements MigrationEsClient {
 
   @Override
   public void deleteIndexes(String name, String... otherNames) {
-    Set<String> existingIndices = client.getIndexV2("_all").indices().keySet();
+    Set<String> existingIndices = client.getIndexV2("_all").result().keySet();
     List<String> toDelete = Stream.concat(Stream.of(name), Arrays.stream(otherNames))
       .distinct()
       .filter(existingIndices::contains)

@@ -72,7 +72,7 @@ class MigrationEsClientImplTest {
   private Iterator<String> loadExistingIndices() {
     return es.client().getMappingV2(req ->
       req.index("*"))
-      .mappings()
+      .result()
       .keySet()
       .iterator();
   }

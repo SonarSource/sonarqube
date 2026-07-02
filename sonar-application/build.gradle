@@ -181,7 +181,6 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
   ResolvedArtifact elasticSearchArtifact = configurations.zipDist.resolvedConfiguration.resolvedArtifacts.find {
     it.moduleVersion.id.name == "elasticsearch"
   }
-  assert elasticSearchArtifact != null : "Could not resolve the elasticsearch tarball from the zipDist configuration"
   from(tarTree(elasticSearchArtifact.file)) {
     eachFile { fcd ->
       def path = fcd.relativePath.segments - fcd.relativeSourcePath.segments + fcd.relativeSourcePath.segments.drop(1)
@@ -278,10 +277,6 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
     exclude '**/modules/x-pack-voting-only-node/**'
     exclude '**/modules/x-pack-watcher/**'
     exclude '**/modules/x-pack-write-load-forecaster/**'
-    exclude '**/modules/x-pack-apm-data/**'
-    exclude '**/modules/x-pack-otel-data/**'
-    exclude '**/modules/logsdb/**'
-    exclude '**/modules/x-pack-kql/**'
     includeEmptyDirs = false
   }
 

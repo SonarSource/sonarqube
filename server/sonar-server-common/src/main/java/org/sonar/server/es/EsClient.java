@@ -60,11 +60,7 @@ import co.elastic.clients.elasticsearch.indices.PutMappingRequest;
 import co.elastic.clients.elasticsearch.indices.PutMappingResponse;
 import co.elastic.clients.elasticsearch.indices.RefreshResponse;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.rest5_client.Rest5ClientTransport;
-import co.elastic.clients.transport.rest5_client.low_level.Request;
-import co.elastic.clients.transport.rest5_client.low_level.Response;
-import co.elastic.clients.transport.rest5_client.low_level.Rest5Client;
-import co.elastic.clients.transport.rest5_client.low_level.Rest5ClientBuilder;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import co.elastic.clients.util.ObjectBuilder;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -75,9 +71,6 @@ import com.google.gson.JsonObject;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.concurrent.TimeUnit;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
@@ -88,14 +81,17 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
-import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
-import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
-import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.ssl.SSLContextBuilder;
-import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.util.EntityUtils;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -113,7 +109,7 @@ public class EsClient implements Closeable {
   private static final String ES_USERNAME = "elastic";
 
   private final ElasticsearchClient elasticsearchClient;
-  private final Rest5Client restClient;
+  private final RestClient restClient;
 
   private final Gson gson;
 
@@ -125,13 +121,13 @@ public class EsClient implements Closeable {
     this(buildHttpClient(searchPassword, keyStorePath, keyStorePassword, hosts).build());
   }
 
-  EsClient(Rest5Client restClient) {
+  EsClient(RestClient restClient) {
     this.restClient = restClient;
     ObjectMapper objectMapper = new ObjectMapper()
       .configure(SerializationFeature.INDENT_OUTPUT, false)
       .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
       .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-    Rest5ClientTransport transport = new Rest5ClientTransport(this.restClient, new JacksonJsonpMapper(objectMapper));
+    RestClientTransport transport = new RestClientTransport(this.restClient, new JacksonJsonpMapper(objectMapper));
     this.elasticsearchClient = new ElasticsearchClient(transport);
     this.gson = new GsonBuilder().create();
   }
@@ -231,7 +227,7 @@ public class EsClient implements Closeable {
     return execute(() -> {
       Request request = new Request("GET", "/_nodes/stats/fs,process,jvm,indices,breaker");
       Response response = restClient.performRequest(request);
-      return NodeStatsResponse.toNodeStatsResponse(gson.fromJson(readEntity(response), JsonObject.class));
+      return NodeStatsResponse.toNodeStatsResponse(gson.fromJson(EntityUtils.toString(response.getEntity()), JsonObject.class));
     });
   }
 
@@ -241,7 +237,7 @@ public class EsClient implements Closeable {
       Request request = new Request("GET", "/" + (indices.length > 0 ? (String.join(",", indices) + "/") : "") + "_stats");
       request.addParameter("level", "shards");
       Response response = restClient.performRequest(request);
-      return IndicesStatsResponse.toIndicesStatsResponse(gson.fromJson(readEntity(response), JsonObject.class));
+      return IndicesStatsResponse.toIndicesStatsResponse(gson.fromJson(EntityUtils.toString(response.getEntity()), JsonObject.class));
     });
   }
 
@@ -250,7 +246,7 @@ public class EsClient implements Closeable {
     return execute(() -> {
       Request request = new Request("GET", "/_cluster/stats");
       Response response = restClient.performRequest(request);
-      return ClusterStatsResponse.toClusterStatsResponse(gson.fromJson(readEntity(response), JsonObject.class));
+      return ClusterStatsResponse.toClusterStatsResponse(gson.fromJson(EntityUtils.toString(response.getEntity()), JsonObject.class));
     });
   }
 
@@ -272,7 +268,7 @@ public class EsClient implements Closeable {
   }
 
   /**
-   * Internal usage only - exposes the new ES Java API client for components that need direct
+   * Internal usage only - exposes the new ES8 Java API client for components that need direct
    * access (e.g. {@link co.elastic.clients.elasticsearch._helpers.bulk.BulkIngester}).
    */
   ElasticsearchClient nativeClientV2() {
@@ -283,45 +279,28 @@ public class EsClient implements Closeable {
    * Internal usage only - exposes the underlying low-level REST client.
    * Used by tests to inspect the configured nodes.
    */
-  Rest5Client nativeRestClient() {
+  RestClient nativeRestClient() {
     return restClient;
   }
 
   @NotNull
-  static Rest5ClientBuilder buildHttpClient(@Nullable String searchPassword, @Nullable String keyStorePath,
+  static RestClientBuilder buildHttpClient(@Nullable String searchPassword, @Nullable String keyStorePath,
     @Nullable String keyStorePassword, HttpHost[] hosts) {
-    Rest5ClientBuilder builder = Rest5Client.builder(hosts);
-    builder.setHttpClient(buildAsyncHttpClient(searchPassword, keyStorePath, keyStorePassword));
-    return builder;
-  }
-
-  private static CloseableHttpAsyncClient buildAsyncHttpClient(
-    @Nullable String searchPassword, @Nullable String keyStorePath, @Nullable String keyStorePassword) {
-    var requestConfig = RequestConfig.custom()
-      .setConnectTimeout(5_000, TimeUnit.MILLISECONDS)
-      .setResponseTimeout(60_000, TimeUnit.MILLISECONDS)
-      .build();
-    var clientBuilder = HttpAsyncClients.custom()
-      .setDefaultRequestConfig(requestConfig);
-    if (searchPassword != null) {
-      String encoded = Base64.getEncoder().encodeToString((ES_USERNAME + ":" + searchPassword).getBytes(StandardCharsets.UTF_8));
-      String headerValue = "Basic " + encoded;
-      clientBuilder.addRequestInterceptorFirst((request, entity, context) -> {
-        if (request.getHeader("Authorization") == null) {
-          request.addHeader("Authorization", headerValue);
+    return RestClient.builder(hosts)
+      .setRequestConfigCallback(r -> r
+        .setConnectTimeout(5000)
+        .setSocketTimeout(60000))
+      .setHttpClientConfigCallback(httpClientBuilder -> {
+        if (searchPassword != null) {
+          BasicCredentialsProvider provider = new BasicCredentialsProvider();
+          provider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(ES_USERNAME, searchPassword));
+          httpClientBuilder.setDefaultCredentialsProvider(provider);
         }
+        if (keyStorePath != null) {
+          httpClientBuilder.setSSLContext(buildSslContext(keyStorePath, keyStorePassword));
+        }
+        return httpClientBuilder;
       });
-    }
-    if (keyStorePath != null) {
-      clientBuilder.setConnectionManager(
-        PoolingAsyncClientConnectionManagerBuilder.create()
-          .setTlsStrategy(
-            ClientTlsStrategyBuilder.create()
-              .setSslContext(buildSslContext(keyStorePath, keyStorePassword))
-              .build())
-          .build());
-    }
-    return clientBuilder.build();
   }
 
   private static SSLContext buildSslContext(String keyStorePath, @Nullable String keyStorePassword) {
@@ -334,12 +313,6 @@ public class EsClient implements Closeable {
       return sslBuilder.build();
     } catch (IOException | GeneralSecurityException e) {
       throw new IllegalStateException("Failed to setup SSL context on ES client", e);
-    }
-  }
-
-  private static String readEntity(Response response) throws IOException {
-    try (InputStream is = response.getEntity().getContent()) {
-      return new String(is.readAllBytes(), StandardCharsets.UTF_8);
     }
   }
 
