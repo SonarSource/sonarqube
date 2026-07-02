@@ -341,14 +341,17 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       ApplicationHttpClient.Response response = githubApplicationHttpClient.post(baseAppUrl, null, endpoint);
 
       if (response.getCode() != HTTP_OK) {
-        throw new IllegalStateException("Failed to create GitHub's user access token. GitHub returned code " + code + ". " + response.getContent().orElse(""));
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Failed to create GitHub's user access token, response body: {}", response.getContent().orElse(""));
+        }
+        throw new IllegalStateException("Failed to create GitHub's user access token. GitHub returned code " + response.getCode() + ".");
       }
 
       Optional<String> content = response.getContent();
       Optional<UserAccessToken> accessToken = content.flatMap(c -> Arrays.stream(c.split("&"))
-        .filter(t -> t.startsWith("access_token="))
-        .map(t -> t.split("=")[1])
-        .findAny())
+          .filter(t -> t.startsWith("access_token="))
+          .map(t -> t.split("=")[1])
+          .findAny())
         .map(UserAccessToken::new);
 
       if (accessToken.isPresent()) {
@@ -371,8 +374,11 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       ApplicationHttpClient.Response response = githubApplicationHttpClient.post(apiEndpoint, null, endpoint);
 
       if (response.getCode() != HTTP_CREATED && response.getCode() != HTTP_OK) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("GitHub manifest conversion failed, response body: {}", response.getContent().orElse(""));
+        }
         throw new IllegalStateException(
-          "Failed to create the GitHub App from manifest. GitHub returned code " + response.getCode() + ". " + response.getContent().orElse(""));
+          "Failed to create the GitHub App from manifest. GitHub returned code " + response.getCode());
       }
 
       return response.getContent()
