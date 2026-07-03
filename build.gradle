@@ -330,7 +330,7 @@ subprojects {
       dependency 'com.sonarsource.go:sonar-go-enterprise-plugin:1.40.0.6765'
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.23.0.7571'
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.21.0.8276'
-      dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.17.0.7134'
+      dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.18.0.7395'
       dependency 'com.sonarsource.rpg:sonar-rpg-plugin:3.16.0.8351'
       dependency 'com.sonarsource.security:sonar-security-csharp-frontend-plugin:11.36.0.47442'
       dependency 'com.sonarsource.security:sonar-security-go-frontend-plugin:11.36.0.47442'
