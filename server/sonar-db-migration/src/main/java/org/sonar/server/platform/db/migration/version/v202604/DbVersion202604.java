@@ -48,6 +48,7 @@ public class DbVersion202604 implements DbVersion {
       .add(2026_04_017, "Create table 'arch_scanner_data'", CreateArchitectureScannerDataTable.class)
       .add(2026_04_018, "Create table 'arch_directives'", CreateArchitectureDirectivesTable.class)
       .add(2026_04_019, "Drop table 'architecture_models'", DropArchitectureModelsTable.class)
-      .add(2026_04_020, "Create table 'arch_intended'", CreateArchIntendedTable.class);
+      .add(2026_04_020, "Create table 'arch_intended'", CreateArchIntendedTable.class)
+      .add(2026_04_021, "Add 'origin' to 'arch_directives'", AddOriginToArchDirectives.class);
   }
 }
