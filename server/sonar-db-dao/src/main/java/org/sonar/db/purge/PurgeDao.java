@@ -273,6 +273,8 @@ public class PurgeDao implements Dao {
     commands.deleteAnalyses(branchUuid);
     commands.deleteIssues(branchUuid);
     commands.deleteFileSources(branchUuid);
+    // must run before deleteCeActivity/deleteCeQueue: arch_scanner_data is only reachable through their ce task uuids
+    commands.deleteArchScannerDataForRoot(branchUuid);
     commands.deleteCeActivity(branchUuid);
     commands.deleteCeQueue(branchUuid);
     commands.deleteMeasures(branchUuid);
@@ -285,6 +287,7 @@ public class PurgeDao implements Dao {
     commands.deleteReportSubscriptions(branchUuid);
     commands.deleteIssuesFixed(branchUuid);
     commands.deleteScaActivity(branchUuid);
+    commands.deleteArchitectureBranchData(branchUuid);
     commands.deleteIssueStatsByRuleKey(aggregationType, branchUuid);
   }
 
@@ -297,6 +300,8 @@ public class PurgeDao implements Dao {
     commands.deleteByRootAndSubviews(rootAndSubviews);
     commands.deleteIssues(projectUuid);
     commands.deleteFileSources(projectUuid);
+    // must run before deleteCeActivity/deleteCeQueue: arch_scanner_data is only reachable through their ce task uuids
+    commands.deleteArchScannerDataForRoot(projectUuid);
     commands.deleteCeActivity(projectUuid);
     commands.deleteCeQueue(projectUuid);
     commands.deleteWebhooks(projectUuid);
@@ -319,6 +324,7 @@ public class PurgeDao implements Dao {
     commands.deleteReportSchedules(projectUuid);
     commands.deleteReportSubscriptions(projectUuid);
     commands.deleteScaLicenseProfiles(projectUuid);
+    commands.deleteArchitectureProjectData(projectUuid);
     commands.deleteIssueStatsByRuleKey(aggregationType, projectUuid);
   }
 

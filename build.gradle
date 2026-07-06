@@ -448,8 +448,10 @@ subprojects {
         exclude 'org.checkerframework:checker-qual'
         exclude 'org.codehaus.mojo:animal-sniffer-annotations'
       }
-      dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
-      dependency "com.google.protobuf:protobuf-java-util:${protobufVersion}"
+      dependencySet(group: 'com.google.protobuf', version: "${protobufVersion}") {
+        entry 'protobuf-java'
+        entry 'protobuf-java-util'
+      }
       dependency 'com.h2database:h2:2.3.232'
       dependencySet(group: 'com.hazelcast', version: '5.7.0') {
         entry 'hazelcast'

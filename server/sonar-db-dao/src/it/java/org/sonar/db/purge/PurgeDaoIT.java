@@ -1942,6 +1942,29 @@ projects[2].getMainBranchComponent().uuid(),
   }
 
   @Test
+  void purgeCeActivities_deletesArchScannerDataAndGraphDataOfExpiredCeActivity() {
+    LocalDateTime now = LocalDateTime.of(2024, Month.JANUARY.getValue(), 1, 0, 0, 0);
+    String projectUuid = "project-uuid";
+    String branchUuid = "branch-uuid";
+
+    insertCeActivityAndChildDataWithDate("VERY_OLD", now.minusDays(180).minusMonths(10));
+    String veryOldGraphUuid = insertArchGraphAndScannerData("VERY_OLD", projectUuid, branchUuid);
+    insertCeActivityAndChildDataWithDate("RECENT", now.minusDays(1));
+    String recentGraphUuid = insertArchGraphAndScannerData("RECENT", projectUuid, branchUuid);
+    when(system2.now()).thenReturn(now.toInstant(ZoneOffset.UTC).toEpochMilli());
+
+    underTest.purgeCeActivities(db.getSession(), new PurgeProfiler());
+
+    assertThat(archScannerDataExists("VERY_OLD")).isFalse();
+    assertThat(archGraphMetadataExists("VERY_OLD")).isFalse();
+    assertThat(archGraphBlobExists(veryOldGraphUuid)).isFalse();
+
+    assertThat(archScannerDataExists("RECENT")).isTrue();
+    assertThat(archGraphMetadataExists("RECENT")).isTrue();
+    assertThat(archGraphBlobExists(recentGraphUuid)).isTrue();
+  }
+
+  @Test
   void purgeCeScannerContexts_deletes_ce_scanner_context_older_than_28_days() {
     LocalDateTime now = LocalDateTime.of(2024, Month.JANUARY.getValue(), 1, 0, 0, 0);
     insertCeActivityAndChildDataWithDate("VERY_OLD", now.minusDays(28).minusMonths(12));
@@ -2132,6 +2155,64 @@ oldCreationDate));
     assertThat(db.countRowsOfTable(dbSession, "sca_analyses")).isEqualTo(2);
   }
 
+  // the architecture mappers are in an extension, so we have to use direct sql here.
+  private String insertArchGraphAndScannerData(String ceTaskUuid, String projectUuid, String branchUuid) {
+    String graphUuid = Uuids.create();
+    db.executeInsert("arch_graph_metadata", Map.of(
+      "organization_id", "org-1",
+      "uuid", graphUuid,
+      "analysis_id", ceTaskUuid,
+      "project_id", projectUuid,
+      "branch_id", branchUuid,
+      "ecosystem", "java",
+      "type", "namespace_graph",
+      "content_type", "application/graph+json",
+      "version", "1.0",
+      "created_at", 0L));
+    db.executeInsert("arch_graph_blobs", Map.of(
+      "uuid", Uuids.create(),
+      "name", graphUuid,
+      "data", "graph-bytes".getBytes(UTF_8)));
+    db.executeInsert("arch_scanner_data", Map.of(
+      "uuid", Uuids.create(),
+      "name", "upload/" + ceTaskUuid,
+      "data", "scanner-bytes".getBytes(UTF_8)));
+    return graphUuid;
+  }
+
+  private void insertArchDirectiveAndIntended(String projectUuid) {
+    db.executeInsert("arch_directives", Map.of(
+      "project_id", projectUuid,
+      "uuid", Uuids.create(),
+      "data", "{}",
+      "created_at", 0L));
+    db.executeInsert("arch_intended", Map.of(
+      "project_id", projectUuid,
+      "uuid", Uuids.create(),
+      "organization_id", "org-1",
+      "data", "{}"));
+  }
+
+  private boolean archGraphMetadataExists(String ceTaskUuid) {
+    return db.countSql("select count(1) from arch_graph_metadata where analysis_id = '" + ceTaskUuid + "'") == 1;
+  }
+
+  private boolean archGraphBlobExists(String graphUuid) {
+    return db.countSql("select count(1) from arch_graph_blobs where name = '" + graphUuid + "'") == 1;
+  }
+
+  private boolean archScannerDataExists(String ceTaskUuid) {
+    return db.countSql("select count(1) from arch_scanner_data where name = 'upload/" + ceTaskUuid + "'") == 1;
+  }
+
+  private int archDirectivesCountForProject(String projectUuid) {
+    return db.countSql("select count(1) from arch_directives where project_id = '" + projectUuid + "'");
+  }
+
+  private int archIntendedCountForProject(String projectUuid) {
+    return db.countSql("select count(1) from arch_intended where project_id = '" + projectUuid + "'");
+  }
+
   @Test
   void deleteBranch_purgesScaActivity() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
@@ -2223,6 +2304,65 @@ oldCreationDate));
     underTest.deleteProject(dbSession, project.getUuid(), project.getQualifier(), project.getName(), project.getKey());
 
     assertThat(db.countRowsOfTable(dbSession, "sca_lic_prof_projects")).isEqualTo(1);
+  }
+
+  @Test
+  void deleteBranch_purgesArchitectureGraphData() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch1 = db.components().insertProjectBranch(project);
+    BranchDto branch2 = db.components().insertProjectBranch(project);
+    String ceTask1 = Uuids.create();
+    String ceTask2 = Uuids.create();
+
+    String branch1GraphUuid = insertArchGraphAndScannerData(ceTask1, project.getUuid(), branch1.getUuid());
+    String branch2GraphUuid = insertArchGraphAndScannerData(ceTask2, project.getUuid(), branch2.getUuid());
+    insertArchDirectiveAndIntended(project.getUuid());
+    LocalDateTime now = LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0, 0);
+    insertCeActivityAndChildDataWithDate(ceTask1, now, q -> q.setComponentUuid(branch1.getUuid()));
+    insertCeActivityAndChildDataWithDate(ceTask2, now, q -> q.setComponentUuid(branch2.getUuid()));
+
+    underTest.deleteBranch(dbSession, branch1.getUuid());
+
+    assertThat(archGraphMetadataExists(ceTask1)).isFalse();
+    assertThat(archGraphBlobExists(branch1GraphUuid)).isFalse();
+    assertThat(archScannerDataExists(ceTask1)).isFalse();
+    assertThat(archGraphMetadataExists(ceTask2)).isTrue();
+    assertThat(archGraphBlobExists(branch2GraphUuid)).isTrue();
+    assertThat(archScannerDataExists(ceTask2)).isTrue();
+    // arch_directives/arch_intended are project-scoped and must survive a non-main branch deletion
+    assertThat(archDirectivesCountForProject(project.getUuid())).isEqualTo(1);
+    assertThat(archIntendedCountForProject(project.getUuid())).isEqualTo(1);
+  }
+
+  @Test
+  void deleteProject_purgesArchitectureData() {
+    ProjectData project = db.components().insertPublicProject();
+    ProjectData otherProject = db.components().insertPublicProject();
+    String ceTask1 = Uuids.create();
+    String ceTask2 = Uuids.create();
+
+    String projectGraphUuid = insertArchGraphAndScannerData(ceTask1, project.projectUuid(), project.getMainBranchComponent().uuid());
+    String otherProjectGraphUuid = insertArchGraphAndScannerData(ceTask2, otherProject.projectUuid(), otherProject.getMainBranchComponent().uuid());
+    insertArchDirectiveAndIntended(project.projectUuid());
+    insertArchDirectiveAndIntended(otherProject.projectUuid());
+    LocalDateTime now = LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0, 0);
+    insertCeActivityAndChildDataWithDate(ceTask1, now, q -> q.setComponentUuid(project.projectUuid()));
+    insertCeActivityAndChildDataWithDate(ceTask2, now, q -> q.setComponentUuid(otherProject.projectUuid()));
+
+    underTest.deleteProject(dbSession, project.projectUuid(), project.getProjectDto().getQualifier(), project.getProjectDto().getName(),
+      project.getProjectDto().getKey());
+
+    assertThat(archGraphMetadataExists(ceTask1)).isFalse();
+    assertThat(archGraphBlobExists(projectGraphUuid)).isFalse();
+    assertThat(archScannerDataExists(ceTask1)).isFalse();
+    assertThat(archDirectivesCountForProject(project.projectUuid())).isZero();
+    assertThat(archIntendedCountForProject(project.projectUuid())).isZero();
+
+    assertThat(archGraphMetadataExists(ceTask2)).isTrue();
+    assertThat(archGraphBlobExists(otherProjectGraphUuid)).isTrue();
+    assertThat(archScannerDataExists(ceTask2)).isTrue();
+    assertThat(archDirectivesCountForProject(otherProject.projectUuid())).isEqualTo(1);
+    assertThat(archIntendedCountForProject(otherProject.projectUuid())).isEqualTo(1);
   }
 
   @Test

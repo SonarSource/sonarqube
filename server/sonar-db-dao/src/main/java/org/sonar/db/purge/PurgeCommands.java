@@ -357,6 +357,15 @@ class PurgeCommands {
       profiler.start("deleteCeActivityBefore (ce_task_message)");
       purgeMapper.deleteCeTaskMessageOfCeActivityByUuids(chunk);
       profiler.stop();
+      profiler.start("deleteCeActivityBefore (arch_scanner_data)");
+      purgeMapper.deleteArchScannerDataOfCeActivityByUuids(chunk);
+      profiler.stop();
+      profiler.start("deleteCeActivityBefore (arch_graph_blobs)");
+      purgeMapper.deleteArchGraphBlobsOfCeActivityByUuids(chunk);
+      profiler.stop();
+      profiler.start("deleteCeActivityBefore (arch_graph_metadata)");
+      purgeMapper.deleteArchGraphMetadataOfCeActivityByUuids(chunk);
+      profiler.stop();
       profiler.start("deleteCeActivityBefore (ce_activity)");
       purgeMapper.deleteCeActivityByUuids(chunk);
       profiler.stop();
@@ -586,6 +595,36 @@ class PurgeCommands {
   public void deleteScaLicenseProfiles(String projectUuid) {
     profiler.start("deleteScaLicenseProfileProjects (sca_lic_prof_projects)");
     purgeMapper.deleteScaLicenseProfileProjectsByProjectUuid(projectUuid);
+    profiler.stop();
+  }
+
+  public void deleteArchScannerDataForRoot(String rootUuid) {
+    profiler.start("deleteArchScannerDataForRoot (arch_scanner_data)");
+    purgeMapper.deleteArchScannerDataByRootUuid(rootUuid);
+    profiler.stop();
+  }
+
+  public void deleteArchitectureBranchData(String branchUuid) {
+    profiler.start("deleteArchitectureBranchData (arch_graph_blobs)");
+    purgeMapper.deleteArchGraphBlobsByBranchUuid(branchUuid);
+    profiler.stop();
+    profiler.start("deleteArchitectureBranchData (arch_graph_metadata)");
+    purgeMapper.deleteArchGraphMetadataByBranchUuid(branchUuid);
+    profiler.stop();
+  }
+
+  public void deleteArchitectureProjectData(String projectUuid) {
+    profiler.start("deleteArchitectureProjectData (arch_graph_blobs)");
+    purgeMapper.deleteArchGraphBlobsByProjectUuid(projectUuid);
+    profiler.stop();
+    profiler.start("deleteArchitectureProjectData (arch_graph_metadata)");
+    purgeMapper.deleteArchGraphMetadataByProjectUuid(projectUuid);
+    profiler.stop();
+    profiler.start("deleteArchitectureProjectData (arch_directives)");
+    purgeMapper.deleteArchDirectivesByProjectUuid(projectUuid);
+    profiler.stop();
+    profiler.start("deleteArchitectureProjectData (arch_intended)");
+    purgeMapper.deleteArchIntendedByProjectUuid(projectUuid);
     profiler.stop();
   }
 }

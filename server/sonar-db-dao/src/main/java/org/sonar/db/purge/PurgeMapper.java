@@ -146,6 +146,12 @@ public interface PurgeMapper {
 
   void deleteCeTaskMessageOfCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);
 
+  void deleteArchScannerDataOfCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);
+
+  void deleteArchGraphBlobsOfCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);
+
+  void deleteArchGraphMetadataOfCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);
+
   void deleteCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);
 
   void deleteCeScannerContextOfCeQueueByRootUuid(@Param("rootUuid") String rootUuid);
@@ -221,6 +227,20 @@ public interface PurgeMapper {
   void deleteScaReleasesByComponentUuid(@Param("componentUuid") String componentUuid);
 
   void deleteScaLicenseProfileProjectsByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteArchScannerDataByRootUuid(@Param("rootUuid") String rootUuid);
+
+  void deleteArchGraphBlobsByBranchUuid(@Param("branchUuid") String branchUuid);
+
+  void deleteArchGraphMetadataByBranchUuid(@Param("branchUuid") String branchUuid);
+
+  void deleteArchGraphBlobsByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteArchGraphMetadataByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteArchDirectivesByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteArchIntendedByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteIssueStatsByRuleKey(@Param("aggregationType") String aggregationType, @Param("aggregationId") String aggregationId);
 
