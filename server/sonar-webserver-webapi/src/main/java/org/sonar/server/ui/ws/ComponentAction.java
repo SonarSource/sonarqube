@@ -67,6 +67,7 @@ import static org.sonar.api.CoreProperties.CORE_ALLOW_PERMISSION_MANAGEMENT_FOR_
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.permission.ProjectPermission.ADMIN;
+import static org.sonar.db.permission.ProjectPermission.ARCHITECTURE_ADMIN;
 import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
@@ -168,6 +169,7 @@ public class ComponentAction implements NavigationWsAction {
         writeProfiles(json, session, component);
         writeQualityGate(json, session, projectOrPortfolioUuid);
         if (userSession.hasComponentPermission(ADMIN, component) ||
+          userSession.hasComponentPermission(ARCHITECTURE_ADMIN, component) ||
           userSession.hasPermission(ADMINISTER_QUALITY_PROFILES) ||
           userSession.hasPermission(ADMINISTER_QUALITY_GATES)) {
           writeConfiguration(json, component);
@@ -314,6 +316,7 @@ public class ComponentAction implements NavigationWsAction {
     json.prop("showHistory", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));
     json.prop("showUpdateKey", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY));
     json.prop("showBackgroundTasks", showBackgroundTasks);
+    json.prop("canAdminArchitecture", userSession.hasComponentPermission(ARCHITECTURE_ADMIN, component));
     json.prop("canApplyPermissionTemplate", isGlobalAdmin);
     json.prop("canBrowseProject", canBrowseProject);
     json.prop("canUpdateProjectVisibilityToPrivate", isProjectAdmin);

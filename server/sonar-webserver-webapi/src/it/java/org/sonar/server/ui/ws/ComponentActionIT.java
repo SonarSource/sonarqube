@@ -712,6 +712,49 @@ public class ComponentActionIT {
   }
 
   @Test
+  public void canAdminArchitecture_is_true_if_user_has_architecture_admin_permission_on_project() {
+    ProjectData project = insertProject();
+    userSession.logIn()
+      .addProjectPermission(ProjectPermission.USER, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ARCHITECTURE_ADMIN, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
+    init();
+
+    assertJson(execute(project.projectKey())).isSimilarTo("{\"configuration\": {\"canAdminArchitecture\": true}}");
+  }
+
+  @Test
+  public void canAdminArchitecture_is_false_if_user_does_not_have_architecture_admin_permission_on_project() {
+    ProjectData project = insertProject();
+    userSession.logIn()
+      .addProjectPermission(ProjectPermission.USER, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ADMIN, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
+    init();
+
+    assertJson(execute(project.projectKey())).isSimilarTo("{\"configuration\": {\"canAdminArchitecture\": false}}");
+  }
+
+  @Test
+  public void configuration_is_returned_for_user_with_only_architecture_admin_permission_and_not_project_admin() {
+    ProjectData project = insertProject();
+    userSession.logIn()
+      .addProjectPermission(ProjectPermission.USER, project.getProjectDto())
+      .addProjectPermission(ProjectPermission.ARCHITECTURE_ADMIN, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
+    init();
+
+    assertJson(execute(project.projectKey())).isSimilarTo("""
+      {
+        "configuration": {
+          "showSettings": false,
+          "canAdminArchitecture": true
+        }
+      }""");
+  }
+
+  @Test
   public void fail_on_missing_parameters() {
     insertProject();
     init();
