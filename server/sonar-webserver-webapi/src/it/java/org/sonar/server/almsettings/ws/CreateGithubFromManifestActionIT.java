@@ -139,7 +139,8 @@ public class CreateGithubFromManifestActionIT {
 
     JsonObject json = JsonParser.parseString(response).getAsJsonObject();
     assertThat(json.get("githubAppUrl").getAsString()).isEqualTo("https://github.com/organizations/my-org/settings/apps/new");
-    assertThat(json.get("manifest").getAsString()).contains("\"name\":\"SonarQube\"");
+    JsonObject manifest = JsonParser.parseString(json.get("manifest").getAsString()).getAsJsonObject();
+    assertThat(manifest.get("name").getAsString()).isEqualTo("SonarQube - <add_unique_name>");
     String state = json.get("state").getAsString();
     assertThat(state).isNotBlank();
 

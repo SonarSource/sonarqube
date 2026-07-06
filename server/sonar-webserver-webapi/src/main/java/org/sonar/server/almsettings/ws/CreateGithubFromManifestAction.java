@@ -49,7 +49,7 @@ public class CreateGithubFromManifestAction implements AlmSettingsWsAction {
   private static final String PARAM_NAME = "name";
   private static final String PARAM_DEVOPS = "devops";
   private static final String PARAM_AUTH = "auth";
-  private static final String DEFAULT_APP_NAME = "SonarQube";
+  private static final String DEFAULT_APP_NAME = "SonarQube - <add_unique_name>";
   private static final Gson GSON = new Gson();
 
   private final DbClient dbClient;
@@ -90,7 +90,7 @@ public class CreateGithubFromManifestAction implements AlmSettingsWsAction {
     action.createParam(PARAM_NAME)
       .setRequired(false)
       .setMaximumLength(200)
-      .setDescription("Suggested name for the GitHub App (the user can change it on GitHub). Defaults to 'SonarQube'.");
+      .setDescription("Suggested name for the GitHub App (the user can change it on GitHub). Defaults to 'SonarQube - <add_unique_name>'.");
     action.createParam(PARAM_DEVOPS)
       .setRequired(false)
       .setBooleanPossibleValues()
