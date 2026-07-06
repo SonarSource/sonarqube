@@ -524,6 +524,33 @@
     </foreach>
   </delete>
 
+  <delete id="deleteArchScannerDataOfCeActivityByUuids">
+    delete from arch_scanner_data
+    where name in
+    <foreach collection="ceActivityUuids" open="(" close=")" item="ceActivityUuid" separator=",">
+      CONCAT('upload/', #{ceActivityUuid,jdbcType=VARCHAR})
+    </foreach>
+  </delete>
+
+  <delete id="deleteArchGraphBlobsOfCeActivityByUuids">
+    delete from arch_graph_blobs
+    where name in (
+      select uuid from arch_graph_metadata
+      where analysis_id in
+      <foreach collection="ceActivityUuids" open="(" close=")" item="ceActivityUuid" separator=",">
+        #{ceActivityUuid,jdbcType=VARCHAR}
+      </foreach>
+    )
+  </delete>
+
+  <delete id="deleteArchGraphMetadataOfCeActivityByUuids">
+    delete from arch_graph_metadata
+    where analysis_id in
+    <foreach collection="ceActivityUuids" open="(" close=")" item="ceActivityUuid" separator=",">
+      #{ceActivityUuid,jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
   <delete id="deleteCeActivityByUuids">
     delete from ce_activity
     where uuid in
@@ -763,6 +790,32 @@
   </delete>
   <delete id="deleteScaLicenseProfileProjectsByProjectUuid">
     delete from sca_lic_prof_projects where project_uuid = #{projectUuid,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteArchScannerDataByRootUuid">
+    delete from arch_scanner_data
+    where name in (
+      select CONCAT('upload/', uuid) from ce_activity where component_uuid = #{rootUuid,jdbcType=VARCHAR}
+      union
+      select CONCAT('upload/', uuid) from ce_queue where component_uuid = #{rootUuid,jdbcType=VARCHAR}
+    )
+  </delete>
+  <delete id="deleteArchGraphBlobsByBranchUuid">
+    delete from arch_graph_blobs where name in (select uuid from arch_graph_metadata where branch_id = #{branchUuid,jdbcType=VARCHAR})
+  </delete>
+  <delete id="deleteArchGraphMetadataByBranchUuid">
+    delete from arch_graph_metadata where branch_id = #{branchUuid,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteArchGraphBlobsByProjectUuid">
+    delete from arch_graph_blobs where name in (select uuid from arch_graph_metadata where project_id = #{projectUuid,jdbcType=VARCHAR})
+  </delete>
+  <delete id="deleteArchGraphMetadataByProjectUuid">
+    delete from arch_graph_metadata where project_id = #{projectUuid,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteArchDirectivesByProjectUuid">
+    delete from arch_directives where project_id = #{projectUuid,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteArchIntendedByProjectUuid">
+    delete from arch_intended where project_id = #{projectUuid,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteIssueStatsByRuleKey">
     delete from issue_stats_by_rule_key where aggregation_type = #{aggregationType,jdbcType=VARCHAR} and aggregation_id = #{aggregationId,jdbcType=VARCHAR}
