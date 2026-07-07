@@ -160,7 +160,10 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
   private Set<String> getGroups(OAuth2AccessToken accessToken) {
     Set<String> allowedGroups = gitLabSettings.allowedGroups();
     List<GsonGroup> groups;
-    if (allowedGroups.isEmpty() || gitLabSettings.allowAllGroups()) {
+    if (allowedGroups.isEmpty() || gitLabSettings.allowAllGroups() || hasShortGroupName(allowedGroups)) {
+      // GitLab GraphQL API requires a minimum of 3 characters for group search queries.
+      // When any allowed group name is shorter than 3 characters, targeted search cannot
+      // be used, so all user groups are fetched and filtered client-side instead.
       groups = gitLabGraphQlClient.getGroups(accessToken.getAccessToken(), null);
     } else {
       groups = findGroupsUsingGraphQlApiInParallel(accessToken, allowedGroups);
@@ -168,6 +171,10 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
     return groups.stream()
       .map(GsonGroup::getFullPath)
       .collect(toSet());
+  }
+
+  private static boolean hasShortGroupName(Set<String> allowedGroups) {
+    return allowedGroups.stream().anyMatch(g -> g.length() < 3);
   }
 
   private List<GsonGroup> findGroupsUsingGraphQlApiInParallel(OAuth2AccessToken accessToken, Set<String> allowedGroups) {

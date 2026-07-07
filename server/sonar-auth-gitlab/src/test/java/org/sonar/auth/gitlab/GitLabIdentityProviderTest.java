@@ -189,6 +189,56 @@ class GitLabIdentityProviderTest {
     );
   }
 
+  @Test
+  void onCallback_withTwoCharAllowedGroup_fetchesAllGroupsAndAuthenticates() {
+    when(gitLabSettings.syncUserGroups()).thenReturn(true);
+    when(configuration.getStringArray("sonar.auth.gitlab.allowedGroups")).thenReturn(new String[] {"gr"});
+
+    mockGsonUser();
+    GsonGroup gsonGroup = mock();
+    when(gsonGroup.getFullPath()).thenReturn("gr");
+    when(gitLabGraphQlClient.getGroups(anyString(), isNull())).thenReturn(List.of(gsonGroup));
+
+    gitLabIdentityProvider.callback(callbackContext);
+
+    verify(gitLabGraphQlClient).getGroups(anyString(), isNull());
+    verify(gitLabGraphQlClient, never()).getGroups(anyString(), eq("gr"));
+    verify(callbackContext).redirectToRequestedPage();
+  }
+
+  @Test
+  void onCallback_withTwoCharAllowedGroupAndUserInSubgroup_fetchesAllGroupsAndAuthenticates() {
+    when(gitLabSettings.syncUserGroups()).thenReturn(true);
+    when(configuration.getStringArray("sonar.auth.gitlab.allowedGroups")).thenReturn(new String[] {"gr"});
+
+    mockGsonUser();
+    GsonGroup gsonGroup = mock();
+    when(gsonGroup.getFullPath()).thenReturn("gr/subteam");
+    when(gitLabGraphQlClient.getGroups(anyString(), isNull())).thenReturn(List.of(gsonGroup));
+
+    gitLabIdentityProvider.callback(callbackContext);
+
+    verify(gitLabGraphQlClient).getGroups(anyString(), isNull());
+    verify(callbackContext).redirectToRequestedPage();
+  }
+
+  @Test
+  void onCallback_withOneCharAllowedGroup_fetchesAllGroupsAndAuthenticates() {
+    when(gitLabSettings.syncUserGroups()).thenReturn(true);
+    when(configuration.getStringArray("sonar.auth.gitlab.allowedGroups")).thenReturn(new String[] {"g"});
+
+    mockGsonUser();
+    GsonGroup gsonGroup = mock();
+    when(gsonGroup.getFullPath()).thenReturn("g");
+    when(gitLabGraphQlClient.getGroups(anyString(), isNull())).thenReturn(List.of(gsonGroup));
+
+    gitLabIdentityProvider.callback(callbackContext);
+
+    verify(gitLabGraphQlClient).getGroups(anyString(), isNull());
+    verify(gitLabGraphQlClient, never()).getGroups(anyString(), eq("g"));
+    verify(callbackContext).redirectToRequestedPage();
+  }
+
   @ParameterizedTest
   @MethodSource("notAllowedGroups")
   void onCallback_withGroupSyncAndAllowedGroupsNotMatching_shouldThrow(Set<String> allowedGroups) {
