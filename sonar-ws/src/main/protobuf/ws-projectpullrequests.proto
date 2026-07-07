@@ -41,6 +41,11 @@ message PullRequest {
   optional string analysisDate = 7;
   optional string url = 8;
   optional string target = 9;
+  // Same semantics as Branch.branchId in ws-projectbranches.proto: the underlying branch's
+  // UUID. On SonarQube Cloud this is a v4 UUID; on SonarQube Server it is the legacy UUID
+  // format, until branch UUIDs are migrated to v4 there too.
+  // Field number 13 matches SonarQube Cloud's equivalent field for this same WS action.
+  optional string pullRequestId = 13;
 }
 
 message Status {
