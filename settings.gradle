@@ -76,7 +76,8 @@ include 'sonar-ws-generator'
 // Registers a local composite build from the sonarqube-unification repo as a substitute for published artifacts.
 // Set the property to true and optionally sonarqubeUnificationPath in ~/.gradle/gradle.properties.
 // Falls back to the SONARQUBE_UNIFICATION_PATH environment variable if the Gradle property is not set.
-def useLocalUnificationModule = { String propName, String label, String subPath, List<String> modules ->
+// opts: group (default 'org.sonarsource.sonarqube'), projectPaths (map of name -> project path, default ':name')
+def useLocalUnificationModule = { String propName, String subPath, List<String> modules, Map opts = [:] ->
   if (settings.hasProperty(propName) && settings[propName].toBoolean()) {
     def basePath = settings.hasProperty('sonarqubeUnificationPath')
       ? settings['sonarqubeUnificationPath']
@@ -87,18 +88,35 @@ def useLocalUnificationModule = { String propName, String label, String subPath,
         "Set sonarqubeUnificationPath in ~/.gradle/gradle.properties or export SONARQUBE_UNIFICATION_PATH."
       )
     }
+    def group = opts.group ?: 'org.sonarsource.sonarqube'
+    def projectPaths = opts.projectPaths ?: [:]
     def dir = new File(basePath, subPath)
-    println "Using local ${label} build from: ${dir.absolutePath}"
+    println "Using local build [${propName}] from: ${dir.absolutePath}"
     includeBuild(dir.absolutePath) {
       dependencySubstitution {
-        modules.each { name -> substitute module("org.sonarsource.sonarqube:${name}") using project(":${name}") }
+        modules.each { name ->
+          def projectPath = projectPaths[name] ?: ":${name}"
+          substitute module("${group}:${name}") using project(projectPath)
+        }
       }
     }
   }
 }
 
-useLocalUnificationModule('useLocalOrg', 'organizations', 'organizations', ['organizations-api', 'organizations-server-app'])
-useLocalUnificationModule('useLocalMetrics', 'metrics', 'analysis-processing/metrics', ['metrics-api', 'metrics-server-app'])
+useLocalUnificationModule('useLocalOrg', 'organizations', ['organizations-api', 'organizations-server-app'])
+useLocalUnificationModule('useLocalMetrics', 'analysis-processing/metrics', ['metrics-api', 'metrics-server-app'])
+useLocalUnificationModule('useLocalArchitecture', 'architecture',
+  ['architecture-server-app', 'architecture-api', 'architecture-unified-app', 'architecture-datastructure'],
+  [
+    group: 'com.sonarsource.sonarqube',
+    projectPaths: [
+      'architecture-server-app': ':private:server:architecture-server-app',
+      'architecture-api'       : ':private:unified:architecture-api',
+      'architecture-unified-app': ':private:unified:architecture-unified-app',
+      'architecture-datastructure': ':private:unified:architecture-datastructure',
+    ]
+  ]
+)
 
 ext.isCiServer = System.getenv().containsKey("GITHUB_ACTIONS")
 
