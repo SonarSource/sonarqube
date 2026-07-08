@@ -53,8 +53,6 @@ jobs:
           version: 2026.3.13
           mise_toml: |
             [tools]
-            yarn= "3.6.3"
-            node = "18"
             java = "temurin-21"
       - uses: SonarSource/ci-github-actions/build-gradle@148774f456203f228b7bd1bd68ed0c22254d9cd1 # v1.3.24
         with:
