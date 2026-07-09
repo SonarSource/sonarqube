@@ -13,6 +13,7 @@ dependencies {
   api 'io.prometheus:simpleclient_servlet'
   implementation "org.sonarsource.compliancereports:compliance-reports:${complianceReportsVersion}"
   implementation 'org.apache.commons:commons-text'
+  implementation 'org.sonarsource.sonarqube:sonar-events-server'
 
   api project(':server:sonar-ce-common')
   api project(':server:sonar-ce-task')
