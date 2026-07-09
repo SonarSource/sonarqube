@@ -122,6 +122,10 @@ tasks.register('downloadJres') {
 
   doLast {
     def jresMetadata = new JsonSlurper().parse(file(layout.projectDirectory.dir('src/main/resources/jres-metadata.json').asFile))
+    def expectedFilenames = jresMetadata.collect { it.filename } as Set
+    delete fileTree(layout.buildDirectory.dir('jres')) {
+      exclude expectedFilenames
+    }
     jresMetadata.each { jre ->
       downloadJreFromAdoptium(jre.os, jre.arch, jre.filename, jre.sha256)
     }
