@@ -371,11 +371,11 @@ subprojects {
       dependency 'com.sonarsource.text:sonar-text-developer-plugin:2.45.0.11557'
       dependency 'com.sonarsource.text:sonar-text-enterprise-plugin:2.45.0.11557'
       dependency 'com.sonarsource.jcl:sonar-jcl-plugin:1.5.0.2979'
-      dependency 'com.sonarsource.architecture:sonar-architecture-plugin:2.33.0.10425'
-      dependency 'com.sonarsource.architecture:sonar-architecture-java-frontend-plugin:2.33.0.10425'
-      dependency 'com.sonarsource.architecture:sonar-architecture-javascript-frontend-plugin:2.33.0.10425'
-      dependency 'com.sonarsource.architecture:sonar-architecture-python-frontend-plugin:2.33.0.10425'
-      dependency 'com.sonarsource.architecture:sonar-architecture-csharp-frontend-plugin:2.33.0.10425'
+      dependency 'com.sonarsource.architecture:sonar-architecture-plugin:3.0.0.10534'
+      dependency 'com.sonarsource.architecture:sonar-architecture-java-frontend-plugin:3.0.0.10534'
+      dependency 'com.sonarsource.architecture:sonar-architecture-javascript-frontend-plugin:3.0.0.10534'
+      dependency 'com.sonarsource.architecture:sonar-architecture-python-frontend-plugin:3.0.0.10534'
+      dependency 'com.sonarsource.architecture:sonar-architecture-csharp-frontend-plugin:3.0.0.10534'
 
       // Webapp
       dependency "org.sonarsource.sonarqube:webapp-assets:$webappVersion"
