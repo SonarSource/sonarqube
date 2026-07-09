@@ -33,6 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.common.UpdatedValue;
+import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.common.gitlab.config.ProvisioningType;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -81,13 +82,16 @@ public class GithubConfigurationService {
   private final ManagedInstanceService managedInstanceService;
   private final GithubGlobalSettingsValidator githubGlobalSettingsValidator;
   private final ThreadLocalSettings threadLocalSettings;
+  private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry;
 
   public GithubConfigurationService(DbClient dbClient,
-    ManagedInstanceService managedInstanceService, GithubGlobalSettingsValidator githubGlobalSettingsValidator, ThreadLocalSettings threadLocalSettings) {
+    ManagedInstanceService managedInstanceService, GithubGlobalSettingsValidator githubGlobalSettingsValidator, ThreadLocalSettings threadLocalSettings,
+    DevOpsConfigurationTelemetry devOpsConfigurationTelemetry) {
     this.dbClient = dbClient;
     this.managedInstanceService = managedInstanceService;
     this.githubGlobalSettingsValidator = githubGlobalSettingsValidator;
     this.threadLocalSettings = threadLocalSettings;
+    this.devOpsConfigurationTelemetry = devOpsConfigurationTelemetry;
   }
 
   public GithubConfiguration updateConfiguration(UpdateGithubConfigurationRequest updateRequest) {
@@ -248,6 +252,7 @@ public class GithubConfigurationService {
     try (DbSession dbSession = dbClient.openSession(false)) {
       GithubConfiguration createdConfiguration = createConfiguration(dbSession, configuration);
       dbSession.commit();
+      devOpsConfigurationTelemetry.sendManualAuthConfig();
       return createdConfiguration;
     }
   }

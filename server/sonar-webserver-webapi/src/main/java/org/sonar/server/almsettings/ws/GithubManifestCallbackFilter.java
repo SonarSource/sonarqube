@@ -38,6 +38,7 @@ import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.almsettings.ws.GithubManifestStateStore.PendingManifest;
+import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.common.github.config.GithubConfiguration;
 import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.common.gitlab.config.ProvisioningType;
@@ -67,10 +68,11 @@ public class GithubManifestCallbackFilter extends HttpFilter {
   private final GithubManifestStateStore stateStore;
   private final GithubApplicationClient githubApplicationClient;
   private final GithubConfigurationService githubConfigurationService;
+  private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry;
 
   public GithubManifestCallbackFilter(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport,
     GithubAppManifestGenerator manifestGenerator, GithubManifestStateStore stateStore, GithubApplicationClient githubApplicationClient,
-    GithubConfigurationService githubConfigurationService) {
+    GithubConfigurationService githubConfigurationService, DevOpsConfigurationTelemetry devOpsConfigurationTelemetry) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.almSettingsSupport = almSettingsSupport;
@@ -78,6 +80,7 @@ public class GithubManifestCallbackFilter extends HttpFilter {
     this.stateStore = stateStore;
     this.githubApplicationClient = githubApplicationClient;
     this.githubConfigurationService = githubConfigurationService;
+    this.devOpsConfigurationTelemetry = devOpsConfigurationTelemetry;
   }
 
   @Override
@@ -109,7 +112,8 @@ public class GithubManifestCallbackFilter extends HttpFilter {
     PendingManifest pending = pendingOpt.get();
     try {
       GithubAppCredentials credentials = githubApplicationClient.convertAppManifest(GITHUB_DOTCOM_API_URL, code);
-      persistConfiguration(pending, credentials);
+      PersistResult result = persistConfiguration(pending, credentials);
+      sendTelemetry(result);
       // The App now exists but is installed nowhere. Send the user to GitHub to install it on an
       // account/organization so SonarQube can access repositories; without an installation, project
       // import finds no organizations.
@@ -126,16 +130,32 @@ public class GithubManifestCallbackFilter extends HttpFilter {
    * flow. (The GitHub App created on GitHub itself cannot be rolled back; a failed flow may leave it
    * unused, but no inconsistent SonarQube state is left behind.)
    */
-  private void persistConfiguration(PendingManifest pending, GithubAppCredentials credentials) {
+  private PersistResult persistConfiguration(PendingManifest pending, GithubAppCredentials credentials) {
+    boolean authConfigured = false;
+    boolean devopsConfigured = false;
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (pending.setupAuth()) {
-        setupAuthentication(dbSession, credentials, pending.organization());
+        authConfigured = setupAuthentication(dbSession, credentials, pending.organization());
       }
       if (pending.setupDevops()) {
         persistDevopsBinding(dbSession, pending.settingKey(), credentials);
+        devopsConfigured = true;
       }
       dbSession.commit();
     }
+    return new PersistResult(devopsConfigured, authConfigured);
+  }
+
+  private void sendTelemetry(PersistResult result) {
+    if (result.devopsConfigured()) {
+      devOpsConfigurationTelemetry.sendAutoDevOpsConfig(result.authConfigured());
+    }
+    if (result.authConfigured()) {
+      devOpsConfigurationTelemetry.sendAutoAuthConfig();
+    }
+  }
+
+  private record PersistResult(boolean devopsConfigured, boolean authConfigured) {
   }
 
   private static Optional<String> installUrl(GithubAppCredentials credentials) {
@@ -154,7 +174,7 @@ public class GithubManifestCallbackFilter extends HttpFilter {
       credentials.getAppId(), credentials.pem(), credentials.clientId(), credentials.clientSecret(), credentials.webhookSecret()));
   }
 
-  private void setupAuthentication(DbSession dbSession, GithubAppCredentials credentials, @Nullable String organization) {
+  private boolean setupAuthentication(DbSession dbSession, GithubAppCredentials credentials, @Nullable String organization) {
     Set<String> allowedOrganizations = isBlank(organization) ? Set.of() : Set.of(organization);
     GithubConfiguration configuration = new GithubConfiguration(
       GithubConfigurationService.UNIQUE_GITHUB_CONFIGURATION_ID,
@@ -173,9 +193,11 @@ public class GithubManifestCallbackFilter extends HttpFilter {
       false);
     try {
       githubConfigurationService.createConfiguration(dbSession, configuration);
+      return true;
     } catch (BadRequestException e) {
       // A GitHub authentication configuration already exists; leave it untouched but continue the flow.
       LOG.warn("Skipping GitHub authentication setup: {}", e.getMessage());
+      return false;
     }
   }
 

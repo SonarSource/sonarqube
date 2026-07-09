@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.alm.setting.ALM.GITHUB;
@@ -42,12 +43,14 @@ public class CreateGithubAction implements AlmSettingsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final AlmSettingsSupport almSettingsSupport;
+  private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry;
 
   public CreateGithubAction(DbClient dbClient, UserSession userSession,
-    AlmSettingsSupport almSettingsSupport) {
+    AlmSettingsSupport almSettingsSupport, DevOpsConfigurationTelemetry devOpsConfigurationTelemetry) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.almSettingsSupport = almSettingsSupport;
+    this.devOpsConfigurationTelemetry = devOpsConfigurationTelemetry;
   }
 
   @Override
@@ -117,6 +120,7 @@ public class CreateGithubAction implements AlmSettingsWsAction {
       request.getParam(PARAM_WEBHOOK_SECRET).emptyAsNull().or(() -> null)));
 
     dbSession.commit();
+    devOpsConfigurationTelemetry.sendManualDevOpsConfig(GITHUB);
   }
 
 }

@@ -32,6 +32,7 @@ import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almsettings.MultipleAlmFeature;
+import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -43,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CreateGithubActionIT {
@@ -56,10 +58,11 @@ public class CreateGithubActionIT {
 
   private final Encryption encryption = mock(Encryption.class);
   private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);
+  private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry = mock(DevOpsConfigurationTelemetry.class);
 
   private final WsActionTester ws = new WsActionTester(new CreateGithubAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), mock(ComponentTypes.class)),
-      multipleAlmFeature)));
+      multipleAlmFeature), devOpsConfigurationTelemetry));
 
   @Before
   public void setUp() {
@@ -76,6 +79,7 @@ public class CreateGithubActionIT {
       .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, AlmSettingDto::getAppId,
         s -> s.getDecryptedPrivateKey(encryption), AlmSettingDto::getClientId, s -> s.getDecryptedClientSecret(encryption), s -> s.getDecryptedWebhookSecret(encryption))
       .containsOnly(tuple("GitHub Server - Dev Team", "https://github.enterprise.com", APP_ID, "678910", "client_1234", "client_so_secret", null));
+    verify(devOpsConfigurationTelemetry).sendManualDevOpsConfig(ALM.GITHUB);
   }
 
   private TestRequest buildTestRequest() {

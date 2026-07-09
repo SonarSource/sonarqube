@@ -29,6 +29,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almsettings.MultipleAlmFeature;
+import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -40,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CreateGitlabActionIT {
@@ -53,9 +55,11 @@ public class CreateGitlabActionIT {
 
   private final Encryption encryption = mock(Encryption.class);
   private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);
+  private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry = mock(DevOpsConfigurationTelemetry.class);
 
   private WsActionTester ws = new WsActionTester(new CreateGitlabAction(db.getDbClient(), userSession,
-    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null), multipleAlmFeature)));
+    new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null), multipleAlmFeature),
+    devOpsConfigurationTelemetry));
 
   @Before
   public void before() {
@@ -90,6 +94,7 @@ public class CreateGitlabActionIT {
     assertThat(db.getDbClient().almSettingDao().selectAll(db.getSession()))
       .extracting(AlmSettingDto::getKey, AlmSettingDto::getUrl, s -> s.getDecryptedPersonalAccessToken(encryption))
       .containsOnly(tuple("Gitlab - Dev Team", GITLAB_URL, "98765432100"));
+    verify(devOpsConfigurationTelemetry).sendManualDevOpsConfig(org.sonar.db.alm.setting.ALM.GITLAB);
   }
 
   @Test

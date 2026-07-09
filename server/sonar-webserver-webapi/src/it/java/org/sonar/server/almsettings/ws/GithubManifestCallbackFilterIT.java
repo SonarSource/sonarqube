@@ -34,6 +34,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.auth.github.GithubAppCredentials;
 import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.server.almsettings.MultipleAlmFeature;
+import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTypes;
@@ -43,6 +44,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.auth.github.GitHubSettings.GITHUB_API_URL;
@@ -64,8 +66,9 @@ public class GithubManifestCallbackFilterIT {
   private final GithubApplicationClient githubApplicationClient = mock(GithubApplicationClient.class);
   // Real service (not a mock) so the auth configuration is actually written to the DB, letting the
   // transactional rollback be observed when the DevOps binding fails.
+  private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry = mock(DevOpsConfigurationTelemetry.class);
   private final GithubConfigurationService githubConfigurationService = new GithubConfigurationService(db.getDbClient(),
-    mock(ManagedInstanceService.class), mock(GithubGlobalSettingsValidator.class), mock(ThreadLocalSettings.class));
+    mock(ManagedInstanceService.class), mock(GithubGlobalSettingsValidator.class), mock(ThreadLocalSettings.class), devOpsConfigurationTelemetry);
   private final GithubManifestStateStore stateStore = new GithubManifestStateStore(System2.INSTANCE);
   private final AlmSettingsSupport almSettingsSupport = new AlmSettingsSupport(db.getDbClient(), userSession,
     new ComponentFinder(db.getDbClient(), mock(ComponentTypes.class)), multipleAlmFeature);
@@ -76,7 +79,7 @@ public class GithubManifestCallbackFilterIT {
   private final FilterChain chain = mock(FilterChain.class);
 
   private final GithubManifestCallbackFilter underTest = new GithubManifestCallbackFilter(db.getDbClient(), userSession,
-    almSettingsSupport, manifestGenerator, stateStore, githubApplicationClient, githubConfigurationService);
+    almSettingsSupport, manifestGenerator, stateStore, githubApplicationClient, githubConfigurationService, devOpsConfigurationTelemetry);
 
   @Before
   public void setUp() {
@@ -137,6 +140,8 @@ public class GithubManifestCallbackFilterIT {
       .isPresent()
       .hasValueSatisfying(s -> assertThat(s.getAppId()).isEqualTo("12345"));
     assertThat(captureRedirect()).isEqualTo("https://github.com/apps/sonarqube/installations/new");
+    verify(devOpsConfigurationTelemetry).sendAutoDevOpsConfig(false);
+    verify(devOpsConfigurationTelemetry, never()).sendAutoAuthConfig();
   }
 
   @Test
@@ -160,6 +165,8 @@ public class GithubManifestCallbackFilterIT {
     assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), GITHUB_ORGANIZATIONS).getValue()).isEqualTo("my-org");
     assertThat(db.getDbClient().internalPropertiesDao().selectByKey(db.getSession(), GITHUB_PROVISIONING)).contains("false");
     assertThat(captureRedirect()).isEqualTo("https://github.com/apps/sonarqube/installations/new");
+    verify(devOpsConfigurationTelemetry).sendAutoDevOpsConfig(true);
+    verify(devOpsConfigurationTelemetry).sendAutoAuthConfig();
   }
 
   @Test
@@ -203,6 +210,9 @@ public class GithubManifestCallbackFilterIT {
     // Pre-existing config is left untouched (GITHUB_ENABLED still "true", not overwritten).
     assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), GITHUB_ENABLED).getValue()).isEqualTo("true");
     assertThat(captureRedirect()).isEqualTo("https://github.com/apps/sonarqube/installations/new");
+    // Auth was requested but skipped (already exists): auth_setup is false and no auth-auto event fires.
+    verify(devOpsConfigurationTelemetry).sendAutoDevOpsConfig(false);
+    verify(devOpsConfigurationTelemetry, never()).sendAutoAuthConfig();
   }
 
   @Test
