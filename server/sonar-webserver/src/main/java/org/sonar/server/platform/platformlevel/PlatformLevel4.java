@@ -301,6 +301,7 @@ import org.sonar.server.source.ws.SourceWsModule;
 import org.sonar.server.startup.LogServerId;
 import org.sonar.server.telemetry.AgenticQGProjectResolver;
 import org.sonar.server.telemetry.AgenticQPProjectResolver;
+import org.sonar.server.telemetry.ServerStartupEventPublisher;
 import org.sonar.server.telemetry.TelemetryAgenticQGAdoptionProvider;
 import org.sonar.server.telemetry.TelemetryAgenticQGNcdOutcomeProvider;
 import org.sonar.server.telemetry.TelemetryAgenticQPAdoptionProvider;
@@ -829,6 +830,8 @@ public class PlatformLevel4 extends PlatformLevel {
 
     // registered via sonar-unified-events
     addAll(EventsWebComponents.components());
+    // publishes a telemetry event on Web process startup
+    add(ServerStartupEventPublisher.class);
 
     // system info
     add(new SystemInfoWriterModule(getWebServer()));
