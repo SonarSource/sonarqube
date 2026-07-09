@@ -91,6 +91,7 @@ import org.sonar.server.common.almsettings.github.GithubDevOpsProjectCreationCon
 import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
 import org.sonar.server.common.almsettings.gitlab.GitlabDevOpsProjectCreationContextService;
 import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
+import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.common.gitlab.config.GitlabConfigurationService;
@@ -772,6 +773,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // database migration logging and telemetry
       DatabaseMigrationPersister.class,
       DatabaseMigrationTelemetry.class,
+      DevOpsConfigurationTelemetry.class,
 
       // monitoring
       ServerMonitoringMetrics.class,

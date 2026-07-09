@@ -28,6 +28,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almsettings.MultipleAlmFeature;
+import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -38,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CreateAzureActionIT {
@@ -49,10 +51,11 @@ public class CreateAzureActionIT {
 
   private final Encryption encryption = mock(Encryption.class);
   private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);
+  private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry = mock(DevOpsConfigurationTelemetry.class);
 
   private WsActionTester ws = new WsActionTester(new CreateAzureAction(db.getDbClient(), userSession,
     new AlmSettingsSupport(db.getDbClient(), userSession, new ComponentFinder(db.getDbClient(), null),
-      multipleAlmFeature)));
+      multipleAlmFeature), devOpsConfigurationTelemetry));
 
   @Before
   public void before() {
@@ -75,6 +78,7 @@ public class CreateAzureActionIT {
         s -> s.getDecryptedPersonalAccessToken(encryption),
         AlmSettingDto::getUrl)
       .containsOnly(tuple("Azure Server - Dev Team", "98765432100", "https://ado.sonarqube.com/"));
+    verify(devOpsConfigurationTelemetry).sendManualDevOpsConfig(org.sonar.db.alm.setting.ALM.AZURE_DEVOPS);
   }
 
   @Test

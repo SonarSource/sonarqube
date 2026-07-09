@@ -36,6 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.provisioning.GithubOrganizationGroupDto;
 import org.sonar.db.user.ExternalGroupDto;
+import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.common.gitlab.config.ProvisioningType;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -91,6 +92,9 @@ public class GithubConfigurationServiceIT {
   @Mock
   private ThreadLocalSettings threadLocalSettings;
 
+  @Mock
+  private DevOpsConfigurationTelemetry devOpsConfigurationTelemetry;
+
   private GithubConfigurationService githubConfigurationService;
 
   @Before
@@ -100,7 +104,8 @@ public class GithubConfigurationServiceIT {
       dbTester.getDbClient(),
       managedInstanceService,
       githubGlobalSettingsValidator,
-      threadLocalSettings);
+      threadLocalSettings,
+      devOpsConfigurationTelemetry);
   }
 
   @Test
@@ -497,7 +502,7 @@ public class GithubConfigurationServiceIT {
 
     verifyCommonSettings(configuration);
     verifyNoInteractions(managedInstanceService);
-
+    verify(devOpsConfigurationTelemetry).sendManualAuthConfig();
   }
 
   @Test

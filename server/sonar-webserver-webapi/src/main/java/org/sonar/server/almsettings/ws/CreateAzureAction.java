@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.alm.setting.ALM.AZURE_DEVOPS;
@@ -39,11 +40,14 @@ public class CreateAzureAction implements AlmSettingsWsAction {
   private final DbClient dbClient;
   private UserSession userSession;
   private final AlmSettingsSupport almSettingsSupport;
+  private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry;
 
-  public CreateAzureAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport) {
+  public CreateAzureAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport,
+    DevOpsConfigurationTelemetry devOpsConfigurationTelemetry) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.almSettingsSupport = almSettingsSupport;
+    this.devOpsConfigurationTelemetry = devOpsConfigurationTelemetry;
   }
 
   @Override
@@ -91,6 +95,7 @@ public class CreateAzureAction implements AlmSettingsWsAction {
         .setPersonalAccessToken(pat)
         .setUrl(url));
       dbSession.commit();
+      devOpsConfigurationTelemetry.sendManualDevOpsConfig(AZURE_DEVOPS);
     }
   }
 
