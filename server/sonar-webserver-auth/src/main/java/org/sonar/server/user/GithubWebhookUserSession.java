@@ -113,7 +113,7 @@ public class GithubWebhookUserSession extends AbstractUserSession {
 
   @Override
   public boolean hasComponentUuidPermission(ProjectPermission permission, String componentUuid) {
-    return true;
+    return false;
   }
 
 }

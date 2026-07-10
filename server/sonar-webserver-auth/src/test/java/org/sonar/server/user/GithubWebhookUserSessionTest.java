@@ -114,9 +114,9 @@ public class GithubWebhookUserSessionTest {
   }
 
   @Test
-  public void hasComponentUuidPermission_returnsAlwaysTrue() {
+  public void hasComponentUuidPermission_returnsAlwaysFalse() {
     Arrays.stream(ProjectPermission.values()).forEach(projectPermission ->
-      assertThat(githubWebhookUserSession.hasComponentUuidPermission(projectPermission, "project")).isTrue());
+      assertThat(githubWebhookUserSession.hasComponentUuidPermission(projectPermission, "project")).isFalse());
   }
 
   @Test
