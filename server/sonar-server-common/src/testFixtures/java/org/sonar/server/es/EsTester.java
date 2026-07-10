@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -80,6 +81,11 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
 
   private static final AtomicBoolean CORE_INDICES_CREATED = new AtomicBoolean(false);
   private static final Set<String> CORE_INDICES_NAMES = new HashSet<>();
+  // Guards index creation, teardown, write-block operations, and cluster-wide settings modifications against in-JVM thread parallelism (if JUnit 5 in-JVM concurrency were enabled).
+  // lockWrites/unlockWrites modify ES cluster state (index.blocks.write) that must be atomic with other operations.
+  // disableAutoIndexCreation/enableAutoIndexCreation modify cluster-wide settings (action.auto_create_index) that must be atomic with other operations.
+  // Does not protect against Gradle fork-level parallelism; fork-level parallel ES tests would require per-fork index isolation.
+  private static final Object CLEANUP_LOCK = new Object();
 
   private final boolean isCustom;
 
@@ -91,16 +97,18 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
    * New instance which contains the core indices (rules, issues, ...).
    */
   public static EsTester create() {
-    if (!CORE_INDICES_CREATED.get()) {
-      List<BuiltIndex> createdIndices = createIndices(
-        ComponentIndexDefinition.createForTest(),
-        IssueIndexDefinition.createForTest(),
-        ProjectMeasuresIndexDefinition.createForTest(),
-        RuleIndexDefinition.createForTest(),
-        ViewIndexDefinition.createForTest());
+    synchronized (CLEANUP_LOCK) {
+      if (!CORE_INDICES_CREATED.get()) {
+        List<BuiltIndex> createdIndices = createIndices(
+          ComponentIndexDefinition.createForTest(),
+          IssueIndexDefinition.createForTest(),
+          ProjectMeasuresIndexDefinition.createForTest(),
+          RuleIndexDefinition.createForTest(),
+          ViewIndexDefinition.createForTest());
 
-      CORE_INDICES_CREATED.set(true);
-      createdIndices.stream().map(t -> t.getMainType().getIndex().getName()).forEach(CORE_INDICES_NAMES::add);
+        CORE_INDICES_CREATED.set(true);
+        createdIndices.stream().map(t -> t.getMainType().getIndex().getName()).forEach(CORE_INDICES_NAMES::add);
+      }
     }
     return new EsTester(false);
   }
@@ -110,13 +118,20 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
    * core indices may exist.
    */
   public static EsTester createCustom(IndexDefinition... definitions) {
-    createIndices(definitions);
+    synchronized (CLEANUP_LOCK) {
+      createIndices(definitions);
+    }
     return new EsTester(true);
   }
 
   public void recreateIndexes() {
-    deleteIndexIfExists(ALL_INDICES.getName());
-    CORE_INDICES_CREATED.set(false);
+    synchronized (CLEANUP_LOCK) {
+      // Delete all indices individually (not via wildcard, which Elasticsearch may reject)
+      for (String indexName : getIndicesNames()) {
+        deleteIndexIfExists(indexName);
+      }
+      CORE_INDICES_CREATED.set(false);
+    }
     create();
   }
 
@@ -127,15 +142,17 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
 
   @Override
   protected void after() {
-    if (isCustom) {
-      for (String index : getIndicesNames()) {
-        if (!CORE_INDICES_NAMES.contains(index)) {
-          deleteIndexIfExists(index);
+    synchronized (CLEANUP_LOCK) {
+      if (isCustom) {
+        for (String index : getIndicesNames()) {
+          if (!CORE_INDICES_NAMES.contains(index)) {
+            deleteIndexIfExists(index);
+          }
         }
       }
-    }
 
-    deleteAllDocumentsInIndexes();
+      deleteAllDocumentsInIndexes();
+    }
   }
 
   private void deleteAllDocumentsInIndexes() {
@@ -150,7 +167,7 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
         .query(Query.of(q -> q.matchAll(m -> m)))
         .refresh(true)
         .waitForCompletion(true));
-      ES_REST_CLIENT.forcemergeV2(req -> req);
+      // Note: forcemerge is omitted to avoid contention in parallel test execution
     } catch (ElasticsearchException e) {
       // Ignore 404 — no indices exist yet, nothing to delete
       Throwable cause = e.getCause();
@@ -362,11 +379,27 @@ public class EsTester extends ExternalResource implements AfterEachCallback {
   }
 
   public void lockWrites(IndexType index) {
-    setIndexSettings(index.getMainType().getIndex().getName(), ImmutableMap.of("index.blocks.write", "true"));
+    synchronized (CLEANUP_LOCK) {
+      setIndexSettings(index.getMainType().getIndex().getName(), ImmutableMap.of("index.blocks.write", "true"));
+    }
   }
 
   public void unlockWrites(IndexType index) {
-    setIndexSettings(index.getMainType().getIndex().getName(), ImmutableMap.of("index.blocks.write", "false"));
+    synchronized (CLEANUP_LOCK) {
+      setIndexSettings(index.getMainType().getIndex().getName(), ImmutableMap.of("index.blocks.write", "false"));
+    }
+  }
+
+  public void disableAutoIndexCreation() {
+    synchronized (CLEANUP_LOCK) {
+      ES_REST_CLIENT.putClusterSettings(Map.of("action.auto_create_index", false));
+    }
+  }
+
+  public void enableAutoIndexCreation() {
+    synchronized (CLEANUP_LOCK) {
+      ES_REST_CLIENT.putClusterSettings(Map.of("action.auto_create_index", true));
+    }
   }
 
   private static void setIndexSettings(String index, Map<String, Object> settings) {
