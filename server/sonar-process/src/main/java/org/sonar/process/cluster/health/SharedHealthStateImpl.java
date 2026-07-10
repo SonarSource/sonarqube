@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -41,7 +42,7 @@ public class SharedHealthStateImpl implements SharedHealthState {
   private final HazelcastMember hzMember;
 
   @Autowired(required = false)
-  public SharedHealthStateImpl(HazelcastMember hzMember) {
+  public SharedHealthStateImpl(@Nullable HazelcastMember hzMember) {
     this.hzMember = hzMember;
   }
 

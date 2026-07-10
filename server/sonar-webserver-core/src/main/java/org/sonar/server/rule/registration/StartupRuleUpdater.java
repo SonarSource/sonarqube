@@ -218,7 +218,7 @@ public class StartupRuleUpdater {
    */
   private static Map<SoftwareQuality, Severity> removeDuplicatedImpacts(Map<SoftwareQuality, Severity> impactsA, Map<SoftwareQuality, Severity> impactsB) {
     return impactsA.entrySet().stream()
-      .filter(entry -> !impactsB.containsKey(entry.getKey()) || !impactsB.get(entry.getKey()).equals(entry.getValue()))
+      .filter(entry -> !impactsB.containsKey(entry.getKey()) || !Objects.equals(impactsB.get(entry.getKey()), entry.getValue()))
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 

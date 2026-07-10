@@ -35,6 +35,7 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static java.lang.String.valueOf;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_DISCOVERY_SEED_HOSTS;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ES_HOSTS;
@@ -86,7 +87,7 @@ public class EsSettings {
     } else {
       this.nodeName = STANDALONE_NODE_NAME;
     }
-    this.loopbackAddress = InetAddress.getLoopbackAddress();
+    this.loopbackAddress = requireNonNull(InetAddress.getLoopbackAddress(), "Loopback address must not be null");
     String esJvmOptions = system2.envVariable("ES_JVM_OPTIONS");
     if (esJvmOptions != null && !esJvmOptions.trim().isEmpty()) {
       LOGGER.warn("ES_JVM_OPTIONS is defined but will be ignored. " +

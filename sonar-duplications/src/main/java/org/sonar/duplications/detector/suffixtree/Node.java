@@ -22,6 +22,7 @@ package org.sonar.duplications.detector.suffixtree;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collection;
+import javax.annotation.Nullable;
 
 public final class Node {
 
@@ -48,11 +49,11 @@ public final class Node {
   int startSize;
   int endSize;
 
-  public Node(Node node, Node suffixNode) {
+  public Node(Node node, @Nullable Node suffixNode) {
     this(node.suffixTree, suffixNode);
   }
 
-  public Node(SuffixTree suffixTree, Node suffixNode) {
+  public Node(@Nullable SuffixTree suffixTree, @Nullable Node suffixNode) {
     this.suffixTree = suffixTree;
     this.suffixNode = suffixNode;
     edges = new HashMap<>();

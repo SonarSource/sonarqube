@@ -149,7 +149,7 @@ public class PropertyNewValue extends NewValue {
     return sb.toString();
   }
 
-  private void setValue(String propertyKey, String value) {
+  private void setValue(String propertyKey, @Nullable String value) {
     if (!propertyKey.contains(".secured")) {
       this.propertyValue = value;
     }

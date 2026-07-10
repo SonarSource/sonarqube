@@ -110,7 +110,7 @@ public class LdapContextFactory {
     return createInitialDirContext(principal, credentials, false);
   }
 
-  private InitialDirContext createInitialDirContext(String principal, String credentials, boolean pooling) throws NamingException {
+  private InitialDirContext createInitialDirContext(@Nullable String principal, @Nullable String credentials, boolean pooling) throws NamingException {
     final InitialLdapContext ctx;
     if (startTLS) {
       // Note that pooling is not enabled for such connections, because "Stop TLS" is not performed.

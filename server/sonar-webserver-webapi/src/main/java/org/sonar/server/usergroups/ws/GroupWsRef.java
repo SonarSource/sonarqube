@@ -91,7 +91,7 @@ public class GroupWsRef {
    *
    * @param name non-null name. Can refer to anyone group (case-insensitive {@code "anyone"}).
    */
-  static GroupWsRef fromName(String name) {
+  static GroupWsRef fromName(@Nullable String name) {
     return new GroupWsRef(null, requireNonNull(name));
   }
 
