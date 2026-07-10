@@ -53,7 +53,7 @@ public final class Node {
     this(node.suffixTree, suffixNode);
   }
 
-  public Node(@Nullable SuffixTree suffixTree, @Nullable Node suffixNode) {
+  public Node(SuffixTree suffixTree, @Nullable Node suffixNode) {
     this.suffixTree = suffixTree;
     this.suffixNode = suffixNode;
     edges = new HashMap<>();
