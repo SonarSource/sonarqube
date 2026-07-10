@@ -91,7 +91,7 @@ public class GroupWsRef {
    *
    * @param name non-null name. Can refer to anyone group (case-insensitive {@code "anyone"}).
    */
-  static GroupWsRef fromName(@Nullable String name) {
+  static GroupWsRef fromName(String name) {
     return new GroupWsRef(null, requireNonNull(name));
   }
 
@@ -102,7 +102,7 @@ public class GroupWsRef {
     }
 
     checkRequest(name != null, "Group name or group id must be provided");
-    return fromName(name);
+    return fromName(requireNonNull(name, "Group name or group id must be provided"));
   }
 
   public boolean isAnyone() {
