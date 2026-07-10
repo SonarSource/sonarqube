@@ -40,7 +40,9 @@ dependencies {
   implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api'
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
+  compileOnlyApi 'org.sonarsource.sonarqube:gessie-server-app'
 
+  testImplementation 'org.sonarsource.sonarqube:gessie-server-app'
   testImplementation 'ch.qos.logback:logback-core'
   testImplementation 'com.github.spotbugs:spotbugs-annotations'
   testImplementation 'com.icegreen:greenmail'

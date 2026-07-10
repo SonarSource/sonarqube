@@ -156,6 +156,8 @@ import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
 import org.sonar.server.setting.ThreadLocalSettings;
+import org.sonar.server.telemetry.gessie.GessieFlushExecutorServiceImpl;
+import org.sonar.server.telemetry.gessie.GessieIngestorExecutorServiceImpl;
 import org.sonar.server.util.OkHttpClientProvider;
 import org.sonar.server.util.Paths2Impl;
 import org.sonar.server.view.index.ViewIndex;
@@ -163,6 +165,11 @@ import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.webhook.WebhookModule;
 import org.sonarqube.ws.Rules;
 import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
+import org.sonar.server.platform.InstallationDateProviderImpl;
+import org.sonarsource.gessie.server.GessieProperties;
+import org.sonarsource.gessie.server.telemetry.GessieTelemetryCeConfiguration;
+import org.sonarsource.sonarqube.events.server.ServerEventAsyncClient;
+import org.sonarsource.sonarqube.events.server.ServerEventSourceBuilder;
 import org.sonarsource.users.server.bean.UsersServerComponents;
 import org.sonar.server.events.EventsCeComponents;
 
@@ -487,6 +494,15 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
     // registered via sonar-unified-events
     level4Container.add(toArray(EventsCeComponents.components()));
+
+    // registered via gessie-server-app
+    level4Container.add(GessieProperties.getPropertyDefinitions().toArray());
+    level4Container.add(GessieFlushExecutorServiceImpl.class);
+    level4Container.add(GessieIngestorExecutorServiceImpl.class);
+    level4Container.add(GessieTelemetryCeConfiguration.class);
+    level4Container.add(InstallationDateProviderImpl.class);
+    level4Container.add(ServerEventAsyncClient.class);
+    level4Container.add(ServerEventSourceBuilder.class);
 
     addClusterOrStandaloneComponents(level4Container, props);
 

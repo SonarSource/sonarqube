@@ -32,6 +32,7 @@ dependencies {
   api 'org.sonarsource.sonarqube:organizations-server-app'
   api 'org.sonarsource.sonarqube:metrics-server-app'
   api 'org.sonarsource.sonarqube:measures-server-app'
+  api 'org.sonarsource.sonarqube:gessie-server-app'
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
