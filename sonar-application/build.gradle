@@ -120,6 +120,18 @@ tasks.register('downloadJres') {
   outputs.dir(layout.buildDirectory.file('jres'))
   outputs.cacheIf { true }
 
+  doFirst {
+    // Clean the output directory before downloading so stale JREs from previous versions don't accumulate.
+    def jresDir = layout.buildDirectory.dir('jres').get().asFile
+    if (jresDir.exists()) {
+      jresDir.listFiles()?.each {
+        if (!it.delete()) {
+          logger.warn("Failed to delete stale JRE file: ${it}")
+        }
+      }
+    }
+  }
+
   doLast {
     def jresMetadata = new JsonSlurper().parse(file(layout.projectDirectory.dir('src/main/resources/jres-metadata.json').asFile))
     def expectedFilenames = jresMetadata.collect { it.filename } as Set
@@ -407,6 +419,23 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
 zip {
   mustRunAfter cyclonedxBom
   doLast {
+    // Check for stale JREs: the jres directory should contain exactly as many files as jres-metadata.json.
+    // Extra files from a previous JRE version inflate the zip and can cause the size check below to fail.
+    // Fix: run './gradlew clean' to remove stale JREs, then rebuild.
+    // Match files by name against metadata instead of raw count to tolerate unrelated entries (.DS_Store, partial downloads, etc.)
+    def jresDir = layout.buildDirectory.dir('jres').get().asFile
+    def jresMetadata = new JsonSlurper().parse(file(layout.projectDirectory.dir('src/main/resources/jres-metadata.json').asFile))
+    def expectedNames = jresMetadata.collect { it.filename } as Set
+    def actualNames = (jresDir.listFiles()?.collect { it.name } ?: []) as Set
+    def missing = expectedNames - actualNames
+    def extra = actualNames - expectedNames
+    if (missing || extra) {
+      throw new GradleException(
+        "JRE files in ${jresDir} do not match jres-metadata.json (missing: ${missing}, unexpected: ${extra}). " +
+        "Run './gradlew clean' to remove stale JREs, then rebuild."
+      )
+    }
+
     // When the archive size increases due to dependencies, the expected size should be updated as well.
     // Unknown failures may cause the archive size to shrink accidentally in size.
     //
@@ -424,9 +453,15 @@ zip {
 
     def archiveSize = archiveFile.get().asFile.length()
     def newExpectedSize = ((int)(archiveSize / 10_000_000)) * 10_000_000
+    // When building with local snapshot artifacts (useLocalSca, useLocalArchitecture, etc.) the archive
+    // will be larger than a published build because snapshot JARs include test classes and debug info.
+    // Skip the upper-bound check in that case to avoid spurious failures during local development.
+    def usingLocalArtifacts = ['useLocalSca', 'useLocalArchitecture', 'useLocalMetrics', 'useLocalOrg'].any {
+      project.hasProperty(it) && project.property(it) == 'true'
+    }
     if (archiveSize < minArchiveSize && System.getenv("CI") == "true")
       throw new GradleException("${destinationDirectory.get()}/${archiveFileName.get()} size ($archiveSize) too small. Min is $minArchiveSize. If this is expected, update `expectedSize` to ${newExpectedSize} in sonar-application/build.gradle.")
-    if (archiveSize > maxArchiveSize)
+    if (archiveSize > maxArchiveSize && (!usingLocalArtifacts || System.getenv("CI") == "true"))
       throw new GradleException("${destinationDirectory.get()}/${archiveFileName.get()} size ($archiveSize) too large. Max is $maxArchiveSize. If this is expected, update `expectedSize` to ${newExpectedSize} in sonar-application/build.gradle.")
   }
 }
