@@ -152,15 +152,21 @@ class BulkIndexerIT {
 
   @Test
   void listener_is_not_called_with_errors() {
-    FakeListener listener = new FakeListener();
-    BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR, listener);
-    indexer.start();
-    indexer.add(newIndexOperationWithDocId("foo"));
-    indexer.add(BulkOperation.of(b -> b.index(i -> i.index("index_does_not_exist").id("bar").document(Map.of()))));
-    indexer.stop();
-    assertThat(listener.calledDocIds).containsExactly(newDocId(EXCPECTED_TYPE_FAKE, "foo"));
-    assertThat(listener.calledResult.getSuccess()).isOne();
-    assertThat(listener.calledResult.getTotal()).isEqualTo(2);
+    // Disable auto-index creation so operations to non-existent indices fail
+    es.disableAutoIndexCreation();
+    try {
+      FakeListener listener = new FakeListener();
+      BulkIndexer indexer = new BulkIndexer(es.client(), TYPE_FAKE, Size.REGULAR, listener);
+      indexer.start();
+      indexer.add(newIndexOperationWithDocId("foo"));
+      indexer.add(BulkOperation.of(b -> b.index(i -> i.index("index_does_not_exist").id("bar").document(Map.of()))));
+      indexer.stop();
+      assertThat(listener.calledDocIds).containsExactly(newDocId(EXCPECTED_TYPE_FAKE, "foo"));
+      assertThat(listener.calledResult.getSuccess()).isOne();
+      assertThat(listener.calledResult.getTotal()).isEqualTo(2);
+    } finally {
+      es.enableAutoIndexCreation();
+    }
   }
 
   @Test

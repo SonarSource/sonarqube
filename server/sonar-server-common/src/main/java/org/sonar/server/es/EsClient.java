@@ -59,6 +59,7 @@ import co.elastic.clients.elasticsearch.indices.PutIndicesSettingsResponse;
 import co.elastic.clients.elasticsearch.indices.PutMappingRequest;
 import co.elastic.clients.elasticsearch.indices.PutMappingResponse;
 import co.elastic.clients.elasticsearch.indices.RefreshResponse;
+import co.elastic.clients.json.JsonData;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest5_client.Rest5ClientTransport;
 import co.elastic.clients.transport.rest5_client.low_level.Request;
@@ -83,7 +84,9 @@ import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -176,6 +179,21 @@ public class EsClient implements Closeable {
   public PutIndicesSettingsResponse putSettingsV2(
     Function<PutIndicesSettingsRequest.Builder, ObjectBuilder<PutIndicesSettingsRequest>> fn) {
     return execute(() -> elasticsearchClient.indices().putSettings(fn));
+  }
+
+  public void putClusterSettings(Map<String, Object> settings) {
+    Map<String, JsonData> jsonSettings = new HashMap<>();
+    settings.forEach((key, value) -> {
+      if (value != null) {
+        jsonSettings.put(key, JsonData.of(value));
+      }
+    });
+    if (jsonSettings.isEmpty()) {
+      return;
+    }
+    execute(() -> elasticsearchClient.cluster().putSettings(req -> req
+      .transient_(jsonSettings)
+    ));
   }
 
   public ClearCacheResponse clearCacheV2(Function<ClearCacheRequest.Builder, ObjectBuilder<ClearCacheRequest>> fn) {
