@@ -140,7 +140,7 @@ public final class IssueChangeDto implements Serializable {
     return changeType;
   }
 
-  public IssueChangeDto setChangeType(String changeType) {
+  public IssueChangeDto setChangeType(@Nullable String changeType) {
     this.changeType = changeType;
     return this;
   }
@@ -149,7 +149,7 @@ public final class IssueChangeDto implements Serializable {
     return changeData;
   }
 
-  public IssueChangeDto setChangeData(String changeData) {
+  public IssueChangeDto setChangeData(@Nullable String changeData) {
     this.changeData = changeData;
     return this;
   }

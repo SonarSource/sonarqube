@@ -84,7 +84,7 @@ public class DefaultTempFolder implements TempFolder, Startable {
     return createTempFile(tempDir.toPath(), prefix, suffix).toFile();
   }
 
-  private static Path createTempFile(Path baseDir, String prefix, String suffix) {
+  private static Path createTempFile(Path baseDir, @Nullable String prefix, @Nullable String suffix) {
     try {
       return Files.createTempFile(baseDir, prefix, suffix);
     } catch (IOException e) {

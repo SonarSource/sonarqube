@@ -35,13 +35,15 @@ public class GroupPermissionNewValue extends PermissionNewValue {
   @Nullable
   private String groupName;
 
-  public GroupPermissionNewValue(String uuid, String componentUuid,  String componentKey, String componentName, String role, String groupUuid, String groupName,
-    String qualifier, @Nullable PermissionTemplateDto permissionTemplate) {
+  public GroupPermissionNewValue(@Nullable String uuid, @Nullable String componentUuid, @Nullable String componentKey,
+    @Nullable String componentName, @Nullable String role, @Nullable String groupUuid, @Nullable String groupName,
+    @Nullable String qualifier, @Nullable PermissionTemplateDto permissionTemplate) {
     super(uuid, componentUuid, componentKey, componentName, role, qualifier, permissionTemplate);
     this.groupUuid = groupUuid;
     this.groupName = groupName;
   }
-  public GroupPermissionNewValue(String componentUuid, String componentKey, String componentName, String role, String groupUuid, String groupName, String qualifier) {
+  public GroupPermissionNewValue(@Nullable String componentUuid, @Nullable String componentKey, @Nullable String componentName,
+    @Nullable String role, @Nullable String groupUuid, @Nullable String groupName, @Nullable String qualifier) {
     this(null, componentUuid, componentKey, componentName, role, groupUuid, groupName, qualifier, null);
   }
 

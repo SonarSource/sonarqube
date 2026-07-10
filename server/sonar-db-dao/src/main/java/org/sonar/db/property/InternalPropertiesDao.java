@@ -72,7 +72,7 @@ public class InternalPropertiesDao implements Dao {
    *
    * @see #saveAsEmpty(DbSession, String)
    */
-  public void save(DbSession dbSession, String key, String value) {
+  public void save(DbSession dbSession, String key, @Nullable String value) {
     checkKey(key);
     checkArgument(value != null && !value.isEmpty(), "value can't be null nor empty");
 

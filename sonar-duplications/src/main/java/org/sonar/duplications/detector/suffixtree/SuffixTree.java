@@ -20,6 +20,7 @@
 package org.sonar.duplications.detector.suffixtree;
 
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 /**
  * Provides algorithm to construct suffix tree.
@@ -108,7 +109,7 @@ public final class SuffixTree {
     active.canonize();
   }
 
-  private void updateSuffixNode(Node node, Node suffixNode) {
+  private void updateSuffixNode(@Nullable Node node, Node suffixNode) {
     if ((node != null) && (!node.equals(root))) {
       node.setSuffixNode(suffixNode);
     }

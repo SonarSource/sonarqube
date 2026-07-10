@@ -48,7 +48,7 @@ public class UserPermissionNewValue extends PermissionNewValue {
   }
 
   public UserPermissionNewValue(@Nullable String role, @Nullable String componentUuid, @Nullable  String componentKey, @Nullable String componentName,
-    UserId userId, @Nullable String qualifier) {
+    @Nullable UserId userId, @Nullable String qualifier) {
     super(null, componentUuid, componentKey, componentName, role, qualifier, null);
     this.userUuid = userId != null ? userId.getUuid() : null;
     this.userLogin = userId != null ? userId.getLogin() : null;

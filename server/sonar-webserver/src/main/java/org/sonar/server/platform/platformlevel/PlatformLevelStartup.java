@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import java.util.Objects;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.EditionProvider;
 import org.sonar.core.platform.PlatformEditionProvider;
@@ -117,7 +118,7 @@ public class PlatformLevelStartup extends PlatformLevel {
   }
 
   private boolean anyPluginChanged() {
-    return parent.getOptional(DetectPluginChange.class)
+    return Objects.requireNonNull(parent, "parent must not be null").getOptional(DetectPluginChange.class)
       .map(DetectPluginChange::anyPluginChanged)
       .orElseThrow(() -> new IllegalStateException("DetectPluginChange not available in the container yet"));
   }
