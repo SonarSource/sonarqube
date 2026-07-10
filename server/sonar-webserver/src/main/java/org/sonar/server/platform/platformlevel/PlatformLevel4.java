@@ -203,6 +203,7 @@ import org.sonar.server.notification.ws.NotificationWsModule;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.ws.PermissionsWsModule;
 import org.sonar.server.platform.ClusterVerification;
+import org.sonar.server.platform.InstallationDateProviderImpl;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
@@ -304,6 +305,8 @@ import org.sonar.server.telemetry.TelemetryAgenticQGAdoptionProvider;
 import org.sonar.server.telemetry.TelemetryAgenticQGNcdOutcomeProvider;
 import org.sonar.server.telemetry.TelemetryAgenticQPAdoptionProvider;
 import org.sonar.server.telemetry.TelemetryQualityGateBeforeNcdStartProvider;
+import org.sonar.server.telemetry.gessie.GessieFlushExecutorServiceImpl;
+import org.sonar.server.telemetry.gessie.GessieIngestorExecutorServiceImpl;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.WebAnalyticsLoaderImpl;
 import org.sonar.server.ui.ws.NavigationWsModule;
@@ -338,6 +341,8 @@ import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 import org.sonarsource.compliancereports.reports.ComplianceReportService;
 import org.sonarsource.compliancereports.reports.MetadataLoader;
 import org.sonarsource.compliancereports.reports.MetadataRules;
+import org.sonarsource.gessie.server.GessieProperties;
+import org.sonarsource.gessie.server.telemetry.GessieTelemetryWebConfiguration;
 import org.sonarsource.measures.server.MeasuresServerComponents;
 import org.sonarsource.metrics.server.bean.MetricsServerComponents;
 import org.sonarsource.organizations.server.OrganizationsServiceServerImpl;
@@ -716,6 +721,7 @@ public class PlatformLevel4 extends PlatformLevel {
       PlatformEditionProvider.class,
 
       InternalPropertiesImpl.class,
+      InstallationDateProviderImpl.class,
 
       // UI
       new NavigationWsModule(),
@@ -814,6 +820,12 @@ public class PlatformLevel4 extends PlatformLevel {
 
     // registered via measures-server-app
     addAll(MeasuresServerComponents.components());
+
+    // registered via gessie-server-app
+    addAll(GessieProperties.getPropertyDefinitions());
+    add(GessieFlushExecutorServiceImpl.class);
+    add(GessieIngestorExecutorServiceImpl.class);
+    add(GessieTelemetryWebConfiguration.class);
 
     // registered via sonar-unified-events
     addAll(EventsWebComponents.components());

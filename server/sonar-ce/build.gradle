@@ -29,6 +29,9 @@ dependencies {
   api project(':sonar-ws')
 
 
+  api 'org.sonarsource.sonarqube:gessie-server-app'
+  api 'org.sonarsource.sonarqube:sonar-events-server'
+
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
   testImplementation 'com.github.spotbugs:spotbugs-annotations'

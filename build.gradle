@@ -398,6 +398,7 @@ subprojects {
         entry 'measures-api'
         entry 'measures-server-app'
       }
+      dependency "org.sonarsource.sonarqube:gessie-server-app:$gessieVersion"
       dependencySet(group: 'com.sonarsource.sonarqube', version: "$architectureApiVersion") {
         entry 'architecture-api'
         entry 'architecture-datastructure'
