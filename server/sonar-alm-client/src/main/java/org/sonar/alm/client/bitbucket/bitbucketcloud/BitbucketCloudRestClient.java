@@ -115,9 +115,9 @@ public class BitbucketCloudRestClient {
   /**
    * Validate parameters provided.
    */
-  public void validateAppPassword(String encodedCredentials, String workspace) {
+  public void validateApiToken(String encodedApiTokenCredentials, String workspace) {
     try {
-      doGetWithBasicAuth(encodedCredentials, buildUrl("/repositories/" + workspace), r -> null);
+      doGetWithApiToken(encodedApiTokenCredentials, buildUrl("/repositories/" + workspace), r -> null);
     } catch (NotFoundException | IllegalStateException e) {
       throw new IllegalArgumentException(e.getMessage());
     }
@@ -156,15 +156,15 @@ public class BitbucketCloudRestClient {
     }
   }
 
-  public RepositoryList searchRepos(String encodedCredentials, String workspace, @Nullable String repoName, Integer page, Integer pageSize) {
+  public RepositoryList searchRepos(String encodedApiTokenCredentials, String workspace, @Nullable String repoName, Integer page, Integer pageSize) {
     String filterQuery = String.format("q=name~\"%s\"", repoName != null ? repoName : "");
     HttpUrl url = buildUrl(String.format("/repositories/%s?%s&page=%s&pagelen=%s", workspace, filterQuery, page, pageSize));
-    return doGetWithBasicAuth(encodedCredentials, url, r -> buildGson().fromJson(r.body().charStream(), RepositoryList.class));
+    return doGetWithApiToken(encodedApiTokenCredentials, url, r -> buildGson().fromJson(r.body().charStream(), RepositoryList.class));
   }
 
-  public Repository getRepo(String encodedCredentials, String workspace, String slug) {
+  public Repository getRepo(String encodedApiTokenCredentials, String workspace, String slug) {
     HttpUrl url = buildUrl(String.format("/repositories/%s/%s", workspace, slug));
-    return doGetWithBasicAuth(encodedCredentials, url, r -> buildGson().fromJson(r.body().charStream(), Repository.class));
+    return doGetWithApiToken(encodedApiTokenCredentials, url, r -> buildGson().fromJson(r.body().charStream(), Repository.class));
   }
 
   public String createAccessToken(String clientId, String clientSecret) {
@@ -178,7 +178,7 @@ public class BitbucketCloudRestClient {
       .build();
     HttpUrl url = HttpUrl.parse(accessTokenEndpoint);
     String credential = Credentials.basic(clientId, clientSecret);
-    return prepareRequestWithBasicAuthCredentials(credential, "POST", url, body);
+    return prepareRequestWithAuthorizationHeader(credential, "POST", url, body);
   }
 
   protected HttpUrl buildUrl(String relativeUrl) {
@@ -190,8 +190,9 @@ public class BitbucketCloudRestClient {
     return doCall(request, handler);
   }
 
-  protected <G> G doGetWithBasicAuth(String encodedCredentials, HttpUrl url, Function<Response, G> handler) {
-    Request request = prepareRequestWithBasicAuthCredentials("Basic " + encodedCredentials, GET, url, null);
+  protected <G> G doGetWithApiToken(String encodedApiTokenCredentials, HttpUrl url, Function<Response, G> handler) {
+    // Bitbucket Cloud expects API tokens to be transported as Basic authorization with base64(email:apiToken).
+    Request request = prepareRequestWithAuthorizationHeader("Basic " + encodedApiTokenCredentials, GET, url, null);
     try {
       return doCall(request, handler);
     } catch (BitbucketCloudException e) {
@@ -291,12 +292,12 @@ public class BitbucketCloudRestClient {
       .build();
   }
 
-  protected static Request prepareRequestWithBasicAuthCredentials(String encodedCredentials, String method,
+  protected static Request prepareRequestWithAuthorizationHeader(String authorizationHeader, String method,
     HttpUrl url, @Nullable RequestBody body) {
     return new Request.Builder()
       .method(method, body)
       .url(url)
-      .header(AUTHORIZATION, encodedCredentials)
+      .header(AUTHORIZATION, authorizationHeader)
       .build();
   }
 
