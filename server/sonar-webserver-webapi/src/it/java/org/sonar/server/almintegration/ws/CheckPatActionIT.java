@@ -153,7 +153,7 @@ public class CheckPatActionIT {
       .execute();
 
     assertThat(almSetting.getAppId()).isNotNull();
-    verify(bitbucketCloudRestClient).validateAppPassword(PAT_SECRET, almSetting.getAppId());
+    verify(bitbucketCloudRestClient).validateApiToken(PAT_SECRET, almSetting.getAppId());
   }
 
   @Test
@@ -194,7 +194,7 @@ public class CheckPatActionIT {
   @Test
   public void fail_when_personal_access_token_is_invalid_for_bitbucketcloud() {
     doThrow(new IllegalArgumentException("Invalid personal access token"))
-      .when(bitbucketCloudRestClient).validateAppPassword(anyString(), anyString());
+      .when(bitbucketCloudRestClient).validateApiToken(anyString(), anyString());
 
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(PROVISION_PROJECTS);

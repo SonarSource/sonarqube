@@ -40,7 +40,7 @@ import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 public class CheckPatAction implements AlmIntegrationsWsAction {
 
   private static final String PARAM_ALM_SETTING = "almSetting";
-  private static final String APP_PASSWORD_CANNOT_BE_NULL = "App Password and Username cannot be null";
+  private static final String API_TOKEN_CANNOT_BE_NULL = "API token and username cannot be null";
   private static final String PAT_CANNOT_BE_NULL = "PAT cannot be null";
   private static final String URL_CANNOT_BE_NULL = "URL cannot be null";
   private static final String WORKSPACE_CANNOT_BE_NULL = "Workspace cannot be null";
@@ -119,8 +119,8 @@ public class CheckPatAction implements AlmIntegrationsWsAction {
             requireNonNull(almPatDto.getPersonalAccessToken(), PAT_CANNOT_BE_NULL));
           break;
         case BITBUCKET_CLOUD:
-          bitbucketCloudRestClient.validateAppPassword(
-            requireNonNull(almPatDto.getPersonalAccessToken(), APP_PASSWORD_CANNOT_BE_NULL),
+          bitbucketCloudRestClient.validateApiToken(
+            requireNonNull(almPatDto.getPersonalAccessToken(), API_TOKEN_CANNOT_BE_NULL),
             requireNonNull(almSettingDto.getAppId(), WORKSPACE_CANNOT_BE_NULL));
           break;
         case GITHUB:
