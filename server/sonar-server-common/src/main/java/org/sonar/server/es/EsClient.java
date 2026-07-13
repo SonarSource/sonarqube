@@ -61,11 +61,8 @@ import co.elastic.clients.elasticsearch.indices.PutMappingResponse;
 import co.elastic.clients.elasticsearch.indices.RefreshResponse;
 import co.elastic.clients.json.JsonData;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.rest5_client.Rest5ClientTransport;
-import co.elastic.clients.transport.rest5_client.low_level.Request;
-import co.elastic.clients.transport.rest5_client.low_level.Response;
-import co.elastic.clients.transport.rest5_client.low_level.Rest5Client;
-import co.elastic.clients.transport.rest5_client.low_level.Rest5ClientBuilder;
+import co.elastic.clients.transport.ElasticsearchTransportBase;
+import co.elastic.clients.transport.TransportOptions;
 import co.elastic.clients.util.ObjectBuilder;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -78,7 +75,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.concurrent.TimeUnit;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
@@ -92,14 +88,15 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
-import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
-import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
-import org.jetbrains.annotations.NotNull;
+import org.apache.hc.core5.util.Timeout;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -114,27 +111,30 @@ import org.sonar.server.es.response.NodeStatsResponse;
 public class EsClient implements Closeable {
   public static final Logger LOGGER = Loggers.get("es");
   private static final String ES_USERNAME = "elastic";
+  private static final int MAX_CONN_PER_ROUTE = 20;
+  private static final int MAX_CONN_TOTAL = 60;
 
   private final ElasticsearchClient elasticsearchClient;
-  private final Rest5Client restClient;
+  private final SynchronousEsHttpClient httpClient;
 
   private final Gson gson;
 
   public EsClient(HttpHost... hosts) {
-    this(buildHttpClient(null, null, null, hosts).build());
+    this(new SynchronousEsHttpClient(buildClassicHttpClient(null, null, null), List.of(hosts)));
   }
 
   public EsClient(@Nullable String searchPassword, @Nullable String keyStorePath, @Nullable String keyStorePassword, HttpHost... hosts) {
-    this(buildHttpClient(searchPassword, keyStorePath, keyStorePassword, hosts).build());
+    this(new SynchronousEsHttpClient(buildClassicHttpClient(searchPassword, keyStorePath, keyStorePassword), List.of(hosts)));
   }
 
-  EsClient(Rest5Client restClient) {
-    this.restClient = restClient;
+  EsClient(SynchronousEsHttpClient httpClient) {
+    this.httpClient = httpClient;
     ObjectMapper objectMapper = new ObjectMapper()
       .configure(SerializationFeature.INDENT_OUTPUT, false)
       .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
       .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-    Rest5ClientTransport transport = new Rest5ClientTransport(this.restClient, new JacksonJsonpMapper(objectMapper));
+    ElasticsearchTransportBase transport = new ElasticsearchTransportBase(httpClient, (TransportOptions) null, new JacksonJsonpMapper(objectMapper)) {
+    };
     this.elasticsearchClient = new ElasticsearchClient(transport);
     this.gson = new GsonBuilder().create();
   }
@@ -247,28 +247,25 @@ public class EsClient implements Closeable {
   // https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html
   public NodeStatsResponse nodesStats() {
     return execute(() -> {
-      Request request = new Request("GET", "/_nodes/stats/fs,process,jvm,indices,breaker");
-      Response response = restClient.performRequest(request);
-      return NodeStatsResponse.toNodeStatsResponse(gson.fromJson(readEntity(response), JsonObject.class));
+      String body = httpClient.rawGet("/_nodes/stats/fs,process,jvm,indices,breaker", Map.of());
+      return NodeStatsResponse.toNodeStatsResponse(gson.fromJson(body, JsonObject.class));
     });
   }
 
   // https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-stats.html
   public IndicesStatsResponse indicesStats(String... indices) {
     return execute(() -> {
-      Request request = new Request("GET", "/" + (indices.length > 0 ? (String.join(",", indices) + "/") : "") + "_stats");
-      request.addParameter("level", "shards");
-      Response response = restClient.performRequest(request);
-      return IndicesStatsResponse.toIndicesStatsResponse(gson.fromJson(readEntity(response), JsonObject.class));
+      String path = indices.length == 0 ? "/_stats" : String.format("/%s/_stats", String.join(",", indices));
+      String body = httpClient.rawGet(path, Map.of("level", "shards"));
+      return IndicesStatsResponse.toIndicesStatsResponse(gson.fromJson(body, JsonObject.class));
     });
   }
 
   // https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-stats.html
   public ClusterStatsResponse clusterStats() {
     return execute(() -> {
-      Request request = new Request("GET", "/_cluster/stats");
-      Response response = restClient.performRequest(request);
-      return ClusterStatsResponse.toClusterStatsResponse(gson.fromJson(readEntity(response), JsonObject.class));
+      String body = httpClient.rawGet("/_cluster/stats", Map.of());
+      return ClusterStatsResponse.toClusterStatsResponse(gson.fromJson(body, JsonObject.class));
     });
   }
 
@@ -283,7 +280,7 @@ public class EsClient implements Closeable {
   @Override
   public void close() {
     try {
-      restClient.close();
+      httpClient.close();
     } catch (IOException e) {
       throw new ElasticsearchException("Could not close ES Rest client", e);
     }
@@ -298,46 +295,39 @@ public class EsClient implements Closeable {
   }
 
   /**
-   * Internal usage only - exposes the underlying low-level REST client.
+   * Internal usage only - exposes the underlying synchronous HTTP client.
    * Used by tests to inspect the configured nodes.
    */
-  Rest5Client nativeRestClient() {
-    return restClient;
+  SynchronousEsHttpClient nativeHttpClient() {
+    return httpClient;
   }
 
-  @NotNull
-  static Rest5ClientBuilder buildHttpClient(@Nullable String searchPassword, @Nullable String keyStorePath,
-    @Nullable String keyStorePassword, HttpHost[] hosts) {
-    Rest5ClientBuilder builder = Rest5Client.builder(hosts);
-    builder.setHttpClient(buildAsyncHttpClient(searchPassword, keyStorePath, keyStorePassword));
-    return builder;
-  }
-
-  private static CloseableHttpAsyncClient buildAsyncHttpClient(
-    @Nullable String searchPassword, @Nullable String keyStorePath, @Nullable String keyStorePassword) {
-    var requestConfig = RequestConfig.custom()
-      .setConnectTimeout(5_000, TimeUnit.MILLISECONDS)
-      .setResponseTimeout(60_000, TimeUnit.MILLISECONDS)
+  static CloseableHttpClient buildClassicHttpClient(@Nullable String searchPassword, @Nullable String keyStorePath,
+    @Nullable String keyStorePassword) {
+    RequestConfig requestConfig = RequestConfig.custom()
+      .setConnectTimeout(Timeout.ofMilliseconds(5_000))
+      .setResponseTimeout(Timeout.ofMilliseconds(60_000))
       .build();
-    var clientBuilder = HttpAsyncClients.custom()
-      .setDefaultRequestConfig(requestConfig);
+    PoolingHttpClientConnectionManagerBuilder connectionManagerBuilder = PoolingHttpClientConnectionManagerBuilder.create()
+      .setMaxConnPerRoute(MAX_CONN_PER_ROUTE)
+      .setMaxConnTotal(MAX_CONN_TOTAL);
+    if (keyStorePath != null) {
+      connectionManagerBuilder.setSSLSocketFactory(
+        SSLConnectionSocketFactoryBuilder.create()
+          .setSslContext(buildSslContext(keyStorePath, keyStorePassword))
+          .build());
+    }
+    HttpClientBuilder clientBuilder = HttpClients.custom()
+      .setDefaultRequestConfig(requestConfig)
+      .setConnectionManager(connectionManagerBuilder.build());
     if (searchPassword != null) {
       String encoded = Base64.getEncoder().encodeToString((ES_USERNAME + ":" + searchPassword).getBytes(StandardCharsets.UTF_8));
       String headerValue = "Basic " + encoded;
       clientBuilder.addRequestInterceptorFirst((request, entity, context) -> {
-        if (request.getHeader("Authorization") == null) {
+        if (!request.containsHeader("Authorization")) {
           request.addHeader("Authorization", headerValue);
         }
       });
-    }
-    if (keyStorePath != null) {
-      clientBuilder.setConnectionManager(
-        PoolingAsyncClientConnectionManagerBuilder.create()
-          .setTlsStrategy(
-            ClientTlsStrategyBuilder.create()
-              .setSslContext(buildSslContext(keyStorePath, keyStorePassword))
-              .build())
-          .build());
     }
     return clientBuilder.build();
   }
@@ -352,12 +342,6 @@ public class EsClient implements Closeable {
       return sslBuilder.build();
     } catch (IOException | GeneralSecurityException e) {
       throw new IllegalStateException("Failed to setup SSL context on ES client", e);
-    }
-  }
-
-  private static String readEntity(Response response) throws IOException {
-    try (InputStream is = response.getEntity().getContent()) {
-      return new String(is.readAllBytes(), StandardCharsets.UTF_8);
     }
   }
 
