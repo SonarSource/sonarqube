@@ -123,6 +123,7 @@ public class BitbucketIdentityProvider implements OAuth2IdentityProvider {
   }
 
   private void onCallback(CallbackContext context) throws InterruptedException, ExecutionException, IOException {
+    context.verifyCsrfState();
     HttpRequest request = context.getHttpRequest();
     OAuth20Service scribe = newScribeBuilder(context).build(scribeApi);
     String code = request.getParameter(OAuthConstants.CODE);

@@ -286,7 +286,7 @@ public class IntegrationTest {
 
   private static class DumbCallbackContext implements OAuth2IdentityProvider.CallbackContext {
     final HttpServletRequest request;
-    final AtomicBoolean csrfStateVerified = new AtomicBoolean(true);
+    final AtomicBoolean csrfStateVerified = new AtomicBoolean(false);
     final AtomicBoolean redirectedToRequestedPage = new AtomicBoolean(false);
     UserIdentity userIdentity = null;
 
