@@ -19,10 +19,6 @@
  */
 package org.sonar.server.es;
 
-import co.elastic.clients.transport.rest5_client.low_level.Request;
-import co.elastic.clients.transport.rest5_client.low_level.Response;
-import co.elastic.clients.transport.rest5_client.low_level.Rest5Client;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -30,22 +26,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.util.Objects;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.tls.HandshakeCertificates;
 import okhttp3.tls.HeldCertificate;
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.ArgumentMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -166,43 +159,33 @@ public class EsClientTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  Rest5Client restClient = mock(Rest5Client.class);
+  SynchronousEsHttpClient httpClient = mock(SynchronousEsHttpClient.class);
 
-  EsClient underTest = new EsClient(restClient);
+  EsClient underTest = new EsClient(httpClient);
 
   @Test
   public void should_close_client() throws IOException {
     underTest.close();
-    verify(restClient).close();
+    verify(httpClient).close();
   }
 
   @Test
   public void should_rethrow_ex_when_close_client_throws() throws IOException {
-    doThrow(IOException.class).when(restClient).close();
+    doThrow(IOException.class).when(httpClient).close();
     assertThatThrownBy(() -> underTest.close())
       .isInstanceOf(ElasticsearchException.class);
   }
 
   @Test
   public void should_call_node_stats_api() throws Exception {
-    HttpEntity entity = mock(HttpEntity.class);
-    when(entity.getContent()).thenReturn(new ByteArrayInputStream(EXAMPLE_NODE_STATS_JSON.getBytes()));
-    Response response = mock(Response.class);
-    when(response.getEntity()).thenReturn(entity);
-    when(restClient.performRequest(argThat(new RawRequestMatcher(
-      "GET",
-      "/_nodes/stats/fs,process,jvm,indices,breaker"))))
-      .thenReturn(response);
+    when(httpClient.rawGet(eq("/_nodes/stats/fs,process,jvm,indices,breaker"), any())).thenReturn(EXAMPLE_NODE_STATS_JSON);
 
     assertThat(underTest.nodesStats()).isNotNull();
   }
 
   @Test
   public void should_rethrow_ex_on_node_stat_fail() throws Exception {
-    when(restClient.performRequest(argThat(new RawRequestMatcher(
-      "GET",
-      "/_nodes/stats/fs,process,jvm,indices,breaker"))))
-      .thenThrow(IOException.class);
+    when(httpClient.rawGet(eq("/_nodes/stats/fs,process,jvm,indices,breaker"), any())).thenThrow(IOException.class);
 
     assertThatThrownBy(() -> underTest.nodesStats())
       .isInstanceOf(ElasticsearchException.class);
@@ -210,24 +193,14 @@ public class EsClientTest {
 
   @Test
   public void should_call_indices_stat_api() throws Exception {
-    HttpEntity entity = mock(HttpEntity.class);
-    when(entity.getContent()).thenReturn(new ByteArrayInputStream(EXAMPLE_INDICES_STATS_JSON.getBytes()));
-    Response response = mock(Response.class);
-    when(response.getEntity()).thenReturn(entity);
-    when(restClient.performRequest(argThat(new RawRequestMatcher(
-      "GET",
-      "/_stats"))))
-      .thenReturn(response);
+    when(httpClient.rawGet(eq("/_stats"), any())).thenReturn(EXAMPLE_INDICES_STATS_JSON);
 
     assertThat(underTest.indicesStats()).isNotNull();
   }
 
   @Test
   public void should_rethrow_ex_on_indices_stat_fail() throws Exception {
-    when(restClient.performRequest(argThat(new RawRequestMatcher(
-      "GET",
-      "/_stats"))))
-      .thenThrow(IOException.class);
+    when(httpClient.rawGet(eq("/_stats"), any())).thenThrow(IOException.class);
 
     assertThatThrownBy(() -> underTest.indicesStats())
       .isInstanceOf(ElasticsearchException.class);
@@ -235,25 +208,14 @@ public class EsClientTest {
 
   @Test
   public void should_call_cluster_stat_api() throws Exception {
-    HttpEntity entity = mock(HttpEntity.class);
-    when(entity.getContent()).thenReturn(new ByteArrayInputStream(EXAMPLE_CLUSTER_STATS_JSON.getBytes()));
-
-    Response response = mock(Response.class);
-    when(response.getEntity()).thenReturn(entity);
-    when(restClient.performRequest(argThat(new RawRequestMatcher(
-      "GET",
-      "/_cluster/stats"))))
-      .thenReturn(response);
+    when(httpClient.rawGet(eq("/_cluster/stats"), any())).thenReturn(EXAMPLE_CLUSTER_STATS_JSON);
 
     assertThat(underTest.clusterStats()).isNotNull();
   }
 
   @Test
   public void should_rethrow_ex_on_cluster_stat_fail() throws Exception {
-    when(restClient.performRequest(argThat(new RawRequestMatcher(
-      "GET",
-      "/_cluster/stats"))))
-      .thenThrow(IOException.class);
+    when(httpClient.rawGet(eq("/_cluster/stats"), any())).thenThrow(IOException.class);
 
     assertThatThrownBy(() -> underTest.clusterStats())
       .isInstanceOf(ElasticsearchException.class);
@@ -279,7 +241,7 @@ public class EsClientTest {
   public void waitForStatusV2_wraps_underlying_failure_in_ElasticsearchException() throws IOException {
     // The high-level cluster().health() call routes through the synchronous Rest5Client.performRequest(),
     // so failing that low-level call exercises waitForStatusV2 -> clusterHealthV2 -> execute() error path.
-    when(restClient.performRequest(any())).thenThrow(new IOException("boom"));
+    when(httpClient.performRequest(any(), any(), any(), any())).thenThrow(new IOException("boom"));
 
     assertThatThrownBy(() -> underTest.waitForStatusV2(co.elastic.clients.elasticsearch._types.HealthStatus.Yellow))
       .isInstanceOf(ElasticsearchException.class);
@@ -289,7 +251,7 @@ public class EsClientTest {
   public void newInstance_with_hosts_only_constructor_succeeds() {
     EsClient esClient = new EsClient(new HttpHost("http", "localhost", 9200));
     assertThat(esClient.nativeClientV2()).isNotNull();
-    assertThat(esClient.nativeRestClient()).isNotNull();
+    assertThat(esClient.nativeHttpClient()).isNotNull();
   }
 
   @Test
@@ -301,20 +263,13 @@ public class EsClientTest {
   }
 
   @Test
-  public void nativeRestClient_returns_injected_rest_client() {
-    assertThat(underTest.nativeRestClient()).isSameAs(restClient);
+  public void nativeHttpClient_returns_injected_http_client() {
+    assertThat(underTest.nativeHttpClient()).isSameAs(httpClient);
   }
 
   @Test
   public void should_call_indices_stat_api_with_specific_indices() throws Exception {
-    HttpEntity entity = mock(HttpEntity.class);
-    when(entity.getContent()).thenReturn(new ByteArrayInputStream(EXAMPLE_INDICES_STATS_JSON.getBytes()));
-    Response response = mock(Response.class);
-    when(response.getEntity()).thenReturn(entity);
-    when(restClient.performRequest(argThat(new RawRequestMatcher(
-      "GET",
-      "/index-1,index-2/_stats"))))
-      .thenReturn(response);
+    when(httpClient.rawGet(eq("/index-1,index-2/_stats"), any())).thenReturn(EXAMPLE_INDICES_STATS_JSON);
 
     assertThat(underTest.indicesStats("index-1", "index-2")).isNotNull();
   }
@@ -374,23 +329,6 @@ public class EsClientTest {
     return new HandshakeCertificates.Builder()
       .heldCertificate(localhostCertificate)
       .build();
-  }
-
-  static class RawRequestMatcher implements ArgumentMatcher<Request> {
-    String endpoint;
-    String method;
-
-    RawRequestMatcher(String method, String endpoint) {
-      Objects.requireNonNull(endpoint);
-      Objects.requireNonNull(method);
-      this.endpoint = endpoint;
-      this.method = method;
-    }
-
-    @Override
-    public boolean matches(Request request) {
-      return endpoint.equals(request.getEndpoint()) && method.equals(request.getMethod());
-    }
   }
 
 }
