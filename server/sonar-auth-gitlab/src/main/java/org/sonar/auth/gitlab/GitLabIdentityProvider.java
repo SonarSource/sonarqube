@@ -123,6 +123,7 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
   }
 
   private void onCallback(CallbackContext context, OAuth20Service scribe) throws InterruptedException, ExecutionException, IOException {
+    context.verifyCsrfState();
     HttpRequest request = context.getHttpRequest();
     String code = request.getParameter(OAuthConstants.CODE);
     OAuth2AccessToken accessToken = scribe.getAccessToken(code);

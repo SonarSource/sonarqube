@@ -92,6 +92,7 @@ public class IntegrationTest {
 
     gitLabIdentityProvider.callback(callbackContext);
 
+    verify(callbackContext).verifyCsrfState();
     ArgumentCaptor<UserIdentity> argument = ArgumentCaptor.forClass(UserIdentity.class);
     verify(callbackContext).authenticate(argument.capture());
     assertThat(argument.getValue()).isNotNull();
