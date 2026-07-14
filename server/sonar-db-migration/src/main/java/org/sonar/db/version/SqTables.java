@@ -29,6 +29,9 @@ public final class SqTables {
    * for all the supported databases, particularly due to Oracle results.
    */
   public static final Set<String> TABLES = Set.of(
+    "a3s_analysis_usages",
+    "a3s_context_items",
+    "a3s_contexts",
     "active_rules",
     "active_rule_parameters",
     "admin_alert_status",
