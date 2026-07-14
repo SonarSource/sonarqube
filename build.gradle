@@ -65,6 +65,25 @@ allprojects {
     }
   }
 
+  // Resolves ONLY the dependency configurations that QA integration / black-box test jobs need,
+  // so QA runners can restore a much smaller Gradle dependency cache than the full build cache
+  // (SONAR-30702). A configuration missing from this list degrades gracefully: the dependency is
+  // resolved from repox at test time (a few seconds), it does not fail the job.
+  def qaCacheConfigurations = [
+    'testRuntimeClasspath', 'testCompileClasspath',
+    'bbtRuntimeClasspath', 'bbtCompileClasspath',
+    'integrationTestRuntimeClasspath', 'integrationTestCompileClasspath'
+  ]
+  task cacheQaDependencies {
+    doLast {
+      configurations.each { conf ->
+        if (conf.isCanBeResolved() && qaCacheConfigurations.contains(conf.name)) {
+          conf.resolve()
+        }
+      }
+    }
+  }
+
   ext {
     release = project.hasProperty('release') && project.getProperty('release')
     deployCommunity = project.hasProperty('deployCommunity') && (project.getProperty('deployCommunity') == 'true')
