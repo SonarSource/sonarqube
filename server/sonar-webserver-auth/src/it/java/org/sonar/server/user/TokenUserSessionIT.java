@@ -229,6 +229,52 @@ public class TokenUserSessionIT {
   }
 
   @Test
+  @UseDataProvider("validPermissions")
+  public void keepAuthorizedEntities_shouldReturnEmpty_whenProjectAnalysisTokenAndUserPermissionRevoked(ProjectPermission permission) {
+    UserDto user = db.users().insertUser();
+
+    // The token's own project, but the user no longer holds any permission on it: this is the state after an admin
+    // removes the user's project permission without revoking the still-valid project analysis token (SSF-1107).
+    ProjectData project = db.components().insertPrivateProject();
+
+    Set<ProjectDto> projectDto = Set.of(project.getProjectDto());
+    List<ProjectDto> projectDtos = mockProjectAnalysisTokenUserSession(user, project.getProjectDto()).keepAuthorizedEntities(permission, projectDto);
+
+    assertThat(projectDtos).isEmpty();
+  }
+
+  @Test
+  @UseDataProvider("validPermissions")
+  public void keepAuthorizedEntities_shouldReturnProject_whenProjectAnalysisTokenAndUserHasGlobalScan(ProjectPermission permission) {
+    UserDto user = db.users().insertUser();
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
+
+    ProjectData project = db.components().insertPrivateProject();
+
+    Set<ProjectDto> projectDto = Set.of(project.getProjectDto());
+    List<ProjectDto> projectDtos = mockProjectAnalysisTokenUserSession(user, project.getProjectDto()).keepAuthorizedEntities(permission, projectDto);
+
+    assertThat(projectDtos).containsExactly(project.getProjectDto());
+  }
+
+  @Test
+  public void keepAuthorizedEntities_shouldReturnEmpty_whenProjectAnalysisTokenHasNoProjectUuid() {
+    UserDto user = db.users().insertUser();
+    // Even a global scan permission must not authorize a project analysis token that carries no project UUID.
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
+    ProjectData project = db.components().insertPrivateProject();
+
+    UserTokenDto token = new UserTokenDto();
+    token.setType(PROJECT_ANALYSIS_TOKEN.name());
+    token.setName("Project Analysis Token");
+    token.setUserUuid("userUid");
+    // projectUuid intentionally left null
+    TokenUserSession session = new TokenUserSession(dbClient, user, token);
+
+    assertThat(session.keepAuthorizedEntities(USER, Set.of(project.getProjectDto()))).isEmpty();
+  }
+
+  @Test
   public void keepAuthorizedEntities_shouldFilterPrivateProjects_whenUserToken() {
     UserDto user = db.users().insertUser();
 
@@ -311,6 +357,21 @@ public class TokenUserSessionIT {
 
     assertThat(authorizedComponents).containsExactly(privateProject.getMainBranchComponent())
       .doesNotContain(privateProjectWithoutAccess.getMainBranchComponent(), publicProject.getMainBranchComponent());
+  }
+
+  @Test
+  @UseDataProvider("validPermissions")
+  public void keepAuthorizedComponents_shouldReturnEmpty_whenProjectAnalysisTokenAndUserPermissionRevoked(ProjectPermission permission) {
+    UserDto user = db.users().insertUser();
+
+    // The token's own project, but the user no longer holds any permission on it (SSF-1107).
+    ProjectData project = db.components().insertPrivateProject();
+
+    Set<ComponentDto> componentDtos = Set.of(project.getMainBranchComponent());
+    List<ComponentDto> authorizedComponents = mockProjectAnalysisTokenUserSession(user, project.getProjectDto())
+      .keepAuthorizedComponents(permission, componentDtos);
+
+    assertThat(authorizedComponents).isEmpty();
   }
 
   @Test
