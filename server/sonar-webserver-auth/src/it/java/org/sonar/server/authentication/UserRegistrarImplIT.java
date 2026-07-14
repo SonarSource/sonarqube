@@ -52,6 +52,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.UserRegistrarImpl.BITBUCKET_PROVIDER;
 import static org.sonar.server.authentication.UserRegistrarImpl.GITHUB_PROVIDER;
 import static org.sonar.server.authentication.UserRegistrarImpl.GITLAB_PROVIDER;
 import static org.sonar.server.authentication.UserRegistrarImpl.LDAP_PROVIDER_PREFIX;
@@ -394,6 +395,70 @@ public class UserRegistrarImplIT {
       .extracting(UserDto::getLogin, UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
         UserDto::isActive)
       .contains(user.getLogin(), "John", "john@email.com", "ABCD", "johndoo", "other", true);
+  }
+
+  @Test
+  public void do_not_authenticate_bitbucket_user_matching_external_login_when_account_already_migrated_to_uuid() {
+    IdentityProvider provider = composeIdentityProvider(BITBUCKET_PROVIDER, "name of bitbucket", true, false);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, provider, local(BASIC));
+    insertUser("Old login", "Old name", USER_IDENTITY.getEmail(), "old-uuid", USER_IDENTITY.getProviderLogin(), BITBUCKET_PROVIDER, false, true);
+
+    assertThatThrownBy(() -> underTest.register(registration))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(String.format("Failed to authenticate with login '%s'", USER_IDENTITY.getProviderLogin()));
+  }
+
+  @Test
+  public void authenticate_and_migrate_legacy_bitbucket_user_matching_external_login_when_external_id_equals_external_login() {
+    IdentityProvider provider = composeIdentityProvider(BITBUCKET_PROVIDER, "name of bitbucket", true, false);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, provider, local(BASIC));
+    UserDto user = insertUser("Old login", "Old name", USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getProviderLogin(), BITBUCKET_PROVIDER, false, true);
+
+    underTest.register(registration);
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
+        UserDto::isActive)
+      .contains("John", "john@email.com", "ABCD", "johndoo", "bitbucket", true);
+  }
+
+  @Test
+  public void authenticate_and_update_existing_bitbucket_user_matching_external_id() {
+    IdentityProvider provider = composeIdentityProvider(BITBUCKET_PROVIDER, "name of bitbucket", true, false);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, provider, local(BASIC));
+    UserDto user = insertUser("Old login", "Old name", "Old email", USER_IDENTITY.getProviderId(), "old-username", BITBUCKET_PROVIDER, false, true);
+
+    underTest.register(registration);
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
+        UserDto::isActive)
+      .contains("John", "john@email.com", "ABCD", "johndoo", "bitbucket", true);
+  }
+
+  @Test
+  public void reactivate_and_migrate_disabled_legacy_bitbucket_user_matching_external_login() {
+    IdentityProvider provider = composeIdentityProvider(BITBUCKET_PROVIDER, "name of bitbucket", true, true);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, provider, local(BASIC));
+    UserDto user = insertUser("Old login", "Old name", USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getProviderLogin(), BITBUCKET_PROVIDER, false, false);
+
+    underTest.register(registration);
+
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getName, UserDto::getEmail, UserDto::getExternalId, UserDto::getExternalLogin, UserDto::getExternalIdentityProvider,
+        UserDto::isActive)
+      .contains("John", "john@email.com", "ABCD", "johndoo", "bitbucket", true);
+  }
+
+  @Test
+  public void do_not_authenticate_disabled_migrated_bitbucket_user_matching_external_login() {
+    IdentityProvider provider = composeIdentityProvider(BITBUCKET_PROVIDER, "name of bitbucket", true, false);
+    UserRegistration registration = composeUserRegistration(USER_IDENTITY, provider, local(BASIC));
+    insertUser("Old login", "Old name", USER_IDENTITY.getEmail(), "old-uuid", USER_IDENTITY.getProviderLogin(), BITBUCKET_PROVIDER, false, false);
+
+    assertThatThrownBy(() -> underTest.register(registration))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(String.format("Failed to authenticate with login '%s'", USER_IDENTITY.getProviderLogin()));
   }
 
   @Test

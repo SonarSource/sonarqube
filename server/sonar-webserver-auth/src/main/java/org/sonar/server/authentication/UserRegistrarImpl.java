@@ -62,6 +62,7 @@ public class UserRegistrarImpl implements UserRegistrar {
   private static final Logger LOGGER = LoggerFactory.getLogger(UserRegistrarImpl.class);
   public static final String GITHUB_PROVIDER = "github";
   public static final String GITLAB_PROVIDER = "gitlab";
+  public static final String BITBUCKET_PROVIDER = "bitbucket";
 
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
@@ -131,6 +132,10 @@ public class UserRegistrarImpl implements UserRegistrar {
       validateEmailToAvoidLoginRecycling(userIdentity, user, source);
     }
 
+    if (BITBUCKET_PROVIDER.equals(key)) {
+      validateExternalIdToAvoidLoginRecycling(userIdentity, user, source);
+    }
+
     return true;
   }
 
@@ -145,6 +150,12 @@ public class UserRegistrarImpl implements UserRegistrar {
 
     if (!dbEmail.equalsIgnoreCase(externalEmail)) {
       LOGGER.warn("User with login '{}' tried to login with email '{}' which doesn't match the email on record '{}'", userIdentity.getProviderLogin(), externalEmail, dbEmail);
+      throw failAuthenticationException(userIdentity, source);
+    }
+  }
+
+  private static void validateExternalIdToAvoidLoginRecycling(UserIdentity userIdentity, UserDto user, Source source) {
+    if (!user.getExternalId().equals(user.getExternalLogin())) {
       throw failAuthenticationException(userIdentity, source);
     }
   }
