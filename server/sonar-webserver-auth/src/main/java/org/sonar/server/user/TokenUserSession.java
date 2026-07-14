@@ -85,10 +85,11 @@ public class TokenUserSession extends ServerUserSession {
     TokenType tokenType = TokenType.valueOf(userToken.getType());
     return switch (tokenType) {
       case USER_TOKEN, GLOBAL_ANALYSIS_TOKEN -> super.doKeepAuthorizedEntities(permission, entities);
-      case PROJECT_ANALYSIS_TOKEN ->
-        (SCAN.equals(permission) || USER.equals(permission)) ? entities.stream()
+      case PROJECT_ANALYSIS_TOKEN -> hasLivePermissionOnTokenProject(permission)
+        ? entities.stream()
           .filter(entity -> entity.getUuid().equals(userToken.getProjectUuid()))
-          .toList() : Collections.emptyList();
+          .toList()
+        : Collections.emptyList();
       default -> throw new IllegalArgumentException(format(TOKEN_ASSERTION_ERROR_MESSAGE, tokenType.name()));
     };
   }
@@ -101,10 +102,28 @@ public class TokenUserSession extends ServerUserSession {
     TokenType tokenType = TokenType.valueOf(userToken.getType());
     return switch (tokenType) {
       case USER_TOKEN, GLOBAL_ANALYSIS_TOKEN -> super.keepAuthorizedProjectsUuids(dbSession, permission, entityUuids);
-      case PROJECT_ANALYSIS_TOKEN ->
-        (SCAN.equals(permission) || USER.equals(permission)) ? Collections.singleton(userToken.getProjectUuid()) : Collections.emptySet();
+      case PROJECT_ANALYSIS_TOKEN -> hasLivePermissionOnTokenProject(permission)
+        ? Collections.singleton(userToken.getProjectUuid())
+        : Collections.emptySet();
       default -> throw new IllegalArgumentException(format(TOKEN_ASSERTION_ERROR_MESSAGE, tokenType.name()));
     };
+  }
+
+  /**
+   * A project analysis token grants bulk {@link ProjectPermission#USER}/{@link ProjectPermission#SCAN} access to its
+   * own project only. Rather than trusting the project UUID stored in the token, this re-validates that the underlying
+   * user still holds the requested permission on that project (or the global SCAN permission). Re-checking the live
+   * permission mirrors the single-entity check in {@link #hasEntityUuidPermission(ProjectPermission, String)} and
+   * prevents a still-valid token from exposing its project's metadata after the user's permission has been revoked
+   * (SSF-1107).
+   */
+  private boolean hasLivePermissionOnTokenProject(ProjectPermission permission) {
+    if (!SCAN.equals(permission) && !USER.equals(permission)) {
+      return false;
+    }
+    String projectUuid = userToken.getProjectUuid();
+    return projectUuid != null
+      && (super.hasEntityUuidPermission(permission, projectUuid) || super.hasPermissionImpl(GlobalPermission.SCAN));
   }
 
   public UserTokenDto getUserToken() {
