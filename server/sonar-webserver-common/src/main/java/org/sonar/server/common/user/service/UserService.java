@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -224,9 +225,30 @@ public class UserService {
       throwIfInvalidChangeOfExternalProvider(updateUser);
       throwIfManagedInstanceAndNameOrEmailOrExternalInfoUpdated(updateUser);
       UserDto userDto = findUserOrThrow(uuid, dbSession);
-      userUpdater.updateAndCommit(dbSession, userDto, updateUser, u -> {
-      });
+      boolean externalIdentityUpdateRequested = UserUpdater.isExternalIdentityUpdateRequested(updateUser);
+      String previousProvider = userDto.getExternalIdentityProvider();
+      String previousExternalId = userDto.getExternalId();
+      String previousExternalLogin = userDto.getExternalLogin();
+      userUpdater.updateAndCommit(dbSession, userDto, updateUser,
+        u -> revokeSessionsAndTokensIfExternalIdentityRebound(dbSession, u, externalIdentityUpdateRequested,
+          previousProvider, previousExternalId, previousExternalLogin));
       return fetchUser(userDto.getUuid());
+    }
+  }
+
+  /**
+   * Revokes web sessions and access tokens when an admin re-binds the user's external identity, so the previous identity
+   * loses access. Fires only when the external identity fields were targeted AND the binding actually changed, so a plain
+   * login rename (which cascades into external_login/external_id for local users) is not affected.
+   */
+  private void revokeSessionsAndTokensIfExternalIdentityRebound(DbSession dbSession, UserDto user, boolean externalIdentityUpdateRequested,
+    String previousProvider, String previousExternalId, String previousExternalLogin) {
+    boolean bindingChanged = !Objects.equals(previousProvider, user.getExternalIdentityProvider())
+      || !Objects.equals(previousExternalId, user.getExternalId())
+      || !Objects.equals(previousExternalLogin, user.getExternalLogin());
+    if (externalIdentityUpdateRequested && bindingChanged) {
+      dbClient.sessionTokensDao().deleteByUser(dbSession, user);
+      dbClient.userTokenDao().deleteByUser(dbSession, user);
     }
   }
 

@@ -20,6 +20,7 @@
 package org.sonar.server.user.ws;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.authentication.IdentityProvider;
@@ -114,8 +115,24 @@ public class UpdateIdentityProviderAction implements UsersWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto user = getUser(dbSession, request.login);
       UpdateUser updateUser = toUpdateUser(request, user);
-      userUpdater.updateAndCommit(dbSession, user, updateUser, u -> {
-      });
+      boolean externalIdentityUpdateRequested = UserUpdater.isExternalIdentityUpdateRequested(updateUser);
+      String previousProvider = user.getExternalIdentityProvider();
+      String previousExternalId = user.getExternalId();
+      String previousExternalLogin = user.getExternalLogin();
+      userUpdater.updateAndCommit(dbSession, user, updateUser,
+        u -> revokeSessionsAndTokensIfExternalIdentityRebound(dbSession, u, externalIdentityUpdateRequested,
+          previousProvider, previousExternalId, previousExternalLogin));
+    }
+  }
+
+  private void revokeSessionsAndTokensIfExternalIdentityRebound(DbSession dbSession, UserDto user, boolean externalIdentityUpdateRequested,
+    @Nullable String previousProvider, @Nullable String previousExternalId, @Nullable String previousExternalLogin) {
+    boolean bindingChanged = !Objects.equals(previousProvider, user.getExternalIdentityProvider())
+      || !Objects.equals(previousExternalId, user.getExternalId())
+      || !Objects.equals(previousExternalLogin, user.getExternalLogin());
+    if (externalIdentityUpdateRequested && bindingChanged) {
+      dbClient.sessionTokensDao().deleteByUser(dbSession, user);
+      dbClient.userTokenDao().deleteByUser(dbSession, user);
     }
   }
 

@@ -245,6 +245,68 @@ public class UpdateIdentityProviderActionIT {
     verify(managedInstanceChecker, never()).throwIfInstanceIsManaged();
   }
 
+  @Test
+  public void change_identity_provider_revokes_sessions_and_tokens_of_the_user() {
+    String userLogin = "login-1";
+    createUser(false, userLogin, "john@gitlab.com", "gitlab");
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, userLogin);
+    db.users().insertToken(user);
+    db.users().insertSessionToken(user, st -> st.setExpirationDate(Long.MAX_VALUE));
+    dbSession.commit();
+    assertThat(db.countRowsOfTable(dbSession, "user_tokens")).isOne();
+    assertThat(db.countRowsOfTable(dbSession, "session_tokens")).isOne();
+
+    underTest.newRequest()
+      .setParam("login", userLogin)
+      .setParam("newExternalProvider", "github")
+      .setParam("newExternalIdentity", "john@github.com")
+      .execute();
+
+    assertThat(db.countRowsOfTable(dbSession, "user_tokens")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "session_tokens")).isZero();
+  }
+
+  @Test
+  public void change_identity_provider_toSameExternalIdentity_keepsSessionsAndTokens() {
+    String userLogin = "login-1";
+    createUser(false, userLogin, "john@github.com", "github");
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, userLogin);
+    db.users().insertToken(user);
+    db.users().insertSessionToken(user, st -> st.setExpirationDate(Long.MAX_VALUE));
+    dbSession.commit();
+    assertThat(db.countRowsOfTable(dbSession, "user_tokens")).isOne();
+    assertThat(db.countRowsOfTable(dbSession, "session_tokens")).isOne();
+
+    underTest.newRequest()
+      .setParam("login", userLogin)
+      .setParam("newExternalProvider", "github")
+      .setParam("newExternalIdentity", "john@github.com")
+      .execute();
+
+    assertThat(db.countRowsOfTable(dbSession, "user_tokens")).isOne();
+    assertThat(db.countRowsOfTable(dbSession, "session_tokens")).isOne();
+  }
+
+  @Test
+  public void change_identity_provider_whenOnlyExternalLoginChanges_revokesSessionsAndTokens() {
+    String userLogin = "login-1";
+    createUser(false, userLogin, "john@github.com", "github");
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, userLogin);
+    db.users().insertToken(user);
+    db.users().insertSessionToken(user, st -> st.setExpirationDate(Long.MAX_VALUE));
+    dbSession.commit();
+
+    // Same provider but a different external login is still a rebind -> revoke.
+    underTest.newRequest()
+      .setParam("login", userLogin)
+      .setParam("newExternalProvider", "github")
+      .setParam("newExternalIdentity", "attacker@github.com")
+      .execute();
+
+    assertThat(db.countRowsOfTable(dbSession, "user_tokens")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "session_tokens")).isZero();
+  }
+
   private void createUser(boolean local, String login, String externalLogin, String externalIdentityProvider) {
     UserDto userDto = newUserDto()
       .setEmail("john@email.com")

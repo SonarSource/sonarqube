@@ -325,6 +325,61 @@ public class UserServiceIT {
   }
 
   @Test
+  public void updateUser_whenExternalIdentityChanges_revokesSessionsAndTokens() {
+    UserDto user = db.users().insertUser(u -> u
+      .setLocal(false)
+      .setExternalIdentityProvider("github")
+      .setExternalLogin("victim")
+      .setExternalId("victim-id"));
+    db.users().insertToken(user);
+    db.users().insertSessionToken(user, st -> st.setExpirationDate(Long.MAX_VALUE));
+    assertThat(db.countRowsOfTable(dbSession, "user_tokens")).isOne();
+    assertThat(db.countRowsOfTable(dbSession, "session_tokens")).isOne();
+
+    userService.updateUser(user.getUuid(), new UpdateUser()
+      .setExternalIdentityProviderId("attacker-id")
+      .setExternalIdentityProviderLogin("attacker"));
+
+    assertThat(db.countRowsOfTable(dbSession, "user_tokens")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "session_tokens")).isZero();
+  }
+
+  @Test
+  public void updateUser_whenOnlyNameChanges_keepsSessionsAndTokens() {
+    UserDto user = db.users().insertUser(u -> u
+      .setLocal(false)
+      .setExternalIdentityProvider("github")
+      .setExternalLogin("victim")
+      .setExternalId("victim-id"));
+    db.users().insertToken(user);
+    db.users().insertSessionToken(user, st -> st.setExpirationDate(Long.MAX_VALUE));
+
+    userService.updateUser(user.getUuid(), new UpdateUser().setName("New Name"));
+
+    assertThat(db.countRowsOfTable(dbSession, "user_tokens")).isOne();
+    assertThat(db.countRowsOfTable(dbSession, "session_tokens")).isOne();
+  }
+
+  @Test
+  public void updateUser_whenOnlyLoginChangesForLocalUser_keepsSessionsAndTokens() {
+    // Renaming a local user's login cascades into external_login/external_id, but it is not an external-identity
+    // rebind, so sessions and tokens must be preserved (SSF-1094 precision - no revocation on benign login rename).
+    UserDto user = db.users().insertUser(u -> u
+      .setLocal(true)
+      .setLogin("victim")
+      .setExternalIdentityProvider("sonarqube")
+      .setExternalLogin("victim")
+      .setExternalId("victim"));
+    db.users().insertToken(user);
+    db.users().insertSessionToken(user, st -> st.setExpirationDate(Long.MAX_VALUE));
+
+    userService.updateUser(user.getUuid(), new UpdateUser().setLogin("victim-renamed"));
+
+    assertThat(db.countRowsOfTable(dbSession, "user_tokens")).isOne();
+    assertThat(db.countRowsOfTable(dbSession, "session_tokens")).isOne();
+  }
+
+  @Test
   public void return_user_not_having_email() {
     UserDto user = db.users().insertUser(u -> u.setEmail(null));
 

@@ -242,7 +242,7 @@ public class UserUpdater {
   }
 
   private boolean updateExternalIdentity(DbSession dbSession, UpdateUser updateUser, UserDto userDto) {
-    if (externalIdentityChanged(updateUser)) {
+    if (isExternalIdentityUpdateRequested(updateUser)) {
       ExternalIdentityLocal externalIdentityLocal = ExternalIdentityLocal.fromUpdateUser(updateUser);
       if (!externalIdentityLocal.isSameExternalIdentity(userDto)) {
         setExternalIdentity(dbSession, userDto, externalIdentityLocal);
@@ -252,7 +252,7 @@ public class UserUpdater {
     return false;
   }
 
-  private static boolean externalIdentityChanged(UpdateUser updateUser) {
+  public static boolean isExternalIdentityUpdateRequested(UpdateUser updateUser) {
     return updateUser.isExternalIdentityProviderChanged() || updateUser.isExternalIdentityProviderIdChanged() || updateUser.isExternalIdentityProviderLoginChanged();
   }
 
