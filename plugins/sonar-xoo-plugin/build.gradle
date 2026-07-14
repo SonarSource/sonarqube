@@ -22,6 +22,17 @@ dependencies {
 }
 
 jar {
+  doFirst {
+    def libsDir = file("${project.buildDir}/libs")
+    if (libsDir.exists()) {
+      libsDir.listFiles({ dir, name -> name.endsWith('.jar') } as FilenameFilter).each { f ->
+        logger.info("Deleting stale jar: ${f.name}")
+        if (!f.delete()) {
+          logger.warn("Failed to delete stale jar: ${f}")
+        }
+      }
+    }
+  }
   manifest {
     attributes(
       'Plugin-Key': 'xoo',
