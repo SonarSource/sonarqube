@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 
 public class OAuthCsrfVerifierTest {
   private static final String PROVIDER_NAME = "provider name";
@@ -62,9 +63,8 @@ public class OAuthCsrfVerifierTest {
     String state = underTest.generateState(request, response);
     assertThat(state).isNotEmpty();
 
-    verify(response).addCookie(cookieArgumentCaptor.capture());
-
-    verifyCookie(cookieArgumentCaptor.getValue());
+    verify(response).addHeader(SET_COOKIE,
+      String.format("OAUTHSTATE=%s; Path=/; SameSite=Lax; Max-Age=900; HttpOnly", sha256Hex(state)));
   }
 
   @Test
@@ -140,15 +140,6 @@ public class OAuthCsrfVerifierTest {
       .hasMessage("Cookie 'OAUTHSTATE' is missing")
       .isInstanceOf(AuthenticationException.class)
       .hasFieldOrPropertyWithValue("source", AuthenticationEvent.Source.oauth2(identityProvider));
-  }
-
-  private void verifyCookie(Cookie cookie) {
-    assertThat(cookie.getName()).isEqualTo("OAUTHSTATE");
-    assertThat(cookie.getValue()).isNotEmpty();
-    assertThat(cookie.getPath()).isEqualTo("/");
-    assertThat(cookie.isHttpOnly()).isTrue();
-    assertThat(cookie.getMaxAge()).isEqualTo(-1);
-    assertThat(cookie.isSecure()).isFalse();
   }
 
   private JakartaHttpRequest.JakartaCookie wrapCookie(String name, String value) {

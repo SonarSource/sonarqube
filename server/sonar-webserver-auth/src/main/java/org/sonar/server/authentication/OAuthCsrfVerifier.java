@@ -30,6 +30,8 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import static java.lang.String.format;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.sonar.server.authentication.Cookies.SAMESITE_LAX;
+import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 import static org.sonar.server.authentication.Cookies.findCookie;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
@@ -38,12 +40,17 @@ public class OAuthCsrfVerifier {
 
   private static final String CSRF_STATE_COOKIE = "OAUTHSTATE";
   private static final String DEFAULT_STATE_PARAMETER_NAME = "state";
+  private static final int STATE_COOKIE_MAX_AGE_SECONDS = 15 * 60;
 
   public String generateState(HttpRequest request, HttpResponse response) {
-    // Create a state token to prevent request forgery.
-    // Store it in the session for later validation.
     String state = new BigInteger(130, new SecureRandom()).toString(32);
-    response.addCookie(newCookieBuilder(request).setName(CSRF_STATE_COOKIE).setValue(sha256Hex(state)).setHttpOnly(true).setExpiry(-1).build());
+    response.addHeader(SET_COOKIE, newCookieBuilder(request)
+      .setName(CSRF_STATE_COOKIE)
+      .setValue(sha256Hex(state))
+      .setHttpOnly(true)
+      .setSameSite(SAMESITE_LAX)
+      .setExpiry(STATE_COOKIE_MAX_AGE_SECONDS)
+      .toValueString());
     return state;
   }
 
