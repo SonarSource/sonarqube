@@ -281,7 +281,7 @@ public class UserRegistrarImplIT {
 
   @Test
   public void authenticate_existing_user_doesnt_change_group_membership() {
-    UserDto user = db.users().insertUser(u -> u.setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()));
+    UserDto user = db.users().insertUser(u -> u.setExternalIdentityProvider(GH_IDENTITY_PROVIDER.getKey()).setExternalId(u.getExternalLogin()));
     GroupDto group1 = db.users().insertGroup("group1");
     db.users().insertMember(group1, user);
     db.users().insertMember(defaultGroup, user);
@@ -305,7 +305,8 @@ public class UserRegistrarImplIT {
 
   @Test
   public void authenticate_and_update_existing_user_matching_external_login_and_email() {
-    UserDto user = insertUser("Old login", "Old name", USER_IDENTITY.getEmail(), "Old id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+    UserDto user = insertUser("Old login", "Old name", USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(),
+      false, true);
 
     underTest.register(newUserRegistration());
 
@@ -333,7 +334,7 @@ public class UserRegistrarImplIT {
 
   @Test
   public void authenticate_existing_user_matching_external_login_and_email_when_external_id_is_null() {
-    UserDto user = insertUser("", "Old name", "john@email.com", "Old id", "johndoo", GH_IDENTITY_PROVIDER.getKey(), false, true);
+    UserDto user = insertUser("", "Old name", "john@email.com", "johndoo", "johndoo", GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     underTest.register(newUserRegistration(UserIdentity.builder()
       .setProviderId(null)
@@ -361,7 +362,8 @@ public class UserRegistrarImplIT {
 
   @Test
   public void do_not_authenticate_and_update_existing_github_user_matching_external_login_if_emails_do_not_match() {
-    insertUser("Old login", "Old name", "another-email@sonarsource.com", "Old id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+    insertUser("Old login", "Old name", "another-email@sonarsource.com", USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getProviderLogin(),
+      GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     assertThatThrownBy(() -> underTest.register(newUserRegistration()))
       .isInstanceOf(AuthenticationException.class)
@@ -518,13 +520,39 @@ public class UserRegistrarImplIT {
   }
 
   @Test
-  public void authenticate_and_update_existing_user_matching_external_login_if_email_is_missing() {
+  public void do_not_authenticate_existing_github_user_when_external_id_differs_and_email_missing() {
     insertUser("Old login", "Old name", null, "Old id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+
+    assertThatThrownBy(() -> underTest.register(newUserRegistration()))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(String.format("Failed to authenticate with login '%s'", USER_IDENTITY.getProviderLogin()));
+
+    UserDto user = db.users().selectUserByLogin("Old login").get();
+    assertThat(user.getExternalId()).isEqualTo("Old id");
+    assertThat(user.getEmail()).isNull();
+    assertThat(logTester.logs()).contains(String.format(
+      "User '%s' tried to log on with a different external ID than what we have on record",
+      USER_IDENTITY.getProviderLogin()));
+  }
+
+  @Test
+  public void do_not_authenticate_existing_github_user_when_external_id_differs_even_if_email_matches() {
+    insertUser("Old login", "Old name", USER_IDENTITY.getEmail(), "Old id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+
+    assertThatThrownBy(() -> underTest.register(newUserRegistration()))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage(String.format("Failed to authenticate with login '%s'", USER_IDENTITY.getProviderLogin()));
+  }
+
+  @Test
+  public void authenticate_legacy_github_user_matching_external_login_when_email_missing_backfills_id() {
+    insertUser("Old login", "Old name", null, USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     underTest.register(newUserRegistration());
 
     Optional<UserDto> user = db.users().selectUserByLogin("Old login");
     assertThat(user).isPresent();
+    assertThat(user.get().getExternalId()).isEqualTo(USER_IDENTITY.getProviderId());
     assertThat(user.get().getEmail()).isEqualTo(USER_IDENTITY.getEmail());
   }
 
@@ -549,7 +577,7 @@ public class UserRegistrarImplIT {
 
   @Test
   public void authenticate_existing_disabled_user_should_reactivate_it() {
-    insertUser(USER_LOGIN, "Old name", USER_IDENTITY.getEmail(), "Old id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, false);
+    insertUser(USER_LOGIN, "Old name", USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderId(), USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, false);
 
     underTest.register(newUserRegistration());
 
@@ -603,7 +631,7 @@ public class UserRegistrarImplIT {
 
   @Test
   public void authenticate_existing_user_and_add_new_groups() {
-    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), "id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     GroupDto group1 = db.users().insertGroup("group1");
     GroupDto group2 = db.users().insertGroup("group2");
@@ -615,7 +643,7 @@ public class UserRegistrarImplIT {
 
   @Test
   public void authenticate_existing_user_and_remove_groups() {
-    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), "id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     GroupDto group1 = db.users().insertGroup("group1");
     GroupDto group2 = db.users().insertGroup("group2");
@@ -629,7 +657,7 @@ public class UserRegistrarImplIT {
 
   @Test
   public void authenticate_existing_user_and_remove_all_groups_expect_default() {
-    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), "id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     GroupDto group1 = db.users().insertGroup("group1");
     GroupDto group2 = db.users().insertGroup("group2");
@@ -647,7 +675,7 @@ public class UserRegistrarImplIT {
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(true);
     when(managedInstanceService.getProviderName()).thenReturn(GITHUB_PROVIDER);
 
-    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), "id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     GroupDto group1 = db.users().insertGroup("group1");
     GroupDto group2 = db.users().insertGroup("group2");
@@ -691,7 +719,7 @@ public class UserRegistrarImplIT {
   public void authenticate_existing_user_should_remove_groups_when_instance_is_not_externally_managed() {
     when(managedInstanceService.isInstanceExternallyManaged()).thenReturn(false);
 
-    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), "id", USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
+    UserDto user = insertUser("login", "John", USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderLogin(), USER_IDENTITY.getProviderLogin(), GH_IDENTITY_PROVIDER.getKey(), false, true);
 
     GroupDto group1 = db.users().insertGroup("group1");
     GroupDto group2 = db.users().insertGroup("group2");

@@ -130,6 +130,7 @@ public class UserRegistrarImpl implements UserRegistrar {
 
     if (GITHUB_PROVIDER.equals(key)) {
       validateEmailToAvoidLoginRecycling(userIdentity, user, source);
+      validateExternalIdToAvoidLoginRecycling(userIdentity, user, source);
     }
 
     if (BITBUCKET_PROVIDER.equals(key)) {
@@ -155,9 +156,14 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   private static void validateExternalIdToAvoidLoginRecycling(UserIdentity userIdentity, UserDto user, Source source) {
-    if (!user.getExternalId().equals(user.getExternalLogin())) {
+    if (!userExternalIdMatchesLogin(user)) {
+      LOGGER.warn("User '{}' tried to log on with a different external ID than what we have on record", userIdentity.getProviderLogin());
       throw failAuthenticationException(userIdentity, source);
     }
+  }
+
+  private static boolean userExternalIdMatchesLogin(UserDto user) {
+    return user.getExternalId().equals(user.getExternalLogin());
   }
 
   private static AuthenticationException failAuthenticationException(UserIdentity userIdentity, Source source) {
