@@ -41,7 +41,7 @@ public class JwtCsrfVerifier {
   private static final String CSRF_STATE_COOKIE = "XSRF-TOKEN";
   private static final String CSRF_HEADER = "X-XSRF-TOKEN";
 
-  private static final Set<String> UPDATE_METHODS = Set.of("POST", "PUT", "DELETE");
+  private static final Set<String> UPDATE_METHODS = Set.of("POST", "PUT", "DELETE", "PATCH");
   private static final String API_URL = "/api";
 
   public String generateState(HttpRequest request, HttpResponse response, int timeoutInSeconds) {
