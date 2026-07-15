@@ -19,8 +19,12 @@
  */
 package org.sonar.server.authentication;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.http.Cookie;
 import org.sonar.api.server.http.HttpRequest;
@@ -36,6 +40,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 
+@RunWith(DataProviderRunner.class)
 public class JwtCsrfVerifierTest {
 
   private static final int TIMEOUT = 30;
@@ -108,36 +113,11 @@ public class JwtCsrfVerifierTest {
   }
 
   @Test
-  public void verify_POST_request() {
+  @UseDataProvider("update_methods")
+  public void verify_request_fails_when_csrf_token_does_not_match(String method) {
     mockRequestCsrf("other value");
     when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
-    when(request.getMethod()).thenReturn("POST");
-
-    assertThatThrownBy(() -> underTest.verifyState(request, CSRF_STATE, LOGIN))
-      .hasMessage("Wrong CSFR in request")
-      .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("login", LOGIN)
-      .hasFieldOrPropertyWithValue("source", Source.local(Method.JWT));
-  }
-
-  @Test
-  public void verify_PUT_request() {
-    mockRequestCsrf("other value");
-    when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
-    when(request.getMethod()).thenReturn("PUT");
-
-    assertThatThrownBy(() -> underTest.verifyState(request, CSRF_STATE, LOGIN))
-      .hasMessage("Wrong CSFR in request")
-      .isInstanceOf(AuthenticationException.class)
-      .hasFieldOrPropertyWithValue("login", LOGIN)
-      .hasFieldOrPropertyWithValue("source", Source.local(Method.JWT));
-  }
-
-  @Test
-  public void verify_DELETE_request() {
-    mockRequestCsrf("other value");
-    when(request.getRequestURI()).thenReturn(JAVA_WS_URL);
-    when(request.getMethod()).thenReturn("DELETE");
+    when(request.getMethod()).thenReturn(method);
 
     assertThatThrownBy(() -> underTest.verifyState(request, CSRF_STATE, LOGIN))
       .hasMessage("Wrong CSFR in request")
@@ -200,5 +180,15 @@ public class JwtCsrfVerifierTest {
     when(request.getMethod()).thenReturn(method);
 
     underTest.verifyState(request, null, LOGIN);
+  }
+
+  @DataProvider
+  public static Object[][] update_methods() {
+    return new Object[][] {
+      {"POST"},
+      {"PUT"},
+      {"DELETE"},
+      {"PATCH"},
+    };
   }
 }
