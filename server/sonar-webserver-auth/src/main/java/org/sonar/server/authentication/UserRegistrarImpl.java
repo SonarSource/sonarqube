@@ -157,13 +157,13 @@ public class UserRegistrarImpl implements UserRegistrar {
 
   private static void validateExternalIdToAvoidLoginRecycling(UserIdentity userIdentity, UserDto user, Source source) {
     if (!userExternalIdMatchesLogin(user)) {
-      LOGGER.warn("User '{}' tried to log on with a different external ID than what we have on record", userIdentity.getProviderLogin());
+      LOGGER.warn("User '{}' matched by external login, but the stored external ID differs - possible recycled external username", userIdentity.getProviderLogin());
       throw failAuthenticationException(userIdentity, source);
     }
   }
 
   private static boolean userExternalIdMatchesLogin(UserDto user) {
-    return user.getExternalId().equals(user.getExternalLogin());
+    return Objects.equals(user.getExternalId(), user.getExternalLogin());
   }
 
   private static AuthenticationException failAuthenticationException(UserIdentity userIdentity, Source source) {

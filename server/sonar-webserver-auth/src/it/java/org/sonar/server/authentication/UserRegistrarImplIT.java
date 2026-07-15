@@ -531,7 +531,7 @@ public class UserRegistrarImplIT {
     assertThat(user.getExternalId()).isEqualTo("Old id");
     assertThat(user.getEmail()).isNull();
     assertThat(logTester.logs()).contains(String.format(
-      "User '%s' tried to log on with a different external ID than what we have on record",
+      "User '%s' matched by external login, but the stored external ID differs - possible recycled external username",
       USER_IDENTITY.getProviderLogin()));
   }
 
