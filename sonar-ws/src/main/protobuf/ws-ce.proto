@@ -58,6 +58,8 @@ message IndexationStatusWsResponse {
   optional bool hasFailures = 2;
   optional int32 completedCount = 3;
   optional int32 total = 4;
+  optional bool hasInconsistencies = 5;
+  optional string statusMessage = 6;
 }
 
 // GET api/ce/analysis_status

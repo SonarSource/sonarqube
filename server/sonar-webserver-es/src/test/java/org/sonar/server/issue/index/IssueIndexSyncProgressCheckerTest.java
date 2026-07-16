@@ -53,6 +53,7 @@ public class IssueIndexSyncProgressCheckerTest {
 
   private final IssueIndexSyncProgressChecker underTest = new IssueIndexSyncProgressChecker(db.getDbClient());
 
+
   @Test
   public void getIssueSyncProgress_whenNoTasksLeft_shouldReturnCompleted() {
     IssueSyncProgress issueSyncProgress = underTest.getIssueSyncProgress(db.getSession());
@@ -179,7 +180,7 @@ public class IssueIndexSyncProgressCheckerTest {
     assertThatThrownBy(() -> underTest.checkIfAnyComponentsNeedIssueSync(session, projectKeys))
       .isInstanceOf(EsIndexSyncInProgressException.class)
       .hasFieldOrPropertyWithValue("httpCode", 503)
-      .hasMessage("Results are temporarily unavailable. Indexing of issues is in progress.");
+      .hasMessage(IssueSyncProgress.MSG_STUCK);
   }
 
   @Test
@@ -200,7 +201,7 @@ public class IssueIndexSyncProgressCheckerTest {
     assertThatThrownBy(() -> underTest.checkIfAnyComponentsNeedIssueSync(session, projectKeys))
       .isInstanceOf(EsIndexSyncInProgressException.class)
       .hasFieldOrPropertyWithValue("httpCode", 503)
-      .hasMessage("Results are temporarily unavailable. Indexing of issues is in progress.");
+      .hasMessage(IssueSyncProgress.MSG_STUCK);
   }
 
   @Test
@@ -217,7 +218,7 @@ public class IssueIndexSyncProgressCheckerTest {
     assertThatThrownBy(() -> underTest.checkIfComponentNeedIssueSync(session, key))
       .isInstanceOf(EsIndexSyncInProgressException.class)
       .hasFieldOrPropertyWithValue("httpCode", 503)
-      .hasMessage("Results are temporarily unavailable. Indexing of issues is in progress.");
+      .hasMessage(IssueSyncProgress.MSG_STUCK);
   }
 
   @Test
@@ -236,7 +237,7 @@ public class IssueIndexSyncProgressCheckerTest {
       appViewOrSubviewKeys))
         .isInstanceOf(EsIndexSyncInProgressException.class)
         .hasFieldOrPropertyWithValue("httpCode", 503)
-        .hasMessage("Results are temporarily unavailable. Indexing of issues is in progress.");
+        .hasMessage(IssueSyncProgress.MSG_STUCK);
   }
 
   @Test
@@ -249,7 +250,55 @@ public class IssueIndexSyncProgressCheckerTest {
     assertThatThrownBy(() -> underTest.checkIfIssueSyncInProgress(session))
       .isInstanceOf(EsIndexSyncInProgressException.class)
       .hasFieldOrPropertyWithValue("httpCode", 503)
-      .hasMessage("Results are temporarily unavailable. Indexing of issues is in progress.");
+      .hasMessage(IssueSyncProgress.MSG_STUCK);
+  }
+
+  @Test
+  public void checkIfIssueSyncInProgress_whenQueueEmptyAndBranchNeedsSync_shouldThrowStuckMessage() {
+    insertProjectWithBranches(true, 0);
+
+    DbSession session = db.getSession();
+    assertThatThrownBy(() -> underTest.checkIfIssueSyncInProgress(session))
+      .isInstanceOf(EsIndexSyncInProgressException.class)
+      .hasFieldOrPropertyWithValue("httpCode", 503)
+      .hasMessage(IssueSyncProgress.MSG_STUCK);
+  }
+
+  @Test
+  public void checkIfIssueSyncInProgress_whenQueueEmptyAndFailedTaskAndBranchNeedsSync_shouldThrowFailureMessage() {
+    ProjectData projectData = insertProjectWithBranches(true, 0);
+    insertCeActivity("TASK_1", projectData, FAILED);
+
+    DbSession session = db.getSession();
+    assertThatThrownBy(() -> underTest.checkIfIssueSyncInProgress(session))
+      .isInstanceOf(EsIndexSyncInProgressException.class)
+      .hasFieldOrPropertyWithValue("httpCode", 503)
+      .hasMessage(IssueSyncProgress.MSG_FAILURES);
+  }
+
+  @Test
+  public void checkIfIssueSyncInProgress_whenQueueNotEmpty_shouldThrowInProgressMessage() {
+    insertCeQueue("TASK_1", Status.IN_PROGRESS);
+    insertProjectWithBranches(true, 0);
+
+    DbSession session = db.getSession();
+    assertThatThrownBy(() -> underTest.checkIfIssueSyncInProgress(session))
+      .isInstanceOf(EsIndexSyncInProgressException.class)
+      .hasFieldOrPropertyWithValue("httpCode", 503)
+      .hasMessage(IssueSyncProgress.MSG_IN_PROGRESS);
+  }
+
+  @Test
+  public void getIssueSyncProgress_whenQueueEmptyAndBranchNeedsSync_shouldReportInconsistency() {
+    insertProjectWithBranches(true, 0);
+    insertProjectWithBranches(false, 0);
+
+    IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
+    assertThat(result.hasInconsistencies()).isTrue();
+    assertThat(result.isCompleted()).isFalse();
+    assertThat(result.hasFailures()).isFalse();
+    assertThat(result.getCompletedCount()).isEqualTo(1);
+    assertThat(result.getTotal()).isEqualTo(2);
   }
 
   @Test
@@ -270,6 +319,62 @@ public class IssueIndexSyncProgressCheckerTest {
     assertThat(underTest.findProjectUuidsWithIssuesSyncNeed(db.getSession(),
       Arrays.asList(projectData1.getProjectDto().getUuid(), projectData2.getProjectDto().getUuid(), projectData3.getProjectDto().getUuid(), projectData4.getProjectDto().getUuid())))
         .containsOnly(projectData3.getProjectDto().getUuid(), projectData4.getProjectDto().getUuid());
+  }
+
+  @Test
+  public void isIssueSyncInProgress_returnsFalse_whenNoBranchNeedsSync() {
+    insertProjectWithBranches(false, 0);
+    assertThat(underTest.isIssueSyncInProgress(db.getSession())).isFalse();
+  }
+
+  @Test
+  public void isIssueSyncInProgress_returnsTrue_whenAtLeastOneBranchNeedsSync() {
+    insertProjectWithBranches(false, 0);
+    insertProjectWithBranches(true, 0);
+    assertThat(underTest.isIssueSyncInProgress(db.getSession())).isTrue();
+  }
+
+  @Test
+  public void getIssueSyncProgress_whenQueueNotEmpty_shouldNotReportInconsistency() {
+    insertCeQueue("TASK_1", Status.IN_PROGRESS);
+    insertProjectWithBranches(true, 0);
+
+    IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
+    assertThat(result.hasInconsistencies()).isFalse();
+  }
+
+  @Test
+  public void getIssueSyncProgress_whenFailuresExist_shouldNotReportInconsistency() {
+    ProjectData projectData = insertProjectWithBranches(true, 0);
+    insertCeActivity("TASK_1", projectData, FAILED);
+
+    IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
+    assertThat(result.hasInconsistencies()).isFalse();
+  }
+
+  @Test
+  public void getIssueSyncProgress_whenAllSynced_shouldNotReportInconsistency() {
+    insertProjectWithBranches(false, 0);
+
+    IssueSyncProgress result = underTest.getIssueSyncProgress(db.getSession());
+    assertThat(result.hasInconsistencies()).isFalse();
+  }
+
+  @Test
+  public void checkIfAnyComponentsNeedIssueSync_doesNotThrow_forAppViewSubview_whenNoBranchNeedsSync() {
+    insertProjectWithBranches(false, 0);
+    ComponentDto app = db.components().insertPublicApplication().getMainBranchComponent();
+    ComponentDto view = db.components().insertPrivatePortfolio();
+    ComponentDto subview = db.components().insertSubView(view);
+
+    underTest.checkIfAnyComponentsNeedIssueSync(db.getSession(),
+      Arrays.asList(app.getKey(), view.getKey(), subview.getKey()));
+  }
+
+  @Test
+  public void findProjectUuidsWithIssuesSyncNeed_returnsEmpty_whenInputIsEmpty() {
+    insertProjectWithBranches(true, 0);
+    assertThat(underTest.findProjectUuidsWithIssuesSyncNeed(db.getSession(), Collections.emptyList())).isEmpty();
   }
 
   private ProjectData insertProjectWithBranches(boolean needIssueSync, int numberOfBranches) {

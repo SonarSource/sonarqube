@@ -63,12 +63,20 @@ public class IndexationStatusAction implements CeWsAction {
       issueSyncProgress = issueIndexSyncChecker.getIssueSyncProgress(dbSession);
     }
 
-    return IndexationStatusWsResponse.newBuilder()
+    IndexationStatusWsResponse.Builder builder = IndexationStatusWsResponse.newBuilder()
       .setIsCompleted(issueSyncProgress.isCompleted())
       .setHasFailures(issueSyncProgress.hasFailures())
       .setCompletedCount(issueSyncProgress.getCompletedCount())
-      .setTotal(issueSyncProgress.getTotal())
-      .build();
+      .setTotal(issueSyncProgress.getTotal());
+
+    if (!issueSyncProgress.isCompleted()) {
+      if(issueSyncProgress.hasInconsistencies()) {
+        builder.setHasInconsistencies(true);
+      }
+      builder.setStatusMessage(issueSyncProgress.getStatusMessage());
+    }
+
+    return builder.build();
   }
 
 }

@@ -50,6 +50,7 @@ public class IndexationStatusActionIT {
 
   private final WsActionTester ws = new WsActionTester(new IndexationStatusAction(db.getDbClient(), issueIndexSyncProgressCheckerMock));
 
+
   @Test
   public void definition() {
     WebService.Action def = ws.getDef();
@@ -74,6 +75,7 @@ public class IndexationStatusActionIT {
     assertThat(response.getTotal()).isEqualTo(10);
     assertThat(response.getIsCompleted()).isTrue();
     assertThat(response.getHasFailures()).isFalse();
+    assertThat(response.hasStatusMessage()).isFalse();
   }
 
   @Test
@@ -86,5 +88,35 @@ public class IndexationStatusActionIT {
     assertThat(response.getTotal()).isEqualTo(10);
     assertThat(response.getIsCompleted()).isFalse();
     assertThat(response.getHasFailures()).isFalse();
+    assertThat(response.getHasInconsistencies()).isFalse();
+    assertThat(response.getStatusMessage()).isEqualTo(IssueSyncProgress.MSG_IN_PROGRESS);
+  }
+
+  @Test
+  public void call_whenQueueEmptyButProjectsStillNeedSync_shouldReturnInconsistencies() {
+    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(true, 9, 10, false));
+
+    IndexationStatusWsResponse response = ws.newRequest()
+      .executeProtobuf(IndexationStatusWsResponse.class);
+    assertThat(response.getCompletedCount()).isEqualTo(9);
+    assertThat(response.getTotal()).isEqualTo(10);
+    assertThat(response.getIsCompleted()).isFalse();
+    assertThat(response.getHasFailures()).isFalse();
+    assertThat(response.getHasInconsistencies()).isTrue();
+    assertThat(response.getStatusMessage()).isEqualTo(IssueSyncProgress.MSG_STUCK);
+  }
+
+  @Test
+  public void call_whenFailedTasks_shouldReturnFailureMessage() {
+    when(issueIndexSyncProgressCheckerMock.getIssueSyncProgress(any())).thenReturn(new IssueSyncProgress(true, 9, 10, true));
+
+    IndexationStatusWsResponse response = ws.newRequest()
+      .executeProtobuf(IndexationStatusWsResponse.class);
+    assertThat(response.getCompletedCount()).isEqualTo(9);
+    assertThat(response.getTotal()).isEqualTo(10);
+    assertThat(response.getIsCompleted()).isFalse();
+    assertThat(response.getHasFailures()).isTrue();
+    assertThat(response.getHasInconsistencies()).isFalse();
+    assertThat(response.getStatusMessage()).isEqualTo(IssueSyncProgress.MSG_FAILURES);
   }
 }

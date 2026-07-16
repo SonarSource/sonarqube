@@ -40,12 +40,13 @@ public class IssueIndexSyncProgressChecker {
     this.dbClient = dbClient;
   }
 
+  /** Returns a snapshot of the current issue sync progress across all projects. */
   public IssueSyncProgress getIssueSyncProgress(DbSession dbSession) {
     int completedCount = dbClient.projectDao().countIndexedProjects(dbSession);
     int total = dbClient.projectDao().countProjects(dbSession);
     boolean hasFailures = dbClient.ceActivityDao().hasAnyFailedOrCancelledIssueSyncTask(dbSession);
-    boolean isCompleted = !dbClient.ceQueueDao().hasAnyIssueSyncTaskPendingOrInProgress(dbSession);
-    return new IssueSyncProgress(isCompleted, completedCount, total, hasFailures);
+    boolean isQueueEmpty = !dbClient.ceQueueDao().hasAnyIssueSyncTaskPendingOrInProgress(dbSession);
+    return new IssueSyncProgress(isQueueEmpty, completedCount, total, hasFailures);
   }
 
   public void checkIfAnyComponentsNeedIssueSync(DbSession dbSession, List<String> componentKeys) {
@@ -57,8 +58,7 @@ public class IssueIndexSyncProgressChecker {
       needIssueSync = dbClient.branchDao().doAnyOfComponentsNeedIssueSync(dbSession, componentKeys);
     }
     if (needIssueSync) {
-      throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType(),
-          "Results are temporarily unavailable. Indexing of issues is in progress.");
+      throwSyncException(dbSession);
     }
   }
 
@@ -71,9 +71,14 @@ public class IssueIndexSyncProgressChecker {
    */
   public void checkIfIssueSyncInProgress(DbSession dbSession) {
     if (isIssueSyncInProgress(dbSession)) {
-      throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType(),
-          "Results are temporarily unavailable. Indexing of issues is in progress.");
+      throwSyncException(dbSession);
     }
+  }
+
+  private void throwSyncException(DbSession dbSession) {
+    IssueSyncProgress progress = getIssueSyncProgress(dbSession);
+    String message = progress.getStatusMessage();
+    throw new EsIndexSyncInProgressException(IssueIndexDefinition.TYPE_ISSUE.getMainType(), message);
   }
 
   public boolean isIssueSyncInProgress(DbSession dbSession) {

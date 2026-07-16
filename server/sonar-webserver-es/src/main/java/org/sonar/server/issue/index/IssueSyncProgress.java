@@ -21,15 +21,22 @@ package org.sonar.server.issue.index;
 
 public class IssueSyncProgress {
 
+  public static final String MSG_IN_PROGRESS = "Results are temporarily unavailable. Indexing of issues is in progress.";
+  public static final String MSG_FAILURES = "Results are temporarily unavailable. Some issue sync tasks have failed or been cancelled. " +
+    "A system administrator should review and retry the failed tasks.";
+  public static final String MSG_STUCK = "Results are temporarily unavailable. Issue sync completed but some projects remain stuck. " +
+    "To identify them, a database administrator can find projects with need_issue_sync=True. " +
+    "Once identified, a system administrator can reindex each project via API Post request /api/issues/reindex.";
+
   private final int completedCount;
   private final int total;
   private final boolean hasFailures;
-  private final boolean isCompleted;
+  private final boolean isQueueEmpty;
 
-  public IssueSyncProgress(boolean isCompleted, int completedCount, int total, boolean hasFailures) {
+  public IssueSyncProgress(boolean isQueueEmpty, int completedCount, int total, boolean hasFailures) {
     this.completedCount = completedCount;
     this.hasFailures = hasFailures;
-    this.isCompleted = isCompleted;
+    this.isQueueEmpty = isQueueEmpty;
     this.total = total;
   }
 
@@ -46,6 +53,24 @@ public class IssueSyncProgress {
   }
 
   public boolean isCompleted() {
-    return completedCount == total || isCompleted;
+    // Checking queue empty here is not necessary since all branches may be synced before the queue drains
+    return completedCount == total;
+  }
+
+  public boolean hasInconsistencies() {
+    return isQueueEmpty && completedCount < total && !hasFailures;
+  }
+
+  // Only meaningful while the sync is not completed
+  public String getStatusMessage() {
+    if(hasFailures) {
+      return MSG_FAILURES;
+    }
+
+    if(hasInconsistencies()) {
+      return MSG_STUCK;
+    }
+
+    return MSG_IN_PROGRESS;
   }
 }
