@@ -19,6 +19,8 @@
  */
 package org.sonar.db.qualitygate;
 
+import javax.annotation.Nullable;
+
 public class QualityGateUserPermissionsDto {
 
   private String uuid;
@@ -47,7 +49,7 @@ public class QualityGateUserPermissionsDto {
     return userUuid;
   }
 
-  public QualityGateUserPermissionsDto setUserUuid(String userUuid) {
+  public QualityGateUserPermissionsDto setUserUuid(@Nullable String userUuid) {
     this.userUuid = userUuid;
     return this;
   }
@@ -56,7 +58,7 @@ public class QualityGateUserPermissionsDto {
     return qualityGateUuid;
   }
 
-  public QualityGateUserPermissionsDto setQualityGateUuid(String qProfileUuid) {
+  public QualityGateUserPermissionsDto setQualityGateUuid(@Nullable String qProfileUuid) {
     this.qualityGateUuid = qProfileUuid;
     return this;
   }

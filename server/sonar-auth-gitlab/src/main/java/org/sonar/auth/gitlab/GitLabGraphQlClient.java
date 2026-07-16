@@ -86,8 +86,10 @@ public class GitLabGraphQlClient {
     Map<String, String> variables = new HashMap<>();
     variables.put("search", searchTerm);
 
+    String gitlabUrl = gitLabSettings.url();
+    checkState(gitlabUrl != null, "GitLab URL is not configured");
     var queryWithPagination = new GraphQlQueryParameters.QueryWithPagination<>(
-      gitLabSettings.url() + "/api/graphql",
+      gitlabUrl + "/api/graphql",
       accessToken,
       GRAPHQL_GROUPS_QUERY,
       variables,
@@ -100,12 +102,14 @@ public class GitLabGraphQlClient {
   }
 
   public List<ProjectsData.ProjectNode> getProjectsDetails(String accessToken, List<String> ids) {
+    String gitlabUrl = gitLabSettings.url();
+    checkState(gitlabUrl != null, "GitLab URL is not configured");
     return Lists.partition(ids, GRAPHQL_MAX_ARGS_SIZE).stream()
       .flatMap(chunk -> {
         Map<String, List<String>> variables = new HashMap<>();
         variables.put("ids", chunk);
         var queryWithPagination = new GraphQlQueryParameters.QueryWithPagination<>(
-          gitLabSettings.url() + "/api/graphql",
+          gitlabUrl + "/api/graphql",
           accessToken,
           GRAPHQL_PROJECTS_QUERY,
           variables,

@@ -565,17 +565,19 @@ public final class SecurityStandards {
 
   private static Set<String> toCweTop25(Set<String> cwe) {
     return CWES_BY_CWE_TOP_25
-      .keySet()
+      .entrySet()
       .stream()
-      .filter(k -> cwe.stream().anyMatch(CWES_BY_CWE_TOP_25.get(k)::contains))
+      .filter(e -> cwe.stream().anyMatch(e.getValue()::contains))
+      .map(Map.Entry::getKey)
       .collect(Collectors.toSet());
   }
 
   private static Set<String> toSansTop25(Collection<String> cwe) {
     return CWES_BY_SANS_TOP_25
-      .keySet()
+      .entrySet()
       .stream()
-      .filter(k -> cwe.stream().anyMatch(CWES_BY_SANS_TOP_25.get(k)::contains))
+      .filter(e -> cwe.stream().anyMatch(e.getValue()::contains))
+      .map(Map.Entry::getKey)
       .collect(Collectors.toSet());
   }
 

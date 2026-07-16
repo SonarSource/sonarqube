@@ -363,7 +363,7 @@ public class GitlabApplicationClient {
   }
 
   public Set<GsonGroup> getGroups(String gitlabUrl, String token) {
-    return Set.copyOf(executePaginatedQuery(gitlabUrl, token, "/groups", resp -> GSON.fromJson(resp, GITLAB_GROUP)));
+    return Set.copyOf(executePaginatedQuery(gitlabUrl, token, "/groups", resp -> parseJsonList(resp, GITLAB_GROUP)));
   }
 
   public Set<GsonUser> getDirectGroupMembers(String gitlabUrl, String token, String groupId) {
@@ -375,12 +375,17 @@ public class GitlabApplicationClient {
   }
 
   private Set<GsonUser> getMembers(String gitlabUrl, String token, String endpoint) {
-    return Set.copyOf(executePaginatedQuery(gitlabUrl, token, endpoint, resp -> GSON.fromJson(resp, GITLAB_USER)));
+    return Set.copyOf(executePaginatedQuery(gitlabUrl, token, endpoint, resp -> parseJsonList(resp, GITLAB_USER)));
   }
 
   public Set<GsonProjectMember> getAllProjectMembers(String gitlabUrl, String token, long projectId) {
     String url = format("/projects/%s/members/all", projectId);
-    return Set.copyOf(executePaginatedQuery(gitlabUrl, token, url, resp -> GSON.fromJson(resp, GITLAB_PROJECT_MEMBER)));
+    return Set.copyOf(executePaginatedQuery(gitlabUrl, token, url, resp -> parseJsonList(resp, GITLAB_PROJECT_MEMBER)));
+  }
+
+  private static <E> List<E> parseJsonList(String resp, TypeToken<List<E>> typeToken) {
+    List<E> result = GSON.fromJson(resp, typeToken);
+    return result != null ? result : List.of();
   }
 
   private <E> List<E> executePaginatedQuery(String appUrl, String token, String query, Function<String, List<E>> responseDeserializer) {
