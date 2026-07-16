@@ -30,11 +30,13 @@ import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSessionFactory;
 
 import static java.lang.String.format;
 import static org.sonar.server.authentication.OAuth2CallbackFilter.CALLBACK_PATH;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 @ServerSide
 public class OAuth2ContextFactory {
@@ -76,6 +78,7 @@ public class OAuth2ContextFactory {
     private final HttpRequest request;
     private final HttpResponse response;
     private final OAuth2IdentityProvider identityProvider;
+    private boolean csrfStateVerified = false;
 
     public OAuthContextImpl(HttpRequest request, HttpResponse response, OAuth2IdentityProvider identityProvider) {
       this.request = request;
@@ -115,11 +118,13 @@ public class OAuth2ContextFactory {
     @Override
     public void verifyCsrfState() {
       csrfVerifier.verifyState(request, response, identityProvider);
+      csrfStateVerified = true;
     }
 
     @Override
     public void verifyCsrfState(String parameterName) {
       csrfVerifier.verifyState(request, response, identityProvider, parameterName);
+      csrfStateVerified = true;
     }
 
     @Override
@@ -135,6 +140,12 @@ public class OAuth2ContextFactory {
 
     @Override
     public void authenticate(UserIdentity userIdentity) {
+      if (!csrfStateVerified) {
+        throw AuthenticationException.newBuilder()
+          .setSource(Source.oauth2(identityProvider))
+          .setMessage(format("Identity provider '%s' called authenticate() without verifying the OAuth2 CSRF state", identityProvider.getKey()))
+          .build();
+      }
       UserDto userDto = userRegistrar.register(
         UserRegistration.builder()
           .setUserIdentity(userIdentity)

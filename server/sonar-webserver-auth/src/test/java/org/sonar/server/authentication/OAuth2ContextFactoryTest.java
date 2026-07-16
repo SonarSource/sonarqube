@@ -31,6 +31,7 @@ import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.http.JakartaHttpRequest;
 import org.sonar.server.http.JakartaHttpResponse;
 import org.sonar.server.user.TestUserSessionFactory;
@@ -38,11 +39,14 @@ import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class OAuth2ContextFactoryTest {
 
@@ -126,6 +130,7 @@ public class OAuth2ContextFactoryTest {
   public void authenticate() {
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
+    callback.verifyCsrfState();
     callback.authenticate(USER_IDENTITY);
 
     assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
@@ -135,6 +140,31 @@ public class OAuth2ContextFactoryTest {
     assertThat(userArgumentCaptor.getValue().getExternalId()).isEqualTo(USER_IDENTITY.getProviderId());
     assertThat(userArgumentCaptor.getValue().getExternalLogin()).isEqualTo(USER_IDENTITY.getProviderLogin());
     assertThat(userArgumentCaptor.getValue().getExternalIdentityProvider()).isEqualTo(PROVIDER_KEY);
+  }
+
+  @Test
+  public void authenticate_with_parameterized_verifyCsrfState() {
+    OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
+
+    callback.verifyCsrfState("RelayState");
+    callback.authenticate(USER_IDENTITY);
+
+    assertThat(userIdentityAuthenticator.isAuthenticated()).isTrue();
+    verify(threadLocalUserSession).set(any(UserSession.class));
+  }
+
+  @Test
+  public void authenticate_fails_when_csrf_state_was_never_verified() {
+    OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
+
+    assertThatThrownBy(() -> callback.authenticate(USER_IDENTITY))
+      .isInstanceOf(AuthenticationException.class)
+      .hasMessage("Identity provider 'github' called authenticate() without verifying the OAuth2 CSRF state")
+      .extracting(e -> ((AuthenticationException) e).getSource())
+      .isEqualTo(Source.oauth2(identityProvider));
+
+    assertThat(userIdentityAuthenticator.isAuthenticated()).isFalse();
+    verifyNoInteractions(threadLocalUserSession, jwtHttpHandler);
   }
 
   @Test
