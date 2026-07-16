@@ -25,8 +25,8 @@ if (!JavaVersion.current().isCompatibleWith(VERSION_21)) {
  * - or using '-Dbom' project property
  * - or by explicit call to 'cyclonedxBom' Gradle task
  */
-// Full-string regex (Groovy String.matches): must cover both 'cyclonedxBom' and 'cyclonedxDirectBom'.
-def bomTasks = "cyclonedx.*Bom"
+// Full-string regex (Groovy String.matches): must cover cyclonedxBom, cyclonedxDirectBom, and mergeCyclonedxBom.
+def bomTasks = "cyclonedx(Bom|DirectBom)|mergeCyclonedxBom"
 def ghBranch = System.getenv()["GITHUB_REF_NAME"]
 def isMainBranch = ghBranch in ['master'] || ghBranch ==~ 'branch-[\\d.]+'
 

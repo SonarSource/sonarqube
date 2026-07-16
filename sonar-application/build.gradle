@@ -41,7 +41,10 @@ configurations {
     transitive = true
   }
   appLicenses.extendsFrom(api, web, scanner, jdbc_mssql, jdbc_mssql_entra, jdbc_postgresql, jdbc_h2, bundledPlugin_deps)
-  cyclonedx
+  cyclonedx {
+    canBeConsumed = true
+    canBeResolved = false
+  }
 }
 
 jar.enabled = false
@@ -430,10 +433,14 @@ zip {
     def missing = expectedNames - actualNames
     def extra = actualNames - expectedNames
     if (missing || extra) {
-      throw new GradleException(
+      def message =
         "JRE files in ${jresDir} do not match jres-metadata.json (missing: ${missing}, unexpected: ${extra}). " +
-        "Run './gradlew clean' to remove stale JREs, then rebuild."
-      )
+          "Run './gradlew clean' to remove stale JREs, then rebuild."
+      // Strict in CI; warn locally so leftover .DS_Store / partial downloads don't abort local builds.
+      if (System.getenv("CI") == "true") {
+        throw new GradleException(message)
+      }
+      logger.warn(message)
     }
 
     // When the archive size increases due to dependencies, the expected size should be updated as well.
@@ -494,16 +501,21 @@ tasks.cyclonedxDirectBom {
       type = ExternalReference.Type.VCS
     }
   ]
-  includeConfigs = ["runtimeClasspath", "web", "shutdowner", "jdbc_mssql", "jdbc_mssql_entra", "jdbc_postgresql", "jdbc_h2", "bundledPlugin_deps",
-                    "cyclonedx"]
+  includeConfigs = ["runtimeClasspath", "web", "shutdowner", "jdbc_mssql", "jdbc_mssql_entra", "jdbc_postgresql", "jdbc_h2", "bundledPlugin_deps"]
   jsonOutput = bomFile
   inputs.files(configurations.runtimeClasspath, configurations.shutdowner, configurations.jdbc_mssql, configurations.jdbc_mssql_entra,
-          configurations.jdbc_postgresql, configurations.jdbc_h2, configurations.bundledPlugin_deps, configurations.cyclonedx)
+          configurations.jdbc_postgresql, configurations.jdbc_h2, configurations.bundledPlugin_deps)
 }
 def bomArtifact = artifacts.add('archives', bomFile.get().asFile) {
   type 'json'
   classifier 'cyclonedx'
   builtBy 'cyclonedxBom'
+}
+
+artifacts {
+  cyclonedx(bomFile) {
+    builtBy tasks.named('cyclonedxBom')
+  }
 }
 
 publishing {
