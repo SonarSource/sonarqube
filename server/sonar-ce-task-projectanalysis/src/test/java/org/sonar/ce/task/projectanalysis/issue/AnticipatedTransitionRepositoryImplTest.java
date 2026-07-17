@@ -33,8 +33,10 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.AnticipatedTransitionDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -59,11 +61,13 @@ public class AnticipatedTransitionRepositoryImplTest {
     //given
     String projectKey = "projectKey1";
     String projectUuid = "projectUuid1";
-    dbClient.projectDao().insert(db.getSession(), getProjectDto(projectUuid, projectKey));
+    ProjectDto projectDto = getProjectDto(projectUuid, projectKey);
+    dbClient.projectDao().insert(db.getSession(), projectDto);
+    String authorizedUserUuid = insertUserWithIssueAdminPermission(projectDto);
 
-    insertAnticipatedTransition(projectUuid, "file1.js");
-    insertAnticipatedTransition(projectUuid, "file2.js");
-    insertAnticipatedTransition(projectUuid, "file2.js");
+    insertAnticipatedTransition(projectUuid, "file1.js", authorizedUserUuid);
+    insertAnticipatedTransition(projectUuid, "file2.js", authorizedUserUuid);
+    insertAnticipatedTransition(projectUuid, "file2.js", authorizedUserUuid);
 
     db.getSession().commit();
 
@@ -87,7 +91,9 @@ public class AnticipatedTransitionRepositoryImplTest {
     String projectKey = "projectKey2";
     String projectUuid = "projectUuid2";
     String mainFile = "file1.js";
-    dbClient.projectDao().insert(db.getSession(), getProjectDto(projectUuid, projectKey));
+    ProjectDto projectDto = getProjectDto(projectUuid, projectKey);
+    dbClient.projectDao().insert(db.getSession(), projectDto);
+    String authorizedUserUuid = insertUserWithIssueAdminPermission(projectDto);
 
     BranchDto branchDto = getBranchDto(projectUuid, "branch");
     dbClient.branchDao().insert(db.getSession(), branchDto);
@@ -95,9 +101,9 @@ public class AnticipatedTransitionRepositoryImplTest {
     ComponentDto fileDto = getComponentDto(projectKey + ":" + mainFile, branchDto.getUuid());
     dbClient.componentDao().insertWithAudit(db.getSession(), fileDto);
 
-    insertAnticipatedTransition(projectUuid, mainFile);
-    insertAnticipatedTransition(projectUuid, "file2.js");
-    insertAnticipatedTransition(projectUuid, "file2.js");
+    insertAnticipatedTransition(projectUuid, mainFile, authorizedUserUuid);
+    insertAnticipatedTransition(projectUuid, "file2.js", authorizedUserUuid);
+    insertAnticipatedTransition(projectUuid, "file2.js", authorizedUserUuid);
 
     db.getSession().commit();
 
@@ -106,8 +112,38 @@ public class AnticipatedTransitionRepositoryImplTest {
     assertThat(anticipatedTransitions).hasSize(1);
   }
 
-  private void insertAnticipatedTransition(String projectUuid, String filename) {
-    var anticipatedTransition = getAnticipatedTransition(projectUuid, filename);
+  @Test
+  public void giveAnticipatedTransitionFromUserWhoLostIssueAdminPermission_shouldBeFilteredOut() {
+    //given
+    String projectKey = "projectKey3";
+    String projectUuid = "projectUuid3";
+    ProjectDto projectDto = getProjectDto(projectUuid, projectKey);
+    dbClient.projectDao().insert(db.getSession(), projectDto);
+
+    String authorizedUserUuid = insertUserWithIssueAdminPermission(projectDto);
+    UserDto unauthorizedUser = db.users().insertUser();
+
+    insertAnticipatedTransition(projectUuid, "file1.js", authorizedUserUuid);
+    insertAnticipatedTransition(projectUuid, "file1.js", unauthorizedUser.getUuid());
+
+    db.getSession().commit();
+
+    String componentUuid = "componentUuid3";
+    Component file = getFileComponent(componentUuid, projectKey, "file1.js");
+    var anticipatedTransitions = underTest.getAnticipatedTransitionByComponent(file);
+
+    assertThat(anticipatedTransitions).hasSize(1);
+    assertThat(anticipatedTransitions.iterator().next().getUserUuid()).isEqualTo(authorizedUserUuid);
+  }
+
+  private String insertUserWithIssueAdminPermission(ProjectDto projectDto) {
+    UserDto user = db.users().insertUser();
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ISSUE_ADMIN, projectDto);
+    return user.getUuid();
+  }
+
+  private void insertAnticipatedTransition(String projectUuid, String filename, String userUuid) {
+    var anticipatedTransition = getAnticipatedTransition(projectUuid, filename, userUuid);
     dbClient.anticipatedTransitionDao().insert(db.getSession(), anticipatedTransition);
   }
 
@@ -139,6 +175,7 @@ public class AnticipatedTransitionRepositoryImplTest {
     projectDto.setQualifier("TRK");
     projectDto.setName("project");
     projectDto.setCreationMethod(CreationMethod.LOCAL_API);
+    projectDto.setPrivate(true);
     return projectDto;
   }
 
@@ -152,8 +189,8 @@ public class AnticipatedTransitionRepositoryImplTest {
       .setReportAttributes(mock(ReportAttributes.class)).build();
   }
 
-  private AnticipatedTransitionDto getAnticipatedTransition(String projectUuid, String filename) {
-    return new AnticipatedTransitionDto(Uuids.createFast(), projectUuid, "admin", "wontfix", null, null, null, null, "rule:key", filename, 1_704_067_200_000L);
+  private AnticipatedTransitionDto getAnticipatedTransition(String projectUuid, String filename, String userUuid) {
+    return new AnticipatedTransitionDto(Uuids.createFast(), projectUuid, userUuid, "wontfix", null, null, null, null, "rule:key", filename, 1_704_067_200_000L);
   }
 
 }
