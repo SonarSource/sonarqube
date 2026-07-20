@@ -126,7 +126,7 @@ public class EsInstallationTest {
 
     assertThat(underTest.getOutdatedSearchDirectories())
       .extracting(File::getName)
-      .containsExactlyInAnyOrder("es", "es5", "es6", "es7");
+      .containsExactlyInAnyOrder("es", "es5", "es6", "es7", "es8");
   }
 
   @Test

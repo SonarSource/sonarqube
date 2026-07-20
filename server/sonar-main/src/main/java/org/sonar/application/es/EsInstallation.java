@@ -104,7 +104,7 @@ public class EsInstallation {
 
   private static List<File> buildOutdatedSearchDirs(Props props) {
     String dataPath = props.nonNullValue(PATH_DATA.getKey());
-    return Stream.of("es", "es5", "es6", "es7")
+    return Stream.of("es", "es5", "es6", "es7", "es8")
       .map(t -> new File(dataPath, t))
       .toList();
   }
