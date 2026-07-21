@@ -19,7 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.purge;
 
+import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -47,13 +49,48 @@ public class ProjectCleaner {
   private final DefaultPeriodCleaner periodCleaner;
   private final TelemetryQGOnMergedPRDataLoader telemetryQGOnMergedPRDataLoader;
 
-  public ProjectCleaner(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, PurgeListener purgeListener,
+  public ProjectCleaner(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, PurgeListener[] purgeListeners,
     TelemetryQGOnMergedPRDataLoader telemetryQGOnMergedPRDataLoader) {
     this.purgeDao = purgeDao;
     this.periodCleaner = periodCleaner;
     this.profiler = profiler;
-    this.purgeListener = purgeListener;
+    this.purgeListener = compositeOf(purgeListeners);
     this.telemetryQGOnMergedPRDataLoader = telemetryQGOnMergedPRDataLoader;
+  }
+
+  private static PurgeListener compositeOf(PurgeListener[] listeners) {
+    return new PurgeListener() {
+      @Override
+      public void onIssuesRemoval(String projectUuid, List<String> issueKeys) {
+        invokeAll(listeners, l -> l.onIssuesRemoval(projectUuid, issueKeys), "onIssuesRemoval", projectUuid);
+      }
+
+      @Override
+      public void onBranchDeleted(String branchUuid) {
+        invokeAll(listeners, l -> l.onBranchDeleted(branchUuid), "onBranchDeleted", branchUuid);
+      }
+    };
+  }
+
+  private static void invokeAll(
+    PurgeListener[] listeners,
+    Consumer<PurgeListener> action,
+    String method,
+    String context) {
+    RuntimeException firstException = null;
+    for (PurgeListener l : listeners) {
+      try {
+        action.accept(l);
+      } catch (RuntimeException e) {
+        LOG.warn("PurgeListener {} failed on {} for {}", l.getClass().getName(), method, context, e);
+        if (firstException == null) {
+          firstException = e;
+        }
+      }
+    }
+    if (firstException != null) {
+      throw firstException;
+    }
   }
 
   public ProjectCleaner purge(DbSession session, String rootUuid, String projectUuid, Configuration projectConfig,

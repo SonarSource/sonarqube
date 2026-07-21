@@ -30,6 +30,11 @@ public interface ProjectLifeCycleListener {
   void onProjectsDeleted(Set<DeletedProject> projects);
 
   /**
+   * This method is called after the specified branches have been deleted.
+   */
+  default void onBranchesDeleted(Set<String> branchUuids) {}
+
+  /**
    * This method is called after the specified projects have branches deleted or main branch changed.
    */
   void onProjectBranchesChanged(Set<Project> projects, Set<String> impactedBranches);

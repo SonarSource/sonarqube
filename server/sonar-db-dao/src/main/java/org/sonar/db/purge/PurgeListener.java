@@ -31,4 +31,6 @@ public interface PurgeListener {
   };
 
   void onIssuesRemoval(String projectUuid, List<String> issueKeys);
+
+  default void onBranchDeleted(String branchUuid) {}
 }

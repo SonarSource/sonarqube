@@ -21,7 +21,6 @@ package org.sonar.db.purge;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -557,44 +556,6 @@ class PurgeCommands {
     profiler.start("deleteIssuesFixed (issues_fixed)");
     purgeMapper.deleteIssuesFixedByBranchUuid(branchUuid);
     session.commit();
-    profiler.stop();
-  }
-
-  public void deleteScaActivity(String componentUuid) {
-    // delete sca_analyses first since it sort of marks the analysis as valid/existing
-    profiler.start("deleteScaAnalyses (sca_analyses)");
-    purgeMapper.deleteScaAnalysesByComponentUuid(componentUuid);
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteScaDependencies (sca_dependencies)");
-    purgeMapper.deleteScaDependenciesByComponentUuid(componentUuid);
-    session.commit();
-    profiler.stop();
-
-    // this must be done before deleting sca_issues_releases or we won't
-    // be able to find the rows
-    profiler.start("deleteScaIssuesReleasesChanges (sca_issue_rels_changes)");
-    purgeMapper.deleteScaIssuesReleasesChangesByComponentUuid(componentUuid);
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteScaIssuesReleases (sca_issues_releases)");
-    purgeMapper.deleteScaIssuesReleasesByComponentUuid(componentUuid);
-    session.commit();
-    profiler.stop();
-
-    // sca_releases MUST be deleted last because dependencies and
-    // issues_releases only join to the component through sca_releases
-    profiler.start("deleteScaReleases (sca_releases)");
-    purgeMapper.deleteScaReleasesByComponentUuid(componentUuid);
-    session.commit();
-    profiler.stop();
-  }
-
-  public void deleteScaLicenseProfiles(String projectUuid) {
-    profiler.start("deleteScaLicenseProfileProjects (sca_lic_prof_projects)");
-    purgeMapper.deleteScaLicenseProfileProjectsByProjectUuid(projectUuid);
     profiler.stop();
   }
 

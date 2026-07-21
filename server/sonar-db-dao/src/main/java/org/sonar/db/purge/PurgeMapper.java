@@ -216,18 +216,6 @@ public interface PurgeMapper {
 
   void deleteIssuesFixedByBranchUuid(@Param("branchUuid") String branchUuid);
 
-  void deleteScaAnalysesByComponentUuid(@Param("componentUuid") String componentUuid);
-
-  void deleteScaDependenciesByComponentUuid(@Param("componentUuid") String componentUuid);
-
-  void deleteScaIssuesReleasesByComponentUuid(@Param("componentUuid") String componentUuid);
-
-  void deleteScaIssuesReleasesChangesByComponentUuid(@Param("componentUuid") String componentUuid);
-
-  void deleteScaReleasesByComponentUuid(@Param("componentUuid") String componentUuid);
-
-  void deleteScaLicenseProfileProjectsByProjectUuid(@Param("projectUuid") String projectUuid);
-
   void deleteArchScannerDataByRootUuid(@Param("rootUuid") String rootUuid);
 
   void deleteArchGraphBlobsByBranchUuid(@Param("branchUuid") String branchUuid);

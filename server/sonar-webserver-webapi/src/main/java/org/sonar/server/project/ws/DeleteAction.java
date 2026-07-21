@@ -19,6 +19,8 @@
  */
 package org.sonar.server.project.ws;
 
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -87,8 +89,15 @@ public class DeleteAction implements ProjectsWsAction {
         .selectMainBranchByProjectUuid(dbSession, project.getUuid())
         .map(BranchDto::getUuid)
         .orElse(null);
+      // Branch UUIDs must be collected before deleteEntity() removes the rows from project_branches.
+      Set<String> branchUuids = dbClient.branchDao().selectByProject(dbSession, project)
+        .stream().map(BranchDto::getUuid).collect(Collectors.toSet());
       checkPermission(project);
       componentCleanerService.deleteEntity(dbSession, project);
+      // onBranchesDeleted cleans per-branch extension data (e.g. SCA dependency findings).
+      // onProjectsDeleted cleans project-level extension data (e.g. SCA license profiles).
+      // The two events cover different data and are both required for a complete cleanup.
+      projectLifeCycleListeners.onBranchesDeleted(branchUuids);
       projectLifeCycleListeners.onProjectsDeleted(singleton(new DeletedProject(Project.fromProjectDtoWithTags(project), mainBranchUuid)));
     }
 

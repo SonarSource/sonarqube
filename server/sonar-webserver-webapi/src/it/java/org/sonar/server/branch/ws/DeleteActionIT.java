@@ -72,6 +72,7 @@ public class DeleteActionIT {
       .execute();
 
     verifyDeletedKey("branch1");
+    verify(projectLifeCycleListeners).onBranchesDeleted(singleton(branchDto.getUuid()));
     verify(projectLifeCycleListeners).onProjectBranchesChanged(singleton(Project.fromProjectDtoWithTags(project)), singleton(branchDto.getUuid()));
   }
 

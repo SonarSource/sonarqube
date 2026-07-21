@@ -61,6 +61,17 @@ public class ProjectLifeCycleListenersImpl implements ProjectLifeCycleListeners 
   }
 
   @Override
+  public void onBranchesDeleted(Set<String> branchUuids) {
+    checkNotNull(branchUuids, "branchUuids can't be null");
+    if (branchUuids.isEmpty()) {
+      return;
+    }
+
+    Arrays.stream(listeners)
+      .forEach(safelyCallListener(listener -> listener.onBranchesDeleted(branchUuids)));
+  }
+
+  @Override
   public void onProjectBranchesChanged(Set<Project> projects, Set<String> impactedBranches) {
     checkNotNull(projects, "projects can't be null");
     if (projects.isEmpty()) {

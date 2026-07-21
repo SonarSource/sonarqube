@@ -76,7 +76,7 @@ public class PurgeDao implements Dao {
     deleteOldAnticipatedTransitions(commands, conf, conf.projectUuid());
 
     deleteOldDisabledComponents(commands, mapper, rootUuid);
-    purgeStaleBranches(commands, conf, mapper, rootUuid);
+    purgeStaleBranches(commands, conf, mapper, rootUuid, listener);
 
   }
 
@@ -94,9 +94,10 @@ public class PurgeDao implements Dao {
     return branchDtos.stream().filter(branchDto -> !branchDto.getUuid().equals(rootUuid)).toList();
   }
 
-  private void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper, String rootUuid) {
+  private void purgeStaleBranches(PurgeCommands commands, PurgeConfiguration conf, PurgeMapper mapper,
+    String rootUuid, PurgeListener listener) {
     getStaleBranchesToPurge(conf, mapper, rootUuid).forEach(branchDto -> deleteBranch(branchDto.getUuid(), commands,
-      AggregationType.PROJECT));
+      AggregationType.PROJECT, listener));
   }
 
   private static void purgeAnalyses(PurgeCommands commands, String rootUuid) {
@@ -228,7 +229,7 @@ public class PurgeDao implements Dao {
   public void deleteBranch(DbSession session, String uuid) {
     PurgeProfiler profiler = new PurgeProfiler();
     PurgeCommands purgeCommands = new PurgeCommands(session, profiler, system2);
-    deleteBranch(uuid, purgeCommands, AggregationType.PROJECT);
+    deleteBranch(uuid, purgeCommands, AggregationType.PROJECT, PurgeListener.EMPTY);
   }
 
   public void deleteProject(DbSession session, String uuid, String qualifier, String name, String key) {
@@ -244,7 +245,7 @@ public class PurgeDao implements Dao {
       .toList();
     AggregationType aggregationType = toAggregationType(qualifier);
 
-    branchUuids.forEach(id -> deleteBranch(id, purgeCommands, aggregationType));
+    branchUuids.forEach(id -> deleteBranch(id, purgeCommands, aggregationType, PurgeListener.EMPTY));
 
     deleteProject(uuid, purgeMapper, purgeCommands, aggregationType);
     auditPersister.deleteComponent(session, new ComponentNewValue(uuid, name, key, qualifier));
@@ -268,7 +269,8 @@ public class PurgeDao implements Dao {
     }
   }
 
-  private static void deleteBranch(String branchUuid, PurgeCommands commands, AggregationType aggregationType) {
+  private static void deleteBranch(String branchUuid, PurgeCommands commands, AggregationType aggregationType,
+    PurgeListener listener) {
     commands.deleteScannerCache(branchUuid);
     commands.deleteAnalyses(branchUuid);
     commands.deleteIssues(branchUuid);
@@ -286,9 +288,9 @@ public class PurgeDao implements Dao {
     commands.deleteBranchInPortfolios(branchUuid);
     commands.deleteReportSubscriptions(branchUuid);
     commands.deleteIssuesFixed(branchUuid);
-    commands.deleteScaActivity(branchUuid);
     commands.deleteArchitectureBranchData(branchUuid);
     commands.deleteIssueStatsByRuleKey(aggregationType, branchUuid);
+    listener.onBranchDeleted(branchUuid);
   }
 
   private static void deleteProject(String projectUuid, PurgeMapper mapper, PurgeCommands commands, AggregationType aggregationType) {
@@ -323,7 +325,6 @@ public class PurgeDao implements Dao {
     commands.deleteOutdatedProperties(projectUuid);
     commands.deleteReportSchedules(projectUuid);
     commands.deleteReportSubscriptions(projectUuid);
-    commands.deleteScaLicenseProfiles(projectUuid);
     commands.deleteArchitectureProjectData(projectUuid);
     commands.deleteIssueStatsByRuleKey(aggregationType, projectUuid);
   }

@@ -130,6 +130,75 @@ public class ProjectLifeCycleListenersImplTest {
   }
 
   @Test
+  public void onBranchesDeleted_throws_NPE_if_set_is_null() {
+    assertThatThrownBy(() -> underTestWithListeners.onBranchesDeleted(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("branchUuids can't be null");
+  }
+
+  @Test
+  public void onBranchesDeleted_throws_NPE_if_set_is_null_even_if_no_listeners() {
+    assertThatThrownBy(() -> underTestNoListeners.onBranchesDeleted(null))
+      .isInstanceOf(NullPointerException.class)
+      .hasMessage("branchUuids can't be null");
+  }
+
+  @Test
+  public void onBranchesDeleted_has_no_effect_if_set_is_empty() {
+    underTestNoListeners.onBranchesDeleted(Collections.emptySet());
+
+    underTestWithListeners.onBranchesDeleted(Collections.emptySet());
+    verifyNoInteractions(listener1, listener2, listener3);
+  }
+
+  @Test
+  public void onBranchesDeleted_has_no_effect_if_there_is_no_listeners() {
+    assertThatNoException().isThrownBy(() -> underTestNoListeners.onBranchesDeleted(singleton("branch-uuid")));
+  }
+
+  @Test
+  public void onBranchesDeleted_default_implementation_is_no_op() {
+    ProjectLifeCycleListener concreteListener = new ProjectLifeCycleListener() {
+      @Override
+      public void onProjectsDeleted(Set<DeletedProject> projects) { /* no-op for test */ }
+      @Override
+      public void onProjectBranchesChanged(Set<Project> projects, Set<String> impactedBranches) { /* no-op for test */ }
+      @Override
+      public void onProjectsRekeyed(Set<RekeyedProject> rekeyedProjects) { /* no-op for test */ }
+    };
+    assertThatNoException().isThrownBy(() -> concreteListener.onBranchesDeleted(singleton("branch-uuid")));
+  }
+
+  @Test
+  public void onBranchesDeleted_calls_all_listeners() {
+    Set<String> branchUuids = Set.of("branch-uuid-1", "branch-uuid-2");
+    InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
+
+    underTestWithListeners.onBranchesDeleted(branchUuids);
+
+    inOrder.verify(listener1).onBranchesDeleted(same(branchUuids));
+    inOrder.verify(listener2).onBranchesDeleted(same(branchUuids));
+    inOrder.verify(listener3).onBranchesDeleted(same(branchUuids));
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  @Test
+  public void onBranchesDeleted_calls_all_listeners_even_if_one_throws() {
+    Set<String> branchUuids = Set.of("branch-uuid-1");
+    InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
+    doThrow(new RuntimeException("Faking listener2 throwing an exception"))
+      .when(listener2)
+      .onBranchesDeleted(any());
+
+    underTestWithListeners.onBranchesDeleted(branchUuids);
+
+    inOrder.verify(listener1).onBranchesDeleted(same(branchUuids));
+    inOrder.verify(listener2).onBranchesDeleted(same(branchUuids));
+    inOrder.verify(listener3).onBranchesDeleted(same(branchUuids));
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  @Test
   public void onProjectBranchesChanged_throws_NPE_if_set_is_null() {
     assertThatThrownBy(() -> underTestWithListeners.onProjectBranchesChanged(null, null))
       .isInstanceOf(NullPointerException.class)
