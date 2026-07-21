@@ -21,12 +21,19 @@ package org.sonar.server.resolver;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.RecordComponent;
+import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
@@ -82,8 +89,9 @@ public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
     NativeWebRequest webRequest,
     @Nullable WebDataBinderFactory binderFactory) throws Exception {
 
-    if (hasAnnotation(parameter)) {
-      return getDefault(parameter);
+    String defaultValue = getDefault(parameter);
+    if (defaultValue != null) {
+      return resolveValue(defaultValue, parameter.getParameterType(), parameter.getGenericParameterType());
     }
 
     Object boundObject = delegate.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
@@ -114,7 +122,7 @@ public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
     for (int i = 0; i < components.length; i++) {
       RecordComponent component = components[i];
       Object currentValue = component.getAccessor().invoke(boundObject);
-      args[i] = getValueOrDefault(component, currentValue);
+      args[i] = getValueOrDefault(component, currentValue, component.getType(), component.getGenericType());
     }
     return args;
   }
@@ -132,15 +140,15 @@ public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
       field.setAccessible(true);
       String defaultValue = getDefault(field);
       if (defaultValue != null) {
-        field.set(boundObject, defaultValue);
+        field.set(boundObject, resolveValue(defaultValue, field.getType(), field.getGenericType()));
       }
     }
     return boundObject;
   }
 
-  private static Object getValueOrDefault(AnnotatedElement element, @Nullable Object currentValue) {
+  private static Object getValueOrDefault(AnnotatedElement element, @Nullable Object currentValue, Class<?> targetType, Type genericType) {
     String defaultValue = getDefault(element);
-    return defaultValue != null ? defaultValue : currentValue;
+    return defaultValue != null ? resolveValue(defaultValue, targetType, genericType) : currentValue;
   }
 
   @CheckForNull
@@ -164,6 +172,38 @@ public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
   private static boolean hasAnnotation(MethodParameter parameter) {
     return ANNOTATIONS.keySet().stream()
       .anyMatch(parameter::hasParameterAnnotation);
+  }
+
+  private static Object resolveValue(String defaultValue, Class<?> targetType, Type genericType) {
+    if (!isCollectionOrArray(targetType)) {
+      return defaultValue;
+    }
+    if (targetType.isArray()) {
+      Class<?> componentType = targetType.getComponentType();
+      Object array = Array.newInstance(componentType, 1);
+      Array.set(array, 0, convert(defaultValue, componentType));
+      return array;
+    }
+    Object element = convert(defaultValue, elementType(genericType));
+    return targetType.isAssignableFrom(Set.class) ? Set.of(element) : List.of(element);
+  }
+
+  private static Class<?> elementType(@Nullable Type genericType) {
+    if (genericType instanceof ParameterizedType parameterizedType) {
+      Type[] typeArguments = parameterizedType.getActualTypeArguments();
+      if (typeArguments.length == 1 && typeArguments[0] instanceof Class<?> elementClass) {
+        return elementClass;
+      }
+    }
+    return String.class;
+  }
+
+  private static Object convert(String value, Class<?> type) {
+    return type == UUID.class ? UUID.fromString(value) : value;
+  }
+
+  private static boolean isCollectionOrArray(Class<?> type) {
+    return Collection.class.isAssignableFrom(type) || type.isArray();
   }
 
 }

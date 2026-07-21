@@ -21,6 +21,9 @@ package org.sonar.server.resolver;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 import org.springframework.web.method.HandlerMethod;
 import org.junit.jupiter.api.BeforeEach;
@@ -131,6 +134,37 @@ class DefaultsArgumentResolverTest {
   }
 
   @Test
+  void resolveArgument_withOrganizationIdAnnotationOnListParameter_returnsSingletonDefaultList() throws Exception {
+    Method method = TestControllerWithIndividualParams.class.getMethod("methodWithOrgIdList", List.class);
+    MethodParameter parameter = new MethodParameter(method, 0);
+
+    Object result = underTest.resolveArgument(parameter, null, null, null);
+
+    assertThat(result).isEqualTo(List.of(DefaultOrganizationProvider.ID));
+  }
+
+
+  @Test
+  void resolveArgument_withOrganizationIdAnnotationOnArrayParameter_returnsSingletonDefaultArray() throws Exception {
+    Method method = TestControllerWithIndividualParams.class.getMethod("methodWithOrgIdArray", UUID[].class);
+    MethodParameter parameter = new MethodParameter(method, 0);
+
+    Object result = underTest.resolveArgument(parameter, null, null, null);
+
+    assertThat(result).isEqualTo(new UUID[] {DefaultOrganizationProvider.ID});
+  }
+
+  @Test
+  void resolveArgument_withOrganizationIdAnnotationOnSetParameter_returnsSingletonDefaultSet() throws Exception {
+    Method method = TestControllerWithIndividualParams.class.getMethod("methodWithOrgIdSet", Set.class);
+    MethodParameter parameter = new MethodParameter(method, 0);
+
+    Object result = underTest.resolveArgument(parameter, null, null, null);
+
+    assertThat(result).isEqualTo(Set.of(DefaultOrganizationProvider.ID));
+  }
+
+  @Test
   void injectDefaults_withRecordAndOrgAnnotations_injectsDefaults() throws Exception {
     TestRecordWithOrg input = new TestRecordWithOrg(null, null, null, "test-name", 42);
 
@@ -158,6 +192,43 @@ class DefaultsArgumentResolverTest {
     assertThat(testRecord.orgLegacyId()).isEqualTo(DefaultOrganizationProvider.LEGACY_ID);
     assertThat(testRecord.name()).isEqualTo("test-name");
     assertThat(testRecord.count()).isEqualTo(42);
+  }
+
+  @Test
+  void injectDefaults_withRecordAndOrgListAnnotation_injectsDefaultAsSingletonList() throws Exception {
+    TestRecordWithOrgList input = new TestRecordWithOrgList(null, "test-name");
+
+    Object result = invokeInjectDefaults(input, TestRecordWithOrgList.class);
+
+    assertThat(result).isInstanceOf(TestRecordWithOrgList.class);
+    TestRecordWithOrgList testRecord = (TestRecordWithOrgList) result;
+    assertThat(testRecord.orgIds()).isEqualTo(List.of(DefaultOrganizationProvider.ID));
+    assertThat(testRecord.name()).isEqualTo("test-name");
+  }
+
+  @Test
+  void injectDefaults_withRecordAndUserProvidedOrgListValue_overridesWithDefaultList() throws Exception {
+    TestRecordWithOrgList input = new TestRecordWithOrgList(List.of(UUID.fromString("11111111-1111-4111-1111-111111111111")), "test-name");
+
+    Object result = invokeInjectDefaults(input, TestRecordWithOrgList.class);
+
+    assertThat(result).isInstanceOf(TestRecordWithOrgList.class);
+    TestRecordWithOrgList testRecord = (TestRecordWithOrgList) result;
+    assertThat(testRecord.orgIds()).isEqualTo(List.of(DefaultOrganizationProvider.ID));
+    assertThat(testRecord.name()).isEqualTo("test-name");
+  }
+
+
+  @Test
+  void injectDefaults_withRecordAndEmptyOrgListValue_overridesWithDefaultList() throws Exception {
+    TestRecordWithOrgList input = new TestRecordWithOrgList(List.of(), "test-name");
+
+    Object result = invokeInjectDefaults(input, TestRecordWithOrgList.class);
+
+    assertThat(result).isInstanceOf(TestRecordWithOrgList.class);
+    TestRecordWithOrgList testRecord = (TestRecordWithOrgList) result;
+    assertThat(testRecord.orgIds()).isEqualTo(List.of(DefaultOrganizationProvider.ID));
+    assertThat(testRecord.name()).isEqualTo("test-name");
   }
 
   @Test
@@ -231,6 +302,49 @@ class DefaultsArgumentResolverTest {
   }
 
   @Test
+  void injectDefaults_withClassAndOrgListAnnotation_injectsDefaultAsSingletonList() throws Exception {
+    TestClassWithOrgList input = new TestClassWithOrgList();
+    input.orgIds = null;
+    input.name = "test-name";
+
+    Object result = invokeInjectDefaults(input, TestClassWithOrgList.class);
+
+    assertThat(result).isInstanceOf(TestClassWithOrgList.class);
+    TestClassWithOrgList obj = (TestClassWithOrgList) result;
+    assertThat(obj.orgIds).isEqualTo(List.of(DefaultOrganizationProvider.ID));
+    assertThat(obj.name).isEqualTo("test-name");
+  }
+
+  @Test
+  void injectDefaults_withClassAndUserProvidedOrgListValue_overridesWithDefaultList() throws Exception {
+    TestClassWithOrgList input = new TestClassWithOrgList();
+    input.orgIds = List.of(UUID.fromString("11111111-1111-4111-1111-111111111111"));
+    input.name = "test-name";
+
+    Object result = invokeInjectDefaults(input, TestClassWithOrgList.class);
+
+    assertThat(result).isInstanceOf(TestClassWithOrgList.class);
+    TestClassWithOrgList obj = (TestClassWithOrgList) result;
+    assertThat(obj.orgIds).isEqualTo(List.of(DefaultOrganizationProvider.ID));
+    assertThat(obj.name).isEqualTo("test-name");
+  }
+
+
+  @Test
+  void injectDefaults_withClassAndEmptyOrgListValue_overridesWithDefaultList() throws Exception {
+    TestClassWithOrgList input = new TestClassWithOrgList();
+    input.orgIds = List.of();
+    input.name = "test-name";
+
+    Object result = invokeInjectDefaults(input, TestClassWithOrgList.class);
+
+    assertThat(result).isInstanceOf(TestClassWithOrgList.class);
+    TestClassWithOrgList obj = (TestClassWithOrgList) result;
+    assertThat(obj.orgIds).isEqualTo(List.of(DefaultOrganizationProvider.ID));
+    assertThat(obj.name).isEqualTo("test-name");
+  }
+
+  @Test
   void injectDefaults_withClassWithoutAnnotations_doesNotModify() throws Exception {
     TestClassWithoutAnnotations input = new TestClassWithoutAnnotations();
     input.name = "test-name";
@@ -294,6 +408,11 @@ class DefaultsArgumentResolverTest {
 
   record TestRecordWithoutAnnotations(String name, Integer count) {}
 
+  record TestRecordWithOrgList(
+    @OrganizationId List<UUID> orgIds,
+    String name
+  ) {}
+
   static class TestClassWithOrg {
     @OrganizationId
     public String orgId;
@@ -313,6 +432,12 @@ class DefaultsArgumentResolverTest {
     public Integer count;
   }
 
+  static class TestClassWithOrgList {
+    @OrganizationId
+    public List<UUID> orgIds;
+    public String name;
+  }
+
   static class TestControllerWithIndividualParams {
     public void methodWithOrgKey(@OrganizationKey @RequestParam String organizationKey) {
       //empty for tests
@@ -327,6 +452,18 @@ class DefaultsArgumentResolverTest {
     }
 
     public void methodWithEnterpriseId(@EnterpriseId @RequestParam String enterpriseId) {
+      //empty for tests
+    }
+
+    public void methodWithOrgIdList(@OrganizationId @RequestParam List<UUID> organizationIds) {
+      //empty for tests
+    }
+
+    public void methodWithOrgIdArray(@OrganizationId @RequestParam UUID[] organizationIds) {
+      //empty for tests
+    }
+
+    public void methodWithOrgIdSet(@OrganizationId @RequestParam Set<UUID> organizationIds) {
       //empty for tests
     }
   }
