@@ -32,6 +32,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_001, "Create table 'a3s_context_items'", CreateA3SContextItemsTable.class)
       .add(2026_05_002, "Create table 'a3s_analysis_usages'", CreateA3SAnalysisUsagesTable.class)
       .add(2026_05_003, "Create table 'agent_schedules'", CreateAgentSchedulesTable.class)
-      .add(2026_05_004, "Create table 'agent_sched_proc_issues'", CreateAgentScheduleProcessedIssuesTable.class);
+      .add(2026_05_004, "Create table 'agent_sched_proc_issues'", CreateAgentScheduleProcessedIssuesTable.class)
+      .add(2026_05_005, "Add 'reachability_analyzed' to 'sca_issues_releases'", AddReachabilityAnalyzedToScaIssuesReleases.class);
   }
 }
