@@ -71,6 +71,16 @@ public interface GithubApplicationClient {
    */
   Optional<ExpiringAppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId);
 
+  /**
+   * Same as {@link #createAppInstallationToken(GithubAppConfiguration, long)}, but the resulting
+   * token's access is narrowed to just {@code repositoryName} rather than every repository the
+   * installation covers (SONAR-30903) — least-privilege for callers that only need to act on one
+   * specific repository.
+   *
+   * @param repositoryName bare repository name (no {@code owner/} prefix), e.g. {@code "widgets"}
+   */
+  Optional<ExpiringAppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId, String repositoryName);
+
   GithubBinding.GsonApp getApp(GithubAppConfiguration githubAppConfiguration);
 
   /**

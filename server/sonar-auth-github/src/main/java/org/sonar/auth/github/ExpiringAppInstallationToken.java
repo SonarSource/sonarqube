@@ -72,6 +72,10 @@ public class ExpiringAppInstallationToken implements AppInstallationToken {
     return expiresAt.minusMinutes(1).isBefore(OffsetDateTime.now(clock));
   }
 
+  public OffsetDateTime getExpiresAt() {
+    return expiresAt;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

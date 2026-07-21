@@ -21,6 +21,7 @@ package org.sonar.auth.github;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.stream.Stream;
@@ -38,12 +39,13 @@ public class ExpiringAppInstallationTokenTest {
 
   @Test
   void test_value() {
-    AppInstallationToken underTest = new ExpiringAppInstallationToken(CLOCK, "foo", DATE);
+    ExpiringAppInstallationToken underTest = new ExpiringAppInstallationToken(CLOCK, "foo", DATE);
 
     assertThat(underTest.toString())
       .isEqualTo(underTest.getValue())
       .isEqualTo("foo");
     assertThat(underTest.getAuthorizationHeaderPrefix()).isEqualTo("Token");
+    assertThat(underTest.getExpiresAt()).isEqualTo(OffsetDateTime.parse(DATE));
   }
 
   @Test

@@ -36,6 +36,7 @@ import org.sonar.server.v2.api.azurebilling.service.DefaultAzureBillingHandler;
 import org.sonar.server.v2.api.dop.controller.DefaultDopSettingsController;
 import org.sonar.server.v2.api.email.config.controller.DefaultEmailConfigurationController;
 import org.sonar.server.v2.api.github.config.controller.DefaultGithubConfigurationController;
+import org.sonar.server.v2.api.github.installationtoken.controller.DefaultGithubInstallationTokenController;
 import org.sonar.server.v2.api.gitlab.config.controller.DefaultGitlabConfigurationController;
 import org.sonar.server.v2.api.gitlab.config.converter.GitlabConfigurationResponseGenerator;
 import org.sonar.server.v2.api.group.controller.DefaultGroupController;
@@ -77,6 +78,7 @@ import java.util.List;
   DefaultDopSettingsController.class,
   DefaultEmailConfigurationController.class,
   DefaultGithubConfigurationController.class,
+  DefaultGithubInstallationTokenController.class,
   DefaultGitlabConfigurationController.class,
   GitlabConfigurationResponseGenerator.class,
   DefaultGroupController.class,

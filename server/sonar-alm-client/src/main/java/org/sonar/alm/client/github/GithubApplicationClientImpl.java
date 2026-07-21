@@ -114,6 +114,26 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       .map(appInstallToken -> new ExpiringAppInstallationToken(clock, appInstallToken.getToken(), appInstallToken.getExpiresAt()));
   }
 
+  @Override
+  public Optional<ExpiringAppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId, String repositoryName) {
+    AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
+    String endPoint = "/app/installations/" + installationId + "/access_tokens";
+    String json = GSON.toJson(Map.of("repositories", List.of(repositoryName)));
+    return postWithBody(githubAppConfiguration.getApiEndpoint(), appToken, endPoint, json, GithubBinding.GsonInstallationToken.class)
+      .filter(token -> token.getToken() != null)
+      .map(appInstallToken -> new ExpiringAppInstallationToken(clock, appInstallToken.getToken(), appInstallToken.getExpiresAt()));
+  }
+
+  private <T> Optional<T> postWithBody(String baseUrl, AccessToken token, String endPoint, String json, Class<T> gsonClass) {
+    try {
+      ApplicationHttpClient.Response response = githubApplicationHttpClient.post(baseUrl, token, endPoint, json);
+      return handleResponse(response, endPoint, gsonClass);
+    } catch (Exception e) {
+      LOG.warn(FAILED_TO_REQUEST_BEGIN_MSG + endPoint, e);
+      return Optional.empty();
+    }
+  }
+
   private <T> Optional<T> post(String baseUrl, AccessToken token, String endPoint, Class<T> gsonClass) {
     try {
       ApplicationHttpClient.Response response = githubApplicationHttpClient.post(baseUrl, token, endPoint);

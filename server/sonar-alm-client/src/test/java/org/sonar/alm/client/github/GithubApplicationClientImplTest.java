@@ -1158,6 +1158,31 @@ public class GithubApplicationClientImplTest {
   }
 
   @Test
+  public void createAppInstallationToken_withRepositoryName_scopes_the_request_body_to_that_repository() throws IOException {
+    AppToken appToken = mockAppToken();
+    ExpiringAppInstallationToken installToken = mockCreateAccessTokenCallingGithubWithBody();
+
+    Optional<ExpiringAppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID, "Hello-World");
+
+    assertThat(accessToken).hasValue(installToken);
+    verify(githubApplicationHttpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens",
+      "{\"repositories\":[\"Hello-World\"]}");
+  }
+
+  @Test
+  public void createAppInstallationToken_withRepositoryName_returns_empty_if_access_token_cant_be_created() throws IOException {
+    AppToken appToken = mockAppToken();
+    Response response = mock(Response.class);
+    when(response.getContent()).thenReturn(Optional.empty());
+    when(response.getCode()).thenReturn(HTTP_UNAUTHORIZED);
+    when(githubApplicationHttpClient.post(eq(appUrl), eq(appToken), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"), anyString())).thenReturn(response);
+
+    Optional<ExpiringAppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID, "Hello-World");
+
+    assertThat(accessToken).isEmpty();
+  }
+
+  @Test
   public void getRepositoryTeams_returnsRepositoryTeams() throws IOException {
     ArgumentCaptor<Function<String, List<GsonRepositoryTeam>>> deserializerCaptor = ArgumentCaptor.forClass(Function.class);
 
@@ -1253,6 +1278,21 @@ public class GithubApplicationClientImplTest {
       """, token)));
     when(response.getCode()).thenReturn(HTTP_CREATED);
     when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"))).thenReturn(response);
+    return new ExpiringAppInstallationToken(clock, token, "2024-08-28T10:44:51Z");
+  }
+
+  private ExpiringAppInstallationToken mockCreateAccessTokenCallingGithubWithBody() throws IOException {
+    String token = secure().nextAlphanumeric(5);
+    Response response = mock(Response.class);
+    when(response.getContent()).thenReturn(Optional.of(format("""
+        {
+          "token": "%s",
+          "expires_at": "2024-08-28T10:44:51Z",
+          "repository_selection": "selected"
+        }
+      """, token)));
+    when(response.getCode()).thenReturn(HTTP_CREATED);
+    when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"), anyString())).thenReturn(response);
     return new ExpiringAppInstallationToken(clock, token, "2024-08-28T10:44:51Z");
   }
 
