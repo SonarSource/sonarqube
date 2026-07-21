@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import okhttp3.HttpUrl;
@@ -41,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
-import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 @ServerSide
 public class AzureDevOpsHttpClient {
@@ -70,11 +70,12 @@ public class AzureDevOpsHttpClient {
 
   protected final OkHttpClient client;
 
-  public AzureDevOpsHttpClient(TimeoutConfiguration timeoutConfiguration) {
-    client = new OkHttpClientBuilder()
-      .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
-      .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
-      .setFollowRedirects(false)
+  public AzureDevOpsHttpClient(TimeoutConfiguration timeoutConfiguration, OkHttpClient okHttpClient) {
+    client = okHttpClient.newBuilder()
+      .connectTimeout(timeoutConfiguration.getConnectTimeout(), TimeUnit.MILLISECONDS)
+      .readTimeout(timeoutConfiguration.getReadTimeout(), TimeUnit.MILLISECONDS)
+      .followRedirects(false)
+      .followSslRedirects(false)
       .build();
   }
 

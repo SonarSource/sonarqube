@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import okhttp3.Headers;
@@ -47,7 +48,6 @@ import org.sonar.auth.gitlab.GsonGroup;
 import org.sonar.auth.gitlab.GsonProjectMember;
 import org.sonar.auth.gitlab.GsonUser;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
@@ -73,12 +73,13 @@ public class GitlabApplicationClient {
 
   private final GitlabPaginatedHttpClient gitlabPaginatedHttpClient;
 
-  public GitlabApplicationClient(GitlabPaginatedHttpClient gitlabPaginatedHttpClient, TimeoutConfiguration timeoutConfiguration) {
+  public GitlabApplicationClient(GitlabPaginatedHttpClient gitlabPaginatedHttpClient, TimeoutConfiguration timeoutConfiguration, OkHttpClient okHttpClient) {
     this.gitlabPaginatedHttpClient = gitlabPaginatedHttpClient;
-    client = new OkHttpClientBuilder()
-      .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
-      .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
-      .setFollowRedirects(false)
+    client = okHttpClient.newBuilder()
+      .connectTimeout(timeoutConfiguration.getConnectTimeout(), TimeUnit.MILLISECONDS)
+      .readTimeout(timeoutConfiguration.getReadTimeout(), TimeUnit.MILLISECONDS)
+      .followRedirects(false)
+      .followSslRedirects(false)
       .build();
   }
 

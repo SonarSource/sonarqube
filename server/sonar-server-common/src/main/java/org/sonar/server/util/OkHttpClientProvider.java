@@ -53,7 +53,7 @@ public class OkHttpClientProvider {
    * @return a {@link OkHttpClient} singleton
    */
   @Primary
-  @Bean("OkHttpClient")
+  @Bean("okHttpClient")
   public OkHttpClient provide(Configuration config, SonarQubeVersion version) {
     OkHttpClientBuilder builder = new OkHttpClientBuilder();
     builder.setConnectTimeoutMs(DEFAULT_CONNECT_TIMEOUT_IN_MS);

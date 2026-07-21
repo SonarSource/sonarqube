@@ -26,6 +26,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.SerializedName;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.server.ServerSide;
-import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
@@ -62,12 +62,12 @@ public class BitbucketServerRestClient {
 
   protected final OkHttpClient client;
 
-  public BitbucketServerRestClient(TimeoutConfiguration timeoutConfiguration) {
-    OkHttpClientBuilder okHttpClientBuilder = new OkHttpClientBuilder();
-    client = okHttpClientBuilder
-      .setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout())
-      .setReadTimeoutMs(timeoutConfiguration.getReadTimeout())
-      .setFollowRedirects(false)
+  public BitbucketServerRestClient(TimeoutConfiguration timeoutConfiguration, OkHttpClient okHttpClient) {
+    client = okHttpClient.newBuilder()
+      .connectTimeout(timeoutConfiguration.getConnectTimeout(), TimeUnit.MILLISECONDS)
+      .readTimeout(timeoutConfiguration.getReadTimeout(), TimeUnit.MILLISECONDS)
+      .followRedirects(false)
+      .followSslRedirects(false)
       .build();
   }
 

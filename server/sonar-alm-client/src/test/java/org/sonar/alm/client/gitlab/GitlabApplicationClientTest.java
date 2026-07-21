@@ -27,6 +27,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import okhttp3.Authenticator;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -44,6 +47,7 @@ import org.sonar.auth.gitlab.GsonGroup;
 import org.sonar.auth.gitlab.GsonMemberRole;
 import org.sonar.auth.gitlab.GsonProjectMember;
 import org.sonar.auth.gitlab.GsonUser;
+import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -72,7 +76,7 @@ public class GitlabApplicationClientTest {
     gitlabUrl = urlWithEndingSlash.substring(0, urlWithEndingSlash.length() - 1);
 
     TimeoutConfiguration timeoutConfiguration = new ConstantTimeoutConfiguration(10_000);
-    underTest = new GitlabApplicationClient(gitlabPaginatedHttpClient, timeoutConfiguration);
+    underTest = new GitlabApplicationClient(gitlabPaginatedHttpClient, timeoutConfiguration, new OkHttpClientBuilder().build());
   }
 
   @After
@@ -751,6 +755,29 @@ public class GitlabApplicationClientTest {
 
   private static String getResponseContent(String path) throws IOException {
     return IOUtils.toString(GitlabApplicationClientTest.class.getResourceAsStream(path), StandardCharsets.UTF_8);
+  }
+
+  @Test
+  public void constructor_derives_client_from_injected_okHttpClient_preserving_proxy_config() {
+    Authenticator proxyAuthenticator = mock(Authenticator.class);
+    Interceptor interceptor = chain -> chain.proceed(chain.request());
+    OkHttpClient sharedClient = new OkHttpClient.Builder()
+      .proxyAuthenticator(proxyAuthenticator)
+      .addNetworkInterceptor(interceptor)
+      .build();
+
+    TimeoutConfiguration timeoutConfiguration = new ConstantTimeoutConfiguration(5_000);
+    GitlabApplicationClient client = new GitlabApplicationClient(gitlabPaginatedHttpClient, timeoutConfiguration, sharedClient);
+
+    assertThat(client.client.proxyAuthenticator()).isSameAs(proxyAuthenticator);
+    assertThat(client.client.networkInterceptors()).contains(interceptor);
+    assertThat(client.client.connectTimeoutMillis()).isEqualTo(5_000);
+    assertThat(client.client.readTimeoutMillis()).isEqualTo(5_000);
+    assertThat(client.client.followRedirects()).isFalse();
+    assertThat(client.client.followSslRedirects()).isFalse();
+
+    assertThat(sharedClient.proxyAuthenticator()).isSameAs(proxyAuthenticator);
+    assertThat(sharedClient.connectTimeoutMillis()).isNotEqualTo(5_000);
   }
 
 }

@@ -25,7 +25,10 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.IOException;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import okhttp3.Authenticator;
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.SocketPolicy;
@@ -36,11 +39,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.alm.client.ConstantTimeoutConfiguration;
+import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonarqube.ws.client.OkHttpClientBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
 
 @RunWith(DataProviderRunner.class)
 public class BitbucketServerRestClientTest {
@@ -83,7 +89,7 @@ public class BitbucketServerRestClientTest {
   public void prepare() throws IOException {
     server.start();
 
-    underTest = new BitbucketServerRestClient(new ConstantTimeoutConfiguration(500));
+    underTest = new BitbucketServerRestClient(new ConstantTimeoutConfiguration(500), new OkHttpClientBuilder().build());
   }
 
   @After
@@ -814,6 +820,29 @@ public class BitbucketServerRestClientTest {
       {11, 10, true, 15}, // Last 5 items
       {21, 10, false, 100}, // Middle range of items
     };
+  }
+
+  @Test
+  public void constructor_derives_client_from_injected_okHttpClient_preserving_proxy_config() {
+    Authenticator proxyAuthenticator = mock(Authenticator.class);
+    Interceptor interceptor = chain -> chain.proceed(chain.request());
+    OkHttpClient sharedClient = new OkHttpClient.Builder()
+      .proxyAuthenticator(proxyAuthenticator)
+      .addNetworkInterceptor(interceptor)
+      .build();
+
+    TimeoutConfiguration timeoutConfiguration = new ConstantTimeoutConfiguration(5_000);
+    BitbucketServerRestClient client = new BitbucketServerRestClient(timeoutConfiguration, sharedClient);
+
+    assertThat(client.client.proxyAuthenticator()).isSameAs(proxyAuthenticator);
+    assertThat(client.client.networkInterceptors()).contains(interceptor);
+    assertThat(client.client.connectTimeoutMillis()).isEqualTo(5_000);
+    assertThat(client.client.readTimeoutMillis()).isEqualTo(5_000);
+    assertThat(client.client.followRedirects()).isFalse();
+    assertThat(client.client.followSslRedirects()).isFalse();
+
+    assertThat(sharedClient.proxyAuthenticator()).isSameAs(proxyAuthenticator);
+    assertThat(sharedClient.connectTimeoutMillis()).isNotEqualTo(5_000);
   }
 
 }

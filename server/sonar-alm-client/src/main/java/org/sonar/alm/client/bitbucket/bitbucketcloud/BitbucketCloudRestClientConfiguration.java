@@ -19,12 +19,13 @@
  */
 package org.sonar.alm.client.bitbucket.bitbucketcloud;
 
+import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import org.sonar.alm.client.TimeoutConfiguration;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonarqube.ws.client.OkHttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -36,19 +37,22 @@ import org.springframework.context.annotation.Lazy;
 public class BitbucketCloudRestClientConfiguration {
 
   private final TimeoutConfiguration timeoutConfiguration;
+  private final OkHttpClient okHttpClient;
 
   @Autowired
-  public BitbucketCloudRestClientConfiguration(TimeoutConfiguration timeoutConfiguration) {
+  public BitbucketCloudRestClientConfiguration(TimeoutConfiguration timeoutConfiguration, @Qualifier("okHttpClient") OkHttpClient okHttpClient) {
     this.timeoutConfiguration = timeoutConfiguration;
+    this.okHttpClient = okHttpClient;
   }
 
   @Bean
   public OkHttpClient bitbucketCloudHttpClient() {
-    OkHttpClientBuilder builder = new OkHttpClientBuilder();
-    builder.setConnectTimeoutMs(timeoutConfiguration.getConnectTimeout());
-    builder.setReadTimeoutMs(timeoutConfiguration.getReadTimeout());
-    builder.setFollowRedirects(false);
-    return builder.build();
+    return okHttpClient.newBuilder()
+      .connectTimeout(timeoutConfiguration.getConnectTimeout(), TimeUnit.MILLISECONDS)
+      .readTimeout(timeoutConfiguration.getReadTimeout(), TimeUnit.MILLISECONDS)
+      .followRedirects(false)
+      .followSslRedirects(false)
+      .build();
   }
 
   @Bean

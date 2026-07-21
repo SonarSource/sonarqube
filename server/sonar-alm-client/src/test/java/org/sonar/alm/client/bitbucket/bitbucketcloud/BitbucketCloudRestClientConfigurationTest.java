@@ -20,6 +20,8 @@
 package org.sonar.alm.client.bitbucket.bitbucketcloud;
 
 import java.io.IOException;
+import okhttp3.Authenticator;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockResponse;
@@ -31,6 +33,7 @@ import org.sonar.alm.client.TimeoutConfigurationImpl;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.alm.client.TimeoutConfigurationImpl.CONNECT_TIMEOUT_PROPERTY;
 import static org.sonar.alm.client.TimeoutConfigurationImpl.READ_TIMEOUT_PROPERTY;
 
@@ -42,7 +45,7 @@ public class BitbucketCloudRestClientConfigurationTest {
   private final MapSettings settings = new MapSettings();
   private final TimeoutConfiguration timeoutConfiguration = new TimeoutConfigurationImpl(settings.asConfig());
 
-  private final BitbucketCloudRestClientConfiguration underTest = new BitbucketCloudRestClientConfiguration(timeoutConfiguration);
+  private final BitbucketCloudRestClientConfiguration underTest = new BitbucketCloudRestClientConfiguration(timeoutConfiguration, new OkHttpClient());
 
   public MockWebServer server = new MockWebServer();
 
@@ -60,6 +63,32 @@ public class BitbucketCloudRestClientConfigurationTest {
 
     RecordedRequest recordedRequest = call(client);
     assertThat(recordedRequest.getHeader("Proxy-Authorization")).isNull();
+  }
+
+  @Test
+  public void bitbucketCloudHttpClient_derivesFromInjectedGlobalClient_preservingProxyConfig() {
+    Authenticator proxyAuthenticator = mock(Authenticator.class);
+    Interceptor interceptor = chain -> chain.proceed(chain.request());
+    OkHttpClient sharedClient = new OkHttpClient.Builder()
+      .proxyAuthenticator(proxyAuthenticator)
+      .addNetworkInterceptor(interceptor)
+      .build();
+
+    settings.setProperty(CONNECT_TIMEOUT_PROPERTY, CONNECT_TIMEOUT_VALUE);
+    settings.setProperty(READ_TIMEOUT_PROPERTY, READ_TIMEOUT_VALUE);
+    BitbucketCloudRestClientConfiguration configuration = new BitbucketCloudRestClientConfiguration(timeoutConfiguration, sharedClient);
+
+    OkHttpClient derived = configuration.bitbucketCloudHttpClient();
+
+    assertThat(derived.proxyAuthenticator()).isSameAs(proxyAuthenticator);
+    assertThat(derived.networkInterceptors()).contains(interceptor);
+    assertThat(derived.connectTimeoutMillis()).isEqualTo(CONNECT_TIMEOUT_VALUE);
+    assertThat(derived.readTimeoutMillis()).isEqualTo(READ_TIMEOUT_VALUE);
+    assertThat(derived.followRedirects()).isFalse();
+    assertThat(derived.followSslRedirects()).isFalse();
+
+    assertThat(sharedClient.proxyAuthenticator()).isSameAs(proxyAuthenticator);
+    assertThat(sharedClient.connectTimeoutMillis()).isNotEqualTo((int) CONNECT_TIMEOUT_VALUE);
   }
 
   private RecordedRequest call(OkHttpClient client) throws IOException, InterruptedException {
