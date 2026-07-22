@@ -18,7 +18,6 @@ sonar {
 }
 
 configurations {
-  zipDist
   zip
   scanner
   web
@@ -85,15 +84,6 @@ dependencies {
 
     webapp 'org.sonarsource.sonarqube:webapp-assets'
 
-    def artifactoryUsername = System.env.'ARTIFACTORY_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
-    def artifactoryPassword = System.env.'ARTIFACTORY_ACCESS_TOKEN' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
-    
-    if (artifactoryUsername && artifactoryPassword) {
-      zipDist "sonarqube:elasticsearch:${elasticSearchServerVersion}-no-jdk@tar.gz"
-    } else {
-      zipDist "elasticsearch:elasticsearch:${elasticSearchServerVersion}-linux-x86_64@tar.gz"
-    }
-
 }
 
 // declare dependencies in configuration bundledPlugin to be packaged in lib/extensions
@@ -143,6 +133,64 @@ tasks.register('downloadJres') {
     }
     jresMetadata.each { jre ->
       downloadJreFromAdoptium(jre.os, jre.arch, jre.filename, jre.sha256)
+    }
+  }
+}
+
+
+def elasticSearchArtifactoryUsername() {
+  System.env.'ARTIFACTORY_USERNAME' ?: (project.hasProperty('artifactoryUsername') ? project.getProperty('artifactoryUsername') : '')
+}
+
+def elasticSearchArtifactoryPassword() {
+  System.env.'ARTIFACTORY_ACCESS_TOKEN' ?: (project.hasProperty('artifactoryPassword') ? project.getProperty('artifactoryPassword') : '')
+}
+
+/** Local + remote archive basename; variant differs for Repox no-jdk vs public Elastic linux-x86_64. */
+def elasticSearchArchiveName() {
+  def version = elasticSearchServerVersion as String
+  return (elasticSearchArtifactoryUsername() && elasticSearchArtifactoryPassword())
+    ? "elasticsearch-${version}-no-jdk.tar.gz"
+    : "elasticsearch-${version}-linux-x86_64.tar.gz"
+}
+
+tasks.register('downloadElasticsearch') {
+  def artifactoryPassword = elasticSearchArtifactoryPassword()
+  def useArtifactory = elasticSearchArtifactoryUsername() && artifactoryPassword
+  def artifactoryUrl = System.getenv('ARTIFACTORY_URL') ?: (project.hasProperty('artifactoryUrl') ? project.getProperty('artifactoryUrl') : 'https://repox.jfrog.io/repox')
+  def archiveName = elasticSearchArchiveName()
+  def destFile = layout.buildDirectory.file("elasticsearch-dist/${archiveName}")
+  def srcUrl = useArtifactory
+    ? "${artifactoryUrl}/sonarsource-bucket/sonarqube/elasticsearch/${archiveName}"
+    : "https://artifacts.elastic.co/downloads/elasticsearch/${archiveName}"
+  def checksumAlgorithm = useArtifactory ? 'SHA-256' : 'SHA-512'
+  def expectedChecksum = useArtifactory ? elasticSearchNoJdkSha256 : elasticSearchLinuxSha512
+
+  inputs.property('elasticSearchArchiveName', archiveName)
+  inputs.property('elasticSearchChecksum', expectedChecksum)
+  // Do not declare outputs.file / cacheIf: on a fresh CI runner the task is out-of-date, and
+  // Gradle deletes declared outputs before doLast — wiping a GHA-restored tarball and forcing
+  // a Repox re-download despite overwrite false. GHA owns caching of elasticsearch-dist/.
+
+  doLast {
+    def archiveFile = destFile.get().asFile
+    archiveFile.parentFile.mkdirs()
+    if (!archiveFile.exists()) {
+      download.run {
+        src srcUrl
+        dest archiveFile
+        if (useArtifactory) {
+          header 'Authorization', "Bearer ${artifactoryPassword}"
+        }
+        overwrite true
+      }
+    } else {
+      logger.lifecycle("Using existing Elasticsearch archive ${archiveFile}")
+    }
+    verifyChecksum.run {
+      src archiveFile
+      algorithm checksumAlgorithm
+      checksum expectedChecksum
     }
   }
 }
@@ -197,11 +245,8 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
     from file('src/main/assembly/sonarsource-svnkit-license.txt')
   }
 
-  ResolvedArtifact elasticSearchArtifact = configurations.zipDist.resolvedConfiguration.resolvedArtifacts.find {
-    it.moduleVersion.id.name == "elasticsearch"
-  }
-  assert elasticSearchArtifact != null : "Could not resolve the elasticsearch tarball from the zipDist configuration"
-  from(tarTree(elasticSearchArtifact.file)) {
+  dependsOn tasks.downloadElasticsearch
+  from(tarTree(layout.buildDirectory.file("elasticsearch-dist/${elasticSearchArchiveName()}"))) {
     eachFile { fcd ->
       def path = fcd.relativePath.segments - fcd.relativeSourcePath.segments + fcd.relativeSourcePath.segments.drop(1)
       fcd.relativePath = new RelativePath(true, *path)
@@ -388,7 +433,7 @@ task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
   into("${archiveDir}/web/") {
     duplicatesStrategy DuplicatesStrategy.FAIL
 
-    def webappBuildPath = System.getenv('WEBAPP_BUILD_PATH') 
+    def webappBuildPath = System.getenv('WEBAPP_BUILD_PATH')
 
     if (webappBuildPath == null) {
       from(zipTree(configurations.webapp.singleFile))
