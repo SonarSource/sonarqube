@@ -31,6 +31,7 @@ import org.sonar.alm.client.github.GithubApplicationClientImpl;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GithubAppConfiguration;
+import org.sonar.auth.github.GithubAppPermissions;
 import org.sonar.core.scm.github.GithubInstallationToken;
 import org.sonar.db.DbClient;
 import org.sonar.db.alm.setting.ALM;
@@ -46,6 +47,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -106,7 +109,7 @@ public class GithubInstallationTokenProviderImplTest {
     mockProjectAlmSetting();
     AlmSettingDto almSetting = mockGithubAlmSetting();
     IllegalArgumentException cause = new IllegalArgumentException("bad config");
-    when(githubGlobalSettingsValidator.validate(almSetting)).thenThrow(cause);
+    when(githubGlobalSettingsValidator.validate(almSetting, GithubAppPermissions.TOKEN_MINTING_PERMISSIONS)).thenThrow(cause);
 
     assertThatThrownBy(() -> underTest.mint(PROJECT_KEY))
       .isInstanceOf(IllegalArgumentException.class)
@@ -115,11 +118,25 @@ public class GithubInstallationTokenProviderImplTest {
   }
 
   @Test
+  public void mint_whenGithubAppLacksContentsWrite_shouldThrow() {
+    mockProjectAlmSetting();
+    AlmSettingDto almSetting = mockGithubAlmSetting();
+    IllegalArgumentException cause = new IllegalArgumentException("Missing permissions; permission granted on contents is 'read', should be 'write'");
+    when(githubGlobalSettingsValidator.validate(almSetting, GithubAppPermissions.TOKEN_MINTING_PERMISSIONS)).thenThrow(cause);
+
+    assertThatThrownBy(() -> underTest.mint(PROJECT_KEY))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasCause(cause);
+    // the plain (REQUIRED_PERMISSIONS) overload must never be used by the minting path
+    verify(githubGlobalSettingsValidator, never()).validate(almSetting);
+  }
+
+  @Test
   public void mint_whenAppNotInstalledOnRepository_shouldReturnEmpty() {
     mockProjectAlmSetting();
     AlmSettingDto almSetting = mockGithubAlmSetting();
     GithubAppConfiguration configuration = mock();
-    when(githubGlobalSettingsValidator.validate(almSetting)).thenReturn(configuration);
+    when(githubGlobalSettingsValidator.validate(almSetting, GithubAppPermissions.TOKEN_MINTING_PERMISSIONS)).thenReturn(configuration);
     when(githubApplicationClient.getInstallationId(configuration, ALM_REPO)).thenReturn(Optional.empty());
 
     assertThat(underTest.mint(PROJECT_KEY)).isEmpty();
@@ -130,7 +147,7 @@ public class GithubInstallationTokenProviderImplTest {
     mockProjectAlmSetting();
     AlmSettingDto almSetting = mockGithubAlmSetting();
     GithubAppConfiguration configuration = mock();
-    when(githubGlobalSettingsValidator.validate(almSetting)).thenReturn(configuration);
+    when(githubGlobalSettingsValidator.validate(almSetting, GithubAppPermissions.TOKEN_MINTING_PERMISSIONS)).thenReturn(configuration);
     when(githubApplicationClient.getInstallationId(configuration, ALM_REPO)).thenReturn(Optional.of(INSTALLATION_ID));
     when(githubApplicationClient.createAppInstallationToken(configuration, INSTALLATION_ID, BARE_REPO_NAME)).thenReturn(Optional.empty());
 
@@ -145,7 +162,7 @@ public class GithubInstallationTokenProviderImplTest {
     mockProjectAlmSetting();
     AlmSettingDto almSetting = mockGithubAlmSetting();
     GithubAppConfiguration configuration = mock();
-    when(githubGlobalSettingsValidator.validate(almSetting)).thenReturn(configuration);
+    when(githubGlobalSettingsValidator.validate(almSetting, GithubAppPermissions.TOKEN_MINTING_PERMISSIONS)).thenReturn(configuration);
     when(githubApplicationClient.getInstallationId(configuration, ALM_REPO)).thenReturn(Optional.of(INSTALLATION_ID));
 
     OffsetDateTime expiresAt = OffsetDateTime.parse("2026-07-15T15:00:00Z");

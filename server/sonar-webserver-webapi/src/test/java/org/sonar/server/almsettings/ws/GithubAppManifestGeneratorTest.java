@@ -55,6 +55,7 @@ public class GithubAppManifestGeneratorTest {
     assertThat(permissions.get("pull_requests").getAsString()).isEqualTo("write");
     assertThat(permissions.get("metadata").getAsString()).isEqualTo("read");
     assertThat(permissions.get("administration").getAsString()).isEqualTo("read");
+    assertThat(permissions.get("contents").getAsString()).isEqualTo("write");
   }
 
   @Test

@@ -28,6 +28,7 @@ import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.api.server.ServerSide;
 import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GithubAppConfiguration;
+import org.sonar.auth.github.GithubAppPermissions;
 import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.core.scm.github.GithubInstallationToken;
 import org.sonar.core.scm.github.GithubInstallationTokenProvider;
@@ -113,7 +114,11 @@ public class GithubInstallationTokenProviderImpl implements GithubInstallationTo
 
     GithubAppConfiguration githubAppConfiguration;
     try {
-      githubAppConfiguration = githubGlobalSettingsValidator.validate(almSetting);
+      // TOKEN_MINTING_PERMISSIONS, not the plain default: a minted token is pointless if the GitHub
+      // App doesn't have 'contents: write' to push the remediation commit it's minted for. Most
+      // already-installed apps predate this requirement — there's no in-product way to prompt them
+      // to re-approve, so the wrapped message below is the only guidance an admin gets.
+      githubAppConfiguration = githubGlobalSettingsValidator.validate(almSetting, GithubAppPermissions.TOKEN_MINTING_PERMISSIONS);
     } catch (IllegalArgumentException e) {
       // Wrapped (with the project key) rather than swallowed to Optional.empty(): unlike the checks
       // above, this isn't a "not bound" case — the binding exists, its GitHub App configuration is

@@ -19,6 +19,7 @@
  */
 package org.sonar.alm.client.github;
 
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +27,7 @@ import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.auth.github.GithubAppConfiguration;
+import org.sonar.auth.github.GithubAppPermissions;
 import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.db.alm.setting.AlmSettingDto;
 
@@ -46,7 +48,22 @@ public class GithubGlobalSettingsValidator {
     return validate(almSettingDto.getAppId(), almSettingDto.getClientId(), almSettingDto.getClientSecret(), almSettingDto.getPrivateKey(), almSettingDto.getUrl());
   }
 
+  /**
+   * Same as {@link #validate(AlmSettingDto)}, but checks {@code requiredPermissions} instead of the
+   * default {@code GithubAppPermissions.REQUIRED_PERMISSIONS} — for callers needing a stricter (or
+   * different) check for their specific flow (SONAR-31023).
+   */
+  public GithubAppConfiguration validate(AlmSettingDto almSettingDto, Map<String, String> requiredPermissions) {
+    return validate(almSettingDto.getAppId(), almSettingDto.getClientId(), almSettingDto.getClientSecret(), almSettingDto.getPrivateKey(), almSettingDto.getUrl(),
+      requiredPermissions);
+  }
+
   public GithubAppConfiguration validate(@Nullable String applicationId, @Nullable String clientId, String clientSecret, String privateKey,  @Nullable String url) {
+    return validate(applicationId, clientId, clientSecret, privateKey, url, GithubAppPermissions.REQUIRED_PERMISSIONS);
+  }
+
+  public GithubAppConfiguration validate(@Nullable String applicationId, @Nullable String clientId, String clientSecret, String privateKey, @Nullable String url,
+    Map<String, String> requiredPermissions) {
     long appId;
     try {
       appId = Long.parseLong(Optional.ofNullable(applicationId).orElseThrow(() -> new IllegalArgumentException("Missing appId")));
@@ -62,7 +79,7 @@ public class GithubGlobalSettingsValidator {
     GithubAppConfiguration configuration = new GithubAppConfiguration(appId, getDecryptedSettingValue(privateKey), url);
 
     githubApplicationClient.checkApiEndpoint(configuration);
-    githubApplicationClient.checkAppPermissions(configuration);
+    githubApplicationClient.checkAppPermissions(configuration, requiredPermissions);
 
     return configuration;
   }

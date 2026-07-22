@@ -188,9 +188,12 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
 
   @Override
   public void checkAppPermissions(GithubAppConfiguration githubAppConfiguration) {
-    AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
+    checkAppPermissions(githubAppConfiguration, GithubAppPermissions.REQUIRED_PERMISSIONS);
+  }
 
-    Map<String, String> permissions = GithubAppPermissions.REQUIRED_PERMISSIONS;
+  @Override
+  public void checkAppPermissions(GithubAppConfiguration githubAppConfiguration, Map<String, String> permissions) {
+    AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
 
     String endPoint = "/app";
     GetResponse response;

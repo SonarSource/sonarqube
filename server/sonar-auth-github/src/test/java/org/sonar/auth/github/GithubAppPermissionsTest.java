@@ -39,6 +39,28 @@ public class GithubAppPermissionsTest {
     }
   }
 
+  /**
+   * The token-minting check must always pass {@code checkAppPermissions} too, for the same reason.
+   */
+  @Test
+  public void tokenMintingPermissions_containAllRequiredPermissions() {
+    for (Map.Entry<String, String> required : GithubAppPermissions.REQUIRED_PERMISSIONS.entrySet()) {
+      assertThat(GithubAppPermissions.TOKEN_MINTING_PERMISSIONS)
+        .as("token minting must require permission '%s'", required.getKey())
+        .containsEntry(required.getKey(), required.getValue());
+    }
+  }
+
+  @Test
+  public void tokenMintingPermissions_requireContentsWrite() {
+    assertThat(GithubAppPermissions.TOKEN_MINTING_PERMISSIONS).containsEntry("contents", GithubAppPermissions.WRITE);
+  }
+
+  @Test
+  public void manifestPermissions_requestContentsWrite() {
+    assertThat(GithubAppPermissions.MANIFEST_PERMISSIONS).containsEntry("contents", GithubAppPermissions.WRITE);
+  }
+
   @Test
   public void manifestEvents_areEmptyByDefault() {
     // No webhook events are required for PR analysis or provisioning.

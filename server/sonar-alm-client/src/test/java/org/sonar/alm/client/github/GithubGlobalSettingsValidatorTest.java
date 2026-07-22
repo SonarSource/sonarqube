@@ -24,6 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.auth.github.GithubAppConfiguration;
+import org.sonar.auth.github.GithubAppPermissions;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.alm.setting.ALM;
@@ -32,6 +33,7 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -61,9 +63,20 @@ public class GithubGlobalSettingsValidatorTest {
 
     ArgumentCaptor<GithubAppConfiguration> configurationArgumentCaptor = ArgumentCaptor.forClass(GithubAppConfiguration.class);
     verify(appClient).checkApiEndpoint(configurationArgumentCaptor.capture());
-    verify(appClient).checkAppPermissions(configurationArgumentCaptor.capture());
+    verify(appClient).checkAppPermissions(configurationArgumentCaptor.capture(), eq(GithubAppPermissions.REQUIRED_PERMISSIONS));
     assertThat(configuration.getId()).isEqualTo(configurationArgumentCaptor.getAllValues().get(0).getId());
     assertThat(configuration.getId()).isEqualTo(configurationArgumentCaptor.getAllValues().get(1).getId());
+  }
+
+  @Test
+  public void github_global_settings_validation_withExplicitPermissions_checksThatMapInsteadOfTheDefault() {
+    AlmSettingDto almSettingDto = createNewGithubDto("clientId", "clientSecret", EXAMPLE_APP_ID, EXAMPLE_PRIVATE_KEY);
+
+    when(encryption.isEncrypted(any())).thenReturn(false);
+
+    underTest.validate(almSettingDto, GithubAppPermissions.TOKEN_MINTING_PERMISSIONS);
+
+    verify(appClient).checkAppPermissions(any(), eq(GithubAppPermissions.TOKEN_MINTING_PERMISSIONS));
   }
 
   @Test
@@ -79,7 +92,7 @@ public class GithubGlobalSettingsValidatorTest {
 
     ArgumentCaptor<GithubAppConfiguration> configurationArgumentCaptor = ArgumentCaptor.forClass(GithubAppConfiguration.class);
     verify(appClient).checkApiEndpoint(configurationArgumentCaptor.capture());
-    verify(appClient).checkAppPermissions(configurationArgumentCaptor.capture());
+    verify(appClient).checkAppPermissions(configurationArgumentCaptor.capture(), eq(GithubAppPermissions.REQUIRED_PERMISSIONS));
     assertThat(configuration.getId()).isEqualTo(configurationArgumentCaptor.getAllValues().get(0).getId());
     assertThat(decryptedKey).isEqualTo(configurationArgumentCaptor.getAllValues().get(0).getPrivateKey());
     assertThat(configuration.getId()).isEqualTo(configurationArgumentCaptor.getAllValues().get(1).getId());

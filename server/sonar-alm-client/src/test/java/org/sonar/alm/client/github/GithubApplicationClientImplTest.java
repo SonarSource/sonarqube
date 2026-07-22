@@ -27,7 +27,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -50,6 +52,7 @@ import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubAppCredentials;
 import org.sonar.auth.github.GithubAppInstallation;
+import org.sonar.auth.github.GithubAppPermissions;
 import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.GithubBinding;
 import org.sonar.auth.github.GsonRepositoryCollaborator;
@@ -278,6 +281,34 @@ public class GithubApplicationClientImplTest {
 
     when(githubApplicationHttpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse(json));
 
+    assertThatCode(() -> underTest.checkAppPermissions(githubAppConfiguration)).isNull();
+  }
+
+  @Test
+  public void checkAppPermissions_withExplicitPermissions_checksThatMapInsteadOfTheDefault() throws IOException {
+    AppToken appToken = mockAppToken();
+
+    String json = """
+      {
+            "permissions": {
+              "checks": "write",
+              "metadata": "read",
+              "pull_requests": "write",
+              "contents": "read"
+            }
+      }
+      """;
+
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse(json));
+
+    Map<String, String> tokenMintingPermissions = new HashMap<>(GithubAppPermissions.REQUIRED_PERMISSIONS);
+    tokenMintingPermissions.put("contents", "write");
+
+    assertThatThrownBy(() -> underTest.checkAppPermissions(githubAppConfiguration, tokenMintingPermissions))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Missing permissions; permission granted on contents is 'read', should be 'write'");
+
+    // the default (no-arg) overload is unaffected: it only checks REQUIRED_PERMISSIONS, which this response satisfies
     assertThatCode(() -> underTest.checkAppPermissions(githubAppConfiguration)).isNull();
   }
 

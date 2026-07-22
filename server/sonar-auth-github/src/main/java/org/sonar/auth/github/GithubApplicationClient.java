@@ -21,6 +21,7 @@ package org.sonar.auth.github;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -111,6 +112,13 @@ public interface GithubApplicationClient {
    * Checks if an app has all the permissions required.
    */
   void checkAppPermissions(GithubAppConfiguration githubAppConfiguration);
+
+  /**
+   * Same as {@link #checkAppPermissions(GithubAppConfiguration)}, but against an explicit
+   * permission map rather than the default {@code GithubAppPermissions.REQUIRED_PERMISSIONS} — for
+   * callers that need a stricter (or different) check for their specific flow (SONAR-31023).
+   */
+  void checkAppPermissions(GithubAppConfiguration githubAppConfiguration, Map<String, String> requiredPermissions);
 
   /**
    * Returns the repository identified by the repositoryKey owned by the provided organization.

@@ -30,10 +30,14 @@ import java.util.Map;
  * (see {@code GithubApplicationClientImpl.checkAppPermissions}). {@link #MANIFEST_PERMISSIONS} is
  * the full set requested when registering a new app through the
  * <a href="https://docs.github.com/en/apps/sharing-github-apps/registering-a-github-app-from-a-manifest">GitHub App Manifest flow</a>.
+ * {@link #TOKEN_MINTING_PERMISSIONS} is the (larger) set validated specifically before minting an
+ * installation token for the orchestrator (SONAR-30903/SONAR-31023), since pushing a remediation
+ * commit needs {@code contents: write} that most already-installed apps don't have yet.
  * <p>
- * {@link #MANIFEST_PERMISSIONS} MUST always be a superset of {@link #REQUIRED_PERMISSIONS} so that an
- * app created from the manifest passes validation. This invariant holds by construction (the manifest
- * set is built from the required set) and is additionally guarded by a unit test.
+ * {@link #MANIFEST_PERMISSIONS} and {@link #TOKEN_MINTING_PERMISSIONS} MUST always be supersets of
+ * {@link #REQUIRED_PERMISSIONS} so that an app created from the manifest passes validation. This
+ * invariant holds by construction (both sets are built from the required set) and is additionally
+ * guarded by a unit test.
  */
 public final class GithubAppPermissions {
 
@@ -62,6 +66,17 @@ public final class GithubAppPermissions {
   public static final Map<String, String> MANIFEST_PERMISSIONS = Map.copyOf(manifestPermissions());
 
   /**
+   * Permissions validated specifically before minting an orchestrator installation token
+   * (SONAR-31023), instead of the plain {@link #REQUIRED_PERMISSIONS}: minting is pointless if the
+   * resulting token can't push the remediation commit it's minted for. Kept separate from
+   * {@link #REQUIRED_PERMISSIONS} so this stricter check only applies to that one flow — it must
+   * not become a blanket requirement re-validated on every existing GitHub ALM integration
+   * (PR decoration, provisioning, ...), which would break every already-configured app that
+   * doesn't have {@code contents: write} yet.
+   */
+  public static final Map<String, String> TOKEN_MINTING_PERMISSIONS = Map.copyOf(tokenMintingPermissions());
+
+  /**
    * Webhook events the app subscribes to by default. Empty: pull request decoration is performed
    * through the GitHub API and provisioning through a scheduled sync, so no webhook events are
    * required. (Code scanning alert reporting can be enabled manually afterwards.)
@@ -76,14 +91,20 @@ public final class GithubAppPermissions {
     // Seed from the required permissions so the manifest can never request less than what
     // checkAppPermissions validates; only additional scopes are layered on top.
     Map<String, String> permissions = new LinkedHashMap<>(REQUIRED_PERMISSIONS);
-    // pull request analysis & decoration
-    permissions.put("contents", READ);
+    // pull request analysis & decoration, and pushing remediation commits (SONAR-31023)
+    permissions.put("contents", WRITE);
     // authentication & provisioning
     permissions.put("administration", READ);
     permissions.put("members", READ);
     permissions.put("organization_administration", READ);
     permissions.put("organization_projects", READ);
     permissions.put("emails", READ);
+    return permissions;
+  }
+
+  private static Map<String, String> tokenMintingPermissions() {
+    Map<String, String> permissions = new LinkedHashMap<>(REQUIRED_PERMISSIONS);
+    permissions.put("contents", WRITE);
     return permissions;
   }
 }
