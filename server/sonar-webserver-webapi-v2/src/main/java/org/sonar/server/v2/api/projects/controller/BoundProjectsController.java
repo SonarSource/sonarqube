@@ -69,13 +69,19 @@ public interface BoundProjectsController {
       Create a SonarQube project bound to a DevOps platform repository, or update the binding if the project already exists.
       This is an idempotent operation. If the project already exists with the same key, its binding will be updated.
       Autoconfigure Pull-Request decoration mechanism.
-      Requires the 'Create Projects' permission and setting a Personal Access Token with api/alm_integrations/set_pat for a user who will be using this endpoint
+      Creating a new project requires the 'Create Projects' permission and setting a Personal Access Token with
+      api/alm_integrations/set_pat for a user who will be using this endpoint.
+      Updating an existing project additionally requires the 'Administer' permission on that project.
       """,
     responses = {
       @ApiResponse(responseCode = "200", description = "Project successfully created or binding updated"),
       @ApiResponse(responseCode = "400", description = "Bad request - personal access token for the DevOps platform setting is missing", content = @Content),
       @ApiResponse(responseCode = "401", description = "Authentication required", content = @Content),
       @ApiResponse(responseCode = "403", description = "Insufficient permissions - requires 'Create Projects' permission", content = @Content),
+      @ApiResponse(
+        responseCode = "404",
+        description = "Project already exists and the caller lacks 'Administer' permission on it",
+        content = @Content),
       @ApiResponse(
         responseCode = "500",
         description = "Internal server error - failed to fetch repository from DevOps platform (e.g., repository not found, invalid PAT, or insufficient permissions)",

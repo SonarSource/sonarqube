@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.server.v2.WebApiEndpoints.BOUND_PROJECTS_ENDPOINT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -150,6 +151,77 @@ class DefaultBoundProjectsControllerTest {
           {
             "projectId": "project-uuid",
             "bindingId": "project-alm-setting-uuid"
+          }
+          """));
+  }
+
+  @Test
+  void createOrUpdateBoundProject_whenUserDoesntHaveCreateProjectPermission_returnsForbidden() throws Exception {
+    userSession.logIn();
+    mockMvc.perform(
+      put(BOUND_PROJECTS_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("""
+                {
+                  "projectKey": "project-key",
+                  "projectName": "project-name",
+                  "devOpsPlatformSettingId": "alm-setting-id",
+                  "repositoryIdentifier": "repository-id",
+                  "monorepo": true
+                }
+          """)
+
+    )
+      .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void createOrUpdateBoundProject_whenProjectIsUpdatedSuccessfully_returnResponseWithNewProjectCreatedFalse() throws Exception {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+
+    ProjectDto projectDto = mock(ProjectDto.class);
+    when(projectDto.getUuid()).thenReturn(PROJECT_UUID);
+
+    ProjectAlmSettingDto projectAlmSettingDto = mock(ProjectAlmSettingDto.class);
+    when(projectAlmSettingDto.getUuid()).thenReturn(PROJECT_ALM_SETTING_UUID);
+
+    when(importProjectService.importProject(new ImportProjectRequest(
+      PROJECT_KEY,
+      PROJECT_NAME,
+      ALM_SETTING_ID,
+      DOP_REPOSITORY_ID,
+      DOP_PROJECT_ID,
+      "NUMBER_OF_DAYS",
+      "10",
+      true,
+      true)))
+      .thenReturn(new ImportedProject(
+        projectDto,
+        projectAlmSettingDto,
+        false));
+
+    mockMvc.perform(
+      put(BOUND_PROJECTS_ENDPOINT)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("""
+                {
+                  "projectKey": "project-key",
+                  "projectName": "project-name",
+                  "devOpsPlatformSettingId": "alm-setting-id",
+                  "repositoryIdentifier": "dop-repository-id",
+                  "projectIdentifier": "dop-project-id",
+                  "newCodeDefinitionType": "NUMBER_OF_DAYS",
+                  "newCodeDefinitionValue": "10",
+                  "monorepo": true
+                }
+          """))
+      .andExpectAll(
+        status().isOk(),
+        content().json("""
+          {
+            "projectId": "project-uuid",
+            "bindingId": "project-alm-setting-uuid",
+            "newProjectCreated": false
           }
           """));
   }

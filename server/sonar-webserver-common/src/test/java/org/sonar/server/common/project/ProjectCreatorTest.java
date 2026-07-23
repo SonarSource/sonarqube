@@ -23,6 +23,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,11 +32,13 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ResourceForbiddenException;
 import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
 
@@ -100,15 +104,18 @@ class ProjectCreatorTest {
     assertThat(result).isEqualTo(expectedData);
     assertThat(result.newProjectCreated()).isTrue();
     verify(componentUpdater).createWithoutCommit(any(), any());
+    verify(userSession, never()).checkEntityPermissionOrElseThrowResourceForbiddenException(any(), any());
   }
 
   @Test
-  void getOrCreateProject_whenProjectExistsAndAllowExistingTrue_andNameMatches_returnsExistingProject() {
+  void getOrCreateProject_whenProjectExistsAndAllowExistingTrue_andUserIsProjectAdmin_returnsExistingProject() {
     ProjectDto existingProject = mock(ProjectDto.class);
     when(existingProject.getName()).thenReturn(PROJECT_NAME);
     when(existingProject.getUuid()).thenReturn(PROJECT_UUID);
     when(dbClient.projectDao().selectProjectByKey(dbSession, PROJECT_KEY))
       .thenReturn(Optional.of(existingProject));
+    when(userSession.checkEntityPermissionOrElseThrowResourceForbiddenException(ProjectPermission.ADMIN, existingProject))
+      .thenReturn(userSession);
 
     ComponentDto componentDto = mock(ComponentDto.class);
     when(dbClient.componentDao().selectByKey(dbSession, PROJECT_KEY))
@@ -133,6 +140,7 @@ class ProjectCreatorTest {
     assertThat(result.projectDto()).isEqualTo(existingProject);
     assertThat(result.mainBranchComponent()).isEqualTo(componentDto);
     assertThat(result.mainBranchDto()).isEqualTo(branchDto);
+    verify(userSession).checkEntityPermissionOrElseThrowResourceForbiddenException(ProjectPermission.ADMIN, existingProject);
     verify(componentUpdater, never()).createWithoutCommit(any(), any());
   }
 
@@ -142,6 +150,8 @@ class ProjectCreatorTest {
     when(existingProject.getName()).thenReturn("Different Name");
     when(dbClient.projectDao().selectProjectByKey(dbSession, PROJECT_KEY))
       .thenReturn(Optional.of(existingProject));
+    when(userSession.checkEntityPermissionOrElseThrowResourceForbiddenException(ProjectPermission.ADMIN, existingProject))
+      .thenReturn(userSession);
 
     ProjectCreationRequest request = new ProjectCreationRequest(
       PROJECT_KEY,
@@ -178,6 +188,36 @@ class ProjectCreatorTest {
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Could not create Project with key: \"" + PROJECT_KEY + "\". A similar key already exists: \"" + PROJECT_KEY + "\"");
 
+    verify(componentUpdater, never()).createWithoutCommit(any(), any());
+    verify(userSession, never()).checkEntityPermissionOrElseThrowResourceForbiddenException(any(), any());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {PROJECT_NAME, "Different Name"})
+  void getOrCreateProject_whenProjectExistsAndUserLacksProjectAdminPermission_rejectsRegardlessOfSuppliedProjectName(String suppliedProjectName) {
+    ProjectDto existingProject = mock(ProjectDto.class);
+    when(dbClient.projectDao().selectProjectByKey(dbSession, PROJECT_KEY))
+      .thenReturn(Optional.of(existingProject));
+    when(userSession.checkEntityPermissionOrElseThrowResourceForbiddenException(ProjectPermission.ADMIN, existingProject))
+      .thenThrow(new ResourceForbiddenException());
+
+    ProjectCreationRequest request = new ProjectCreationRequest(
+      PROJECT_KEY,
+      suppliedProjectName,
+      MAIN_BRANCH,
+      CreationMethod.ALM_IMPORT_API,
+      true,
+      false,
+      true); // allowExisting = true
+
+    // Whether the caller's guessed project name happens to match the real one or not, the response is
+    // identical - the name-mismatch error must never be reachable for an unauthorized caller, or it
+    // becomes an oracle for discovering the real project name.
+    assertThatThrownBy(() -> projectCreator.getOrCreateProject(dbSession, request))
+      .isInstanceOf(ResourceForbiddenException.class);
+
+    verify(dbClient, never()).componentDao();
+    verify(dbClient, never()).branchDao();
     verify(componentUpdater, never()).createWithoutCommit(any(), any());
   }
 }

@@ -34,6 +34,7 @@ import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.auth.DevOpsPlatformSettings;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDao;
@@ -49,6 +50,7 @@ import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.common.permission.UserPermissionChange;
 import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.component.ComponentCreationData;
+import org.sonar.server.exceptions.ResourceForbiddenException;
 import org.sonar.server.management.ManagedProjectService;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionServiceImpl;
@@ -63,6 +65,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.project.CreationMethod.ALM_IMPORT_API;
@@ -287,6 +290,27 @@ class DefaultDevOpsProjectCreatorTest {
     verify(projectAlmSettingDao).insertOrUpdate(any(), projectAlmSettingDtoCaptor.capture(), eq(ALM_SETTING_KEY), eq(REPOSITORY_NAME), eq(projectKey));
     ProjectAlmSettingDto projectAlmSettingDto = projectAlmSettingDtoCaptor.getValue();
     assertAlmSettingsDtoContainsCorrectInformation(almSettingDto, requireNonNull(componentCreationData.projectDto()), projectAlmSettingDto);
+  }
+
+  @Test
+  void createProjectAndBindToDevOpsPlatformFromApi_whenRebindingExistingProjectAndUserLacksProjectAdminPermission_throwsAndDoesNotMutateAnything() {
+    // given
+    String projectKey = "customProjectKey";
+    ProjectDto existingProject = mock(ProjectDto.class);
+    when(dbClient.projectDao().selectProjectByKey(any(), any())).thenReturn(Optional.of(existingProject));
+    when(userSession.checkEntityPermissionOrElseThrowResourceForbiddenException(ProjectPermission.ADMIN, existingProject))
+      .thenThrow(new ResourceForbiddenException());
+
+    DbSession dbSession = dbClient.openSession(true);
+
+    // when / then
+    assertThatException()
+      .isThrownBy(() -> defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, ALM_IMPORT_API, false, projectKey, null, true))
+      .isInstanceOf(ResourceForbiddenException.class);
+
+    verify(dbClient.projectAlmSettingDao(), never()).insertOrUpdate(any(), any(), any(), any(), any());
+    verify(permissionUpdater, never()).apply(any(), any());
+    verify(managedProjectService, never()).queuePermissionSyncTask(any(), any(), any());
   }
 
   private void verifyProjectSyncTaskWasCreated(ComponentCreationData componentCreationData) {

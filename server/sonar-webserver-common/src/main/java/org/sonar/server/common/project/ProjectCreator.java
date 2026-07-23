@@ -39,6 +39,7 @@ import org.sonar.server.project.ProjectDefaultVisibility;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
+import static org.sonar.db.permission.ProjectPermission.ADMIN;
 
 @ServerSide
 public class ProjectCreator {
@@ -88,23 +89,30 @@ public class ProjectCreator {
       if (!request.allowExisting()) {
         throw BadRequestException.create("Could not create Project with key: \"" + request.projectKey() + "\". A similar key already exists: \"" + request.projectKey() + "\"");
       }
-      
+
+      ProjectDto project = existingProject.get();
+
+      // Require project administration to rebind an existing project. This check must happen before the name
+      // comparison below so that an unauthorized caller cannot use the name-mismatch error as an oracle to
+      // discover the real project name.
+      userSession.checkEntityPermissionOrElseThrowResourceForbiddenException(ADMIN, project);
+
       // Validate name matches
-      if (!existingProject.get().getName().equals(request.projectName())) {
+      if (!project.getName().equals(request.projectName())) {
         // Log detailed info for debugging/auditing
-        LOG.warn("Project binding failed: key '{}' exists with name '{}', expected '{}'", 
-            request.projectKey(), existingProject.get().getName(), request.projectName());
+        LOG.warn("Project binding failed: key '{}' exists with name '{}', expected '{}'",
+            request.projectKey(), project.getName(), request.projectName());
         // Return vague error to prevent information disclosure
         throw BadRequestException.create("Project with key '" + request.projectKey() + "' cannot be bound - configuration mismatch");
       }
-      
+
       // Return existing project data (not created)
       ComponentDto componentDto = dbClient.componentDao().selectByKey(dbSession, request.projectKey())
         .orElseThrow(() -> new IllegalStateException("Component not found for existing project"));
-      BranchDto mainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, existingProject.get().getUuid())
+      BranchDto mainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, project.getUuid())
         .orElseThrow(() -> new IllegalStateException("Main branch not found"));
-      
-      return new ComponentCreationData(componentDto, null, mainBranch, existingProject.get(), false);
+
+      return new ComponentCreationData(componentDto, null, mainBranch, project, false);
     }
     
     // Create new project
