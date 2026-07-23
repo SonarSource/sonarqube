@@ -57,6 +57,7 @@ public class ProjectBindingsServiceTest {
   private static final String UUID = "uuid";
   public static final String REPO_QUERY = "repoQuery";
   public static final String ALM_SETTING_UUID_QUERY = "almSettingUuidQuery";
+  private static final String USER_UUID = "userUuid";
 
   @Mock
   private DbSession dbSession;
@@ -95,9 +96,9 @@ public class ProjectBindingsServiceTest {
     ProjectAlmSettingDto projectAlmSettingDto2 = mockProjectAlmSettingDto("2");
     List<ProjectAlmSettingDto> projectAlmSettings = List.of(projectAlmSettingDto1, projectAlmSettingDto2);
 
-    when(dbClient.projectAlmSettingDao().selectProjectAlmSettings(eq(dbSession), daoQueryCaptor.capture(), eq(12), eq(42)))
+    when(dbClient.projectAlmSettingDao().selectProjectAlmSettings(eq(dbSession), daoQueryCaptor.capture(), eq(USER_UUID), eq(12), eq(42)))
       .thenReturn(projectAlmSettings);
-    when(dbClient.projectAlmSettingDao().countProjectAlmSettings(eq(dbSession), any()))
+    when(dbClient.projectAlmSettingDao().countProjectAlmSettings(eq(dbSession), any(), eq(USER_UUID)))
       .thenReturn(projectAlmSettings.size());
 
     ProjectDto mockProjectDto1 = mockProjectDto("1");
@@ -110,7 +111,7 @@ public class ProjectBindingsServiceTest {
 
     List<ProjectBindingInformation> expectedResults = List.of(projectBindingInformation("1"), projectBindingInformation("2"));
 
-    SearchResults<ProjectBindingInformation> actualResults = underTest.findProjectBindingsByRequest(request);
+    SearchResults<ProjectBindingInformation> actualResults = underTest.findProjectBindingsByRequest(request, USER_UUID);
 
     assertThat(daoQueryCaptor.getValue().repository()).isEqualTo(REPO_QUERY);
     assertThat(daoQueryCaptor.getValue().almSettingUuid()).isEqualTo(ALM_SETTING_UUID_QUERY);
@@ -120,33 +121,33 @@ public class ProjectBindingsServiceTest {
 
   @Test
   void findProjectBindingsByRequest_whenPageSize0_returnsOnlyTotal() {
-    when(dbClient.projectAlmSettingDao().countProjectAlmSettings(eq(dbSession), any()))
+    when(dbClient.projectAlmSettingDao().countProjectAlmSettings(eq(dbSession), any(), eq(USER_UUID)))
       .thenReturn(12);
 
     ProjectBindingsSearchRequest request = new ProjectBindingsSearchRequest(null, null, null, 42, 0);
-    SearchResults<ProjectBindingInformation> actualResults = underTest.findProjectBindingsByRequest(request);
+    SearchResults<ProjectBindingInformation> actualResults = underTest.findProjectBindingsByRequest(request, USER_UUID);
 
     assertThat(actualResults.total()).isEqualTo(12);
     assertThat(actualResults.searchResults()).isEmpty();
 
-    verify(dbClient.projectAlmSettingDao(), never()).selectProjectAlmSettings(eq(dbSession), any(), anyInt(), anyInt());
+    verify(dbClient.projectAlmSettingDao(), never()).selectProjectAlmSettings(eq(dbSession), any(), any(), anyInt(), anyInt());
   }
 
   @Test
   void findProjectBindingsByRequest_whenRepositoryUrlProvided_usesGitUrlSearch() {
-    when(dbClient.projectAlmSettingDao().selectProjectAlmSettings(eq(dbSession), any(), eq(1), eq(Integer.MAX_VALUE)))
+    when(dbClient.projectAlmSettingDao().selectProjectAlmSettings(eq(dbSession), any(), eq(USER_UUID), eq(1), eq(Integer.MAX_VALUE)))
       .thenReturn(List.of());
     when(dbClient.projectDao().selectByUuids(dbSession, Set.of()))
       .thenReturn(List.of());
 
     ProjectBindingsSearchRequest request = new ProjectBindingsSearchRequest(null, null, "https://github.com/org/repo", 0, 50);
 
-    SearchResults<ProjectBindingInformation> actualResults = underTest.findProjectBindingsByRequest(request);
+    SearchResults<ProjectBindingInformation> actualResults = underTest.findProjectBindingsByRequest(request, USER_UUID);
 
     assertThat(actualResults.searchResults()).isEmpty();
     assertThat(actualResults.total()).isZero();
 
-    verify(dbClient.projectAlmSettingDao(), never()).countProjectAlmSettings(eq(dbSession), any());
+    verify(dbClient.projectAlmSettingDao(), never()).countProjectAlmSettings(eq(dbSession), any(), any());
   }
 
   @Test
@@ -178,7 +179,7 @@ public class ProjectBindingsServiceTest {
   @NullAndEmptySource
   @ValueSource(strings = {"   ", "not-a-valid-url"})
   void findProjectBindingsByGitUrl_whenUrlIsInvalid_returnsEmptyResults(@Nullable String url) {
-    SearchResults<ProjectBindingInformation> result = underTest.findProjectBindingsByGitUrl(url);
+    SearchResults<ProjectBindingInformation> result = underTest.findProjectBindingsByGitUrl(url, USER_UUID);
 
     assertThat(result.searchResults()).isEmpty();
     assertThat(result.total()).isZero();
@@ -189,7 +190,7 @@ public class ProjectBindingsServiceTest {
     ProjectAlmSettingDto githubSetting = mockProjectAlmSettingDto("1");
     ProjectAlmSettingDto azureSetting = mockProjectAlmSettingDto("2");
 
-    when(dbClient.projectAlmSettingDao().selectProjectAlmSettings(eq(dbSession), any(), eq(1), eq(Integer.MAX_VALUE)))
+    when(dbClient.projectAlmSettingDao().selectProjectAlmSettings(eq(dbSession), any(), eq(USER_UUID), eq(1), eq(Integer.MAX_VALUE)))
       .thenReturn(List.of(githubSetting))
       .thenReturn(List.of(azureSetting))
       .thenReturn(List.of())
@@ -200,7 +201,7 @@ public class ProjectBindingsServiceTest {
     when(dbClient.projectDao().selectByUuids(dbSession, Set.of("projectUuid_1", "projectUuid_2")))
       .thenReturn(List.of(projectDto1, projectDto2));
 
-    SearchResults<ProjectBindingInformation> result = underTest.findProjectBindingsByGitUrl("https://github.com/org/repo");
+    SearchResults<ProjectBindingInformation> result = underTest.findProjectBindingsByGitUrl("https://github.com/org/repo", USER_UUID);
 
     assertThat(result.searchResults()).hasSize(2);
     assertThat(result.total()).isEqualTo(2);
@@ -212,7 +213,7 @@ public class ProjectBindingsServiceTest {
   void findProjectBindingsByGitUrl_whenDuplicateResults_removesThemAndReturnsDistinct() {
     ProjectAlmSettingDto duplicatedSetting = mockProjectAlmSettingDto("1");
 
-    when(dbClient.projectAlmSettingDao().selectProjectAlmSettings(eq(dbSession), any(), eq(1), eq(Integer.MAX_VALUE)))
+    when(dbClient.projectAlmSettingDao().selectProjectAlmSettings(eq(dbSession), any(), eq(USER_UUID), eq(1), eq(Integer.MAX_VALUE)))
       .thenReturn(List.of(duplicatedSetting))
       .thenReturn(List.of(duplicatedSetting))
       .thenReturn(List.of())
@@ -222,7 +223,7 @@ public class ProjectBindingsServiceTest {
     when(dbClient.projectDao().selectByUuids(dbSession, Set.of("projectUuid_1")))
       .thenReturn(List.of(projectDto));
 
-    SearchResults<ProjectBindingInformation> result = underTest.findProjectBindingsByGitUrl("https://github.com/org/repo");
+    SearchResults<ProjectBindingInformation> result = underTest.findProjectBindingsByGitUrl("https://github.com/org/repo", USER_UUID);
 
     assertThat(result.searchResults()).hasSize(1);
     assertThat(result.total()).isEqualTo(1);

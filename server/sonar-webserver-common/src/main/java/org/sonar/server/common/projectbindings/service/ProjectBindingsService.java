@@ -52,20 +52,20 @@ public class ProjectBindingsService {
     }
   }
 
-  public SearchResults<ProjectBindingInformation> findProjectBindingsByRequest(ProjectBindingsSearchRequest request) {
+  public SearchResults<ProjectBindingInformation> findProjectBindingsByRequest(ProjectBindingsSearchRequest request, String userUuid) {
     // Check if repository URL is provided for Git URL search
     if (StringUtils.isNotBlank(request.repositoryUrl())) {
-      return findProjectBindingsByGitUrl(request.repositoryUrl());
+      return findProjectBindingsByGitUrl(request.repositoryUrl(), userUuid);
     }
 
     // Use traditional repository name search
     ProjectAlmSettingQuery query = buildProjectAlmSettingQuery(request);
     try (DbSession session = dbClient.openSession(false)) {
-      int total = dbClient.projectAlmSettingDao().countProjectAlmSettings(session, query);
+      int total = dbClient.projectAlmSettingDao().countProjectAlmSettings(session, query, userUuid);
       if (request.pageSize() == 0) {
         return new SearchResults<>(List.of(), total);
       }
-      List<ProjectBindingInformation> searchResults = performSearch(session, query, request.page(), request.pageSize());
+      List<ProjectBindingInformation> searchResults = performSearch(session, query, userUuid, request.page(), request.pageSize());
       return new SearchResults<>(searchResults, total);
     }
   }
@@ -76,8 +76,8 @@ public class ProjectBindingsService {
     return new ProjectAlmSettingQuery(request.repository(), request.dopSettingId());
   }
 
-  private List<ProjectBindingInformation> performSearch(DbSession dbSession, ProjectAlmSettingQuery query, int page, int pageSize) {
-    List<ProjectAlmSettingDto> projectAlmSettings = dbClient.projectAlmSettingDao().selectProjectAlmSettings(dbSession, query, page, pageSize)
+  private List<ProjectBindingInformation> performSearch(DbSession dbSession, ProjectAlmSettingQuery query, String userUuid, int page, int pageSize) {
+    List<ProjectAlmSettingDto> projectAlmSettings = dbClient.projectAlmSettingDao().selectProjectAlmSettings(dbSession, query, userUuid, page, pageSize)
       .stream()
       .toList();
     Set<String> projectUuids = projectAlmSettings.stream().map(ProjectAlmSettingDto::getProjectUuid).collect(Collectors.toSet());
@@ -110,11 +110,12 @@ public class ProjectBindingsService {
   /**
    * Searches for project bindings using a Git repository URL.
    * This method performs fuzzy matching by searching for repository names in database fields.
-   * 
+   *
    * @param gitUrl The Git repository URL to search for
+   * @param userUuid uuid of the user the results must be authorized for
    * @return SearchResults containing matching project bindings
    */
-  public SearchResults<ProjectBindingInformation> findProjectBindingsByGitUrl(@Nullable String gitUrl) {
+  public SearchResults<ProjectBindingInformation> findProjectBindingsByGitUrl(@Nullable String gitUrl, String userUuid) {
     if (StringUtils.isBlank(gitUrl)) {
       return new SearchResults<>(List.of(), 0);
     }
@@ -127,7 +128,7 @@ public class ProjectBindingsService {
     GitUrlParser.RepositoryInfo repositoryInfo = repositoryInfoOpt.get();
 
     try (DbSession session = dbClient.openSession(false)) {
-      Set<ProjectAlmSettingDto> projectAlmSettings = searchProjectBindings(session, repositoryInfo);
+      Set<ProjectAlmSettingDto> projectAlmSettings = searchProjectBindings(session, repositoryInfo, userUuid);
 
       Set<String> projectUuids = projectAlmSettings.stream()
         .map(ProjectAlmSettingDto::getProjectUuid)
@@ -145,12 +146,12 @@ public class ProjectBindingsService {
     }
   }
 
-  private Set<ProjectAlmSettingDto> searchProjectBindings(DbSession session, GitUrlParser.RepositoryInfo repositoryInfo) {
+  private Set<ProjectAlmSettingDto> searchProjectBindings(DbSession session, GitUrlParser.RepositoryInfo repositoryInfo, String userUuid) {
     Set<ProjectAlmSettingDto> allResults = new HashSet<>();
     for (ALM alm : ALM.values()) {
       ProjectBindingSearchStrategy strategy = getSearchStrategy(alm);
       if (strategy != null) {
-        allResults.addAll(strategy.search(dbClient, session, repositoryInfo));
+        allResults.addAll(strategy.search(dbClient, session, repositoryInfo, userUuid));
       }
     }
 

@@ -231,6 +231,58 @@
     <include refid="sqlSelectPublicEntitiesIfRole"/>
   </select>
 
+  <!--
+    Reusable correlated condition: is the entity identified by entityUuidColumn authorized for #{role}/#{userUuid},
+    either via a direct user permission, a group permission (own group or the "Anyone" group), or because the
+    entity is public and the role is one of the implicitly-public roles (user, codeviewer).
+    entityUuidColumn is a raw SQL fragment (e.g. "p.project_uuid" or "entity.uuid"), never end-user input.
+  -->
+  <sql id="sqlEntityAuthorizedForUserCondition">
+    (
+      exists (
+        select
+          1
+        from
+          group_roles gr
+        where
+          gr.role = #{role, jdbcType=VARCHAR}
+          and gr.entity_uuid = ${entityUuidColumn}
+          and (
+            gr.group_uuid is null
+            or exists (
+              select
+                1
+              from
+                groups_users gu
+              where
+                gu.user_uuid = #{userUuid, jdbcType=VARCHAR}
+                and gr.group_uuid = gu.group_uuid
+            )
+          )
+      )
+      or exists (
+        select
+          1
+        from
+          user_roles ur
+        where
+          ur.role = #{role, jdbcType=VARCHAR}
+          and ur.user_uuid = #{userUuid, jdbcType=VARCHAR}
+          and ur.entity_uuid = ${entityUuidColumn}
+      )
+      or exists (
+        select
+          1
+        from
+          (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) publicEntity
+        where
+          publicEntity.uuid = ${entityUuidColumn}
+          and publicEntity.isPrivate = ${_false}
+          and #{role, jdbcType=VARCHAR} in ('user','codeviewer')
+      )
+    )
+  </sql>
+
   <sql id="sqlSelectPublicEntitiesIfRole">
     select
     entity.uuid

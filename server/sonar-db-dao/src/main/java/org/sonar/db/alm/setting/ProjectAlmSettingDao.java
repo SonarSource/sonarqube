@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.DevOpsPlatformSettingNewValue;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -87,12 +88,12 @@ public class ProjectAlmSettingDao implements Dao {
     return getMapper(dbSession).countByAlmSettingUuid(almSetting.getUuid());
   }
 
-  public int countProjectAlmSettings(DbSession dbSession, ProjectAlmSettingQuery query) {
-    return getMapper(dbSession).countByQuery(query);
+  public int countProjectAlmSettings(DbSession dbSession, ProjectAlmSettingQuery query, String userUuid) {
+    return getMapper(dbSession).countByQuery(query, userUuid, ProjectPermission.USER.getKey());
   }
 
-  public List<ProjectAlmSettingDto> selectProjectAlmSettings(DbSession dbSession, ProjectAlmSettingQuery query, int page, int pageSize) {
-    return getMapper(dbSession).selectByQuery(query, Pagination.forPage(page).andSize(pageSize));
+  public List<ProjectAlmSettingDto> selectProjectAlmSettings(DbSession dbSession, ProjectAlmSettingQuery query, String userUuid, int page, int pageSize) {
+    return getMapper(dbSession).selectByQuery(query, Pagination.forPage(page).andSize(pageSize), userUuid, ProjectPermission.USER.getKey());
   }
 
   public Optional<ProjectAlmSettingDto> selectByUuid(DbSession dbSession, String uuid) {

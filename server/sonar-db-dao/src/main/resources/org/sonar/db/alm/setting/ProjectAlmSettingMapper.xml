@@ -221,6 +221,9 @@
       <if test="query.almSlug != null">
         AND lower(p.alm_slug) = lower(#{query.almSlug, jdbcType=VARCHAR})
       </if>
+      AND <include refid="org.sonar.db.permission.AuthorizationMapper.sqlEntityAuthorizedForUserCondition">
+        <property name="entityUuidColumn" value="p.project_uuid"/>
+      </include>
     </where>
   </sql>
 

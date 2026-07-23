@@ -36,6 +36,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -158,7 +159,7 @@ class DefaultProjectBindingsControllerTest {
   @Test
   void searchProjectBindings_whenParametersUsed_shouldForwardWithParameters() throws Exception {
     userSession.logIn().addPermission(PROVISION_PROJECTS);
-    when(projectBindingsService.findProjectBindingsByRequest(any())).thenReturn(new SearchResults<>(List.of(), 0));
+    when(projectBindingsService.findProjectBindingsByRequest(any(), any())).thenReturn(new SearchResults<>(List.of(), 0));
 
     mockMvc
       .perform(get(PROJECT_BINDINGS_ENDPOINT)
@@ -169,7 +170,7 @@ class DefaultProjectBindingsControllerTest {
       .andExpect(status().isOk());
 
     ArgumentCaptor<ProjectBindingsSearchRequest> requestCaptor = ArgumentCaptor.forClass(ProjectBindingsSearchRequest.class);
-    verify(projectBindingsService).findProjectBindingsByRequest(requestCaptor.capture());
+    verify(projectBindingsService).findProjectBindingsByRequest(requestCaptor.capture(), eq(userSession.getUuid()));
     assertThat(requestCaptor.getValue().repository()).isEqualTo("repo");
     assertThat(requestCaptor.getValue().dopSettingId()).isEqualTo("id");
     assertThat(requestCaptor.getValue().page()).isEqualTo(12);
@@ -184,7 +185,7 @@ class DefaultProjectBindingsControllerTest {
     ProjectBindingInformation dto2 = projectBindingInformation("2");
 
     List<ProjectBindingInformation> expectedResults = List.of(dto1, dto2);
-    when(projectBindingsService.findProjectBindingsByRequest(any())).thenReturn(new SearchResults<>(expectedResults, expectedResults.size()));
+    when(projectBindingsService.findProjectBindingsByRequest(any(), any())).thenReturn(new SearchResults<>(expectedResults, expectedResults.size()));
 
     mockMvc
       .perform(get(PROJECT_BINDINGS_ENDPOINT)
@@ -226,7 +227,7 @@ class DefaultProjectBindingsControllerTest {
   @Test
   void searchProjectBindings_whenRepositoryUrlUsed_shouldForwardRepositoryUrlParameter() throws Exception {
     userSession.logIn().addPermission(PROVISION_PROJECTS);
-    when(projectBindingsService.findProjectBindingsByRequest(any())).thenReturn(new SearchResults<>(List.of(), 0));
+    when(projectBindingsService.findProjectBindingsByRequest(any(), any())).thenReturn(new SearchResults<>(List.of(), 0));
 
     mockMvc
       .perform(get(PROJECT_BINDINGS_ENDPOINT)
@@ -236,7 +237,7 @@ class DefaultProjectBindingsControllerTest {
       .andExpect(status().isOk());
 
     ArgumentCaptor<ProjectBindingsSearchRequest> requestCaptor = ArgumentCaptor.forClass(ProjectBindingsSearchRequest.class);
-    verify(projectBindingsService).findProjectBindingsByRequest(requestCaptor.capture());
+    verify(projectBindingsService).findProjectBindingsByRequest(requestCaptor.capture(), eq(userSession.getUuid()));
     assertThat(requestCaptor.getValue().repositoryUrl()).isEqualTo("https://github.com/org/repo");
     assertThat(requestCaptor.getValue().repository()).isNull();
     assertThat(requestCaptor.getValue().dopSettingId()).isNull();
@@ -272,7 +273,7 @@ class DefaultProjectBindingsControllerTest {
 
     ProjectBindingInformation dto1 = projectBindingInformation("1");
     List<ProjectBindingInformation> expectedResults = List.of(dto1);
-    when(projectBindingsService.findProjectBindingsByRequest(any())).thenReturn(new SearchResults<>(expectedResults, expectedResults.size()));
+    when(projectBindingsService.findProjectBindingsByRequest(any(), any())).thenReturn(new SearchResults<>(expectedResults, expectedResults.size()));
 
     mockMvc
       .perform(get(PROJECT_BINDINGS_ENDPOINT)

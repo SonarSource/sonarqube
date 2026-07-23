@@ -58,15 +58,16 @@ public enum ProjectBindingSearchStrategy {
 
   /**
    * Searches for project ALM settings based on the provided repository information.
-   * 
+   *
    * @param dbClient the database client
    * @param session the database session
    * @param repositoryInfo parsed Git repository information
+   * @param userUuid uuid of the user the results must be authorized for
    * @return list of matching project ALM settings
    */
-  public List<ProjectAlmSettingDto> search(DbClient dbClient, DbSession session, GitUrlParser.RepositoryInfo repositoryInfo) {
+  public List<ProjectAlmSettingDto> search(DbClient dbClient, DbSession session, GitUrlParser.RepositoryInfo repositoryInfo, String userUuid) {
     ProjectAlmSettingQuery query = queryBuilder.apply(repositoryInfo);
-    return dbClient.projectAlmSettingDao().selectProjectAlmSettings(session, query, 1, Integer.MAX_VALUE);
+    return dbClient.projectAlmSettingDao().selectProjectAlmSettings(session, query, userUuid, 1, Integer.MAX_VALUE);
   }
 
 }

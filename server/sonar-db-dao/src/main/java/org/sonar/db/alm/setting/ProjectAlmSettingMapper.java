@@ -35,9 +35,10 @@ public interface ProjectAlmSettingMapper {
 
   int countByAlmSettingUuid(@Param("almSettingUuid") String almSettingUuid);
 
-  int countByQuery(@Param("query") ProjectAlmSettingQuery query);
+  int countByQuery(@Param("query") ProjectAlmSettingQuery query, @Param("userUuid") String userUuid, @Param("role") String role);
 
-  List<ProjectAlmSettingDto> selectByQuery(@Param("query") ProjectAlmSettingQuery query, @Param("pagination") Pagination pagination);
+  List<ProjectAlmSettingDto> selectByQuery(@Param("query") ProjectAlmSettingQuery query, @Param("pagination") Pagination pagination,
+    @Param("userUuid") String userUuid, @Param("role") String role);
 
   void insert(@Param("dto") ProjectAlmSettingDto projectAlmSettingDto, @Param("uuid") String uuid, @Param("now") long now);
 
