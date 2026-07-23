@@ -33,6 +33,9 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueStatsByRuleKeyDaoImpl implements IssueStatsByRuleKeyDao {
 
+  // External rule keys concatenate rules.plugin_name (VARCHAR(255)), ':', and rules.plugin_rule_key (VARCHAR(200)).
+  static final int MAX_RULE_KEY_LENGTH = 255 + 1 + 200;
+
   private final DbClient dbClient;
 
   public IssueStatsByRuleKeyDaoImpl(DbClient dbClient) {

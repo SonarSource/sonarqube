@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
@@ -30,8 +31,10 @@ import org.sonar.db.DbTester;
 import org.sonarsource.compliancereports.dao.AggregationType;
 import org.sonarsource.compliancereports.dao.IssueStats;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.sonar.db.report.IssueStatsByRuleKeyDaoImpl.MAX_RULE_KEY_LENGTH;
 import static org.sonarsource.compliancereports.dao.AggregationType.PROJECT;
 
 class IssueStatsByRuleKeyDaoImplIT {
@@ -62,6 +65,35 @@ class IssueStatsByRuleKeyDaoImplIT {
 
     underTest.deleteAndInsertIssueStats("b728478a-470f-4cb2-8a19-9302632e049f", PROJECT, issueStatsList);
     assertThat(getIssueStats()).hasSize(size);
+  }
+
+  @Test
+  void shouldPersistLongExternalRuleKeys() throws SQLException {
+    String productionRuleKey =
+      "external_Semgrep CE (PCI canonical evidence):semgrep-rules.community.java.lang.security.audit.xxe."
+        + "documentbuilderfactory-disallow-doctype-decl-missing.documentbuilderfactory-disallow-doctype-decl-missing";
+    String maximumLengthRuleKey = "x".repeat(MAX_RULE_KEY_LENGTH);
+    var issueStatsList = List.of(
+      new IssueStats(productionRuleKey, 1, 3, 3, 0, 0),
+      new IssueStats(maximumLengthRuleKey, 2, 4, 4, 0, 0));
+
+    underTest.deleteAndInsertIssueStats("b728478a-470f-4cb2-8a19-9302632e049f", PROJECT, issueStatsList);
+
+    assertThat(getIssueStats())
+      .extracting(IssueStats::ruleKey, IssueStats::issueCount)
+      .containsExactlyInAnyOrder(
+        tuple(productionRuleKey, 1),
+        tuple(maximumLengthRuleKey, 2));
+  }
+
+  @Test
+  void shouldRejectRuleKeysLongerThanMaximum() {
+    var issueStats = new IssueStats("x".repeat(MAX_RULE_KEY_LENGTH + 1), 1, 3, 3, 0, 0);
+
+    List<IssueStats> stats = List.of(issueStats);
+    assertThatThrownBy(() -> underTest.deleteAndInsertIssueStats(
+      "b728478a-470f-4cb2-8a19-9302632e049f", PROJECT, stats))
+      .isInstanceOf(PersistenceException.class);
   }
 
   @Test
