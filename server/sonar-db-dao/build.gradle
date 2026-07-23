@@ -19,6 +19,9 @@ dependencies {
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 
   implementation "org.sonarsource.compliancereports:compliance-reports:${complianceReportsVersion}"
+  implementation "org.sonarsource.sonarqube:history-api"
+  implementation "org.sonarsource.sonarqube:history-core"
+  implementation "org.sonarsource.sonarqube:history-server-app"
 
   testImplementation 'commons-dbutils:commons-dbutils'
   testImplementation 'org.assertj:assertj-core'

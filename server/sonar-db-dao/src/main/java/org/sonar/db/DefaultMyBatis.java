@@ -179,6 +179,8 @@ import org.sonar.db.user.UserTokenMapper;
 import org.sonar.db.user.ai.UserAiToolUsageMapper;
 import org.sonar.db.webhook.WebhookDeliveryMapper;
 import org.sonar.db.webhook.WebhookMapper;
+import org.sonarsource.history.server.db.mapper.IssueCountHistoryMapper;
+import org.sonarsource.history.server.db.mapper.MeasureHistoryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class DefaultMyBatis extends AbstractMyBatis {
@@ -222,6 +224,7 @@ public class DefaultMyBatis extends AbstractMyBatis {
     IssueMapper.class,
     IssueFixedMapper.class,
     IssueStatsByRuleKeyMapper.class,
+    IssueCountHistoryMapper.class,
     JiraProjectBindingMapper.class,
     JiraOrganizationBindingMapper.class,
     JiraOrganizationBindingPendingMapper.class,
@@ -230,6 +233,7 @@ public class DefaultMyBatis extends AbstractMyBatis {
     JiraPermissionMapper.class,
     AtlassianAuthenticationDetailsMapper.class,
     XsrfTokenMapper.class,
+    MeasureHistoryMapper.class,
     MeasureMapper.class,
     ProjectMeasureMapper.class,
     MetricMapper.class,

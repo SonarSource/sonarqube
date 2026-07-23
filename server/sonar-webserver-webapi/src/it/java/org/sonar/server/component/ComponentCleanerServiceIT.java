@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component;
 
+import java.time.Instant;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +40,11 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.es.Indexers.BranchEvent;
+import org.sonarsource.history.model.EntityType;
+import org.sonarsource.history.model.IssueCountHistoryRow;
+import org.sonarsource.history.model.MeasureHistoryRow;
+import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
+import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +67,9 @@ public class ComponentCleanerServiceIT {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private final Indexers indexers = mock(Indexers.class);
-  private final ComponentCleanerService underTest = new ComponentCleanerService(dbClient, indexers);
+  private final IssueCountHistoryRepository issueCountHistoryRepository = new IssueCountHistoryRepository();
+  private final MeasureHistoryRepository measureHistoryRepository = new MeasureHistoryRepository();
+  private final ComponentCleanerService underTest = new ComponentCleanerService(dbClient, indexers, issueCountHistoryRepository, measureHistoryRepository);
 
   @Test
   public void delete_project_from_db_and_index() {
@@ -74,6 +82,20 @@ public class ComponentCleanerServiceIT {
     assertExists(data2);
     verify(indexers).commitAndIndexEntities(any(), eq(List.of(data1.project)), eq(DELETION));
     verifyNoMoreInteractions(indexers);
+  }
+
+  @Test
+  public void delete_entity_should_delete_history() {
+    DbData data = insertProjectData();
+    BranchDto branch = db.components().insertProjectBranch(data.project);
+    insertHistory(data.mainBranch);
+    insertHistory(branch);
+
+    underTest.deleteEntity(dbSession, data.project);
+    dbSession.commit();
+
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "measure_history")).isZero();
   }
 
   @Test
@@ -270,6 +292,12 @@ public class ComponentCleanerServiceIT {
 
   private void assertComponentExists(ComponentDto componentDto, boolean exists) {
     assertThat(dbClient.componentDao().selectByUuid(dbSession, componentDto.uuid()).isPresent()).isEqualTo(exists);
+  }
+
+  private void insertHistory(BranchDto branch) {
+    Instant recordedAt = Instant.now();
+    issueCountHistoryRepository.insert(dbSession, new IssueCountHistoryRow(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1));
+    measureHistoryRepository.insert(dbSession, new MeasureHistoryRow(1, branch.getUuid(), EntityType.PROJECT_BRANCH, recordedAt, "1"));
   }
 
   private static class DbData {

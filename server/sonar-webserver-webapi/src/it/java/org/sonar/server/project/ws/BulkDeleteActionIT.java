@@ -21,6 +21,7 @@ package org.sonar.server.project.ws;
 
 import java.net.HttpURLConnection;
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,6 +43,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.PortfolioData;
 import org.sonar.db.component.ProjectData;
@@ -49,6 +51,7 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.project.DeletedProject;
 import org.sonar.server.project.Project;
@@ -57,6 +60,11 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarsource.history.model.EntityType;
+import org.sonarsource.history.model.IssueCountHistoryRow;
+import org.sonarsource.history.model.MeasureHistoryRow;
+import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
+import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -84,6 +92,8 @@ public class BulkDeleteActionIT {
 
   private final ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private final DbClient dbClient = db.getDbClient();
+  private final IssueCountHistoryRepository issueCountHistoryRepository = new IssueCountHistoryRepository();
+  private final MeasureHistoryRepository measureHistoryRepository = new MeasureHistoryRepository();
   private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
   private final Random random = new SecureRandom();
 
@@ -107,6 +117,27 @@ public class BulkDeleteActionIT {
     assertThat(result.getInput()).isEmpty();
     verifyEntityDeleted(project1ToDelete, project2ToDelete);
     verifyListenersOnProjectsDeleted(projectData1ToDelete, projectData2ToDelete);
+  }
+
+  @Test
+  public void delete_projects_should_delete_history() {
+    userSession.addPermission(ADMINISTER);
+    ProjectData projectData = db.components().insertPrivateProject();
+    BranchDto branch = db.components().insertProjectBranch(projectData.getProjectDto());
+    insertHistory(projectData.getMainBranchDto());
+    insertHistory(branch);
+    db.commit();
+
+    ComponentCleanerService componentCleaner = new ComponentCleanerService(dbClient, new TestIndexers(),
+      issueCountHistoryRepository, measureHistoryRepository);
+    WsActionTester bulkDeleteWs = new WsActionTester(new BulkDeleteAction(componentCleaner, dbClient, userSession, projectLifeCycleListeners));
+
+    bulkDeleteWs.newRequest()
+      .setParam(PARAM_PROJECTS, projectData.getProjectDto().getKey())
+      .execute();
+
+    assertThat(db.countRowsOfTable(db.getSession(), "issue_count_history")).isZero();
+    assertThat(db.countRowsOfTable(db.getSession(), "measure_history")).isZero();
   }
 
   @Test
@@ -352,5 +383,11 @@ public class BulkDeleteActionIT {
     verify(projectLifeCycleListeners)
       .onProjectsDeleted(entityWithBranchUuid.entrySet()
         .stream().map(entry -> new DeletedProject(Project.from(entry.getKey()), entry.getValue())).collect(Collectors.toSet()));
+  }
+
+  private void insertHistory(BranchDto branch) {
+    Instant recordedAt = Instant.now();
+    issueCountHistoryRepository.insert(db.getSession(), new IssueCountHistoryRow(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1));
+    measureHistoryRepository.insert(db.getSession(), new MeasureHistoryRow(1, branch.getUuid(), EntityType.PROJECT_BRANCH, recordedAt, "1"));
   }
 }

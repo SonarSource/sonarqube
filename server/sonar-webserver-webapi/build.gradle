@@ -14,6 +14,9 @@ dependencies {
   implementation "org.sonarsource.compliancereports:compliance-reports:${complianceReportsVersion}"
   implementation 'org.apache.commons:commons-text'
   implementation 'org.sonarsource.sonarqube:sonar-events-server'
+  implementation "org.sonarsource.sonarqube:history-api"
+  implementation "org.sonarsource.sonarqube:history-core"
+  implementation "org.sonarsource.sonarqube:history-server-app"
 
   api project(':server:sonar-ce-common')
   api project(':server:sonar-ce-task')
