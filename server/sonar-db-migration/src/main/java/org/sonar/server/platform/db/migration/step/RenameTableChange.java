@@ -36,12 +36,12 @@ public abstract class RenameTableChange extends DdlChange {
   }
   @Override
   public void execute(Context context) throws SQLException {
-    if (tableExists()) {
+    if (tableExists(tableName) && !tableExists(newTableName)) {
       renameTable(context);
     }
   }
 
-  private boolean tableExists() throws SQLException {
+  private boolean tableExists(String tableName) throws SQLException {
     try (var connection = getDatabase().getDataSource().getConnection()) {
       return DatabaseUtils.tableExists(tableName, connection);
     }
