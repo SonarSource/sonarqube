@@ -185,6 +185,42 @@ public class CreateIndexBuilderTest {
   }
 
   @Test
+  public void create_index_with_descending_column() {
+    verifySql(new CreateIndexBuilder(new Oracle())
+        .setTable("issues")
+        .setName("issues_key")
+        .addColumn(newVarcharColumnDefBuilder().setColumnName("kee").setLimit(10).build())
+        .addColumn("recorded_at", false, true),
+      "CREATE INDEX issues_key ON issues (kee, recorded_at DESC)");
+  }
+
+  @Test
+  public void create_unique_index_with_descending_column() {
+    verifySql(new CreateIndexBuilder(new Oracle())
+        .setTable("measure_history")
+        .setName("msr_hist_epoch_uq_idx2")
+        .addColumn("entity_id", false)
+        .addColumn("entity_type", false)
+        .addColumn("metric_id", false)
+        .addColumn("recorded_at_epoch", false, true)
+        .setUnique(true),
+      "CREATE UNIQUE INDEX msr_hist_epoch_uq_idx2 ON measure_history (entity_id, entity_type, metric_id, recorded_at_epoch DESC)");
+  }
+
+  @Test
+  public void build_whenPostgres14AndDescendingNullableColumn_shouldApplyCoalesceWithDesc() throws SQLException {
+    PostgreSql postgreSql = new PostgreSql();
+    postgreSql.init(getMetadataForDbVersion(14, 0));
+
+    verifySql(new CreateIndexBuilder(postgreSql)
+        .setTable("issues")
+        .setName("issues_key")
+        .addColumn("kee", true, true)
+        .setUnique(true),
+      "CREATE UNIQUE INDEX issues_key ON issues (COALESCE(kee, '') DESC)");
+  }
+
+  @Test
   public void throw_NPE_when_adding_null_column() {
     CreateIndexBuilder builder = new CreateIndexBuilder(new H2())
       .setTable("issues")

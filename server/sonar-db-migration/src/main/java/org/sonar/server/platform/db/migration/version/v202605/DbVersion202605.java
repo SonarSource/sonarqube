@@ -34,6 +34,10 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_003, "Create table 'agent_schedules'", CreateAgentSchedulesTable.class)
       .add(2026_05_004, "Create table 'agent_sched_proc_issues'", CreateAgentScheduleProcessedIssuesTable.class)
       .add(2026_05_005, "Add 'reachability_analyzed' to 'sca_issues_releases'", AddReachabilityAnalyzedToScaIssuesReleases.class)
-      .add(2026_05_006, "Seed global '*' row in 'agent_schedules'", SeedGlobalAgentSchedule.class);
+      .add(2026_05_006, "Seed global '*' row in 'agent_schedules'", SeedGlobalAgentSchedule.class)
+      .add(2026_05_007, "Create 'issue_count_dimensions' table", CreateIssueCountDimensionsTable.class)
+      .add(2026_05_008, "Create 'issue_count_history' table", CreateIssueCountHistoryTable.class)
+      .add(2026_05_009, "Create 'measure_key_mapping' table", CreateMeasureKeyMappingTable.class)
+      .add(2026_05_010, "Create 'measure_history' table", CreateMeasureHistoryTable.class);
   }
 }

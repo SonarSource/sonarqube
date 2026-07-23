@@ -345,6 +345,7 @@ import org.sonarsource.compliancereports.reports.MetadataLoader;
 import org.sonarsource.compliancereports.reports.MetadataRules;
 import org.sonarsource.gessie.server.GessieProperties;
 import org.sonarsource.gessie.server.telemetry.GessieTelemetryWebConfiguration;
+import org.sonarsource.history.server.HistoryServerComponents;
 import org.sonarsource.measures.server.MeasuresServerComponents;
 import org.sonarsource.metrics.server.bean.MetricsServerComponents;
 import org.sonarsource.organizations.server.OrganizationsServiceServerImpl;
@@ -829,6 +830,9 @@ public class PlatformLevel4 extends PlatformLevel {
     add(GessieFlushExecutorServiceImpl.class);
     add(GessieIngestorExecutorServiceImpl.class);
     add(GessieTelemetryWebConfiguration.class);
+
+    // registered via history-server-app
+    addAll(HistoryServerComponents.queryComponents());
 
     // registered via sonar-unified-events
     addAll(EventsWebComponents.components());

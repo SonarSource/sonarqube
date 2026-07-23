@@ -44,6 +44,7 @@ import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBoo
 import static org.sonar.server.platform.db.migration.def.ClobColumnDef.newClobColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.DecimalColumnDef.newDecimalColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.IntegerColumnDef.newIntegerColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.SmallIntColumnDef.newSmallIntColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.sql.CreateTableBuilder.ColumnFlag.AUTO_INCREMENT;
 
@@ -186,7 +187,7 @@ public class CreateTableBuilderTest {
           underTest.addPkColumn(columnDef, AUTO_INCREMENT);
           fail("A IllegalArgumentException should have been raised");
         } catch (IllegalArgumentException e) {
-          assertThat(e).hasMessage("Auto increment column must either be BigInteger or Integer");
+          assertThat(e).hasMessage("Auto increment column must either be BigInteger, Integer, or SmallInt");
         }
       });
   }
@@ -195,6 +196,7 @@ public class CreateTableBuilderTest {
   public void addPkColumn_throws_IAE_when_AUTO_INCREMENT_flag_is_provided_and_column_is_nullable() {
     ColumnDef[] columnDefs = {
       newIntegerColumnDefBuilder().setColumnName("id").build(),
+      newSmallIntColumnDefBuilder().setColumnName("id").build(),
       newBigIntegerColumnDefBuilder().setColumnName("id").build()
     };
     Arrays.stream(columnDefs)
@@ -228,6 +230,17 @@ public class CreateTableBuilderTest {
     assertThat(stmts.iterator().next())
       .isEqualTo(
         "CREATE TABLE table_42 (id BIGSERIAL NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
+  }
+
+  @Test
+  public void build_sets_type_SMALLSERIAL_for_autoincrement_smallint_pk_column_on_Postgresql() {
+    List<String> stmts = new CreateTableBuilder(POSTGRESQL, TABLE_NAME)
+      .addPkColumn(newSmallIntColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .build();
+    assertThat(stmts).hasSize(1);
+    assertThat(stmts.iterator().next())
+      .isEqualTo(
+        "CREATE TABLE table_42 (id SMALLSERIAL NOT NULL, CONSTRAINT pk_table_42 PRIMARY KEY (id))");
   }
 
   @Test

@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis;
 
 import org.sonar.ce.task.projectanalysis.container.ContainerFactoryImpl;
+import org.sonar.ce.task.projectanalysis.history.HistoryComponentProvider;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.ce.task.projectexport.taskprocessor.ProjectExportTaskProcessor;
 import org.sonar.ce.task.step.ComputationStepExecutor;
@@ -32,6 +33,7 @@ public class ProjectAnalysisTaskModule extends Module {
     add(
       // task
       ContainerFactoryImpl.class,
+      HistoryComponentProvider.class,
       StepsTelemetryUnavailableHolderImpl.class,
       ComputationStepExecutor.class,
       ReportTaskProcessor.class,

@@ -40,6 +40,7 @@ import org.sonar.server.v2.api.github.installationtoken.controller.DefaultGithub
 import org.sonar.server.v2.api.gitlab.config.controller.DefaultGitlabConfigurationController;
 import org.sonar.server.v2.api.gitlab.config.converter.GitlabConfigurationResponseGenerator;
 import org.sonar.server.v2.api.group.controller.DefaultGroupController;
+import org.sonar.server.v2.api.history.config.HistoryWebConfiguration;
 import org.sonar.server.v2.api.membership.controller.DefaultGroupMembershipController;
 import org.sonar.server.v2.api.mode.controller.DefaultModeController;
 import org.sonar.server.v2.api.projectbindings.controller.DefaultProjectBindingsController;
@@ -74,6 +75,7 @@ import java.util.List;
   WebSecurityConfig.class,
   DatabaseMigrationsController.class,
   DefaultActiveRulesController.class,
+  HistoryWebConfiguration.class,
   DefaultBoundProjectsController.class,
   DefaultDopSettingsController.class,
   DefaultEmailConfigurationController.class,

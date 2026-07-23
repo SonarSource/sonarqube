@@ -33,6 +33,7 @@ dependencies {
   api 'org.sonarsource.sonarqube:metrics-server-app'
   api 'org.sonarsource.sonarqube:measures-server-app'
   api 'org.sonarsource.sonarqube:gessie-server-app'
+  implementation 'org.sonarsource.sonarqube:history-server-app'
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 

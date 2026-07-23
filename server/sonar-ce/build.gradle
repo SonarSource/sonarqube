@@ -27,8 +27,7 @@ dependencies {
   api project(':sonar-core')
   api project(':sonar-plugin-api-impl')
   api project(':sonar-ws')
-
-
+  implementation 'org.sonarsource.sonarqube:history-server-app'
   api 'org.sonarsource.sonarqube:gessie-server-app'
   api 'org.sonarsource.sonarqube:sonar-events-server'
 

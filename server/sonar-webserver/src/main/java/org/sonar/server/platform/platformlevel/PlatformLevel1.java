@@ -39,6 +39,7 @@ import org.sonar.db.DaoModule;
 import org.sonar.db.DbClient;
 import org.sonarsource.measures.server.MeasuresServerPlatformLevel1Module;
 import org.sonarsource.metrics.server.bean.MetricsServerPlatformLevel1Module;
+import org.sonarsource.history.server.bean.HistoryServerPlatformLevel1Module;
 import org.sonarsource.users.server.bean.UsersServerPlatformLevel1Module;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.DefaultMyBatis;
@@ -97,6 +98,7 @@ public class PlatformLevel1 extends PlatformLevel {
     SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
     SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER, edition);
 
+    addAll(HistoryServerPlatformLevel1Module.components());
 
     add(
       new SonarQubeVersion(sqVersion),
@@ -159,7 +161,6 @@ public class PlatformLevel1 extends PlatformLevel {
     addAll(MetricsServerPlatformLevel1Module.components());
     // measures
     addAll(MeasuresServerPlatformLevel1Module.components());
-
     // cluster
     add(DefaultNodeInformation.class);
 

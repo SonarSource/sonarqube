@@ -37,6 +37,7 @@ import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.platform.db.migration.def.BigIntegerColumnDef;
 import org.sonar.server.platform.db.migration.def.ColumnDef;
 import org.sonar.server.platform.db.migration.def.IntegerColumnDef;
+import org.sonar.server.platform.db.migration.def.SmallIntColumnDef;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -96,8 +97,9 @@ public class CreateTableBuilder {
     checkArgument("id".equals(columnDef.getName()),
       "Auto increment column name must be id");
     checkArgument(columnDef instanceof BigIntegerColumnDef
-      || columnDef instanceof IntegerColumnDef,
-      "Auto increment column must either be BigInteger or Integer");
+      || columnDef instanceof IntegerColumnDef
+      || columnDef instanceof SmallIntColumnDef,
+      "Auto increment column must either be BigInteger, Integer, or SmallInt");
     checkArgument(!columnDef.isNullable(),
       "Auto increment column can't be nullable");
     checkState(pkColumnDefs.stream().noneMatch(this::isAutoIncrement),
@@ -152,8 +154,10 @@ public class CreateTableBuilder {
         res.append("BIGSERIAL");
       } else if (columnDef instanceof IntegerColumnDef) {
         res.append("SERIAL");
+      } else if (columnDef instanceof SmallIntColumnDef) {
+        res.append("SMALLSERIAL");
       } else {
-        throw new IllegalStateException("Column with autoincrement is neither BigInteger nor Integer");
+        throw new IllegalStateException("Column with autoincrement is neither BigInteger, Integer, nor SmallInt");
       }
     } else {
       res.append(columnDef.generateSqlType(dialect));

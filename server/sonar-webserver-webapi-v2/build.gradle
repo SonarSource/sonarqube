@@ -18,6 +18,9 @@ dependencies {
 
     api project(':server:sonar-db-dao')
     api project(':server:sonar-webserver-monitoring')
+    implementation 'org.sonarsource.sonarqube:history-api'
+    implementation 'org.sonarsource.sonarqube:history-core'
+    implementation 'org.sonarsource.sonarqube:history-server-app'
     api 'org.sonarsource.sonarqube:sonar-spring'
     api project(':server:sonar-webserver-common')
 

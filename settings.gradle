@@ -118,6 +118,8 @@ useLocalUnificationModule('useLocalArchitecture', 'architecture',
   ]
 )
 
+useLocalUnificationModule('useLocalHistory', 'reporting/history', ['history-api', 'history-server-app', 'history-core'])
+
 ext.isCiServer = System.getenv().containsKey("GITHUB_ACTIONS")
 
 develocity {

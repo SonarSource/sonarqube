@@ -170,6 +170,7 @@ import org.sonarsource.gessie.server.GessieProperties;
 import org.sonarsource.gessie.server.telemetry.GessieTelemetryCeConfiguration;
 import org.sonarsource.sonarqube.events.server.ServerEventAsyncClient;
 import org.sonarsource.sonarqube.events.server.ServerEventSourceBuilder;
+import org.sonarsource.history.server.bean.HistoryServerPlatformLevel1Module;
 import org.sonarsource.users.server.bean.UsersServerComponents;
 import org.sonar.server.events.EventsCeComponents;
 
@@ -279,6 +280,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     Version sqVersion = MetadataLoader.loadSQVersion(System2.INSTANCE);
     SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
     SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.COMPUTE_ENGINE, edition);
+
+    level1Container.add(toArray(HistoryServerPlatformLevel1Module.components()));
 
     level1Container.add(
       props.rawProperties(),

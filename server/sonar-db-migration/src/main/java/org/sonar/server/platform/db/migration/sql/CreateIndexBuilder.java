@@ -79,7 +79,7 @@ public class CreateIndexBuilder {
    */
   public CreateIndexBuilder addColumn(ColumnDef column) {
     requireNonNull(column, COLUMN_CANNOT_BE_NULL);
-    columns.add(new NullableColumn(column.getName(), column.isNullable()));
+    columns.add(new NullableColumn(column.getName(), column.isNullable(), false));
     return this;
   }
 
@@ -90,13 +90,19 @@ public class CreateIndexBuilder {
    */
   public CreateIndexBuilder addColumn(String column) {
     requireNonNull(column, COLUMN_CANNOT_BE_NULL);
-    columns.add(new NullableColumn(column, null));
+    columns.add(new NullableColumn(column, null, false));
     return this;
   }
 
   public CreateIndexBuilder addColumn(String column, boolean isNullable) {
     requireNonNull(column, COLUMN_CANNOT_BE_NULL);
-    columns.add(new NullableColumn(column, isNullable));
+    columns.add(new NullableColumn(column, isNullable, false));
+    return this;
+  }
+
+  public CreateIndexBuilder addColumn(String column, boolean isNullable, boolean descending) {
+    requireNonNull(column, COLUMN_CANNOT_BE_NULL);
+    columns.add(new NullableColumn(column, isNullable, descending));
     return this;
   }
 
@@ -117,18 +123,31 @@ public class CreateIndexBuilder {
    */
   private String createSqlStatement() {
     StringBuilder sql = new StringBuilder("CREATE ");
-    if (unique) {
-      sql.append("UNIQUE ");
-      if (dialect.supportsNullNotDistinct() && !PostgreSql.ID.equals(dialect.getId())) {
-        sql.append("NULLS NOT DISTINCT ");
-      }
-    }
+    appendUniqueClause(sql);
     sql.append("INDEX ");
     sql.append(indexName);
     sql.append(" ON ");
     sql.append(tableName);
     sql.append(" (");
 
+    appendColumns(sql);
+
+    sql.append(")");
+
+    appendNullsNotDistinctForPostgres(sql);
+    return sql.toString();
+  }
+
+  private void appendUniqueClause(StringBuilder sql) {
+    if (unique) {
+      sql.append("UNIQUE ");
+      if (dialect.supportsNullNotDistinct() && !PostgreSql.ID.equals(dialect.getId())) {
+        sql.append("NULLS NOT DISTINCT ");
+      }
+    }
+  }
+
+  private void appendColumns(StringBuilder sql) {
     /*
      * Oldest versions of postgres don't support NULLS NOT DISTINCT, and their default behavior is NULLS DISTINCT.
      * To make sure we apply the same constraints as other DB vendors, we use coalesce to default to empty string, to ensure unicity constraint.
@@ -136,22 +155,24 @@ public class CreateIndexBuilder {
      */
     if (unique && !dialect.supportsNullNotDistinct() && PostgreSql.ID.equals(dialect.getId())) {
       sql.append(columns.stream()
-        .map(c -> Boolean.TRUE.equals(c.isNullable()) ? "COALESCE(%s, '')".formatted(c.name()) : c.name())
+        .map(c -> {
+          String expr = Boolean.TRUE.equals(c.isNullable()) ? "COALESCE(%s, '')".formatted(c.name()) : c.name();
+          return c.descending() ? (expr + " DESC") : expr;
+        })
         .collect(Collectors.joining(", ")));
     } else {
       sql.append(columns.stream()
-        .map(NullableColumn::name)
+        .map(c -> c.descending() ? (c.name() + " DESC") : c.name())
         .collect(Collectors.joining(", ")));
     }
+  }
 
-    sql.append(")");
-
+  private void appendNullsNotDistinctForPostgres(StringBuilder sql) {
     if (unique && dialect.supportsNullNotDistinct() && PostgreSql.ID.equals(dialect.getId())) {
       sql.append(" NULLS NOT DISTINCT");
     }
-    return sql.toString();
   }
 
-  private record NullableColumn(String name, @Nullable Boolean isNullable) {
+  private record NullableColumn(String name, @Nullable Boolean isNullable, boolean descending) {
   }
 }

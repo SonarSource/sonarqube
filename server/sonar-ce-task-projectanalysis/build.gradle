@@ -43,6 +43,8 @@ dependencies {
   api project(':sonar-plugin-api-impl')
   api project(':sonar-duplications')
   api 'org.sonarsource.scanner.engine:scanner-engine-protocol-server'
+  implementation 'org.sonarsource.sonarqube:history-core'
+  implementation 'org.sonarsource.sonarqube:history-server-app'
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 

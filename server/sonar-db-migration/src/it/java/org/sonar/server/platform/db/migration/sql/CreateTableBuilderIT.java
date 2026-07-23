@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.db.dialect.Dialect;
+import org.sonar.server.platform.db.migration.def.SmallIntColumnDef;
 import org.sonar.server.platform.db.migration.def.TinyIntColumnDef;
 import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 
@@ -65,6 +66,8 @@ class CreateTableBuilderIT {
       .addColumn(newClobColumnDefBuilder().setColumnName("clob_col_2").setIsNullable(false).build())
       .addColumn(newDecimalColumnDefBuilder().setColumnName("dec_col_1").build())
       .addColumn(newDecimalColumnDefBuilder().setColumnName("dec_col_2").setIsNullable(false).build())
+      .addColumn(new SmallIntColumnDef.Builder().setColumnName("small_col_1").build())
+      .addColumn(new SmallIntColumnDef.Builder().setColumnName("small_col_2").setIsNullable(false).build())
       .addColumn(new TinyIntColumnDef.Builder().setColumnName("tiny_col_1").build())
       .addColumn(new TinyIntColumnDef.Builder().setColumnName("tiny_col_2").setIsNullable(false).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("varchar_col_1").setLimit(40).build())
@@ -74,7 +77,8 @@ class CreateTableBuilderIT {
       .build()
       .forEach(dbTester::executeDdl);
     assertTableAndColumnsExists(tableName, "bool_col_1", "bool_col_2", "i_col_1", "i_col_2", "bi_col_1", "bi_col_2", "clob_col_1",
-      "clob_col_2", "dec_col_1", "dec_col_2", "tiny_col_1", "tiny_col_2", "varchar_col_1", "varchar_col_2", "blob_col_1", "blob_col_2");
+      "clob_col_2", "dec_col_1", "dec_col_2", "small_col_1", "small_col_2", "tiny_col_1", "tiny_col_2", "varchar_col_1", "varchar_col_2", "blob_col_1",
+      "blob_col_2");
   }
 
   @Test
@@ -117,6 +121,18 @@ class CreateTableBuilderIT {
     String tableName = createTableName();
     new CreateTableBuilder(dialect, tableName)
       .addPkColumn(newBigIntegerColumnDefBuilder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
+      .addColumn(valColumnDef())
+      .build()
+      .forEach(dbTester::executeDdl);
+
+    verifyAutoIncrementIsWorking(tableName);
+  }
+
+  @Test
+  void create_autoincrement_notnullable_smallint_primary_key_table() {
+    String tableName = createTableName();
+    new CreateTableBuilder(dialect, tableName)
+      .addPkColumn(new SmallIntColumnDef.Builder().setColumnName("id").setIsNullable(false).build(), AUTO_INCREMENT)
       .addColumn(valColumnDef())
       .build()
       .forEach(dbTester::executeDdl);
