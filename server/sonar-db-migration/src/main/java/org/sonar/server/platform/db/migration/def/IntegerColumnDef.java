@@ -19,8 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.def;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
@@ -51,27 +49,7 @@ public class IntegerColumnDef extends AbstractColumnDef {
     };
   }
 
-  public static class Builder {
-    @CheckForNull
-    private String columnName;
-    private boolean isNullable = true;
-    @CheckForNull
-    private Integer defaultValue = null;
-
-    public Builder setColumnName(String columnName) {
-      this.columnName = validateColumnName(columnName);
-      return this;
-    }
-
-    public Builder setIsNullable(boolean isNullable) {
-      this.isNullable = isNullable;
-      return this;
-    }
-
-    public Builder setDefaultValue(@Nullable Integer i) {
-      this.defaultValue = i;
-      return this;
-    }
+  public static class Builder extends AbstractIntegerColumnDefBuilder<Builder> {
 
     public IntegerColumnDef build() {
       validateColumnName(columnName);

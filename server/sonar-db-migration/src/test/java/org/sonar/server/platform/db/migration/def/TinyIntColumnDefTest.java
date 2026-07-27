@@ -45,6 +45,16 @@ public class TinyIntColumnDefTest {
   }
 
   @Test
+  public void builder_setDefaultValue_sets_default_value_field() {
+    TinyIntColumnDef def = new TinyIntColumnDef.Builder()
+      .setColumnName("foo")
+      .setDefaultValue(1)
+      .build();
+
+    assertThat(def.getDefaultValue()).isEqualTo(1);
+  }
+
+  @Test
   public void generate_sql_type() {
     TinyIntColumnDef def = new TinyIntColumnDef.Builder()
       .setColumnName("foo")

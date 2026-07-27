@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.def;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
@@ -36,7 +35,7 @@ import static org.sonar.server.platform.db.migration.def.Validations.validateCol
 public class TinyIntColumnDef extends AbstractColumnDef {
 
   private TinyIntColumnDef(Builder builder) {
-    super(builder.columnName, builder.isNullable, null);
+    super(builder.columnName, builder.isNullable, builder.defaultValue);
   }
 
   public static Builder newTinyIntColumnDefBuilder() {
@@ -53,20 +52,7 @@ public class TinyIntColumnDef extends AbstractColumnDef {
     };
   }
 
-  public static class Builder {
-    @CheckForNull
-    private String columnName;
-    private boolean isNullable = true;
-
-    public Builder setColumnName(String columnName) {
-      this.columnName = validateColumnName(columnName);
-      return this;
-    }
-
-    public Builder setIsNullable(boolean isNullable) {
-      this.isNullable = isNullable;
-      return this;
-    }
+  public static class Builder extends AbstractIntegerColumnDefBuilder<Builder> {
 
     public TinyIntColumnDef build() {
       validateColumnName(columnName);
