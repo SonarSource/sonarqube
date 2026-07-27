@@ -41,6 +41,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_010, "Create 'measure_history' table", CreateMeasureHistoryTable.class)
       .add(2026_05_011, "Increase issue_stats_by_rule_key.rule_key column size", IncreaseIssueStatsRuleKeyColumnSize.class)
       .add(2026_05_012, "Create table 'sca_issue_dimensions'", CreateScaIssueDimensionsTable.class)
-      .add(2026_05_013, "Create table 'sca_ttr_history'", CreateScaTtrHistoryTable.class);
+      .add(2026_05_013, "Create table 'sca_ttr_history'", CreateScaTtrHistoryTable.class)
+      .add(2026_05_014, "Make 'branch_name' nullable in 'a3s_contexts'", MakeA3sContextsBranchNameNullable.class);
   }
 }
