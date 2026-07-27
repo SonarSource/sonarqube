@@ -133,11 +133,11 @@ public class ReportSubmitter {
 
       if (componentCreationData != null) {
         componentUpdater.commitAndIndex(dbSession, componentCreationData);
+        checkScanPermission(branchComponent);
       } else {
+        checkScanPermission(branchComponent);
         dbSession.commit();
       }
-
-      checkScanPermission(branchComponent);
       return submitReport(dbSession, reportInput, branchComponent, mainBranch, characteristics);
     }
   }

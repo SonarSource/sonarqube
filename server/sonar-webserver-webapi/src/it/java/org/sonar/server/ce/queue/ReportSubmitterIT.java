@@ -549,6 +549,18 @@ public class ReportSubmitterIT {
       .isInstanceOf(ForbiddenException.class);
   }
 
+  @Test
+  public void fail_with_forbidden_exception_on_existing_project_when_no_scan_permission() {
+    ProjectData projectData = db.components().insertPrivateProject();
+
+    Map<String, String> emptyMap = emptyMap();
+    InputStream inputStream = IOUtils.toInputStream("{binary}", UTF_8);
+    String key = projectData.projectKey();
+    String name = projectData.getProjectDto().getName();
+    assertThatThrownBy(() -> underTest.submit(key, name, emptyMap, inputStream))
+      .isInstanceOf(ForbiddenException.class);
+  }
+
   private void verifyReportIsPersisted(String taskUuid) {
     assertThat(db.selectFirst("select task_uuid from ce_task_input where task_uuid='" + taskUuid + "'")).isNotNull();
   }
