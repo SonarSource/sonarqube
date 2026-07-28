@@ -69,6 +69,8 @@ public final class SqTables {
     "issues_fixed",
     "issues_impacts",
     "issue_changes",
+    "llm_providers",
+    "llm_provider_mappings",
     "measures",
     "metrics",
     "migration_logs",
