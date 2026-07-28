@@ -19,6 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,7 +28,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -222,7 +226,18 @@ public class LocationHashesService {
   }
 
   private abstract static class Location {
-    private final StringBuilder hashBuilder = new StringBuilder();
+    private static final int MAX_DIGEST_CHUNK_CHARS = 8 * 1024;
+
+    /**
+     * MD5 digest fed incrementally as source-range segments are read, so that we never retain the full location content.
+     */
+    private final MessageDigest digest = DigestUtils.getMd5Digest();
+    /**
+     * Bounded buffer of non-whitespace characters awaiting a flush to {@link #digest}. Its trailing character is kept
+     * when it is a lone high surrogate, so a surrogate pair split across chunks or segments is encoded as a single code
+     * point - exactly as the legacy "concatenate everything, then getBytes(UTF_8)" path did.
+     */
+    private final StringBuilder chunk = new StringBuilder(MAX_DIGEST_CHUNK_CHARS + 1);
 
     abstract DbCommons.TextRange getTextRange();
 
@@ -233,26 +248,80 @@ public class LocationHashesService {
       if (lineNumber > textRange.getEndLine() || lineNumber < textRange.getStartLine()) {
         return;
       }
-      try {
-        if (lineNumber == textRange.getStartLine() && lineNumber == textRange.getEndLine()) {
-          hashBuilder.append(line, textRange.getStartOffset(), textRange.getEndOffset());
-        } else if (lineNumber == textRange.getStartLine()) {
-          hashBuilder.append(line, textRange.getStartOffset(), line.length());
-        } else if (lineNumber < textRange.getEndLine()) {
-          hashBuilder.append(line);
-        } else {
-          hashBuilder.append(line, 0, textRange.getEndOffset());
-        }
-      } catch (IndexOutOfBoundsException e) {
+
+      int start;
+      int end;
+      if (lineNumber == textRange.getStartLine() && lineNumber == textRange.getEndLine()) {
+        start = textRange.getStartOffset();
+        end = textRange.getEndOffset();
+      } else if (lineNumber == textRange.getStartLine()) {
+        start = textRange.getStartOffset();
+        end = line.length();
+      } else if (lineNumber < textRange.getEndLine()) {
+        start = 0;
+        end = line.length();
+      } else {
+        start = 0;
+        end = textRange.getEndOffset();
+      }
+
+      // Same bounds validation as the legacy StringBuilder.append(line, start, end) calls: on an invalid range we skip
+      // the whole segment (digest nothing) and log, preserving the previous behavior byte-for-byte.
+      if (start < 0 || start > end || end > line.length()) {
         LOGGER.debug("Try to compute issue location hash from {} to {} on line ({} chars): {}",
           textRange.getStartOffset(), textRange.getEndOffset(), line.length(), line);
+        return;
+      }
+
+      updateDigestWithoutWhitespace(line, start, end);
+    }
+
+    /**
+     * Feeds {@code line[start, end)} into the digest, discarding exactly the characters matched by
+     * {@link #MATCH_ALL_WHITESPACES} (the compatibility definition of whitespace) and buffering the rest in a
+     * fixed-size chunk. Uses the pattern directly over a matcher region so no per-segment copy of the source is made.
+     */
+    private void updateDigestWithoutWhitespace(String line, int start, int end) {
+      Matcher whitespaceMatcher = MATCH_ALL_WHITESPACES.matcher(line).region(start, end);
+      int cursor = start;
+      while (whitespaceMatcher.find()) {
+        appendToChunk(line, cursor, whitespaceMatcher.start());
+        cursor = whitespaceMatcher.end();
+      }
+      appendToChunk(line, cursor, end);
+    }
+
+    private void appendToChunk(String line, int from, int to) {
+      while (from < to) {
+        int space = MAX_DIGEST_CHUNK_CHARS - chunk.length();
+        int take = Math.min(to - from, space);
+        chunk.append(line, from, from + take);
+        from += take;
+        if (chunk.length() >= MAX_DIGEST_CHUNK_CHARS) {
+          flushChunk(false);
+        }
       }
     }
 
+    private void flushChunk(boolean flushAll) {
+      int length = chunk.length();
+      if (length == 0) {
+        return;
+      }
+      // Never flush a trailing high surrogate on its own - keep it for the next chunk so its low surrogate can join it.
+      if (!flushAll && Character.isHighSurrogate(chunk.charAt(length - 1))) {
+        length--;
+        if (length == 0) {
+          return;
+        }
+      }
+      digest.update(chunk.substring(0, length).getBytes(StandardCharsets.UTF_8));
+      chunk.delete(0, length);
+    }
+
     void afterAllLines() {
-      String issueContentWithoutWhitespaces = MATCH_ALL_WHITESPACES.matcher(hashBuilder.toString()).replaceAll("");
-      String hash = DigestUtils.md5Hex(issueContentWithoutWhitespaces);
-      setHash(hash);
+      flushChunk(true);
+      setHash(Hex.encodeHexString(digest.digest()));
     }
   }
 }

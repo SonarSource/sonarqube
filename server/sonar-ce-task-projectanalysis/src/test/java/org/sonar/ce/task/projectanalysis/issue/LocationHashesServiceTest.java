@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -334,6 +335,250 @@ class LocationHashesServiceTest {
     assertLocationHashIsMadeOf(notTaintedIssue, "Stringstring='line-in-the-main-file';");
     assertThat(locations.getFlow(0).getLocation(0).getChecksum()).isEmpty();
     assertThat(locations.getFlow(0).getLocation(1).getChecksum()).isEmpty();
+  }
+
+  /** Same whitespace definition as the production MATCH_ALL_WHITESPACES pattern - the compatibility contract. */
+  private static final Pattern WHITESPACE = Pattern.compile("\\s");
+  /** Must match LocationHashesService.Location.MAX_DIGEST_CHUNK_CHARS. */
+  private static final int MAX_DIGEST_CHUNK_CHARS = 8 * 1024;
+
+  @Test
+  void streaming_whenAsciiSingleLine_shouldMatchLegacyHash() {
+    String line = "int example = line + of + code + 42;";
+    DbCommons.TextRange range = createRange(1, 0, 1, line.length());
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(rawConcat(range, line)));
+  }
+
+  @Test
+  void streaming_whenAllWhitespaceCharsInLine_shouldMatchLegacyHash() {
+    // space, tab, vertical tab, form feed and carriage return - every \s char that can appear inside a single line
+    String line = "a b\tcd\fe\rf";
+    DbCommons.TextRange range = createRange(1, 0, 1, line.length());
+
+    String checksum = computeChecksum(range, line);
+    assertThat(checksum)
+      .isEqualTo(legacyHash(rawConcat(range, line)))
+      .isEqualTo(DigestUtils.md5Hex("abcdef"));
+  }
+
+  @Test
+  void streaming_whenMultiLineRange_shouldMatchLegacyHash() {
+    String[] lines = {"first line here", "second line here", "third line here"};
+    DbCommons.TextRange range = createRange(1, 0, 3, lines[2].length());
+
+    assertThat(computeChecksum(range, lines)).isEqualTo(legacyHash(rawConcat(range, lines)));
+  }
+
+  @Test
+  void streaming_whenPartialFirstAndLastLines_shouldMatchLegacyHash() {
+    String[] lines = {"first line here", "second line here", "third line here"};
+    DbCommons.TextRange range = createRange(1, 6, 3, 5);
+
+    assertThat(computeChecksum(range, lines)).isEqualTo(legacyHash(rawConcat(range, lines)));
+  }
+
+  @Test
+  void streaming_whenBmpAndSurrogatePairs_shouldMatchLegacyHash() {
+    // BMP chars (é, ☃, Ω) plus supplementary code points expressed as surrogate pairs (😀, 𝔘)
+    String line = "aé☃b😀cΩd𝔘e";
+    DbCommons.TextRange range = createRange(1, 0, 1, line.length());
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(rawConcat(range, line)));
+  }
+
+  @Test
+  void streaming_whenSurrogatePairStraddlesChunkBoundary_shouldMatchLegacyHash() {
+    // Fill the chunk so its high surrogate lands exactly on the flush boundary, forcing the pair to split across chunks
+    String line = "a".repeat(MAX_DIGEST_CHUNK_CHARS - 1) + "😀" + "b".repeat(10);
+    DbCommons.TextRange range = createRange(1, 0, 1, line.length());
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(rawConcat(range, line)));
+  }
+
+  @Test
+  void streaming_whenSurrogatePairStraddlesLaterChunkBoundary_shouldMatchLegacyHash() {
+    // One contiguous segment that bulk-append flushes multiple times; the surrogate pair lands on the SECOND
+    // flush boundary, exercising trailing-high-surrogate retention on a later flush (not just the first).
+    String line = "a".repeat(2 * MAX_DIGEST_CHUNK_CHARS - 1) + "😀" + "b".repeat(10);
+    DbCommons.TextRange range = createRange(1, 0, 1, line.length());
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(rawConcat(range, line)));
+  }
+
+  @Test
+  void streaming_whenSurrogatePairStraddlesLineSegments_shouldMatchLegacyHash() {
+    // High surrogate ends the first segment, low surrogate starts the next - the pair must still be encoded as one
+    String[] lines = {"prefix\uD83D", "\uDE00suffix"};
+    DbCommons.TextRange range = createRange(1, 0, 2, lines[1].length());
+
+    assertThat(computeChecksum(range, lines)).isEqualTo(legacyHash(rawConcat(range, lines)));
+  }
+
+  @Test
+  void streaming_whenWhitespaceStraddlesChunkBoundaryAcrossLines_shouldMatchLegacyHash() {
+    // Non-whitespace fills the chunk to its flush point, with spaces/tabs/CR landing exactly on the boundary and
+    // spanning the line break. All of it must be stripped before hashing, exactly as the legacy replaceAll("\\s", "").
+    String[] lines = {"a".repeat(MAX_DIGEST_CHUNK_CHARS - 1) + " \t\r", "  \tb".repeat(5)};
+    DbCommons.TextRange range = createRange(1, 0, 2, lines[1].length());
+
+    assertThat(computeChecksum(range, lines))
+      .isEqualTo(legacyHash(rawConcat(range, lines)))
+      .isEqualTo(DigestUtils.md5Hex("a".repeat(MAX_DIGEST_CHUNK_CHARS - 1) + "bbbbb"));
+  }
+
+  @Test
+  void streaming_whenSegmentOneUnderChunkSize_shouldMatchLegacyHash() {
+    String line = "a".repeat(MAX_DIGEST_CHUNK_CHARS - 1);
+    DbCommons.TextRange range = createRange(1, 0, 1, line.length());
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(rawConcat(range, line)));
+  }
+
+  @Test
+  void streaming_whenSegmentExactlyChunkSize_shouldMatchLegacyHash() {
+    String line = "a".repeat(MAX_DIGEST_CHUNK_CHARS);
+    DbCommons.TextRange range = createRange(1, 0, 1, line.length());
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(rawConcat(range, line)));
+  }
+
+  @Test
+  void streaming_whenSegmentOneOverChunkSize_shouldMatchLegacyHash() {
+    String line = "a".repeat(MAX_DIGEST_CHUNK_CHARS + 1);
+    DbCommons.TextRange range = createRange(1, 0, 1, line.length());
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(rawConcat(range, line)));
+  }
+
+  @Test
+  void streaming_whenSegmentSpansMultipleChunks_shouldMatchLegacyHash() {
+    String line = "a".repeat(MAX_DIGEST_CHUNK_CHARS * 3 + 17);
+    DbCommons.TextRange range = createRange(1, 0, 1, line.length());
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(rawConcat(range, line)));
+  }
+
+  @Test
+  void streaming_whenStartOffsetInvalid_shouldLogAndDigestNothing() {
+    String line = "int example = code;";
+    DbCommons.TextRange range = createRange(1, -1, 1, line.length());
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(""));
+    assertThat(logTester.logs(Level.DEBUG)).anyMatch(log -> log.startsWith("Try to compute issue location hash from -1 to"));
+  }
+
+  @Test
+  void streaming_whenEndOffsetInvalid_shouldLogAndDigestNothing() {
+    String line = "int example = code;";
+    DbCommons.TextRange range = createRange(1, 0, 1, line.length() + 5);
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(""));
+    assertThat(logTester.logs(Level.DEBUG)).anyMatch(log -> log.contains("to " + (line.length() + 5) + " on line"));
+  }
+
+  @Test
+  void streaming_whenBothOffsetsInvalid_shouldLogAndDigestNothing() {
+    String line = "int example = code;";
+    DbCommons.TextRange range = createRange(1, -3, 1, line.length() + 5);
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(""));
+    assertThat(logTester.logs(Level.DEBUG)).anyMatch(log -> log.startsWith("Try to compute issue location hash from -3 to " + (line.length() + 5)));
+  }
+
+  @Test
+  void streaming_whenStartOffsetGreaterThanEndOffset_shouldLogAndDigestNothing() {
+    String line = "int example = code;";
+    DbCommons.TextRange range = createRange(1, 10, 1, 3);
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(""));
+    assertThat(logTester.logs(Level.DEBUG)).anyMatch(log -> log.startsWith("Try to compute issue location hash from 10 to 3"));
+  }
+
+  @Test
+  void streaming_whenMultiMegabyteLine_shouldMatchLegacyHash() {
+    // Reproduces the customer allocation shape (a large minified/generated line) at a size safe for the unit suite
+    String line = "a".repeat(3 * 1024 * 1024);
+    DbCommons.TextRange range = createRange(1, 0, 1, line.length());
+
+    assertThat(computeChecksum(range, line)).isEqualTo(legacyHash(rawConcat(range, line)));
+  }
+
+  @Test
+  void streaming_whenMultipleLocationsOnSameHugeLine_shouldComputeIndependentChecksums() {
+    String line = "abcdefghij".repeat(200 * 1024);
+    DbCommons.TextRange primaryRange = createRange(1, 0, 1, line.length());
+    DbCommons.TextRange secondaryRange = createRange(1, 5, 1, line.length() - 5);
+
+    DefaultIssue taintedIssue = createTaintedIssue()
+      .setComponentUuid(FILE_1.getUuid())
+      .setLocations(DbIssues.Locations.newBuilder()
+        .setTextRange(primaryRange)
+        .addFlow(DbIssues.Flow.newBuilder()
+          .addLocation(DbIssues.Location.newBuilder()
+            .setComponentId(FILE_1.getUuid())
+            .setTextRange(secondaryRange)
+            .build())
+          .build())
+        .build());
+    when(sourceLinesRepository.readLines(FILE_1)).thenReturn(newOneLineIterator(line));
+
+    underTest.computeHashesAndUpdateIssues(List.of(taintedIssue), Collections.emptyList(), FILE_1);
+
+    DbIssues.Locations locations = taintedIssue.getLocations();
+    assertThat(locations.getChecksum()).isEqualTo(legacyHash(rawConcat(primaryRange, line)));
+    assertThat(locations.getFlow(0).getLocation(0).getChecksum()).isEqualTo(legacyHash(rawConcat(secondaryRange, line)));
+  }
+
+  /**
+   * Drives the service over a single-file, single primary location and returns the computed checksum.
+   */
+  private String computeChecksum(DbCommons.TextRange range, String... lines) {
+    DefaultIssue taintedIssue = createTaintedIssue()
+      .setComponentUuid(FILE_1.getUuid())
+      .setLocations(DbIssues.Locations.newBuilder().setTextRange(range).build());
+    when(sourceLinesRepository.readLines(FILE_1)).thenReturn(manyLinesIterator(lines));
+
+    underTest.computeHashesAndUpdateIssues(List.of(taintedIssue), Collections.emptyList(), FILE_1);
+
+    DbIssues.Locations locations = taintedIssue.getLocations();
+    return locations.getChecksum();
+  }
+
+  /**
+   * Legacy reference algorithm: strip every whitespace char, then MD5 the UTF-8 bytes. This is the compatibility
+   * contract the streaming digest must reproduce exactly.
+   */
+  private static String legacyHash(String locationContent) {
+    return DigestUtils.md5Hex(WHITESPACE.matcher(locationContent).replaceAll(""));
+  }
+
+  /**
+   * Rebuilds the full location content the same way the service derives per-line segment boundaries, before whitespace
+   * stripping - the raw input to {@link #legacyHash}.
+   */
+  private static String rawConcat(DbCommons.TextRange range, String... lines) {
+    StringBuilder sb = new StringBuilder();
+    for (int lineNumber = range.getStartLine(); lineNumber <= range.getEndLine(); lineNumber++) {
+      String line = lines[lineNumber - 1];
+      int start;
+      int end;
+      if (range.getStartLine() == range.getEndLine()) {
+        start = range.getStartOffset();
+        end = range.getEndOffset();
+      } else if (lineNumber == range.getStartLine()) {
+        start = range.getStartOffset();
+        end = line.length();
+      } else if (lineNumber < range.getEndLine()) {
+        start = 0;
+        end = line.length();
+      } else {
+        start = 0;
+        end = range.getEndOffset();
+      }
+      sb.append(line, start, end);
+    }
+    return sb.toString();
   }
 
   private DbCommons.TextRange createRange(int startLine, int startOffset, int endLine, int endOffset) {
