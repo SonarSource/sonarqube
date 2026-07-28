@@ -43,6 +43,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_012, "Create table 'sca_issue_dimensions'", CreateScaIssueDimensionsTable.class)
       .add(2026_05_013, "Create table 'sca_ttr_history'", CreateScaTtrHistoryTable.class)
       .add(2026_05_014, "Make 'branch_name' nullable in 'a3s_contexts'", MakeA3sContextsBranchNameNullable.class)
-      .add(2026_05_015, "Add 'producer' column to 'issues' table", AddProducerColumnToIssuesTable.class);
+      .add(2026_05_015, "Add 'producer' column to 'issues' table", AddProducerColumnToIssuesTable.class)
+      .add(2026_05_016, "Create table 'agentic_job'", CreateAgenticJobTable.class);
   }
 }
