@@ -42,6 +42,7 @@ import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
@@ -255,6 +256,77 @@ class IssueMapperIT {
     assertThat(result.getTags()).containsOnly("tag1", "tag2");
     assertThat(result.getInternalTags()).containsOnly("internalTag1", "internalTag2");
     assertThat(result.getCodeVariants()).containsOnly("variant1", "variant2");
+  }
+
+  @Test
+  void scrollNonClosedByComponentUuid_returns_producer() {
+    underTest.insert(newIssue().setIssueProducer(IssueProducer.HUNTER_AGENT));
+    dbTester.getSession().commit();
+
+    RecorderResultHandler resultHandler = new RecorderResultHandler();
+    underTest.scrollNonClosedByComponentUuid(file.uuid(), resultHandler);
+
+    assertThat(resultHandler.issues).hasSize(1);
+    assertThat(resultHandler.issues.iterator().next().getIssueProducer()).isEqualTo(IssueProducer.HUNTER_AGENT);
+  }
+
+  @Test
+  void scrollClosedByComponentUuid_returns_producer() {
+    RuleType ruleType = randomSupportedRuleType();
+    ComponentDto component = randomComponent();
+    IssueDto issue = insertNewClosedIssue(component, ruleType, t -> t.setIssueProducer(IssueProducer.HUNTER_AGENT));
+    insertToClosedDiff(issue);
+
+    RecorderResultHandler resultHandler = new RecorderResultHandler();
+    underTest.scrollClosedByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
+
+    assertThat(resultHandler.issues).hasSize(1);
+    assertThat(resultHandler.issues.iterator().next().getIssueProducer()).isEqualTo(IssueProducer.HUNTER_AGENT);
+  }
+
+  @Test
+  void scrollNonClosedScannerIssuesByComponentUuid_returns_only_scanner_issues() {
+    underTest.insert(newIssue().setKee("scanner-issue").setIssueProducer(IssueProducer.SCANNER));
+    underTest.insert(newIssue().setKee("hunter-agent-issue").setIssueProducer(IssueProducer.HUNTER_AGENT));
+    dbTester.getSession().commit();
+
+    RecorderResultHandler resultHandler = new RecorderResultHandler();
+    underTest.scrollNonClosedScannerIssuesByComponentUuid(file.uuid(), resultHandler);
+
+    assertThat(resultHandler.issues)
+      .extracting(IssueWithoutRuleInfoDto::getKey, IssueWithoutRuleInfoDto::getIssueProducer)
+      .containsExactly(tuple("scanner-issue", IssueProducer.SCANNER));
+  }
+
+  @Test
+  void scrollNonClosedHunterAgentIssuesByComponentUuid_returns_only_hunter_agent_issues() {
+    underTest.insert(newIssue().setKee("scanner-issue").setIssueProducer(IssueProducer.SCANNER));
+    underTest.insert(newIssue().setKee("hunter-agent-issue").setIssueProducer(IssueProducer.HUNTER_AGENT));
+    dbTester.getSession().commit();
+
+    RecorderResultHandler resultHandler = new RecorderResultHandler();
+    underTest.scrollNonClosedHunterAgentIssuesByComponentUuid(file.uuid(), resultHandler);
+
+    assertThat(resultHandler.issues)
+      .extracting(IssueWithoutRuleInfoDto::getKey, IssueWithoutRuleInfoDto::getIssueProducer)
+      .containsExactly(tuple("hunter-agent-issue", IssueProducer.HUNTER_AGENT));
+  }
+
+  @Test
+  void scrollClosedScannerIssuesByComponentUuid_returns_only_scanner_issues() {
+    RuleType ruleType = randomSupportedRuleType();
+    ComponentDto component = randomComponent();
+    IssueDto scannerIssue = insertNewClosedIssue(component, ruleType, t -> t.setIssueProducer(IssueProducer.SCANNER));
+    insertToClosedDiff(scannerIssue);
+    IssueDto hunterAgentIssue = insertNewClosedIssue(component, ruleType, t -> t.setIssueProducer(IssueProducer.HUNTER_AGENT));
+    insertToClosedDiff(hunterAgentIssue);
+
+    RecorderResultHandler resultHandler = new RecorderResultHandler();
+    underTest.scrollClosedScannerIssuesByComponentUuid(component.uuid(), NO_FILTERING_ON_CLOSE_DATE, resultHandler);
+
+    assertThat(resultHandler.issues)
+      .extracting(IssueWithoutRuleInfoDto::getKey, IssueWithoutRuleInfoDto::getIssueProducer)
+      .containsExactly(tuple(scannerIssue.getKey(), IssueProducer.SCANNER));
   }
 
   @Test

@@ -27,6 +27,7 @@
     i.issue_close_date as issueCloseTime,
     i.created_at as createdAt,
     i.updated_at as updatedAt,
+    i.producer as producerDbConstant,
     r.is_external as "isExternal",
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
@@ -74,6 +75,7 @@
     i.issue_close_date as issueCloseTime,
     i.created_at as createdAt,
     i.updated_at as updatedAt,
+    i.producer as producerDbConstant,
     i.clean_code_attribute as cleanCodeAttribute,
     p.kee as componentKey,
     i.component_uuid as componentUuid,
@@ -114,6 +116,7 @@
     i.issue_close_date,
     i.created_at,
     i.updated_at,
+    i.producer,
     i.component_uuid,
     i.project_uuid,
     i.issue_type,
@@ -207,7 +210,7 @@
     message, message_formattings, line, locations, gap, effort, status, tags, rule_description_context_key,
     resolution, checksum, assignee, author_login, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type, quick_fix_available, code_variants,
-    clean_code_attribute, prioritized_rule, from_sonarqube_update, internal_tags)
+    clean_code_attribute, prioritized_rule, from_sonarqube_update, internal_tags, producer)
     VALUES (
     #{kee,jdbcType=VARCHAR},
     #{ruleUuid,jdbcType=VARCHAR},
@@ -232,7 +235,8 @@
     #{effectiveCleanCodeAttribute,jdbcType=VARCHAR},
     #{prioritizedRule,jdbcType=BOOLEAN},
     #{fromSonarQubeUpdate,jdbcType=BOOLEAN},
-    #{internalTagsString,jdbcType=VARCHAR})
+    #{internalTagsString,jdbcType=VARCHAR},
+    COALESCE(#{producerDbConstant,jdbcType=TINYINT}, 1))
   </insert>
 
   <insert id="insertAsNewCodeOnReferenceBranch" parameterType="NewCodeReferenceIssue" useGeneratedKeys="false">
@@ -364,6 +368,42 @@
       i.kee
   </select>
 
+  <select id="scrollNonClosedScannerIssuesByComponentUuid" parameterType="String" resultMap="issueWithoutRuleInfoResultMap" fetchSize="${_scrollFetchSize}"
+          resultSetType="FORWARD_ONLY" resultOrdered="true">
+    select
+      <include refid="issueColumnsNoRulesColumn"/>
+    from issues i
+      inner join components p on p.uuid=i.component_uuid
+      inner join components root on root.uuid=i.project_uuid
+      left join new_code_reference_issues n on i.kee = n.issue_key
+      left outer join issues_impacts ii on i.kee = ii.issue_key
+      left join jira_work_items_resources jwir on jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
+    where
+      i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
+      i.status &lt;&gt; 'CLOSED' and
+      coalesce(i.producer, 1) = 1
+    order by
+      i.kee
+  </select>
+
+  <select id="scrollNonClosedHunterAgentIssuesByComponentUuid" parameterType="String" resultMap="issueWithoutRuleInfoResultMap" fetchSize="${_scrollFetchSize}"
+          resultSetType="FORWARD_ONLY" resultOrdered="true">
+    select
+      <include refid="issueColumnsNoRulesColumn"/>
+    from issues i
+      inner join components p on p.uuid=i.component_uuid
+      inner join components root on root.uuid=i.project_uuid
+      left join new_code_reference_issues n on i.kee = n.issue_key
+      left outer join issues_impacts ii on i.kee = ii.issue_key
+      left join jira_work_items_resources jwir on jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
+    where
+      i.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
+      i.status &lt;&gt; 'CLOSED' and
+      coalesce(i.producer, 1) = 2
+    order by
+      i.kee
+  </select>
+
   <select id="scrollClosedByComponentUuid" resultMap="issueWithoutRuleInfoResultMap" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY" resultOrdered="true">
     select
       <include refid="issueColumnsNoRulesColumn"/>,
@@ -388,6 +428,35 @@
       and i.status = 'CLOSED'
       and i.issue_close_date is not null
       and i.issue_close_date &gt;= #{closeDateAfter,jdbcType=BIGINT}
+    order by
+      i.kee, ic.issue_change_creation_date desc
+  </select>
+
+  <select id="scrollClosedScannerIssuesByComponentUuid" resultMap="issueWithoutRuleInfoResultMap" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY" resultOrdered="true">
+    select
+      <include refid="issueColumnsNoRulesColumn"/>,
+      ic.change_data as closedChangeData
+    from issues i
+    inner join components p on
+      p.uuid = i.component_uuid
+    inner join components root on
+      root.uuid = i.project_uuid
+    inner join issue_changes ic on
+      ic.issue_key = i.kee
+      and ic.change_type = 'diff'
+      and ic.change_data like '%status=%|CLOSED%'
+    left join new_code_reference_issues n on
+      i.kee = n.issue_key
+    left outer join issues_impacts ii on
+      i.kee = ii.issue_key
+    left join jira_work_items_resources jwir on
+      jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
+    where
+      i.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+      and i.status = 'CLOSED'
+      and i.issue_close_date is not null
+      and i.issue_close_date &gt;= #{closeDateAfter,jdbcType=BIGINT}
+      and coalesce(i.producer, 1) = 1
     order by
       i.kee, ic.issue_change_creation_date desc
   </select>
@@ -562,7 +631,7 @@
       and i.updated_at &lt;&gt; #{updatedAt,jdbcType=BIGINT}
   </select>
 
-  <select id="selectOpenByComponentUuids" parameterType="map" resultType="PrIssue">
+  <select id="selectOpenScannerIssuesByComponentUuids" parameterType="map" resultType="PrIssue">
     select
       i.kee as kee,
       i.message as message,
@@ -582,6 +651,7 @@
         #{key,jdbcType=VARCHAR}
       </foreach>
       and i.status &lt;&gt; 'CLOSED'
+      and coalesce(i.producer, 1) = 1
   </select>
 
   <select id="countSandboxIssuesPerProject" parameterType="map" resultType="org.sonar.db.issue.IssueCount">
@@ -836,6 +906,7 @@
     i.rule_description_context_key as ruleDescriptionContextKey,
     i.prioritized_rule as prioritizedRule,
     i.from_sonarqube_update as fromSonarQubeUpdate,
+    i.producer as producerDbConstant,
     <include refid="issueImpactsColumns"/>
     <include refid="ruleDefaultImpactsColumns"/>
     i.clean_code_attribute as cleanCodeAttribute,

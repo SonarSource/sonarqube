@@ -35,6 +35,7 @@ import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
@@ -489,6 +490,12 @@ public final class IssueDto extends IssueWithoutRuleInfoDto {
   @Override
   public IssueDto setType(RuleType type) {
     super.setType(type);
+    return this;
+  }
+
+  @Override
+  public IssueDto setIssueProducer(IssueProducer issueProducer) {
+    super.setIssueProducer(issueProducer);
     return this;
   }
 

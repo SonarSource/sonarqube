@@ -83,8 +83,8 @@ public class IssueDao implements Dao {
     return mapper(session).selectComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
   }
 
-  public List<PrIssueDto> selectOpenByComponentUuids(DbSession dbSession, Collection<String> componentUuids) {
-    return executeLargeInputs(componentUuids, mapper(dbSession)::selectOpenByComponentUuids);
+  public List<PrIssueDto> selectOpenScannerIssuesByComponentUuids(DbSession dbSession, Collection<String> componentUuids) {
+    return executeLargeInputs(componentUuids, mapper(dbSession)::selectOpenScannerIssuesByComponentUuids);
   }
 
   public Collection<IssueGroupDto> selectIssueGroupsByComponent(DbSession dbSession, ComponentDto component, long leakPeriodBeginningDate) {

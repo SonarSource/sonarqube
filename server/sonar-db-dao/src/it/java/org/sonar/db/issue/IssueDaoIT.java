@@ -44,6 +44,7 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -170,7 +171,8 @@ class IssueDaoIT {
       .setInternalTags(List.of("internalTag1", "internalTag2"))
       .setCodeVariants(List.of("variant1", "variant2"))
       .setQuickFixAvailable(false)
-      .setMessageFormattings(MESSAGE_FORMATTING);
+      .setMessageFormattings(MESSAGE_FORMATTING)
+      .setIssueProducer(IssueProducer.SCANNER);
 
     IssueDto issue = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
 
@@ -186,6 +188,7 @@ class IssueDaoIT {
     assertThat(issue.getRule()).isEqualTo(RULE.getRuleKey());
     assertThat(issue.getEffectiveCleanCodeAttribute()).isEqualTo(RULE.getCleanCodeAttribute());
     assertThat(issue.parseLocations()).isNull();
+    assertThat(issue.getIssueProducer()).isEqualTo(IssueProducer.SCANNER);
     assertThat(issue.getImpacts())
       .extracting(ImpactDto::getSeverity, ImpactDto::getSoftwareQuality, ImpactDto::isManualSeverity)
       .containsExactlyInAnyOrder(
@@ -473,6 +476,31 @@ class IssueDaoIT {
   }
 
   @Test
+  void selectByBranch_shouldReturnProducer() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setLanguage("java").setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branchProducer"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    db.issues().insert(rule, branch, file, i -> i.setKee("issueScanner")
+      .setStatus(STATUS_OPEN)
+      .setType(rule.getType()));
+    db.issues().insert(rule, branch, file, i -> i.setKee("issueHunterAgent")
+      .setStatus(STATUS_OPEN)
+      .setType(rule.getType())
+      .setIssueProducer(IssueProducer.HUNTER_AGENT));
+
+    List<IssueDto> result = underTest.selectByBranch(db.getSession(), Set.of("issueScanner", "issueHunterAgent"),
+      buildSelectByBranchQuery(branch, false, 1_000_000_000_000L));
+
+    assertThat(result)
+      .extracting(IssueDto::getKey, IssueDto::getIssueProducer)
+      .containsExactlyInAnyOrder(
+        tuple("issueScanner", IssueProducer.SCANNER),
+        tuple("issueHunterAgent", IssueProducer.HUNTER_AGENT));
+  }
+
+  @Test
   void selectOpenByComponentUuid() {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
@@ -491,9 +519,29 @@ class IssueDaoIT {
     IssueDto fpIssue = db.issues().insert(rule, projectBranch, file,
       i -> i.setStatus(STATUS_RESOLVED).setResolution(RESOLUTION_FALSE_POSITIVE));
 
-    assertThat(underTest.selectOpenByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())))
+    assertThat(underTest.selectOpenScannerIssuesByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())))
       .extracting("kee")
       .containsOnly(openIssue.getKey(), reopenedIssue.getKey(), confirmedIssue.getKey(), wontfixIssue.getKey(), fpIssue.getKey());
+  }
+
+  @Test
+  void selectOpenScannerIssuesByComponentUuids_excludes_hunter_agent_issues() {
+    RuleDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto projectBranch = db.components().insertProjectBranch(project,
+      b -> b.setKey("feature/foo")
+        .setBranchType(BranchType.BRANCH));
+
+    ComponentDto file = db.components().insertComponent(newFileDto(projectBranch));
+
+    IssueDto scannerIssue = db.issues().insert(rule, projectBranch, file,
+      i -> i.setStatus(STATUS_OPEN).setResolution(null).setIssueProducer(IssueProducer.SCANNER));
+    db.issues().insert(rule, projectBranch, file,
+      i -> i.setStatus(STATUS_OPEN).setResolution(null).setIssueProducer(IssueProducer.HUNTER_AGENT));
+
+    assertThat(underTest.selectOpenScannerIssuesByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())))
+      .extracting("kee")
+      .containsOnly(scannerIssue.getKey());
   }
 
   @Test
@@ -507,7 +555,7 @@ class IssueDaoIT {
     ComponentDto file = db.components().insertComponent(newFileDto(projectBranch));
     IssueDto fpIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE"));
 
-    PrIssueDto fp = underTest.selectOpenByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())).get(0);
+    PrIssueDto fp = underTest.selectOpenScannerIssuesByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())).get(0);
     assertThat(fp.getLine()).isEqualTo(fpIssue.getLine());
     assertThat(fp.getMessage()).isEqualTo(fpIssue.getMessage());
     assertThat(fp.getChecksum()).isEqualTo(fpIssue.getChecksum());
@@ -1214,6 +1262,53 @@ class IssueDaoIT {
 
     assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
       .containsExactlyInAnyOrder(tuple(RELIABILITY, MEDIUM), tuple(SECURITY, LOW));
+  }
+
+  @Test
+  void insert_shouldPersistScannerProducer_whenProducerNotSet() {
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1);
+    underTest.insert(db.getSession(), issue);
+
+    IssueDto selected = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(selected.getIssueProducer()).isEqualTo(IssueProducer.SCANNER);
+  }
+
+  @Test
+  void insert_shouldPersistHunterAgentProducer_whenSet() {
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1).setIssueProducer(IssueProducer.HUNTER_AGENT);
+    underTest.insert(db.getSession(), issue);
+
+    IssueDto selected = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(selected.getIssueProducer()).isEqualTo(IssueProducer.HUNTER_AGENT);
+  }
+
+  @Test
+  void update_shouldNotChangeProducer_whenUpdatingHunterOwnedIssue() {
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1).setIssueProducer(IssueProducer.HUNTER_AGENT);
+    underTest.insert(db.getSession(), issue);
+
+    issue.setMessage("updated via generic update");
+    underTest.update(db.getSession(), issue);
+
+    IssueDto updated = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(updated.getMessage()).isEqualTo("updated via generic update");
+    assertThat(updated.getIssueProducer()).isEqualTo(IssueProducer.HUNTER_AGENT);
+  }
+
+  @Test
+  void updateIfBeforeSelectedDate_shouldNotChangeProducer() {
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1).setIssueProducer(IssueProducer.HUNTER_AGENT);
+    underTest.insert(db.getSession(), issue);
+
+    IssueDto issueToUpdate = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
+      .setMessage("updated via updateIfBeforeSelectedDate")
+      .setSelectedAt(1_440_000_000_000L);
+    boolean isUpdated = underTest.updateIfBeforeSelectedDate(db.getSession(), issueToUpdate);
+
+    assertThat(isUpdated).isTrue();
+    IssueDto updated = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(updated.getMessage()).isEqualTo("updated via updateIfBeforeSelectedDate");
+    assertThat(updated.getIssueProducer()).isEqualTo(IssueProducer.HUNTER_AGENT);
   }
 
   @Test

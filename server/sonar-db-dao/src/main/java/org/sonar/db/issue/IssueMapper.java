@@ -56,7 +56,7 @@ public interface IssueMapper {
 
   List<IssueCountByStatusAndResolution> countIssuesByStatusOnMainBranches();
 
-  List<PrIssueDto> selectOpenByComponentUuids(List<String> componentUuids);
+  List<PrIssueDto> selectOpenScannerIssuesByComponentUuids(List<String> componentUuids);
 
   void insert(IssueDto issue);
 
@@ -72,7 +72,14 @@ public interface IssueMapper {
 
   void scrollNonClosedByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueWithoutRuleInfoDto> handler);
 
+  void scrollNonClosedScannerIssuesByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueWithoutRuleInfoDto> handler);
+
+  void scrollNonClosedHunterAgentIssuesByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueWithoutRuleInfoDto> handler);
+
   void scrollClosedByComponentUuid(@Param("componentUuid") String componentUuid, @Param("closeDateAfter") long closeDateAfter, ResultHandler<IssueWithoutRuleInfoDto> handler);
+
+  void scrollClosedScannerIssuesByComponentUuid(@Param("componentUuid") String componentUuid, @Param("closeDateAfter") long closeDateAfter,
+    ResultHandler<IssueWithoutRuleInfoDto> handler);
 
   Cursor<IndexedIssueDto> scrollIssuesForIndexation(@Nullable @Param("branchUuid") String branchUuid, @Nullable @Param("issueKeys") Collection<String> issueKeys);
 

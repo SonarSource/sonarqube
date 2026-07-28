@@ -56,7 +56,7 @@ public class SiblingsIssuesLoader {
     }
 
     try (DbSession session = dbClient.openSession(false)) {
-      return dbClient.issueDao().selectOpenByComponentUuids(session, uuids)
+      return dbClient.issueDao().selectOpenScannerIssuesByComponentUuids(session, uuids)
         .stream()
         .map(SiblingsIssuesLoader::toSiblingIssue)
         .toList();
