@@ -65,6 +65,7 @@ public final class SqTables {
     "internal_component_props",
     "internal_properties",
     "issue_stats_by_rule_key",
+    "issue_ttr_history",
     "issues",
     "issues_fixed",
     "issues_impacts",

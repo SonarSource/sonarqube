@@ -37,6 +37,7 @@ dependencies {
   testImplementation project(':sonar-testing-harness')
   testImplementation 'org.sonarsource.sonarqube:sonar-db-commons-testfixtures'
 
+  testFixturesImplementation 'org.assertj:assertj-core'
   testFixturesImplementation 'org.sonarsource.orchestrator:sonar-orchestrator-junit4'
   testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
   testFixturesImplementation 'org.sonarsource.sonarqube:sonar-db-commons-testfixtures'

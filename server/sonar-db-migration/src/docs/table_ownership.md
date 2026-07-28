@@ -46,6 +46,7 @@ Important read: [Data Ownership Principles](https://xtranet-sonarsource.atlassia
 | internal_component_props |  |
 | internal_properties |  |
 | issue_changes | Analysis Experience Squad |
+| issue_ttr_history  | Organization & Reporting Squad |
 | issues | Analysis Experience Squad |
 | issues_fixed | Analysis Experience Squad |
 | issues_impacts | Analysis Experience Squad |
