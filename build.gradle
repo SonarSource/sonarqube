@@ -407,6 +407,8 @@ subprojects {
       }
       dependency "org.sonarsource.sonarqube:organizations-api:$organizationsApiVersion"
       dependency "org.sonarsource.sonarqube:organizations-server-app:$organizationsApiVersion"
+      dependency "org.sonarsource.sonarqube:projects-api:$projectsApiVersion"
+      dependency "org.sonarsource.sonarqube:projects-server-app:$projectsApiVersion"
       dependency "org.sonarsource.sonarqube:enterprises-api:$enterprisesApiVersion"
       dependency "org.sonarsource.sonarqube:enterprises-server-app:$enterprisesApiVersion"
       dependencySet(group: 'org.sonarsource.sonarqube', version: "$metricsApiVersion") {

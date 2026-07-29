@@ -353,6 +353,7 @@ import org.sonarsource.history.server.HistoryServerComponents;
 import org.sonarsource.measures.server.MeasuresServerComponents;
 import org.sonarsource.metrics.server.bean.MetricsServerComponents;
 import org.sonarsource.organizations.server.OrganizationsServiceServerImpl;
+import org.sonarsource.projects.server.ProjectsServiceServerImpl;
 import org.sonarsource.users.server.bean.UsersServerComponents;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
@@ -398,6 +399,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DelegatingDevOpsProjectCreatorFactory.class,
       NetworkInterfaceProvider.class,
       OrganizationsServiceServerImpl.class,
+      ProjectsServiceServerImpl.class,
 
       // ai code assurance
       NoOpAiCodeAssuranceVerifier.class,

@@ -30,6 +30,7 @@ dependencies {
   api project(':server:sonar-webserver-monitoring')
   api project(':server:sonar-events')
   api 'org.sonarsource.sonarqube:organizations-server-app'
+  api 'org.sonarsource.sonarqube:projects-server-app'
   api 'org.sonarsource.sonarqube:metrics-server-app'
   api 'org.sonarsource.sonarqube:measures-server-app'
   api 'org.sonarsource.sonarqube:gessie-server-app'
