@@ -39,9 +39,11 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.task.projectanalysis.qualityprofile.AlwaysActiveRulesHolderImpl;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -265,6 +267,108 @@ public class ComponentIssuesLoaderIT {
   }
 
   @Test
+  public void loadClosedScannerIssues_returns_empty_without_querying_DB_if_property_is_0() {
+    System2 system2Mock = mock(System2.class);
+    DbClient dbClientMock = mock(DbClient.class);
+    Configuration configuration = newConfiguration("0");
+    String componentUuid = secure().nextAlphabetic(15);
+    ComponentIssuesLoader underTest = new ComponentIssuesLoader(dbClientMock, null, null, configuration, system2Mock, issueChangesToDeleteRepository);
+
+    assertThat(underTest.loadClosedScannerIssues(componentUuid)).isEmpty();
+
+    verifyNoInteractions(dbClientMock, system2Mock);
+  }
+
+  @Test
+  public void loadOpenIssues_returns_issues_of_all_producers() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
+    ruleRepositoryRule.add(rule);
+    IssueDto scannerIssue = db.issues().insert(rule, project, file, t -> t.setType(CODE_SMELL).setIssueProducer(IssueProducer.SCANNER));
+    IssueDto hunterAgentIssue = db.issues().insert(rule, project, file, t -> t.setType(CODE_SMELL).setIssueProducer(IssueProducer.HUNTER_AGENT));
+
+    List<DefaultIssue> defaultIssues = newComponentIssuesLoaderWithActiveRules().loadOpenIssues(file.uuid());
+
+    assertThat(defaultIssues)
+      .extracting(DefaultIssue::key)
+      .containsExactlyInAnyOrder(scannerIssue.getKey(), hunterAgentIssue.getKey());
+  }
+
+  @Test
+  public void loadOpenScannerIssues_returns_only_scanner_issues_when_component_has_mixed_producer_issues() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
+    ruleRepositoryRule.add(rule);
+    IssueDto scannerIssue = db.issues().insert(rule, project, file, t -> t.setType(CODE_SMELL).setIssueProducer(IssueProducer.SCANNER));
+    db.issues().insert(rule, project, file, t -> t.setType(CODE_SMELL).setIssueProducer(IssueProducer.HUNTER_AGENT));
+
+    List<DefaultIssue> defaultIssues = newComponentIssuesLoaderWithActiveRules().loadOpenScannerIssues(file.uuid());
+
+    assertThat(defaultIssues)
+      .extracting(DefaultIssue::key)
+      .containsExactly(scannerIssue.getKey());
+  }
+
+  @Test
+  public void loadOpenScannerIssuesWithChanges_filters_by_producer_and_still_loads_changes() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
+    ruleRepositoryRule.add(rule);
+    IssueDto scannerIssue = db.issues().insert(rule, project, file, t -> t.setType(CODE_SMELL).setIssueProducer(IssueProducer.SCANNER));
+    db.issues().insertChange(scannerIssue, t -> t.setChangeType(IssueChangeDto.TYPE_COMMENT).setKey("comment1"));
+    db.issues().insert(rule, project, file, t -> t.setType(CODE_SMELL).setIssueProducer(IssueProducer.HUNTER_AGENT));
+
+    List<DefaultIssue> defaultIssues = newComponentIssuesLoaderWithActiveRules().loadOpenScannerIssuesWithChanges(file.uuid());
+
+    assertThat(defaultIssues).hasSize(1);
+    DefaultIssue defaultIssue = defaultIssues.get(0);
+    assertThat(defaultIssue.key()).isEqualTo(scannerIssue.getKey());
+    assertThat(defaultIssue.defaultIssueComments()).extracting(DefaultIssueComment::key).containsOnly("comment1");
+  }
+
+  @Test
+  public void loadOpenHunterIssues_returns_only_hunter_agent_issues_when_component_has_mixed_producer_issues() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
+    ruleRepositoryRule.add(rule);
+    db.issues().insert(rule, project, file, t -> t.setType(CODE_SMELL).setIssueProducer(IssueProducer.SCANNER));
+    IssueDto hunterAgentIssue = db.issues().insert(rule, project, file, t -> t.setType(CODE_SMELL).setIssueProducer(IssueProducer.HUNTER_AGENT));
+
+    List<DefaultIssue> defaultIssues = newComponentIssuesLoaderWithActiveRules().loadOpenHunterIssues(file.uuid());
+
+    assertThat(defaultIssues)
+      .extracting(DefaultIssue::key)
+      .containsExactly(hunterAgentIssue.getKey());
+  }
+
+  @Test
+  public void loadClosedScannerIssues_returns_only_scanner_issues_when_component_has_mixed_producer_closed_issues() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
+    ruleRepositoryRule.add(rule);
+    Date issueDate = addDays(NOW, -10);
+    IssueDto scannerIssue = db.issues().insert(rule, project, file,
+      t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL).setIssueProducer(IssueProducer.SCANNER));
+    db.issues().insertFieldDiffs(scannerIssue, newToClosedDiffsWithLine(issueDate, 10));
+    IssueDto hunterAgentIssue = db.issues().insert(rule, project, file,
+      t -> t.setStatus(STATUS_CLOSED).setIssueCloseDate(issueDate).setType(CODE_SMELL).setIssueProducer(IssueProducer.HUNTER_AGENT));
+    db.issues().insertFieldDiffs(hunterAgentIssue, newToClosedDiffsWithLine(issueDate, 20));
+    when(system2.now()).thenReturn(NOW.getTime());
+
+    ComponentIssuesLoader underTest = newComponentIssuesLoader(newEmptySettings());
+    List<DefaultIssue> defaultIssues = underTest.loadClosedScannerIssues(file.uuid());
+
+    assertThat(defaultIssues)
+      .extracting(DefaultIssue::key)
+      .containsExactly(scannerIssue.getKey());
+  }
+
+  @Test
   public void loadLatestDiffChangesForReopeningOfClosedIssues_collects_issue_changes_to_delete() {
     IssueDto issue = db.issues().insert();
     for (long i = 0; i < NUMBER_STATUS_AND_BRANCH_CHANGES_TO_KEEP + 5; i++) {
@@ -468,6 +572,11 @@ public class ComponentIssuesLoaderIT {
   private ComponentIssuesLoader newComponentIssuesLoader(Configuration configuration) {
     return new ComponentIssuesLoader(dbClient, ruleRepositoryRule, null /* not used in loadClosedIssues */,
       configuration, system2, issueChangesToDeleteRepository);
+  }
+
+  private ComponentIssuesLoader newComponentIssuesLoaderWithActiveRules() {
+    return new ComponentIssuesLoader(dbClient, ruleRepositoryRule, new AlwaysActiveRulesHolderImpl(),
+      newEmptySettings(), system2, issueChangesToDeleteRepository);
   }
 
   private static Configuration newEmptySettings() {
