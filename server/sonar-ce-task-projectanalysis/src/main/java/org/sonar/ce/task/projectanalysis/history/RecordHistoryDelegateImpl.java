@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import org.sonar.db.issue.ImpactDto;
 import org.sonar.db.issue.IndexedIssueDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.model.Impact;
 import org.sonarsource.history.model.IssueDtoForHistory;
 import org.sonarsource.history.model.Measure;
@@ -72,42 +74,46 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
   }
 
   @Override
-  public void recordHistory(String entityUuid) {
+  public void recordHistory(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids) {
     LocalDate today = LocalDate.now(ZoneOffset.UTC);
 
-    LOG.info("Recording History for entity {} on {}", entityUuid, today);
-    recordIssueHistory(entityUuid, today);
-    recordMeasureHistory(entityUuid, today);
-    LOG.info("History recording complete for entity {}", entityUuid);
+    LOG.info("Recording History for {} {} on {}", entityType, entityUuid, today);
+    recordIssueHistory(entityUuid, entityType, issueSourceBranchUuids, today);
+    recordMeasureHistory(entityUuid, entityType, today);
+    LOG.info("History recording complete for {} {}", entityType, entityUuid);
   }
 
   // -------------------------------------------------------------------------
   // Issue history
   // -------------------------------------------------------------------------
 
-  private void recordIssueHistory(String entityUuid, LocalDate today) {
-    List<IssueDtoForHistory> issues = fetchIssues(entityUuid);
-    issueHistoryService.recordIssueHistoryForBranch(entityUuid, issues, today);
+  private void recordIssueHistory(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids, LocalDate today) {
+    List<IssueDtoForHistory> issues = fetchIssues(issueSourceBranchUuids);
+    issueHistoryService.recordIssueHistory(entityUuid, entityType, issues, today);
   }
 
-  private List<IssueDtoForHistory> fetchIssues(String entityUuid) {
+  private List<IssueDtoForHistory> fetchIssues(Collection<String> issueSourceBranchUuids) {
     List<IssueDtoForHistory> result = new ArrayList<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      try (Cursor<IndexedIssueDto> cursor = dbClient.issueDao().scrollIssuesForIndexation(dbSession, entityUuid, null)) {
-        for (IndexedIssueDto indexed : cursor) {
-          if (CLOSED_STATUS.equals(indexed.getStatus())) {
-            continue;
-          }
-          IssueDtoForHistory dto = toIssueDtoForHistory(indexed);
-          if (dto != null) {
-            result.add(dto);
-          }
-        }
-      } catch (IOException e) {
-        throw new IllegalStateException("Failed to close issue cursor for entity " + entityUuid, e);
-      }
+      issueSourceBranchUuids.forEach(issueSourceBranchUuid -> collectIssues(dbSession, issueSourceBranchUuid, result));
     }
     return result;
+  }
+
+  private void collectIssues(DbSession dbSession, String issueSourceUuid, List<IssueDtoForHistory> result) {
+    try (Cursor<IndexedIssueDto> cursor = dbClient.issueDao().scrollIssuesForIndexation(dbSession, issueSourceUuid, null)) {
+      for (IndexedIssueDto indexed : cursor) {
+        if (CLOSED_STATUS.equals(indexed.getStatus())) {
+          continue;
+        }
+        IssueDtoForHistory dto = toIssueDtoForHistory(indexed);
+        if (dto != null) {
+          result.add(dto);
+        }
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to close issue cursor for entity " + issueSourceUuid, e);
+    }
   }
 
   private IssueDtoForHistory toIssueDtoForHistory(IndexedIssueDto indexed) {
@@ -157,10 +163,10 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
   // Measure history
   // -------------------------------------------------------------------------
 
-  private void recordMeasureHistory(String entityUuid, LocalDate today) {
+  private void recordMeasureHistory(String entityUuid, EntityType entityType, LocalDate today) {
     List<Measure> measures = fetchMeasures(entityUuid);
     if (!measures.isEmpty()) {
-      measuresHistoryService.recordMeasureHistoryForBranch(entityUuid, measures, today);
+      measuresHistoryService.recordMeasureHistory(entityUuid, entityType, measures, today);
     }
   }
 

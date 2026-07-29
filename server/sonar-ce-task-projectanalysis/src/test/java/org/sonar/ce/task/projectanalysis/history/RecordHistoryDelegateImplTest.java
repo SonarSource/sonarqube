@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.history;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,7 @@ import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
+import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.model.Impact;
 import org.sonarsource.history.model.IssueDtoForHistory;
 import org.sonarsource.history.model.Measure;
@@ -48,9 +50,11 @@ import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
 import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -89,7 +93,7 @@ class RecordHistoryDelegateImplTest {
     IndexedIssueDto issue = issueWithQualifier(ComponentQualifiers.FILE).setCodeVariants("TEST");
     givenIssueCursor(issue);
 
-    underTest.recordHistory(ENTITY_UUID);
+    recordBranchHistory();
 
     assertThat(capturedIssue().getCodeScope()).isEqualTo("MAIN");
   }
@@ -99,7 +103,7 @@ class RecordHistoryDelegateImplTest {
     IndexedIssueDto issue = issueWithQualifier(ComponentQualifiers.UNIT_TEST_FILE).setCodeVariants("MAIN");
     givenIssueCursor(issue);
 
-    underTest.recordHistory(ENTITY_UUID);
+    recordBranchHistory();
 
     assertThat(capturedIssue().getCodeScope()).isEqualTo("TEST");
   }
@@ -109,9 +113,21 @@ class RecordHistoryDelegateImplTest {
     IndexedIssueDto closedIssue = issueWithQualifier(ComponentQualifiers.FILE).setStatus("CLOSED");
     givenIssueCursor(closedIssue);
 
-    underTest.recordHistory(ENTITY_UUID);
+    recordBranchHistory();
 
     assertThat(capturedIssues()).isEmpty();
+  }
+
+  @Test
+  void recordHistory_whenIssueCursorCannotClose_shouldIdentifyIssueSource() throws IOException {
+    Cursor<IndexedIssueDto> cursor = mock(Cursor.class);
+    when(cursor.iterator()).thenReturn(List.<IndexedIssueDto>of().iterator());
+    when(issueDao.scrollIssuesForIndexation(dbSession, ENTITY_UUID, null)).thenReturn(cursor);
+    doThrow(new IOException("close failure")).when(cursor).close();
+
+    assertThatThrownBy(this::recordBranchHistory)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Failed to close issue cursor for entity " + ENTITY_UUID);
   }
 
   @Test
@@ -120,7 +136,7 @@ class RecordHistoryDelegateImplTest {
     givenIssueCursor(issue);
     when(ruleRepository.findByUuid("missing-rule-uuid")).thenReturn(Optional.empty());
 
-    underTest.recordHistory(ENTITY_UUID);
+    recordBranchHistory();
 
     assertThat(capturedIssues()).isEmpty();
   }
@@ -136,7 +152,7 @@ class RecordHistoryDelegateImplTest {
     issue.getRuleDefaultImpacts().add(new ImpactDto(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
     givenIssueCursor(issue);
 
-    underTest.recordHistory(ENTITY_UUID);
+    recordBranchHistory();
 
     IssueDtoForHistory mappedIssue = capturedIssue();
     assertThat(mappedIssue.getType()).isEqualTo(2);
@@ -168,13 +184,58 @@ class RecordHistoryDelegateImplTest {
       new MetricDto().setKey("coverage").setValueType("FLOAT"),
       new MetricDto().setKey("alert_status").setValueType("LEVEL")));
 
-    underTest.recordHistory(ENTITY_UUID);
+    recordBranchHistory();
 
     assertThat(capturedIssue()).isNotNull();
     assertThat(capturedMeasures()).containsExactly(
       new Measure("alert_status", "LEVEL", "OK"),
       new Measure("coverage", "FLOAT", "85.5"),
       new Measure("ncloc", "INT", "42.0"));
+  }
+
+  @Test
+  void recordHistory_whenApplication_shouldAggregateIssuesFromProjectBranchesAndRecordApplicationMeasures() {
+    givenIssueCursor("branch-1", issueWithQualifier(ComponentQualifiers.FILE));
+    givenIssueCursor("branch-2", issueWithQualifier(ComponentQualifiers.UNIT_TEST_FILE));
+    MeasureDto measureDto = new MeasureDto().addValue("ncloc", 84.0);
+    when(measureDao.selectByComponentUuid(dbSession, ENTITY_UUID)).thenReturn(Optional.of(measureDto));
+    when(metricDao.selectByKeys(eq(dbSession), any())).thenReturn(List.of(
+      new MetricDto().setKey("ncloc").setValueType("INT")));
+
+    underTest.recordHistory(ENTITY_UUID, EntityType.APPLICATION, List.of("branch-1", "branch-2"));
+
+    ArgumentCaptor<List<IssueDtoForHistory>> issuesCaptor = ArgumentCaptor.forClass(List.class);
+    verify(issueHistoryService).recordIssueHistory(
+      eq(ENTITY_UUID), eq(EntityType.APPLICATION), issuesCaptor.capture(), any(LocalDate.class));
+    assertThat(issuesCaptor.getValue()).extracting(IssueDtoForHistory::getCodeScope).containsExactly("MAIN", "TEST");
+
+    ArgumentCaptor<List<Measure>> measuresCaptor = ArgumentCaptor.forClass(List.class);
+    verify(measuresHistoryService).recordMeasureHistory(
+      eq(ENTITY_UUID), eq(EntityType.APPLICATION), measuresCaptor.capture(), any(LocalDate.class));
+    assertThat(measuresCaptor.getValue()).containsExactly(new Measure("ncloc", "INT", "84.0"));
+  }
+
+  @Test
+  void recordHistory_whenApplication_shouldCollectEveryProjectBranchIssueIntoOneApplicationSnapshot() {
+    givenIssueCursor("branch-1",
+      issueWithQualifier(ComponentQualifiers.FILE),
+      issueWithQualifier(ComponentQualifiers.FILE));
+    givenIssueCursor("branch-2",
+      issueWithQualifier(ComponentQualifiers.UNIT_TEST_FILE).setSeverity("CRITICAL"));
+
+    underTest.recordHistory(ENTITY_UUID, EntityType.APPLICATION, List.of("branch-1", "branch-2"));
+
+    ArgumentCaptor<List<IssueDtoForHistory>> issuesCaptor = ArgumentCaptor.forClass(List.class);
+    verify(issueHistoryService).recordIssueHistory(
+      eq(ENTITY_UUID), eq(EntityType.APPLICATION), issuesCaptor.capture(), any(LocalDate.class));
+    assertThat(issuesCaptor.getValue())
+      .extracting(IssueDtoForHistory::getCodeScope, IssueDtoForHistory::getSeverity, IssueDtoForHistory::getRuleKey)
+      .containsExactly(
+        tuple("MAIN", "MAJOR", "java:S1234"),
+        tuple("MAIN", "MAJOR", "java:S1234"),
+        tuple("TEST", "CRITICAL", "java:S1234"));
+    verify(issueDao).scrollIssuesForIndexation(dbSession, "branch-1", null);
+    verify(issueDao).scrollIssuesForIndexation(dbSession, "branch-2", null);
   }
 
   @Test
@@ -185,7 +246,7 @@ class RecordHistoryDelegateImplTest {
     when(metricDao.selectByKeys(eq(dbSession), any())).thenReturn(List.of(
       new MetricDto().setKey("ncloc").setValueType(null)));
 
-    underTest.recordHistory(ENTITY_UUID);
+    recordBranchHistory();
 
     assertThat(capturedMeasures()).containsExactly(new Measure("ncloc", null, "42.0"));
   }
@@ -194,7 +255,7 @@ class RecordHistoryDelegateImplTest {
   void recordHistory_shouldNotRecordMeasureHistoryWhenMeasureDataIsMissing() {
     givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
 
-    underTest.recordHistory(ENTITY_UUID);
+    recordBranchHistory();
 
     assertThat(capturedIssue()).isNotNull();
     verifyNoInteractions(measuresHistoryService);
@@ -205,7 +266,7 @@ class RecordHistoryDelegateImplTest {
     givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
     when(measureDao.selectByComponentUuid(dbSession, ENTITY_UUID)).thenReturn(Optional.of(new MeasureDto()));
 
-    underTest.recordHistory(ENTITY_UUID);
+    recordBranchHistory();
 
     assertThat(capturedIssue()).isNotNull();
     verifyNoInteractions(measuresHistoryService);
@@ -221,16 +282,25 @@ class RecordHistoryDelegateImplTest {
       .setQualifier(qualifier);
   }
 
-  @SuppressWarnings("unchecked")
+  private void recordBranchHistory() {
+    underTest.recordHistory(ENTITY_UUID, EntityType.PROJECT_BRANCH, List.of(ENTITY_UUID));
+  }
+
   private void givenIssueCursor(IndexedIssueDto... issues) {
+    givenIssueCursor(ENTITY_UUID, issues);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void givenIssueCursor(String entityUuid, IndexedIssueDto... issues) {
     Cursor<IndexedIssueDto> cursor = mock(Cursor.class);
     when(cursor.iterator()).thenReturn(List.of(issues).iterator());
-    when(issueDao.scrollIssuesForIndexation(dbSession, ENTITY_UUID, null)).thenReturn(cursor);
+    when(issueDao.scrollIssuesForIndexation(dbSession, entityUuid, null)).thenReturn(cursor);
   }
 
   private List<IssueDtoForHistory> capturedIssues() {
     ArgumentCaptor<List<IssueDtoForHistory>> issuesCaptor = ArgumentCaptor.forClass(List.class);
-    verify(issueHistoryService).recordIssueHistoryForBranch(eq(ENTITY_UUID), issuesCaptor.capture(), any(LocalDate.class));
+    verify(issueHistoryService).recordIssueHistory(
+      eq(ENTITY_UUID), eq(EntityType.PROJECT_BRANCH), issuesCaptor.capture(), any(LocalDate.class));
     return issuesCaptor.getValue();
   }
 
@@ -240,7 +310,8 @@ class RecordHistoryDelegateImplTest {
 
   private List<Measure> capturedMeasures() {
     ArgumentCaptor<List<Measure>> measuresCaptor = ArgumentCaptor.forClass(List.class);
-    verify(measuresHistoryService).recordMeasureHistoryForBranch(eq(ENTITY_UUID), measuresCaptor.capture(), any(LocalDate.class));
+    verify(measuresHistoryService).recordMeasureHistory(
+      eq(ENTITY_UUID), eq(EntityType.PROJECT_BRANCH), measuresCaptor.capture(), any(LocalDate.class));
     return measuresCaptor.getValue();
   }
 }

@@ -387,7 +387,7 @@ public class BulkDeleteActionIT {
 
   private void insertHistory(BranchDto branch) {
     Instant recordedAt = Instant.now();
-    issueCountHistoryRepository.insert(db.getSession(), new IssueCountHistoryRow(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1));
-    measureHistoryRepository.insert(db.getSession(), new MeasureHistoryRow(1, branch.getUuid(), EntityType.PROJECT_BRANCH, recordedAt, "1"));
+    issueCountHistoryRepository.upsert(db.getSession(), new IssueCountHistoryRow(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1));
+    measureHistoryRepository.upsert(db.getSession(), new MeasureHistoryRow(1, branch.getUuid(), EntityType.PROJECT_BRANCH, recordedAt, "1"));
   }
 }

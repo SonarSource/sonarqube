@@ -94,13 +94,13 @@ public class HistoryPurgeStepIT {
 
   private void insertHistoryRows() {
     IssueCountHistoryRepository issueCountHistoryRepository = historyDbClient.issueCountHistoryRepository();
-    issueCountHistoryRepository.insert(db.getSession(), new IssueCountHistoryRow(ENTITY_ID, ENTITY_TYPE, DIMENSION_ID, BEFORE_THRESHOLD, 1));
-    issueCountHistoryRepository.insert(db.getSession(), new IssueCountHistoryRow(ENTITY_ID, ENTITY_TYPE, DIMENSION_ID, AT_THRESHOLD, 2));
-    issueCountHistoryRepository.insert(db.getSession(), new IssueCountHistoryRow(ENTITY_ID, ENTITY_TYPE, DIMENSION_ID, AFTER_THRESHOLD, 3));
+    issueCountHistoryRepository.upsert(db.getSession(), new IssueCountHistoryRow(ENTITY_ID, ENTITY_TYPE, DIMENSION_ID, BEFORE_THRESHOLD, 1));
+    issueCountHistoryRepository.upsert(db.getSession(), new IssueCountHistoryRow(ENTITY_ID, ENTITY_TYPE, DIMENSION_ID, AT_THRESHOLD, 2));
+    issueCountHistoryRepository.upsert(db.getSession(), new IssueCountHistoryRow(ENTITY_ID, ENTITY_TYPE, DIMENSION_ID, AFTER_THRESHOLD, 3));
 
     MeasureHistoryRepository measureHistoryRepository = historyDbClient.measureHistoryRepository();
-    measureHistoryRepository.insert(db.getSession(), new MeasureHistoryRow(METRIC_ID, ENTITY_ID, ENTITY_TYPE, BEFORE_THRESHOLD, "1"));
-    measureHistoryRepository.insert(db.getSession(), new MeasureHistoryRow(METRIC_ID, ENTITY_ID, ENTITY_TYPE, AT_THRESHOLD, "2"));
-    measureHistoryRepository.insert(db.getSession(), new MeasureHistoryRow(METRIC_ID, ENTITY_ID, ENTITY_TYPE, AFTER_THRESHOLD, "3"));
+    measureHistoryRepository.upsert(db.getSession(), new MeasureHistoryRow(METRIC_ID, ENTITY_ID, ENTITY_TYPE, BEFORE_THRESHOLD, "1"));
+    measureHistoryRepository.upsert(db.getSession(), new MeasureHistoryRow(METRIC_ID, ENTITY_ID, ENTITY_TYPE, AT_THRESHOLD, "2"));
+    measureHistoryRepository.upsert(db.getSession(), new MeasureHistoryRow(METRIC_ID, ENTITY_ID, ENTITY_TYPE, AFTER_THRESHOLD, "3"));
   }
 }

@@ -296,8 +296,8 @@ public class ComponentCleanerServiceIT {
 
   private void insertHistory(BranchDto branch) {
     Instant recordedAt = Instant.now();
-    issueCountHistoryRepository.insert(dbSession, new IssueCountHistoryRow(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1));
-    measureHistoryRepository.insert(dbSession, new MeasureHistoryRow(1, branch.getUuid(), EntityType.PROJECT_BRANCH, recordedAt, "1"));
+    issueCountHistoryRepository.upsert(dbSession, new IssueCountHistoryRow(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1));
+    measureHistoryRepository.upsert(dbSession, new MeasureHistoryRow(1, branch.getUuid(), EntityType.PROJECT_BRANCH, recordedAt, "1"));
   }
 
   private static class DbData {

@@ -19,6 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.history;
 
+import java.util.Collection;
+import org.sonarsource.history.model.EntityType;
+
 /**
  * Extension point implemented by the base {@code sonar-ce-task-projectanalysis} module.
  * Allows the public CE analysis pipeline to record issue and measure history.
@@ -26,11 +29,13 @@ package org.sonar.ce.task.projectanalysis.history;
 public interface RecordHistoryDelegate {
 
   /**
-   * Records issue and measure history snapshots for the entity identified by {@code entityUuid}.
+   * Records issue and measure history snapshots for an analyzed project branch or application.
    * Implementations should be idempotent: calling this multiple times for the same entity on the
    * same UTC day must not create duplicate history rows.
    *
-   * @param entityUuid the UUID of the entity (branch component UUID or portfolio ID) being analysed
+   * @param entityUuid the UUID of the entity receiving the history rows
+   * @param entityType {@link EntityType#PROJECT_BRANCH} or {@link EntityType#APPLICATION}
+   * @param issueSourceBranchUuids the analyzed branch UUID, or the project-branch UUIDs referenced by an application
    */
-  void recordHistory(String entityUuid);
+  void recordHistory(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids);
 }

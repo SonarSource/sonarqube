@@ -19,6 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -26,15 +28,20 @@ import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.ProjectViewAttributes;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.ce.task.projectanalysis.component.ViewAttributes;
+import org.sonar.ce.task.projectanalysis.component.ViewsComponent;
 import org.sonar.ce.task.projectanalysis.history.RecordHistoryDelegate;
 import org.sonar.ce.task.step.TestComputationStepContext;
+import org.sonarsource.history.model.EntityType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class RecordHistoryStepTest {
@@ -54,19 +61,40 @@ class RecordHistoryStepTest {
   void setUp() {
     when(treeRootHolder.getRoot()).thenReturn(root);
     when(root.getUuid()).thenReturn(ENTITY_UUID);
+    when(root.getType()).thenReturn(Component.Type.PROJECT);
+    when(root.getChildren()).thenReturn(List.of());
   }
 
   @Test
   void execute_delegatesHistoryRecording() {
     underTest.execute(new TestComputationStepContext());
 
-    verify(delegate).recordHistory(ENTITY_UUID);
+    verify(delegate).recordHistory(ENTITY_UUID, EntityType.PROJECT_BRANCH, Set.of(ENTITY_UUID));
+  }
+
+  @Test
+  void execute_whenApplication_shouldAggregateReferencedProjectBranches() {
+    givenViewRoot(ViewAttributes.Type.APPLICATION, projectView("branch-1"), projectView("branch-2"));
+
+    underTest.execute(new TestComputationStepContext());
+
+    verify(delegate).recordHistory(ENTITY_UUID, EntityType.APPLICATION, Set.of("branch-1", "branch-2"));
+  }
+
+  @Test
+  void execute_whenPortfolio_shouldNotRecordHistory() {
+    givenViewRoot(ViewAttributes.Type.PORTFOLIO, projectView("branch-1"));
+
+    assertThatCode(() -> underTest.execute(new TestComputationStepContext())).doesNotThrowAnyException();
+
+    verifyNoInteractions(delegate);
+    assertThat(logs.getLogs(Level.WARN)).isEmpty();
   }
 
   @Test
   void execute_doesNotFailWhenHistoryRecordingFails() {
     RuntimeException exception = new RuntimeException("history failure");
-    doThrow(exception).when(delegate).recordHistory(ENTITY_UUID);
+    doThrow(exception).when(delegate).recordHistory(ENTITY_UUID, EntityType.PROJECT_BRANCH, Set.of(ENTITY_UUID));
 
     assertThatCode(() -> underTest.execute(new TestComputationStepContext())).doesNotThrowAnyException();
 
@@ -76,7 +104,31 @@ class RecordHistoryStepTest {
   }
 
   @Test
+  void execute_whenRootTypeIsUnsupported_shouldNotFail() {
+    when(root.getType()).thenReturn(Component.Type.FILE);
+
+    assertThatCode(() -> underTest.execute(new TestComputationStepContext())).doesNotThrowAnyException();
+
+    assertThat(logs.getLogs(Level.WARN)).extracting(LogAndArguments::getFormattedMsg)
+      .containsExactly("Failed to record issue count and measures history for entity entity-uuid");
+  }
+
+  @Test
   void getDescription() {
     assertThat(underTest.getDescription()).isEqualTo("Record issue count and measures history");
+  }
+
+  private void givenViewRoot(ViewAttributes.Type viewType, Component... children) {
+    when(treeRootHolder.getRoot()).thenReturn(ViewsComponent.builder(Component.Type.VIEW, "view-key")
+      .setUuid(ENTITY_UUID)
+      .setViewAttributes(new ViewAttributes(viewType))
+      .addChildren(children)
+      .build());
+  }
+
+  private static Component projectView(String branchUuid) {
+    return ViewsComponent.builder(Component.Type.PROJECT_VIEW, branchUuid)
+      .setProjectViewAttributes(new ProjectViewAttributes(branchUuid, "project-key", null, false, null))
+      .build();
   }
 }
