@@ -46,6 +46,15 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_015, "Add 'producer' column to 'issues' table", AddProducerColumnToIssuesTable.class)
       .add(2026_05_016, "Create table 'agentic_job'", CreateAgenticJobTable.class)
       .add(2026_05_017, "Create table 'llm_providers'", CreateLlmProvidersTable.class)
-      .add(2026_05_018, "Create table 'llm_provider_mappings'", CreateLlmProviderMappingsTable.class);
+      .add(2026_05_018, "Create table 'llm_provider_mappings'", CreateLlmProviderMappingsTable.class)
+      .add(2026_05_019, "Create table 'arch_boundary_descriptors'", CreateArchitectureBoundaryDescriptorsTable.class)
+      .add(2026_05_020, "Rename table 'arch_intended' to 'arch_models'", RenameArchIntendedToArchModels.class)
+      .add(2026_05_021, "Rename index 'arch_intended_uuid' to 'arch_models_uuid'", RenameArchModelsUuidIndex.class)
+      .add(2026_05_022, "Create table 'arch_patterns'", CreateArchPatternsTable.class)
+      .add(2026_05_023, "Create table 'arch_model_patterns'", CreateArchModelPatternsTable.class)
+      .add(2026_05_024, "Rename constraint 'pk_arch_intended' to 'pk_arch_models'", RenameArchModelsPrimaryKeyConstraint.class)
+      .add(2026_05_025, "Create table 'arch_org_placeholders'", CreateArchOrganizationPlaceholdersTable.class)
+      .add(2026_05_026, "Create table 'arch_proj_relations'", CreateArchProjectRelationshipsTable.class)
+      .add(2026_05_027, "Create table 'arch_proj_org_compo'", CreateArchProjectOrgComponentTable.class);
   }
 }

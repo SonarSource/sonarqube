@@ -794,8 +794,27 @@
   <delete id="deleteArchDirectivesByProjectUuid">
     delete from arch_directives where project_id = #{projectUuid,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteArchIntendedByProjectUuid">
-    delete from arch_intended where project_id = #{projectUuid,jdbcType=VARCHAR}
+  <delete id="deleteArchModelPatternsByProjectUuid">
+    delete from arch_model_patterns where model_id in (select uuid from arch_models where project_id = #{projectUuid,jdbcType=VARCHAR})
+  </delete>
+  <delete id="deleteArchModelsByProjectUuid">
+    delete from arch_models where project_id = #{projectUuid,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteArchBoundaryDescriptorsByProjectUuid">
+    delete from arch_boundary_descriptors where project_id = #{projectUuid,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteArchProjRelationsByProjectUuid">
+    delete from arch_proj_relations
+    <where>
+      project_id = #{projectUuid,jdbcType=VARCHAR}
+    </where>
+  </delete>
+  <delete id="deleteArchProjRelationsByTargetProjectUuid">
+    delete from arch_proj_relations where target_component_id in
+      (select org_component_uuid from arch_proj_org_compo where project_id = #{projectUuid,jdbcType=VARCHAR})
+  </delete>
+  <delete id="deleteArchProjOrgCompoByProjectUuid">
+    delete from arch_proj_org_compo where project_id = #{projectUuid,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteIssueStatsByRuleKey">
     delete from issue_stats_by_rule_key where aggregation_type = #{aggregationType,jdbcType=VARCHAR} and aggregation_id = #{aggregationId,jdbcType=VARCHAR}

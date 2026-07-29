@@ -228,7 +228,17 @@ public interface PurgeMapper {
 
   void deleteArchDirectivesByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  void deleteArchIntendedByProjectUuid(@Param("projectUuid") String projectUuid);
+  void deleteArchModelsByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteArchModelPatternsByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteArchBoundaryDescriptorsByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteArchProjRelationsByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteArchProjRelationsByTargetProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteArchProjOrgCompoByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteIssueStatsByRuleKey(@Param("aggregationType") String aggregationType, @Param("aggregationId") String aggregationId);
 

@@ -584,8 +584,25 @@ class PurgeCommands {
     profiler.start("deleteArchitectureProjectData (arch_directives)");
     purgeMapper.deleteArchDirectivesByProjectUuid(projectUuid);
     profiler.stop();
-    profiler.start("deleteArchitectureProjectData (arch_intended)");
-    purgeMapper.deleteArchIntendedByProjectUuid(projectUuid);
+    profiler.start("deleteArchitectureProjectData (arch_model_patterns)");
+    purgeMapper.deleteArchModelPatternsByProjectUuid(projectUuid);
+    profiler.stop();
+    profiler.start("deleteArchitectureProjectData (arch_models)");
+    purgeMapper.deleteArchModelsByProjectUuid(projectUuid);
+    profiler.stop();
+    profiler.start("deleteArchitectureProjectData (arch_boundary_descriptors)");
+    purgeMapper.deleteArchBoundaryDescriptorsByProjectUuid(projectUuid);
+    profiler.stop();
+    profiler.start("deleteArchitectureProjectData (arch_proj_relations)");
+    purgeMapper.deleteArchProjRelationsByProjectUuid(projectUuid);
+    profiler.stop();
+    // Must run before deleting arch_proj_org_compo: it resolves this project's org component and deletes
+    // relationships of other projects that target it.
+    profiler.start("deleteArchitectureProjectData (arch_proj_relations targeting this project's org component)");
+    purgeMapper.deleteArchProjRelationsByTargetProjectUuid(projectUuid);
+    profiler.stop();
+    profiler.start("deleteArchitectureProjectData (arch_proj_org_compo)");
+    purgeMapper.deleteArchProjOrgCompoByProjectUuid(projectUuid);
     profiler.stop();
   }
 }

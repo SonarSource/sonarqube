@@ -782,6 +782,73 @@ otherApp.getProjectDto().getUuid());
 
   }
 
+  @Test
+  void deleteProject_purges_organization_architecture_data() {
+    ProjectData toDelete = db.components().insertPrivateProject();
+    ProjectData toKeep = db.components().insertPrivateProject();
+    String deletedId = toDelete.getProjectDto().getUuid();
+    String keptId = toKeep.getProjectDto().getUuid();
+    String deletedOrgComponent = Uuids.create();
+    String keptOrgComponent = Uuids.create();
+
+    insertArchBoundaryDescriptor(deletedId);
+    insertArchBoundaryDescriptor(keptId);
+    insertArchProjectOrgComponent(deletedId, deletedOrgComponent);
+    insertArchProjectOrgComponent(keptId, keptOrgComponent);
+    // relationship owned by the deleted project
+    insertArchProjectRelation(deletedId, keptOrgComponent);
+    // relationship of another project that targets the deleted project's org component
+    insertArchProjectRelation(keptId, deletedOrgComponent);
+    // unrelated relationship that must survive
+    String survivingRelation = insertArchProjectRelation(keptId, keptOrgComponent);
+    dbSession.commit();
+
+    underTest.deleteProject(dbSession, deletedId, ComponentQualifiers.PROJECT, toDelete.getProjectDto().getName(),
+      toDelete.getProjectDto().getKey());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from arch_boundary_descriptors where project_id = '" + deletedId + "'")).isZero();
+    assertThat(db.countSql("select count(*) from arch_proj_org_compo where project_id = '" + deletedId + "'")).isZero();
+    assertThat(db.countSql("select count(*) from arch_proj_relations where project_id = '" + deletedId + "'")).isZero();
+    assertThat(db.countSql("select count(*) from arch_proj_relations where target_component_id = '" + deletedOrgComponent + "'")).isZero();
+    // data belonging to the other project is untouched
+    assertThat(db.countRowsOfTable("arch_boundary_descriptors")).isOne();
+    assertThat(db.countRowsOfTable("arch_proj_org_compo")).isOne();
+    assertThat(uuidsIn("arch_proj_relations")).containsOnly(survivingRelation);
+  }
+
+  private void insertArchBoundaryDescriptor(String projectId) {
+    db.executeInsert("arch_boundary_descriptors",
+      "project_id", projectId,
+      "uuid", Uuids.create(),
+      "name", "boundary",
+      "ecosystem", "java",
+      "direction", "EXIT_POINT",
+      "query", "//Method",
+      "key_template", "key",
+      "created_at", 1_000L);
+  }
+
+  private void insertArchProjectOrgComponent(String projectId, String orgComponentUuid) {
+    db.executeInsert("arch_proj_org_compo",
+      "project_id", projectId,
+      "organization_id", "org",
+      "org_component_uuid", orgComponentUuid,
+      "created_at", 1_000L);
+  }
+
+  private String insertArchProjectRelation(String projectId, String targetComponentId) {
+    String uuid = Uuids.create();
+    db.executeInsert("arch_proj_relations",
+      "organization_id", "org",
+      "uuid", uuid,
+      "project_id", projectId,
+      "boundary_key", "boundary",
+      "target_component_id", targetComponentId,
+      "target_entry_point_key", "default");
+    return uuid;
+  }
+
   private void insertReportScheduleAndSubscriptionForBranch(String branchUuid, DbSession dbSession) {
     db.getDbClient().reportSubscriptionDao().insert(dbSession, new ReportSubscriptionDto().setUuid("uuid")
       .setUserUuid("userUuid")
@@ -2122,17 +2189,29 @@ oldCreationDate));
     return graphUuid;
   }
 
-  private void insertArchDirectiveAndIntended(String projectUuid) {
+  private void insertArchDirective(String projectUuid) {
     db.executeInsert("arch_directives", Map.of(
       "project_id", projectUuid,
       "uuid", Uuids.create(),
       "data", "{}",
       "created_at", 0L));
-    db.executeInsert("arch_intended", Map.of(
+  }
+
+  private String insertArchModel(String projectUuid) {
+    String modelUuid = Uuids.create();
+    db.executeInsert("arch_models", Map.of(
       "project_id", projectUuid,
-      "uuid", Uuids.create(),
+      "uuid", modelUuid,
       "organization_id", "org-1",
       "data", "{}"));
+    return modelUuid;
+  }
+
+  private void insertArchModelPattern(String modelUuid) {
+    db.executeInsert("arch_model_patterns", Map.of(
+      "organization_id", "org-1",
+      "model_id", modelUuid,
+      "pattern_id", Uuids.create()));
   }
 
   private boolean archGraphMetadataExists(String ceTaskUuid) {
@@ -2151,8 +2230,12 @@ oldCreationDate));
     return db.countSql("select count(1) from arch_directives where project_id = '" + projectUuid + "'");
   }
 
-  private int archIntendedCountForProject(String projectUuid) {
-    return db.countSql("select count(1) from arch_intended where project_id = '" + projectUuid + "'");
+  private int archModelsCountForProject(String projectUuid) {
+    return db.countSql("select count(1) from arch_models where project_id = '" + projectUuid + "'");
+  }
+
+  private int archModelPatternsCountForModel(String modelUuid) {
+    return db.countSql("select count(1) from arch_model_patterns where model_id = '" + modelUuid + "'");
   }
 
   @Test
@@ -2217,7 +2300,9 @@ oldCreationDate));
 
     String branch1GraphUuid = insertArchGraphAndScannerData(ceTask1, project.getUuid(), branch1.getUuid());
     String branch2GraphUuid = insertArchGraphAndScannerData(ceTask2, project.getUuid(), branch2.getUuid());
-    insertArchDirectiveAndIntended(project.getUuid());
+    insertArchDirective(project.getUuid());
+    String modelUuid = insertArchModel(project.getUuid());
+    insertArchModelPattern(modelUuid);
     LocalDateTime now = LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0, 0);
     insertCeActivityAndChildDataWithDate(ceTask1, now, q -> q.setComponentUuid(branch1.getUuid()));
     insertCeActivityAndChildDataWithDate(ceTask2, now, q -> q.setComponentUuid(branch2.getUuid()));
@@ -2230,9 +2315,10 @@ oldCreationDate));
     assertThat(archGraphMetadataExists(ceTask2)).isTrue();
     assertThat(archGraphBlobExists(branch2GraphUuid)).isTrue();
     assertThat(archScannerDataExists(ceTask2)).isTrue();
-    // arch_directives/arch_intended are project-scoped and must survive a non-main branch deletion
+    // arch_directives/arch_models/arch_model_patterns are project-scoped and must survive a non-main branch deletion
     assertThat(archDirectivesCountForProject(project.getUuid())).isEqualTo(1);
-    assertThat(archIntendedCountForProject(project.getUuid())).isEqualTo(1);
+    assertThat(archModelsCountForProject(project.getUuid())).isEqualTo(1);
+    assertThat(archModelPatternsCountForModel(modelUuid)).isEqualTo(1);
   }
 
   @Test
@@ -2244,8 +2330,12 @@ oldCreationDate));
 
     String projectGraphUuid = insertArchGraphAndScannerData(ceTask1, project.projectUuid(), project.getMainBranchComponent().uuid());
     String otherProjectGraphUuid = insertArchGraphAndScannerData(ceTask2, otherProject.projectUuid(), otherProject.getMainBranchComponent().uuid());
-    insertArchDirectiveAndIntended(project.projectUuid());
-    insertArchDirectiveAndIntended(otherProject.projectUuid());
+    insertArchDirective(project.projectUuid());
+    String modelUuid = insertArchModel(project.projectUuid());
+    insertArchModelPattern(modelUuid);
+    insertArchDirective(otherProject.projectUuid());
+    String otherModelUuid = insertArchModel(otherProject.projectUuid());
+    insertArchModelPattern(otherModelUuid);
     LocalDateTime now = LocalDateTime.of(2026, Month.JANUARY, 1, 0, 0, 0);
     insertCeActivityAndChildDataWithDate(ceTask1, now, q -> q.setComponentUuid(project.projectUuid()));
     insertCeActivityAndChildDataWithDate(ceTask2, now, q -> q.setComponentUuid(otherProject.projectUuid()));
@@ -2257,13 +2347,15 @@ oldCreationDate));
     assertThat(archGraphBlobExists(projectGraphUuid)).isFalse();
     assertThat(archScannerDataExists(ceTask1)).isFalse();
     assertThat(archDirectivesCountForProject(project.projectUuid())).isZero();
-    assertThat(archIntendedCountForProject(project.projectUuid())).isZero();
+    assertThat(archModelsCountForProject(project.projectUuid())).isZero();
+    assertThat(archModelPatternsCountForModel(modelUuid)).isZero();
 
     assertThat(archGraphMetadataExists(ceTask2)).isTrue();
     assertThat(archGraphBlobExists(otherProjectGraphUuid)).isTrue();
     assertThat(archScannerDataExists(ceTask2)).isTrue();
     assertThat(archDirectivesCountForProject(otherProject.projectUuid())).isEqualTo(1);
-    assertThat(archIntendedCountForProject(otherProject.projectUuid())).isEqualTo(1);
+    assertThat(archModelsCountForProject(otherProject.projectUuid())).isEqualTo(1);
+    assertThat(archModelPatternsCountForModel(otherModelUuid)).isEqualTo(1);
   }
 
   @Test
