@@ -121,6 +121,14 @@ useLocalUnificationModule('useLocalArchitecture', 'architecture',
 )
 
 useLocalUnificationModule('useLocalHistory', 'reporting/history', ['history-api', 'history-server-app', 'history-core'])
+useLocalUnificationModule('useLocalDashboards', 'reporting/dashboards', ['dashboards-api', 'dashboards-server-app', 'dashboards-core'], [
+  group: 'com.sonarsource.sonarqube',
+  projectPaths: [
+    'dashboards-api'       : ':private:dashboards-api',
+    'dashboards-server-app': ':private:dashboards-server-app',
+    'dashboards-core'      : ':private:dashboards-core',
+  ]
+])
 
 ext.isCiServer = System.getenv().containsKey("GITHUB_ACTIONS")
 
@@ -152,6 +160,3 @@ File extraSettings = new File(rootDir, 'private/private-settings.gradle')
 if (extraSettings.exists()) {
   apply from: extraSettings
 }
-
-
-

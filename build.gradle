@@ -429,6 +429,9 @@ subprojects {
       dependency "org.sonarsource.sonarqube:history-api:$historyApiVersion"
       dependency "org.sonarsource.sonarqube:history-core:$historyApiVersion"
       dependency "org.sonarsource.sonarqube:history-server-app:$historyApiVersion"
+      dependency "com.sonarsource.sonarqube:dashboards-api:$dashboardsApiVersion"
+      dependency "com.sonarsource.sonarqube:dashboards-core:$dashboardsApiVersion"
+      dependency "com.sonarsource.sonarqube:dashboards-server-app:$dashboardsApiVersion"
       // Keep in sync with sonar-sca's dependency management
       dependency "org.sonarsource.sonarqube:sonar-feature-flags-api:$unifiedCoreVersion"
       dependency "org.sonarsource.sonarqube:sonar-events-server:$unifiedCoreVersion"

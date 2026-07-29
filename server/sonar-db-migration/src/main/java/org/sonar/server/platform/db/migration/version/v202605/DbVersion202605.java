@@ -55,6 +55,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_024, "Rename constraint 'pk_arch_intended' to 'pk_arch_models'", RenameArchModelsPrimaryKeyConstraint.class)
       .add(2026_05_025, "Create table 'arch_org_placeholders'", CreateArchOrganizationPlaceholdersTable.class)
       .add(2026_05_026, "Create table 'arch_proj_relations'", CreateArchProjectRelationshipsTable.class)
-      .add(2026_05_027, "Create table 'arch_proj_org_compo'", CreateArchProjectOrgComponentTable.class);
+      .add(2026_05_027, "Create table 'arch_proj_org_compo'", CreateArchProjectOrgComponentTable.class)
+      .add(2026_05_028, "Create 'dashboards' table", CreateDashboardsTable.class);
   }
 }
