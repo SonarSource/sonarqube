@@ -335,6 +335,7 @@ subprojects {
     dependencies {
       // bundled plugin list -- keep it alphabetically ordered
       dependency 'com.sonarsource.abap:sonar-abap-plugin:3.22.0.8389'
+      dependency 'com.sonarsource.analysisasaservice:common-a3s-context-collector:1.0.0.7220'
       dependency 'com.sonarsource.armor:sonar-jasmin-plugin:1.21.0.11571'
       dependency 'com.sonarsource.cobol:sonar-cobol-plugin:5.12.0.10754'
       dependency 'com.sonarsource.cpp:sonar-cfamily-dependencies-plugin:6.83.0.100813'
@@ -347,10 +348,12 @@ subprojects {
       dependency 'com.sonarsource.dotnet:sonar-vbnet-enterprise-plugin:10.31.0.145097'
       dependency 'com.sonarsource.dre:sonar-dre-plugin:2.7.0.15147'
       dependency 'com.sonarsource.go:sonar-go-enterprise-plugin:1.40.0.6765'
+      dependency 'com.sonarsource.java:java-a3s-context-collector:2.8.0.293'
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.25.0.7689'
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.22.0.8329'
       dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.19.0.7510'
       dependency 'com.sonarsource.rpg:sonar-rpg-plugin:3.18.0.8642'
+      dependency 'com.sonarsource.security:sonar-security-context-collector-plugin:11.41.0.48030'
       dependency 'com.sonarsource.security:sonar-security-csharp-frontend-plugin:11.41.0.48030'
       dependency 'com.sonarsource.security:sonar-security-go-frontend-plugin:11.41.0.48030'
       dependency 'com.sonarsource.security:sonar-security-java-frontend-plugin:11.41.0.48030'
