@@ -1128,6 +1128,19 @@ class RuleDaoIT {
   }
 
   @Test
+  void scrollIndexingRules_excludes_hunter_agent_rules() {
+    Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
+    RuleDto normalRule = db.rules().insert();
+    RuleDto hunterRule = db.rules().insert(r -> r.setRepositoryKey("hunter-agent").setIsExternal(true).setIsAdHoc(true));
+
+    underTest.selectIndexingRules(db.getSession(), accumulator);
+
+    assertThat(accumulator.list).extracting(RuleForIndexingDto::getUuid)
+      .contains(normalRule.getUuid())
+      .doesNotContain(hunterRule.getUuid());
+  }
+
+  @Test
   void scrollIndexingRules_maps_rule_definition_fields_for_regular_rule_and_template_rule() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     RuleDto r1 = db.rules().insert();

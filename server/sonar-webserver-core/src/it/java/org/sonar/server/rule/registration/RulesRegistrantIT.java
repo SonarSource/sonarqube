@@ -894,6 +894,21 @@ class RulesRegistrantIT {
   }
 
   @Test
+  void do_not_remove_hunter_agent_rule_on_startup() {
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("hunter-agent")
+      .setStatus(READY)
+      .setIsExternal(true)
+      .setIsAdHoc(true));
+
+    executeWithPluginRules(); // no plugin ever declares a hunter-agent repository
+
+    RuleDto reloaded = dbClient.ruleDao().selectByKey(db.getSession(), rule.getKey()).get();
+    assertThat(reloaded.getStatus()).isEqualTo(READY);
+    assertThat(ruleIndex.searchV2(new RuleQuery().setIncludeExternal(true), new SearchOptions()).getUuids())
+      .doesNotContain(rule.getUuid());
+  }
+
+  @Test
   void disable_then_enable_rule() {
     // Install rule
     system.setNow(DATE1.getTime());

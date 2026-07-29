@@ -217,7 +217,7 @@ public class RuleDao implements Dao {
 
   public void selectIndexingRules(DbSession dbSession, Consumer<RuleForIndexingDto> consumer) {
     RuleMapper mapper = mapper(dbSession);
-    executeLargeInputsWithoutOutput(mapper.selectAll(),
+    executeLargeInputsWithoutOutput(mapper.selectAllForIndexing(),
       ruleDtos -> processRuleDtos(ruleDtos, consumer, mapper));
   }
 

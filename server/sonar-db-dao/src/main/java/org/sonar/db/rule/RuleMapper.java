@@ -32,6 +32,14 @@ public interface RuleMapper {
 
   List<RuleDto> selectAll();
 
+  /**
+   * Like {@link #selectAll()}, but excludes rules that must never appear in the Elasticsearch rules index
+   * (e.g. {@code hunter-agent} rules). Use this instead of {@code selectAll()} whenever the result
+   * is fed to {@code RuleIndexer} — {@code selectAll()} must remain unfiltered so that
+   * {@code RulesRegistrant} and {@code CachingRuleFinder} continue to see every rule in the DB.
+   */
+  List<RuleDto> selectAllForIndexing();
+
   List<RuleDto> selectAllWithoutDescriptions();
 
   List<RuleDto> selectEnabled();

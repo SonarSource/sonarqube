@@ -497,6 +497,23 @@ class RuleIndexIT {
   }
 
   @Test
+  void hunter_agent_rules_are_not_indexed_by_full_reindex_and_excluded_from_default_search() {
+    RuleDto normalRule = createRule(setIsExternal(false));
+    RuleDto hunterRule = createRule(setRepositoryKey("hunter-agent"), setIsExternal(true), r -> r.setIsAdHoc(true));
+    index();
+
+    // With includeExternal=true the hunter-agent rule is still absent — it was never indexed
+    assertThat(underTest.searchV2(new RuleQuery().setIncludeExternal(true), new SearchOptions()).getUuids())
+      .contains(normalRule.getUuid())
+      .doesNotContain(hunterRule.getUuid());
+
+    // Default search (external excluded by default filter) also does not contain it
+    assertThat(underTest.searchV2(new RuleQuery(), new SearchOptions()).getUuids())
+      .contains(normalRule.getUuid())
+      .doesNotContain(hunterRule.getUuid());
+  }
+
+  @Test
   void search_by_template_key() {
     RuleDto template = createRule(setIsTemplate(true));
     RuleDto customRule = createRule(setTemplateId(template.getUuid()));
