@@ -545,6 +545,63 @@ class IssueDaoIT {
   }
 
   @Test
+  void selectNonClosedHunterAgentIssuesByBranchUuid_returns_only_open_hunterAgent_issues_for_the_branch() {
+    RuleDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BranchType.BRANCH));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    IssueDto openHunterAgentIssue = db.issues().insert(rule, branch, file,
+      i -> i.setStatus(STATUS_OPEN).setResolution(null).setIssueProducer(IssueProducer.HUNTER_AGENT));
+    db.issues().insert(rule, branch, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setIssueProducer(IssueProducer.SCANNER));
+    db.issues().insert(rule, branch, file,
+      i -> i.setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED).setIssueProducer(IssueProducer.HUNTER_AGENT));
+
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto otherBranch = db.components().insertProjectBranch(otherProject, b -> b.setKey("feature/bar").setBranchType(BranchType.BRANCH));
+    ComponentDto otherFile = db.components().insertComponent(newFileDto(otherBranch));
+    db.issues().insert(rule, otherBranch, otherFile,
+      i -> i.setStatus(STATUS_OPEN).setResolution(null).setIssueProducer(IssueProducer.HUNTER_AGENT));
+
+    List<IssueWithoutRuleInfoDto> result = underTest.selectNonClosedHunterAgentIssuesByBranchUuid(db.getSession(), branch.uuid());
+
+    assertThat(result).extracting(IssueWithoutRuleInfoDto::getKey).containsExactly(openHunterAgentIssue.getKey());
+    assertThat(result.get(0).getRuleUuid()).isEqualTo(rule.getUuid());
+  }
+
+  @Test
+  void selectClosedHunterAgentIssuesByKeys_returns_only_closed_hunterAgent_issues_matching_keys() {
+    RuleDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo").setBranchType(BranchType.BRANCH));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    IssueDto closedRequested = db.issues().insert(rule, branch, file,
+      i -> i.setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED).setIssueProducer(IssueProducer.HUNTER_AGENT));
+    db.issues().insert(rule, branch, file,
+      i -> i.setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED).setIssueProducer(IssueProducer.HUNTER_AGENT));
+    db.issues().insert(rule, branch, file, i -> i.setStatus(STATUS_OPEN).setResolution(null).setIssueProducer(IssueProducer.HUNTER_AGENT));
+    IssueDto closedScannerIssue = db.issues().insert(rule, branch, file,
+      i -> i.setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED).setIssueProducer(IssueProducer.SCANNER));
+
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto otherBranch = db.components().insertProjectBranch(otherProject, b -> b.setKey("feature/bar").setBranchType(BranchType.BRANCH));
+    ComponentDto otherFile = db.components().insertComponent(newFileDto(otherBranch));
+    IssueDto closedOnOtherBranch = db.issues().insert(rule, otherBranch, otherFile,
+      i -> i.setStatus(STATUS_CLOSED).setResolution(RESOLUTION_FIXED).setIssueProducer(IssueProducer.HUNTER_AGENT));
+
+    List<IssueWithoutRuleInfoDto> result = underTest.selectClosedHunterAgentIssuesByKeys(db.getSession(), branch.uuid(),
+      Set.of(closedRequested.getKey(), closedScannerIssue.getKey(), closedOnOtherBranch.getKey(), "unknown-key"));
+
+    assertThat(result).extracting(IssueWithoutRuleInfoDto::getKey).containsExactly(closedRequested.getKey());
+  }
+
+  @Test
+  void selectClosedHunterAgentIssuesByKeys_returns_emptyList_forEmptyKeyCollection() {
+    assertThat(underTest.selectClosedHunterAgentIssuesByKeys(db.getSession(), "branch-uuid", Set.of())).isEmpty();
+  }
+
+  @Test
   void selectOpenByComponentUuid_should_correctly_map_required_fields() {
     RuleDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();

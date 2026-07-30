@@ -76,6 +76,10 @@ public interface IssueMapper {
 
   void scrollNonClosedHunterAgentIssuesByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueWithoutRuleInfoDto> handler);
 
+  List<IssueWithoutRuleInfoDto> selectNonClosedHunterAgentIssuesByBranchUuid(@Param("branchUuid") String branchUuid);
+
+  List<IssueWithoutRuleInfoDto> selectClosedHunterAgentIssuesByKeys(@Param("branchUuid") String branchUuid, @Param("keys") Collection<String> keys);
+
   void scrollClosedByComponentUuid(@Param("componentUuid") String componentUuid, @Param("closeDateAfter") long closeDateAfter, ResultHandler<IssueWithoutRuleInfoDto> handler);
 
   void scrollClosedScannerIssuesByComponentUuid(@Param("componentUuid") String componentUuid, @Param("closeDateAfter") long closeDateAfter,

@@ -404,6 +404,44 @@
       i.kee
   </select>
 
+  <select id="selectNonClosedHunterAgentIssuesByBranchUuid" parameterType="String" resultMap="issueWithoutRuleInfoResultMap">
+    select
+      <include refid="issueColumnsNoRulesColumn"/>
+    from issues i
+      inner join components p on p.uuid=i.component_uuid
+      inner join components root on root.uuid=i.project_uuid
+      left join new_code_reference_issues n on i.kee = n.issue_key
+      left outer join issues_impacts ii on i.kee = ii.issue_key
+      left join jira_work_items_resources jwir on jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
+    where
+      i.project_uuid = #{branchUuid,jdbcType=VARCHAR} and
+      i.status &lt;&gt; 'CLOSED' and
+      coalesce(i.producer, 1) = 2
+    order by
+      i.kee
+  </select>
+
+  <select id="selectClosedHunterAgentIssuesByKeys" parameterType="map" resultMap="issueWithoutRuleInfoResultMap">
+    select
+      <include refid="issueColumnsNoRulesColumn"/>
+    from issues i
+      inner join components p on p.uuid=i.component_uuid
+      inner join components root on root.uuid=i.project_uuid
+      left join new_code_reference_issues n on i.kee = n.issue_key
+      left outer join issues_impacts ii on i.kee = ii.issue_key
+      left join jira_work_items_resources jwir on jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
+    where
+      i.project_uuid = #{branchUuid,jdbcType=VARCHAR} and
+      i.kee in
+      <foreach collection="keys" open="(" close=")" item="key" separator=",">
+        #{key,jdbcType=VARCHAR}
+      </foreach>
+      and i.status = 'CLOSED' and
+      coalesce(i.producer, 1) = 2
+    order by
+      i.kee
+  </select>
+
   <select id="scrollClosedByComponentUuid" resultMap="issueWithoutRuleInfoResultMap" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY" resultOrdered="true">
     select
       <include refid="issueColumnsNoRulesColumn"/>,

@@ -83,6 +83,14 @@ public class IssueDao implements Dao {
     return mapper(session).selectComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
   }
 
+  public List<IssueWithoutRuleInfoDto> selectNonClosedHunterAgentIssuesByBranchUuid(DbSession session, String branchUuid) {
+    return mapper(session).selectNonClosedHunterAgentIssuesByBranchUuid(branchUuid);
+  }
+
+  public List<IssueWithoutRuleInfoDto> selectClosedHunterAgentIssuesByKeys(DbSession session, String branchUuid, Collection<String> keys) {
+    return executeLargeInputs(keys, chunk -> mapper(session).selectClosedHunterAgentIssuesByKeys(branchUuid, chunk));
+  }
+
   public List<PrIssueDto> selectOpenScannerIssuesByComponentUuids(DbSession dbSession, Collection<String> componentUuids) {
     return executeLargeInputs(componentUuids, mapper(dbSession)::selectOpenScannerIssuesByComponentUuids);
   }
