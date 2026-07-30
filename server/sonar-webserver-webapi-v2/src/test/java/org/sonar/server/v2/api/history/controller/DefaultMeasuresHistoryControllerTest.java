@@ -31,6 +31,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentDao;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDao;
@@ -52,7 +54,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
 import static org.springframework.http.HttpStatus.OK;
 
 public class DefaultMeasuresHistoryControllerTest {
@@ -69,6 +70,7 @@ public class DefaultMeasuresHistoryControllerTest {
   private final DbClient dbClient = mock();
   private final DbSession dbSession = mock();
   private final BranchDao branchDao = mock();
+  private final ComponentDao componentDao = mock();
   private final ProjectDao projectDao = mock();
   private final DefaultMeasuresHistoryController underTest = new DefaultMeasuresHistoryController(
     userSession, dbClient, measuresHistoryService, Clock.fixed(NOW, ZoneOffset.UTC));
@@ -77,6 +79,7 @@ public class DefaultMeasuresHistoryControllerTest {
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.branchDao()).thenReturn(branchDao);
+    when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.projectDao()).thenReturn(projectDao);
   }
 
@@ -107,15 +110,46 @@ public class DefaultMeasuresHistoryControllerTest {
   }
 
   @Test
-  public void getMeasuresHistory_whenPortfolioIsRequested_shouldReturnNotImplementedWithoutDatabaseOrHistoryInteraction() {
+  public void getMeasuresHistory_whenPortfolioIsAuthorized_shouldQueryHistory() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ComponentDto portfolio = portfolio();
+    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    when(measuresHistoryService.queryMeasuresHistory(
+      ENTITY_ID, EntityType.PORTFOLIO, METRIC_KEYS, startDate.toInstant(), NOW))
+      .thenReturn(new org.sonarsource.history.model.MeasuresHistoryResponse(List.of()));
+
+    ResponseEntity<MeasuresHistoryResponse> result = underTest.getMeasuresHistory(ENTITY_TYPE, ENTITY_ID, METRIC_KEYS, startDate, null);
+
+    assertThat(result.getStatusCode()).isEqualTo(OK);
+    verify(componentDao).selectByUuid(dbSession, ENTITY_ID);
+    verify(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
+    verify(measuresHistoryService).queryMeasuresHistory(
+      ENTITY_ID, EntityType.PORTFOLIO, METRIC_KEYS, startDate.toInstant(), NOW);
+  }
+
+  @Test
+  public void getMeasuresHistory_whenPortfolioIsMissing_shouldReturnNotFound() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> underTest.getMeasuresHistory(ENTITY_TYPE, ENTITY_ID, METRIC_KEYS, startDate, null))
-      .isInstanceOf(ResponseStatusException.class)
-      .hasMessageContaining("Portfolio history is not implemented on SonarQube Server")
-      .satisfies(exception -> assertThat(((ResponseStatusException) exception).getStatusCode()).isEqualTo(NOT_IMPLEMENTED));
+      .isInstanceOf(NotFoundException.class);
 
-    verifyNoInteractions(dbClient, measuresHistoryService, userSession);
+    verifyNoInteractions(measuresHistoryService);
+  }
+
+  @Test
+  public void getMeasuresHistory_whenPortfolioIsUnauthorized_shouldNotQueryHistory() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ComponentDto portfolio = portfolio();
+    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    doThrow(new ForbiddenException("Access forbidden"))
+      .when(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
+
+    assertThatThrownBy(() -> underTest.getMeasuresHistory(ENTITY_TYPE, ENTITY_ID, METRIC_KEYS, startDate, null))
+      .isInstanceOf(ForbiddenException.class);
+
+    verifyNoInteractions(measuresHistoryService);
   }
 
   @Test
@@ -305,5 +339,12 @@ public class DefaultMeasuresHistoryControllerTest {
     return new ProjectDto()
       .setUuid(uuid)
       .setQualifier(qualifier);
+  }
+
+  private static ComponentDto portfolio() {
+    return new ComponentDto()
+      .setUuid(ENTITY_ID)
+      .setBranchUuid(ENTITY_ID)
+      .setQualifier(ComponentQualifiers.VIEW);
   }
 }

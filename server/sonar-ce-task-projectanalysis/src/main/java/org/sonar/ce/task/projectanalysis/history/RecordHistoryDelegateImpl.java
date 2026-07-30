@@ -48,7 +48,7 @@ import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
 import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
 
 /**
- * Records issue-count history and measure history for the analysed branch
+ * Records issue-count history and measure history for the analysed entity
  * by reading current data from the SonarQube DB and forwarding it to the History services.
  */
 @ComputeEngineSide

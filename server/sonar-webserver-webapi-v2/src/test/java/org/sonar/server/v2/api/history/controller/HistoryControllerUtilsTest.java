@@ -30,6 +30,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentDao;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDao;
@@ -55,6 +57,7 @@ public class HistoryControllerUtilsTest {
   private final DbClient dbClient = mock();
   private final DbSession dbSession = mock();
   private final BranchDao branchDao = mock();
+  private final ComponentDao componentDao = mock();
   private final ProjectDao projectDao = mock();
   private final Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
 
@@ -62,12 +65,32 @@ public class HistoryControllerUtilsTest {
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.branchDao()).thenReturn(branchDao);
+    when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.projectDao()).thenReturn(projectDao);
   }
 
   @Test
-  public void checkPermission_whenEntityIsNotProjectBranch_shouldNotCheckPermissions() {
+  public void checkPermission_whenEntityIsPortfolio_shouldCheckComponentPermission() {
+    ComponentDto portfolio = new ComponentDto()
+      .setUuid("portfolio-1")
+      .setBranchUuid("portfolio-1")
+      .setQualifier(ComponentQualifiers.VIEW);
+    when(componentDao.selectByUuid(dbSession, "portfolio-1")).thenReturn(Optional.of(portfolio));
+
     HistoryControllerUtils.checkPermission(userSession, dbClient, "portfolio-1", EntityType.PORTFOLIO);
+
+    verify(componentDao).selectByUuid(dbSession, "portfolio-1");
+    verify(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
+    verify(dbSession).close();
+  }
+
+  @Test
+  public void checkPermission_whenPortfolioIsMissing_shouldReturnNotFound() {
+    when(componentDao.selectByUuid(dbSession, "portfolio-1")).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> HistoryControllerUtils.checkPermission(userSession, dbClient, "portfolio-1", EntityType.PORTFOLIO))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Portfolio with uuid 'portfolio-1' not found");
 
     verifyNoInteractions(branchDao, projectDao, userSession);
     verify(dbSession).close();

@@ -41,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class RecordHistoryStepTest {
@@ -82,13 +81,25 @@ class RecordHistoryStepTest {
   }
 
   @Test
-  void execute_whenPortfolio_shouldNotRecordHistory() {
-    givenViewRoot(ViewAttributes.Type.PORTFOLIO, projectView("branch-1"));
+  void execute_whenPortfolio_shouldMapToPortfolioEntityType() {
+    Component project = projectView("branch-1");
+    when(root.getType()).thenReturn(Component.Type.VIEW);
+    when(root.getViewAttributes()).thenReturn(new ViewAttributes(ViewAttributes.Type.PORTFOLIO));
+    when(root.getChildren()).thenReturn(List.of(project));
 
-    assertThatCode(() -> underTest.execute(new TestComputationStepContext())).doesNotThrowAnyException();
+    underTest.execute(new TestComputationStepContext());
 
-    verifyNoInteractions(delegate);
-    assertThat(logs.getLogs(Level.WARN)).isEmpty();
+    verify(delegate).recordHistory(ENTITY_UUID, EntityType.PORTFOLIO, Set.of("branch-1"));
+  }
+
+  @Test
+  void execute_whenPortfolioHasNestedViews_shouldAggregateUniqueReferencedProjectBranches() {
+    Component nestedSubView = subView("nested-sub-view", projectView("branch-2"), projectView("branch-3"));
+    givenViewRoot(ViewAttributes.Type.PORTFOLIO, subView("sub-view", nestedSubView), projectView("branch-2"));
+
+    underTest.execute(new TestComputationStepContext());
+
+    verify(delegate).recordHistory(ENTITY_UUID, EntityType.PORTFOLIO, Set.of("branch-2", "branch-3"));
   }
 
   @Test
@@ -129,6 +140,12 @@ class RecordHistoryStepTest {
   private static Component projectView(String branchUuid) {
     return ViewsComponent.builder(Component.Type.PROJECT_VIEW, branchUuid)
       .setProjectViewAttributes(new ProjectViewAttributes(branchUuid, "project-key", null, false, null))
+      .build();
+  }
+
+  private static Component subView(String key, Component... children) {
+    return ViewsComponent.builder(Component.Type.SUBVIEW, key)
+      .addChildren(children)
       .build();
   }
 }

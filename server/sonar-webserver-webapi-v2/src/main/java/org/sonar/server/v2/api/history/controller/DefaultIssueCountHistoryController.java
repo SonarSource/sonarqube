@@ -45,7 +45,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.sonar.server.v2.WebApiEndpoints.HISTORY_DOMAIN;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
 
 /** Serves issue-count history requests for authenticated project branches. */
 @RestController
@@ -85,14 +84,10 @@ public class DefaultIssueCountHistoryController implements IssueCountHistoryApi 
 
     EntityType entityTypeEnum;
     try {
-      entityTypeEnum = EntityType.valueOf(entityType);
+      entityTypeEnum = HistoryControllerUtils.toEntityType(entityType);
     } catch (IllegalArgumentException e) {
       LOG.warn("getIssueCountHistory rejected: entityType '{}' is not a recognised value", entityType);
       throw new ResponseStatusException(BAD_REQUEST, "entityType must be one of: " + Arrays.toString(EntityType.values()), e);
-    }
-
-    if (EntityType.PORTFOLIO.equals(entityTypeEnum)) {
-      throw new ResponseStatusException(NOT_IMPLEMENTED, "Portfolio history is not implemented on SonarQube Server");
     }
 
     HistoryControllerUtils.HistoryDateRange dateRange;

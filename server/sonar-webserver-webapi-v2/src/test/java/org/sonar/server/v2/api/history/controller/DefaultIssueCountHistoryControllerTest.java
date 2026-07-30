@@ -30,6 +30,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
+import org.sonar.db.component.ComponentDao;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDao;
@@ -52,7 +54,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
 import static org.springframework.http.HttpStatus.OK;
 
 public class DefaultIssueCountHistoryControllerTest {
@@ -68,6 +69,7 @@ public class DefaultIssueCountHistoryControllerTest {
   private final DbClient dbClient = mock();
   private final DbSession dbSession = mock();
   private final BranchDao branchDao = mock();
+  private final ComponentDao componentDao = mock();
   private final ProjectDao projectDao = mock();
   private final DefaultIssueCountHistoryController underTest = new DefaultIssueCountHistoryController(
     userSession, dbClient, issueHistoryService, Clock.fixed(NOW, ZoneOffset.UTC));
@@ -76,21 +78,57 @@ public class DefaultIssueCountHistoryControllerTest {
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.branchDao()).thenReturn(branchDao);
+    when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.projectDao()).thenReturn(projectDao);
   }
 
   @Test
-  public void getIssueCountHistory_whenPortfolioIsRequested_shouldReturnNotImplementedWithoutDatabaseOrHistoryInteraction() {
+  public void getIssueCountHistory_whenPortfolioIsAuthorized_shouldQueryHistory() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
+    ComponentDto portfolio = portfolio();
+    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    when(issueHistoryService.queryIssueCountHistory(
+      ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), endDate.toInstant(),
+      null, null, null, null, null, null))
+      .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
+
+    ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
+      ENTITY_ID, ENTITY_TYPE, startDate, endDate, null, null, null, null, null, null);
+
+    assertThat(result.getStatusCode()).isEqualTo(OK);
+    verify(componentDao).selectByUuid(dbSession, ENTITY_ID);
+    verify(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
+    verify(issueHistoryService).queryIssueCountHistory(
+      ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), endDate.toInstant(),
+      null, null, null, null, null, null);
+  }
+
+  @Test
+  public void getIssueCountHistory_whenPortfolioIsMissing_shouldReturnNotFound() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      ENTITY_ID, ENTITY_TYPE, startDate, endDate, null, null, null, null, null, null))
-      .isInstanceOf(ResponseStatusException.class)
-      .hasMessageContaining("Portfolio history is not implemented on SonarQube Server")
-      .satisfies(exception -> assertThat(((ResponseStatusException) exception).getStatusCode()).isEqualTo(NOT_IMPLEMENTED));
+      ENTITY_ID, ENTITY_TYPE, startDate, null, null, null, null, null, null, null))
+      .isInstanceOf(NotFoundException.class);
 
-    verifyNoInteractions(dbClient, issueHistoryService, userSession);
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueCountHistory_whenPortfolioIsUnauthorized_shouldNotQueryHistory() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ComponentDto portfolio = portfolio();
+    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    doThrow(new ForbiddenException("Access forbidden"))
+      .when(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
+
+    assertThatThrownBy(() -> underTest.getIssueCountHistory(
+      ENTITY_ID, ENTITY_TYPE, startDate, null, null, null, null, null, null, null))
+      .isInstanceOf(ForbiddenException.class);
+
+    verifyNoInteractions(issueHistoryService);
   }
 
   @Test
@@ -283,6 +321,13 @@ public class DefaultIssueCountHistoryControllerTest {
     return new ProjectDto()
       .setUuid(uuid)
       .setQualifier(qualifier);
+  }
+
+  private static ComponentDto portfolio() {
+    return new ComponentDto()
+      .setUuid(ENTITY_ID)
+      .setBranchUuid(ENTITY_ID)
+      .setQualifier(ComponentQualifiers.VIEW);
   }
 
 }

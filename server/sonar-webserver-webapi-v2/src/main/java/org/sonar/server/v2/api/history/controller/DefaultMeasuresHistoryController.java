@@ -41,7 +41,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.sonar.server.v2.WebApiEndpoints.HISTORY_DOMAIN;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_IMPLEMENTED;
 
 /** Serves measure history requests for authenticated project branches. */
 @RestController
@@ -75,13 +74,9 @@ public class DefaultMeasuresHistoryController implements MeasuresHistoryApi {
 
     EntityType entityTypeEnum;
     try {
-      entityTypeEnum = EntityType.valueOf(entityType.getValue());
+      entityTypeEnum = HistoryControllerUtils.toEntityType(entityType.getValue());
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(BAD_REQUEST, "entityType must be one of: " + Arrays.toString(EntityType.values()), e);
-    }
-
-    if (EntityType.PORTFOLIO.equals(entityTypeEnum)) {
-      throw new ResponseStatusException(NOT_IMPLEMENTED, "Portfolio history is not implemented on SonarQube Server");
     }
 
     HistoryControllerUtils.HistoryDateRange dateRange;
