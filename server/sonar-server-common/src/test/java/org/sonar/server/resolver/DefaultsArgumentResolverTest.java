@@ -134,6 +134,18 @@ class DefaultsArgumentResolverTest {
   }
 
   @Test
+  void resolveArgument_withOrganizationIdAnnotationOnUuidParameter_returnsDefaultUuid() throws Exception {
+    Method method = TestControllerWithIndividualParams.class.getMethod("methodWithOrgIdUuid", UUID.class);
+    MethodParameter parameter = new MethodParameter(method, 0);
+
+    Object result = underTest.resolveArgument(parameter, null, null, null);
+
+    assertThat(result)
+      .isInstanceOf(UUID.class)
+      .isEqualTo(DefaultOrganizationProvider.ID);
+  }
+
+  @Test
   void resolveArgument_withOrganizationIdAnnotationOnListParameter_returnsSingletonDefaultList() throws Exception {
     Method method = TestControllerWithIndividualParams.class.getMethod("methodWithOrgIdList", List.class);
     MethodParameter parameter = new MethodParameter(method, 0);
@@ -444,6 +456,10 @@ class DefaultsArgumentResolverTest {
     }
 
     public void methodWithOrgId(@OrganizationId @RequestParam String organizationId) {
+      //empty for tests
+    }
+
+    public void methodWithOrgIdUuid(@OrganizationId @RequestParam UUID organizationId) {
       //empty for tests
     }
 

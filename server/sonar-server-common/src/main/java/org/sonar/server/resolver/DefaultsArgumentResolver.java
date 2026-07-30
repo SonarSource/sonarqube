@@ -176,7 +176,7 @@ public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
 
   private static Object resolveValue(String defaultValue, Class<?> targetType, Type genericType) {
     if (!isCollectionOrArray(targetType)) {
-      return defaultValue;
+      return convert(defaultValue, targetType);
     }
     if (targetType.isArray()) {
       Class<?> componentType = targetType.getComponentType();
