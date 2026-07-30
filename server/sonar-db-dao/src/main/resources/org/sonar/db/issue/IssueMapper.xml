@@ -335,6 +335,32 @@
     where kee = #{kee} and updated_at &lt;= #{selectedAt}
   </update>
 
+  <!--
+   IMPORTANT - producer is immutable row-ownership and is never updated here. The guard in the
+   where clause ensures a Hunter Agent payload can never take ownership of or mutate a scanner-owned issue.
+ -->
+  <update id="updateHunterAgentIssue" parameterType="Issue">
+    update issues set
+    rule_uuid=#{ruleUuid,jdbcType=VARCHAR},
+    severity=#{severity,jdbcType=VARCHAR},
+    manual_severity=#{manualSeverity,jdbcType=BOOLEAN},
+    message=#{message,jdbcType=VARCHAR},
+    line=#{line,jdbcType=INTEGER},
+    locations=#{locations,jdbcType=BINARY},
+    effort=#{effort,jdbcType=INTEGER},
+    status=#{status,jdbcType=VARCHAR},
+    resolution=#{resolution,jdbcType=VARCHAR},
+    checksum=#{checksum,jdbcType=VARCHAR},
+    component_uuid=#{componentUuid,jdbcType=VARCHAR},
+    issue_creation_date=#{issueCreationTime,jdbcType=BIGINT},
+    issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
+    issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
+    updated_at=#{updatedAt,jdbcType=BIGINT},
+    issue_type=#{type,jdbcType=INTEGER},
+    clean_code_attribute=#{effectiveCleanCodeAttribute,jdbcType=VARCHAR}
+    where kee = #{kee} and coalesce(producer, 1) = 2
+  </update>
+
   <select id="selectByKey" parameterType="String" resultMap="issueResultMap">
     select
     <include refid="issueColumns"/>,

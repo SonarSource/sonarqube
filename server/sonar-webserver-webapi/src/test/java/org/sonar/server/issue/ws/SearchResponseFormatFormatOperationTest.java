@@ -217,6 +217,17 @@ class SearchResponseFormatFormatOperationTest {
   }
 
   @Test
+  void formatOperation_should_add_external_rule_engine_on_issue_without_prefix() {
+    issueDto.setExternal(true);
+    String repository = secure().nextAlphanumeric(5);
+    issueDto.setRuleKey(repository, secure().nextAlphanumeric(5));
+
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
+
+    assertThat(result.getIssue().getExternalRuleEngine()).isEqualTo(repository);
+  }
+
+  @Test
   void formatOperation_should_add_effort_and_debt_on_issue() {
     long effort = 60L;
     issueDto.setEffort(effort);

@@ -33,6 +33,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueDao implements Dao {
@@ -174,6 +175,19 @@ public class IssueDao implements Dao {
 
   public boolean updateIfBeforeSelectedDate(DbSession session, IssueDto dto) {
     return mapper(session).updateIfBeforeSelectedDate(dto) != 0;
+  }
+
+  /**
+   * Updates a Hunter-Agent-owned issue (move, field update, reopen, or close). Since Hunter issues
+   * share the {@code issues} table with scanner issues, the underlying statement is guarded by
+   * {@code producer}, so a malformed or colliding payload can never take ownership of or mutate a
+   * scanner-owned issue.
+   */
+  public void updateHunterAgentIssue(DbSession session, IssueDto dto) {
+    int count = mapper(session).updateHunterAgentIssue(dto);
+    checkState(count == 1,
+      "Hunter Agent issue update affected %s rows for key '%s' (expected 1); issue is missing or not Hunter-produced", count, dto.getKey());
+    updateIssueImpacts(session, dto);
   }
 
   public List<IssueDto> selectByKeysIfNotUpdatedAt(DbSession session, List<String> keys, long updatedAt) {

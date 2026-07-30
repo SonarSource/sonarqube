@@ -43,6 +43,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.IssueProducer;
 import org.sonar.core.rule.RuleType;
@@ -55,6 +56,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
@@ -1366,6 +1368,126 @@ class IssueDaoIT {
     IssueDto updated = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
     assertThat(updated.getMessage()).isEqualTo("updated via updateIfBeforeSelectedDate");
     assertThat(updated.getIssueProducer()).isEqualTo(IssueProducer.HUNTER_AGENT);
+  }
+
+  @Test
+  void updateHunterAgentIssue_whenHunterOwnedIssue_updatesMutableFields() {
+    RuleDto newRule = db.rules().insert();
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1).setIssueProducer(IssueProducer.HUNTER_AGENT);
+    underTest.insert(db.getSession(), issue);
+
+    byte[] newLocations = DbIssues.Locations.newBuilder()
+      .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(42).build())
+      .build()
+      .toByteArray();
+    IssueDto toUpdate = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
+      .setRuleUuid(newRule.getUuid())
+      .setSeverity("MINOR")
+      .setManualSeverity(true)
+      .setMessage("updated message")
+      .setLine(42)
+      .setLocations(newLocations)
+      .setEffort(20L)
+      .setStatus(STATUS_CONFIRMED)
+      .setResolution(null)
+      .setChecksum("newChecksum")
+      .setType(RuleType.BUG.getDbConstant())
+      .setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL);
+
+    underTest.updateHunterAgentIssue(db.getSession(), toUpdate);
+
+    IssueDto updated = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(updated.getRuleUuid()).isEqualTo(newRule.getUuid());
+    assertThat(updated.getSeverity()).isEqualTo("MINOR");
+    assertThat(updated.isManualSeverity()).isTrue();
+    assertThat(updated.getMessage()).isEqualTo("updated message");
+    assertThat(updated.getLine()).isEqualTo(42);
+    assertThat(updated.getLocations()).isEqualTo(newLocations);
+    assertThat(updated.getEffort()).isEqualTo(20L);
+    assertThat(updated.getStatus()).isEqualTo(STATUS_CONFIRMED);
+    assertThat(updated.getResolution()).isNull();
+    assertThat(updated.getChecksum()).isEqualTo("newChecksum");
+    assertThat(updated.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+    assertThat(updated.getEffectiveCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.CONVENTIONAL);
+    assertThat(updated.getIssueProducer()).isEqualTo(IssueProducer.HUNTER_AGENT);
+  }
+
+  @Test
+  void updateHunterAgentIssue_whenComponentUuidChanges_movesIssue() {
+    ComponentDto otherFile = db.components().insertComponent(newFileDto(projectDto));
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1).setIssueProducer(IssueProducer.HUNTER_AGENT);
+    underTest.insert(db.getSession(), issue);
+
+    IssueDto toUpdate = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
+      .setComponentUuid(otherFile.uuid());
+
+    underTest.updateHunterAgentIssue(db.getSession(), toUpdate);
+
+    IssueDto updated = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(updated.getComponentUuid()).isEqualTo(otherFile.uuid());
+  }
+
+  @Test
+  void updateHunterAgentIssue_whenClosing_updatesStatusAndResolution() {
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1).setIssueProducer(IssueProducer.HUNTER_AGENT).setStatus(STATUS_OPEN).setResolution(null);
+    underTest.insert(db.getSession(), issue);
+
+    IssueDto toClose = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
+      .setStatus(STATUS_CLOSED)
+      .setResolution(RESOLUTION_FIXED)
+      .setIssueCloseTime(1_460_000_000_000L);
+
+    underTest.updateHunterAgentIssue(db.getSession(), toClose);
+
+    IssueDto closed = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(closed.getStatus()).isEqualTo(STATUS_CLOSED);
+    assertThat(closed.getResolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(closed.getIssueCloseDate()).isNotNull();
+  }
+
+  @Test
+  void updateHunterAgentIssue_replacesImpacts() {
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1).setIssueProducer(IssueProducer.HUNTER_AGENT)
+      .addImpact(createImpact(SECURITY, HIGH));
+    underTest.insert(db.getSession(), issue);
+
+    IssueDto toUpdate = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
+      .replaceAllImpacts(List.of(createImpact(RELIABILITY, LOW)));
+
+    underTest.updateHunterAgentIssue(db.getSession(), toUpdate);
+
+    assertThat(underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1).getImpacts())
+      .extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactly(tuple(RELIABILITY, LOW));
+  }
+
+  @Test
+  void updateHunterAgentIssue_whenScannerOwnedIssue_throwsAndLeavesRowAndImpactsUntouched() {
+    IssueDto scannerIssue = createIssueWithKey(ISSUE_KEY1).addImpact(createImpact(SECURITY, HIGH));
+    underTest.insert(db.getSession(), scannerIssue);
+
+    IssueDto colliding = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
+      .setMessage("hijacked")
+      .replaceAllImpacts(List.of(createImpact(RELIABILITY, LOW)));
+
+    DbSession session = db.getSession();
+    assertThatThrownBy(() -> underTest.updateHunterAgentIssue(session, colliding))
+      .isInstanceOf(IllegalStateException.class);
+
+    IssueDto untouched = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(untouched.getMessage()).isEqualTo("the message");
+    assertThat(untouched.getIssueProducer()).isEqualTo(IssueProducer.SCANNER);
+    assertThat(untouched.getImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity)
+      .containsExactly(tuple(SECURITY, HIGH));
+  }
+
+  @Test
+  void updateHunterAgentIssue_whenKeyMissing_throws() {
+    IssueDto missing = createIssueWithKey("DOES_NOT_EXIST").setIssueProducer(IssueProducer.HUNTER_AGENT);
+
+    DbSession session = db.getSession();
+    assertThatThrownBy(() -> underTest.updateHunterAgentIssue(session, missing))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test

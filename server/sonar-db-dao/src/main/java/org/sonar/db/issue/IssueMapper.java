@@ -70,6 +70,8 @@ public interface IssueMapper {
 
   int updateIfBeforeSelectedDate(IssueDto issue);
 
+  int updateHunterAgentIssue(IssueDto issue);
+
   void scrollNonClosedByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueWithoutRuleInfoDto> handler);
 
   void scrollNonClosedScannerIssuesByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueWithoutRuleInfoDto> handler);
