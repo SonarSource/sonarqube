@@ -55,7 +55,7 @@ class TrackerReferenceBranchInputFactoryIT {
   void gets_issues_and_hashes_in_matching_component() {
     DefaultIssue issue1 = new DefaultIssue();
     when(referenceBranchComponentUuids.getComponentUuid(COMPONENT_KEY)).thenReturn(COMPONENT_UUID);
-    when(componentIssuesLoader.loadOpenIssuesWithChanges(COMPONENT_UUID)).thenReturn(Collections.singletonList(issue1));
+    when(componentIssuesLoader.loadOpenScannerIssuesWithChanges(COMPONENT_UUID)).thenReturn(Collections.singletonList(issue1));
     ComponentDto fileDto = ComponentTesting.newFileDto(ComponentTesting.newPublicProjectDto()).setUuid(COMPONENT_UUID);
     db.fileSources().insertFileSource(fileDto, 3);
 

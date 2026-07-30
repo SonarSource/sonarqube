@@ -54,7 +54,7 @@ public class ClosedIssuesInputFactoryIT {
     verifyNoInteractions(dbClient, issuesLoader);
 
     List<DefaultIssue> issues = ImmutableList.of(new DefaultIssue(), new DefaultIssue());
-    when(issuesLoader.loadClosedIssues(componentUuid)).thenReturn(issues);
+    when(issuesLoader.loadClosedScannerIssues(componentUuid)).thenReturn(issues);
 
     assertThat(input.getIssues()).isSameAs(issues);
   }
@@ -72,7 +72,7 @@ public class ClosedIssuesInputFactoryIT {
     verifyNoInteractions(dbClient, issuesLoader);
 
     List<DefaultIssue> issues = ImmutableList.of();
-    when(issuesLoader.loadClosedIssues(originalComponentUuid)).thenReturn(issues);
+    when(issuesLoader.loadClosedScannerIssues(originalComponentUuid)).thenReturn(issues);
 
     assertThat(input.getIssues()).isSameAs(issues);
   }
@@ -88,7 +88,7 @@ public class ClosedIssuesInputFactoryIT {
     verifyNoInteractions(dbClient, issuesLoader);
 
     List<DefaultIssue> issues = ImmutableList.of(new DefaultIssue());
-    when(issuesLoader.loadClosedIssues(componentUuid)).thenReturn(issues);
+    when(issuesLoader.loadClosedScannerIssues(componentUuid)).thenReturn(issues);
 
     assertThat(input.getIssues()).isSameAs(issues);
 

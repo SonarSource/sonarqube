@@ -79,7 +79,7 @@ public class TrackerReferenceBranchInputFactory {
       if (referenceBranchComponentUuid == null) {
         return Collections.emptyList();
       }
-      return componentIssuesLoader.loadOpenIssuesWithChanges(referenceBranchComponentUuid);
+      return componentIssuesLoader.loadOpenScannerIssuesWithChanges(referenceBranchComponentUuid);
     }
   }
 

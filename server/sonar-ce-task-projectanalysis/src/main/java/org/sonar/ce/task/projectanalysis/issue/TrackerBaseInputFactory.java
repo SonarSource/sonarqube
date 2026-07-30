@@ -65,7 +65,7 @@ public class TrackerBaseInputFactory extends BaseInputFactory {
 
     @Override
     protected List<DefaultIssue> loadIssues() {
-      return issuesLoader.loadOpenIssues(effectiveUuid);
+      return issuesLoader.loadOpenScannerIssues(effectiveUuid);
     }
 
   }

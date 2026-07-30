@@ -30,6 +30,7 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -80,5 +81,14 @@ public class ProjectTrackerBaseLazyInputIT {
     IssueDto openIssue1OnFile = dbTester.issues().insert(rule, rootProjectDto, file, i -> i.setStatus("OPEN").setResolution(null));
 
     assertThat(underTest.loadIssues()).extracting(DefaultIssue::key).containsOnly(openIssueOnProject.getKey());
+  }
+
+  @Test
+  public void excludes_hunter_agent_issues_from_base_tracking_input() {
+    IssueDto scannerIssue = dbTester.issues().insert(rule, rootProjectDto, rootProjectDto, i -> i.setStatus("OPEN").setResolution(null));
+    dbTester.issues().insert(rule, rootProjectDto, rootProjectDto,
+      i -> i.setStatus("OPEN").setResolution(null).setIssueProducer(IssueProducer.HUNTER_AGENT));
+
+    assertThat(underTest.loadIssues()).extracting(DefaultIssue::key).containsOnly(scannerIssue.getKey());
   }
 }

@@ -34,6 +34,6 @@ class ProjectTrackerBaseLazyInput extends BaseInputFactory.BaseLazyInput {
 
   @Override
   protected List<DefaultIssue> loadIssues() {
-    return issuesLoader.loadOpenIssues(effectiveUuid);
+    return issuesLoader.loadOpenScannerIssues(effectiveUuid);
   }
 }

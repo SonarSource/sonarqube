@@ -50,7 +50,7 @@ public class ClosedIssuesInputFactory extends BaseInputFactory {
 
     @Override
     protected List<DefaultIssue> loadIssues() {
-      return issuesLoader.loadClosedIssues(effectiveUuid);
+      return issuesLoader.loadClosedScannerIssues(effectiveUuid);
     }
   }
 }

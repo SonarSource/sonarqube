@@ -54,7 +54,7 @@ public class TrackerSourceBranchInputFactoryIT {
   public void gets_issues_and_hashes_in_matching_component() {
     DefaultIssue issue1 = new DefaultIssue();
     when(sourceBranchComponentUuids.getSourceBranchComponentUuid(COMPONENT_KEY)).thenReturn(COMPONENT_UUID);
-    when(componentIssuesLoader.loadOpenIssuesWithChanges(COMPONENT_UUID)).thenReturn(Collections.singletonList(issue1));
+    when(componentIssuesLoader.loadOpenScannerIssuesWithChanges(COMPONENT_UUID)).thenReturn(Collections.singletonList(issue1));
     ComponentDto fileDto = ComponentTesting.newFileDto(ComponentTesting.newPublicProjectDto()).setUuid(COMPONENT_UUID);
     db.fileSources().insertFileSource(fileDto, 3);
 
@@ -71,7 +71,7 @@ public class TrackerSourceBranchInputFactoryIT {
   public void get_issues_without_line_hashes() {
     DefaultIssue issue1 = new DefaultIssue();
     when(sourceBranchComponentUuids.getSourceBranchComponentUuid(COMPONENT_KEY)).thenReturn(COMPONENT_UUID);
-    when(componentIssuesLoader.loadOpenIssuesWithChanges(COMPONENT_UUID)).thenReturn(Collections.singletonList(issue1));
+    when(componentIssuesLoader.loadOpenScannerIssuesWithChanges(COMPONENT_UUID)).thenReturn(Collections.singletonList(issue1));
     ComponentDto fileDto = ComponentTesting.newFileDto(ComponentTesting.newPublicProjectDto()).setUuid(COMPONENT_UUID);
     db.fileSources().insertFileSource(fileDto, 0);
 

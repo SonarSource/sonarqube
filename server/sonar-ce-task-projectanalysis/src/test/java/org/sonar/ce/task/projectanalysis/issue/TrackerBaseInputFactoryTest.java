@@ -95,7 +95,7 @@ public class TrackerBaseInputFactoryTest {
   public void create_returns_Input_which_retrieves_issues_of_specified_file_component_when_it_has_no_original_file() {
     underTest.create(FILE).getIssues();
 
-    verify(issuesLoader).loadOpenIssues(FILE_UUID);
+    verify(issuesLoader).loadOpenScannerIssues(FILE_UUID);
   }
 
   @Test
@@ -107,7 +107,7 @@ public class TrackerBaseInputFactoryTest {
 
     underTest.create(FILE).getIssues();
 
-    verify(issuesLoader).loadOpenIssues(originalUuid);
-    verify(issuesLoader, times(0)).loadOpenIssues(FILE_UUID);
+    verify(issuesLoader).loadOpenScannerIssues(originalUuid);
+    verify(issuesLoader, times(0)).loadOpenScannerIssues(FILE_UUID);
   }
 }
