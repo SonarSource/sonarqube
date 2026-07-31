@@ -61,16 +61,19 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
   private final IssueCountHistoryRecordingService issueHistoryService;
   private final MeasuresHistoryRecordingService measuresHistoryService;
   private final RuleRepository ruleRepository;
+  private final IssueTtrHistoryRecorder issueTtrHistoryRecorder;
 
   public RecordHistoryDelegateImpl(
     DbClient dbClient,
     IssueCountHistoryRecordingService issueHistoryService,
     MeasuresHistoryRecordingService measuresHistoryService,
-    RuleRepository ruleRepository) {
+    RuleRepository ruleRepository,
+    IssueTtrHistoryRecorder issueTtrHistoryRecorder) {
     this.dbClient = dbClient;
     this.issueHistoryService = issueHistoryService;
     this.measuresHistoryService = measuresHistoryService;
     this.ruleRepository = ruleRepository;
+    this.issueTtrHistoryRecorder = issueTtrHistoryRecorder;
   }
 
   @Override
@@ -80,6 +83,7 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
     LOG.info("Recording History for {} {} on {}", entityType, entityUuid, today);
     recordIssueHistory(entityUuid, entityType, issueSourceBranchUuids, today);
     recordMeasureHistory(entityUuid, entityType, today);
+    issueTtrHistoryRecorder.recordTtrHistory(entityUuid);
     LOG.info("History recording complete for {} {}", entityType, entityUuid);
   }
 

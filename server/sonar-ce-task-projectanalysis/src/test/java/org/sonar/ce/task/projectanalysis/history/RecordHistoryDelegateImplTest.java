@@ -73,9 +73,10 @@ class RecordHistoryDelegateImplTest {
   private final IssueCountHistoryRecordingService issueHistoryService = mock(IssueCountHistoryRecordingService.class);
   private final MeasuresHistoryRecordingService measuresHistoryService = mock(MeasuresHistoryRecordingService.class);
   private final RuleRepository ruleRepository = mock(RuleRepository.class);
+  private final IssueTtrHistoryRecorder issueTtrHistoryRecorder = mock();
   private final Rule rule = mock(Rule.class);
   private final RecordHistoryDelegateImpl underTest = new RecordHistoryDelegateImpl(
-    dbClient, issueHistoryService, measuresHistoryService, ruleRepository);
+    dbClient, issueHistoryService, measuresHistoryService, ruleRepository, issueTtrHistoryRecorder);
 
   @BeforeEach
   void setUp() {
@@ -270,6 +271,16 @@ class RecordHistoryDelegateImplTest {
 
     assertThat(capturedIssue()).isNotNull();
     verifyNoInteractions(measuresHistoryService);
+  }
+
+  @Test
+  void recordHistory_shouldRecordIssueTtrHistory() {
+    IndexedIssueDto issue = issueWithQualifier(ComponentQualifiers.FILE).setCodeVariants("TEST");
+    givenIssueCursor(issue);
+
+    underTest.recordHistory(ENTITY_UUID, EntityType.PROJECT_BRANCH, List.of(ENTITY_UUID));
+
+    verify(issueTtrHistoryRecorder).recordTtrHistory(ENTITY_UUID);
   }
 
   private IndexedIssueDto issueWithQualifier(String qualifier) {

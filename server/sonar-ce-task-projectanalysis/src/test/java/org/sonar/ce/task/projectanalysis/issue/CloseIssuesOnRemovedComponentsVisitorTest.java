@@ -28,14 +28,17 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.VisitorsCrawler;
+import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueVisitor;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.rule.RuleType;
 import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -52,6 +55,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   ComponentIssuesLoader issuesLoader = mock(ComponentIssuesLoader.class);
   ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues = mock(ComponentsWithUnprocessedIssues.class);
   IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
+  FixedIssueVisitor fixedIssueVisitor = mock(FixedIssueVisitor.class);
   ProtoIssueCache protoIssueCache;
   VisitorsCrawler underTest;
 
@@ -60,7 +64,7 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
     protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
     underTest = new VisitorsCrawler(
       Arrays.asList(new CloseIssuesOnRemovedComponentsVisitor(issuesLoader, componentsWithUnprocessedIssues,
-        protoIssueCache, issueLifecycle)));
+        protoIssueCache, issueLifecycle, fixedIssueVisitor)));
   }
 
   @Test
@@ -73,9 +77,11 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
       .setComponentKey("c").setProjectUuid("u").setProjectKey("k").setRuleKey(RuleKey.of("r", "r")).setStatus("OPEN");
     when(issuesLoader.loadOpenIssues(fileUuid)).thenReturn(Collections.singletonList(issue));
 
-    underTest.visit(ReportComponent.builder(PROJECT, 1).build());
+    Component project = ReportComponent.builder(PROJECT, 1).build();
+    underTest.visit(project);
 
     verify(issueLifecycle).doAutomaticTransition(issue);
+    verify(fixedIssueVisitor).onIssue(same(project), same(issue));
     CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse();
     assertThat(issues.hasNext()).isTrue();
 

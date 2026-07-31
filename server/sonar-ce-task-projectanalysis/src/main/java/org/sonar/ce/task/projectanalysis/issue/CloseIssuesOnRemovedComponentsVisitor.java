@@ -24,6 +24,7 @@ import java.util.Set;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
+import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueVisitor;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache.CacheAppender;
 import org.sonar.core.issue.DefaultIssue;
 
@@ -33,27 +34,28 @@ import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order
  * Close issues on removed components
  */
 public class CloseIssuesOnRemovedComponentsVisitor extends TypeAwareVisitorAdapter {
-
   private final ComponentIssuesLoader issuesLoader;
   private final ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;
   private final ProtoIssueCache protoIssueCache;
   private final IssueLifecycle issueLifecycle;
+  private final FixedIssueVisitor fixedIssueVisitor;
 
   public CloseIssuesOnRemovedComponentsVisitor(ComponentIssuesLoader issuesLoader, ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, ProtoIssueCache protoIssueCache,
-    IssueLifecycle issueLifecycle) {
+    IssueLifecycle issueLifecycle, FixedIssueVisitor fixedIssueVisitor) {
     super(CrawlerDepthLimit.PROJECT, POST_ORDER);
     this.issuesLoader = issuesLoader;
     this.componentsWithUnprocessedIssues = componentsWithUnprocessedIssues;
     this.protoIssueCache = protoIssueCache;
     this.issueLifecycle = issueLifecycle;
+    this.fixedIssueVisitor = fixedIssueVisitor;
   }
 
   @Override
   public void visitProject(Component project) {
-    closeIssuesForDeletedComponentUuids(componentsWithUnprocessedIssues.getUuids());
+    closeIssuesForDeletedComponentUuids(project, componentsWithUnprocessedIssues.getUuids());
   }
 
-  private void closeIssuesForDeletedComponentUuids(Set<String> deletedComponentUuids) {
+  private void closeIssuesForDeletedComponentUuids(Component project, Set<String> deletedComponentUuids) {
     try (CacheAppender<DefaultIssue> cacheAppender = protoIssueCache.newAppender()) {
       for (String deletedComponentUuid : deletedComponentUuids) {
         List<DefaultIssue> issues = issuesLoader.loadOpenIssues(deletedComponentUuid);
@@ -62,6 +64,7 @@ public class CloseIssuesOnRemovedComponentsVisitor extends TypeAwareVisitorAdapt
           // TODO should be renamed
           issue.setOnDisabledRule(false);
           issueLifecycle.doAutomaticTransition(issue);
+          fixedIssueVisitor.onIssue(project, issue);
           cacheAppender.append(issue);
         }
       }

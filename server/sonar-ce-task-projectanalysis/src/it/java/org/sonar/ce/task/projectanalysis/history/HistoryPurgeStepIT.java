@@ -39,6 +39,7 @@ import org.sonarsource.history.model.IssueTtrHistory;
 import org.sonarsource.history.model.MeasureHistoryRow;
 import org.sonarsource.history.server.db.HistoryDbClient;
 import org.sonarsource.history.server.db.HistoryMyBatisConfExtension;
+import org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments;
 import org.sonarsource.history.server.db.repository.IssueCountDimensionsRepository;
 import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
 import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
@@ -61,7 +62,7 @@ public class HistoryPurgeStepIT {
   private static final Instant AFTER_THRESHOLD = THRESHOLD_DATE.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
 
   @Rule
-  public final DbTester db = DbTester.createWithConfExtension(System2.INSTANCE, new HistoryMyBatisConfExtension());
+  public final DbTester db = DbTester.createWithConfExtension(System2.INSTANCE, new HistoryMyBatisConfExtension(IssueTtrHistoryMapperFragments.class));
 
   private final DbClient dbClient = db.getDbClient();
   private final HistoryDbClient historyDbClient = new HistoryDbClient(

@@ -37,6 +37,7 @@ import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DbClient;
+import org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments;
 import org.sonarsource.measures.server.MeasuresServerPlatformLevel1Module;
 import org.sonarsource.metrics.server.bean.MetricsServerPlatformLevel1Module;
 import org.sonarsource.history.server.bean.HistoryServerPlatformLevel1Module;
@@ -98,7 +99,7 @@ public class PlatformLevel1 extends PlatformLevel {
     SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
     SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER, edition);
 
-    addAll(HistoryServerPlatformLevel1Module.components());
+    addAll(HistoryServerPlatformLevel1Module.components(IssueTtrHistoryMapperFragments.class));
 
     add(
       new SonarQubeVersion(sqVersion),

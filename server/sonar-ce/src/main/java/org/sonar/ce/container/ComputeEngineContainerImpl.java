@@ -56,8 +56,8 @@ import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;
 import org.sonar.ce.task.projectanalysis.issue.AdHocRuleCreator;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskModule;
-import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskModule;
 import org.sonar.ce.task.projectanalysis.taskprocessor.HistoryPurgeTaskModule;
+import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskModule;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
 import org.sonar.core.config.CorePropertyDefinitions;
@@ -171,6 +171,7 @@ import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 import org.sonarsource.gessie.server.GessieProperties;
 import org.sonarsource.gessie.server.telemetry.GessieTelemetryCeConfiguration;
 import org.sonarsource.history.server.bean.HistoryServerPlatformLevel1Module;
+import org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments;
 import org.sonarsource.users.server.bean.UsersServerComponents;
 
 import static java.util.Objects.requireNonNull;
@@ -280,7 +281,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     SonarEdition edition = MetadataLoader.loadEdition(System2.INSTANCE);
     SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.COMPUTE_ENGINE, edition);
 
-    level1Container.add(toArray(HistoryServerPlatformLevel1Module.components()));
+    level1Container.add(toArray(HistoryServerPlatformLevel1Module.components(IssueTtrHistoryMapperFragments.class)));
 
     level1Container.add(
       props.rawProperties(),

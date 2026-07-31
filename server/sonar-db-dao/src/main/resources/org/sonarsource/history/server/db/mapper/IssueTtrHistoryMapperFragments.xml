@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments">
+
+<!--
+    SELECT ...
+    FROM
+    <include refid="org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments.aggregationBranchesFrom"/>
+    JOIN issue_ttr_history history
+      ON history.entity_id = <include refid="org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments.aggregationChildEntityIdColumn"/>
+     AND history.recorded_at_epoch = #{recordedAtEpoch}
+    WHERE
+    <include refid="org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments.aggregationIdClause"/>
+    GROUP BY history.dimension_id, history.recorded_at_epoch
+-->
+
+  <sql id="aggregationBranchesFrom">
+    <if test="entityType.name() == 'PORTFOLIO'">
+      portfolio_projects pp
+      JOIN portfolio_proj_branches ppb ON ppb.portfolio_project_uuid = pp.uuid
+    </if>
+    <if test="entityType.name() == 'APPLICATION'">
+      (
+        SELECT application_branch_uuid, project_branch_uuid
+        FROM app_branch_project_branch
+        UNION
+        SELECT application_branch.uuid, project_branch.uuid
+        FROM app_projects
+        JOIN project_branches application_branch
+          ON application_branch.project_uuid = app_projects.application_uuid
+         AND application_branch.is_main = ${_true}
+        JOIN project_branches project_branch
+          ON project_branch.project_uuid = app_projects.project_uuid
+         AND project_branch.is_main = ${_true}
+      ) ab
+    </if>
+  </sql>
+
+  <sql id="aggregationChildEntityIdColumn">
+    <if test="entityType.name() == 'PORTFOLIO'">
+      ppb.branch_uuid
+    </if>
+    <if test="entityType.name() == 'APPLICATION'">
+      ab.project_branch_uuid
+    </if>
+  </sql>
+
+  <sql id="aggregationIdClause">
+    <if test="entityType.name() == 'PORTFOLIO'">
+      pp.portfolio_uuid = #{entityId}
+    </if>
+    <if test="entityType.name() == 'APPLICATION'">
+      ab.application_branch_uuid = #{entityId}
+    </if>
+  </sql>
+
+</mapper>

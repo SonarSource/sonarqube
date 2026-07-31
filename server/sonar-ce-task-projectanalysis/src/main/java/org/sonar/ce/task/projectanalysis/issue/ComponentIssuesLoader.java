@@ -435,6 +435,7 @@ public class ComponentIssuesLoader {
     issue.setComponentUuid(source.getComponentUuid());
     issue.setProjectUuid(source.getProjectUuid());
     issue.setProjectKey(source.getProjectKey());
+    issue.setBranchUuid(source.getBranchUuid());
     issue.setManualSeverity(source.isManualSeverity());
     issue.setRuleKey(rule.getKey());
     issue.setTags(source.getTags());

@@ -17,20 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202605;
-
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.step.DropIndexChange;
+package org.sonar.ce.task.projectanalysis.history;
 
 /**
- * In order to resize the entity_id and entity_type columns on sca_ttr_history, we need to drop this index first.
- * The index will be recreated after resizing.
+ * Abstraction for recording issue TTR history.
  */
-public class DropScaTtrHistoryEntityEpochIndex extends DropIndexChange {
-  static final String TABLE_NAME = "sca_ttr_history";
-  static final String INDEX_NAME = "sca_ttr_history_ent_type_epoch";
+public interface IssueTtrHistoryRecorder {
 
-  public DropScaTtrHistoryEntityEpochIndex(Database db) {
-    super(db, INDEX_NAME, TABLE_NAME);
-  }
+  /**
+   * Records issue TTR history for an entity with the given ID.
+   */
+  void recordTtrHistory(String entityUuid);
 }

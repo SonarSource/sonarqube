@@ -97,6 +97,7 @@ public class IssueWithoutRuleInfoDto implements Serializable {
   // joins
   protected String componentKey;
   protected String projectKey;
+  protected String branchUuid;
   protected String filePath;
   protected String tags;
   protected String internalTags;
@@ -711,6 +712,15 @@ public class IssueWithoutRuleInfoDto implements Serializable {
 
   public IssueWithoutRuleInfoDto setFromSonarQubeUpdate(boolean fromSonarQubeUpdate) {
     this.fromSonarQubeUpdate = fromSonarQubeUpdate;
+    return this;
+  }
+
+  public String getBranchUuid() {
+    return branchUuid;
+  }
+
+  public IssueWithoutRuleInfoDto setBranchUuid(String branchUuid) {
+    this.branchUuid = branchUuid;
     return this;
   }
 

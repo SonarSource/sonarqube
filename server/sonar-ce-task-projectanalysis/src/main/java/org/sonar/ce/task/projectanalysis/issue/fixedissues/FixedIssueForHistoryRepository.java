@@ -17,23 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.task.projectanalysis.history;
+package org.sonar.ce.task.projectanalysis.issue.fixedissues;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.ce.task.projectanalysis.container.ReportAnalysisComponentProvider;
-import org.sonarsource.history.server.HistoryServerComponents;
+import java.util.HashSet;
+import java.util.Set;
+import org.sonarsource.history.model.FixedIssueForHistory;
 
-/** Provides history recording components to the CE analysis container. */
-@ComputeEngineSide
-public class HistoryComponentProvider implements ReportAnalysisComponentProvider {
-  /** Returns the delegate and shared recording components used during analysis. */
-  @Override
-  public List<Object> getComponents() {
-    List<Object> components = new ArrayList<>();
-    components.add(RecordHistoryDelegateImpl.class);
-    components.addAll(HistoryServerComponents.recordingComponents());
-    return components;
+import static java.util.Collections.unmodifiableSet;
+
+public class FixedIssueForHistoryRepository {
+  private final Set<FixedIssueForHistory> issues = new HashSet<>();
+
+  public void addFixedIssue(FixedIssueForHistory issue) {
+    issues.add(issue);
+  }
+
+  public Set<FixedIssueForHistory> getFixedIssues() {
+    return unmodifiableSet(issues);
   }
 }

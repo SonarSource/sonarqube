@@ -147,6 +147,7 @@ class IssueDaoIT {
       .setKee(ISSUE_KEY1)
       .setComponentUuid(FILE_UUID)
       .setProjectUuid(PROJECT_UUID)
+      .setBranchUuid(projectDto.branchUuid())
       .setRuleUuid(RULE.getUuid())
       .setLanguage(Optional.ofNullable(RULE.getLanguage()).orElseGet(() -> fail("Rule language should not be null here")))
       .setSeverity("BLOCKER")

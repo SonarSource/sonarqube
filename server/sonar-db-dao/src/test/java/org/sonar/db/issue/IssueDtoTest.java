@@ -24,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.Test;
@@ -62,6 +63,7 @@ class IssueDtoTest {
     Date createdAt = DateUtils.addDays(new Date(NOW), -5);
     Date updatedAt = DateUtils.addDays(new Date(NOW), -3);
     Date closedAt = DateUtils.addDays(new Date(NOW), -1);
+    Date detectedAt = DateUtils.addDays(new Date(NOW), -6);
 
     IssueDto dto = new IssueDto()
       .setKee("100")
@@ -96,6 +98,8 @@ class IssueDtoTest {
       .addImpact(new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(HIGH).setManualSeverity(true))
       .addImpact(new ImpactDto().setSoftwareQuality(RELIABILITY).setSeverity(LOW).setManualSeverity(false));
 
+    dto.setCreatedAt(detectedAt.getTime());
+
     DefaultIssue expected = new DefaultIssue()
       .setKey("100")
       .setType(RuleType.VULNERABILITY)
@@ -121,6 +125,7 @@ class IssueDtoTest {
       .setCreationDate(DateUtils.truncate(createdAt, Calendar.SECOND))
       .setUpdateDate(DateUtils.truncate(updatedAt, Calendar.SECOND))
       .setCloseDate(DateUtils.truncate(closedAt, Calendar.SECOND))
+      .setDetectionDate(DateUtils.truncate(detectedAt, Calendar.SECOND))
       .setNew(false)
       .setIsNewCodeReferenceIssue(false)
       .setRuleDescriptionContextKey(TEST_CONTEXT_KEY)
@@ -128,7 +133,8 @@ class IssueDtoTest {
       .setInternalTags(List.of("internalTag1", "internalTag2"))
       .setCodeVariants(List.of("variant1", "variant2"))
       .addImpact(MAINTAINABILITY, HIGH, true)
-      .addImpact(RELIABILITY, LOW, false);
+      .addImpact(RELIABILITY, LOW, false)
+      .setOverriddenImpacts(Map.of(MAINTAINABILITY, HIGH, RELIABILITY, LOW));
 
     DefaultIssue issue = dto.toDefaultIssue();
 

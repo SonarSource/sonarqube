@@ -20,6 +20,8 @@
 package org.sonar.ce.task.projectanalysis.history;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueForHistoryRepository;
+import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueVisitor;
 import org.sonarsource.history.server.db.HistoryDbClient;
 import org.sonarsource.history.server.db.repository.IssueCountDimensionsRepository;
 import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
@@ -34,11 +36,11 @@ import org.sonarsource.history.server.service.RetryableOrderedBatchWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class HistoryComponentProviderTest {
+class HistoryReportAnalysisComponentProviderTest {
 
   @Test
   void getComponents_shouldReturnDelegateAndRecordingComponentsInAnyOrder() {
-    assertThat(new HistoryComponentProvider().getComponents())
+    assertThat(new HistoryReportAnalysisComponentProvider().getComponents())
       .containsExactlyInAnyOrder(
         RecordHistoryDelegateImpl.class,
         HistoryDbClient.class,
@@ -51,6 +53,9 @@ class HistoryComponentProviderTest {
         IssueTtrHistoryRecordingService.class,
         MeasuresHistoryRecordingService.class,
         RetryableOrderedBatchWriter.class,
-        HistoryPurgeService.class);
+        HistoryPurgeService.class,
+        FixedIssueVisitor.class,
+        FixedIssueForHistoryRepository.class,
+        ProjectIssueTtrHistoryRecorder.class);
   }
 }
