@@ -74,6 +74,18 @@ public class ProjectAlmSettingDto {
    */
   private Boolean monorepo;
 
+  /**
+   * URL of the bound repository in the ALM.
+   * Null until populated at creation/rebind time or resolved live on read.
+   */
+  private String url;
+
+  /**
+   * Platform-native, immutable identifier of the bound repository in the ALM.
+   * Null until populated at creation/rebind time or resolved live on read.
+   */
+  private String repoId;
+
   private long updatedAt;
   private long createdAt;
 
@@ -147,6 +159,26 @@ public class ProjectAlmSettingDto {
 
   public ProjectAlmSettingDto setMonorepo(Boolean monorepo) {
     this.monorepo = monorepo;
+    return this;
+  }
+
+  @CheckForNull
+  public String getUrl() {
+    return url;
+  }
+
+  public ProjectAlmSettingDto setUrl(@Nullable String url) {
+    this.url = url;
+    return this;
+  }
+
+  @CheckForNull
+  public String getRepoId() {
+    return repoId;
+  }
+
+  public ProjectAlmSettingDto setRepoId(@Nullable String repoId) {
+    this.repoId = repoId;
     return this;
   }
 

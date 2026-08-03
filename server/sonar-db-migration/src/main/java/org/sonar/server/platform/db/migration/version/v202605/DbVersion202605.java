@@ -60,6 +60,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_029, "Create table 'issue_ttr_history'", CreateIssueTtrHistoryTable.class)
       .add(2026_05_030, "Drop index 'sca_ttr_history_uq_idx'", DropScaTtrHistoryUniqueIndex.class)
       .add(2026_05_031, "Drop index 'sca_ttr_history_ent_type_epoch'", DropScaTtrHistoryEntityEpochIndex.class)
-      .add(2026_05_032, "Resize entity_id and entity_type columns in 'sca_ttr_history'", ResizeScaTtrEntityIdAndEntityType.class);
+      .add(2026_05_032, "Resize entity_id and entity_type columns in 'sca_ttr_history'", ResizeScaTtrEntityIdAndEntityType.class)
+      .add(2026_05_033, "Add 'url' and 'repo_id' columns to 'project_alm_settings' table", AddUrlAndRepoIdColumnsToProjectAlmSettingsTable.class);
   }
 }

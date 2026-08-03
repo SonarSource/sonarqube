@@ -86,7 +86,9 @@ class ProjectAlmSettingDaoIT {
     AlmSettingDto githubAlmSettingDto = db.almSettings().insertGitHubAlmSetting();
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     ProjectDto anotherProject = db.components().insertPrivateProject().getProjectDto();
-    ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSettingDto, project);
+    ProjectAlmSettingDto githubProjectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSettingDto, project)
+      .setUrl("https://github.com/foo/bar")
+      .setRepoId("123456");
     underTest.insertOrUpdate(dbSession, githubProjectAlmSettingDto, githubAlmSettingDto.getKey(), anotherProject.getName(),
       anotherProject.getKey());
 
@@ -95,10 +97,11 @@ class ProjectAlmSettingDaoIT {
         ProjectAlmSettingDto::getAlmRepo, ProjectAlmSettingDto::getAlmSlug,
         ProjectAlmSettingDto::getCreatedAt, ProjectAlmSettingDto::getUpdatedAt,
         ProjectAlmSettingDto::getSummaryCommentEnabled, ProjectAlmSettingDto::getInlineAnnotationsEnabled,
-        ProjectAlmSettingDto::getMonorepo)
+        ProjectAlmSettingDto::getMonorepo, ProjectAlmSettingDto::getUrl, ProjectAlmSettingDto::getRepoId)
       .containsExactly(A_UUID, githubAlmSettingDto.getUuid(), project.getUuid(),
         githubProjectAlmSettingDto.getAlmRepo(), githubProjectAlmSettingDto.getAlmSlug(),
-        A_DATE, A_DATE, githubProjectAlmSettingDto.getSummaryCommentEnabled(), null, false);
+        A_DATE, A_DATE, githubProjectAlmSettingDto.getSummaryCommentEnabled(), null, false,
+        "https://github.com/foo/bar", "123456");
 
     assertThat(underTest.selectByProject(dbSession, anotherProject)).isNotPresent();
   }
@@ -320,17 +323,20 @@ class ProjectAlmSettingDaoIT {
 
     system2.setNow(A_DATE_LATER);
     ProjectAlmSettingDto newProjectAlmSettingDto = newGithubProjectAlmSettingDto(anotherGithubAlmSetting, project)
-      .setSummaryCommentEnabled(false);
+      .setSummaryCommentEnabled(false)
+      .setUrl("https://github.com/foo/bar")
+      .setRepoId("123456");
     underTest.insertOrUpdate(dbSession, newProjectAlmSettingDto, githubAlmSetting.getKey(), project.getName(), project.getKey());
 
     assertThat(underTest.selectByProject(dbSession, project).get())
       .extracting(ProjectAlmSettingDto::getUuid, ProjectAlmSettingDto::getAlmSettingUuid, ProjectAlmSettingDto::getProjectUuid,
         ProjectAlmSettingDto::getAlmRepo, ProjectAlmSettingDto::getAlmSlug,
         ProjectAlmSettingDto::getCreatedAt, ProjectAlmSettingDto::getUpdatedAt,
-        ProjectAlmSettingDto::getSummaryCommentEnabled)
+        ProjectAlmSettingDto::getSummaryCommentEnabled, ProjectAlmSettingDto::getUrl, ProjectAlmSettingDto::getRepoId)
       .containsExactly(projectAlmSettingDto.getUuid(), anotherGithubAlmSetting.getUuid(), project.getUuid(),
         newProjectAlmSettingDto.getAlmRepo(), newProjectAlmSettingDto.getAlmSlug(),
-        A_DATE, A_DATE_LATER, newProjectAlmSettingDto.getSummaryCommentEnabled());
+        A_DATE, A_DATE_LATER, newProjectAlmSettingDto.getSummaryCommentEnabled(),
+        "https://github.com/foo/bar", "123456");
   }
 
   @Test

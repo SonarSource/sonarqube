@@ -12,6 +12,8 @@
     p.summary_comment_enabled as summaryCommentEnabled,
     p.inline_annotations_enabled as inlineAnnotationsEnabled,
     p.monorepo as monorepo,
+    p.url as url,
+    p.repo_id as repoId,
     p.created_at as createdAt,
     p.updated_at as updatedAt
   </sql>
@@ -101,6 +103,8 @@
       summary_comment_enabled,
       inline_annotations_enabled,
       monorepo,
+      url,
+      repo_id,
       created_at,
       updated_at
     )
@@ -113,6 +117,8 @@
       #{dto.summaryCommentEnabled, jdbcType=BOOLEAN},
       #{dto.inlineAnnotationsEnabled, jdbcType=BOOLEAN},
       #{dto.monorepo, jdbcType=BOOLEAN},
+      #{dto.url, jdbcType=VARCHAR},
+      #{dto.repoId, jdbcType=VARCHAR},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
     )
@@ -130,6 +136,8 @@
       summary_comment_enabled,
       inline_annotations_enabled,
       monorepo,
+      url,
+      repo_id,
       created_at,
       updated_at
     )
@@ -142,6 +150,8 @@
       #{dto.summaryCommentEnabled, jdbcType=NUMERIC},
       #{dto.inlineAnnotationsEnabled, jdbcType=NUMERIC},
       #{dto.monorepo, jdbcType=NUMERIC},
+      #{dto.url, jdbcType=VARCHAR},
+      #{dto.repoId, jdbcType=VARCHAR},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
     )
@@ -156,6 +166,8 @@
       summary_comment_enabled = #{dto.summaryCommentEnabled, jdbcType=BOOLEAN},
       inline_annotations_enabled = #{dto.inlineAnnotationsEnabled, jdbcType=BOOLEAN},
       monorepo = #{dto.monorepo, jdbcType=BOOLEAN},
+      url = #{dto.url, jdbcType=VARCHAR},
+      repo_id = #{dto.repoId, jdbcType=VARCHAR},
       updated_at = #{now, jdbcType=BIGINT}
     WHERE
       project_uuid = #{dto.projectUuid, jdbcType=VARCHAR}
@@ -171,6 +183,8 @@
       summary_comment_enabled = #{dto.summaryCommentEnabled, jdbcType=NUMERIC},
       inline_annotations_enabled = #{dto.inlineAnnotationsEnabled, jdbcType=NUMERIC},
       monorepo = #{dto.monorepo, jdbcType=NUMERIC},
+      url = #{dto.url, jdbcType=VARCHAR},
+      repo_id = #{dto.repoId, jdbcType=VARCHAR},
       updated_at = #{now, jdbcType=BIGINT}
     WHERE
       project_uuid = #{dto.projectUuid, jdbcType=VARCHAR}
