@@ -1,4 +1,3 @@
-gradle.properties @SonarSource/platform-server-squad
 .github/CODEOWNERS @SonarSource/platform-server-squad
 /private/core-extension-securityreport/ @sonarsource/orchestration-reporting-squad
 /private/core-extension-enterprise-server/ @sonarsource/orchestration-reporting-squad
