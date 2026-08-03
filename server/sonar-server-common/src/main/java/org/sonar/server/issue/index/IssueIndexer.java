@@ -208,6 +208,20 @@ public class IssueIndexer implements EventIndexer, AnalysisIndexer, NeedAuthoriz
     doIndexIssueItems(dbSession, itemsByIssueKey);
   }
 
+  /**
+   * Inserts the es_queue index requests for the given issues WITHOUT committing, and returns them. Lets a caller
+   * commit the index requests atomically together with its own DB changes in a single transaction, then pass the
+   * returned items to {@link #index(DbSession, Collection)} to perform the (post-commit) ES write. If the ES write
+   * never happens (crash), the committed es_queue rows are replayed by the recovery indexer.
+   */
+  public Collection<EsQueueDto> enqueueForIndexing(DbSession dbSession, Collection<IssueDto> issues) {
+    List<EsQueueDto> items = issues.stream()
+      .map(issue -> createQueueDto(issue.getKey(), ID_TYPE_ISSUE_KEY, issue.getProjectUuid()))
+      .toList();
+    dbClient.esQueueDao().insert(dbSession, items);
+    return items;
+  }
+
   @Override
   public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
     ListMultimap<String, EsQueueDto> itemsByIssueKey = ArrayListMultimap.create();

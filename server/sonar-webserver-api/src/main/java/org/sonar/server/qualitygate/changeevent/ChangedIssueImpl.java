@@ -62,7 +62,7 @@ class ChangedIssueImpl implements QGChangeEventListener.ChangedIssue {
         return QGChangeEventListener.Status.REVIEWED;
       case Issue.STATUS_IN_SANDBOX:
         return QGChangeEventListener.Status.IN_SANDBOX;
-      case Issue.STATUS_RESOLVED:
+      case Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED:
         return statusOfResolved(issue);
 
       default:
@@ -79,6 +79,10 @@ class ChangedIssueImpl implements QGChangeEventListener.ChangedIssue {
       case Issue.RESOLUTION_WONT_FIX:
         return QGChangeEventListener.Status.RESOLVED_WF;
       case Issue.RESOLUTION_FIXED:
+        return QGChangeEventListener.Status.RESOLVED_FIXED;
+      case Issue.RESOLUTION_REMOVED:
+        // Issue/hotspot removed from code (CLOSED). Treated as closed for QG purposes (in CLOSED_STATUSES), same as
+        // FIXED. Migrating a former hotspot that was CLOSED-because-removed carries this resolution (SONAR-31061).
         return QGChangeEventListener.Status.RESOLVED_FIXED;
       default:
         throw new IllegalStateException("Unexpected resolution for a resolved issue: " + resolution);

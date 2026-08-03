@@ -50,8 +50,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
@@ -359,24 +359,25 @@ public class QGChangeEventListenersImplTest {
       .isEqualTo(QGChangeEventListener.Status.RESOLVED_WF);
     assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FIXED)))
       .isEqualTo(QGChangeEventListener.Status.RESOLVED_FIXED);
-    try {
-      ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_CLOSED));
-      fail("Expected exception");
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Unexpected status: CLOSED");
-    }
-    try {
-      ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_RESOLVED));
-      fail("Expected exception");
-    } catch (Exception e) {
-      assertThat(e).hasMessage("A resolved issue should have a resolution");
-    }
-    try {
-      ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_REMOVED));
-      fail("Expected exception");
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Unexpected resolution for a resolved issue: REMOVED");
-    }
+    // a CLOSED issue carries a resolution and is mapped like a RESOLVED one (e.g. hotspots migrated to issues, SONAR-31061)
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED)))
+      .isEqualTo(QGChangeEventListener.Status.RESOLVED_FIXED);
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_WONT_FIX)))
+      .isEqualTo(QGChangeEventListener.Status.RESOLVED_WF);
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE)))
+      .isEqualTo(QGChangeEventListener.Status.RESOLVED_FP);
+    // REMOVED (removed from code) is a valid CLOSED/RESOLVED resolution — treated as closed, like FIXED (SONAR-31061)
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_REMOVED)))
+      .isEqualTo(QGChangeEventListener.Status.RESOLVED_FIXED);
+    assertThat(ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_REMOVED)))
+      .isEqualTo(QGChangeEventListener.Status.RESOLVED_FIXED);
+    assertThatThrownBy(() -> ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_CLOSED)))
+      .hasMessage("A resolved issue should have a resolution");
+    assertThatThrownBy(() -> ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_RESOLVED)))
+      .hasMessage("A resolved issue should have a resolution");
+    // a resolution that is neither closed-like nor a hotspot-review one is still rejected
+    assertThatThrownBy(() -> ChangedIssueImpl.statusOf(new DefaultIssue().setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_SAFE)))
+      .hasMessage("Unexpected resolution for a resolved issue: SAFE");
   }
 
   @Test

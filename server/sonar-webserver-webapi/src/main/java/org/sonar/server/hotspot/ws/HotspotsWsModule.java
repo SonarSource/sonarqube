@@ -37,6 +37,10 @@ public class HotspotsWsModule extends Module {
       EditCommentAction.class,
       PullAction.class,
       PullHotspotsActionProtobufObjectGenerator.class,
+      MigrationBatchWriter.class,
+      HotspotsToIssuesMigrator.class,
+      MigrateToIssuesAction.class,
+      MigrationStatusAction.class,
       HotspotsWs.class);
   }
 }

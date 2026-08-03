@@ -17,18 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.hotspot.ws;
+package org.sonar.db.issue;
 
-import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+/**
+ * Lightweight (branch uuid, issue key) row used to keyset-paginate Security Hotspot findings during the
+ * Hotspots-to-Issues migration (MMF-5734). Paginating on a fan-out-free query keeps page sizes exact, so the
+ * migration never holds a cursor open while it mutates the very rows it is reading.
+ */
+public class HotspotMigrationKeyDto {
+  private String branchUuid = "";
+  private String kee = "";
 
-import static org.assertj.core.api.Assertions.assertThat;
+  public String getBranchUuid() {
+    return branchUuid;
+  }
 
-public class HotspotsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ListContainer container = new ListContainer();
-    new HotspotsWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(17);
+  public HotspotMigrationKeyDto setBranchUuid(String branchUuid) {
+    this.branchUuid = branchUuid;
+    return this;
+  }
+
+  public String getKee() {
+    return kee;
+  }
+
+  public HotspotMigrationKeyDto setKee(String kee) {
+    this.kee = kee;
+    return this;
   }
 }

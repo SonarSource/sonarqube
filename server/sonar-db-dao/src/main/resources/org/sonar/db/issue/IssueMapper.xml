@@ -394,6 +394,94 @@
       i.kee
   </select>
 
+  <!--
+    Streams Security Hotspot findings (issue_type = 4) for the Hotspots-to-Issues migration (MMF-5734).
+    Ordered by branch (i.project_uuid) so the migrator can flush/commit one branch per transaction
+    without buffering the whole result set. Optional project scoping via project_branches.project_uuid.
+  -->
+  <resultMap id="hotspotToMigrateResultMap" type="org.sonar.db.issue.HotspotToMigrateDto" extends="issueResultMap" autoMapping="true">
+    <result property="ruleType" column="ruleType"/>
+  </resultMap>
+
+  <!--
+    Keyset-paginated page of (branch uuid, issue key) for Security Hotspot findings (issue_type = 4), ordered by
+    branch then key. Deliberately fan-out free (no impacts / default-impacts joins) so the LIMIT counts exactly one
+    row per finding, making every page boundary land on a whole issue. The caller advances the keyset by the last
+    returned (project_uuid, kee): because it re-queries per page it never holds a cursor open while migrating rows,
+    so committing the type change (issue_type 4 -> target) never truncates the remaining findings (SONAR-31061).
+  -->
+  <select id="selectHotspotKeysForMigration" parameterType="map" resultType="org.sonar.db.issue.HotspotMigrationKeyDto">
+    select
+      i.project_uuid as branchUuid,
+      i.kee as kee
+    from issues i
+      inner join project_branches pb on pb.uuid = i.project_uuid
+    <where>
+      i.issue_type = 4
+      <if test="projectUuids != null and projectUuids.size() > 0">
+        and pb.project_uuid in
+        <foreach collection="projectUuids" item="projectUuid" open="(" separator="," close=")">
+          #{projectUuid,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="lastKee != null">
+        and (i.project_uuid &gt; #{lastBranchUuid,jdbcType=VARCHAR}
+          or (i.project_uuid = #{lastBranchUuid,jdbcType=VARCHAR} and i.kee &gt; #{lastKee,jdbcType=VARCHAR}))
+      </if>
+    </where>
+    order by i.project_uuid, i.kee
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <!--
+    Loads fully-populated HotspotToMigrateDto (an IssueDto, incl. toDefaultIssue()) for a page of keys, plus the
+    rule's current type (r.rule_type as ruleType). The full issue columns are
+    required by the write path, which rewrites all columns on update. Ordered by branch then key so the caller can
+    keep grouping findings into per-branch batches; resultOrdered collapses the impacts / default-impacts fan-out.
+  -->
+  <select id="selectHotspotsForMigrationByKeys" parameterType="map" resultMap="hotspotToMigrateResultMap" resultOrdered="true">
+    select
+      <include refid="issueColumns"/>,
+      u.login as assigneeLogin,
+      r.rule_type as ruleType
+    from issues i
+      inner join rules r on r.uuid = i.rule_uuid
+      inner join components p on p.uuid = i.component_uuid
+      inner join components root on root.uuid = i.project_uuid
+      inner join project_branches pb on pb.uuid = i.project_uuid
+      left join users u on i.assignee = u.uuid
+      left join new_code_reference_issues n on i.kee = n.issue_key
+      left outer join issues_impacts ii on i.kee = ii.issue_key
+      left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+      left join jira_work_items_resources jwir on jwir.resource_id = i.kee and jwir.resource_type = 'SONAR_ISSUE'
+    where i.kee in
+      <foreach collection="keys" item="key" open="(" separator="," close=")">
+        #{key,jdbcType=VARCHAR}
+      </foreach>
+    order by
+      i.project_uuid, i.kee
+  </select>
+
+  <!--
+  Counts remaining Security Hotspot findings (issue_type = 4) still to migrate, optionally scoped by project.
+  Used by the migration status/verification view to report progress and convergence.
+-->
+  <select id="countHotspotsForMigration" parameterType="map" resultType="int">
+    select count(1)
+    from issues i
+      inner join project_branches pb on pb.uuid = i.project_uuid
+    <where>
+      i.issue_type = 4
+      <if test="projectUuids != null and projectUuids.size() > 0">
+        and pb.project_uuid in
+        <foreach collection="projectUuids" item="projectUuid" open="(" separator="," close=")">
+          #{projectUuid,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+    </where>
+  </select>
+
+
   <select id="scrollNonClosedScannerIssuesByComponentUuid" parameterType="String" resultMap="issueWithoutRuleInfoResultMap" fetchSize="${_scrollFetchSize}"
           resultSetType="FORWARD_ONLY" resultOrdered="true">
     select

@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -344,6 +345,79 @@ class IssueDaoIT {
       issueCount++;
     }
     assertThat(issueCount).isEqualTo(100);
+  }
+
+  @Test
+  void selectHotspotsForMigration_returnsHotspotFindingsWithRuleTargetType_scopedByProject() {
+    ProjectData projectA = db.components().insertPrivateProject();
+    ComponentDto branchA = projectA.getMainBranchComponent();
+    ComponentDto fileA = db.components().insertComponent(newFileDto(branchA));
+    ProjectData projectB = db.components().insertPrivateProject();
+    ComponentDto branchB = projectB.getMainBranchComponent();
+    ComponentDto fileB = db.components().insertComponent(newFileDto(branchB));
+
+    // Phase-1-converted rules (rule type already changed) and a rule not yet converted (still a hotspot).
+    RuleDto vulnerabilityRule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    RuleDto codeSmellRule = db.rules().insert(r -> r.setType(RuleType.CODE_SMELL));
+    RuleDto stillHotspotRule = db.rules().insertHotspotRule();
+
+    // Hotspot-typed findings (issue_type = SECURITY_HOTSPOT) — the migration input, whatever the rule became.
+    IssueDto onVuln = db.issues().insert(vulnerabilityRule, branchA, fileA, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+    IssueDto onCodeSmell = db.issues().insert(codeSmellRule, branchA, fileA, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+    IssueDto onStillHotspot = db.issues().insert(stillHotspotRule, branchB, fileB, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+    // Not a hotspot finding -> excluded.
+    db.issues().insert(vulnerabilityRule, branchA, fileA, i -> i.setType(RuleType.VULNERABILITY));
+
+    // All projects: keys of the 3 hotspot findings.
+    List<HotspotMigrationKeyDto> allKeys = underTest.selectHotspotKeysForMigration(db.getSession(), null, null, null, 100);
+    assertThat(allKeys).extracting(HotspotMigrationKeyDto::getKee)
+      .containsExactlyInAnyOrder(onVuln.getKey(), onCodeSmell.getKey(), onStillHotspot.getKey());
+
+    // Loading by keys carries each finding's rule current (target) type.
+    List<HotspotToMigrateDto> loaded = underTest.selectHotspotsForMigrationByKeys(db.getSession(),
+      allKeys.stream().map(HotspotMigrationKeyDto::getKee).toList());
+    assertThat(loaded).extracting(HotspotToMigrateDto::getKey, HotspotToMigrateDto::getRuleTypeEnum)
+      .containsExactlyInAnyOrder(
+        tuple(onVuln.getKey(), RuleType.VULNERABILITY),
+        tuple(onCodeSmell.getKey(), RuleType.CODE_SMELL),
+        tuple(onStillHotspot.getKey(), RuleType.SECURITY_HOTSPOT));
+
+    // Scoped to projectA (entity uuid): only its hotspot findings.
+    List<HotspotMigrationKeyDto> scoped = underTest.selectHotspotKeysForMigration(db.getSession(),
+      Set.of(projectA.getProjectDto().getUuid()), null, null, 100);
+    assertThat(scoped).extracting(HotspotMigrationKeyDto::getKee)
+      .containsExactlyInAnyOrder(onVuln.getKey(), onCodeSmell.getKey());
+  }
+
+  @Test
+  void selectHotspotKeysForMigration_paginatesByKeysetWithoutGapsOrDuplicates() {
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    RuleDto vulnerabilityRule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    IssueDto h1 = db.issues().insert(vulnerabilityRule, branch, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+    IssueDto h2 = db.issues().insert(vulnerabilityRule, branch, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+    IssueDto h3 = db.issues().insert(vulnerabilityRule, branch, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+
+    List<String> collected = new ArrayList<>();
+    String lastBranchUuid = null;
+    String lastKee = null;
+    while (true) {
+      List<HotspotMigrationKeyDto> page = underTest.selectHotspotKeysForMigration(db.getSession(), null, lastBranchUuid, lastKee, 2);
+      if (page.isEmpty()) {
+        break;
+      }
+      page.forEach(row -> collected.add(row.getKee()));
+      HotspotMigrationKeyDto last = page.get(page.size() - 1);
+      lastBranchUuid = last.getBranchUuid();
+      lastKee = last.getKee();
+      if (page.size() < 2) {
+        break;
+      }
+    }
+    assertThat(collected)
+      .containsExactlyInAnyOrder(h1.getKey(), h2.getKey(), h3.getKey())
+      .doesNotHaveDuplicates();
   }
 
   @Test

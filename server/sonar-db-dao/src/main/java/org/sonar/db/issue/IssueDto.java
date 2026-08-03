@@ -43,7 +43,7 @@ import org.sonar.db.rule.RuleDto;
 import static java.util.stream.Collectors.toUnmodifiableMap;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
-public final class IssueDto extends IssueWithoutRuleInfoDto {
+public class IssueDto extends IssueWithoutRuleInfoDto {
 
   private String securityStandards;
 

@@ -114,6 +114,39 @@ public class IssueDao implements Dao {
     return mapper(dbSession).scrollIssuesForIndexation(branchUuid, issueKeys);
   }
 
+  /**
+   * Returns one keyset page of (branch uuid, issue key) for Security Hotspot findings (issue_type = 4) for the
+   * Hotspots-to-Issues migration (MMF-5734), ordered by branch then key and starting strictly after
+   * {@code (lastBranchUuid, lastKee)} (pass {@code null}/{@code null} for the first page). Because the caller
+   * re-queries per page instead of holding a cursor, migrating (and committing) findings mid-run never truncates
+   * the remaining ones (SONAR-31061).
+   *
+   * @param projectUuids   optional project (entity) uuids to scope the migration; null or empty scans all projects.
+   * @param lastBranchUuid branch uuid of the last row of the previous page, or null for the first page.
+   * @param lastKee        issue key of the last row of the previous page, or null for the first page.
+   * @param pageSize       maximum number of findings to return.
+   */
+  public List<HotspotMigrationKeyDto> selectHotspotKeysForMigration(DbSession dbSession, @Nullable Collection<String> projectUuids,
+    @Nullable String lastBranchUuid, @Nullable String lastKee, int pageSize) {
+    return mapper(dbSession).selectHotspotKeysForMigration(projectUuids, lastBranchUuid, lastKee, Pagination.forPage(1).andSize(pageSize));
+  }
+
+  /**
+   * Loads the fully-populated {@link HotspotToMigrateDto} (incl. rule target type) for the given issue keys,
+   * ordered by branch then key. Used together with {@link #selectHotspotKeysForMigration}.
+   */
+  public List<HotspotToMigrateDto> selectHotspotsForMigrationByKeys(DbSession dbSession, List<String> keys) {
+    return executeLargeInputs(keys, partition -> mapper(dbSession).selectHotspotsForMigrationByKeys(partition));
+  }
+
+  /**
+   * Counts Security Hotspot findings (issue_type = 4) still to migrate, optionally scoped to the given project
+   * (entity) uuids; {@code null}/empty counts all projects. Used by the migration status/verification view.
+   */
+  public int countHotspotsForMigration(DbSession dbSession, @Nullable Collection<String> projectUuids) {
+    return mapper(dbSession).countHotspotsForMigration(projectUuids);
+  }
+
   public Cursor<IssueStatsDto> scrollIssuesForIssueStats(DbSession dbSession, @Param("branchUuid") String branchUuid) {
     return mapper(dbSession).scrollIssuesForIssueStats(branchUuid);
   }

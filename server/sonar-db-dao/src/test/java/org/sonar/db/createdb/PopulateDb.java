@@ -38,10 +38,11 @@ import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
@@ -75,6 +76,7 @@ public class PopulateDb {
   public static final int BRANCH_PER_PROJECT = 7;
   public static final int FILE_PER_BRANCH = 377;
   public static final int ISSUE_PER_FILE = 3;
+  public static final int HOTSPOT_PER_FILE = 1;
   public static final int SNAPSHOT_PER_BRANCH = 13;
   public static final int WEBHOOK_DELIVERIES_PER_COMPONENT = 1;
   public static final int NB_USER = 100;
@@ -117,7 +119,7 @@ public class PopulateDb {
     LOG.info("Starting generation of {} projects", NB_PROJECT_WISHED);
     IntStream.rangeClosed(1, NB_PROJECT_WISHED)
       .map(i -> i + allProjects.size())
-      .mapToObj(i -> new ProjectStructure("project " + i, BRANCH_PER_PROJECT, FILE_PER_BRANCH, ISSUE_PER_FILE, ISSUE_PER_FILE, SNAPSHOT_PER_BRANCH, WEBHOOK_DELIVERIES_PER_COMPONENT))
+      .mapToObj(i -> new ProjectStructure("project " + i, BRANCH_PER_PROJECT, FILE_PER_BRANCH, ISSUE_PER_FILE, ISSUE_PER_FILE, SNAPSHOT_PER_BRANCH, WEBHOOK_DELIVERIES_PER_COMPONENT, HOTSPOT_PER_FILE))
       .forEach(projectStructure -> {
         executorService.submit(() -> {
           LOG.info("Worker-{}: Starting generation of project: {}", Thread.currentThread().getName(), projectStructure);
@@ -214,6 +216,10 @@ public class PopulateDb {
     public RuleDto findNotSecurityHotspotRule() {
       return rules.stream().filter(r -> r.getType() != RuleType.SECURITY_HOTSPOT.getDbConstant()).findAny().orElseThrow();
     }
+
+    public RuleDto findVulnerabilityRule() {
+      return rules.stream().filter(r -> r.getType() == RuleType.VULNERABILITY.getDbConstant()).findAny().orElseThrow();
+    }
   }
 
   private static @NotNull DbTester createDbTester() {
@@ -221,7 +227,7 @@ public class PopulateDb {
   }
 
   private record ProjectStructure(String projectName, int branchPerProject, int filePerBranch, int issuePerFile, int issueChangePerIssue,
-                                  int snapshotPerBranch, int webhookDeliveriesPerBranch) {
+                                  int snapshotPerBranch, int webhookDeliveriesPerBranch, int hotspotPerFile) {
   }
 
   private record PortfolioGenerationSettings(int currentPortfoliosSize, int numberOfPortolios, int maxProjectPerPortfolio) {
@@ -296,6 +302,13 @@ public class PopulateDb {
             for (int issueChangeNum = 0; issueChangeNum < pj.issueChangePerIssue; issueChangeNum++) {
               sqContext.dbTester.issues().insertChange(issueDto);
             }
+          }
+          // for every hotspot in file
+          for (int hotspotNum = 0; hotspotNum < pj.hotspotPerFile; hotspotNum++) {
+            sqContext.dbTester.issues().insert(sqContext.findVulnerabilityRule(), branchAndComponentDto.branch, fileComponentDto,
+              issue -> issue.setType(RuleType.SECURITY_HOTSPOT.getDbConstant())
+                            .setStatus(Issue.STATUS_TO_REVIEW)
+                            .setResolution(null));
           }
           // create live measure for this file
           fileLiveMeasureMetrics.stream()
