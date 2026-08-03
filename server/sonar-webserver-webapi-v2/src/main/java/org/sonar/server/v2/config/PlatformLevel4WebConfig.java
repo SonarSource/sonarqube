@@ -53,6 +53,7 @@ import org.sonar.server.v2.api.system.controller.HealthController;
 import org.sonar.server.v2.api.user.controller.DefaultUserController;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
 import org.sonar.server.resolver.DefaultsArgumentResolver;
+import org.sonar.server.resolver.DefaultsRequestBodyAdvice;
 import org.sonar.server.v2.common.DeprecatedHandler;
 import org.sonar.server.v2.common.WebApiV2MetricsInterceptor;
 import org.sonar.server.v2.security.WebSecurityConfig;
@@ -137,5 +138,10 @@ public class PlatformLevel4WebConfig implements WebMvcConfigurer {
         return bean;
       }
     };
+  }
+
+  @Bean
+  public DefaultsRequestBodyAdvice defaultsRequestBodyAdvice() {
+    return new DefaultsRequestBodyAdvice();
   }
 }

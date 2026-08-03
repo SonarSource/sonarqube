@@ -19,29 +19,9 @@
  */
 package org.sonar.server.resolver;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.RecordComponent;
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
-import org.sonarsource.enterprises.api.rest.EnterpriseId;
 import org.sonarsource.enterprises.server.DefaultEnterpriseProvider;
-import org.sonarsource.organizations.api.rest.OrganizationId;
-import org.sonarsource.organizations.api.rest.OrganizationKey;
-import org.sonarsource.organizations.api.rest.OrganizationLegacyId;
 import org.sonarsource.organizations.server.DefaultOrganizationProvider;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.core.MethodParameter;
@@ -60,16 +40,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ServletModelAttribu
  * to their default values, overriding any user-provided values.
  * <p>
  * The default values must match those in {@link DefaultOrganizationProvider} and {@link DefaultEnterpriseProvider}.
+ * <p>
+ * {@code @RequestBody} DTOs are handled separately by {@link DefaultsRequestBodyAdvice}.
  */
 @ServerSide
 public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
-  private static final Map<Class<? extends Annotation>, String> ANNOTATIONS = Map.of(
-    OrganizationId.class, DefaultOrganizationProvider.ID.toString(),
-    OrganizationKey.class, DefaultOrganizationProvider.KEY,
-    OrganizationLegacyId.class, DefaultOrganizationProvider.LEGACY_ID,
-    EnterpriseId.class, DefaultEnterpriseProvider.ENTERPRISE_ID.toString()
-  );
-
   private final ServletModelAttributeMethodProcessor delegate = new ServletModelAttributeMethodProcessor(false);
 
   @Override
@@ -77,9 +52,7 @@ public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
     if (parameter.hasParameterAnnotation(ParameterObject.class)) {
       return true;
     }
-    // Use MethodParameter's annotation lookup so that annotations declared on interface
-    // method parameters are found (raw java.lang.reflect.Parameter only sees the concrete method).
-    return hasAnnotation(parameter);
+    return DefaultsInjector.hasAnnotation(parameter);
   }
 
   @Override
@@ -89,121 +62,15 @@ public class DefaultsArgumentResolver implements HandlerMethodArgumentResolver {
     NativeWebRequest webRequest,
     @Nullable WebDataBinderFactory binderFactory) throws Exception {
 
-    String defaultValue = getDefault(parameter);
+    String defaultValue = DefaultsInjector.getDefault(parameter);
     if (defaultValue != null) {
-      return resolveValue(defaultValue, parameter.getParameterType(), parameter.getGenericParameterType());
+      return DefaultsInjector.resolveValue(defaultValue, parameter.getParameterType(), parameter.getGenericParameterType());
     }
 
     Object boundObject = delegate.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
     if (boundObject == null) {
       return null;
     }
-    return injectDefaults(boundObject, parameter.getParameterType());
+    return DefaultsInjector.injectDefaults(boundObject, parameter.getParameterType());
   }
-
-  private Object injectDefaults(Object boundObject, Class<?> parameterType)
-    throws ReflectiveOperationException {
-    return parameterType.isRecord()
-      ? injectIntoRecord(boundObject, parameterType)
-      : injectIntoClass(boundObject, parameterType);
-  }
-
-  private Object injectIntoRecord(Object boundObject, Class<?> recordClass)
-    throws ReflectiveOperationException {
-    RecordComponent[] components = recordClass.getRecordComponents();
-    Object[] args = buildConstructorArguments(boundObject, components);
-    Constructor<?> constructor = getCanonicalConstructor(recordClass, components);
-    return constructor.newInstance(args);
-  }
-
-  private static Object[] buildConstructorArguments(Object boundObject, RecordComponent[] components)
-    throws InvocationTargetException, IllegalAccessException {
-    Object[] args = new Object[components.length];
-    for (int i = 0; i < components.length; i++) {
-      RecordComponent component = components[i];
-      Object currentValue = component.getAccessor().invoke(boundObject);
-      args[i] = getValueOrDefault(component, currentValue, component.getType(), component.getGenericType());
-    }
-    return args;
-  }
-
-  private Constructor<?> getCanonicalConstructor(Class<?> recordClass, RecordComponent[] components)
-    throws NoSuchMethodException {
-    Class<?>[] parameterTypes = Arrays.stream(components)
-      .map(RecordComponent::getType)
-      .toArray(Class<?>[]::new);
-    return recordClass.getDeclaredConstructor(parameterTypes);
-  }
-
-  private static Object injectIntoClass(Object boundObject, Class<?> classType) throws IllegalAccessException {
-    for (Field field : classType.getDeclaredFields()) {
-      field.setAccessible(true);
-      String defaultValue = getDefault(field);
-      if (defaultValue != null) {
-        field.set(boundObject, resolveValue(defaultValue, field.getType(), field.getGenericType()));
-      }
-    }
-    return boundObject;
-  }
-
-  private static Object getValueOrDefault(AnnotatedElement element, @Nullable Object currentValue, Class<?> targetType, Type genericType) {
-    String defaultValue = getDefault(element);
-    return defaultValue != null ? resolveValue(defaultValue, targetType, genericType) : currentValue;
-  }
-
-  @CheckForNull
-  private static String getDefault(MethodParameter parameter) {
-    return ANNOTATIONS.entrySet().stream()
-      .filter(entry -> parameter.getParameterAnnotation(entry.getKey()) != null)
-      .map(Map.Entry::getValue)
-      .findFirst()
-      .orElse(null);
-  }
-
-  @CheckForNull
-  private static String getDefault(AnnotatedElement element) {
-    return ANNOTATIONS.entrySet().stream()
-      .filter(entry -> element.getAnnotation(entry.getKey()) != null)
-      .map(Map.Entry::getValue)
-      .findFirst()
-      .orElse(null);
-  }
-
-  private static boolean hasAnnotation(MethodParameter parameter) {
-    return ANNOTATIONS.keySet().stream()
-      .anyMatch(parameter::hasParameterAnnotation);
-  }
-
-  private static Object resolveValue(String defaultValue, Class<?> targetType, Type genericType) {
-    if (!isCollectionOrArray(targetType)) {
-      return convert(defaultValue, targetType);
-    }
-    if (targetType.isArray()) {
-      Class<?> componentType = targetType.getComponentType();
-      Object array = Array.newInstance(componentType, 1);
-      Array.set(array, 0, convert(defaultValue, componentType));
-      return array;
-    }
-    Object element = convert(defaultValue, elementType(genericType));
-    return targetType.isAssignableFrom(Set.class) ? Set.of(element) : List.of(element);
-  }
-
-  private static Class<?> elementType(@Nullable Type genericType) {
-    if (genericType instanceof ParameterizedType parameterizedType) {
-      Type[] typeArguments = parameterizedType.getActualTypeArguments();
-      if (typeArguments.length == 1 && typeArguments[0] instanceof Class<?> elementClass) {
-        return elementClass;
-      }
-    }
-    return String.class;
-  }
-
-  private static Object convert(String value, Class<?> type) {
-    return type == UUID.class ? UUID.fromString(value) : value;
-  }
-
-  private static boolean isCollectionOrArray(Class<?> type) {
-    return Collection.class.isAssignableFrom(type) || type.isArray();
-  }
-
 }
