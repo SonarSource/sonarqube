@@ -35,11 +35,13 @@ import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.model.IssueCountHistoryRow;
+import org.sonarsource.history.model.IssueTtrHistory;
 import org.sonarsource.history.model.MeasureHistoryRow;
 import org.sonarsource.history.server.db.HistoryDbClient;
 import org.sonarsource.history.server.db.HistoryMyBatisConfExtension;
 import org.sonarsource.history.server.db.repository.IssueCountDimensionsRepository;
 import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
+import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureKeyMappingRepository;
 import org.sonarsource.history.server.service.HistoryPurgeService;
@@ -68,12 +70,14 @@ public class HistoryPurgeStepIT {
     List.of(
       new IssueCountDimensionsRepository(),
       new IssueCountHistoryRepository(),
+      new IssueTtrHistoryRepository(),
       new MeasureHistoryRepository(),
       new MeasureKeyMappingRepository()));
   private final HistoryPurgeService historyPurgeService = new HistoryPurgeService(
     historyDbClient,
     historyDbClient.issueCountHistoryRepository(),
-    historyDbClient.measureHistoryRepository());
+    historyDbClient.measureHistoryRepository(),
+    historyDbClient.issueTtrHistoryRepository());
   private final HistoryPurgeStep underTest = new HistoryPurgeStep(historyPurgeService, dbClient, CLOCK);
 
   @Test
@@ -90,6 +94,8 @@ public class HistoryPurgeStepIT {
     assertThat(db.countSql("select count(*) from issue_count_history where recorded_at_epoch = " + AFTER_THRESHOLD.toEpochMilli())).isOne();
     assertThat(db.countSql("select count(*) from measure_history")).isOne();
     assertThat(db.countSql("select count(*) from measure_history where recorded_at_epoch = " + AFTER_THRESHOLD.toEpochMilli())).isOne();
+    assertThat(db.countSql("select count(*) from issue_ttr_history")).isOne();
+    assertThat(db.countSql("select count(*) from issue_ttr_history where recorded_at_epoch = " + AFTER_THRESHOLD.toEpochMilli())).isOne();
   }
 
   private void insertHistoryRows() {
@@ -102,5 +108,10 @@ public class HistoryPurgeStepIT {
     measureHistoryRepository.upsert(db.getSession(), new MeasureHistoryRow(METRIC_ID, ENTITY_ID, ENTITY_TYPE, BEFORE_THRESHOLD, "1"));
     measureHistoryRepository.upsert(db.getSession(), new MeasureHistoryRow(METRIC_ID, ENTITY_ID, ENTITY_TYPE, AT_THRESHOLD, "2"));
     measureHistoryRepository.upsert(db.getSession(), new MeasureHistoryRow(METRIC_ID, ENTITY_ID, ENTITY_TYPE, AFTER_THRESHOLD, "3"));
+
+    IssueTtrHistoryRepository issueTtrHistoryRepository = historyDbClient.issueTtrHistoryRepository();
+    issueTtrHistoryRepository.upsert(db.getSession(), new IssueTtrHistory(ENTITY_ID, ENTITY_TYPE, DIMENSION_ID, BEFORE_THRESHOLD, 10L, 1));
+    issueTtrHistoryRepository.upsert(db.getSession(), new IssueTtrHistory(ENTITY_ID, ENTITY_TYPE, DIMENSION_ID, AT_THRESHOLD, 20L, 2));
+    issueTtrHistoryRepository.upsert(db.getSession(), new IssueTtrHistory(ENTITY_ID, ENTITY_TYPE, DIMENSION_ID, AFTER_THRESHOLD, 30L, 3));
   }
 }

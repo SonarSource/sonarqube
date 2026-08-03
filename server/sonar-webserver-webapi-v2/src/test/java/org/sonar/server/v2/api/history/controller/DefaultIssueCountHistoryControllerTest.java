@@ -197,7 +197,7 @@ public class DefaultIssueCountHistoryControllerTest {
     org.sonarsource.history.model.IssueCountHistoryResponse response = new org.sonarsource.history.model.IssueCountHistoryResponse(
       java.util.List.of(new org.sonarsource.history.model.IssueCountHistoryPoint(
         Instant.parse("2026-07-08T00:00:00Z"),
-        java.util.List.of(new org.sonarsource.history.model.IssueCountDistribution("SAFE", 3)))));
+        java.util.List.of(new org.sonarsource.history.model.IssueCountHistoryDistribution("SAFE", 3)))));
     when(issueHistoryService.queryIssueCountHistory(
        eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
       isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))

@@ -23,11 +23,14 @@ import org.junit.jupiter.api.Test;
 import org.sonarsource.history.server.db.HistoryDbClient;
 import org.sonarsource.history.server.db.repository.IssueCountDimensionsRepository;
 import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
+import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureKeyMappingRepository;
 import org.sonarsource.history.server.service.HistoryPurgeService;
 import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
+import org.sonarsource.history.server.service.IssueTtrHistoryRecordingService;
 import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
+import org.sonarsource.history.server.service.RetryableOrderedBatchWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,10 +44,13 @@ class HistoryComponentProviderTest {
         HistoryDbClient.class,
         IssueCountDimensionsRepository.class,
         IssueCountHistoryRepository.class,
+        IssueTtrHistoryRepository.class,
         MeasureHistoryRepository.class,
         MeasureKeyMappingRepository.class,
         IssueCountHistoryRecordingService.class,
+        IssueTtrHistoryRecordingService.class,
         MeasuresHistoryRecordingService.class,
+        RetryableOrderedBatchWriter.class,
         HistoryPurgeService.class);
   }
 }
