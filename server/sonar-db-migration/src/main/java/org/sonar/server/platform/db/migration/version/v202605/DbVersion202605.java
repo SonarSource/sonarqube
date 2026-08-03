@@ -61,6 +61,8 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_030, "Drop index 'sca_ttr_history_uq_idx'", DropScaTtrHistoryUniqueIndex.class)
       .add(2026_05_031, "Drop index 'sca_ttr_history_ent_type_epoch'", DropScaTtrHistoryEntityEpochIndex.class)
       .add(2026_05_032, "Resize entity_id and entity_type columns in 'sca_ttr_history'", ResizeScaTtrEntityIdAndEntityType.class)
-      .add(2026_05_033, "Add 'url' and 'repo_id' columns to 'project_alm_settings' table", AddUrlAndRepoIdColumnsToProjectAlmSettingsTable.class);
+      .add(2026_05_033, "Add 'url' and 'repo_id' columns to 'project_alm_settings' table", AddUrlAndRepoIdColumnsToProjectAlmSettingsTable.class)
+      .add(2026_05_034, "Create index 'sca_dependencies_updated_at' on 'sca_dependencies.updated_at'", CreateIndexOnScaDependenciesUpdatedAt.class)
+      .add(2026_05_035, "Create index 'sca_ir_cve_loc_updated_at' on 'sca_ir_cve_locations.updated_at'", CreateIndexOnScaIrCveLocationsUpdatedAt.class);
   }
 }
