@@ -44,6 +44,8 @@ public class ScaMetrics {
 
   // These must be kept in sync with SCA metrics!
   // There's currently no way to do this in an automated fashion.
+  public static final String DOMAIN_DEPENDENCY_RISKS = "DependencyRisks";
+
   private static final String SCA_SEVERITY_PREFIX = "sca_severity";
   private static final String SCA_COUNT_PREFIX = "sca_count";
   private static final String SCA_RATING_PREFIX = "sca_rating";
@@ -104,7 +106,7 @@ public class ScaMetrics {
     SCA_RATING_ANY_ISSUE_KEY, "Dependency risk rating", Metric.ValueType.RATING)
     .setDescription("Dependency risk rating")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain("DependencyRisks")
+    .setDomain(DOMAIN_DEPENDENCY_RISKS)
     .setBestValue(1.0)
     .setWorstValue(5.0)
     .setOptimizedBestValue(true)
@@ -114,7 +116,7 @@ public class ScaMetrics {
     NEW_SCA_RATING_ANY_ISSUE_KEY, "Dependency risk rating on new code", Metric.ValueType.RATING)
     .setDescription("Dependency risk rating on new code")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain("DependencyRisks")
+    .setDomain(DOMAIN_DEPENDENCY_RISKS)
     .setBestValue(1.0)
     .setWorstValue(5.0)
     .setOptimizedBestValue(true)
