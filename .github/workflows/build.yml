@@ -64,4 +64,4 @@ jobs:
           # No -PexcludeElasticsearchTests/-PincludeElasticsearchTests: the default runs all tests
           # (ES and non-ES) in one pass, so every test feeds the single jacocoTestReport and the
           # SonarQube coverage measurement stays complete.
-          gradle-args: "jacocoTestReport -Dsonar.projectKey=sonarqube -Dsonar.organization=sonarsource -Dsonar.exclusions=**/design-system/theme/**,**/legacy-design-system/**"
+          gradle-args: "jacocoTestReport -Dsonar.projectKey=sonarqube -Dsonar.organization=sonarsource -Dsonar.exclusions=**/design-system/theme/**,**/legacy-design-system/** -Dsonar.sca.exclusions=**/src/test/**"
