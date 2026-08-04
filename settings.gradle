@@ -89,14 +89,16 @@ def useLocalUnificationModule = { String propName, String subPath, List<String> 
       )
     }
     def group = opts.group ?: 'org.sonarsource.sonarqube'
+    def groups = opts.groups ?: [:]
     def projectPaths = opts.projectPaths ?: [:]
     def dir = new File(basePath, subPath)
     println "Using local build [${propName}] from: ${dir.absolutePath}"
     includeBuild(dir.absolutePath) {
       dependencySubstitution {
         modules.each { name ->
+          def moduleGroup = groups[name] ?: group
           def projectPath = projectPaths[name] ?: ":${name}"
-          substitute module("${group}:${name}") using project(projectPath)
+          substitute module("${moduleGroup}:${name}") using project(projectPath)
         }
       }
     }
@@ -105,7 +107,10 @@ def useLocalUnificationModule = { String propName, String subPath, List<String> 
 
 useLocalUnificationModule('useLocalOrg', 'organizations', ['organizations-api', 'organizations-server-app'])
 useLocalUnificationModule('useLocalEntitlements', 'billing/entitlements', ['entitlements-api'])
-useLocalUnificationModule('useLocalConsumption', 'billing/consumption', ['consumption-api'])
+useLocalUnificationModule('useLocalConsumption', 'billing/consumption', ['consumption-api', 'consumption-server-app'], [
+  groups: ['consumption-server-app': 'com.sonarsource.sonarqube'],
+  projectPaths: ['consumption-server-app': ':private:consumption-server-app'],
+])
 useLocalUnificationModule('useLocalMetrics', 'analysis-processing/metrics', ['metrics-api', 'metrics-server-app'])
 useLocalUnificationModule('useLocalArchitecture', 'architecture',
   ['architecture-server-app', 'architecture-api', 'architecture-unified-app', 'architecture-datastructure'],
