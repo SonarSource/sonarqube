@@ -19,27 +19,30 @@
  */
 package org.sonar.ce.task.purgehistory;
 
-import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.config.GlobalPropertyChangeHandler;
+import org.sonar.api.server.ServerSide;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.server.util.GlobalLockManager;
 
-public class HistoryPurgeSchedulerImpl implements HistoryPurgeScheduler {
-  static final long INITIAL_DELAY_IN_HOURS = 0;
-  static final long ENQUEUE_DELAY_IN_HOURS = 24;
+import static org.sonar.core.config.PurgeConstants.DAYS_BEFORE_DELETING_HISTORY;
 
-  private final HistoryPurgeExecutorService executorService;
+@ServerSide
+public class HistoryPurgePropertyChangeHandler extends GlobalPropertyChangeHandler {
+  private static final Logger LOG = LoggerFactory.getLogger(HistoryPurgePropertyChangeHandler.class);
+
   private final HistoryPurgeTaskLimiter historyPurgeTaskLimiter;
 
-  public HistoryPurgeSchedulerImpl(HistoryPurgeExecutorService executorService, CeQueue ceQueue,
-    GlobalLockManager lockManager) {
-    this.executorService = executorService;
+  public HistoryPurgePropertyChangeHandler(CeQueue ceQueue, GlobalLockManager lockManager) {
     this.historyPurgeTaskLimiter = new HistoryPurgeTaskLimiter(ceQueue, lockManager);
   }
 
   @Override
-  public void startScheduling() {
-    executorService.scheduleAtFixedRate(historyPurgeTaskLimiter::tryEnqueue, INITIAL_DELAY_IN_HOURS, ENQUEUE_DELAY_IN_HOURS, TimeUnit.HOURS);
+  public void onChange(PropertyChange change) {
+    if (DAYS_BEFORE_DELETING_HISTORY.equals(change.getKey())) {
+      LOG.info("Detected value change of property {}; kicking off HISTORY_PURGE", DAYS_BEFORE_DELETING_HISTORY);
+      historyPurgeTaskLimiter.tryEnqueue();
+    }
   }
-
-
 }

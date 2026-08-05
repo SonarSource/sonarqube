@@ -55,6 +55,7 @@ import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.ce.task.projectexport.taskprocessor.ProjectExportTaskProcessor;
 import org.sonar.ce.task.purgehistory.HistoryPurgeExecutorServiceImpl;
 import org.sonar.ce.task.purgehistory.HistoryPurgeInitializer;
+import org.sonar.ce.task.purgehistory.HistoryPurgePropertyChangeHandler;
 import org.sonar.ce.task.purgehistory.HistoryPurgeSchedulerImpl;
 import org.sonar.ce.task.projectanalysis.taskprocessor.HistoryPurgeTaskProcessor;
 import org.sonar.core.extension.CoreExtensionsInstaller;
@@ -729,6 +730,7 @@ public class PlatformLevel4 extends PlatformLevel {
       HistoryPurgeSchedulerImpl.class,
       HistoryPurgeExecutorServiceImpl.class,
       HistoryPurgeInitializer.class,
+      HistoryPurgePropertyChangeHandler.class,
       ProjectExportTaskProcessor.class,
 
       // SonarSource editions
