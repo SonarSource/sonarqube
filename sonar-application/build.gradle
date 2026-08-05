@@ -1,3 +1,4 @@
+import com.ljarocki.parallelzip.ParallelZip
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -7,6 +8,7 @@ import org.sonar.build.WriteDependencyLicensesTask
 
 plugins {
   id "com.gradleup.shadow"
+  id "com.ljarocki.parallel-zip"
   id "de.undercouch.download"
   id "org.cyclonedx.bom"
 }
@@ -195,7 +197,9 @@ tasks.register('downloadElasticsearch') {
   }
 }
 
-task zip(type: Zip, dependsOn: [configurations.compileClasspath]) {
+task zip(type: ParallelZip, dependsOn: [configurations.compileClasspath]) {
+  // fast (larger) archives for dev/PR builds; smaller, faster-to-extract archives for release builds
+  skipAlreadyCompressed = !release
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
   def archiveDir = "sonarqube-$project.version"
 
@@ -497,7 +501,9 @@ zip {
     // If the change is expected, modify the expectedSize to be whatever the archiveSize is rounded down to the nearest 10MB.
     // The calculation below will also tell you the number you should use here.
     // If this is not expected, try performing a Gradle clean and refreshing dependencies.
-    def expectedSize = 930_000_000
+    // Non-release builds skip re-compressing already-compressed entries (see skipAlreadyCompressed above), which
+    // trades a larger archive for a much faster build; release builds fully compress, staying close to the old size.
+    def expectedSize = release ? 940_000_000 : 990_000_000
     // We set a tolerance to avoid failing the build for small differences in the archive size.
     def tolerance = 15_000_000
     def minArchiveSize = expectedSize - tolerance
