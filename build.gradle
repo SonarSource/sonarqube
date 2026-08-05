@@ -346,7 +346,7 @@ subprojects {
       dependency 'com.sonarsource.dbd:sonar-dbd-python-frontend-plugin:2.7.1.22835'
       dependency 'com.sonarsource.dotnet:sonar-csharp-enterprise-plugin:10.31.0.145097'
       dependency 'com.sonarsource.dotnet:sonar-vbnet-enterprise-plugin:10.31.0.145097'
-      dependency 'com.sonarsource.dre:sonar-dre-plugin:2.7.0.15147'
+      dependency 'com.sonarsource.dre:sonar-dre-plugin:2.8.0.16407'
       dependency 'com.sonarsource.go:sonar-go-enterprise-plugin:1.40.0.6765'
       dependency 'com.sonarsource.java:java-a3s-context-collector:2.8.0.293'
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.25.0.7689'
@@ -386,7 +386,7 @@ subprojects {
       dependency "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures:$pluginApiVersion"
       dependency "org.sonarsource.sonarqube:users-api:$usersApiVersion"
       dependency "org.sonarsource.sonarqube:users-server-app:$usersApiVersion"
-      dependency 'org.sonarsource.xml:sonar-xml-plugin:2.18.0.7959'
+      dependency 'org.sonarsource.xml:sonar-xml-plugin:2.19.0.8138'
       dependency 'org.sonarsource.iac:sonar-iac-plugin:2.13.0.21933'
       dependency 'com.sonarsource.iac:sonar-iac-enterprise-plugin:2.13.0.21933'
       dependency 'org.sonarsource.text:sonar-text-plugin:2.48.0.12108'
