@@ -292,6 +292,20 @@ public class QGChangeEventListenersImplTest {
   }
 
   @Test
+  public void isNotClosed_returns_false_for_an_auto_closed_fixed_issue() {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setStatus(Issue.STATUS_CLOSED);
+    defaultIssue.setResolution(Issue.RESOLUTION_FIXED);
+    defaultIssue.setKey("abc");
+    defaultIssue.setType(RuleType.BUG);
+    defaultIssue.setSeverity("BLOCKER");
+
+    ChangedIssue changedIssue = new ChangedIssueImpl(defaultIssue);
+
+    assertThat(changedIssue.isNotClosed()).isFalse();
+  }
+
+  @Test
   public void isVulnerability_returns_true_if_issue_is_of_type_vulnerability() {
     DefaultIssue defaultIssue = new DefaultIssue();
     defaultIssue.setStatus(Issue.STATUS_OPEN);
