@@ -24,6 +24,7 @@ import java.util.List;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -34,12 +35,15 @@ import org.sonar.db.project.ProjectDto;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.computeNewKey;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -100,8 +104,9 @@ class ComponentKeyUpdaterDaoIT {
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey(branchName));
-    db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
-    db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
+    // real file component keys share the project key prefix
+    db.components().insertComponent(newFileDto(branch, mainBranch.uuid()).setKey(projectData.projectKey() + ":file1"));
+    db.components().insertComponent(newFileDto(branch, mainBranch.uuid()).setKey(projectData.projectKey() + ":file2"));
     int prComponentCount = 3;
 
     String oldProjectKey = mainBranch.getKey();
@@ -127,8 +132,9 @@ class ComponentKeyUpdaterDaoIT {
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     String pullRequestKey1 = secure().nextAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(mainBranch, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey1));
-    db.components().insertComponent(newFileDto(pullRequest));
-    db.components().insertComponent(newFileDto(pullRequest));
+    // real file component keys share the project key prefix
+    db.components().insertComponent(newFileDto(pullRequest).setKey(projectData.projectKey() + ":file1"));
+    db.components().insertComponent(newFileDto(pullRequest).setKey(projectData.projectKey() + ":file2"));
     int prComponentCount = 3;
 
     String oldProjectKey = mainBranch.getKey();
@@ -184,6 +190,151 @@ class ComponentKeyUpdaterDaoIT {
     underTestWithAuditPersister.updateKey(dbSession, "A", "my_project", "your_project");
 
     verify(auditPersister, times(1)).componentKeyUpdate(any(DbSession.class), any(ComponentKeyNewValue.class), anyString());
+  }
+
+  @Test
+  void updateKey_realigns_projects_kee_that_drifted_from_components_kee() {
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("drift_project"));
+    String projectUuid = projectData.projectUuid();
+    db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()).setKey("drift_project:file"));
+    // simulate a prior partial rename that left projects.kee out of sync with the components' key
+    db.executeUpdateSql("update projects set kee = 'drift_project_STALE' where uuid = '" + projectUuid + "'");
+    db.commit();
+
+    underTest.updateKey(dbSession, projectUuid, "drift_project", "fixed_project");
+    dbSession.commit();
+
+    // projects row is updated by UUID, so it is realigned regardless of its stale key value
+    assertThat(db.selectFirst(dbSession, "select kee as \"KEE\" from projects where uuid = '" + projectUuid + "'"))
+      .containsEntry("KEE", "fixed_project");
+    assertThat(dbClient.componentDao().selectByKey(dbSession, "fixed_project")).isPresent();
+  }
+
+  @Test
+  void updateKey_allows_renaming_back_to_a_key_still_held_only_by_the_same_project() {
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("expected_key"));
+    String projectUuid = projectData.projectUuid();
+    db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()).setKey("expected_key:file"));
+    db.executeUpdateSql("update projects set kee = 'expected_keyexpected_key' where uuid = '" + projectUuid + "'");
+    db.commit();
+
+    // real recovery flow: the API resolves 'from' by projects.kee (the stale doubled key) and passes it as oldKey.
+    // components already hold the target key, so the rename must not be rejected as "already exists", must not crash
+    // on the prefix mismatch, and must realign the projects row.
+    underTest.updateKey(dbSession, projectUuid, "expected_keyexpected_key", "expected_key");
+    dbSession.commit();
+
+    assertThat(db.selectFirst(dbSession, "select kee as \"KEE\" from projects where uuid = '" + projectUuid + "'"))
+      .containsEntry("KEE", "expected_key");
+    assertThat(dbClient.componentDao().selectByKey(dbSession, "expected_key")).isPresent();
+  }
+
+  @Test
+  void updateKey_throws_ISE_when_realign_only_path_would_introduce_new_drift() {
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("expected_key"));
+    String projectUuid = projectData.projectUuid();
+    db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()).setKey("expected_key:file"));
+    // projects.kee drifted; the caller resolves 'from' by the stale key and passes it as oldKey. oldKey prefixes
+    // no component, so this is the realign-only path - but the target key is held by no component either, so
+    // completing it would move projects.kee onto a key the components do not hold, re-introducing drift.
+    db.executeUpdateSql("update projects set kee = 'stale_key' where uuid = '" + projectUuid + "'");
+    db.commit();
+
+    assertThatThrownBy(() -> underTest.updateKey(dbSession, projectUuid, "stale_key", "totally_new_key"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Key update aborted: no component holds key [totally_new_key]; renaming would leave projects.kee out of sync");
+  }
+
+  @Test
+  void updateKey_callsAuditPersister_on_realign_only_path() {
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("expected_key"));
+    String projectUuid = projectData.projectUuid();
+    String rootUuid = projectData.getMainBranchComponent().uuid();
+    db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()).setKey("expected_key:file"));
+    // projects.kee drifted; components already hold the target key, so this exercises the realign-only path
+    db.executeUpdateSql("update projects set kee = 'stale_key' where uuid = '" + projectUuid + "'");
+    db.commit();
+
+    ArgumentCaptor<ComponentKeyNewValue> captor = ArgumentCaptor.forClass(ComponentKeyNewValue.class);
+    underTestWithAuditPersister.updateKey(dbSession, projectUuid, "stale_key", "expected_key");
+
+    verify(auditPersister, times(1)).componentKeyUpdate(any(DbSession.class), captor.capture(), anyString());
+    assertThat(captor.getValue())
+      .extracting(ComponentKeyNewValue::getComponentUuid, ComponentKeyNewValue::getOldKey, ComponentKeyNewValue::getNewKey)
+      .containsExactly(rootUuid, "stale_key", "expected_key");
+  }
+
+  @Test
+  void updateKey_skips_components_not_sharing_the_old_prefix_instead_of_failing() {
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("proj"));
+    db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()).setKey("proj:file"));
+    // a component whose key is shorter than oldKey and does not share its prefix (mixed/partial drift). Without a
+    // per-resource guard the prefix substitution would throw StringIndexOutOfBoundsException on this key.
+    db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()).setKey("p"));
+    dbSession.commit();
+
+    underTest.updateKey(dbSession, projectData.projectUuid(), "proj", "proj2");
+    dbSession.commit();
+
+    // prefixed components are renamed; the odd one is left untouched; no exception is thrown
+    assertThat(dbClient.componentDao().selectByKey(dbSession, "proj2")).isPresent();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, "proj2:file")).isPresent();
+    assertThat(dbClient.componentDao().selectByKey(dbSession, "p")).isPresent();
+  }
+
+  @Test
+  void updateKey_rewrites_deprecated_key_that_shares_the_old_prefix() {
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("proj"));
+    ComponentDto file = db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()).setKey("proj:file"));
+    // deprecated_kee is not settable via the component builder, so set it directly
+    db.executeUpdateSql("update components set deprecated_kee = 'proj:legacyFile' where uuid = '" + file.uuid() + "'");
+    db.commit();
+
+    underTest.updateKey(dbSession, projectData.projectUuid(), "proj", "proj2");
+    dbSession.commit();
+
+    assertThat(db.selectFirst(dbSession, "select deprecated_kee as \"DK\" from components where uuid = '" + file.uuid() + "'"))
+      .containsEntry("DK", "proj2:legacyFile");
+  }
+
+  @Test
+  void updateKey_leaves_deprecated_key_untouched_when_it_does_not_share_the_old_prefix() {
+    ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("proj"));
+    ComponentDto file = db.components().insertComponent(newFileDto(projectData.getMainBranchComponent()).setKey("proj:file"));
+    // deprecated key with an unrelated prefix must not be prefix-substituted (would corrupt or crash on substring)
+    db.executeUpdateSql("update components set deprecated_kee = 'legacy_unrelated' where uuid = '" + file.uuid() + "'");
+    db.commit();
+
+    underTest.updateKey(dbSession, projectData.projectUuid(), "proj", "proj2");
+    dbSession.commit();
+
+    assertThat(db.selectFirst(dbSession, "select deprecated_kee as \"DK\" from components where uuid = '" + file.uuid() + "'"))
+      .containsEntry("DK", "legacy_unrelated");
+    // the (prefixed) key itself is still renamed
+    assertThat(dbClient.componentDao().selectByKey(dbSession, "proj2:file")).isPresent();
+  }
+
+  @Test
+  void checkExistentKey_with_null_project_uuid_throws_on_global_conflict() {
+    ComponentKeyUpdaterMapper mapper = mock(ComponentKeyUpdaterMapper.class);
+    when(mapper.countComponentsByKey("dup")).thenReturn(1);
+
+    assertThatThrownBy(() -> ComponentKeyUpdaterDao.checkExistentKey(mapper, "dup", null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Impossible to update key: a component with key \"dup\" already exists.");
+    verify(mapper).countComponentsByKey("dup");
+    verify(mapper, never()).countComponentsByKeyOutsideProject(anyString(), anyString());
+  }
+
+  @Test
+  void checkExistentKey_with_null_project_uuid_passes_when_no_global_conflict() {
+    ComponentKeyUpdaterMapper mapper = mock(ComponentKeyUpdaterMapper.class);
+    when(mapper.countComponentsByKey("free")).thenReturn(0);
+
+    assertThatCode(() -> ComponentKeyUpdaterDao.checkExistentKey(mapper, "free", null))
+      .doesNotThrowAnyException();
+    verify(mapper).countComponentsByKey("free");
+    verify(mapper, never()).countComponentsByKeyOutsideProject(anyString(), anyString());
   }
 
   private ProjectData populateSomeData() {

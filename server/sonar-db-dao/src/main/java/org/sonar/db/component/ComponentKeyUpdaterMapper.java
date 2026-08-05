@@ -26,12 +26,14 @@ public interface ComponentKeyUpdaterMapper {
 
   int countComponentsByKey(String key);
 
+  int countComponentsByKeyOutsideProject(@Param("key") String key, @Param("projectUuid") String projectUuid);
+
   ResourceDto selectComponentByUuid(@Param("uuid") String uuid);
 
   List<ResourceDto> selectBranchResources(@Param("branchUuid") String branchUuid);
 
-  void updateComponent(ResourceDto resource);
+  int updateComponent(ResourceDto resource);
 
-  void updateProject(@Param("oldProjectKey") String oldProjectKey, @Param("newProjectKey") String newProjectKey);
+  int updateProject(@Param("projectUuid") String projectUuid, @Param("newProjectKey") String newProjectKey);
 
 }

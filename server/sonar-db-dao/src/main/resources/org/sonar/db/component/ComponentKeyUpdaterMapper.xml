@@ -17,6 +17,15 @@
     WHERE kee = #{key,jdbcType=VARCHAR}
   </select>
 
+  <select id="countComponentsByKeyOutsideProject" resultType="int">
+    SELECT count(1)
+    FROM components c
+    WHERE c.kee = #{key,jdbcType=VARCHAR}
+      AND c.branch_uuid NOT IN (
+        SELECT pb.uuid FROM project_branches pb WHERE pb.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+      )
+  </select>
+
   <select id="selectComponentByUuid" parameterType="String" resultMap="resourceResultMap">
     select * from components
     where uuid = #{uuid,jdbcType=VARCHAR}
@@ -38,7 +47,7 @@
   <update id="updateProject">
     update projects
     set kee = #{newProjectKey,jdbcType=VARCHAR}
-    where kee = #{oldProjectKey,jdbcType=VARCHAR}
+    where uuid = #{projectUuid,jdbcType=VARCHAR}
   </update>
 
 </mapper>
