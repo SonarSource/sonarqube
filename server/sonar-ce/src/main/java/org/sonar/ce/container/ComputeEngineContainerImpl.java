@@ -171,8 +171,6 @@ import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 import org.sonarsource.gessie.server.GessieProperties;
 import org.sonarsource.gessie.server.telemetry.GessieTelemetryCeConfiguration;
 import org.sonarsource.history.server.bean.HistoryServerPlatformLevel1Module;
-import org.sonarsource.sonarqube.events.server.ServerEventAsyncClient;
-import org.sonarsource.sonarqube.events.server.ServerEventSourceBuilder;
 import org.sonarsource.users.server.bean.UsersServerComponents;
 
 import static java.util.Objects.requireNonNull;
@@ -506,8 +504,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     level4Container.add(GessieIngestorExecutorServiceImpl.class);
     level4Container.add(GessieTelemetryCeConfiguration.class);
     level4Container.add(InstallationDateProviderImpl.class);
-    level4Container.add(ServerEventAsyncClient.class);
-    level4Container.add(ServerEventSourceBuilder.class);
 
     addClusterOrStandaloneComponents(level4Container, props);
 

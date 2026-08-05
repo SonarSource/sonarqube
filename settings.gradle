@@ -112,6 +112,12 @@ useLocalUnificationModule('useLocalConsumption', 'billing/consumption', ['consum
   projectPaths: ['consumption-server-app': ':private:consumption-server-app'],
 ])
 useLocalUnificationModule('useLocalMetrics', 'analysis-processing/metrics', ['metrics-api', 'metrics-server-app'])
+useLocalUnificationModule('useLocalEvents', 'unified-core', ['sonar-events-api', 'sonar-events-server'], [
+  projectPaths: [
+    'sonar-events-api'   : ':sonar-events:sonar-events-api',
+    'sonar-events-server': ':sonar-events:sonar-events-server',
+  ]
+])
 useLocalUnificationModule('useLocalArchitecture', 'architecture',
   ['architecture-server-app', 'architecture-api', 'architecture-unified-app', 'architecture-datastructure'],
   [
