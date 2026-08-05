@@ -134,6 +134,8 @@ public class BitbucketServerProjectCreator implements DevOpsProjectCreator {
       .setAlmSettingUuid(almSettingDto.getUuid())
       .setAlmRepo(repository.getProject().getKey())
       .setAlmSlug(repository.getSlug())
+      .setUrl(repository.getSelfHref())
+      .setRepoId(String.valueOf(repository.getId()))
       .setProjectUuid(projectDto.getUuid())
       .setMonorepo(isMonorepo);
 

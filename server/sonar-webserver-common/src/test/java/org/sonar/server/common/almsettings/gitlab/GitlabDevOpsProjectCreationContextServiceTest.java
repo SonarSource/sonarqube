@@ -56,6 +56,7 @@ class GitlabDevOpsProjectCreationContextServiceTest {
 
   private static final AlmSettingDto ALM_SETTING_DTO = mock();
   private static final long GITLAB_PROJECT_ID = 123L;
+  private static final long FETCHED_PROJECT_ID = 456L;
 
   private static final DevOpsProjectDescriptor DEV_OPS_PROJECT_DESCRIPTOR = new DevOpsProjectDescriptor(ALM.GITHUB, "project-key", String.valueOf(GITLAB_PROJECT_ID), null);
   private static final String GITLAB_COM = "https://gitlab.com";
@@ -134,7 +135,9 @@ class GitlabDevOpsProjectCreationContextServiceTest {
     DevOpsProjectCreationContext devOpsProjectCreationContext = gitlabDevOpsProjectService.create(ALM_SETTING_DTO, DEV_OPS_PROJECT_DESCRIPTOR);
     assertThat(devOpsProjectCreationContext.name()).isEqualTo(project.getName());
     assertThat(devOpsProjectCreationContext.fullName()).isEqualTo(project.getPathWithNamespace());
-    assertThat(devOpsProjectCreationContext.devOpsPlatformIdentifier()).isEqualTo(String.valueOf(project.getId()));
+    assertThat(devOpsProjectCreationContext.devOpsPlatformIdentifier()).isEqualTo(String.valueOf(GITLAB_PROJECT_ID));
+    assertThat(devOpsProjectCreationContext.url()).isEqualTo(project.getWebUrl());
+    assertThat(devOpsProjectCreationContext.repoId()).isEqualTo(String.valueOf(FETCHED_PROJECT_ID));
     assertThat(devOpsProjectCreationContext.isPublic()).isEqualTo(isPublic);
     assertThat(devOpsProjectCreationContext.defaultBranchName()).isEqualTo(DEFAULT_BRANCH_NAME);
   }
@@ -150,7 +153,7 @@ class GitlabDevOpsProjectCreationContextServiceTest {
 
   private Project mockGitlabProjectAndBranches(String gitlabVisibility, AlmPatDto almPatDto) {
     Project project = mock(Project.class);
-    when(project.getId()).thenReturn(GITLAB_PROJECT_ID);
+    when(project.getId()).thenReturn(FETCHED_PROJECT_ID);
     when(project.getName()).thenReturn("project-name");
     when(project.getPathWithNamespace()).thenReturn("project-path");
     when(project.getVisibility()).thenReturn(gitlabVisibility);

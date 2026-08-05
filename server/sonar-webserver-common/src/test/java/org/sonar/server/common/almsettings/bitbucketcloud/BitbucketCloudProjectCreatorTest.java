@@ -67,6 +67,8 @@ class BitbucketCloudProjectCreatorTest {
   private static final String PROJECT_UUID = "projectUuid";
   private static final String WORKSPACE = "workspace";
   private static final String MAIN_BRANCH_NAME = "defaultBranch";
+  private static final String REPOSITORY_UUID = "{repo-uuid}";
+  private static final String REPOSITORY_URL = "https://bitbucket.org/workspace/repositoryName";
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private DbClient dbClient;
@@ -157,6 +159,8 @@ class BitbucketCloudProjectCreatorTest {
 
     assertThat(createdProjectAlmSettingDto.getAlmSettingUuid()).isEqualTo(ALM_SETTING_UUID);
     assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(REPOSITORY_SLUG);
+    assertThat(createdProjectAlmSettingDto.getUrl()).isEqualTo(REPOSITORY_URL);
+    assertThat(createdProjectAlmSettingDto.getRepoId()).isEqualTo(REPOSITORY_UUID);
     assertThat(createdProjectAlmSettingDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(createdProjectAlmSettingDto.getMonorepo()).isTrue();
   }
@@ -182,6 +186,8 @@ class BitbucketCloudProjectCreatorTest {
 
     assertThat(createdProjectAlmSettingDto.getAlmSettingUuid()).isEqualTo(ALM_SETTING_UUID);
     assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(REPOSITORY_SLUG);
+    assertThat(createdProjectAlmSettingDto.getUrl()).isEqualTo(REPOSITORY_URL);
+    assertThat(createdProjectAlmSettingDto.getRepoId()).isEqualTo(REPOSITORY_UUID);
     assertThat(createdProjectAlmSettingDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(createdProjectAlmSettingDto.getMonorepo()).isTrue();
   }
@@ -197,6 +203,8 @@ class BitbucketCloudProjectCreatorTest {
     when(repository.getMainBranch().getName()).thenReturn(MAIN_BRANCH_NAME);
     when(repository.getSlug()).thenReturn(REPOSITORY_SLUG);
     when(repository.getName()).thenReturn(REPOSITORY_NAME);
+    when(repository.getUuid()).thenReturn(REPOSITORY_UUID);
+    when(repository.getHtmlHref()).thenReturn(REPOSITORY_URL);
     when(bitbucketCloudRestClient.getRepo(USER_PAT, WORKSPACE, REPOSITORY_SLUG)).thenReturn(repository);
   }
 

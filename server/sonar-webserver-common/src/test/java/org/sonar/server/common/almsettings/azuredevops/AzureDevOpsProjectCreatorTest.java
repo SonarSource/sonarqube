@@ -69,6 +69,8 @@ class AzureDevOpsProjectCreatorTest {
   public static final String AZURE_DEVOPS_URL = "http://api.com";
   private static final String MAIN_BRANCH_NAME = "defaultBranch";
   private static final String PROJECT_UUID = "projectUuid";
+  private static final String REPOSITORY_URL = "https://dev.azure.com/org/project/_git/repositoryName";
+  private static final String REPOSITORY_ID = "azure-repo-guid";
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private DbClient dbClient;
@@ -162,6 +164,8 @@ class AzureDevOpsProjectCreatorTest {
     assertThat(createdProjectAlmSettingDto.getAlmSettingUuid()).isEqualTo(ALM_SETTING_UUID);
     assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(REPOSITORY_NAME);
     assertThat(createdProjectAlmSettingDto.getAlmSlug()).isEqualTo(DEVOPS_PROJECT_NAME);
+    assertThat(createdProjectAlmSettingDto.getUrl()).isEqualTo(REPOSITORY_URL);
+    assertThat(createdProjectAlmSettingDto.getRepoId()).isEqualTo(REPOSITORY_ID);
     assertThat(createdProjectAlmSettingDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(createdProjectAlmSettingDto.getMonorepo()).isTrue();
     assertThat(createdProjectAlmSettingDto.getInlineAnnotationsEnabled()).isTrue();
@@ -189,6 +193,8 @@ class AzureDevOpsProjectCreatorTest {
     assertThat(createdProjectAlmSettingDto.getAlmSettingUuid()).isEqualTo(ALM_SETTING_UUID);
     assertThat(createdProjectAlmSettingDto.getAlmRepo()).isEqualTo(REPOSITORY_NAME);
     assertThat(createdProjectAlmSettingDto.getAlmSlug()).isEqualTo(DEVOPS_PROJECT_NAME);
+    assertThat(createdProjectAlmSettingDto.getUrl()).isEqualTo(REPOSITORY_URL);
+    assertThat(createdProjectAlmSettingDto.getRepoId()).isEqualTo(REPOSITORY_ID);
     assertThat(createdProjectAlmSettingDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(createdProjectAlmSettingDto.getMonorepo()).isTrue();
   }
@@ -203,6 +209,8 @@ class AzureDevOpsProjectCreatorTest {
     GsonAzureRepo repository = mock(GsonAzureRepo.class, Answers.RETURNS_DEEP_STUBS);
     when(repository.getName()).thenReturn(REPOSITORY_NAME);
     when(repository.getDefaultBranchName()).thenReturn(MAIN_BRANCH_NAME);
+    when(repository.getWebUrl()).thenReturn(REPOSITORY_URL);
+    when(repository.getId()).thenReturn(REPOSITORY_ID);
     when(repository.getProject().getName()).thenReturn(DEVOPS_PROJECT_NAME);
     when(azureDevOpsHttpClient.getRepo(AZURE_DEVOPS_URL, USER_PAT, DEVOPS_PROJECT_ID, REPOSITORY_NAME)).thenReturn(repository);
   }

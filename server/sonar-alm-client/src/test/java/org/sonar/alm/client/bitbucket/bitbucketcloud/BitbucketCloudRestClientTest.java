@@ -143,6 +143,11 @@ class BitbucketCloudRestClientTest {
                 "key": "HOY",
                 "uuid": "BANANA-PROJECT-UUID",
                 "name": "hoy"
+              },
+              "links": {
+                "html": {
+                  "href": "https://bitbucket.org/workspace/banana"
+                }
               }
             }\
         """));
@@ -157,6 +162,7 @@ class BitbucketCloudRestClientTest {
     assertThat(repository.getMainBranch())
       .extracting(MainBranch::getType, MainBranch::getName)
       .contains("branch", "develop");
+    assertThat(repository.getHtmlHref()).isEqualTo("https://bitbucket.org/workspace/banana");
   }
 
   @Test

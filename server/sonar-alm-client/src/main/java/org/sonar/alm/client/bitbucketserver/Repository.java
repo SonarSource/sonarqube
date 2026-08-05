@@ -20,6 +20,9 @@
 package org.sonar.alm.client.bitbucketserver;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class Repository {
 
@@ -34,6 +37,9 @@ public class Repository {
 
   @SerializedName("project")
   private Project project;
+
+  @SerializedName("links")
+  private Links links;
 
   public Repository() {
     // http://stackoverflow.com/a/18645370/229031
@@ -82,6 +88,19 @@ public class Repository {
     return this;
   }
 
+  @CheckForNull
+  public String getSelfHref() {
+    if (links == null || links.self == null || links.self.isEmpty()) {
+      return null;
+    }
+    return links.self.get(0).href;
+  }
+
+  public Repository setLinks(@Nullable Links links) {
+    this.links = links;
+    return this;
+  }
+
   @Override
   public String toString() {
     return "{" +
@@ -90,5 +109,33 @@ public class Repository {
       ", id=" + id +
       ", project=" + project +
       '}';
+  }
+
+  public static class Links {
+
+    @SerializedName("self")
+    private List<Link> self;
+
+    public Links() {
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public Links(List<Link> self) {
+      this.self = self;
+    }
+  }
+
+  public static class Link {
+
+    @SerializedName("href")
+    private String href;
+
+    public Link() {
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public Link(String href) {
+      this.href = href;
+    }
   }
 }

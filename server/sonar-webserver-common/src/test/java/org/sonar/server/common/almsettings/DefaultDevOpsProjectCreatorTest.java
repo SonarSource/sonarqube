@@ -83,6 +83,8 @@ class DefaultDevOpsProjectCreatorTest {
   private static final String ALM_SETTING_KEY = "github_config_1";
   private static final String USER_LOGIN = "userLogin";
   private static final String USER_UUID = "userUuid";
+  private static final String REPOSITORY_URL = "http://api.com/orga2/repo1";
+  private static final String REPOSITORY_ID = "9001";
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private DbClient dbClient;
@@ -129,6 +131,8 @@ class DefaultDevOpsProjectCreatorTest {
     lenient().when(devOpsProjectCreationContext.name()).thenReturn(REPOSITORY_NAME);
     lenient().when(devOpsProjectCreationContext.devOpsPlatformIdentifier()).thenReturn(ORGANIZATION_NAME + "/" + REPOSITORY_NAME);
     lenient().when(devOpsProjectCreationContext.fullName()).thenReturn(ORGANIZATION_NAME + "/" + REPOSITORY_NAME);
+    lenient().when(devOpsProjectCreationContext.url()).thenReturn(REPOSITORY_URL);
+    lenient().when(devOpsProjectCreationContext.repoId()).thenReturn(REPOSITORY_ID);
     lenient().when(devOpsProjectCreationContext.defaultBranchName()).thenReturn(MAIN_BRANCH_NAME);
 
     ProjectCreator projectCreator = new ProjectCreator(dbClient, userSession, projectDefaultVisibility, componentUpdater);
@@ -368,7 +372,9 @@ class DefaultDevOpsProjectCreatorTest {
 
   private static void assertAlmSettingsDtoContainsCorrectInformation(AlmSettingDto almSettingDto, ProjectDto projectDto, ProjectAlmSettingDto projectAlmSettingDto) {
     assertThat(projectAlmSettingDto.getAlmRepo()).isEqualTo(DEVOPS_PROJECT_DESCRIPTOR.repositoryIdentifier());
-    assertThat(projectAlmSettingDto.getAlmSlug()).isNull();
+    assertThat(projectAlmSettingDto.getAlmSlug()).isEqualTo(ORGANIZATION_NAME + "/" + REPOSITORY_NAME);
+    assertThat(projectAlmSettingDto.getUrl()).isEqualTo(REPOSITORY_URL);
+    assertThat(projectAlmSettingDto.getRepoId()).isEqualTo(REPOSITORY_ID);
     assertThat(projectAlmSettingDto.getAlmSettingUuid()).isEqualTo(almSettingDto.getUuid());
     assertThat(projectAlmSettingDto.getProjectUuid()).isEqualTo(projectDto.getUuid());
     assertThat(projectAlmSettingDto.getMonorepo()).isFalse();

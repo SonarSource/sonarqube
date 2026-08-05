@@ -65,8 +65,17 @@ public class GithubDevOpsProjectCreationContextService implements DevOpsProjectC
 
   public DevOpsProjectCreationContext createDevOpsProject(AlmSettingDto almSettingDto, DevOpsProjectDescriptor devOpsProjectDescriptor, AccessToken accessToken) {
     GithubApplicationClient.Repository repository = fetchRepository(almSettingDto, devOpsProjectDescriptor, accessToken);
-    return new DevOpsProjectCreationContext(repository.getName(), repository.getFullName(), repository.getFullName(),
-      !repository.isPrivate(), repository.getDefaultBranch(), almSettingDto, userSession);
+    return DevOpsProjectCreationContext.builder()
+      .name(repository.getName())
+      .fullName(repository.getFullName())
+      .devOpsPlatformIdentifier(repository.getFullName())
+      .url(repository.getUrl())
+      .repoId(Long.toString(repository.getId()))
+      .isPublic(!repository.isPrivate())
+      .defaultBranchName(repository.getDefaultBranch())
+      .almSettingDto(almSettingDto)
+      .userSession(userSession)
+      .build();
   }
 
   private GithubApplicationClient.Repository fetchRepository(AlmSettingDto almSettingDto, DevOpsProjectDescriptor devOpsProjectDescriptor, AccessToken accessToken) {

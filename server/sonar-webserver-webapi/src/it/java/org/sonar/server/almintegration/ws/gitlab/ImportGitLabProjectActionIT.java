@@ -39,6 +39,7 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
@@ -101,6 +102,7 @@ import org.sonar.test.tags.ElasticsearchTest;
 public class ImportGitLabProjectActionIT {
 
   private static final String PROJECT_KEY_NAME = "PROJECT_NAME";
+  private static final long FETCHED_GITLAB_PROJECT_ID = 67890L;
 
   private final System2 system2 = mock(System2.class);
 
@@ -186,7 +188,10 @@ public class ImportGitLabProjectActionIT {
 
     Optional<ProjectDto> projectDto = db.getDbClient().projectDao().selectProjectByKey(db.getSession(), result.getKey());
     assertThat(projectDto).isPresent();
-    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get())).isPresent();
+    Optional<ProjectAlmSettingDto> projectAlmSettingDto = db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto.get());
+    assertThat(projectAlmSettingDto).isPresent();
+    assertThat(projectAlmSettingDto.get().getUrl()).isEqualTo(project.getWebUrl());
+    assertThat(projectAlmSettingDto.get().getRepoId()).isEqualTo(String.valueOf(FETCHED_GITLAB_PROJECT_ID));
 
     assertThat(db.getDbClient().newCodePeriodDao().selectByProject(db.getSession(), projectDto.get().getUuid()))
       .isPresent()
@@ -399,6 +404,8 @@ public class ImportGitLabProjectActionIT {
     when(project.getName()).thenReturn("projectName");
     when(project.getPath()).thenReturn("project/with/path/projectName");
     when(project.getVisibility()).thenReturn("public");
+    when(project.getWebUrl()).thenReturn("https://gitlab.example.com/project/with/path/projectName");
+    when(project.getId()).thenReturn(FETCHED_GITLAB_PROJECT_ID);
     when(gitlabApplicationClient.getProject(any(), any(), any())).thenReturn(project);
     when(gitlabApplicationClient.getBranches(any(), any(), any())).thenReturn(master);
     when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);

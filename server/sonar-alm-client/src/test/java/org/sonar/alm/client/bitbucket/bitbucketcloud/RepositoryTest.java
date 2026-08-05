@@ -1,0 +1,51 @@
+/*
+ * SonarQube
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.alm.client.bitbucket.bitbucketcloud;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class RepositoryTest {
+
+  @Test
+  void getHtmlHref_whenLinksIsNull_returnsNull() {
+    Repository repository = new Repository("uuid", "slug", "name", new Project("project-uuid", "key", "name"), new MainBranch("branch", "main"));
+
+    assertThat(repository.getHtmlHref()).isNull();
+  }
+
+  @Test
+  void getHtmlHref_whenHtmlLinkIsNull_returnsNull() {
+    Repository repository = new Repository("uuid", "slug", "name", new Project("project-uuid", "key", "name"), new MainBranch("branch", "main"))
+      .setLinks(new Repository.Links(null));
+
+    assertThat(repository.getHtmlHref()).isNull();
+  }
+
+  @Test
+  void getHtmlHref_whenHtmlLinkIsPresent_returnsHref() {
+    Repository repository = new Repository("uuid", "slug", "name", new Project("project-uuid", "key", "name"), new MainBranch("branch", "main"))
+      .setLinks(new Repository.Links(new Repository.Link("https://bitbucket.org/workspace/repo")));
+
+    assertThat(repository.getHtmlHref()).isEqualTo("https://bitbucket.org/workspace/repo");
+  }
+
+}

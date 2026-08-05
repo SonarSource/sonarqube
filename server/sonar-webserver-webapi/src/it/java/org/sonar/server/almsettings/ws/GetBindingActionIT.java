@@ -175,7 +175,7 @@ class GetBindingActionIT {
 
     AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting(setting -> setting.setUrl(gitlabUrl).setPersonalAccessToken("token"));
     ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertGitlabProjectAlmSetting(
-      almSetting, project, projectAlmSetting -> projectAlmSetting.setAlmRepo(projectId));
+      almSetting, project, projectAlmSetting -> projectAlmSetting.setAlmRepo(projectId).setAlmSlug("namespace/project-name"));
 
     when(encryption.isEncrypted(anyString())).thenReturn(false);
     when(gitlabApplicationClient.getProject(gitlabUrl, "token", Long.parseLong(projectId)))
@@ -199,7 +199,8 @@ class GetBindingActionIT {
         GetBindingWsResponse::getUrl,
         GetBindingWsResponse::hasUrl,
         GetBindingWsResponse::hasSummaryCommentEnabled,
-        GetBindingWsResponse::getRepositoryUrl)
+        GetBindingWsResponse::getRepositoryUrl,
+        GetBindingWsResponse::getSlug)
       .containsExactly(
         AlmSettings.Alm.gitlab,
         almSetting.getKey(),
@@ -207,7 +208,8 @@ class GetBindingActionIT {
         almSetting.getUrl(),
         true,
         false,
-        expectedRepositoryUrl);
+        expectedRepositoryUrl,
+        projectAlmSettingDto.getAlmSlug());
   }
 
   @Test

@@ -126,6 +126,9 @@ public class DefaultDevOpsProjectCreator implements DevOpsProjectCreator {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
       .setAlmRepo(devOpsProjectCreationContext.devOpsPlatformIdentifier())
+      .setAlmSlug(devOpsProjectCreationContext.fullName())
+      .setUrl(devOpsProjectCreationContext.url())
+      .setRepoId(devOpsProjectCreationContext.repoId())
       .setProjectUuid(projectDto.getUuid())
       .setSummaryCommentEnabled(true)
       .setMonorepo(monorepo);

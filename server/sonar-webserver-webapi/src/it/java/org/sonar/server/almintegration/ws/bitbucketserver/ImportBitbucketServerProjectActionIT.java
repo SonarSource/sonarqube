@@ -41,6 +41,7 @@ import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.project.CreationMethod;
@@ -157,7 +158,10 @@ public class ImportBitbucketServerProjectActionIT {
     ProjectDto projectDto = getProjectDto(result);
     assertThat(projectDto.getCreationMethod()).isEqualTo(CreationMethod.ALM_IMPORT_API);
 
-    assertThat(db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto)).isPresent();
+    Optional<ProjectAlmSettingDto> projectAlmSettingDto = db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto);
+    assertThat(projectAlmSettingDto).isPresent();
+    assertThat(projectAlmSettingDto.get().getUrl()).isEqualTo(repo.getSelfHref());
+    assertThat(projectAlmSettingDto.get().getRepoId()).isEqualTo(String.valueOf(repo.getId()));
     verify(projectKeyGenerator).generateUniqueProjectKey(requireNonNull(project.getKey()), repo.getSlug());
   }
 
@@ -535,6 +539,7 @@ public class ImportBitbucketServerProjectActionIT {
     bbsResult.setSlug(secure().nextAlphanumeric(5));
     bbsResult.setName(secure().nextAlphanumeric(5));
     bbsResult.setId(random.nextLong(100));
+    bbsResult.setLinks(new Repository.Links(List.of(new Repository.Link("https://bitbucketserver.example.com/scm/" + project.getKey() + "/" + bbsResult.getSlug()))));
     when(bitbucketServerRestClient.getRepo(any(), any(), any(), any())).thenReturn(bbsResult);
     when(bitbucketServerRestClient.getBranches(any(), any(), any(), any())).thenReturn(branchesList);
     return bbsResult;

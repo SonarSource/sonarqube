@@ -91,7 +91,7 @@ public class BitbucketCloudProjectCreator implements DevOpsProjectCreator {
     ComponentCreationData componentCreationData = projectCreator.getOrCreateProject(dbSession, request);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
 
-    createProjectAlmSettingDto(dbSession, repo.getSlug(), projectDto, almSettingDto, monorepo);
+    createProjectAlmSettingDto(dbSession, repo, projectDto, almSettingDto, monorepo);
     return componentCreationData;
   }
 
@@ -110,10 +110,12 @@ public class BitbucketCloudProjectCreator implements DevOpsProjectCreator {
     return Optional.ofNullable(projectName).orElse(repository.getName());
   }
 
-  private void createProjectAlmSettingDto(DbSession dbSession, String repoSlug, ProjectDto projectDto, AlmSettingDto almSettingDto, Boolean monorepo) {
+  private void createProjectAlmSettingDto(DbSession dbSession, Repository repository, ProjectDto projectDto, AlmSettingDto almSettingDto, Boolean monorepo) {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
-      .setAlmRepo(repoSlug)
+      .setAlmRepo(repository.getSlug())
+      .setUrl(repository.getHtmlHref())
+      .setRepoId(repository.getUuid())
       .setProjectUuid(projectDto.getUuid())
       .setMonorepo(monorepo);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), projectDto.getName(), projectDto.getKey());

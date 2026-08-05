@@ -451,8 +451,17 @@ public class ReportSubmitterIT {
 
     mockGithubRepository(isPrivate);
 
-    DevOpsProjectCreationContext devOpsProjectCreationContext = new DevOpsProjectCreationContext("repo", "orga/repo", "orga/repo", true, "defaultBranch", almSettingDto,
-      userSession);
+    DevOpsProjectCreationContext devOpsProjectCreationContext = DevOpsProjectCreationContext.builder()
+      .name("repo")
+      .fullName("orga/repo")
+      .devOpsPlatformIdentifier("orga/repo")
+      .url("https://www.toto.com/orga/repo")
+      .repoId("123")
+      .isPublic(true)
+      .defaultBranchName("defaultBranch")
+      .almSettingDto(almSettingDto)
+      .userSession(userSession)
+      .build();
 
     DevOpsProjectCreator devOpsProjectCreator = spy(new GithubProjectCreator(db.getDbClient(), devOpsProjectCreationContext, projectKeyGenerator, gitHubSettings, projectCreator,
       permissionService, permissionUpdater, managedProjectService, githubApplicationClient, null, null));

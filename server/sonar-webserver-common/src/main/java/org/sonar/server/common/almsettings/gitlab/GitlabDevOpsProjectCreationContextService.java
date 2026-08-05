@@ -58,8 +58,17 @@ public class GitlabDevOpsProjectCreationContextService implements DevOpsProjectC
     Project gitlabProject = fetchGitlabProject(url, pat, gitlabProjectId);
     String defaultBranchName = getDefaultBranchOnGitlab(url, pat, gitlabProjectId).orElse(null);
 
-    return new DevOpsProjectCreationContext(gitlabProject.getName(), gitlabProject.getPathWithNamespace(),
-      String.valueOf(gitlabProjectId), gitlabProject.getVisibility().equals("public"), defaultBranchName, almSettingDto, userSession);
+    return DevOpsProjectCreationContext.builder()
+      .name(gitlabProject.getName())
+      .fullName(gitlabProject.getPathWithNamespace())
+      .devOpsPlatformIdentifier(String.valueOf(gitlabProjectId))
+      .url(gitlabProject.getWebUrl())
+      .repoId(String.valueOf(gitlabProject.getId()))
+      .isPublic(gitlabProject.getVisibility().equals("public"))
+      .defaultBranchName(defaultBranchName)
+      .almSettingDto(almSettingDto)
+      .userSession(userSession)
+      .build();
 
   }
 

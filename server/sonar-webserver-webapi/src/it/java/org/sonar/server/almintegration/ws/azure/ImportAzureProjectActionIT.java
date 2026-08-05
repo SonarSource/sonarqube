@@ -140,6 +140,8 @@ public class ImportAzureProjectActionIT {
     assertThat(projectAlmSettingDto.get().getAlmRepo()).isEqualTo("repo-name");
     assertThat(projectAlmSettingDto.get().getAlmSettingUuid()).isEqualTo(almSetting.getUuid());
     assertThat(projectAlmSettingDto.get().getAlmSlug()).isEqualTo("project-name");
+    assertThat(projectAlmSettingDto.get().getUrl()).isEqualTo("repo-web-url");
+    assertThat(projectAlmSettingDto.get().getRepoId()).isEqualTo("repo-id");
 
     Optional<BranchDto> mainBranch = db.getDbClient()
       .branchDao()

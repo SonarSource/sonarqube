@@ -20,6 +20,8 @@
 package org.sonar.alm.client.bitbucket.bitbucketcloud;
 
 import com.google.gson.annotations.SerializedName;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class Repository {
 
@@ -37,6 +39,9 @@ public class Repository {
 
   @SerializedName("mainbranch")
   private MainBranch mainBranch;
+
+  @SerializedName("links")
+  private Links links;
 
   public Repository() {
     // http://stackoverflow.com/a/18645370/229031
@@ -68,5 +73,46 @@ public class Repository {
 
   public MainBranch getMainBranch() {
     return mainBranch;
+  }
+
+  @CheckForNull
+  public String getHtmlHref() {
+    if (links == null || links.html == null) {
+      return null;
+    }
+    return links.html.href;
+  }
+
+  public Repository setLinks(@Nullable Links links) {
+    this.links = links;
+    return this;
+  }
+
+  public static class Links {
+
+    @SerializedName("html")
+    private Link html;
+
+    public Links() {
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public Links(Link html) {
+      this.html = html;
+    }
+  }
+
+  public static class Link {
+
+    @SerializedName("href")
+    private String href;
+
+    public Link() {
+      // http://stackoverflow.com/a/18645370/229031
+    }
+
+    public Link(String href) {
+      this.href = href;
+    }
   }
 }

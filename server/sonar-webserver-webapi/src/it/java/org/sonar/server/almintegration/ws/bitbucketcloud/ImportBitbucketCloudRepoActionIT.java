@@ -132,6 +132,8 @@ public class ImportBitbucketCloudRepoActionIT {
     Optional<ProjectAlmSettingDto> projectAlmSettingDto = db.getDbClient().projectAlmSettingDao().selectByProject(db.getSession(), projectDto);
     assertThat(projectAlmSettingDto).isPresent();
     assertThat(projectAlmSettingDto.get().getAlmRepo()).isEqualTo("repo-slug-1");
+    assertThat(projectAlmSettingDto.get().getUrl()).isEqualTo(repo.getHtmlHref());
+    assertThat(projectAlmSettingDto.get().getRepoId()).isEqualTo(repo.getUuid());
 
     Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByBranchKey(db.getSession(), projectDto.getUuid(), "develop");
     assertThat(branchDto).isPresent();
@@ -460,6 +462,7 @@ public class ImportBitbucketCloudRepoActionIT {
     Project project1 = new Project("PROJECT-UUID-ONE", "projectKey1", "projectName1");
     MainBranch mainBranch = new MainBranch("branch", "develop");
     Repository repo = new Repository("REPO-UUID-ONE", "repo-slug-1", "repoName1", project1, mainBranch);
+    repo.setLinks(new Repository.Links(new Repository.Link("https://bitbucket.org/repo-slug-1")));
     when(bitbucketCloudRestClient.getRepo(any(), any(), any())).thenReturn(repo);
     return repo;
   }

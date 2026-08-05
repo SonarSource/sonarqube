@@ -58,6 +58,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newAzureProjectAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newBitbucketProjectAlmSettingDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubProjectAlmSettingDto;
+import static org.sonar.db.almsettings.AlmSettingsTesting.newGitlabProjectAlmSettingDto;
 
 class ProjectAlmSettingDaoIT {
 
@@ -337,6 +338,37 @@ class ProjectAlmSettingDaoIT {
         newProjectAlmSettingDto.getAlmRepo(), newProjectAlmSettingDto.getAlmSlug(),
         A_DATE, A_DATE_LATER, newProjectAlmSettingDto.getSummaryCommentEnabled(),
         "https://github.com/foo/bar", "123456");
+  }
+
+  @Test
+  void update_existing_github_binding_whenNewDtoHasNoUrlAndRepoId_clearsStaleValues() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    AlmSettingDto githubAlmSetting = db.almSettings().insertGitHubAlmSetting();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.almSettings().insertGitHubProjectAlmSetting(githubAlmSetting, project,
+      dto -> dto.setUrl("https://github.com/foo/bar").setRepoId("123456"));
+
+    system2.setNow(A_DATE_LATER);
+    ProjectAlmSettingDto rebindProjectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSetting, project);
+    underTest.insertOrUpdate(dbSession, rebindProjectAlmSettingDto, githubAlmSetting.getKey(), project.getName(), project.getKey());
+
+    assertThat(underTest.selectByProject(dbSession, project).get())
+      .extracting(ProjectAlmSettingDto::getUrl, ProjectAlmSettingDto::getRepoId)
+      .containsExactly(null, null);
+  }
+
+  @Test
+  void select_by_project_whenGitlabPathWithNamespace_roundTripsAlmSlug() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    AlmSettingDto gitlabAlmSetting = db.almSettings().insertGitlabAlmSetting();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectAlmSettingDto gitlabProjectAlmSettingDto = newGitlabProjectAlmSettingDto(gitlabAlmSetting, project)
+      .setAlmSlug("my-group/my-subgroup/my-project");
+    underTest.insertOrUpdate(dbSession, gitlabProjectAlmSettingDto, gitlabAlmSetting.getKey(), project.getName(), project.getKey());
+
+    assertThat(underTest.selectByProject(dbSession, project).get())
+      .extracting(ProjectAlmSettingDto::getAlmSlug)
+      .isEqualTo("my-group/my-subgroup/my-project");
   }
 
   @Test

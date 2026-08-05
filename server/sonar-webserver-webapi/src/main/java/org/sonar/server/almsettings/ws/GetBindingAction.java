@@ -86,7 +86,8 @@ public class GetBindingAction implements AlmSettingsWsAction {
         new Change("8.7", "Azure binding now contains a monorepo flag for monorepo feature in Enterprise Edition and above"),
         new Change("10.1", "Permission needed changed from 'Administer' to 'Browse'"),
         new Change("2025.1", "Azure binding now contains a inlineAnnotationsEnabled flag for inline annotations feature"),
-        new Change("2025.6", "GitHub, GitLab and Azure bindings now contain a repositoryUrl field with the URL to the repository"))
+        new Change("2025.6", "GitHub, GitLab and Azure bindings now contain a repositoryUrl field with the URL to the repository"),
+        new Change("2026.5", "GitHub and GitLab bindings now contain a slug field with the repository's full name or path"))
       .setHandler(this);
 
     action

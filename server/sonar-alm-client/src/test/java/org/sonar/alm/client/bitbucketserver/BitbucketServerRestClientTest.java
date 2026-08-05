@@ -194,6 +194,13 @@ public class BitbucketServerRestClientTest {
             "key": "HOY",
             "id": 3,
             "name": "hoy"
+          },
+          "links": {
+            "self": [
+              {
+                "href": "http://bitbucket-server.sonarsource.com/projects/HOY/repos/banana-slug/browse"
+              }
+            ]
           }
         }
         """));
@@ -205,6 +212,7 @@ public class BitbucketServerRestClientTest {
     assertThat(repository.getProject())
       .extracting(Project::getId, Project::getKey, Project::getName)
       .contains(3L, "HOY", "hoy");
+    assertThat(repository.getSelfHref()).isEqualTo("http://bitbucket-server.sonarsource.com/projects/HOY/repos/banana-slug/browse");
   }
 
   @Test

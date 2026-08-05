@@ -105,6 +105,8 @@ class GithubDevOpsProjectCreationContextServiceTest {
     assertThat(devOpsProjectCreationContext.name()).isEqualTo(repository.getName());
     assertThat(devOpsProjectCreationContext.fullName()).isEqualTo(repository.getFullName());
     assertThat(devOpsProjectCreationContext.devOpsPlatformIdentifier()).isEqualTo(repository.getFullName());
+    assertThat(devOpsProjectCreationContext.url()).isEqualTo(repository.getUrl());
+    assertThat(devOpsProjectCreationContext.repoId()).isEqualTo(String.valueOf(repository.getId()));
     assertThat(devOpsProjectCreationContext.isPublic()).isTrue();
     assertThat(devOpsProjectCreationContext.defaultBranchName()).isEqualTo(repository.getDefaultBranch());
   }
@@ -130,6 +132,8 @@ class GithubDevOpsProjectCreationContextServiceTest {
     when(repository.getFullName()).thenReturn("full-name");
     when(repository.isPrivate()).thenReturn(false);
     when(repository.getDefaultBranch()).thenReturn("default-branch");
+    when(repository.getUrl()).thenReturn("https://github.com/full-name");
+    when(repository.getId()).thenReturn(9001L);
     UserAccessToken accessToken = new UserAccessToken(almPatDto.getPersonalAccessToken());
     when(githubApplicationClient.getRepository(almSettingDto.getUrl(), accessToken,
       DEV_OPS_PROJECT_DESCRIPTOR.repositoryIdentifier())).thenReturn(Optional.of(repository));
