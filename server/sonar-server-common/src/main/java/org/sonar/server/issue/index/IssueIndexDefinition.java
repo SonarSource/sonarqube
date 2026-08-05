@@ -119,11 +119,13 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_FROM_SONAR_QUBE_UPDATE = "fromSonarQubeUpdate";
   /**
    * Pre-computed for default sort in MQR mode: combined rank of the most important impact pair.
-   * Formula: (quality_rank * 5) + severity_rank, where quality_rank is MAINTAINABILITY=0, RELIABILITY=1, SECURITY=2
-   * and severity_rank is INFO=0, LOW=1, MEDIUM=2, HIGH=3, BLOCKER=4.
-   * Quality is the primary criterion; ties broken by severity. Max value: 14 (SECURITY:BLOCKER).
+   * Formula: (quality_index + 1) * 1000 + severity_index * 10, where quality_index is SECURITY=0,
+   * RELIABILITY=1, MAINTAINABILITY=2 and severity_index is BLOCKER=0, HIGH=1, MEDIUM=2, LOW=3, INFO=4.
+   * Quality is the primary criterion; ties broken by severity. Takes the minimum (most important)
+   * rank across all impacts. Lower value means more important; unset if no impact has a recognized
+   * quality/severity pair.
    */
-  public static final String FIELD_ISSUE_MQR_SORT_RANK = "mqrSortRank";
+  public static final String FIELD_ISSUE_IMPACT_RANK = "impactRank";
   /**
    * Pre-computed for default sort in standard mode: combined rank of (rule type, issue severity).
    * Formula: (type_rank * 5) + severity_rank, where type_rank is CODE_SMELL=0, BUG=1, VULNERABILITY=2, SECURITY_HOTSPOT=3
@@ -211,7 +213,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     mapping.createBooleanField(FIELD_PRIORITIZED_RULE);
     mapping.createBooleanField(FIELD_FROM_SONAR_QUBE_UPDATE);
     mapping.keywordFieldBuilder(FIELD_LINKED_TICKET_STATUS).disableNorms().build();
-    mapping.createByteField(FIELD_ISSUE_MQR_SORT_RANK);
+    mapping.createIntegerField(FIELD_ISSUE_IMPACT_RANK);
     mapping.createByteField(FIELD_ISSUE_STANDARD_SORT_RANK);
   }
 }

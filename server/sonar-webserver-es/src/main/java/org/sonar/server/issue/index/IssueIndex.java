@@ -154,6 +154,7 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_FUNC
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_FUNC_UPDATED_AT;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IMPACTS;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IMPACT_RANK;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IMPACT_SEVERITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IMPACT_SOFTWARE_QUALITY;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_IS_MAIN_BRANCH;
@@ -179,7 +180,6 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_SQ_S
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STATUS;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STIG_ASD_V5R3;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TAGS;
-import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_MQR_SORT_RANK;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_STANDARD_SORT_RANK;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TYPE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_VULNERABILITY_PROBABILITY;
@@ -282,8 +282,8 @@ public class IssueIndex {
     this.sorting.add(IssueQuery.SORT_HOTSPOTS, FIELD_ISSUE_KEY);
     this.sorting.add(IssueQuery.SORT_BY_TYPE_SEVERITY, FIELD_ISSUE_STANDARD_SORT_RANK).reverse();
     this.sorting.add(IssueQuery.SORT_BY_TYPE_SEVERITY, FIELD_ISSUE_KEY);
-    this.sorting.add(IssueQuery.SORT_BY_QUALITY_SEVERITY, FIELD_ISSUE_MQR_SORT_RANK).reverse();
-    this.sorting.add(IssueQuery.SORT_BY_QUALITY_SEVERITY, FIELD_ISSUE_KEY);
+    // SORT_BY_IMPACT_RANK is not registered here: it's special-cased in createSortOptions,
+    // which reuses SORT_BY_FILE_LINE's tiebreak chain registered below.
     this.sorting.addDefault(FIELD_ISSUE_FUNC_CREATED_AT).reverse();
     this.sorting.addDefault(FIELD_ISSUE_PROJECT_UUID);
     this.sorting.addDefault(FIELD_ISSUE_FILE_PATH);
@@ -372,6 +372,9 @@ public class IssueIndex {
 
   private List<SortOptions> createSortOptions(IssueQuery query) {
     String sortField = query.sort();
+    if (IssueQuery.SORT_BY_IMPACT_RANK.equals(sortField)) {
+      return createImpactRankSortOptions(Boolean.TRUE.equals(query.asc()));
+    }
     boolean asc;
     List<Sorting.Field> sortFields;
     if (sortField != null) {
@@ -383,6 +386,21 @@ public class IssueIndex {
       sortFields = sorting.getDefaultFields();
     }
     return sortFields.stream().map(f -> toSortOption(f, asc)).toList();
+  }
+
+  /**
+   * Bypasses the generic {@link Sorting}/{@link #toSortOption} machinery for this one sort: issues
+   * without a computed rank must always sort last regardless of direction, not just when ascending
+   * - the shared mechanism ties missing-value placement to direction and can't express that. Reuses
+   * SORT_BY_FILE_LINE's tiebreak chain, always applied ascending for a stable secondary order.
+   */
+  private List<SortOptions> createImpactRankSortOptions(boolean asc) {
+    SortOptions rankSort = SortOptions.of(s -> s.field(f -> f
+      .field(FIELD_ISSUE_IMPACT_RANK)
+      .order(asc ? SortOrder.Asc : SortOrder.Desc)
+      .missing(fv -> fv.stringValue(SORT_MISSING_LAST))));
+    Stream<SortOptions> tiebreak = sorting.getFields(IssueQuery.SORT_BY_FILE_LINE).stream().map(f -> toSortOption(f, true));
+    return Stream.concat(Stream.of(rankSort), tiebreak).toList();
   }
 
   private static SortOptions toSortOption(Sorting.Field field, boolean asc) {

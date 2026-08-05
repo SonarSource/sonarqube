@@ -166,7 +166,7 @@ class IssueIndexSortTest extends IssueIndexTestCommon {
   }
 
   @Test
-  void sort_by_quality_severity_uses_combined_quality_and_severity_rank() {
+  void sort_by_impact_rank_uses_combined_quality_and_severity_rank() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -176,8 +176,25 @@ class IssueIndexSortTest extends IssueIndexTestCommon {
       newDoc("MEDIUM_SEC", project.uuid(), file).setImpacts(Map.of(SoftwareQuality.SECURITY, Severity.MEDIUM)),
       newDoc("LOW_MAINT", project.uuid(), file).setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW)));
 
-    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_QUALITY_SEVERITY).asc(true);
+    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_IMPACT_RANK).asc(true);
     assertThatSearchReturnsInOrder(query, "HIGH_SEC", "MEDIUM_SEC", "HIGH_REL", "LOW_MAINT");
+  }
+
+  @Test
+  void sort_by_impact_rank_puts_issues_without_a_rank_last_regardless_of_direction() {
+    ComponentDto project = newPrivateProjectDto();
+    ComponentDto file = newFileDto(project);
+
+    indexIssues(
+      newDoc("NO_IMPACT", project.uuid(), file),
+      newDoc("HIGH_SEC", project.uuid(), file).setImpacts(Map.of(SoftwareQuality.SECURITY, Severity.HIGH)),
+      newDoc("LOW_MAINT", project.uuid(), file).setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW)));
+
+    IssueQuery.Builder ascQuery = IssueQuery.builder().sort(IssueQuery.SORT_BY_IMPACT_RANK).asc(true);
+    assertThatSearchReturnsInOrder(ascQuery, "HIGH_SEC", "LOW_MAINT", "NO_IMPACT");
+
+    IssueQuery.Builder descQuery = IssueQuery.builder().sort(IssueQuery.SORT_BY_IMPACT_RANK).asc(false);
+    assertThatSearchReturnsInOrder(descQuery, "LOW_MAINT", "HIGH_SEC", "NO_IMPACT");
   }
 
   private void assertThatSearchReturnsInOrder(IssueQuery.Builder query, String... expectedIssueKeys) {

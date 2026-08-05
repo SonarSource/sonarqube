@@ -45,8 +45,6 @@ import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 public class IssueDoc extends BaseDoc {
 
   static final Map<RuleType, Byte> RULE_TYPE_SORT_RANK;
-  static final Map<org.sonar.api.issue.impact.Severity, Byte> IMPACT_SEVERITY_SORT_RANK;
-  static final Map<SoftwareQuality, Byte> SOFTWARE_QUALITY_SORT_RANK;
 
   static {
     // Explicit stable rank values — not ordinal-based — so the sort order is
@@ -56,23 +54,21 @@ public class IssueDoc extends BaseDoc {
     RULE_TYPE_SORT_RANK.put(RuleType.BUG, (byte) 1);
     RULE_TYPE_SORT_RANK.put(RuleType.VULNERABILITY, (byte) 2);
     RULE_TYPE_SORT_RANK.put(RuleType.SECURITY_HOTSPOT, (byte) 3);
-
-    IMPACT_SEVERITY_SORT_RANK = new EnumMap<>(org.sonar.api.issue.impact.Severity.class);
-    IMPACT_SEVERITY_SORT_RANK.put(org.sonar.api.issue.impact.Severity.INFO, (byte) 0);
-    IMPACT_SEVERITY_SORT_RANK.put(org.sonar.api.issue.impact.Severity.LOW, (byte) 1);
-    IMPACT_SEVERITY_SORT_RANK.put(org.sonar.api.issue.impact.Severity.MEDIUM, (byte) 2);
-    IMPACT_SEVERITY_SORT_RANK.put(org.sonar.api.issue.impact.Severity.HIGH, (byte) 3);
-    IMPACT_SEVERITY_SORT_RANK.put(org.sonar.api.issue.impact.Severity.BLOCKER, (byte) 4);
-
-    SOFTWARE_QUALITY_SORT_RANK = new EnumMap<>(SoftwareQuality.class);
-    SOFTWARE_QUALITY_SORT_RANK.put(SoftwareQuality.MAINTAINABILITY, (byte) 0);
-    SOFTWARE_QUALITY_SORT_RANK.put(SoftwareQuality.RELIABILITY, (byte) 1);
-    SOFTWARE_QUALITY_SORT_RANK.put(SoftwareQuality.SECURITY, (byte) 2);
   }
 
-  // Multipliers for rank encoding: must equal the number of levels in each scale
+  // Multiplier for standard-mode rank encoding: must equal the number of levels in the scale
   private static final int STANDARD_SEVERITY_LEVELS = Severity.ALL.size();
-  private static final int IMPACT_SEVERITY_LEVELS = IMPACT_SEVERITY_SORT_RANK.size();
+
+  // Explicit priority order (index 0 = most important) — not ordinal-based — so the sort order
+  // is preserved if enum constants are ever reordered or new ones added.
+  private static final List<SoftwareQuality> IMPACT_QUALITY_RANK_ORDER = List.of(
+    SoftwareQuality.SECURITY, SoftwareQuality.RELIABILITY, SoftwareQuality.MAINTAINABILITY);
+  private static final List<org.sonar.api.issue.impact.Severity> IMPACT_SEVERITY_RANK_ORDER = List.of(
+    org.sonar.api.issue.impact.Severity.BLOCKER, org.sonar.api.issue.impact.Severity.HIGH,
+    org.sonar.api.issue.impact.Severity.MEDIUM, org.sonar.api.issue.impact.Severity.LOW,
+    org.sonar.api.issue.impact.Severity.INFO);
+  private static final int IMPACT_QUALITY_RANK_MULTIPLIER = 1000;
+  private static final int IMPACT_SEVERITY_RANK_MULTIPLIER = 10;
 
   public IssueDoc(Map<String, Object> fields) {
     super(TYPE_ISSUE, fields);
@@ -337,7 +333,7 @@ public class IssueDoc extends BaseDoc {
         SUB_FIELD_SEVERITY, entry.getValue().name()))
       .toList();
     setField(IssueIndexDefinition.FIELD_ISSUE_IMPACTS, convertedMap);
-    computeMqrSortRank(impacts);
+    computeImpactRank(impacts);
     return this;
   }
 
@@ -353,17 +349,13 @@ public class IssueDoc extends BaseDoc {
     }
   }
 
-  private void computeMqrSortRank(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
-    OptionalInt maxRank = impacts.entrySet().stream()
-      .mapToInt(e -> {
-        Byte qualityRank = SOFTWARE_QUALITY_SORT_RANK.get(e.getKey());
-        Byte severityRank = IMPACT_SEVERITY_SORT_RANK.get(e.getValue());
-        Objects.requireNonNull(qualityRank, "No sort rank defined for software quality: " + e.getKey());
-        Objects.requireNonNull(severityRank, "No sort rank defined for impact severity: " + e.getValue());
-        return qualityRank * IMPACT_SEVERITY_LEVELS + severityRank;
-      })
-      .max();
-    setField(IssueIndexDefinition.FIELD_ISSUE_MQR_SORT_RANK, maxRank.isPresent() ? (byte) maxRank.getAsInt() : null);
+  private void computeImpactRank(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
+    OptionalInt minRank = impacts.entrySet().stream()
+      .filter(e -> IMPACT_QUALITY_RANK_ORDER.contains(e.getKey()) && IMPACT_SEVERITY_RANK_ORDER.contains(e.getValue()))
+      .mapToInt(e -> (IMPACT_QUALITY_RANK_ORDER.indexOf(e.getKey()) + 1) * IMPACT_QUALITY_RANK_MULTIPLIER
+        + IMPACT_SEVERITY_RANK_ORDER.indexOf(e.getValue()) * IMPACT_SEVERITY_RANK_MULTIPLIER)
+      .min();
+    setField(IssueIndexDefinition.FIELD_ISSUE_IMPACT_RANK, minRank.isPresent() ? minRank.getAsInt() : null);
   }
 
   @CheckForNull

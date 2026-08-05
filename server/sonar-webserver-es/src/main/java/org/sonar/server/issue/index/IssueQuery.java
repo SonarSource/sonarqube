@@ -57,10 +57,10 @@ public class IssueQuery {
   /**
    * Sort by software quality then impact severity (MQR mode). Default sort in MQR mode.
    */
-  public static final String SORT_BY_QUALITY_SEVERITY = "QUALITY_SEVERITY";
+  public static final String SORT_BY_IMPACT_RANK = "IMPACT_RANK";
 
   public static final Set<String> SORTS = Set.of(SORT_BY_CREATION_DATE, SORT_BY_UPDATE_DATE, SORT_BY_CLOSE_DATE, SORT_BY_SEVERITY,
-    SORT_BY_STATUS, SORT_BY_FILE_LINE, SORT_HOTSPOTS, SORT_BY_TYPE_SEVERITY, SORT_BY_QUALITY_SEVERITY);
+    SORT_BY_STATUS, SORT_BY_FILE_LINE, SORT_HOTSPOTS, SORT_BY_TYPE_SEVERITY, SORT_BY_IMPACT_RANK);
 
   private final Collection<String> issueKeys;
   private final Collection<String> severities;

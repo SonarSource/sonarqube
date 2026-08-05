@@ -68,38 +68,39 @@ class IssueDocTest {
     assertThat((byte) doc.getField(IssueIndexDefinition.FIELD_ISSUE_STANDARD_SORT_RANK)).isEqualTo((byte) 7); // 1*5+2
   }
 
-  // MQR mode: FIELD_ISSUE_MQR_SORT_RANK = max over all impacts of (quality_rank * 5) + severity_rank
-  // quality_rank: MAINTAINABILITY=0, RELIABILITY=1, SECURITY=2
-  // severity_rank: INFO=0, LOW=1, MEDIUM=2, HIGH=3, BLOCKER=4
+  // MQR mode: FIELD_ISSUE_IMPACT_RANK = min over all impacts of (quality_index+1)*1000 + severity_index*10
+  // quality_index: SECURITY=0, RELIABILITY=1, MAINTAINABILITY=2
+  // severity_index: BLOCKER=0, HIGH=1, MEDIUM=2, LOW=3, INFO=4
+  // Lower value is more important, so the minimum across impacts is kept.
 
   @Test
-  void mqr_sort_rank_is_quality_primary_severity_secondary() {
-    // Security:Blocker = 2*5+4 = 14 (highest)
-    assertMqrRank(Map.of(SoftwareQuality.SECURITY, BLOCKER), (byte) 14);
-    // Security:Info    = 2*5+0 = 10 (always > Reliability:Blocker=9)
-    assertMqrRank(Map.of(SoftwareQuality.SECURITY, INFO), (byte) 10);
-    // Reliability:Blocker = 1*5+4 = 9
-    assertMqrRank(Map.of(SoftwareQuality.RELIABILITY, BLOCKER), (byte) 9);
-    // Reliability:Info    = 1*5+0 = 5 (always > Maintainability:Blocker=4)
-    assertMqrRank(Map.of(SoftwareQuality.RELIABILITY, INFO), (byte) 5);
-    // Maintainability:Blocker = 0*5+4 = 4
-    assertMqrRank(Map.of(SoftwareQuality.MAINTAINABILITY, BLOCKER), (byte) 4);
-    // Maintainability:Info    = 0*5+0 = 0
-    assertMqrRank(Map.of(SoftwareQuality.MAINTAINABILITY, INFO), (byte) 0);
+  void impact_rank_is_quality_primary_severity_secondary() {
+    // Security:Blocker = (0+1)*1000+0*10 = 1000 (most important)
+    assertImpactRank(Map.of(SoftwareQuality.SECURITY, BLOCKER), 1000);
+    // Security:Info    = (0+1)*1000+4*10 = 1040 (always < Reliability:Blocker=2000)
+    assertImpactRank(Map.of(SoftwareQuality.SECURITY, INFO), 1040);
+    // Reliability:Blocker = (1+1)*1000+0*10 = 2000
+    assertImpactRank(Map.of(SoftwareQuality.RELIABILITY, BLOCKER), 2000);
+    // Reliability:Info    = (1+1)*1000+4*10 = 2040 (always < Maintainability:Blocker=3000)
+    assertImpactRank(Map.of(SoftwareQuality.RELIABILITY, INFO), 2040);
+    // Maintainability:Blocker = (2+1)*1000+0*10 = 3000
+    assertImpactRank(Map.of(SoftwareQuality.MAINTAINABILITY, BLOCKER), 3000);
+    // Maintainability:Info    = (2+1)*1000+4*10 = 3040 (least important)
+    assertImpactRank(Map.of(SoftwareQuality.MAINTAINABILITY, INFO), 3040);
   }
 
   @Test
-  void mqr_sort_rank_picks_best_impact_across_multiple() {
+  void impact_rank_picks_best_impact_across_multiple() {
     // {Security:Low, Reliability:Blocker} → Security wins (quality is primary)
-    // Security:Low = 2*5+1 = 11, Reliability:Blocker = 1*5+4 = 9 → max = 11
-    assertMqrRank(Map.of(SoftwareQuality.SECURITY, LOW, SoftwareQuality.RELIABILITY, BLOCKER), (byte) 11);
+    // Security:Low = (0+1)*1000+3*10 = 1030, Reliability:Blocker = (1+1)*1000+0*10 = 2000 → min = 1030
+    assertImpactRank(Map.of(SoftwareQuality.SECURITY, LOW, SoftwareQuality.RELIABILITY, BLOCKER), 1030);
   }
 
   @Test
-  void mqr_sort_rank_with_empty_impacts_does_not_set_field() {
+  void impact_rank_with_empty_impacts_does_not_set_field() {
     IssueDoc doc = newDoc();
     doc.setImpacts(Map.of());
-    assertThat(doc.<Object>getNullableField(IssueIndexDefinition.FIELD_ISSUE_MQR_SORT_RANK)).isNull();
+    assertThat(doc.<Object>getNullableField(IssueIndexDefinition.FIELD_ISSUE_IMPACT_RANK)).isNull();
   }
 
   private static void assertStandardRank(RuleType type, String severity, byte expected) {
@@ -109,10 +110,10 @@ class IssueDocTest {
     assertThat((byte) doc.getField(IssueIndexDefinition.FIELD_ISSUE_STANDARD_SORT_RANK)).isEqualTo(expected);
   }
 
-  private static void assertMqrRank(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts, byte expected) {
+  private static void assertImpactRank(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts, int expected) {
     IssueDoc doc = newDoc();
     doc.setImpacts(impacts);
-    assertThat((byte) doc.getField(IssueIndexDefinition.FIELD_ISSUE_MQR_SORT_RANK)).isEqualTo(expected);
+    assertThat((int) doc.getField(IssueIndexDefinition.FIELD_ISSUE_IMPACT_RANK)).isEqualTo(expected);
   }
 
   private static IssueDoc newDoc() {
