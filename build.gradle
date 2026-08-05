@@ -379,7 +379,7 @@ subprojects {
       dependency 'org.sonarsource.php:sonar-php-plugin:3.60.0.16641'
       dependency 'org.sonarsource.plugins.cayc:sonar-cayc-plugin:2.6.0.3665'
       dependency 'org.sonarsource.python:sonar-python-plugin:5.27.0.35548'
-      dependency 'org.sonarsource.rust:sonar-rust-plugin:1.8.0.3284'
+      dependency 'org.sonarsource.rust:sonar-rust-plugin:1.8.1.3395'
       dependency 'com.sonarsource.python:sonar-python-enterprise-plugin:5.27.0.35548'
       dependency 'org.sonarsource.kotlin:sonar-kotlin-plugin:3.7.0.9514'
       dependency "org.sonarsource.api.plugin:sonar-plugin-api:$pluginApiVersion"
