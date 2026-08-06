@@ -196,6 +196,46 @@ class QProfileChangeDaoIT {
   }
 
   @Test
+  void selectByQuery_whenPageContainsChangeWithMultipleImpacts_shouldReturnExactlyRequestedNumberOfItems() {
+    QProfileDto profile = db.qualityProfiles().insert();
+    RuleChangeDto ruleChangeWithTwoImpacts = insertRuleChange(CLEAR, TESTED,
+      Set.of(new RuleImpactChangeDto(MAINTAINABILITY, RELIABILITY, LOW, MEDIUM), new RuleImpactChangeDto(RELIABILITY, null, LOW, null)));
+    insertChange(profile, "ACTIVATED", null, null);
+    QProfileChangeDto change2 = insertChange(profile, "ACTIVATED", null, null);
+    QProfileChangeDto change3WithImpacts = insertChange(profile.getRulesProfileUuid(), "ACTIVATED", null, null, ruleChangeWithTwoImpacts);
+
+    QProfileChangeQuery query = new QProfileChangeQuery(profile.getKee());
+    query.setOffset(0);
+    query.setLimit(2);
+    List<QProfileChangeDto> changes = underTest.selectByQuery(dbSession, query);
+
+    assertThat(changes)
+      .extracting(QProfileChangeDto::getUuid)
+      .containsExactly(change3WithImpacts.getUuid(), change2.getUuid());
+    assertThat(changes.getFirst().getRuleChange().getRuleImpactChanges()).hasSize(2);
+  }
+
+  @Test
+  void selectByQuery_whenChangeWithMultipleImpactsIsLastItemOfPage_shouldReturnAllItsImpacts() {
+    QProfileDto profile = db.qualityProfiles().insert();
+    insertChange(profile, "ACTIVATED", null, null);
+    RuleChangeDto ruleChangeWithTwoImpacts = insertRuleChange(CLEAR, TESTED,
+      Set.of(new RuleImpactChangeDto(MAINTAINABILITY, RELIABILITY, LOW, MEDIUM), new RuleImpactChangeDto(RELIABILITY, null, LOW, null)));
+    QProfileChangeDto changeWithImpacts = insertChange(profile.getRulesProfileUuid(), "ACTIVATED", null, null, ruleChangeWithTwoImpacts);
+    QProfileChangeDto change3 = insertChange(profile, "ACTIVATED", null, null);
+
+    QProfileChangeQuery query = new QProfileChangeQuery(profile.getKee());
+    query.setOffset(0);
+    query.setLimit(2);
+    List<QProfileChangeDto> changes = underTest.selectByQuery(dbSession, query);
+
+    assertThat(changes)
+      .extracting(QProfileChangeDto::getUuid)
+      .containsExactly(change3.getUuid(), changeWithImpacts.getUuid());
+    assertThat(changes.get(1).getRuleChange().getRuleImpactChanges()).hasSize(2);
+  }
+
+  @Test
   void selectByQuery_returns_changes_after_given_date() {
     QProfileDto profile = db.qualityProfiles().insert();
     QProfileChangeDto change1 = insertChange(profile, "ACTIVATED", null, null);

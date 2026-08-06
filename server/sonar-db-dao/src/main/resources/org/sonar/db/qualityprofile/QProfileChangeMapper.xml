@@ -14,7 +14,10 @@
     rc.uuid as "rc_uuid",
     rc.old_clean_code_attribute as oldCleanCodeAttribute,
     rc.new_clean_code_attribute as newCleanCodeAttribute,
-    rc.rule_uuid as ruleUuid,
+    rc.rule_uuid as ruleUuid
+  </sql>
+
+  <sql id="selectImpactChangesColumns">
     ric.old_software_quality as oldSoftwareQuality,
     ric.new_software_quality as newSoftwareQuality,
     ric.old_severity as oldSeverity,
@@ -56,11 +59,18 @@
 
   <select id="selectByQuery" resultMap="qProfileChangeResultMap">
     select
-    <include refid="selectColumns"/>
-    <include refid="sqlSelectByQuery"/>
-    order by qpc.created_at desc
-    offset #{query.offset} rows
-    fetch next #{query.limit} rows only
+      changes.*,
+      <include refid="selectImpactChangesColumns"/>
+    from (
+      select
+        <include refid="selectColumns"/>
+        <include refid="sqlSelectByQuery"/>
+      order by qpc.created_at desc, qpc.kee desc
+      offset #{query.offset} rows
+      fetch next #{query.limit} rows only
+    ) changes
+    left outer join rule_impact_changes ric on ric.rule_change_uuid = changes."rc_uuid"
+    order by changes.createdAt desc, changes."uuid" desc
   </select>
 
   <sql id="sqlSelectByQuery">
@@ -68,7 +78,6 @@
     inner join rules_profiles rp on rp.uuid = qpc.rules_profile_uuid
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.uuid
     left outer join rule_changes rc on rc.uuid = qpc.rule_change_uuid
-    left outer join rule_impact_changes ric on ric.rule_change_uuid = rc.uuid
     <include refid="whereClauseSelectByQuery"/>
   </sql>
 

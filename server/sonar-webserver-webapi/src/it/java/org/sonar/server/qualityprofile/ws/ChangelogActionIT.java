@@ -20,6 +20,9 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -393,6 +396,38 @@ class ChangelogActionIT {
       "    }\n" +
       "  ]" +
       "}");
+  }
+
+  @Test
+  void call_whenPageBoundaryFallsOnChangeWithMultipleImpacts_shouldReturnExactlyRequestedPageSizeAndFullImpactChanges() {
+    QProfileDto profile = db.qualityProfiles().insert();
+    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
+    insertChange(profile, ActiveRuleChange.Type.ACTIVATED, null, ImmutableMap.of("ruleUuid", "r1"));
+
+    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:43+0100").getTime());
+    RuleChangeDto ruleChangeWithTwoImpacts = insertRuleChange(CLEAR, TESTED, "r2",
+      Set.of(new RuleImpactChangeDto(MAINTAINABILITY, RELIABILITY, LOW, MEDIUM), new RuleImpactChangeDto(RELIABILITY, null, LOW, null)));
+    insertChange(profile, ActiveRuleChange.Type.UPDATED, null, null, ruleChangeWithTwoImpacts);
+
+    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:44+0100").getTime());
+    insertChange(profile, ActiveRuleChange.Type.ACTIVATED, null, ImmutableMap.of("ruleUuid", "r3"));
+
+    String response = ws.newRequest()
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+      .setParam("p", "1")
+      .setParam("ps", "2")
+      .execute()
+      .getInput();
+
+    JsonObject json = JsonParser.parseString(response).getAsJsonObject();
+    assertThat(json.getAsJsonObject("paging").get("total").getAsInt()).isEqualTo(3);
+    assertThat(json.getAsJsonObject("paging").get("pageSize").getAsInt()).isEqualTo(2);
+    JsonArray events = json.getAsJsonArray("events");
+    assertThat(events).hasSize(2);
+
+    JsonObject changeWithImpactsAtPageBoundary = events.get(1).getAsJsonObject();
+    assertThat(changeWithImpactsAtPageBoundary.getAsJsonObject("params").getAsJsonArray("impactChanges")).hasSize(2);
   }
 
   @Test
