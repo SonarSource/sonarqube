@@ -70,6 +70,12 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
   private String almSlug;
 
   @Nullable
+  private String repositoryUrl;
+
+  @Nullable
+  private String repositoryId;
+
+  @Nullable
   private Boolean isSummaryCommentEnabled;
 
   @Nullable
@@ -103,6 +109,8 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
     this.projectName = projectName;
     this.almRepo = dto.getAlmRepo();
     this.almSlug = dto.getAlmSlug();
+    this.repositoryUrl = dto.getUrl();
+    this.repositoryId = dto.getRepoId();
     this.isSummaryCommentEnabled = dto.getSummaryCommentEnabled();
     this.isMonorepo = dto.getMonorepo();
   }
@@ -177,6 +185,16 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
   }
 
   @CheckForNull
+  public String getRepositoryUrl() {
+    return this.repositoryUrl;
+  }
+
+  @CheckForNull
+  public String getRepositoryId() {
+    return this.repositoryId;
+  }
+
+  @CheckForNull
   public Boolean isSummaryCommentEnabled() {
     return this.isSummaryCommentEnabled;
   }
@@ -218,6 +236,8 @@ public class DevOpsPlatformSettingNewValue extends NewValue {
     addField(sb, "\"projectName\": ", this.projectName, true);
     addField(sb, "\"almRepo\": ", this.almRepo, true);
     addField(sb, "\"almSlug\": ", this.almSlug, true);
+    addField(sb, "\"repositoryUrl\": ", this.repositoryUrl, true);
+    addField(sb, "\"repositoryId\": ", this.repositoryId, true);
     addField(sb, "\"isSummaryCommentEnabled\": ", Objects.toString(this.isSummaryCommentEnabled, ""), false);
     addField(sb, "\"isMonorepo\": ", Objects.toString(this.isMonorepo, ""), false);
     addField(sb, "\"scope\": ", this.scope, true);

@@ -73,6 +73,7 @@ import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.almintegration.ws.github.GithubProvisioningWs;
 import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.almsettings.ws.AlmSettingsWsModule;
+import org.sonar.server.almsettings.ws.ProjectBindingsServiceServerImpl;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierImpl;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifierNotificationHandler;
@@ -401,6 +402,7 @@ public class PlatformLevel4 extends PlatformLevel {
       NetworkInterfaceProvider.class,
       OrganizationsServiceServerImpl.class,
       ProjectsServiceServerImpl.class,
+      ProjectBindingsServiceServerImpl.class,
 
       // ai code assurance
       NoOpAiCodeAssuranceVerifier.class,

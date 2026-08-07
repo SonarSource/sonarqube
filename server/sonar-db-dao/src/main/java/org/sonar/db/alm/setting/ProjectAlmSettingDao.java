@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
@@ -133,5 +134,25 @@ public class ProjectAlmSettingDao implements Dao {
 
   public List<ProjectAlmKeyAndProject> selectAlmTypeAndUrlByProject(DbSession dbSession) {
     return getMapper(dbSession).selectAlmTypeAndUrlByProject();
+  }
+
+
+  public List<ProjectAlmSettingDto> selectByUrl(DbSession dbSession, String url) {
+    return getMapper(dbSession).selectByUrl(url);
+  }
+
+  public List<ProjectAlmSettingDto> selectByAlmSettingAndRepoIds(DbSession dbSession, AlmSettingDto almSettingDto, Set<String> repoIds) {
+    return executeLargeInputs(repoIds, ids -> getMapper(dbSession).selectByAlmSettingAndRepoIds(almSettingDto.getUuid(), ids));
+  }
+
+  /**
+   * Narrow partial update used to lazily backfill {@code url}/{@code repoId} for bindings created before these
+   * columns existed. Deliberately bypasses {@link #insertOrUpdate}: that method blanket-updates every column
+   * (risking clobbering {@code almRepo}/{@code almSlug}/{@code summaryCommentEnabled}/{@code monorepo}) and always
+   * writes an audit entry attributed to whichever user session is active — wrong here, since this is a
+   * system-triggered side effect of a read, not an admin action.
+   */
+  public void updateUrlAndRepoId(DbSession dbSession, String uuid, @Nullable String url, @Nullable String repoId) {
+    getMapper(dbSession).updateUrlAndRepoId(uuid, url, repoId, system2.now());
   }
 }

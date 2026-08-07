@@ -167,6 +167,17 @@ public class BitbucketCloudRestClient {
     return doGetWithApiToken(encodedApiTokenCredentials, url, r -> buildGson().fromJson(r.body().charStream(), Repository.class));
   }
 
+
+  /**
+   * Same as {@link #getRepo(String, String, String)}, but authenticates with an OAuth access token
+   * (see {@link #createAccessToken(String, String)}) instead of a user's Basic-auth API token —
+   * for callers with no per-user PAT available (e.g. a session-less lazy resolution).
+   */
+  public Repository getRepoWithAccessToken(String accessToken, String workspace, String slug) {
+    HttpUrl url = buildUrl(String.format("/repositories/%s/%s", workspace, slug));
+    return doGet(accessToken, url, r -> buildGson().fromJson(r.body().charStream(), Repository.class));
+  }
+
   public String createAccessToken(String clientId, String clientSecret) {
     Request request = createAccessTokenRequest(clientId, clientSecret);
     return doCall(request, r -> buildGson().fromJson(r.body().charStream(), Token.class)).getAccessToken();

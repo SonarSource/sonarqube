@@ -241,6 +241,36 @@
     </where>
   </sql>
 
+  <select id="selectByUrl" parameterType="string" resultType="org.sonar.db.alm.setting.ProjectAlmSettingDto">
+    select <include refid="sqlColumns"/>
+    from
+      project_alm_settings p
+    where
+      p.url = #{url, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByAlmSettingAndRepoIds" parameterType="string" resultType="org.sonar.db.alm.setting.ProjectAlmSettingDto">
+    select <include refid="sqlColumns"/>
+    from
+      project_alm_settings p
+    where
+      alm_setting_uuid=#{almSettingUuid, jdbcType=VARCHAR}
+    and repo_id in
+      <foreach collection="repoIds" open="(" close=")" item="repoId" separator=",">
+        #{repoId, jdbcType=VARCHAR}
+      </foreach>
+  </select>
+
+  <update id="updateUrlAndRepoId" parameterType="map">
+    UPDATE project_alm_settings
+    SET
+      url = #{url, jdbcType=VARCHAR},
+      repo_id = #{repoId, jdbcType=VARCHAR},
+      updated_at = #{now, jdbcType=BIGINT}
+    WHERE
+      uuid = #{uuid, jdbcType=VARCHAR}
+  </update>
+
   <delete id="deleteByAlmSettingUuid" parameterType="String">
     DELETE FROM project_alm_settings WHERE alm_setting_uuid = #{almSettingUuid, jdbcType=VARCHAR}
   </delete>

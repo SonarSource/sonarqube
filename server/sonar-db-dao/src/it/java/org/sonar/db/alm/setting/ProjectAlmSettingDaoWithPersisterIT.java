@@ -92,6 +92,38 @@ class ProjectAlmSettingDaoWithPersisterIT {
   }
 
   @Test
+  void insertAndUpdateWithUrlAndRepoIdPopulatedCaptureThemInTheAuditTrail() {
+    AlmSettingDto githubAlmSetting = newGithubAlmSettingDto().setUuid(uuidFactory.create());
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectAlmSettingDto projectAlmSettingDto = newGithubProjectAlmSettingDto(githubAlmSetting, project)
+      .setUrl("https://github.com/sonarsource/sonar-enterprise")
+      .setRepoId("123456");
+    underTest.insertOrUpdate(dbSession, projectAlmSettingDto, githubAlmSetting.getKey(), project.getName(), project.getKey());
+
+    verify(auditPersister).addDevOpsPlatformSetting(eq(dbSession), newValueCaptor.capture());
+    DevOpsPlatformSettingNewValue newValue = newValueCaptor.getValue();
+    assertThat(newValue)
+      .extracting(DevOpsPlatformSettingNewValue::getRepositoryUrl, DevOpsPlatformSettingNewValue::getRepositoryId)
+      .containsExactly("https://github.com/sonarsource/sonar-enterprise", "123456");
+    assertThat(newValue.toString())
+      .contains("\"repositoryUrl\": \"https://github.com/sonarsource/sonar-enterprise\"")
+      .contains("\"repositoryId\": \"123456\"");
+
+    // Rebind the same project to a different repository: this goes through insertOrUpdate's update branch
+    // (mapper.update() succeeds on the existing project_uuid row) rather than the insert branch exercised above.
+    projectAlmSettingDto
+      .setUrl("https://github.com/sonarsource/other-repo")
+      .setRepoId("789");
+    underTest.insertOrUpdate(dbSession, projectAlmSettingDto, githubAlmSetting.getKey(), project.getName(), project.getKey());
+
+    verify(auditPersister).updateDevOpsPlatformSetting(eq(dbSession), newValueCaptor.capture());
+    DevOpsPlatformSettingNewValue updatedValue = newValueCaptor.getValue();
+    assertThat(updatedValue)
+      .extracting(DevOpsPlatformSettingNewValue::getRepositoryUrl, DevOpsPlatformSettingNewValue::getRepositoryId)
+      .containsExactly("https://github.com/sonarsource/other-repo", "789");
+  }
+
+  @Test
   void deleteByProjectIsPersisted() {
     AlmSettingDto githubAlmSetting = newGithubAlmSettingDto().setUuid(uuidFactory.create());
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();

@@ -17,6 +17,8 @@ dependencies {
   implementation "org.sonarsource.sonarqube:history-api"
   implementation "org.sonarsource.sonarqube:history-core"
   implementation "org.sonarsource.sonarqube:history-server-app"
+  implementation "org.sonarsource.sonarqube:dop-translation-api"
+  implementation "org.sonarsource.sonarqube:organizations-server-app"
 
   api project(':server:sonar-ce-common')
   api project(':server:sonar-ce-task')

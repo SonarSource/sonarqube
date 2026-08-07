@@ -140,6 +140,7 @@ useLocalUnificationModule('useLocalDashboards', 'reporting/dashboards', ['dashbo
     'dashboards-core'      : ':private:dashboards-core',
   ]
 ])
+useLocalUnificationModule('useLocalDopTranslation', 'integration/dop-translation', ['dop-translation-api'])
 
 ext.isCiServer = System.getenv().containsKey("GITHUB_ACTIONS")
 
