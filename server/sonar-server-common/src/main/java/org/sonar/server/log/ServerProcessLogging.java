@@ -123,10 +123,16 @@ public abstract class ServerProcessLogging {
     helper.apply(logLevelConfig, props);
     configureDirectToConsoleLoggers(props, ctx, STARTUP_LOGGER_NAME);
     extendConfigure(props);
+    applyUnifiedPrefixLevel(ctx);
 
     helper.enableJulChangePropagation(ctx);
 
     return ctx;
+  }
+
+  private void applyUnifiedPrefixLevel(LoggerContext ctx) {
+    Level rootLevel = ctx.getLogger(helper.getRootLoggerName()).getLevel();
+    ServerLogging.UNIFIED_PREFIXES.forEach(prefix -> ctx.getLogger(prefix).setLevel(ServerLogging.toUnifiedLevel(rootLevel)));
   }
 
   public LogLevelConfig getLogLevelConfig() {

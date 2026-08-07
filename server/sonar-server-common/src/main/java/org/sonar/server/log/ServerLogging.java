@@ -21,6 +21,7 @@ package org.sonar.server.log;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import com.google.common.annotations.VisibleForTesting;
 import jakarta.inject.Inject;
 import java.io.File;
@@ -29,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -50,6 +52,11 @@ import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 @ServerSide
 @ComputeEngineSide
 public class ServerLogging implements Startable {
+  static final List<String> UNIFIED_PREFIXES = List.of("com.sonarsource", "org.sonarsource");
+
+  static Level toUnifiedLevel(Level level) {
+    return Level.INFO.equals(level) ? Level.WARN : level;
+  }
   /** Used for Hazelcast's distributed queries in cluster mode */
   private static ServerLogging instance;
   private final LogbackHelper helper;
@@ -105,6 +112,8 @@ public class ServerLogging implements Startable {
     Level logbackLevel = Level.toLevel(level.name());
     database.enableSqlLogging(level == TRACE);
     helper.changeRoot(serverProcessLogging.getLogLevelConfig(), logbackLevel);
+    LoggerContext ctx = helper.getRootContext();
+    UNIFIED_PREFIXES.forEach(prefix -> ctx.getLogger(prefix).setLevel(toUnifiedLevel(logbackLevel)));
     LoggerFactory.getLogger(ServerLogging.class).info("Level of logs changed to {}", level);
   }
 

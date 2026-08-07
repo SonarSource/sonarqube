@@ -396,6 +396,34 @@ public class CeProcessLoggingTest {
   }
 
   @Test
+  public void unified_prefixes_default_to_WARN_when_root_level_is_INFO() {
+    LoggerContext ctx = underTest.configure(props);
+
+    assertThat(ctx.getLogger("com.sonarsource").getLevel()).isEqualTo(Level.WARN);
+    assertThat(ctx.getLogger("org.sonarsource").getLevel()).isEqualTo(Level.WARN);
+  }
+
+  @Test
+  public void unified_prefixes_follow_root_level_when_started_at_DEBUG() {
+    props.set("sonar.log.level.ce", "DEBUG");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    assertThat(ctx.getLogger("com.sonarsource").getLevel()).isEqualTo(Level.DEBUG);
+    assertThat(ctx.getLogger("org.sonarsource").getLevel()).isEqualTo(Level.DEBUG);
+  }
+
+  @Test
+  public void unified_prefixes_follow_root_level_when_started_at_TRACE() {
+    props.set("sonar.log.level.ce", "TRACE");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    assertThat(ctx.getLogger("com.sonarsource").getLevel()).isEqualTo(Level.TRACE);
+    assertThat(ctx.getLogger("org.sonarsource").getLevel()).isEqualTo(Level.TRACE);
+  }
+
+  @Test
   public void configure_defines_hardcoded_levels() {
     LoggerContext context = underTest.configure(props);
 
