@@ -21,6 +21,7 @@ package org.sonar.ce.configuration;
 
 import java.util.Random;
 import org.junit.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
@@ -90,6 +91,21 @@ public class CeConfigurationImplTest {
       .isInstanceOf(MessageException.class)
       .hasMessage("Worker count '" + value + "' is invalid. " +
         "It must be an integer strictly greater than 0 and less or equal to 10");
+  }
+
+  @Test
+  public void getQueuePollingDelay_returns_2000_by_default() {
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getQueuePollingDelay())
+      .isEqualTo(2_000L);
+  }
+
+  @Test
+  public void getQueuePollingDelay_returns_configured_value_when_set() {
+    Configuration configuration = new ConfigurationBridge(new MapSettings()
+      .setProperty(CeConfigurationImpl.PROPERTY_QUEUE_POLLING_DELAY, 100L));
+
+    assertThat(new CeConfigurationImpl(configuration).getQueuePollingDelay())
+      .isEqualTo(100L);
   }
 
   @Test
