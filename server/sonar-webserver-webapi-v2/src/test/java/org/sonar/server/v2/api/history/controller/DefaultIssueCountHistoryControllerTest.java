@@ -39,8 +39,10 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
+import org.sonarsource.history.api.model.IssueCountDistributionType;
 import org.sonarsource.history.api.model.IssueCountHistoryResponse;
 import org.sonarsource.history.model.EntityType;
+import org.sonarsource.history.model.IssueCountDistribution;
 import org.sonarsource.history.server.service.IssueCountHistoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
@@ -90,18 +92,18 @@ public class DefaultIssueCountHistoryControllerTest {
     when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(issueHistoryService.queryIssueCountHistory(
       ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), endDate.toInstant(),
-      null, null, null, null, null, null))
+      null, null, null, null, null, IssueCountDistribution.STATUS))
       .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
 
     ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
-      ENTITY_ID, ENTITY_TYPE, startDate, endDate, null, null, null, null, null, null);
+      ENTITY_ID, ENTITY_TYPE, startDate, endDate, null, null, null, null, IssueCountDistributionType.STATUS, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     verify(componentDao).selectByUuid(dbSession, ENTITY_ID);
     verify(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
     verify(issueHistoryService).queryIssueCountHistory(
       ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), endDate.toInstant(),
-      null, null, null, null, null, null);
+      null, null, null, null, null, IssueCountDistribution.STATUS);
   }
 
   @Test

@@ -21,6 +21,7 @@ package org.sonar.server.v2.api.history.config;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.server.v2.api.history.controller.DefaultIssueCountHistoryController;
+import org.sonar.server.v2.api.history.controller.DefaultIssueDensityHistoryController;
 import org.sonar.server.v2.api.history.controller.DefaultMeasuresHistoryController;
 import org.sonar.server.v2.api.history.controller.DefaultProjectIssueCountsController;
 import org.sonar.server.v2.api.history.controller.DefaultProjectMeasuresController;
@@ -38,6 +39,7 @@ class HistoryWebConfigurationTest {
     assertThat(HistoryWebConfiguration.class.getAnnotation(Import.class).value())
       .containsExactlyInAnyOrder(
         DefaultIssueCountHistoryController.class,
+        DefaultIssueDensityHistoryController.class,
         DefaultMeasuresHistoryController.class,
         DefaultProjectIssueCountsController.class,
         DefaultProjectMeasuresController.class,

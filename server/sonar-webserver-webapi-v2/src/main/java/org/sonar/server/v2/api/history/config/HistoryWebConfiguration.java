@@ -20,6 +20,7 @@
 package org.sonar.server.v2.api.history.config;
 
 import org.sonar.server.v2.api.history.controller.DefaultIssueCountHistoryController;
+import org.sonar.server.v2.api.history.controller.DefaultIssueDensityHistoryController;
 import org.sonar.server.v2.api.history.controller.DefaultMeasuresHistoryController;
 import org.sonar.server.v2.api.history.controller.DefaultProjectIssueCountsController;
 import org.sonar.server.v2.api.history.controller.DefaultProjectMeasuresController;
@@ -31,6 +32,7 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({
   DefaultIssueCountHistoryController.class,
+  DefaultIssueDensityHistoryController.class,
   DefaultMeasuresHistoryController.class,
   DefaultProjectIssueCountsController.class,
   DefaultProjectMeasuresController.class,

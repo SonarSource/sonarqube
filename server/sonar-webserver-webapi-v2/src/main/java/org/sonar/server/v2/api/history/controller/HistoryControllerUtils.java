@@ -22,6 +22,7 @@ package org.sonar.server.v2.api.history.controller;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -30,11 +31,14 @@ import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
+import org.sonarsource.history.HistoryDateRangeException;
 import org.sonarsource.history.HistoryUtils;
 import org.sonarsource.history.model.EntityType;
 import org.springframework.lang.Nullable;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 public final class HistoryControllerUtils {
 
@@ -50,7 +54,23 @@ public final class HistoryControllerUtils {
     }
   }
 
-  public static void checkPermission(UserSession userSession, DbClient dbClient, String entityId, EntityType entityType) {
+  static EntityType assertValidEntityType(String entityType) {
+    try {
+      return toEntityType(entityType);
+    } catch (IllegalArgumentException e) {
+      throw new ResponseStatusException(BAD_REQUEST, "entityType must be one of: " + Arrays.toString(EntityType.values()), e);
+    }
+  }
+
+  static HistoryDateRange assertValidDateRange(Clock clock, OffsetDateTime startDate, @Nullable OffsetDateTime endDate) {
+    try {
+      return normalize(clock, startDate, endDate);
+    } catch (HistoryDateRangeException e) {
+      throw new ResponseStatusException(BAD_REQUEST, e.getMessage(), e);
+    }
+  }
+
+  public static void assertUserHasPermission(UserSession userSession, DbClient dbClient, String entityId, EntityType entityType) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (EntityType.PROJECT_BRANCH.equals(entityType)) {
         BranchDto branch = checkFoundWithOptional(

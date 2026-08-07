@@ -21,12 +21,10 @@ package org.sonar.server.v2.api.history.controller;
 
 import java.time.Clock;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.List;
 import org.sonar.db.DbClient;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.security.RequireAuthentication;
-import org.sonarsource.history.HistoryDateRangeException;
 import org.sonarsource.history.api.mapper.HistoryModelConverter;
 import org.sonarsource.history.api.model.MeasureHistoryEntityType;
 import org.sonarsource.history.api.model.MeasuresHistoryResponse;
@@ -72,21 +70,9 @@ public class DefaultMeasuresHistoryController implements MeasuresHistoryApi {
       throw new ResponseStatusException(BAD_REQUEST, "metricKeys must not be empty");
     }
 
-    EntityType entityTypeEnum;
-    try {
-      entityTypeEnum = HistoryControllerUtils.toEntityType(entityType.getValue());
-    } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(BAD_REQUEST, "entityType must be one of: " + Arrays.toString(EntityType.values()), e);
-    }
-
-    HistoryControllerUtils.HistoryDateRange dateRange;
-    try {
-      dateRange = HistoryControllerUtils.normalize(clock, startDate, endDate);
-    } catch (HistoryDateRangeException e) {
-      throw new ResponseStatusException(BAD_REQUEST, e.getMessage(), e);
-    }
-
-    HistoryControllerUtils.checkPermission(userSession, dbClient, entityId, entityTypeEnum);
+    EntityType entityTypeEnum = HistoryControllerUtils.assertValidEntityType(entityType.getValue());
+    HistoryControllerUtils.HistoryDateRange dateRange = HistoryControllerUtils.assertValidDateRange(clock, startDate, endDate);
+    HistoryControllerUtils.assertUserHasPermission(userSession, dbClient, entityId, entityTypeEnum);
 
     try {
       return ResponseEntity.ok(HistoryModelConverter.toApiMeasuresHistoryResponse(measuresHistoryService.queryMeasuresHistory(

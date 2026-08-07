@@ -21,6 +21,7 @@ package org.sonar.server.v2.api.history.controller;
 
 import java.time.Clock;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,11 +30,11 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.security.RequireAuthentication;
 import org.sonarsource.history.api.mapper.HistoryModelConverter;
 import org.sonarsource.history.api.model.IssueCountDistributionType;
-import org.sonarsource.history.api.model.IssueCountHistoryResponse;
+import org.sonarsource.history.api.model.IssueDensityHistoryResponse;
 import org.sonarsource.history.api.model.IssueCountStatus;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
-import org.sonarsource.history.api.rest.IssueCountHistoryApi;
+import org.sonarsource.history.api.rest.IssueDensityHistoryApi;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.server.service.IssueCountHistoryService;
 import org.springframework.http.ResponseEntity;
@@ -45,55 +46,58 @@ import org.springframework.web.server.ResponseStatusException;
 import static org.sonar.server.v2.WebApiEndpoints.HISTORY_DOMAIN;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-/** Serves issue-count history requests for authenticated project branches. */
+/** Serves issue density history requests for authenticated project branches. */
 @RestController
 @RequestMapping(HISTORY_DOMAIN)
 @RequireAuthentication
-public class DefaultIssueCountHistoryController implements IssueCountHistoryApi {
+public class DefaultIssueDensityHistoryController implements IssueDensityHistoryApi {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultIssueCountHistoryController.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultIssueDensityHistoryController.class);
 
   private final UserSession userSession;
   private final DbClient dbClient;
   private final IssueCountHistoryService issueHistoryService;
   private final Clock clock;
 
-  DefaultIssueCountHistoryController(UserSession userSession, DbClient dbClient, IssueCountHistoryService issueHistoryService, Clock clock) {
+  DefaultIssueDensityHistoryController(UserSession userSession, DbClient dbClient,
+                                       IssueCountHistoryService issueHistoryService, Clock clock) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueHistoryService = issueHistoryService;
     this.clock = clock;
   }
 
-  /** Validates the request, checks access, and returns issue-count history. */
+  /** Validates the request, checks access, and returns issue density history. */
   @Override
-  public ResponseEntity<IssueCountHistoryResponse> getIssueCountHistory(
-    String entityId,
-    String entityType,
-    OffsetDateTime startDate,
-    @Nullable OffsetDateTime endDate,
-    @Nullable List<String> impacts,
-    @Nullable List<IssueType> issueTypes,
-    @Nullable List<String> ruleKeys,
-    @Nullable List<IssueSeverity> severities,
-    @Nullable IssueCountDistributionType sliceBy,
-    @Nullable List<IssueCountStatus> statuses) {
-    LOG.debug("getIssueCountHistory invoked: entityId={}, entityType={}, startDate={}, endDate={}, sliceBy={}, impacts={}, issueTypes={}, ruleKeys={}, severities={}, statuses={}",
-      entityId, entityType, startDate, endDate, sliceBy, impacts, issueTypes, ruleKeys, severities, statuses);
+  public ResponseEntity<IssueDensityHistoryResponse> getIssueDensityHistory(
+      String entityId,
+      String entityType,
+      OffsetDateTime startDate,
+      @Nullable OffsetDateTime endDate,
+      @Nullable List<String> impacts,
+      @Nullable List<IssueType> issueTypes,
+      @Nullable List<String> ruleKeys,
+      @Nullable List<IssueSeverity> severities,
+      @Nullable IssueCountDistributionType sliceBy,
+      @Nullable List<IssueCountStatus> statuses) {
+    LOG.debug("getIssueDensityHistory invoked: entityId={}, entityType={}, startDate={}, endDate={}, filters=[{}]",
+      entityId, entityType, startDate, endDate, Arrays.asList(sliceBy, impacts, issueTypes, ruleKeys, severities, statuses));
 
     EntityType entityTypeEnum = HistoryControllerUtils.assertValidEntityType(entityType);
     HistoryControllerUtils.HistoryDateRange dateRange = HistoryControllerUtils.assertValidDateRange(clock, startDate, endDate);
     HistoryControllerUtils.assertUserHasPermission(userSession, dbClient, entityId, entityTypeEnum);
 
     try {
-      return ResponseEntity.ok(HistoryModelConverter.toApiIssueCountHistoryResponse(issueHistoryService.queryIssueCountHistory(
-          entityId, entityTypeEnum, dateRange.start(), dateRange.end(),
-           ruleKeys, HistoryModelConverter.toCoreSeverities(severities), HistoryModelConverter.toCoreIssueTypes(issueTypes),
-            HistoryModelConverter.toCoreStatuses(statuses), impacts,
-            HistoryModelConverter.toCoreIssueCountDistribution(sliceBy))));
+      return ResponseEntity.ok(
+        HistoryModelConverter.toApiIssueDensityHistoryResponse(
+          issueHistoryService.queryIssueDensityHistory(
+            entityId, entityTypeEnum, dateRange.start(), dateRange.end(),
+            ruleKeys, HistoryModelConverter.toCoreSeverities(severities),
+            HistoryModelConverter.toCoreIssueTypes(issueTypes),
+             HistoryModelConverter.toCoreStatuses(statuses), impacts,
+             HistoryModelConverter.toCoreIssueCountDistribution(sliceBy))));
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(BAD_REQUEST, e.getMessage(), e);
     }
   }
-
 }
