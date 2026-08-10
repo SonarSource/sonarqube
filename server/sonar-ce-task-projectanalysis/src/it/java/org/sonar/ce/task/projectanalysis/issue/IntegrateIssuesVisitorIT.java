@@ -176,7 +176,7 @@ class IntegrateIssuesVisitorIT {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     when(issueChangeContext.date()).thenReturn(new Date(NOW));
     underTest = new IntegrateIssuesVisitor(protoIssueCache, rawInputFactory, baseInputFactory, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier,
-      referenceBranchComponentUuids, mock(PullRequestSourceBranchMerger.class), fileStatuses, analysisMetadataHolder, targetInputFactory, locationHashesService, issuesLoader);
+      referenceBranchComponentUuids, mock(PullRequestSourceBranchMerger.class), fileStatuses, analysisMetadataHolder, targetInputFactory, locationHashesService, issuesLoader, treeRootHolder);
   }
 
   @Test

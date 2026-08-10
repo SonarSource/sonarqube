@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.sonar.ce.task.projectanalysis.component.BranchComponentUuidsDelegate;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.FileStatuses;
+import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.util.cache.DiskCache.CacheAppender;
 import org.sonar.core.issue.DefaultIssue;
@@ -59,6 +61,10 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final TrackerTargetBranchInputFactory targetInputFactory;
   private final LocationHashesService computeLocationHashesService;
   private final ComponentIssuesLoader componentIssuesLoader;
+  private final TreeRootHolder treeRootHolder;
+
+  @Nullable
+  private Map<String, List<DefaultIssue>> hunterAgentIssuesByComponentUuid = null;
 
 
   public IntegrateIssuesVisitor(
@@ -75,7 +81,8 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     AnalysisMetadataHolder analysisMetadataHolder,
     TrackerTargetBranchInputFactory targetInputFactory,
     LocationHashesService computeLocationHashesService,
-    ComponentIssuesLoader componentIssuesLoader
+    ComponentIssuesLoader componentIssuesLoader,
+    TreeRootHolder treeRootHolder
   ) {
 
     super(CrawlerDepthLimit.FILE, POST_ORDER);
@@ -93,6 +100,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     this.targetInputFactory = targetInputFactory;
     this.computeLocationHashesService = computeLocationHashesService;
     this.componentIssuesLoader = componentIssuesLoader;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
@@ -180,7 +188,10 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   }
 
   private void processHunterAgentIssuesForMeasures(Component component) {
-    componentIssuesLoader.loadOpenHunterIssues(component.getUuid())
+    if (hunterAgentIssuesByComponentUuid == null) {
+      hunterAgentIssuesByComponentUuid = componentIssuesLoader.loadAllOpenHunterIssuesForBranch(treeRootHolder.getRoot().getUuid());
+    }
+    hunterAgentIssuesByComponentUuid.getOrDefault(component.getUuid(), Collections.emptyList())
       .forEach(issue -> issueVisitors.onIssueForMeasures(component, issue));
   }
 

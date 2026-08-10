@@ -31,6 +31,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
@@ -110,6 +111,17 @@ public class ComponentIssuesLoader {
   public List<DefaultIssue> loadOpenHunterIssues(String componentUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return loadOpenIssues(componentUuid, dbSession, IssueMapper::scrollNonClosedHunterAgentIssuesByComponentUuid);
+    }
+  }
+
+  @NotNull
+  public Map<String, List<DefaultIssue>> loadAllOpenHunterIssuesForBranch(String branchUuid) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbSession.getMapper(IssueMapper.class).selectNonClosedHunterAgentIssuesByBranchUuid(branchUuid)
+        .stream()
+        .map(dto -> toDefaultIssue(dto, ruleRepository.getByUuid(dto.getRuleUuid())))
+        .filter(issue -> issue.componentUuid() != null)
+        .collect(groupingBy(DefaultIssue::componentUuid));
     }
   }
 
