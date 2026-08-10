@@ -88,6 +88,7 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
@@ -244,6 +245,7 @@ class SearchProjectsActionIT {
       "ncloc_language_distribution",
       "lines",
       "new_lines",
+      "new_ncloc",
       "security_rating",
       "security_review_rating",
       "new_security_review_rating",
@@ -282,7 +284,7 @@ class SearchProjectsActionIT {
     assertThat(facets.possibleValues()).containsOnly("ncloc", "duplicated_lines_density", "coverage", "sqale_rating", "reliability_rating"
       , "security_rating", "alert_status",
       "languages", "tags", "qualifier", "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage",
-      "new_duplicated_lines_density", "new_lines",
+      "new_duplicated_lines_density", "new_lines", "new_ncloc",
       "security_review_rating", "security_hotspots_reviewed", "new_security_hotspots_reviewed", "new_security_review_rating",
       "new_software_quality_maintainability_rating",
       "new_software_quality_reliability_rating",
@@ -579,6 +581,20 @@ class SearchProjectsActionIT {
   }
 
   @Test
+  void filter_projects_by_new_ncloc() {
+    userSession.logIn();
+    MetricDto newNcloc = db.measures().insertMetric(c -> c.setKey(NEW_NCLOC_KEY).setValueType(INT.name()));
+    ComponentDto project1 = insertProject(c -> c.addValue(newNcloc.getKey(), 80d));
+    insertProject(c -> c.addValue(newNcloc.getKey(), 85d));
+    ComponentDto project3 = insertProject(c -> c.addValue(newNcloc.getKey(), 10d));
+    index();
+
+    SearchProjectsWsResponse result = call(request.setFilter("new_ncloc <= 80"));
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.getKey());
+  }
+
+  @Test
   void filter_projects_by_text_query() {
     userSession.logIn();
     insertProject(c -> c.setKey("sonar-java").setName("Sonar Java"), null);
@@ -830,6 +846,57 @@ class SearchProjectsActionIT {
         tuple("*-1000.0", 1L),
         tuple("1000.0-10000.0", 0L),
         tuple("10000.0-100000.0", 2L),
+        tuple("100000.0-500000.0", 0L),
+        tuple("500000.0-*", 0L));
+  }
+
+  @Test
+  void return_new_ncloc_facet() {
+    userSession.logIn();
+    MetricDto newNcloc = db.measures().insertMetric(c -> c.setKey(NEW_NCLOC_KEY).setValueType(INT.name()));
+    insertProject(c -> c.addValue(newNcloc.getKey(), 100d));
+    insertProject(c -> c.addValue(newNcloc.getKey(), 15_000d));
+    insertProject(c -> c.addValue(newNcloc.getKey(), 50_000d));
+    index();
+
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(NEW_NCLOC_KEY)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> NEW_NCLOC_KEY.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("*-1000.0", 1L),
+        tuple("1000.0-10000.0", 0L),
+        tuple("10000.0-100000.0", 2L),
+        tuple("100000.0-500000.0", 0L),
+        tuple("500000.0-*", 0L));
+  }
+
+  @Test
+  void new_ncloc_facet_and_results_exclude_unauthorized_projects() {
+    userSession.logIn();
+    MetricDto newNcloc = db.measures().insertMetric(c -> c.setKey(NEW_NCLOC_KEY).setValueType(INT.name()));
+    ComponentDto authorizedProject = insertProject(c -> c.addValue(newNcloc.getKey(), 100d));
+    insertProject(c -> c.addValue(newNcloc.getKey(), 15_000d));
+    projectMeasuresIndexer.indexAll();
+    authorizationIndexerTester.allowOnlyAnyone(db.components().getProjectDtoByMainBranch(authorizedProject));
+
+    SearchProjectsWsResponse result = call(request
+      .setFilter("new_ncloc > 0")
+      .setFacets(singletonList(NEW_NCLOC_KEY)));
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(authorizedProject.getKey());
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> NEW_NCLOC_KEY.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("*-1000.0", 1L),
+        tuple("1000.0-10000.0", 0L),
+        tuple("10000.0-100000.0", 0L),
         tuple("100000.0-500000.0", 0L),
         tuple("500000.0-*", 0L));
   }
@@ -1270,6 +1337,22 @@ class SearchProjectsActionIT {
     assertThat(call(request.setSort(COVERAGE).setAsc(true)).getComponentsList()).extracting(Component::getKey)
       .containsExactly(project3.getKey(), project4.getKey(), project2.getKey(), project1.getKey());
     assertThat(call(request.setSort(COVERAGE).setAsc(false)).getComponentsList()).extracting(Component::getKey)
+      .containsExactly(project2.getKey(), project1.getKey(), project3.getKey(), project4.getKey());
+  }
+
+  @Test
+  void sort_by_new_ncloc_then_by_name() {
+    userSession.logIn();
+    MetricDto newNcloc = db.measures().insertMetric(c -> c.setKey(NEW_NCLOC_KEY).setValueType(INT.name()));
+    ComponentDto project1 = insertProject(c -> c.setName("Sonar Java"), c -> c.addValue(newNcloc.getKey(), 81d));
+    ComponentDto project2 = insertProject(c -> c.setName("Sonar Groovy"), c -> c.addValue(newNcloc.getKey(), 81d));
+    ComponentDto project3 = insertProject(c -> c.setName("Sonar Markdown"), c -> c.addValue(newNcloc.getKey(), 80d));
+    ComponentDto project4 = insertProject(c -> c.setName("Sonar Qube"), c -> c.addValue(newNcloc.getKey(), 80d));
+    index();
+
+    assertThat(call(request.setSort(NEW_NCLOC_KEY).setAsc(true)).getComponentsList()).extracting(Component::getKey)
+      .containsExactly(project3.getKey(), project4.getKey(), project2.getKey(), project1.getKey());
+    assertThat(call(request.setSort(NEW_NCLOC_KEY).setAsc(false)).getComponentsList()).extracting(Component::getKey)
       .containsExactly(project2.getKey(), project1.getKey(), project3.getKey(), project4.getKey());
   }
 

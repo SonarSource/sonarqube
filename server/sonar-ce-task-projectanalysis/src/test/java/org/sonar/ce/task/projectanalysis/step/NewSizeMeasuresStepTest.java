@@ -19,6 +19,9 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Ordering;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
@@ -26,10 +29,12 @@ import java.util.Set;
 import org.assertj.core.data.Offset;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationRepositoryRule;
 import org.sonar.ce.task.projectanalysis.duplication.TextBlock;
+import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
@@ -39,6 +44,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.measures.CoreMetrics.NCLOC;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES;
@@ -47,10 +56,13 @@ import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KE
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_NCLOC;
+import static org.sonar.api.measures.CoreMetrics.NEW_NCLOC_KEY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
+import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 public class NewSizeMeasuresStepTest {
 
@@ -87,7 +99,10 @@ public class NewSizeMeasuresStepTest {
     .add(NEW_LINES)
     .add(NEW_DUPLICATED_LINES)
     .add(NEW_DUPLICATED_LINES_DENSITY)
-    .add(NEW_BLOCKS_DUPLICATED);
+    .add(NEW_BLOCKS_DUPLICATED)
+    .add(NEW_NCLOC)
+    .add(NCLOC)
+    .add(NCLOC_DATA);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -132,6 +147,77 @@ public class NewSizeMeasuresStepTest {
     underTest.execute(new TestComputationStepContext());
 
     assertNoRawMeasures(NEW_LINES_KEY);
+  }
+
+  @Test
+  public void compute_and_aggregate_new_ncloc_treating_files_without_ncloc_as_non_code() {
+    setNewLines(FILE_1, FILE_2, FILE_4);
+    // ncloc_data marks which physical lines are code, mirroring what the analyzers report
+    measureRepository.addRawMeasure(FILE_1_REF, NCLOC_DATA_KEY, createNclocDataMeasure(1, 3, 5));
+    measureRepository.addRawMeasure(FILE_2_REF, NCLOC_DATA_KEY, createNclocDataMeasure(1, 5, 13));
+    // FILE_4 has changed lines but neither ncloc nor ncloc_data, as expected for a non-code file
+
+    underTest.execute(new TestComputationStepContext());
+
+    // setNewLines marks lines 1, 2 and 4 through 12 as changed.
+    // FILE_1 has code on lines 1, 3 and 5. Of those only 1 and 5 are also changed.
+    assertRawMeasureValue(FILE_1_REF, NEW_NCLOC_KEY, 2);
+    // FILE_2 has code on lines 1, 5 and 13. Of those only 1 and 5 are also changed.
+    assertRawMeasureValue(FILE_2_REF, NEW_NCLOC_KEY, 2);
+    // FILE_3 has no changed lines
+    assertNoRawMeasure(FILE_3_REF, NEW_NCLOC_KEY);
+    // FILE_4 is a non-code file, so it contributes zero
+    assertRawMeasureValue(FILE_4_REF, NEW_NCLOC_KEY, 0);
+    assertRawMeasureValue(DIRECTORY_REF, NEW_NCLOC_KEY, 4);
+    assertNoRawMeasure(DIRECTORY_2_REF, NEW_NCLOC_KEY);
+    assertRawMeasureValue(ROOT_REF, NEW_NCLOC_KEY, 4);
+  }
+
+  @Test
+  public void new_ncloc_is_not_computed_when_a_code_file_has_no_ncloc_data() {
+    setNewLines(FILE_1, FILE_2);
+    measureRepository.addRawMeasure(FILE_1_REF, NCLOC_DATA_KEY, createNclocDataMeasure(1, 3, 5));
+    measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(3));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertRawMeasureValue(FILE_1_REF, NEW_NCLOC_KEY, 2);
+    assertNoRawMeasure(FILE_2_REF, NEW_NCLOC_KEY);
+    assertNoRawMeasure(DIRECTORY_REF, NEW_NCLOC_KEY);
+    assertNoRawMeasure(ROOT_REF, NEW_NCLOC_KEY);
+  }
+
+  @Test
+  public void new_ncloc_equals_ncloc_when_all_code_is_new() {
+    Set<Integer> allLines = ImmutableSet.of(1, 2, 3, 4, 5);
+    when(newLinesRepository.getNewLines(FILE_1)).thenReturn(Optional.of(allLines));
+    measureRepository.addRawMeasure(FILE_1_REF, NCLOC_DATA_KEY, createNclocDataMeasure(1, 2, 4, 5));
+    measureRepository.addRawMeasure(FILE_1_REF, NCLOC_KEY, newMeasureBuilder().create(4));
+
+    underTest.execute(new TestComputationStepContext());
+
+    int ncloc = measureRepository.getRawMeasure(FILE_1, metricRepository.getByKey(NCLOC_KEY)).orElseThrow().getIntValue();
+    assertRawMeasureValue(FILE_1_REF, NEW_NCLOC_KEY, ncloc);
+  }
+
+  @Test
+  public void new_ncloc_is_zero_when_changed_lines_are_empty_even_without_ncloc_data() {
+    when(newLinesRepository.getNewLines(FILE_1)).thenReturn(Optional.of(Set.of()));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertRawMeasureValue(FILE_1_REF, NEW_NCLOC_KEY, 0);
+    assertRawMeasureValue(DIRECTORY_REF, NEW_NCLOC_KEY, 0);
+    assertRawMeasureValue(ROOT_REF, NEW_NCLOC_KEY, 0);
+  }
+
+  @Test
+  public void does_not_compute_new_ncloc_when_no_changeset() {
+    measureRepository.addRawMeasure(FILE_1_REF, NCLOC_DATA_KEY, createNclocDataMeasure(1, 2, 3));
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertNoRawMeasures(NEW_NCLOC_KEY);
   }
 
   @Test
@@ -356,6 +442,16 @@ public class NewSizeMeasuresStepTest {
     for (Component c : components) {
       when(newLinesRepository.getNewLines(c)).thenReturn(Optional.of(newLines));
     }
+  }
+
+  private static Measure createNclocDataMeasure(Integer... nclocLines) {
+    Set<Integer> nclocLinesSet = ImmutableSet.copyOf(nclocLines);
+    int max = Ordering.<Integer>natural().max(nclocLinesSet);
+    ImmutableMap.Builder<Integer, Integer> builder = ImmutableMap.builder();
+    for (int i = 1; i <= max; i++) {
+      builder.put(i, nclocLinesSet.contains(i) ? 1 : 0);
+    }
+    return newMeasureBuilder().create(KeyValueFormat.format(builder.build(), KeyValueFormat.newIntegerConverter(), KeyValueFormat.newIntegerConverter()));
   }
 
   private void assertRawMeasureValue(int componentRef, String metricKey, int expectedValue) {

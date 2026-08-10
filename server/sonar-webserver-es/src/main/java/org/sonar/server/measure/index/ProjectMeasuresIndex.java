@@ -72,6 +72,7 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
@@ -138,6 +139,7 @@ public class ProjectMeasuresIndex {
   public enum Facet {
     NCLOC(new RangeMeasureFacet(NCLOC_KEY, LINES_THRESHOLDS)),
     NEW_LINES(new RangeMeasureFacet(NEW_LINES_KEY, LINES_THRESHOLDS)),
+    NEW_NCLOC(new RangeMeasureFacet(NEW_NCLOC_KEY, LINES_THRESHOLDS)),
     DUPLICATED_LINES_DENSITY(new RangeWithNoDataMeasureFacet(DUPLICATED_LINES_DENSITY_KEY, DUPLICATIONS_THRESHOLDS)),
     NEW_DUPLICATED_LINES_DENSITY(new RangeWithNoDataMeasureFacet(NEW_DUPLICATED_LINES_DENSITY_KEY, DUPLICATIONS_THRESHOLDS)),
     COVERAGE(new RangeWithNoDataMeasureFacet(COVERAGE_KEY, COVERAGE_THRESHOLDS)),

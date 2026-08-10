@@ -73,6 +73,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     .add(CoreMetrics.NEW_COVERAGE_KEY)
     .add(CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY)
     .add(CoreMetrics.NEW_LINES_KEY)
+    .add(CoreMetrics.NEW_NCLOC_KEY)
     .add(CoreMetrics.NEW_RELIABILITY_RATING_KEY)
     //Ratings based on software quality
     .add(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY)

@@ -97,6 +97,7 @@ class ProjectMeasuresIndexTest {
   private static final String NEW_DUPLICATION = "new_duplicated_lines_density";
   private static final String NCLOC = "ncloc";
   private static final String NEW_LINES = "new_lines";
+  private static final String NEW_NCLOC = "new_ncloc";
   private static final String LANGUAGES = "languages";
 
   private static final ComponentDto PROJECT1 = ComponentTesting.newPrivateProjectDto().setUuid("Project-1").setName("Project 1").setKey("key-1");
@@ -719,6 +720,20 @@ class ProjectMeasuresIndexTest {
       entry("10000.0-100000.0", 4L),
       entry("100000.0-500000.0", 2L),
       entry("500000.0-*", 5L));
+  }
+
+  @Test
+  void facet_new_ncloc() {
+    index(newDoc(NEW_NCLOC, 999d), newDoc(NEW_NCLOC, 10_000d));
+
+    Facets facets = underTest.searchV2(new ProjectMeasuresQuery(), new SearchOptions().addFacets(NEW_NCLOC)).getFacets();
+
+    assertThat(facets.get(NEW_NCLOC)).containsExactly(
+      entry("*-1000.0", 1L),
+      entry("1000.0-10000.0", 0L),
+      entry("10000.0-100000.0", 1L),
+      entry("100000.0-500000.0", 0L),
+      entry("500000.0-*", 0L));
   }
 
   @Test

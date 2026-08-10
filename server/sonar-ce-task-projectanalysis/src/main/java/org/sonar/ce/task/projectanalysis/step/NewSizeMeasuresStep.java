@@ -22,9 +22,11 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -44,10 +46,14 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.ce.task.step.ComputationStep;
 
+import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKS_DUPLICATED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_NCLOC_KEY;
+import static org.sonar.api.utils.KeyValueFormat.newIntegerConverter;
 
 /**
  * Computes measures on new code related to the size
@@ -84,6 +90,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
     private final NewLinesRepository newLinesRepository;
 
     private final IntValue newLines = new IntValue();
+    private final NewNclocValue newNcloc = new NewNclocValue();
     private final IntValue newDuplicatedLines = new IntValue();
     private final IntValue newDuplicatedBlocks = new IntValue();
 
@@ -97,6 +104,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
       this.newDuplicatedLines.increment(counter.newDuplicatedLines);
       this.newDuplicatedBlocks.increment(counter.newDuplicatedBlocks);
       this.newLines.increment(counter.newLines);
+      this.newNcloc.aggregate(counter.newNcloc);
     }
 
     @Override
@@ -116,12 +124,36 @@ public class NewSizeMeasuresStep implements ComputationStep {
         newDuplicatedBlocks.increment(0);
       } else {
         initNewLines(changedLines.get());
+        initNewNcloc(context, changedLines.get());
         initNewDuplicated(leaf, changedLines.get());
       }
     }
 
     private void initNewLines(Set<Integer> changedLines) {
       newLines.increment(changedLines.size());
+    }
+
+    private void initNewNcloc(CounterInitializationContext context, Set<Integer> changedLines) {
+      if (changedLines.isEmpty()) {
+        newNcloc.set(0);
+        return;
+      }
+      Optional<Measure> nclocDataMeasure = context.getMeasure(NCLOC_DATA_KEY);
+      if (nclocDataMeasure.isEmpty()) {
+        Optional<Measure> nclocMeasure = context.getMeasure(NCLOC_KEY);
+        // Non-code files have no ncloc measure, while positive ncloc without line data is an incomplete report.
+        if (nclocMeasure.isEmpty() || nclocMeasure.get().getIntValue() == 0) {
+          newNcloc.set(0);
+        } else {
+          newNcloc.invalidate();
+        }
+        return;
+      }
+      Map<Integer, Integer> nclocData = KeyValueFormat.parse(nclocDataMeasure.get().getData(), newIntegerConverter(), newIntegerConverter());
+      int newNclocCount = (int) nclocData.entrySet().stream()
+        .filter(entry -> entry.getValue() == 1 && changedLines.contains(entry.getKey()))
+        .count();
+      newNcloc.set(newNclocCount);
     }
 
     private void initNewDuplicated(Component component, Set<Integer> changedLines) {
@@ -137,6 +169,44 @@ public class NewSizeMeasuresStep implements ComputationStep {
 
       newDuplicatedLines.increment(duplicationCounters.getNewLinesDuplicated());
       newDuplicatedBlocks.increment(duplicationCounters.getNewBlocksDuplicated());
+    }
+  }
+
+  private static final class NewNclocValue {
+    private boolean set;
+    private boolean valid;
+    private int value;
+
+    private NewNclocValue() {
+      this.set = false;
+      this.valid = true;
+      this.value = 0;
+    }
+
+    void aggregate(NewNclocValue other) {
+      if (!other.valid) {
+        valid = false;
+      } else if (other.set) {
+        value += other.value;
+        set = true;
+      }
+    }
+
+    void set(int value) {
+      this.value = value;
+      this.set = true;
+    }
+
+    void invalidate() {
+      valid = false;
+    }
+
+    boolean isSet() {
+      return set && valid;
+    }
+
+    int getValue() {
+      return value;
     }
   }
 
@@ -192,6 +262,10 @@ public class NewSizeMeasuresStep implements ComputationStep {
       switch (metricKey) {
         case NEW_LINES_KEY:
           return createMeasure(counter.newLines);
+        case NEW_NCLOC_KEY:
+          return counter.newNcloc.isSet()
+            ? Optional.of(Measure.newMeasureBuilder().create(counter.newNcloc.getValue()))
+            : Optional.empty();
         case NEW_DUPLICATED_LINES_KEY:
           return createMeasure(counter.newDuplicatedLines);
         case NEW_DUPLICATED_LINES_DENSITY_KEY:
@@ -225,7 +299,7 @@ public class NewSizeMeasuresStep implements ComputationStep {
 
     @Override
     public String[] getOutputMetricKeys() {
-      return new String[] {NEW_LINES_KEY, NEW_DUPLICATED_LINES_KEY, NEW_DUPLICATED_LINES_DENSITY_KEY, NEW_BLOCKS_DUPLICATED_KEY};
+      return new String[] {NEW_LINES_KEY, NEW_NCLOC_KEY, NEW_DUPLICATED_LINES_KEY, NEW_DUPLICATED_LINES_DENSITY_KEY, NEW_BLOCKS_DUPLICATED_KEY};
     }
   }
 }

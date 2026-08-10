@@ -85,6 +85,7 @@ public class SearchProjectsRequest {
    *   <li>"new_duplicated_lines_density"</li>
    *   <li>"new_lines"</li>
    *   <li>"new_maintainability_rating"</li>
+   *   <li>"new_ncloc"</li>
    *   <li>"new_reliability_rating"</li>
    *   <li>"new_security_rating"</li>
    *   <li>"reliability_rating"</li>
@@ -152,6 +153,7 @@ public class SearchProjectsRequest {
    *   <li>"new_duplicated_lines_density"</li>
    *   <li>"new_lines"</li>
    *   <li>"new_maintainability_rating"</li>
+   *   <li>"new_ncloc"</li>
    *   <li>"new_reliability_rating"</li>
    *   <li>"new_security_rating"</li>
    *   <li>"reliability_rating"</li>

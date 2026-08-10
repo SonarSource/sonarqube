@@ -105,17 +105,21 @@ class ProjectMeasuresIndexerIteratorIT {
   }
 
   @Test
-  void return_project_measure_having_leak() {
+  void return_new_code_project_measures() {
     ProjectData projectData = dbTester.components().insertPrivateProject(
       c -> c.setKey("Project-Key").setName("Project Name"),
       p -> p.setTagsString("platform,java"));
     ComponentDto project = projectData.getMainBranchComponent();
-    MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("new_lines"));
-    dbTester.measures().insertMeasure(project, m -> m.addValue(metric.getKey(), 10d));
+    MetricDto newLines = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("new_lines"));
+    MetricDto newNcloc = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("new_ncloc"));
+    dbTester.measures().insertMeasure(project, m -> m
+      .addValue(newLines.getKey(), 10d)
+      .addValue(newNcloc.getKey(), 8d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
-    assertThat(docsById.get(projectData.projectUuid()).getMeasures().getNumericMeasures()).containsOnly(entry("new_lines", 10d));
+    assertThat(docsById.get(projectData.projectUuid()).getMeasures().getNumericMeasures())
+      .containsOnly(entry("new_lines", 10d), entry("new_ncloc", 8d));
   }
 
   @Test
