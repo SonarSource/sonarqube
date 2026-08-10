@@ -135,6 +135,17 @@ useLocalUnificationModule('useLocalArchitecture', 'architecture',
     ]
   ]
 )
+useLocalUnificationModule('useLocalCagHub', 'cag/hub',
+  ['cag-hub-server-app', 'cag-hub-unified-app', 'cag-hub-api'],
+  [
+    group: 'com.sonarsource.sonarqube',
+    projectPaths: [
+      'cag-hub-server-app' : ':private:cag-hub-server-app',
+      'cag-hub-unified-app': ':private:cag-hub-unified-app',
+      'cag-hub-api'        : ':private:cag-hub-api',
+    ]
+  ]
+)
 
 useLocalUnificationModule('useLocalHistory', 'reporting/history', ['history-api', 'history-server-app', 'history-core', 'history-sca'], [
   autoSubstitution: true,
