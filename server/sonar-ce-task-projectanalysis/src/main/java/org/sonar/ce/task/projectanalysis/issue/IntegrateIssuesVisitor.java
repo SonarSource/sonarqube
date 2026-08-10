@@ -58,6 +58,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TrackerTargetBranchInputFactory targetInputFactory;
   private final LocationHashesService computeLocationHashesService;
+  private final ComponentIssuesLoader componentIssuesLoader;
 
 
   public IntegrateIssuesVisitor(
@@ -73,7 +74,8 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     FileStatuses fileStatuses,
     AnalysisMetadataHolder analysisMetadataHolder,
     TrackerTargetBranchInputFactory targetInputFactory,
-    LocationHashesService computeLocationHashesService
+    LocationHashesService computeLocationHashesService,
+    ComponentIssuesLoader componentIssuesLoader
   ) {
 
     super(CrawlerDepthLimit.FILE, POST_ORDER);
@@ -90,6 +92,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.targetInputFactory = targetInputFactory;
     this.computeLocationHashesService = computeLocationHashesService;
+    this.componentIssuesLoader = componentIssuesLoader;
   }
 
   @Override
@@ -102,6 +105,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
 
       issueVisitors.onRawIssues(component, rawInput, targetInput);
       processIssues(component, issues);
+      processHunterAgentIssuesForMeasures(component);
 
       issueVisitors.beforeCaching(component);
       appendIssuesToCache(cacheAppender, issues);
@@ -173,6 +177,11 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private void updateIssueLocationHashes(Collection<DefaultIssue> existingOpenIssues, Collection<DefaultIssue> newIssues, Collection<DefaultIssue> issuesToCopy,
     Component component) {
     computeLocationHashesService.computeHashesAndUpdateIssues(Stream.of(existingOpenIssues, newIssues).flatMap(Collection::stream).toList(), issuesToCopy, component);
+  }
+
+  private void processHunterAgentIssuesForMeasures(Component component) {
+    componentIssuesLoader.loadOpenHunterIssues(component.getUuid())
+      .forEach(issue -> issueVisitors.onIssueForMeasures(component, issue));
   }
 
   private void processIssues(Component component, Collection<DefaultIssue> issues) {

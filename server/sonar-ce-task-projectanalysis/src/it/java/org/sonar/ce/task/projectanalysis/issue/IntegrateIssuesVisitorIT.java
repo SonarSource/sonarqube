@@ -35,6 +35,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -81,10 +82,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 class IntegrateIssuesVisitorIT {
 
@@ -130,6 +133,7 @@ class IntegrateIssuesVisitorIT {
   private final IssueLifecycle issueLifecycle = new IssueLifecycle(analysisMetadataHolder, issueChangeContext, mock(IssueWorkflow.class), new IssueFieldsSetter(),
     mock(DebtCalculator.class), ruleRepositoryRule);
   private final IssueVisitor issueVisitor = mock(IssueVisitor.class);
+  private final IssueVisitor measureVisitor = mock(IssueVisitor.class, withSettings().extraInterfaces(IssueMeasureVisitor.class));
   private final BranchComponentUuidsDelegate mergeBranchComponentsUuids = mock(BranchComponentUuidsDelegate.class);
   private final SiblingsIssueMerger issueStatusCopier = mock(SiblingsIssueMerger.class);
   private final BranchComponentUuidsDelegate referenceBranchComponentUuids = mock(BranchComponentUuidsDelegate.class);
@@ -150,7 +154,7 @@ class IntegrateIssuesVisitorIT {
 
   @BeforeEach
   void setUp() throws Exception {
-    IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[]{issueVisitor});
+    IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[]{issueVisitor, measureVisitor});
 
     defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.empty());
@@ -172,7 +176,7 @@ class IntegrateIssuesVisitorIT {
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     when(issueChangeContext.date()).thenReturn(new Date(NOW));
     underTest = new IntegrateIssuesVisitor(protoIssueCache, rawInputFactory, baseInputFactory, issueLifecycle, issueVisitors, trackingDelegator, issueStatusCopier,
-      referenceBranchComponentUuids, mock(PullRequestSourceBranchMerger.class), fileStatuses, analysisMetadataHolder, targetInputFactory, locationHashesService);
+      referenceBranchComponentUuids, mock(PullRequestSourceBranchMerger.class), fileStatuses, analysisMetadataHolder, targetInputFactory, locationHashesService, issuesLoader);
   }
 
   @Test
@@ -355,6 +359,43 @@ class IntegrateIssuesVisitorIT {
 
     verify(rawInputFactory).create(FILE);
     verify(locationHashesService).computeHashesAndUpdateIssues(anyCollection(), anyCollection(), eq(FILE));
+  }
+
+  @Test
+  void visitAny_whenHunterAgentIssueExists_shouldDispatchToMeasureVisitorOnly() {
+    addHunterAgentIssue();
+
+    underTest.visitAny(FILE);
+
+    verify(measureVisitor).onIssue(eq(FILE), defaultIssueCaptor.capture());
+    assertThat(defaultIssueCaptor.getValue().key()).isEqualTo("HA_ISSUE");
+    verify(issueVisitor, never()).onIssue(eq(FILE), defaultIssueCaptor.capture());
+  }
+
+  @Test
+  void visitAny_whenHunterAgentIssueExists_shouldNotAppendToCache() {
+    addHunterAgentIssue();
+
+    underTest.visitAny(FILE);
+
+    assertThat(newArrayList(protoIssueCache.traverse())).isEmpty();
+  }
+
+  private RuleDto addHunterAgentIssue() {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
+    dbTester.components().insertComponents(project, file);
+
+    RuleDto ruleDto = RuleTesting.newRule(RuleKey.of("hunter-agent", "sql-injection")).setIsExternal(true).setIsAdHoc(true);
+    dbTester.rules().insert(ruleDto);
+    ruleRepositoryRule.add(ruleDto);
+
+    IssueDto issue = IssueTesting.newIssue(ruleDto, project, file)
+      .setKee("HA_ISSUE")
+      .setIssueProducer(IssueProducer.HUNTER_AGENT);
+    dbTester.getDbClient().issueDao().insert(dbTester.getSession(), issue);
+    dbTester.getSession().commit();
+    return ruleDto;
   }
 
   private void addBaseIssue(RuleKey ruleKey) {

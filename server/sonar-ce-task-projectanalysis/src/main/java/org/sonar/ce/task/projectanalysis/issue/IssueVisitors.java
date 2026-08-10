@@ -35,7 +35,7 @@ public class IssueVisitors {
   public IssueVisitors(IssueVisitor[] visitors) {
     this.visitors = sortVisitorsByPriority(visitors);
     this.measureVisitors = Arrays.stream(visitors)
-      .filter(v -> v instanceof IssueMeasureVisitor)
+      .filter(IssueMeasureVisitor.class::isInstance)
       .sorted(Comparator.comparingInt(IssueVisitors::getPriority).reversed())
       .toArray(IssueVisitor[]::new);
   }

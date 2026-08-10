@@ -28,7 +28,7 @@ import org.sonar.core.issue.DefaultIssue;
  * Saves issues in the ComponentIssuesRepository
  * The repository should only hold the issues for a single component, so we use a mutable list
  */
-public class IssuesRepositoryVisitor extends IssueVisitor {
+public class IssuesRepositoryVisitor extends IssueVisitor implements IssueMeasureVisitor {
   private final MutableComponentIssuesRepository componentIssuesRepository;
   private final List<DefaultIssue> componentIssues = new ArrayList<>();
 
