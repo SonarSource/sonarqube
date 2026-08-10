@@ -28,6 +28,7 @@ import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
@@ -49,6 +50,32 @@ public class IssueVisitorsTest {
     verify(visitor2).onIssue(component, openIssue);
   }
 
+
+  @Test
+  public void onIssueForMeasures_shouldOnlyCallIssueMeasureVisitors() {
+    IssueVisitor mutatingVisitor = mock(IssueVisitor.class);
+    MeasureComputationIssueVisitor measureVisitor = mock(MeasureComputationIssueVisitor.class);
+    IssueVisitors underTest = new IssueVisitors(new IssueVisitor[]{mutatingVisitor, measureVisitor});
+
+    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
+
+    underTest.onIssueForMeasures(component, issue);
+
+    verify(measureVisitor).onIssue(component, issue);
+    verify(mutatingVisitor, never()).onIssue(component, issue);
+  }
+
+  @Test
+  public void onIssueForMeasures_whenNoIssueMeasureVisitors_shouldNotFail() {
+    IssueVisitor mutatingVisitor = mock(IssueVisitor.class);
+    IssueVisitors underTest = new IssueVisitors(new IssueVisitor[]{mutatingVisitor});
+
+    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
+
+    underTest.onIssueForMeasures(component, issue);
+
+    verify(mutatingVisitor, never()).onIssue(component, issue);
+  }
 
   @Test
   public void constructor_shouldSortVisitorsByPriority() {

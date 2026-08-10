@@ -19,22 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import org.sonar.api.issue.IssueStatus;
-import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.core.issue.DefaultIssue;
-
 /**
- * Base class for issue visitors that compute measures and should exclude issues in sandbox status.
+ * Marker for {@link IssueVisitor} implementations that only contribute to measures and never mutate issue state.
+ * Only visitors implementing this interface will be invoked via {@link IssueVisitors#onIssueForMeasures},
+ * which is the dispatch path for Hunter Agent issues during scanner analysis.
  */
-public abstract class MeasureComputationIssueVisitor extends IssueVisitor implements IssueMeasureVisitor {
-
-  @Override
-  public final void onIssue(Component component, DefaultIssue issue) {
-    if (IssueStatus.IN_SANDBOX.equals(IssueStatus.of(issue.getStatus(), issue.resolution()))) {
-      return;
-    }
-    onNonSandboxedIssue(component, issue);
-  }
-
-  protected abstract void onNonSandboxedIssue(Component component, DefaultIssue issue);
+public interface IssueMeasureVisitor {
 }

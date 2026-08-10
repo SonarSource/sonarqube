@@ -30,9 +30,14 @@ import org.sonar.core.issue.tracking.Input;
 public class IssueVisitors {
 
   private final IssueVisitor[] visitors;
+  private final IssueVisitor[] measureVisitors;
 
   public IssueVisitors(IssueVisitor[] visitors) {
     this.visitors = sortVisitorsByPriority(visitors);
+    this.measureVisitors = Arrays.stream(visitors)
+      .filter(v -> v instanceof IssueMeasureVisitor)
+      .sorted(Comparator.comparingInt(IssueVisitors::getPriority).reversed())
+      .toArray(IssueVisitor[]::new);
   }
 
   private static IssueVisitor[] sortVisitorsByPriority(IssueVisitor[] visitors) {
@@ -66,6 +71,12 @@ public class IssueVisitors {
   public void beforeCaching(Component component) {
     for (IssueVisitor visitor : visitors) {
       visitor.beforeCaching(component);
+    }
+  }
+
+  public void onIssueForMeasures(Component component, DefaultIssue issue) {
+    for (IssueVisitor visitor : measureVisitors) {
+      visitor.onIssue(component, issue);
     }
   }
 

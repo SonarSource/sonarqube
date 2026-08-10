@@ -107,7 +107,7 @@ import static org.sonar.core.rule.RuleType.VULNERABILITY;
  * </ul>
  * For each value, the variation on configured periods is also computed.
  */
-public class IssueCounter extends IssueVisitor {
+public class IssueCounter extends IssueVisitor implements IssueMeasureVisitor {
 
   private static final Map<String, String> SEVERITY_TO_METRIC_KEY = ImmutableMap.of(
     BLOCKER, BLOCKER_VIOLATIONS_KEY,
