@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.apache.ibatis.exceptions.PersistenceException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
@@ -43,6 +44,7 @@ class IssueStatsByRuleKeyDaoImplIT {
 
   private final IssueStatsByRuleKeyDaoImpl underTest = new IssueStatsByRuleKeyDaoImpl(db.getDbClient());
 
+  @Disabled("SONAR-31455: insertSampleIssueStats uses multi-row INSERT VALUES (...),(...) rejected by Oracle")
   @Test
   void shouldGetIssuesByAggregationId() throws SQLException {
     insertSampleIssueStats();
@@ -96,6 +98,7 @@ class IssueStatsByRuleKeyDaoImplIT {
       .isInstanceOf(PersistenceException.class);
   }
 
+  @Disabled("SONAR-31455: insertSampleIssueStats uses multi-row INSERT VALUES (...),(...) rejected by Oracle")
   @Test
   void shouldDeleteAndInsertIssueStatsForProject() throws SQLException {
     var issueStatsList = List.of(
@@ -138,6 +141,7 @@ class IssueStatsByRuleKeyDaoImplIT {
     return issueStats;
   }
 
+  @Disabled("SONAR-31455: insertSampleIssueStats uses multi-row INSERT VALUES (...),(...) rejected by Oracle")
   @Test
   void shouldDeleteAllIssueStatsForProject() throws SQLException {
     insertSampleIssueStats();
