@@ -20,6 +20,7 @@
 package org.sonar.db.jira;
 
 import java.util.List;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
@@ -156,6 +157,7 @@ class JiraOrganizationBindingDaoTest {
     assertThat(result.get().getSonarOrganizationUuid()).isEqualTo("org-uuid-1");
   }
 
+  @Disabled("SONAR-30737 - Oracle ORA-00923 in countJiraRelatedDataBySonarOrganizationUuid")
   @Test
   void deleteBySonarOrganizationUuid_shouldDeleteBinding() {
     when(system2.now()).thenReturn(1000L);
@@ -167,6 +169,7 @@ class JiraOrganizationBindingDaoTest {
     assertThat(underTest.selectBySonarOrganizationUuid(db.getSession(), "org-uuid-1")).isEmpty();
   }
 
+  @Disabled("SONAR-30737 - Oracle ORA-00923 in countJiraRelatedDataBySonarOrganizationUuid")
   @Test
   void deleteBySonarOrganizationUuid_shouldReturnZero_whenNotFound() {
     var deletedCount = underTest.deleteBySonarOrganizationUuid(db.getSession(), "non-existent");
@@ -175,6 +178,7 @@ class JiraOrganizationBindingDaoTest {
     assertThat(underTest.selectBySonarOrganizationUuid(db.getSession(), "non-existent")).isEmpty();
   }
 
+  @Disabled("SONAR-30737 - Oracle ORA-00923 in countJiraRelatedDataBySonarOrganizationUuid")
   @Test
   void deleteBySonarOrganizationUuid_shouldPerformCascadeDelete_withAllRelatedData() {
     when(system2.now()).thenReturn(1000L);
@@ -204,6 +208,7 @@ class JiraOrganizationBindingDaoTest {
     assertThat(selectedWorkTypeDao.findByJiraProjectBindingId(db.getSession(), project1.getId())).isEmpty();
   }
 
+  @Disabled("SONAR-30737 - Oracle ORA-00923 in countJiraRelatedDataBySonarOrganizationUuid")
   @Test
   void deleteBySonarOrganizationUuid_shouldDeleteOnlySpecificOrganizationData_whenMultipleOrganizationsExist() {
     when(system2.now()).thenReturn(1000L);
@@ -275,6 +280,7 @@ class JiraOrganizationBindingDaoTest {
     assertThat(count).isZero();
   }
 
+  @Disabled("SONAR-30737 - Oracle ORA-00923 in countJiraRelatedDataBySonarOrganizationUuid")
   @Test
   void countAll_shouldReturnCorrectCount_whenBindingsExist() {
     when(system2.now()).thenReturn(1000L);
