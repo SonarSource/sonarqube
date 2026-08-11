@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.issue.fixedissues;
 
-import java.util.Date;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,7 +60,7 @@ public class FixedIssueVisitor extends IssueVisitor {
     return new FixedIssueForHistory(
       issue.key(),
       issue.projectUuid(),
-      issue.creationDate().getTime(),
+      issue.creationDate().toInstant().toEpochMilli(),
       getDetectionDate(issue),
       getCloseDate(issue),
       issue.type().name(),
@@ -85,14 +84,14 @@ public class FixedIssueVisitor extends IssueVisitor {
 
   private static long getCloseDate(DefaultIssue issue) {
     return ofNullable(issue.closeDate())
-      .map(Date::getTime)
+      .map(d -> d.toInstant().toEpochMilli())
       .orElseGet(System::currentTimeMillis);
   }
 
   private static long getDetectionDate(DefaultIssue issue) {
     return ofNullable(issue.detectionDate())
-      .map(Date::getTime)
-      .orElse(issue.creationDate().getTime());
+      .map(d -> d.toInstant().toEpochMilli())
+      .orElse(issue.creationDate().toInstant().toEpochMilli());
   }
 
   @CheckForNull

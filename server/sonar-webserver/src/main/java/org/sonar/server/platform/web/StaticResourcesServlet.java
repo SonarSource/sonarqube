@@ -61,6 +61,10 @@ public class StaticResourcesServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     String pluginKey = getPluginKey(request);
     String resource = getResourcePath(request);
+    if (resource == null) {
+      silentlySendError(response, SC_NOT_FOUND);
+      return;
+    }
     InputStream in = null;
     OutputStream out = null;
     try {
@@ -119,9 +123,15 @@ public class StaticResourcesServlet extends HttpServlet {
 
   /**
    * Note that returned value should not have a leading "/" - see {@link Class#resolveName(String)}.
+   * Returns null if the path contains traversal sequences.
    */
+  @CheckForNull
   private static String getResourcePath(HttpServletRequest request) {
-    return "static/" + StringUtils.substringAfter(getPluginKeyAndResourcePath(request), "/");
+    String resourceSubPath = StringUtils.substringAfter(getPluginKeyAndResourcePath(request), "/");
+    if (resourceSubPath.contains("..")) {
+      return null;
+    }
+    return "static/" + resourceSubPath;
   }
 
   private static void completeContentType(HttpServletResponse response, String filename) {

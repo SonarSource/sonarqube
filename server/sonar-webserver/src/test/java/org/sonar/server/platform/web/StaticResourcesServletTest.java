@@ -252,6 +252,17 @@ class StaticResourcesServletTest {
   }
 
   @Test
+  void return_404_if_resource_path_contains_traversal_sequence() throws Exception {
+    system.pluginStream = IOUtils.toInputStream("test", Charset.defaultCharset());
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
+
+    HttpResponse<String> response = callAndStop("/static/myplugin/....//....//etc/passwd");
+
+    assertThat(response.statusCode()).isEqualTo(404);
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+  }
+
+  @Test
   void do_not_fail_when_response_is_committed_after_other_error() throws Exception {
     system.isCommitted = true;
     system.pluginStreamException = new RuntimeException("Simulating a error");

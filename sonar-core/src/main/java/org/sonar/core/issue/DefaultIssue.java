@@ -579,12 +579,13 @@ public class DefaultIssue implements Issue, Trackable {
     @Nullable Serializable newValue) {
     if (!Objects.equals(oldValue, newValue)) {
       if (currentChange == null) {
-        currentChange = new FieldDiffs();
-        currentChange.setUserUuid(context.userUuid());
-        currentChange.setCreationDate(context.date());
-        currentChange.setWebhookSource(context.getWebhookSource());
-        currentChange.setExternalUser(context.getExternalUser());
-        addChange(currentChange);
+        FieldDiffs newChange = new FieldDiffs();
+        newChange.setUserUuid(context.userUuid());
+        newChange.setCreationDate(context.date());
+        newChange.setWebhookSource(context.getWebhookSource());
+        newChange.setExternalUser(context.getExternalUser());
+        addChange(newChange);
+        currentChange = newChange;
       }
       currentChange.setDiff(field, oldValue, newValue);
     }

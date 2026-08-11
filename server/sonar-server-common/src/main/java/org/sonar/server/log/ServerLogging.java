@@ -53,12 +53,9 @@ import static org.sonar.process.ProcessProperties.Property.PATH_LOGS;
 @ComputeEngineSide
 public class ServerLogging implements Startable {
   static final List<String> UNIFIED_PREFIXES = List.of("com.sonarsource", "org.sonarsource");
-
-  static Level toUnifiedLevel(Level level) {
-    return Level.INFO.equals(level) ? Level.WARN : level;
-  }
   /** Used for Hazelcast's distributed queries in cluster mode */
   private static ServerLogging instance;
+
   private final LogbackHelper helper;
   private final Configuration config;
   private final ServerProcessLogging serverProcessLogging;
@@ -75,6 +72,10 @@ public class ServerLogging implements Startable {
     this.config = config;
     this.serverProcessLogging = serverProcessLogging;
     this.database = database;
+  }
+
+  static Level toUnifiedLevel(Level level) {
+    return Level.INFO.equals(level) ? Level.WARN : level;
   }
 
   @Override
