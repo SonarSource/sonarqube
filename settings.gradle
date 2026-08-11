@@ -93,12 +93,17 @@ def useLocalUnificationModule = { String propName, String subPath, List<String> 
     def projectPaths = opts.projectPaths ?: [:]
     def dir = new File(basePath, subPath)
     println "Using local build [${propName}] from: ${dir.absolutePath}"
-    includeBuild(dir.absolutePath) {
-      dependencySubstitution {
-        modules.each { name ->
-          def moduleGroup = groups[name] ?: group
-          def projectPath = projectPaths[name] ?: ":${name}"
-          substitute module("${moduleGroup}:${name}") using project(projectPath)
+    if (opts.autoSubstitution) {
+      // Preserve project-to-project variants for composites with mixed public and private modules.
+      includeBuild(dir.absolutePath)
+    } else {
+      includeBuild(dir.absolutePath) {
+        dependencySubstitution {
+          modules.each { name ->
+            def moduleGroup = groups[name] ?: group
+            def projectPath = projectPaths[name] ?: ":${name}"
+            substitute module("${moduleGroup}:${name}") using project(projectPath)
+          }
         }
       }
     }
@@ -131,7 +136,9 @@ useLocalUnificationModule('useLocalArchitecture', 'architecture',
   ]
 )
 
-useLocalUnificationModule('useLocalHistory', 'reporting/history', ['history-api', 'history-server-app', 'history-core'])
+useLocalUnificationModule('useLocalHistory', 'reporting/history', ['history-api', 'history-server-app', 'history-core', 'history-sca'], [
+  autoSubstitution: true,
+])
 useLocalUnificationModule('useLocalDashboards', 'reporting/dashboards', ['dashboards-api', 'dashboards-server-app', 'dashboards-core'], [
   group: 'com.sonarsource.sonarqube',
   projectPaths: [

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.apache.ibatis.cursor.Cursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,24 +57,30 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
 
   private static final Logger LOG = LoggerFactory.getLogger(RecordHistoryDelegateImpl.class);
   private static final String CLOSED_STATUS = "CLOSED";
+  private static final ScaTtrHistoryRecorder NO_OP_SCA_TTR_HISTORY_RECORDER = (entityUuid, entityType) -> {
+    // SCA history is available only when the private SCA extension provides a recorder.
+  };
 
   private final DbClient dbClient;
   private final IssueCountHistoryRecordingService issueHistoryService;
   private final MeasuresHistoryRecordingService measuresHistoryService;
   private final RuleRepository ruleRepository;
   private final IssueTtrHistoryRecorder issueTtrHistoryRecorder;
+  private final ScaTtrHistoryRecorder scaTtrHistoryRecorder;
 
   public RecordHistoryDelegateImpl(
     DbClient dbClient,
     IssueCountHistoryRecordingService issueHistoryService,
     MeasuresHistoryRecordingService measuresHistoryService,
     RuleRepository ruleRepository,
-    IssueTtrHistoryRecorder issueTtrHistoryRecorder) {
+    IssueTtrHistoryRecorder issueTtrHistoryRecorder,
+    @Nullable ScaTtrHistoryRecorder scaTtrHistoryRecorder) {
     this.dbClient = dbClient;
     this.issueHistoryService = issueHistoryService;
     this.measuresHistoryService = measuresHistoryService;
     this.ruleRepository = ruleRepository;
     this.issueTtrHistoryRecorder = issueTtrHistoryRecorder;
+    this.scaTtrHistoryRecorder = scaTtrHistoryRecorder == null ? NO_OP_SCA_TTR_HISTORY_RECORDER : scaTtrHistoryRecorder;
   }
 
   @Override
@@ -84,7 +91,14 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
     recordIssueHistory(entityUuid, entityType, issueSourceBranchUuids, today);
     recordMeasureHistory(entityUuid, entityType, today);
     issueTtrHistoryRecorder.recordTtrHistory(entityUuid);
+    recordScaTtrHistory(entityUuid, entityType);
     LOG.info("History recording complete for {} {}", entityType, entityUuid);
+  }
+
+  private void recordScaTtrHistory(String entityUuid, EntityType entityType) {
+    if (entityType == EntityType.PORTFOLIO || entityType == EntityType.APPLICATION) {
+      scaTtrHistoryRecorder.recordTtrHistory(entityUuid, entityType);
+    }
   }
 
   // -------------------------------------------------------------------------

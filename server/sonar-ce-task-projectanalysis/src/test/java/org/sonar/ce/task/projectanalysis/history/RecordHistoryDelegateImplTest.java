@@ -50,6 +50,7 @@ import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
 import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
@@ -74,9 +75,10 @@ class RecordHistoryDelegateImplTest {
   private final MeasuresHistoryRecordingService measuresHistoryService = mock(MeasuresHistoryRecordingService.class);
   private final RuleRepository ruleRepository = mock(RuleRepository.class);
   private final IssueTtrHistoryRecorder issueTtrHistoryRecorder = mock();
+  private final ScaTtrHistoryRecorder scaTtrHistoryRecorder = mock();
   private final Rule rule = mock(Rule.class);
   private final RecordHistoryDelegateImpl underTest = new RecordHistoryDelegateImpl(
-    dbClient, issueHistoryService, measuresHistoryService, ruleRepository, issueTtrHistoryRecorder);
+    dbClient, issueHistoryService, measuresHistoryService, ruleRepository, issueTtrHistoryRecorder, scaTtrHistoryRecorder);
 
   @BeforeEach
   void setUp() {
@@ -214,6 +216,36 @@ class RecordHistoryDelegateImplTest {
     verify(measuresHistoryService).recordMeasureHistory(
       eq(ENTITY_UUID), eq(EntityType.APPLICATION), measuresCaptor.capture(), any(LocalDate.class));
     assertThat(measuresCaptor.getValue()).containsExactly(new Measure("ncloc", "INT", "84.0"));
+    verify(scaTtrHistoryRecorder).recordTtrHistory(ENTITY_UUID, EntityType.APPLICATION);
+  }
+
+  @Test
+  void recordHistory_whenPortfolio_shouldRecordScaTtrHistoryForAggregation() {
+    givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
+
+    underTest.recordHistory(ENTITY_UUID, EntityType.PORTFOLIO, List.of(ENTITY_UUID));
+
+    verify(scaTtrHistoryRecorder).recordTtrHistory(ENTITY_UUID, EntityType.PORTFOLIO);
+  }
+
+  @Test
+  void recordHistory_whenScaTtrHistoryRecorderIsMissing_shouldNotFail() {
+    givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
+    RecordHistoryDelegateImpl delegateWithoutScaTtrHistoryRecorder = new RecordHistoryDelegateImpl(
+      dbClient, issueHistoryService, measuresHistoryService, ruleRepository, issueTtrHistoryRecorder, null);
+
+    assertThatCode(() -> delegateWithoutScaTtrHistoryRecorder.recordHistory(
+      ENTITY_UUID, EntityType.PORTFOLIO, List.of(ENTITY_UUID)))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  void recordHistory_whenProjectBranch_shouldNotRecordScaTtrHistory() {
+    givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
+
+    recordBranchHistory();
+
+    verifyNoInteractions(scaTtrHistoryRecorder);
   }
 
   @Test

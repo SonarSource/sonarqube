@@ -75,6 +75,12 @@ source "$ROOT"/scripts/patches_utils.sh
 
 SQ_EXEC="$SQ_HOME/bin/$OS_DIR/$SH_FILE"
 
+if [[ "${OSTYPE:-}" != "msys"* ]]; then
+  # ParallelZip archives are marked as FAT-origin archives, so macOS unzip does not restore
+  # the executable bit from the Unix file mode stored in the archive.
+  chmod +x "$SQ_EXEC"
+fi
+
 # invoke patches if at least one was specified
 # each patch is passed the path to the SQ instance home directory as first and only argument
 if [ "$PATCHES" ]; then
@@ -84,4 +90,3 @@ fi
 runSQ $SQ_EXEC
 sleep 1
 doTail "$LOG"
-

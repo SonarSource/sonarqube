@@ -78,7 +78,8 @@ public class HistoryPurgeStepIT {
     historyDbClient,
     historyDbClient.issueCountHistoryRepository(),
     historyDbClient.measureHistoryRepository(),
-    historyDbClient.issueTtrHistoryRepository());
+    historyDbClient.issueTtrHistoryRepository(),
+    List.of());
   private final HistoryPurgeStep underTest = new HistoryPurgeStep(historyPurgeService, dbClient, CLOCK);
 
   @Test

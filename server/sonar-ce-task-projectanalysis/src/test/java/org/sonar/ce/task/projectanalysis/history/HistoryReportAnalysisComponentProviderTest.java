@@ -32,6 +32,7 @@ import org.sonarsource.history.server.service.HistoryPurgeService;
 import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
 import org.sonarsource.history.server.service.IssueTtrHistoryRecordingService;
 import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
+import org.sonarsource.history.server.service.ProjectMeasureHistoryMetricKeyProvider;
 import org.sonarsource.history.server.service.RetryableOrderedBatchWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,6 +53,7 @@ class HistoryReportAnalysisComponentProviderTest {
         IssueCountHistoryRecordingService.class,
         IssueTtrHistoryRecordingService.class,
         MeasuresHistoryRecordingService.class,
+        ProjectMeasureHistoryMetricKeyProvider.class,
         RetryableOrderedBatchWriter.class,
         HistoryPurgeService.class,
         FixedIssueVisitor.class,
