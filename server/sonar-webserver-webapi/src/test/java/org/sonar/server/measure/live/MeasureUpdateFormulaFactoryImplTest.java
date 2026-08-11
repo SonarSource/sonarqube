@@ -65,7 +65,6 @@ import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
 import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
 import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REVIEW_RATING;
@@ -160,7 +159,8 @@ class MeasureUpdateFormulaFactoryImplTest {
       .withValue(SECURITY_HOTSPOTS_REVIEWED_STATUS, 1d)
       .expectedResult(50d);
     new HierarchyTester(CoreMetrics.SECURITY_REVIEW_RATING)
-      .withValue(SECURITY_HOTSPOTS_REVIEWED, 100d)
+      .withValue(SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 0d)
+      .withValue(SECURITY_HOTSPOTS_REVIEWED_STATUS, 1d)
       .expectedRating(Rating.A);
 
     new HierarchyTester(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED)
@@ -168,8 +168,38 @@ class MeasureUpdateFormulaFactoryImplTest {
       .withValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, 1d)
       .expectedResult(50d);
     new HierarchyTester(CoreMetrics.NEW_SECURITY_REVIEW_RATING)
-      .withValue(NEW_SECURITY_HOTSPOTS_REVIEWED, 0d)
+      .withValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 1d)
+      .withValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, 0d)
       .expectedRating(Rating.E);
+  }
+
+  @Test
+  void computeHierarchy_whenNoHotspotLeft_shouldUnsetReviewedPercentAndRateA() {
+    new HierarchyTester(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED)
+      .withValue(SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 0d)
+      .withValue(SECURITY_HOTSPOTS_REVIEWED_STATUS, 0d)
+      .expectedUnsetValue();
+    new HierarchyTester(CoreMetrics.SECURITY_REVIEW_RATING)
+      .withValue(SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 0d)
+      .withValue(SECURITY_HOTSPOTS_REVIEWED_STATUS, 0d)
+      .expectedRating(Rating.A);
+
+    new HierarchyTester(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED)
+      .withValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 0d)
+      .withValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, 0d)
+      .expectedUnsetValue();
+    new HierarchyTester(CoreMetrics.NEW_SECURITY_REVIEW_RATING)
+      .withValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, 0d)
+      .withValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, 0d)
+      .expectedRating(Rating.A);
+  }
+
+  @Test
+  void computeHierarchy_whenNoHotspotMeasureAtAll_shouldUnsetReviewedPercentAndRateA() {
+    new HierarchyTester(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED).expectedUnsetValue();
+    new HierarchyTester(CoreMetrics.SECURITY_REVIEW_RATING).expectedRating(Rating.A);
+    new HierarchyTester(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED).expectedUnsetValue();
+    new HierarchyTester(CoreMetrics.NEW_SECURITY_REVIEW_RATING).expectedRating(Rating.A);
   }
 
   @Test
@@ -345,8 +375,9 @@ class MeasureUpdateFormulaFactoryImplTest {
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(1))
         .assertThatValueIs(SECURITY_HOTSPOTS_REVIEWED, 75.0);
 
+    // no hotspot: the percentage doesn't apply, the measure is dropped instead of being left as-is
     withNoIssues()
-      .assertNoValue(SECURITY_HOTSPOTS_REVIEWED);
+      .assertUnsetValue(SECURITY_HOTSPOTS_REVIEWED);
   }
 
   @Test
@@ -1069,8 +1100,9 @@ class MeasureUpdateFormulaFactoryImplTest {
       newGroup(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setCount(5).setInLeak(false))
         .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED, 75.0);
 
+    // no hotspot: the percentage doesn't apply, the measure is dropped instead of being left as-is
     withNoIssues()
-      .assertNoLeakValue(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED);
+      .assertUnsetLeakValue(CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED);
   }
 
   @Test
@@ -1694,6 +1726,21 @@ class MeasureUpdateFormulaFactoryImplTest {
       return this;
     }
 
+    Verifier assertUnsetValue(Metric metric) {
+      assertUnset(run(metric, false));
+      return this;
+    }
+
+    Verifier assertUnsetLeakValue(Metric metric) {
+      assertUnset(run(metric, true));
+      return this;
+    }
+
+    private static void assertUnset(TestContext context) {
+      assertThat(context.unset).isTrue();
+      assertThat(context.doubleValue).isNull();
+    }
+
     private TestContext run(Metric metric, boolean expectLeakFormula) {
       MeasureUpdateFormula formula = underTest.getFormulas().stream()
         .filter(f -> f.getMetric().getKey().equals(metric.getKey()))
@@ -1803,6 +1850,7 @@ class MeasureUpdateFormulaFactoryImplTest {
     private Double doubleValue;
     private Rating ratingValue;
     private String stringValue;
+    private boolean unset;
 
     private TestContext(Collection<Metric> dependentMetrics, InitialValues initialValues) {
       this.dependentMetrics = new HashSet<>(dependentMetrics);
@@ -1882,6 +1930,11 @@ class MeasureUpdateFormulaFactoryImplTest {
     public void setValue(String value) {
       this.stringValue = value;
     }
+
+    @Override
+    public void unsetValue() {
+      this.unset = true;
+    }
   }
 
   private class InitialValues {
@@ -1960,6 +2013,13 @@ class MeasureUpdateFormulaFactoryImplTest {
     public HierarchyTester expectedRating(@Nullable Rating rating) {
       TestContext ctx = run();
       assertThat(ctx.ratingValue).isEqualTo(rating);
+      return this;
+    }
+
+    public HierarchyTester expectedUnsetValue() {
+      TestContext ctx = run();
+      assertThat(ctx.unset).isTrue();
+      assertThat(ctx.doubleValue).isNull();
       return this;
     }
 

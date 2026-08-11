@@ -20,6 +20,7 @@
 package org.sonar.server.measure.live;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,6 +52,7 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 class LiveMeasureUpdaterWorkflowTest {
 
   private static final String TEST_KEY = "test_key";
+  private static final String OTHER_TEST_KEY = "other_test_key";
   @RegisterExtension
   private final DbTester db = DbTester.create();
   @Mock
@@ -129,6 +131,27 @@ class LiveMeasureUpdaterWorkflowTest {
     var updatedMeasures = dbClient.measureDao().selectByComponentUuid(dbSession, project.uuid());
 
     assertThat(updatedMeasures.get().getLong(TEST_KEY)).isEqualTo(2);
+  }
+
+  @Test
+  void updateQualityGateMeasures_whenMeasureIsUnset_thenDeletesItAndKeepsTheOthers() {
+    var metric = db.measures().insertMetric(m -> m.setKey(TEST_KEY));
+    var otherMetric = db.measures().insertMetric(m -> m.setKey(OTHER_TEST_KEY));
+    var measure = db.measures().insertMeasure(project, m -> m.getMetricValues().putAll(Map.of(TEST_KEY, 1, OTHER_TEST_KEY, 2)));
+
+    var measureMatrix = new MeasureMatrix(
+      List.of(project),
+      List.of(metric, otherMetric),
+      List.of(measure));
+
+    measureMatrix.unsetValue(project, TEST_KEY);
+
+    underTest().updateQualityGateMeasures(measureMatrix);
+
+    var updatedMeasures = dbClient.measureDao().selectByComponentUuid(dbSession, project.uuid());
+
+    assertThat(updatedMeasures).hasValueSatisfying(
+      persisted -> assertThat(persisted.getMetricValues()).containsOnlyKeys(OTHER_TEST_KEY));
   }
 
   @Test

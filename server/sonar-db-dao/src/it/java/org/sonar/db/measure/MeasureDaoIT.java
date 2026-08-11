@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.ibatis.session.ResultHandler;
 import org.junit.jupiter.api.Test;
@@ -137,6 +138,42 @@ class MeasureDaoIT {
           entry("key3", value3));
         assertThat(selected.getJsonValueHash()).isEqualTo(dto.computeJsonValueHash());
       });
+  }
+
+  @Test
+  void insertOrUpdate_removes_requested_metrics_and_keeps_the_others() {
+    Double value1 = getDoubleValue();
+    MeasureDto dto = newMeasure();
+    dto.getMetricValues().clear();
+    dto.addValue("key1", value1)
+      .addValue("key2", getDoubleValue());
+    underTest.insert(db.getSession(), dto);
+
+    Double value3 = getDoubleValue();
+    MeasureDto update = new MeasureDto()
+      .setComponentUuid(dto.getComponentUuid())
+      .setBranchUuid(dto.getBranchUuid())
+      .addValue("key3", value3);
+    int count = underTest.insertOrUpdate(db.getSession(), update, Set.of("key2"));
+
+    assertThat(count).isEqualTo(1);
+    verifyTableSize(1);
+    assertThat(underTest.selectByComponentUuid(db.getSession(), dto.getComponentUuid()))
+      .hasValueSatisfying(selected -> assertThat(selected.getMetricValues()).containsOnly(
+        entry("key1", value1),
+        entry("key3", value3)));
+  }
+
+  @Test
+  void insertOrUpdate_whenOnlyRemovingOnUnknownComponent_shouldNotInsert() {
+    MeasureDto dto = new MeasureDto()
+      .setComponentUuid("unknown-component")
+      .setBranchUuid("unknown-branch");
+
+    int count = underTest.insertOrUpdate(db.getSession(), dto, Set.of("key1"));
+
+    assertThat(count).isZero();
+    verifyTableSize(0);
   }
 
   @Test

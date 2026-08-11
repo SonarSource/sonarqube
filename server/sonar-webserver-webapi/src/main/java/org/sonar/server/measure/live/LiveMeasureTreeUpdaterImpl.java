@@ -266,6 +266,12 @@ public class LiveMeasureTreeUpdaterImpl implements LiveMeasureTreeUpdater {
       matrix.setValue(currentComponent, metricKey, value);
     }
 
+    @Override
+    public void unsetValue() {
+      String metricKey = currentFormula.getMetric().getKey();
+      matrix.unsetValue(currentComponent, metricKey);
+    }
+
     private static Double getDoubleOrZero(MeasureMatrix.Measure lm) {
       return Optional.ofNullable(lm.doubleValue()).orElse(0D);
     }

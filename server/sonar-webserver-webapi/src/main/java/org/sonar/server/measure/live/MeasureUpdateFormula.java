@@ -119,5 +119,12 @@ class MeasureUpdateFormula {
     void setValue(Rating value);
 
     void setValue(String value);
+
+    /**
+     * Drops the measure of the current metric on the current component, so that it disappears as it would after an
+     * analysis that no longer computes it. To be used when the metric is not applicable anymore, otherwise the value
+     * computed by a previous analysis would be kept as-is and become stale.
+     */
+    void unsetValue();
   }
 }

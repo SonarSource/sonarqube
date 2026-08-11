@@ -41,7 +41,6 @@ import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS;
-import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT;
@@ -190,22 +189,20 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
       (context, formula) -> context.setValue(context.getValue(SECURITY_HOTSPOTS_TO_REVIEW_STATUS).orElse(0D) + context.getChildrenHotspotsToReview()),
       (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false))),
 
-    new MeasureUpdateFormula(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, false,
-      (context, formula) -> {
-        Optional<Double> percent = computePercent(
-          context.getValue(SECURITY_HOTSPOTS_TO_REVIEW_STATUS).orElse(0D).longValue(),
-          context.getValue(SECURITY_HOTSPOTS_REVIEWED_STATUS).orElse(0D).longValue());
-        percent.ifPresent(context::setValue);
-      },
-      (context, issues) -> computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false))
-        .ifPresent(context::setValue)),
+    new MeasureUpdateFormula(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, false, false,
+      (context, formula) -> setOrUnsetHotspotsReviewed(context, SECURITY_HOTSPOTS_TO_REVIEW_STATUS, SECURITY_HOTSPOTS_REVIEWED_STATUS),
+      (context, issues) -> setOrUnsetHotspotsReviewed(context,
+        issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false),
+        issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false)),
+      asList(SECURITY_HOTSPOTS_TO_REVIEW_STATUS, SECURITY_HOTSPOTS_REVIEWED_STATUS)),
 
-    new MeasureUpdateFormula(CoreMetrics.SECURITY_REVIEW_RATING, false,
-      (context, formula) -> context.setValue(computeRating(context.getValue(SECURITY_HOTSPOTS_REVIEWED).orElse(null))),
+    new MeasureUpdateFormula(CoreMetrics.SECURITY_REVIEW_RATING, false, false,
+      (context, formula) -> setSecurityReviewRating(context, SECURITY_HOTSPOTS_TO_REVIEW_STATUS, SECURITY_HOTSPOTS_REVIEWED_STATUS),
       (context, issues) -> {
         Optional<Double> percent = computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false));
         context.setValue(computeRating(percent.orElse(null)));
-      }),
+      },
+      asList(SECURITY_HOTSPOTS_TO_REVIEW_STATUS, SECURITY_HOTSPOTS_REVIEWED_STATUS)),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_CODE_SMELLS, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.CODE_SMELL, true))),
@@ -272,22 +269,20 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
       (context, formula) -> context.setValue(context.getValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS).orElse(0D) + context.getChildrenNewHotspotsToReview()),
       (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true))),
 
-    new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_REVIEWED, true,
-      (context, formula) -> {
-        Optional<Double> percent = computePercent(
-          context.getValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS).orElse(0D).longValue(),
-          context.getValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS).orElse(0D).longValue());
-        percent.ifPresent(context::setValue);
-      },
-      (context, issues) -> computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true))
-        .ifPresent(context::setValue)),
+    new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_REVIEWED, true, false,
+      (context, formula) -> setOrUnsetHotspotsReviewed(context, NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS),
+      (context, issues) -> setOrUnsetHotspotsReviewed(context,
+        issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true),
+        issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true)),
+      asList(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS)),
 
-    new MeasureUpdateFormula(CoreMetrics.NEW_SECURITY_REVIEW_RATING, true,
-      (context, formula) -> context.setValue(computeRating(context.getValue(NEW_SECURITY_HOTSPOTS_REVIEWED).orElse(null))),
+    new MeasureUpdateFormula(CoreMetrics.NEW_SECURITY_REVIEW_RATING, true, false,
+      (context, formula) -> setSecurityReviewRating(context, NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS),
       (context, issues) -> {
         Optional<Double> percent = computePercent(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true), issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true));
         context.setValue(computeRating(percent.orElse(null)));
-      }),
+      },
+      asList(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS)),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_SQALE_DEBT_RATIO, true, false,
       (context, formula) -> context.setValue(100.0D * newDebtDensity(CoreMetrics.NEW_TECHNICAL_DEBT, context)),
@@ -481,6 +476,39 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
     } catch (IllegalArgumentException e) {
       return Optional.empty();
     }
+  }
+
+  private static void setOrUnsetHotspotsReviewed(MeasureUpdateFormula.Context context, Metric<?> hotspotsToReviewStatusMetric,
+    Metric<?> hotspotsReviewedStatusMetric) {
+    setOrUnsetHotspotsReviewed(context, statusCount(context, hotspotsToReviewStatusMetric), statusCount(context, hotspotsReviewedStatusMetric));
+  }
+
+  /**
+   * Mirrors what an analysis does in {@code SecurityReviewMeasuresVisitor}: the percentage of reviewed hotspots is
+   * undefined when the component has no hotspot at all, in which case the measure is dropped rather than left
+   * untouched. Keeping it would freeze the percentage computed when the component still had hotspots.
+   */
+  private static void setOrUnsetHotspotsReviewed(MeasureUpdateFormula.Context context, long hotspotsToReview, long hotspotsReviewed) {
+    Optional<Double> percent = computePercent(hotspotsToReview, hotspotsReviewed);
+    if (percent.isPresent()) {
+      context.setValue(percent.get());
+    } else {
+      context.unsetValue();
+    }
+  }
+
+  /**
+   * The rating is computed from the hotspot counts, as an analysis does, and not from the percentage measure: that
+   * measure is absent when the component has no hotspot, and reading a stale one would keep the rating stale too.
+   */
+  private static void setSecurityReviewRating(MeasureUpdateFormula.Context context, Metric<?> hotspotsToReviewStatusMetric,
+    Metric<?> hotspotsReviewedStatusMetric) {
+    Optional<Double> percent = computePercent(statusCount(context, hotspotsToReviewStatusMetric), statusCount(context, hotspotsReviewedStatusMetric));
+    context.setValue(computeRating(percent.orElse(null)));
+  }
+
+  private static long statusCount(MeasureUpdateFormula.Context context, Metric<?> metric) {
+    return context.getValue(metric).orElse(0D).longValue();
   }
 
   private static double debtDensity(Metric<?> maintainabilityRemediationEffortMetric, MeasureUpdateFormula.Context context) {

@@ -135,4 +135,39 @@ public class MeasureMatrixTest {
     assertThat(underTest.getMeasure(PROJECT, METRIC_1.getKey()).get().stringValue()).isEqualTo("bar");
     assertThat(underTest.getChanged()).extracting(MeasureMatrix.Measure::stringValue).containsExactly("bar");
   }
+
+  @Test
+  public void unsetValue_marks_measure_as_removed_and_changed() {
+    MetricDto metric = newMetricDto().setDecimalScale(2);
+    MeasureDto measure = newMeasure(PROJECT, metric, 3.14);
+    MeasureMatrix underTest = new MeasureMatrix(List.of(PROJECT), List.of(metric), List.of(measure));
+
+    underTest.unsetValue(PROJECT, metric.getKey());
+
+    verifyValue(underTest, PROJECT, metric, null);
+    assertThat(underTest.getChanged()).extracting(MeasureMatrix.Measure::isRemoved).containsExactly(true);
+  }
+
+  @Test
+  public void unsetValue_does_nothing_if_measure_has_no_value() {
+    MetricDto metric = newMetricDto().setDecimalScale(2);
+    MeasureMatrix underTest = new MeasureMatrix(List.of(PROJECT), List.of(metric), emptyList());
+
+    underTest.unsetValue(PROJECT, metric.getKey());
+
+    assertThat(underTest.getChanged()).isEmpty();
+  }
+
+  @Test
+  public void setValue_after_unsetValue_keeps_measure() {
+    MetricDto metric = newMetricDto().setDecimalScale(2);
+    MeasureDto measure = newMeasure(PROJECT, metric, 3.14);
+    MeasureMatrix underTest = new MeasureMatrix(List.of(PROJECT), List.of(metric), List.of(measure));
+
+    underTest.unsetValue(PROJECT, metric.getKey());
+    underTest.setValue(PROJECT, metric.getKey(), 2.72);
+
+    verifyValue(underTest, PROJECT, metric, 2.72);
+    assertThat(underTest.getChanged()).extracting(MeasureMatrix.Measure::isRemoved).containsExactly(false);
+  }
 }

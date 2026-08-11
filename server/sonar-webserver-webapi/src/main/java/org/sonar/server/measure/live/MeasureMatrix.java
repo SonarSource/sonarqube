@@ -98,6 +98,14 @@ public class MeasureMatrix {
     changeCell(component, metricKey, m -> m.setValue(data));
   }
 
+  /**
+   * Marks the measure as removed, so that {@link #getChanged()} reports it and it can be deleted when persisted.
+   * A measure that has no value is not reported as changed, as there is nothing to remove.
+   */
+  public void unsetValue(ComponentDto component, String metricKey) {
+    changeCell(component, metricKey, Measure::unsetValue);
+  }
+
   public Stream<Measure> getChanged() {
     return table.values().stream()
       .filter(Objects::nonNull)
@@ -154,6 +162,7 @@ public class MeasureMatrix {
     private final String branchUuid;
     private final MetricDto metricDto;
     private Object value;
+    private boolean removed;
 
     Measure(String componentUuid, String branchUuid, MetricDto metricDto, @Nullable Object value) {
       this.componentUuid = componentUuid;
@@ -180,6 +189,16 @@ public class MeasureMatrix {
 
     public void setValue(@Nullable Object newValue) {
       this.value = newValue;
+      this.removed = false;
+    }
+
+    void unsetValue() {
+      this.value = null;
+      this.removed = true;
+    }
+
+    public boolean isRemoved() {
+      return removed;
     }
 
     public String getBranchUuid() {

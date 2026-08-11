@@ -167,21 +167,24 @@ public class LiveMeasureUpdaterWorkflow {
   }
 
   private void persistUpdatedMeasures(MeasureMatrix matrix) {
-    // persist the measures that have been created or updated
+    // persist the measures that have been created or updated, and delete the ones that don't apply anymore
     Map<String, MeasureDto> measureDtoPerComponent = new HashMap<>();
+    Map<String, Set<String>> removedMetricKeysPerComponent = new HashMap<>();
     matrix.getChanged().sorted(MeasureMatrix.Measure.COMPARATOR)
-      .filter(m -> m.getValue() != null)
-      .forEach(m -> measureDtoPerComponent.compute(m.getComponentUuid(), (componentUuid, measureDto) -> {
-        if (measureDto == null) {
-          measureDto = new MeasureDto()
-            .setComponentUuid(componentUuid)
-            .setBranchUuid(m.getBranchUuid());
+      .filter(m -> m.isRemoved() || m.getValue() != null)
+      .forEach(m -> {
+        MeasureDto measureDto = measureDtoPerComponent.computeIfAbsent(m.getComponentUuid(), componentUuid -> new MeasureDto()
+          .setComponentUuid(componentUuid)
+          .setBranchUuid(m.getBranchUuid()));
+        if (m.isRemoved()) {
+          // the component may have no other change, its measures still need to be rewritten without this metric
+          removedMetricKeysPerComponent.computeIfAbsent(m.getComponentUuid(), componentUuid -> new HashSet<>()).add(m.getMetricKey());
+        } else {
+          measureDto.addValue(m.getMetricKey(), m.getValue());
         }
-        return measureDto.addValue(
-          m.getMetricKey(),
-          m.getValue());
-      }));
-    measureDtoPerComponent.values().forEach(m -> dbClient.measureDao().insertOrUpdate(dbSession, m));
+      });
+    measureDtoPerComponent.forEach((componentUuid, measureDto) -> dbClient.measureDao()
+      .insertOrUpdate(dbSession, measureDto, removedMetricKeysPerComponent.getOrDefault(componentUuid, Set.of())));
   }
 
   @CheckForNull

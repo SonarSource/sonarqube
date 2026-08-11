@@ -22,11 +22,13 @@ package org.sonar.server.measure.live;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.Metric;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbTester;
@@ -40,6 +42,7 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.measure.Rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.CoreProperties.RATING_GRID;
@@ -47,10 +50,12 @@ import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_REVIEW_RATING_KEY;
 import static org.sonar.api.measures.Metric.ValueType.*;
 
 public class LiveMeasureTreeUpdaterImplIT {
@@ -258,6 +263,44 @@ public class LiveMeasureTreeUpdaterImplIT {
   }
 
   @Test
+  public void update_whenAllHotspotsOfBranchBecameIssues_shouldResetReviewMeasuresWithoutAnalysis() {
+    // a hotspot migrated to another type leaves the branch with no hotspot at all, without any new analysis
+    snapshot = db.components().insertSnapshot(project, s -> s.setPeriodDate(1000L));
+    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new MeasureUpdateFormulaFactoryImpl());
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    db.issues().insertIssue(rule, project, file1);
+
+    matrix = newMatrixWithStaleReviewMeasures();
+    componentIndex.load(db.getSession(), List.of(file1));
+    treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
+
+    for (ComponentDto component : List.of(project, dir, file1)) {
+      assertThat(matrix.getMeasure(component, SECURITY_REVIEW_RATING_KEY).get().getValue()).isEqualTo((double) Rating.A.getIndex());
+      assertThat(matrix.getMeasure(component, NEW_SECURITY_REVIEW_RATING_KEY).get().getValue()).isEqualTo((double) Rating.A.getIndex());
+      assertRemoved(component, SECURITY_HOTSPOTS_REVIEWED_KEY);
+      assertRemoved(component, NEW_SECURITY_HOTSPOTS_REVIEWED_KEY);
+    }
+  }
+
+  @Test
+  public void update_whenSomeHotspotsRemainOnBranch_shouldKeepReviewMeasures() {
+    snapshot = db.components().insertSnapshot(project, s -> s.setPeriodDate(1000L));
+    treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new MeasureUpdateFormulaFactoryImpl());
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.SECURITY_HOTSPOT));
+    db.issues().insertHotspot(rule, project, file1);
+    db.issues().insertHotspot(rule, project, file1, i -> i.setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_SAFE));
+
+    matrix = newMatrixWithStaleReviewMeasures();
+    componentIndex.load(db.getSession(), List.of(file1));
+    treeUpdater.update(db.getSession(), snapshot, config, componentIndex, branch, matrix);
+
+    for (ComponentDto component : List.of(project, dir, file1)) {
+      assertThat(matrix.getMeasure(component, SECURITY_HOTSPOTS_REVIEWED_KEY).get().getValue()).isEqualTo(50d);
+      assertThat(matrix.getMeasure(component, SECURITY_REVIEW_RATING_KEY).get().getValue()).isEqualTo((double) Rating.C.getIndex());
+    }
+  }
+
+  @Test
   public void update_whenFormulaIsOnlyIfComputedOnBranchAndMetricNotComputedOnBranch_shouldNotCompute() {
     snapshot = db.components().insertSnapshot(project);
     treeUpdater = new LiveMeasureTreeUpdaterImpl(db.getDbClient(), new AggregateValuesFormula());
@@ -286,6 +329,40 @@ public class LiveMeasureTreeUpdaterImplIT {
     assertThat(matrix.getMeasure(dir, metric.getKey()).get().getValue()).isEqualTo(1d);
     assertThat(matrix.getMeasure(file1, metric.getKey()).get().getValue()).isEqualTo(1d);
     assertThat(matrix.getMeasure(file2, metric.getKey())).isEmpty();
+  }
+
+  private void assertRemoved(ComponentDto component, String metricKey) {
+    assertThat(matrix.getMeasure(component, metricKey)).hasValueSatisfying(measure -> {
+      assertThat(measure.isRemoved()).isTrue();
+      assertThat(measure.getValue()).isNull();
+    });
+  }
+
+  /**
+   * Every metric of every formula must be registered in the matrix, and the branch, its directory and its file carry
+   * the review measures computed by the last analysis, when hotspots were still there.
+   */
+  private MeasureMatrix newMatrixWithStaleReviewMeasures() {
+    List<MetricDto> metrics = new MeasureUpdateFormulaFactoryImpl().getFormulaMetrics().stream()
+      .map(m -> new MetricDto()
+        .setKey(m.getKey())
+        .setValueType(m.getType().name())
+        .setDecimalScale(m.getDecimalScale()))
+      .toList();
+    List<MeasureDto> staleMeasures = Stream.of(project, dir, file1)
+      .map(c -> new MeasureDto()
+        .setComponentUuid(c.uuid())
+        .setBranchUuid(project.uuid())
+        .addValue(SECURITY_HOTSPOTS_REVIEWED_KEY, 0.4d)
+        .addValue(SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY, 2d)
+        .addValue(SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY, 448d)
+        .addValue(SECURITY_REVIEW_RATING_KEY, (double) Rating.E.getIndex())
+        .addValue(NEW_SECURITY_HOTSPOTS_REVIEWED_KEY, 0.4d)
+        .addValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS_KEY, 2d)
+        .addValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS_KEY, 448d)
+        .addValue(NEW_SECURITY_REVIEW_RATING_KEY, (double) Rating.E.getIndex()))
+      .toList();
+    return new MeasureMatrix(List.of(project, dir, file1, file2), metrics, staleMeasures);
   }
 
   private class AggregateValuesFormula implements MeasureUpdateFormulaFactory {

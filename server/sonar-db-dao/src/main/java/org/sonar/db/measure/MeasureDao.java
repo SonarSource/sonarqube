@@ -60,14 +60,28 @@ public class MeasureDao implements Dao {
    * but will update the measures inside the json.
    */
   public int insertOrUpdate(DbSession dbSession, MeasureDto dto) {
+    return insertOrUpdate(dbSession, dto, Set.of());
+  }
+
+  /**
+   * Same as {@link #insertOrUpdate(DbSession, MeasureDto)}, and additionally deletes the given metric keys from the
+   * json. Deleting is how an analysis handles a metric that doesn't apply to the component anymore, so that the value
+   * computed by a previous analysis doesn't become stale.
+   */
+  public int insertOrUpdate(DbSession dbSession, MeasureDto dto, Collection<String> metricKeysToRemove) {
     long now = system2.now();
     Optional<MeasureDto> existingMeasureOpt = selectByComponentUuid(dbSession, dto.getComponentUuid());
     if (existingMeasureOpt.isPresent()) {
       MeasureDto existingDto = existingMeasureOpt.get();
       existingDto.getMetricValues().putAll(dto.getMetricValues());
       dto.getMetricValues().putAll(existingDto.getMetricValues());
+      // the merged values are exhaustive, so overwriting the whole json is safe and is the only way to drop a metric
+      metricKeysToRemove.forEach(dto.getMetricValues()::remove);
       dto.computeJsonValueHash();
       return mapper(dbSession).update(dto, now);
+    } else if (!metricKeysToRemove.isEmpty() && dto.getMetricValues().isEmpty()) {
+      // nothing to insert, and nothing to remove from a row that doesn't exist
+      return 0;
     } else {
       dto.computeJsonValueHash();
       return mapper(dbSession).insert(dto, now);
