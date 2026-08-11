@@ -61,14 +61,23 @@ public class IssueDoc extends BaseDoc {
 
   // Explicit priority order (index 0 = most important) — not ordinal-based — so the sort order
   // is preserved if enum constants are ever reordered or new ones added.
-  private static final List<SoftwareQuality> IMPACT_QUALITY_RANK_ORDER = List.of(
-    SoftwareQuality.SECURITY, SoftwareQuality.RELIABILITY, SoftwareQuality.MAINTAINABILITY);
+  //
+  // Severity dominates within this tier: Security/Reliability impacts are interleaved by
+  // severity, with quality only breaking ties between them at the same severity (Security
+  // before Reliability).
+  private static final List<SoftwareQuality> SEVERITY_LED_QUALITY_ORDER = List.of(
+    SoftwareQuality.SECURITY, SoftwareQuality.RELIABILITY);
+  // Always ranked below every SEVERITY_LED_QUALITY_ORDER combination, regardless of its own
+  // severity - e.g. an Info Reliability impact still outranks a Blocker Maintainability one.
+  private static final List<SoftwareQuality> DEPRIORITIZED_QUALITY_ORDER = List.of(
+    SoftwareQuality.MAINTAINABILITY);
   private static final List<org.sonar.api.issue.impact.Severity> IMPACT_SEVERITY_RANK_ORDER = List.of(
     org.sonar.api.issue.impact.Severity.BLOCKER, org.sonar.api.issue.impact.Severity.HIGH,
     org.sonar.api.issue.impact.Severity.MEDIUM, org.sonar.api.issue.impact.Severity.LOW,
     org.sonar.api.issue.impact.Severity.INFO);
-  private static final int IMPACT_QUALITY_RANK_MULTIPLIER = 1000;
-  private static final int IMPACT_SEVERITY_RANK_MULTIPLIER = 10;
+  private static final int IMPACT_SEVERITY_RANK_MULTIPLIER = 1000;
+  private static final int IMPACT_QUALITY_RANK_MULTIPLIER = 10;
+  private static final int DEPRIORITIZED_TIER_OFFSET = 10_000;
 
   public IssueDoc(Map<String, Object> fields) {
     super(TYPE_ISSUE, fields);
@@ -349,13 +358,32 @@ public class IssueDoc extends BaseDoc {
     }
   }
 
+  /**
+   * Two tiers: Security/Reliability impacts are ranked by severity first, quality second
+   * ({@link #SEVERITY_LED_QUALITY_ORDER}), then every Maintainability impact
+   * ({@link #DEPRIORITIZED_QUALITY_ORDER}) - pushed past {@link #DEPRIORITIZED_TIER_OFFSET}, which
+   * is wider than the severity-led tier's own max rank so no combination of severity and quality
+   * in that tier can cross into it. Within each tier, the severity multiplier is wider than the
+   * quality multiplier's range so quality can only break ties at the same severity, never
+   * override it.
+   */
   private void computeImpactRank(Map<SoftwareQuality, org.sonar.api.issue.impact.Severity> impacts) {
     OptionalInt minRank = impacts.entrySet().stream()
-      .filter(e -> IMPACT_QUALITY_RANK_ORDER.contains(e.getKey()) && IMPACT_SEVERITY_RANK_ORDER.contains(e.getValue()))
-      .mapToInt(e -> (IMPACT_QUALITY_RANK_ORDER.indexOf(e.getKey()) + 1) * IMPACT_QUALITY_RANK_MULTIPLIER
-        + IMPACT_SEVERITY_RANK_ORDER.indexOf(e.getValue()) * IMPACT_SEVERITY_RANK_MULTIPLIER)
+      .filter(e -> IMPACT_SEVERITY_RANK_ORDER.contains(e.getValue())
+        && (SEVERITY_LED_QUALITY_ORDER.contains(e.getKey()) || DEPRIORITIZED_QUALITY_ORDER.contains(e.getKey())))
+      .mapToInt(e -> computeImpactRank(e.getKey(), e.getValue()))
       .min();
     setField(IssueIndexDefinition.FIELD_ISSUE_IMPACT_RANK, minRank.isPresent() ? minRank.getAsInt() : null);
+  }
+
+  private static int computeImpactRank(SoftwareQuality quality, org.sonar.api.issue.impact.Severity severity) {
+    int severityIndex = IMPACT_SEVERITY_RANK_ORDER.indexOf(severity);
+    int severityLedIndex = SEVERITY_LED_QUALITY_ORDER.indexOf(quality);
+    if (severityLedIndex >= 0) {
+      return severityIndex * IMPACT_SEVERITY_RANK_MULTIPLIER + (severityLedIndex + 1) * IMPACT_QUALITY_RANK_MULTIPLIER;
+    }
+    int deprioritizedIndex = DEPRIORITIZED_QUALITY_ORDER.indexOf(quality);
+    return DEPRIORITIZED_TIER_OFFSET + severityIndex * IMPACT_SEVERITY_RANK_MULTIPLIER + (deprioritizedIndex + 1) * IMPACT_QUALITY_RANK_MULTIPLIER;
   }
 
   @CheckForNull

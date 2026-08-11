@@ -166,7 +166,7 @@ class IssueIndexSortTest extends IssueIndexTestCommon {
   }
 
   @Test
-  void sort_by_impact_rank_uses_combined_quality_and_severity_rank() {
+  void sort_by_impact_rank_uses_combined_severity_and_quality_rank() {
     ComponentDto project = newPrivateProjectDto();
     ComponentDto file = newFileDto(project);
 
@@ -177,7 +177,7 @@ class IssueIndexSortTest extends IssueIndexTestCommon {
       newDoc("LOW_MAINT", project.uuid(), file).setImpacts(Map.of(SoftwareQuality.MAINTAINABILITY, Severity.LOW)));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_IMPACT_RANK).asc(true);
-    assertThatSearchReturnsInOrder(query, "HIGH_SEC", "MEDIUM_SEC", "HIGH_REL", "LOW_MAINT");
+    assertThatSearchReturnsInOrder(query, "HIGH_SEC", "HIGH_REL", "MEDIUM_SEC", "LOW_MAINT");
   }
 
   @Test

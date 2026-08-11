@@ -55,7 +55,9 @@ public class IssueQuery {
    */
   public static final String SORT_BY_TYPE_SEVERITY = "TYPE_SEVERITY";
   /**
-   * Sort by software quality then impact severity (MQR mode). Default sort in MQR mode.
+   * Sort by impact severity, with software quality (Security before Reliability) only breaking
+   * ties at the same severity; Maintainability is always ranked last (MQR mode). Default sort in
+   * MQR mode.
    */
   public static final String SORT_BY_IMPACT_RANK = "IMPACT_RANK";
 
