@@ -63,6 +63,12 @@ public interface InternalProperties {
   String ANALYSIS_COUNTER_DATE = "analyses.counter.date";
 
   /**
+   * Issue counts by status, serialized as JSON. Refreshed asynchronously by a scheduled task and read by the
+   * Support Info File to avoid running the expensive full-table aggregation on the request thread (SONAR-31406).
+   */
+  String ISSUE_COUNTS_BY_STATUS = "issueCountsByStatus";
+
+  /**
    * Read the value of the specified property.
    *
    * @return {@link Optional#empty()} if the property does not exist, an empty string if the property is empty,

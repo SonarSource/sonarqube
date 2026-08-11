@@ -217,6 +217,8 @@ import org.sonar.server.platform.WebCoreExtensionsInstaller;
 import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
 import org.sonar.server.platform.db.migration.DatabaseMigrationPersister;
 import org.sonar.server.platform.db.migration.DatabaseMigrationTelemetry;
+import org.sonar.server.platform.issue.IssueCountsByStatusComputation;
+import org.sonar.server.platform.issue.IssueCountsByStatusComputationExecutorServiceImpl;
 import org.sonar.server.platform.telemetry.TelemetryFipsEnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryIpv6EnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryIssueCountsPerStatusProvider;
@@ -772,6 +774,8 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryPortfolioSelectionModeProvider.class,
       TelemetryApplicationsCountProvider.class,
       TelemetryIssueCountsPerStatusProvider.class,
+      IssueCountsByStatusComputation.class,
+      IssueCountsByStatusComputationExecutorServiceImpl.class,
       AgenticQGProjectResolver.class,
       TelemetryAgenticQGAdoptionProvider.class,
       TelemetryAgenticQGNcdOutcomeProvider.class,
