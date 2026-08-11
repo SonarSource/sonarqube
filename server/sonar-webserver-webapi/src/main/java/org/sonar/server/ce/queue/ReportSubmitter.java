@@ -56,6 +56,7 @@ import org.sonar.server.common.permission.PermissionTemplateService;
 import org.sonar.server.common.project.ProjectCreator;
 import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.user.UserSession;
 
@@ -71,6 +72,10 @@ import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesEx
 public class ReportSubmitter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ReportSubmitter.class);
+  /**
+   * Kept as a literal because sonar-webserver-webapi cannot depend on sonar-webserver-webapi-v2, where the endpoint is declared.
+   */
+  private static final String BOUND_PROJECTS_ENDPOINT = "/api/v2/dop-translation/bound-projects";
 
   private final CeQueue queue;
   private final UserSession userSession;
@@ -204,9 +209,24 @@ public class ReportSubmitter {
       return true;
     }
     if (managedInstanceService.isInstanceExternallyManaged() && devOpsProjectCreator != null) {
+      devOpsProjectCreator.permissionsFromDevopsPlatformUnavailableReason()
+        .ifPresent(reason -> {
+          throw new ForbiddenException(noPermissionSourceMessage(projectKey, reason));
+        });
       return devOpsProjectCreator.isScanAllowedUsingPermissionsFromDevopsPlatform();
     }
     return permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(dbSession, userSession.getUuid(), projectKey);
+  }
+
+  /**
+   * The analysis cannot create the project: the token holds no global 'Execute Analysis' permission, and the DevOps platform
+   * cannot be queried to resolve the permissions of the current user either. Both conditions are reported, since knowing only
+   * one of them is not enough to fix the configuration.
+   */
+  private static String noPermissionSourceMessage(String projectKey, String devOpsPlatformUnavailableReason) {
+    return format("Project '%s' does not exist and cannot be created by this analysis. The token does not have the 'Execute Analysis'"
+      + " permission, and %s. Create and bind the project first (POST %s), or grant the 'Execute Analysis' permission.",
+      projectKey, devOpsPlatformUnavailableReason, BOUND_PROJECTS_ENDPOINT);
   }
 
   private CeTask submitReport(DbSession dbSession, InputStream reportInput, ComponentDto branch, BranchDto mainBranch, Map<String, String> characteristics) {

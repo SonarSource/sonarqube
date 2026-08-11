@@ -141,6 +141,20 @@ class GithubProjectCreatorTest {
   }
 
   @Test
+  void permissionsFromDevopsPlatformUnavailableReason_whenNoAuthToken_returnsReason() {
+    githubProjectCreator = new GithubProjectCreator(dbClient, devOpsProjectCreationContext, projectKeyGenerator, gitHubSettings, null, permissionService, permissionUpdater,
+      managedProjectService, githubApplicationClient, githubPermissionConverter, null);
+
+    assertThat(githubProjectCreator.permissionsFromDevopsPlatformUnavailableReason())
+      .contains("repository permissions cannot be checked on GitHub because GitHub provisioning is disabled on this instance");
+  }
+
+  @Test
+  void permissionsFromDevopsPlatformUnavailableReason_whenAuthTokenIsProvided_returnsEmpty() {
+    assertThat(githubProjectCreator.permissionsFromDevopsPlatformUnavailableReason()).isEmpty();
+  }
+
+  @Test
   void isScanAllowedUsingPermissionsFromDevopsPlatform_whenUserIsNotAGitHubUser_returnsFalse() {
     assertThat(githubProjectCreator.isScanAllowedUsingPermissionsFromDevopsPlatform()).isFalse();
   }

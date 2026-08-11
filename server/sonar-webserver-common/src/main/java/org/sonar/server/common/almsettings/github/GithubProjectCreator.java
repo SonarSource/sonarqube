@@ -19,6 +19,7 @@
  */
 package org.sonar.server.common.almsettings.github;
 
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.alm.client.github.GithubPermissionConverter;
@@ -64,6 +65,14 @@ public class GithubProjectCreator extends DefaultDevOpsProjectCreator {
     this.githubApplicationClient = githubApplicationClient;
     this.githubPermissionConverter = githubPermissionConverter;
     this.authAppInstallationToken = authAppInstallationToken;
+  }
+
+  @Override
+  public Optional<String> permissionsFromDevopsPlatformUnavailableReason() {
+    if (authAppInstallationToken == null) {
+      return Optional.of("repository permissions cannot be checked on GitHub because GitHub provisioning is disabled on this instance");
+    }
+    return Optional.empty();
   }
 
   @Override
