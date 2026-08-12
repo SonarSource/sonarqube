@@ -24,14 +24,16 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.ce.task.projectanalysis.component.SubViewAttributes;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.history.RecordHistoryDelegate;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonarsource.history.model.EntityType;
 
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
-import static org.sonar.ce.task.projectanalysis.component.Component.Type.VIEW;
+import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
 
 /**
  * Records issue count and measures history for the current entity.
@@ -51,25 +53,64 @@ public class RecordHistoryStep implements ComputationStep {
   @Override
   public void execute(ComputationStep.Context context) {
     Component root = treeRootHolder.getRoot();
-    String entityUuid = root.getUuid();
-    try {
-      delegate.recordHistory(entityUuid, getEntityType(root), getIssueSourceBranchUuids(root));
-    } catch (Exception e) {
-      LOGGER.warn("Failed to record issue count and measures history for entity {}", entityUuid, e);
+    EntityType entityType = getEntityType(root);
+
+    if (entityType == EntityType.APPLICATION || entityType == EntityType.PROJECT_BRANCH) {
+      recordHistoryForEntity(root, entityType, getIssueSourceBranchUuids(root));
+    } else {
+      recordHistoryForEntity(root, EntityType.PORTFOLIO, collectChildBranchUuidsAndRecordSubtreeHistory(root, true));
     }
   }
 
   private static EntityType getEntityType(Component root) {
-    if (root.getType() == PROJECT) {
-      return EntityType.PROJECT_BRANCH;
-    }
-    if (root.getType() == VIEW) {
-      return switch (root.getViewAttributes().getType()) {
+    return switch(root.getType()) {
+      case PROJECT -> EntityType.PROJECT_BRANCH;
+      case VIEW -> switch (root.getViewAttributes().getType()) {
         case APPLICATION -> EntityType.APPLICATION;
         case PORTFOLIO -> EntityType.PORTFOLIO;
       };
+      default -> throw new IllegalArgumentException("History cannot be recorded for root component type " + root.getType());
+    };
+  }
+
+  /**
+   * Collects all child branch UUIDs by traversing the entire portfolio tree depth-first, recording history for each subtree if necessary.
+   */
+  private Set<String> collectChildBranchUuidsAndRecordSubtreeHistory(Component component, boolean recordSubtreeHistory) {
+    Set<String> branchUuids = new HashSet<>();
+    for (var child : component.getChildren()) {
+      boolean recordChildHistory = recordSubtreeHistory && isNativeSubportfolio(child);
+      Set<String> childBranchUuids = collectChildBranchUuidsAndRecordSubtreeHistory(child, recordChildHistory);
+      branchUuids.addAll(childBranchUuids);
+      if (recordChildHistory) {
+        recordHistoryForEntity(child, EntityType.PORTFOLIO, childBranchUuids);
+      }
     }
-    throw new IllegalArgumentException("History cannot be recorded for root component type " + root.getType());
+    if (component.getType() == PROJECT_VIEW) {
+      branchUuids.add(component.getProjectViewAttributes().getUuid());
+    }
+    return branchUuids;
+  }
+
+  /**
+   * Returns true only for true "native" child portfolios; filters out application references and local portfolio references, both of
+   * which will have their history recorded independently.
+   */
+  private static boolean isNativeSubportfolio(Component component) {
+    if (component.getType() != SUBVIEW) {
+      return false;
+    }
+    SubViewAttributes attributes = component.getSubViewAttributes();
+    return ComponentQualifiers.SUBVIEW.equals(attributes.getOriginalViewType()) && !attributes.isLocalReference();
+  }
+
+  private void recordHistoryForEntity(Component component, EntityType entityType, Set<String> issueSourceBranchUuids) {
+    String entityUuid = component.getUuid();
+    try {
+      delegate.recordHistory(entityUuid, entityType, issueSourceBranchUuids);
+    } catch (Exception e) {
+      LOGGER.warn("Failed to record issue count and measures history for entity {}", entityUuid, e);
+    }
   }
 
   /**

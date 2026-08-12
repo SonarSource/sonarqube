@@ -27,6 +27,17 @@ import javax.annotation.concurrent.Immutable;
 public class SubViewAttributes {
   private final String originalViewUuid;
   private final String originalViewType;
+  private final boolean isLocalReference;
+
+  public SubViewAttributes(
+    @Nullable String originalViewUuid,
+    @Nullable String originalViewType,
+    boolean isLocalReference
+  ) {
+    this.originalViewUuid = originalViewUuid;
+    this.originalViewType = originalViewType;
+    this.isLocalReference = isLocalReference;
+  }
 
   public SubViewAttributes(
     @Nullable String originalViewUuid,
@@ -34,6 +45,7 @@ public class SubViewAttributes {
   ) {
     this.originalViewUuid = originalViewUuid;
     this.originalViewType = originalViewType;
+    this.isLocalReference = false;
   }
 
   /**
@@ -49,11 +61,16 @@ public class SubViewAttributes {
     return originalViewType;
   }
 
+  public boolean isLocalReference() {
+    return isLocalReference;
+  }
+
   @Override
   public String toString() {
     return "SubViewAttributes{" +
       "originalViewUuid='" + originalViewUuid + '\'' +
       ", originalViewType=" + originalViewType +
+      ", isLocalReference=" + isLocalReference +
       '}';
   }
 }
