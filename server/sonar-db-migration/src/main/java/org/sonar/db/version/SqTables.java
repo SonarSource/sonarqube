@@ -35,6 +35,7 @@ public final class SqTables {
     "active_rules",
     "active_rule_parameters",
     "admin_alert_status",
+    "agent_jobs",
     "alm_settings",
     "alm_pats",
     "analysis_properties",

@@ -61,6 +61,7 @@ import org.sonar.db.event.EventComponentChangeMapper;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventMapper;
 import org.sonar.db.adminalert.AdminAlertStatusMapper;
+import org.sonar.db.agent.AgentJobMapper;
 import org.sonar.db.issue.AnticipatedTransitionDto;
 import org.sonar.db.issue.AnticipatedTransitionMapper;
 import org.sonar.db.issue.ImpactDto;
@@ -188,6 +189,7 @@ public class DefaultMyBatis extends AbstractMyBatis {
   private static final Class<?>[] MAPPERS = {
     ActiveRuleMapper.class,
     AdminAlertStatusMapper.class,
+    AgentJobMapper.class,
     AlmPatMapper.class,
     AlmSettingMapper.class,
     AnalysisPropertiesMapper.class,

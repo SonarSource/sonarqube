@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.agent.AgentJobMapper">
+
+  <resultMap id="agentJobResultMap" type="org.sonar.db.agent.AgentJobDto" autoMapping="true">
+    <id property="id" column="id"/>
+  </resultMap>
+
+  <sql id="agentJobColumns">
+    aj.id as id,
+    aj.project_id as projectId,
+    aj.branch as branch,
+    aj.repository_url as repositoryUrl,
+    aj.revision as revision,
+    aj.agent_type as agentType,
+    aj.workflow_type as workflowType,
+    aj.analysis_type as analysisType,
+    aj.status as status,
+    aj.substatus as subStatus,
+    aj.error_key as errorKey,
+    aj.findings_count as findingsCount,
+    aj.created_at as createdAt,
+    aj.updated_at as updatedAt,
+    aj.started_at as startedAt,
+    aj.finished_at as finishedAt,
+    p.kee as projectKey,
+    p.name as projectName
+  </sql>
+
+  <sql id="whereClause">
+    <where>
+      <if test="query.jobIds != null and !query.jobIds.isEmpty()">
+        and aj.id in
+        <foreach collection="query.jobIds" open="(" close=")" item="jobId" separator=",">
+          #{jobId,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.statuses != null and !query.statuses.isEmpty()">
+        and aj.status in
+        <foreach collection="query.statuses" open="(" close=")" item="status" separator=",">
+          #{status,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.agentTypes != null and !query.agentTypes.isEmpty()">
+        and aj.agent_type in
+        <foreach collection="query.agentTypes" open="(" close=")" item="agentType" separator=",">
+          #{agentType,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.minCreatedAt != null">
+        and aj.created_at &gt;= #{query.minCreatedAt,jdbcType=BIGINT}
+      </if>
+      <if test="query.maxCreatedAt != null">
+        and aj.created_at &lt;= #{query.maxCreatedAt,jdbcType=BIGINT}
+      </if>
+    </where>
+  </sql>
+
+  <select id="selectByQuery" parameterType="map" resultMap="agentJobResultMap">
+    select
+      <include refid="agentJobColumns"/>
+    from agent_jobs aj
+    left join projects p on aj.project_id = p.uuid
+    <include refid="whereClause"/>
+    order by aj.created_at desc, aj.id asc
+    <include refid="org.sonar.db.common.Common.pagination"/>
+  </select>
+
+  <select id="countByQuery" parameterType="map" resultType="int">
+    select
+      count(1)
+    from agent_jobs aj
+    <include refid="whereClause"/>
+  </select>
+
+</mapper>
