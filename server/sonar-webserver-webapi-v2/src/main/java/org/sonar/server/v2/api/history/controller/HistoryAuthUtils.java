@@ -19,10 +19,6 @@
  */
 package org.sonar.server.v2.api.history.controller;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.util.Arrays;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
@@ -31,43 +27,14 @@ import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
-import org.sonarsource.history.HistoryDateRangeException;
-import org.sonarsource.history.HistoryUtils;
 import org.sonarsource.history.model.EntityType;
-import org.springframework.lang.Nullable;
-import org.springframework.web.server.ResponseStatusException;
 
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-public final class HistoryControllerUtils {
+public final class HistoryAuthUtils {
 
-  private HistoryControllerUtils() {
+  private HistoryAuthUtils() {
     // static methods only
-  }
-
-  static EntityType toEntityType(String entityType) {
-    try {
-      return EntityType.valueOf(entityType);
-    } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("Unknown history entity type: " + entityType);
-    }
-  }
-
-  static EntityType assertValidEntityType(String entityType) {
-    try {
-      return toEntityType(entityType);
-    } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(BAD_REQUEST, "entityType must be one of: " + Arrays.toString(EntityType.values()), e);
-    }
-  }
-
-  static HistoryDateRange assertValidDateRange(Clock clock, OffsetDateTime startDate, @Nullable OffsetDateTime endDate) {
-    try {
-      return normalize(clock, startDate, endDate);
-    } catch (HistoryDateRangeException e) {
-      throw new ResponseStatusException(BAD_REQUEST, e.getMessage(), e);
-    }
   }
 
   public static void assertUserHasPermission(UserSession userSession, DbClient dbClient, String entityId, EntityType entityType) {
@@ -88,21 +55,17 @@ public final class HistoryControllerUtils {
           dbClient.componentDao().selectByUuid(dbSession, entityId),
           "Portfolio with uuid '%s' not found", entityId);
         userSession.checkComponentPermission(ProjectPermission.USER, portfolio);
+      } else if (EntityType.APPLICATION.equals(entityType)) {
+        BranchDto applicationBranch = checkFoundWithOptional(
+          dbClient.branchDao().selectByUuid(dbSession, entityId),
+          "Portfolio or application branch '%s' not found", entityId);
+        ProjectDto application = checkFoundWithOptional(
+          dbClient.projectDao().selectByUuid(dbSession, applicationBranch.getProjectUuid())
+            .filter(project -> ComponentQualifiers.APP.equals(project.getQualifier())),
+          "Portfolio or application branch '%s' not found", entityId);
+        userSession.checkEntityPermission(ProjectPermission.USER, application);
+        userSession.checkChildProjectsPermission(ProjectPermission.USER, application);
       }
     }
-  }
-
-  public static HistoryDateRange normalize(Clock clock, OffsetDateTime startDate, @Nullable OffsetDateTime endDate) {
-    Instant startInstant = startDate.toInstant();
-    Instant endInstant = endDate != null ? endDate.toInstant() : null;
-    Instant today = clock.instant();
-    if (endInstant == null || endInstant.isAfter(today)) {
-      endInstant = today;
-    }
-    HistoryUtils.validateDateRange(startInstant, endInstant, clock);
-    return new HistoryDateRange(startInstant, endInstant);
-  }
-
-  public record HistoryDateRange(Instant start, Instant end) {
   }
 }

@@ -39,6 +39,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
+import org.sonarsource.history.api.model.HistoryEntityType;
 import org.sonarsource.history.api.model.IssueCountDistributionType;
 import org.sonarsource.history.api.model.IssueCountHistoryResponse;
 import org.sonarsource.history.model.EntityType;
@@ -61,10 +62,11 @@ import static org.springframework.http.HttpStatus.OK;
 public class DefaultIssueCountHistoryControllerTest {
 
   private static final String ENTITY_ID = "123e4567-e89b-12d3-a456-426614174000";
-  private static final String ENTITY_TYPE = "PORTFOLIO";
+  private static final HistoryEntityType ENTITY_TYPE = HistoryEntityType.PORTFOLIO;
   private static final String PROJECT_BRANCH_ID = "branch-1";
   private static final String PROJECT_UUID = "123e4567-e89b-12d3-a456-426614174002";
   private static final Instant NOW = Instant.parse("2026-07-08T01:00:00Z");
+  private static final Instant UTC_MIDNIGHT = Instant.parse("2026-07-08T00:00:00Z");
 
   private final IssueCountHistoryService issueHistoryService = mock();
   private final UserSession userSession = mock();
@@ -138,30 +140,18 @@ public class DefaultIssueCountHistoryControllerTest {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
     when(issueHistoryService.queryIssueCountHistory(
-      eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
+      eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
       isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
 
     ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, "PROJECT_BRANCH", startDate, null, null, null, null, null, null, null);
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     verify(branchDao).selectByUuid(dbSession, PROJECT_BRANCH_ID);
     verify(issueHistoryService).queryIssueCountHistory(
-      eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
+      eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
       isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
-  }
-
-  @Test
-  public void getIssueCountHistory_whenEntityTypeIsInvalid_shouldReject() {
-    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-
-    assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      ENTITY_ID, "INVALID", startDate, null, null, null, null, null, null, null))
-      .isInstanceOf(ResponseStatusException.class)
-      .hasMessageContaining("entityType must be one of");
-
-    verifyNoInteractions(issueHistoryService);
   }
 
   @Test
@@ -169,52 +159,39 @@ public class DefaultIssueCountHistoryControllerTest {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
     when(issueHistoryService.queryIssueCountHistory(
-       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
+       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
       isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenThrow(new IllegalArgumentException("Unsupported history filter"));
 
     assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, "PROJECT_BRANCH", startDate, null, null, null, null, null, null, null))
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
       .isInstanceOf(ResponseStatusException.class)
       .hasMessageContaining("Unsupported history filter");
   }
 
   @Test
-  public void getIssueCountHistory_whenStartInstantIsAfterNow_shouldReject() {
+  public void getIssueCountHistory_whenStartInstantIsAfterUtcMidnight_shouldReject() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T23:30:00-02:00");
 
     assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, "PROJECT_BRANCH", startDate, null, null, null, null, null, null, null))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("must be less than or equal to the current date");
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("End date [null] must be greater than or equal to start date [2026-07-07T23:30-02:00].");
 
     verifyNoInteractions(issueHistoryService);
   }
 
   @Test
-  public void getIssueCountHistory_whenEndInstantIsAfterNow_shouldClampEndDateAndQueryHistory() {
+  public void getIssueCountHistory_whenEndInstantIsAfterNow_shouldReject() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
-    stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
-    org.sonarsource.history.model.IssueCountHistoryResponse response = new org.sonarsource.history.model.IssueCountHistoryResponse(
-      java.util.List.of(new org.sonarsource.history.model.IssueCountHistoryPoint(
-        Instant.parse("2026-07-08T00:00:00Z"),
-        java.util.List.of(new org.sonarsource.history.model.IssueCountHistoryDistribution("SAFE", 3)))));
-    when(issueHistoryService.queryIssueCountHistory(
-       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
-      .thenReturn(response);
 
-    ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, "PROJECT_BRANCH", startDate, endDate, null, null, null, null, null, null);
+    assertThatThrownBy(() -> underTest.getIssueCountHistory(
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("End date 2026-07-09T00:00Z must be less than or equal to the current date.");
 
-    assertThat(result.getStatusCode()).isEqualTo(OK);
-    assertThat(result.getBody().getIssueCountHistory()).singleElement()
-      .satisfies(item -> assertThat(item.getDistribution()).singleElement()
-        .satisfies(distribution -> assertThat(distribution.getKey()).isEqualTo("SAFE")));
-    verify(issueHistoryService).queryIssueCountHistory(
-       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
+    verifyNoInteractions(issueHistoryService);
   }
 
   @Test
@@ -223,11 +200,30 @@ public class DefaultIssueCountHistoryControllerTest {
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-07T23:59:59Z");
 
     assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, "PROJECT_BRANCH", startDate, endDate, null, null, null, null, null, null))
-      .isInstanceOf(ResponseStatusException.class)
-      .hasMessageContaining("must be greater than or equal to start date");
+       PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("End date [2026-07-07T23:59:59Z] must be greater than or equal to start date [2026-07-08T00:00Z].");
 
     verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueCountHistory_whenStartDateIsOlderThanOneYear_shouldQueryHistory() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2020-12-01T00:00:00Z");
+    OffsetDateTime endDate = OffsetDateTime.parse("2026-07-01T00:00:00Z");
+    stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
+    when(issueHistoryService.queryIssueCountHistory(
+      eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(endDate.toInstant()),
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
+
+    ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null);
+
+    assertThat(result.getStatusCode()).isEqualTo(OK);
+    verify(issueHistoryService).queryIssueCountHistory(
+      eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(endDate.toInstant()),
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test
@@ -237,12 +233,12 @@ public class DefaultIssueCountHistoryControllerTest {
     stubProjectBranch(project);
     org.sonarsource.history.model.IssueCountHistoryResponse response = new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of());
     when(issueHistoryService.queryIssueCountHistory(
-       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
+       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
       isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenReturn(response);
 
     ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, "PROJECT_BRANCH", startDate, null, null, null, null, null, null, null);
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     assertThat(result.getBody()).isNotNull();
@@ -250,7 +246,28 @@ public class DefaultIssueCountHistoryControllerTest {
     verify(projectDao).selectByUuid(dbSession, PROJECT_UUID);
     verify(userSession).checkEntityPermission(ProjectPermission.USER, project);
     verify(issueHistoryService).queryIssueCountHistory(
-       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
+       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
+  }
+
+  @Test
+  public void getIssueCountHistory_whenApplicationBranchIsAuthorized_shouldQueryHistory() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ProjectDto application = project(PROJECT_UUID, ComponentQualifiers.APP);
+    stubProjectBranch(application);
+    when(issueHistoryService.queryIssueCountHistory(
+      eq(PROJECT_BRANCH_ID), eq(EntityType.APPLICATION), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
+
+    ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
+      PROJECT_BRANCH_ID, HistoryEntityType.APPLICATION, startDate, null, null, null, null, null, null, null);
+
+    assertThat(result.getStatusCode()).isEqualTo(OK);
+    verify(userSession).checkEntityPermission(ProjectPermission.USER, application);
+    verify(userSession).checkChildProjectsPermission(ProjectPermission.USER, application);
+    verify(issueHistoryService).queryIssueCountHistory(
+      eq(PROJECT_BRANCH_ID), eq(EntityType.APPLICATION), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
       isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
@@ -263,7 +280,7 @@ public class DefaultIssueCountHistoryControllerTest {
       .when(userSession).checkEntityPermission(ProjectPermission.USER, project);
 
     assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, "PROJECT_BRANCH", startDate, null, null, null, null, null, null, null))
+       PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
       .isInstanceOf(ForbiddenException.class);
 
     verifyNoInteractions(issueHistoryService);
@@ -275,12 +292,12 @@ public class DefaultIssueCountHistoryControllerTest {
     ProjectDto application = project(PROJECT_UUID, ComponentQualifiers.APP);
     stubProjectBranch(application);
     when(issueHistoryService.queryIssueCountHistory(
-       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
+       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
       isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
        .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
 
     underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, "PROJECT_BRANCH", startDate, null, null, null, null, null, null, null);
+       PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null);
 
     verify(projectDao).selectByUuid(dbSession, PROJECT_UUID);
     verify(userSession).checkEntityPermission(ProjectPermission.USER, application);
@@ -293,7 +310,7 @@ public class DefaultIssueCountHistoryControllerTest {
     when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, "PROJECT_BRANCH", startDate, null, null, null, null, null, null, null))
+       PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
       .isInstanceOf(NotFoundException.class);
 
     verifyNoInteractions(projectDao, issueHistoryService);
@@ -307,7 +324,7 @@ public class DefaultIssueCountHistoryControllerTest {
     when(projectDao.selectByUuid(dbSession, PROJECT_UUID)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, "PROJECT_BRANCH", startDate, null, null, null, null, null, null, null))
+       PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
       .isInstanceOf(NotFoundException.class);
 
     verifyNoInteractions(issueHistoryService);

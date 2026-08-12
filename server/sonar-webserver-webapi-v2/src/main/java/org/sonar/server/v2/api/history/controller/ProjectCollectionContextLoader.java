@@ -34,6 +34,7 @@ import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
+import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.model.ProjectBranch;
 
 import static org.sonar.db.component.ComponentQualifiers.APP;
@@ -55,15 +56,11 @@ public class ProjectCollectionContextLoader {
     return loadPortfolioContext(session, portfolioId);
   }
 
-  ProjectCollectionContext load(DbSession session, String entityType, String entityId) {
-    try {
-      return switch (ProjectCollectionEntityType.valueOf(entityType)) {
-        case PORTFOLIO -> loadPortfolioContext(session, entityId);
-        case APPLICATION -> loadApplicationContext(session, entityId);
-      };
-    } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("entityType must be one of: PORTFOLIO, APPLICATION", e);
-    }
+  ProjectCollectionContext load(DbSession session, ProjectCollectionHistoryEntityType entityType, String entityId) {
+    return switch (entityType) {
+      case PORTFOLIO -> loadPortfolioContext(session, entityId);
+      case APPLICATION -> loadApplicationContext(session, entityId);
+    };
   }
 
   private ProjectCollectionContext loadPortfolioContext(DbSession session, String portfolioId) {
@@ -129,10 +126,5 @@ public class ProjectCollectionContextLoader {
 
   private static NotFoundException contextNotFound(String contextId) {
     return new NotFoundException("Portfolio or application branch '%s' not found".formatted(contextId));
-  }
-
-  private enum ProjectCollectionEntityType {
-    PORTFOLIO,
-    APPLICATION
   }
 }

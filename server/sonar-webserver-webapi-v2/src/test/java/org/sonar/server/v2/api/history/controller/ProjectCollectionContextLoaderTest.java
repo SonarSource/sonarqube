@@ -38,6 +38,7 @@ import org.sonar.db.project.ProjectDao;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
+import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.model.ProjectBranch;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -138,7 +139,7 @@ public class ProjectCollectionContextLoaderTest {
     when(projectDao.selectByUuids(dbSession, Set.of(PROJECT_ID))).thenReturn(List.of(project));
     when(userSession.keepAuthorizedEntities(USER, List.of(project))).thenReturn(List.of(project));
 
-    ProjectCollectionContext context = underTest.load(dbSession, "APPLICATION", APPLICATION_BRANCH_ID);
+    ProjectCollectionContext context = underTest.load(dbSession, ProjectCollectionHistoryEntityType.APPLICATION, APPLICATION_BRANCH_ID);
 
     assertThat(context.branches()).singleElement().satisfies(result -> assertThat(result.branchId()).isEqualTo(BRANCH_ID));
     verify(userSession).checkEntityPermission(USER, application);
@@ -157,7 +158,7 @@ public class ProjectCollectionContextLoaderTest {
     when(projectDao.selectByUuids(dbSession, Set.of(PROJECT_ID))).thenReturn(List.of(project));
     when(userSession.keepAuthorizedEntities(USER, List.of(project))).thenReturn(List.of(project));
 
-    ProjectCollectionContext context = underTest.load(dbSession, "APPLICATION", APPLICATION_BRANCH_ID);
+    ProjectCollectionContext context = underTest.load(dbSession, ProjectCollectionHistoryEntityType.APPLICATION, APPLICATION_BRANCH_ID);
 
     assertThat(context.branches()).singleElement().satisfies(result -> assertThat(result.branchId()).isEqualTo(BRANCH_ID));
     verify(applicationProjectsDao).selectProjectBranchesFromAppBranchUuid(dbSession, APPLICATION_BRANCH_ID);
@@ -185,13 +186,6 @@ public class ProjectCollectionContextLoaderTest {
     assertThatThrownBy(() -> underTest.load(dbSession, PORTFOLIO_ID))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Portfolio or application branch '%s' not found", PORTFOLIO_ID);
-  }
-
-  @Test
-  public void loadRejectsUnsupportedEntityType() {
-    assertThatThrownBy(() -> underTest.load(dbSession, "PROJECT", PROJECT_ID))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("entityType must be one of: PORTFOLIO, APPLICATION");
   }
 
   private static boolean isProjectLeavesQuery(ComponentTreeQuery query) {

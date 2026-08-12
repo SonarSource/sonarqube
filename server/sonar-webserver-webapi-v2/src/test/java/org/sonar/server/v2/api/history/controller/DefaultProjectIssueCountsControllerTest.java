@@ -31,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
 import org.sonarsource.history.api.mapper.HistoryModelConverter;
+import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.api.model.IssueCountStatus;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
@@ -62,6 +63,7 @@ public class DefaultProjectIssueCountsControllerTest {
   private static final String APPLICATION_BRANCH_ID = "application-branch-uuid";
   private static final String BRANCH_ID = "branch-1";
   private static final Instant NOW = Instant.parse("2026-07-08T01:00:00Z");
+  private static final OffsetDateTime VALID_REFERENCE_DATE = OffsetDateTime.parse("2026-07-07T00:00:00Z");
   private static final List<String> SORT = List.of("-issueCount");
   private static final ProjectCollectionContext CONTEXT = new ProjectCollectionContext(
     List.of(new ProjectBranch(BRANCH_ID, "main", "alpha", "Alpha")), Set.of(BRANCH_ID));
@@ -128,56 +130,97 @@ public class DefaultProjectIssueCountsControllerTest {
   public void getProjectIssueCountsSupportsTypedSelector() {
     var filters = IssueCountHistoryService.buildFilters(null, null, null, null, null);
     var serviceResponse = new ProjectIssueCountsResponse(0, List.of(), new Pagination(1, 50, 0));
-    when(contextLoader.load(dbSession, "APPLICATION", APPLICATION_BRANCH_ID)).thenReturn(CONTEXT);
+    when(contextLoader.load(dbSession, ProjectCollectionHistoryEntityType.APPLICATION, APPLICATION_BRANCH_ID)).thenReturn(CONTEXT);
     when(projectIssueCountsService.getProjectIssueCounts(
-      CONTEXT.branches(), CONTEXT.visibleBranchIds(), filters, null, null,
+      CONTEXT.branches(), CONTEXT.visibleBranchIds(), filters, null, VALID_REFERENCE_DATE.toInstant(),
       1, 50, SORT, false))
         .thenReturn(serviceResponse);
 
     var response = underTest.getProjectIssueCounts(
-      null, "APPLICATION", APPLICATION_BRANCH_ID, null, null, null, null, null, null, null,
+      null, ProjectCollectionHistoryEntityType.APPLICATION, APPLICATION_BRANCH_ID, null, null, null, null, null, null, VALID_REFERENCE_DATE,
       1, 50, SORT, false);
 
     assertThat(response.getStatusCode()).isEqualTo(OK);
     assertThat(response.getBody().getProjectIssueCounts()).isEmpty();
-    verify(contextLoader).load(dbSession, "APPLICATION", APPLICATION_BRANCH_ID);
+    verify(contextLoader).load(dbSession, ProjectCollectionHistoryEntityType.APPLICATION, APPLICATION_BRANCH_ID);
   }
 
   @Test
-  public void getProjectIssueCountsRejectsReferenceDateOnCurrentDayBeforeLoadingContext() {
+  public void getProjectIssueCountsAcceptsNullReferenceDateAndForwardsNull() {
+    var filters = IssueCountHistoryService.buildFilters(null, null, null, null, null);
+    var serviceResponse = new ProjectIssueCountsResponse(0, List.of(), new Pagination(1, 50, 0));
+    when(contextLoader.load(dbSession, PORTFOLIO_ID)).thenReturn(CONTEXT);
+    when(projectIssueCountsService.getProjectIssueCounts(
+      CONTEXT.branches(), CONTEXT.visibleBranchIds(), filters, null, null,
+      1, 50, SORT, false))
+      .thenReturn(serviceResponse);
+
+    var response = underTest.getProjectIssueCounts(
+      PORTFOLIO_ID, null, null, null, null, null, null, null, null, null,
+      1, 50, SORT, false);
+
+    assertThat(response.getStatusCode()).isEqualTo(OK);
+    verify(projectIssueCountsService).getProjectIssueCounts(
+      CONTEXT.branches(), CONTEXT.visibleBranchIds(), filters, null, null,
+      1, 50, SORT, false);
+  }
+
+  @Test
+  public void getProjectIssueCountsRejectsFutureReferenceDateBeforeLoadingContext() {
+    OffsetDateTime referenceDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
+
+    assertThatThrownBy(() -> underTest.getProjectIssueCounts(
+      PORTFOLIO_ID, null, null, null, null, null, null, null, null, referenceDate,
+      1, 50, SORT, false))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("referenceDate 2026-07-09T00:00:00Z must be before the current date");
+
+    verifyNoInteractions(contextLoader, projectIssueCountsService);
+    verify(dbClient, never()).openSession(false);
+  }
+
+  @Test
+  public void getProjectIssueCountsRejectsCurrentMidnightReferenceDateBeforeLoadingContext() {
     OffsetDateTime referenceDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
 
     assertThatThrownBy(() -> underTest.getProjectIssueCounts(
       PORTFOLIO_ID, null, null, null, null, null, null, null, null, referenceDate,
       1, 50, SORT, false))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("must be before the current date");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("referenceDate 2026-07-08T00:00:00Z must be before the current date");
 
     verifyNoInteractions(contextLoader, projectIssueCountsService);
     verify(dbClient, never()).openSession(false);
   }
 
   @Test
-  public void getProjectIssueCountsRejectsReferenceDateOlderThanOneYearBeforeLoadingContext() {
-    OffsetDateTime referenceDate = OffsetDateTime.parse("2025-07-07T23:59:59Z");
-
-    assertThatThrownBy(() -> underTest.getProjectIssueCounts(
-      PORTFOLIO_ID, null, null, null, null, null, null, null, null, referenceDate,
+  public void getProjectIssueCountsAcceptsReferenceDateOlderThanOneYear() {
+    OffsetDateTime referenceDate = OffsetDateTime.parse("2020-07-07T23:59:59Z");
+    var filters = IssueCountHistoryService.buildFilters(null, null, null, null, null);
+    var serviceResponse = new ProjectIssueCountsResponse(0, List.of(), new Pagination(1, 50, 0));
+    when(contextLoader.load(dbSession, PORTFOLIO_ID)).thenReturn(CONTEXT);
+    when(projectIssueCountsService.getProjectIssueCounts(
+      CONTEXT.branches(), CONTEXT.visibleBranchIds(), filters, null, referenceDate.toInstant(),
       1, 50, SORT, false))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("cannot be more than 1 year in the past");
+      .thenReturn(serviceResponse);
 
-    verifyNoInteractions(contextLoader, projectIssueCountsService);
-    verify(dbClient, never()).openSession(false);
+    var response = underTest.getProjectIssueCounts(
+      PORTFOLIO_ID, null, null, null, null, null, null, null, null, referenceDate,
+      1, 50, SORT, false);
+
+    assertThat(response.getStatusCode()).isEqualTo(OK);
+    verify(projectIssueCountsService).getProjectIssueCounts(
+      CONTEXT.branches(), CONTEXT.visibleBranchIds(), filters, null, referenceDate.toInstant(),
+      1, 50, SORT, false);
   }
 
   @Test
   public void getProjectIssueCountsRejectsInvalidSelectorBeforeOpeningSession() {
     assertThatThrownBy(() -> underTest.getProjectIssueCounts(
-      null, null, null, null, null, null, null, null, null, null,
+      null, null, null, null, null, null, null, null, null, VALID_REFERENCE_DATE,
       1, 50, SORT, false))
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Either portfolioId or both entityType and entityId must be provided");
+        .hasMessage("Either portfolioId or both entityType and entityId must be provided");
 
     verify(dbClient, never()).openSession(false);
     verifyNoInteractions(contextLoader, projectIssueCountsService);
@@ -192,7 +235,8 @@ public class DefaultProjectIssueCountsControllerTest {
     mockMvc.perform(get("/history/project-issue-counts")
       .queryParam("portfolioId", PORTFOLIO_ID)
       .queryParam("entityType", "PORTFOLIO")
-      .queryParam("entityId", PORTFOLIO_ID))
+      .queryParam("entityId", PORTFOLIO_ID)
+      .queryParam("referenceDate", "2026-07-07T00:00:00Z"))
       .andExpect(status().isBadRequest());
   }
 }

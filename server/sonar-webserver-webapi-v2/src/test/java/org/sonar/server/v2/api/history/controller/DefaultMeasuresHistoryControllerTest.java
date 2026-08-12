@@ -40,7 +40,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-import org.sonarsource.history.api.model.MeasureHistoryEntityType;
+import org.sonarsource.history.api.model.HistoryEntityType;
 import org.sonarsource.history.api.model.MeasuresHistoryResponse;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.server.service.MeasuresHistoryService;
@@ -61,9 +61,10 @@ public class DefaultMeasuresHistoryControllerTest {
   private static final String ENTITY_ID = "123e4567-e89b-12d3-a456-426614174000";
   private static final String PROJECT_BRANCH_ID = "branch-1";
   private static final String PROJECT_UUID = "123e4567-e89b-12d3-a456-426614174002";
-  private static final MeasureHistoryEntityType ENTITY_TYPE = MeasureHistoryEntityType.PORTFOLIO;
+  private static final HistoryEntityType ENTITY_TYPE = HistoryEntityType.PORTFOLIO;
   private static final List<String> METRIC_KEYS = List.of("ncloc");
   private static final Instant NOW = Instant.parse("2026-07-08T01:00:00Z");
+  private static final Instant UTC_MIDNIGHT = Instant.parse("2026-07-08T00:00:00Z");
 
   private final MeasuresHistoryService measuresHistoryService = mock();
   private final UserSession userSession = mock();
@@ -100,11 +101,11 @@ public class DefaultMeasuresHistoryControllerTest {
     stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
     when(measuresHistoryService.queryMeasuresHistory(
       PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH, METRIC_KEYS,
-      startDate.toInstant(), NOW))
+      startDate.toInstant(), UTC_MIDNIGHT))
       .thenThrow(new IllegalArgumentException("Unsupported metric"));
 
     assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      MeasureHistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
+      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
       .isInstanceOf(ResponseStatusException.class)
       .hasMessageContaining("Unsupported metric");
   }
@@ -115,7 +116,7 @@ public class DefaultMeasuresHistoryControllerTest {
     ComponentDto portfolio = portfolio();
     when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(measuresHistoryService.queryMeasuresHistory(
-      ENTITY_ID, EntityType.PORTFOLIO, METRIC_KEYS, startDate.toInstant(), NOW))
+      ENTITY_ID, EntityType.PORTFOLIO, METRIC_KEYS, startDate.toInstant(), UTC_MIDNIGHT))
       .thenReturn(new org.sonarsource.history.model.MeasuresHistoryResponse(List.of()));
 
     ResponseEntity<MeasuresHistoryResponse> result = underTest.getMeasuresHistory(ENTITY_TYPE, ENTITY_ID, METRIC_KEYS, startDate, null);
@@ -124,7 +125,7 @@ public class DefaultMeasuresHistoryControllerTest {
     verify(componentDao).selectByUuid(dbSession, ENTITY_ID);
     verify(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
     verify(measuresHistoryService).queryMeasuresHistory(
-      ENTITY_ID, EntityType.PORTFOLIO, METRIC_KEYS, startDate.toInstant(), NOW);
+      ENTITY_ID, EntityType.PORTFOLIO, METRIC_KEYS, startDate.toInstant(), UTC_MIDNIGHT);
   }
 
   @Test
@@ -153,13 +154,13 @@ public class DefaultMeasuresHistoryControllerTest {
   }
 
   @Test
-  public void getMeasuresHistory_whenStartInstantIsAfterNow_shouldReject() {
+  public void getMeasuresHistory_whenStartInstantIsAfterUtcMidnight_shouldReject() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T23:30:00-02:00");
 
     assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      MeasureHistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
-      .isInstanceOf(ResponseStatusException.class)
-      .hasMessageContaining("must be less than or equal to the current date");
+      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("End date [null] must be greater than or equal to start date [2026-07-07T23:30-02:00].");
 
     verifyNoInteractions(measuresHistoryService);
   }
@@ -170,37 +171,24 @@ public class DefaultMeasuresHistoryControllerTest {
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-07T23:59:59Z");
 
     assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      MeasureHistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, endDate))
-      .isInstanceOf(ResponseStatusException.class)
-      .hasMessageContaining("must be greater than or equal to start date");
+      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, endDate))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("End date [2026-07-07T23:59:59Z] must be greater than or equal to start date [2026-07-08T00:00Z].");
 
     verifyNoInteractions(measuresHistoryService);
   }
 
   @Test
-  public void getMeasuresHistory_whenEndInstantIsAfterNow_shouldClampEndDateAndQueryHistory() {
+  public void getMeasuresHistory_whenEndInstantIsAfterNow_shouldReject() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
-    stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
-    org.sonarsource.history.model.MeasuresHistoryResponse response = new org.sonarsource.history.model.MeasuresHistoryResponse(
-      List.of(new org.sonarsource.history.model.MeasureHistoryItem(
-        Instant.parse("2026-07-08T00:00:00Z"),
-        List.of(new org.sonarsource.history.model.MeasureHistoryEntry("ncloc", "INT", "42")))));
-    when(measuresHistoryService.queryMeasuresHistory(
-      PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH, METRIC_KEYS,
-      startDate.toInstant(), NOW))
-        .thenReturn(response);
 
-    ResponseEntity<MeasuresHistoryResponse> result = underTest.getMeasuresHistory(
-      MeasureHistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, endDate);
+    assertThatThrownBy(() -> underTest.getMeasuresHistory(
+      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, endDate))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("End date 2026-07-09T00:00Z must be less than or equal to the current date.");
 
-    assertThat(result.getStatusCode()).isEqualTo(OK);
-    assertThat(result.getBody().getMeasuresHistory()).singleElement()
-      .satisfies(item -> assertThat(item.getMeasures()).singleElement()
-        .satisfies(measure -> assertThat(measure.getMetric()).isEqualTo("ncloc")));
-    verify(measuresHistoryService).queryMeasuresHistory(
-      PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH, METRIC_KEYS,
-      startDate.toInstant(), NOW);
+    verifyNoInteractions(measuresHistoryService);
   }
 
   @Test
@@ -215,7 +203,7 @@ public class DefaultMeasuresHistoryControllerTest {
         .thenReturn(response);
 
     ResponseEntity<MeasuresHistoryResponse> result = underTest.getMeasuresHistory(
-      MeasureHistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, endDate);
+      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, endDate);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     assertThat(result.getBody()).isNotNull();
@@ -225,8 +213,8 @@ public class DefaultMeasuresHistoryControllerTest {
   }
 
   @Test
-  public void getMeasuresHistory_whenRangeExceedsSixMonthsButIsWithinOneYear_shouldQueryHistory() {
-    OffsetDateTime startDate = OffsetDateTime.parse("2025-12-01T00:00:00Z");
+  public void getMeasuresHistory_whenRangeIsOlderThanOneYear_shouldQueryHistory() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2020-12-01T00:00:00Z");
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-01T00:00:00Z");
     stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
     org.sonarsource.history.model.MeasuresHistoryResponse response = mock();
@@ -236,7 +224,7 @@ public class DefaultMeasuresHistoryControllerTest {
         .thenReturn(response);
 
     ResponseEntity<MeasuresHistoryResponse> result = underTest.getMeasuresHistory(
-      MeasureHistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, endDate);
+      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, endDate);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     assertThat(result.getBody()).isNotNull();
@@ -253,11 +241,11 @@ public class DefaultMeasuresHistoryControllerTest {
     org.sonarsource.history.model.MeasuresHistoryResponse response = mock();
     when(measuresHistoryService.queryMeasuresHistory(
       PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH, METRIC_KEYS,
-      startDate.toInstant(), NOW))
+       startDate.toInstant(), UTC_MIDNIGHT))
       .thenReturn(response);
 
     ResponseEntity<MeasuresHistoryResponse> result = underTest.getMeasuresHistory(
-      MeasureHistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null);
+      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     assertThat(result.getBody()).isNotNull();
@@ -266,7 +254,27 @@ public class DefaultMeasuresHistoryControllerTest {
     verify(userSession).checkEntityPermission(ProjectPermission.USER, project);
     verify(measuresHistoryService).queryMeasuresHistory(
       PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH, METRIC_KEYS,
-      startDate.toInstant(), NOW);
+       startDate.toInstant(), UTC_MIDNIGHT);
+  }
+
+  @Test
+  public void getMeasuresHistory_whenApplicationBranchIsAuthorized_shouldQueryHistory() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ProjectDto application = project(PROJECT_UUID, ComponentQualifiers.APP);
+    stubProjectBranch(application);
+    org.sonarsource.history.model.MeasuresHistoryResponse response = mock();
+    when(measuresHistoryService.queryMeasuresHistory(
+      PROJECT_BRANCH_ID, EntityType.APPLICATION, METRIC_KEYS, startDate.toInstant(), UTC_MIDNIGHT))
+      .thenReturn(response);
+
+    ResponseEntity<MeasuresHistoryResponse> result = underTest.getMeasuresHistory(
+      HistoryEntityType.APPLICATION, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null);
+
+    assertThat(result.getStatusCode()).isEqualTo(OK);
+    verify(userSession).checkEntityPermission(ProjectPermission.USER, application);
+    verify(userSession).checkChildProjectsPermission(ProjectPermission.USER, application);
+    verify(measuresHistoryService).queryMeasuresHistory(
+      PROJECT_BRANCH_ID, EntityType.APPLICATION, METRIC_KEYS, startDate.toInstant(), UTC_MIDNIGHT);
   }
 
   @Test
@@ -278,7 +286,7 @@ public class DefaultMeasuresHistoryControllerTest {
       .when(userSession).checkEntityPermission(ProjectPermission.USER, project);
 
     assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      MeasureHistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
+      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
       .isInstanceOf(ForbiddenException.class);
 
     verifyNoInteractions(measuresHistoryService);
@@ -292,11 +300,11 @@ public class DefaultMeasuresHistoryControllerTest {
     org.sonarsource.history.model.MeasuresHistoryResponse mockResponse = mock();
     when(measuresHistoryService.queryMeasuresHistory(
       PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH, METRIC_KEYS,
-      startDate.toInstant(), NOW))
+       startDate.toInstant(), UTC_MIDNIGHT))
       .thenReturn(mockResponse);
 
     underTest.getMeasuresHistory(
-      MeasureHistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null);
+      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null);
 
     verify(projectDao).selectByUuid(dbSession, PROJECT_UUID);
     verify(userSession).checkEntityPermission(ProjectPermission.USER, application);
@@ -309,7 +317,7 @@ public class DefaultMeasuresHistoryControllerTest {
     when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      MeasureHistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
+      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
       .isInstanceOf(NotFoundException.class);
 
     verifyNoInteractions(projectDao, measuresHistoryService);
@@ -323,7 +331,7 @@ public class DefaultMeasuresHistoryControllerTest {
     when(projectDao.selectByUuid(dbSession, PROJECT_UUID)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      MeasureHistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
+      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
       .isInstanceOf(NotFoundException.class);
 
     verifyNoInteractions(measuresHistoryService);

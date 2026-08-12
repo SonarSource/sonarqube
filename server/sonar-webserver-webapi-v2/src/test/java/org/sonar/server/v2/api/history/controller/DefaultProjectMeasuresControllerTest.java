@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
+import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.model.Pagination;
 import org.sonarsource.history.model.ProjectBranch;
 import org.sonarsource.history.model.ProjectMeasuresResponse;
@@ -57,10 +58,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class DefaultProjectMeasuresControllerTest {
 
   private static final String PORTFOLIO_ID = "portfolio-uuid";
-  private static final String APPLICATION_BRANCH_ID = "application-branch-uuid";
   private static final String BRANCH_ID = "branch-1";
   private static final String METRIC_KEY = "coverage";
   private static final Instant NOW = Instant.parse("2026-07-08T01:00:00Z");
+  private static final OffsetDateTime VALID_REFERENCE_DATE = OffsetDateTime.parse("2026-07-07T00:00:00Z");
   private static final List<String> SORT = List.of("-measure.currentValue");
   private static final ProjectCollectionContext CONTEXT = new ProjectCollectionContext(
     List.of(new ProjectBranch(BRANCH_ID, "main", "alpha", "Alpha")), Set.of(BRANCH_ID));
@@ -114,21 +115,37 @@ public class DefaultProjectMeasuresControllerTest {
   }
 
   @Test
-  public void getProjectMeasuresSupportsMissingReferenceDate() {
+  public void getProjectMeasuresSupportsApplicationSelector() {
+    OffsetDateTime referenceDate = VALID_REFERENCE_DATE;
     when(metricDao.selectByKey(dbSession, METRIC_KEY)).thenReturn(new MetricDto().setKey(METRIC_KEY).setValueType("PERCENT"));
-    when(contextLoader.load(dbSession, "APPLICATION", APPLICATION_BRANCH_ID)).thenReturn(CONTEXT);
+    when(contextLoader.load(dbSession, ProjectCollectionHistoryEntityType.APPLICATION, "application-branch-uuid")).thenReturn(CONTEXT);
+    var serviceResponse = new ProjectMeasuresResponse(0, new Pagination(1, 50, 0), List.of());
+    when(projectMeasuresService.queryProjectMeasures(
+      CONTEXT.branches(), CONTEXT.visibleBranchIds(), METRIC_KEY, "PERCENT", null, null,
+      1, 50, referenceDate.toInstant(), SORT, false)).thenReturn(serviceResponse);
+
+    var response = underTest.getProjectMeasures(
+      METRIC_KEY, null, null, 1, 50, null, ProjectCollectionHistoryEntityType.APPLICATION, "application-branch-uuid",
+      referenceDate, SORT, false);
+
+    assertThat(response.getStatusCode()).isEqualTo(OK);
+    verify(contextLoader).load(dbSession, ProjectCollectionHistoryEntityType.APPLICATION, "application-branch-uuid");
+  }
+
+  @Test
+  public void getProjectMeasuresAcceptsNullReferenceDateAndForwardsNull() {
+    when(metricDao.selectByKey(dbSession, METRIC_KEY)).thenReturn(new MetricDto().setKey(METRIC_KEY).setValueType("PERCENT"));
+    when(contextLoader.load(dbSession, PORTFOLIO_ID)).thenReturn(CONTEXT);
     var serviceResponse = new ProjectMeasuresResponse(0, new Pagination(1, 50, 0), List.of());
     when(projectMeasuresService.queryProjectMeasures(
       CONTEXT.branches(), CONTEXT.visibleBranchIds(), METRIC_KEY, "PERCENT", null, null,
       1, 50, null, SORT, false))
-        .thenReturn(serviceResponse);
+      .thenReturn(serviceResponse);
 
     var response = underTest.getProjectMeasures(
-      METRIC_KEY, null, null, 1, 50, null, "APPLICATION", APPLICATION_BRANCH_ID, null, SORT, false);
+      METRIC_KEY, null, null, 1, 50, PORTFOLIO_ID, null, null, null, SORT, false);
 
     assertThat(response.getStatusCode()).isEqualTo(OK);
-    assertThat(response.getBody().getProjectMeasures()).isEmpty();
-    verify(contextLoader).load(dbSession, "APPLICATION", APPLICATION_BRANCH_ID);
     verify(projectMeasuresService).queryProjectMeasures(
       CONTEXT.branches(), CONTEXT.visibleBranchIds(), METRIC_KEY, "PERCENT", null, null,
       1, 50, null, SORT, false);
@@ -139,7 +156,7 @@ public class DefaultProjectMeasuresControllerTest {
     when(metricDao.selectByKey(dbSession, METRIC_KEY)).thenReturn(null);
 
     assertThatThrownBy(() -> underTest.getProjectMeasures(
-      METRIC_KEY, null, null, 1, 50, PORTFOLIO_ID, null, null, null, SORT, false))
+      METRIC_KEY, null, null, 1, 50, PORTFOLIO_ID, null, null, VALID_REFERENCE_DATE, SORT, false))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Metric with key %s not found", METRIC_KEY);
 
@@ -148,37 +165,58 @@ public class DefaultProjectMeasuresControllerTest {
   }
 
   @Test
-  public void getProjectMeasuresRejectsReferenceDateOnCurrentDayBeforeLoadingContext() {
+  public void getProjectMeasuresRejectsFutureReferenceDateBeforeLoadingContext() {
+    OffsetDateTime referenceDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
+
+    assertThatThrownBy(() -> underTest.getProjectMeasures(
+      METRIC_KEY, null, null, 1, 50, PORTFOLIO_ID, null, null, referenceDate,
+      SORT, false))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("referenceDate 2026-07-09T00:00:00Z must be before the current date");
+
+    verifyNoInteractions(contextLoader, projectMeasuresService);
+    verify(dbClient, never()).openSession(false);
+  }
+
+  @Test
+  public void getProjectMeasuresRejectsCurrentMidnightReferenceDateBeforeLoadingContext() {
     OffsetDateTime referenceDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
 
     assertThatThrownBy(() -> underTest.getProjectMeasures(
       METRIC_KEY, null, null, 1, 50, PORTFOLIO_ID, null, null, referenceDate,
       SORT, false))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("must be before the current date");
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("referenceDate 2026-07-08T00:00:00Z must be before the current date");
 
     verifyNoInteractions(contextLoader, projectMeasuresService);
     verify(dbClient, never()).openSession(false);
   }
 
   @Test
-  public void getProjectMeasuresRejectsReferenceDateOlderThanOneYearBeforeLoadingContext() {
-    OffsetDateTime referenceDate = OffsetDateTime.parse("2025-07-07T23:59:59Z");
+  public void getProjectMeasuresAcceptsReferenceDateOlderThanOneYear() {
+    OffsetDateTime referenceDate = OffsetDateTime.parse("2020-07-07T23:59:59Z");
+    when(metricDao.selectByKey(dbSession, METRIC_KEY)).thenReturn(new MetricDto().setKey(METRIC_KEY).setValueType("PERCENT"));
+    when(contextLoader.load(dbSession, PORTFOLIO_ID)).thenReturn(CONTEXT);
+    var serviceResponse = new ProjectMeasuresResponse(0, new Pagination(1, 50, 0), List.of());
+    when(projectMeasuresService.queryProjectMeasures(
+      CONTEXT.branches(), CONTEXT.visibleBranchIds(), METRIC_KEY, "PERCENT", null, null,
+      1, 50, referenceDate.toInstant(), SORT, false))
+      .thenReturn(serviceResponse);
 
-    assertThatThrownBy(() -> underTest.getProjectMeasures(
+    var response = underTest.getProjectMeasures(
       METRIC_KEY, null, null, 1, 50, PORTFOLIO_ID, null, null, referenceDate,
-      SORT, false))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("cannot be more than 1 year in the past");
+      SORT, false);
 
-    verifyNoInteractions(contextLoader, projectMeasuresService);
-    verify(dbClient, never()).openSession(false);
+    assertThat(response.getStatusCode()).isEqualTo(OK);
+    verify(projectMeasuresService).queryProjectMeasures(
+      CONTEXT.branches(), CONTEXT.visibleBranchIds(), METRIC_KEY, "PERCENT", null, null,
+      1, 50, referenceDate.toInstant(), SORT, false);
   }
 
   @Test
   public void getProjectMeasuresRejectsInvalidSelectorBeforeOpeningSession() {
     assertThatThrownBy(() -> underTest.getProjectMeasures(
-      METRIC_KEY, null, null, 1, 50, null, null, null, null,
+      METRIC_KEY, null, null, 1, 50, null, null, null, VALID_REFERENCE_DATE,
       SORT, false))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Either portfolioId or both entityType and entityId must be provided");
@@ -197,7 +235,8 @@ public class DefaultProjectMeasuresControllerTest {
       .queryParam("metricKey", METRIC_KEY)
       .queryParam("portfolioId", PORTFOLIO_ID)
       .queryParam("entityType", "PORTFOLIO")
-      .queryParam("entityId", PORTFOLIO_ID))
+      .queryParam("entityId", PORTFOLIO_ID)
+      .queryParam("referenceDate", "2026-07-07T00:00:00Z"))
       .andExpect(status().isBadRequest());
   }
 }

@@ -27,7 +27,10 @@ import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.security.RequireAuthentication;
+import org.sonarsource.history.HistoryDateRange;
+import org.sonarsource.history.api.HistoryControllerUtils;
 import org.sonarsource.history.api.mapper.HistoryModelConverter;
+import org.sonarsource.history.api.model.HistoryEntityType;
 import org.sonarsource.history.api.model.IssueCountDistributionType;
 import org.sonarsource.history.api.model.IssueCountHistoryResponse;
 import org.sonarsource.history.api.model.IssueCountStatus;
@@ -69,7 +72,7 @@ public class DefaultIssueCountHistoryController implements IssueCountHistoryApi 
   @Override
   public ResponseEntity<IssueCountHistoryResponse> getIssueCountHistory(
     String entityId,
-    String entityType,
+    HistoryEntityType entityType,
     OffsetDateTime startDate,
     @Nullable OffsetDateTime endDate,
     @Nullable List<String> impacts,
@@ -81,9 +84,9 @@ public class DefaultIssueCountHistoryController implements IssueCountHistoryApi 
     LOG.debug("getIssueCountHistory invoked: entityId={}, entityType={}, startDate={}, endDate={}, sliceBy={}, impacts={}, issueTypes={}, ruleKeys={}, severities={}, statuses={}",
       entityId, entityType, startDate, endDate, sliceBy, impacts, issueTypes, ruleKeys, severities, statuses);
 
-    EntityType entityTypeEnum = HistoryControllerUtils.assertValidEntityType(entityType);
-    HistoryControllerUtils.HistoryDateRange dateRange = HistoryControllerUtils.assertValidDateRange(clock, startDate, endDate);
-    HistoryControllerUtils.assertUserHasPermission(userSession, dbClient, entityId, entityTypeEnum);
+    EntityType entityTypeEnum = HistoryControllerUtils.ensureValidEntityType(entityType);
+    HistoryDateRange dateRange = HistoryControllerUtils.ensureValidDateRange(startDate, endDate, clock);
+    HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, entityId, entityTypeEnum);
 
     try {
       return ResponseEntity.ok(HistoryModelConverter.toApiIssueCountHistoryResponse(issueHistoryService.queryIssueCountHistory(

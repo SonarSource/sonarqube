@@ -19,10 +19,6 @@
  */
 package org.sonar.server.v2.api.history.controller;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,30 +34,24 @@ import org.sonar.db.project.ProjectDao;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-import org.sonarsource.history.HistoryDateRangeException;
 import org.sonarsource.history.model.EntityType;
-import org.springframework.web.server.ResponseStatusException;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-public class HistoryControllerUtilsTest {
+public class HistoryAuthUtilsTest {
 
   private static final String PROJECT_BRANCH_ID = "branch-1";
   private static final String PROJECT_UUID = "project-1";
-  private static final Instant NOW = Instant.parse("2026-07-08T01:00:00Z");
-
   private final UserSession userSession = mock();
   private final DbClient dbClient = mock();
   private final DbSession dbSession = mock();
   private final BranchDao branchDao = mock();
   private final ComponentDao componentDao = mock();
   private final ProjectDao projectDao = mock();
-  private final Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
 
   @Before
   public void setUp() {
@@ -79,7 +69,7 @@ public class HistoryControllerUtilsTest {
       .setQualifier(ComponentQualifiers.VIEW);
     when(componentDao.selectByUuid(dbSession, "portfolio-1")).thenReturn(Optional.of(portfolio));
 
-    HistoryControllerUtils.assertUserHasPermission(userSession, dbClient, "portfolio-1", EntityType.PORTFOLIO);
+    HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, "portfolio-1", EntityType.PORTFOLIO);
 
     verify(componentDao).selectByUuid(dbSession, "portfolio-1");
     verify(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
@@ -90,7 +80,7 @@ public class HistoryControllerUtilsTest {
   public void assertUserHasPermission_whenPortfolioIsMissing_shouldReturnNotFound() {
     when(componentDao.selectByUuid(dbSession, "portfolio-1")).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> HistoryControllerUtils.assertUserHasPermission(userSession, dbClient, "portfolio-1", EntityType.PORTFOLIO))
+    assertThatThrownBy(() -> HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, "portfolio-1", EntityType.PORTFOLIO))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Portfolio with uuid 'portfolio-1' not found");
 
@@ -105,7 +95,7 @@ public class HistoryControllerUtilsTest {
       .thenReturn(Optional.of(new BranchDto().setUuid(PROJECT_BRANCH_ID).setProjectUuid(PROJECT_UUID)));
     when(projectDao.selectByUuid(dbSession, PROJECT_UUID)).thenReturn(Optional.of(application));
 
-    HistoryControllerUtils.assertUserHasPermission(userSession, dbClient, PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH);
+    HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH);
 
     verify(userSession).checkEntityPermission(ProjectPermission.USER, application);
     verify(userSession).checkChildProjectsPermission(ProjectPermission.USER, application);
@@ -113,10 +103,40 @@ public class HistoryControllerUtilsTest {
   }
 
   @Test
+  public void assertUserHasPermission_whenApplicationBranchIsAuthorized_shouldAssertApplicationAndChildPermissions() {
+    ProjectDto application = project(PROJECT_UUID, ComponentQualifiers.APP);
+    when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID))
+      .thenReturn(Optional.of(new BranchDto().setUuid(PROJECT_BRANCH_ID).setProjectUuid(PROJECT_UUID)));
+    when(projectDao.selectByUuid(dbSession, PROJECT_UUID)).thenReturn(Optional.of(application));
+
+    HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, PROJECT_BRANCH_ID, EntityType.APPLICATION);
+
+    verify(userSession).checkEntityPermission(ProjectPermission.USER, application);
+    verify(userSession).checkChildProjectsPermission(ProjectPermission.USER, application);
+    verify(dbSession).close();
+  }
+
+  @Test
+  public void assertUserHasPermission_whenApplicationBranchDoesNotBelongToApplication_shouldReturnNotFound() {
+    ProjectDto project = project(PROJECT_UUID, ComponentQualifiers.PROJECT);
+    when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID))
+      .thenReturn(Optional.of(new BranchDto().setUuid(PROJECT_BRANCH_ID).setProjectUuid(PROJECT_UUID)));
+    when(projectDao.selectByUuid(dbSession, PROJECT_UUID)).thenReturn(Optional.of(project));
+
+    assertThatThrownBy(() -> HistoryAuthUtils.assertUserHasPermission(
+      userSession, dbClient, PROJECT_BRANCH_ID, EntityType.APPLICATION))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Portfolio or application branch 'branch-1' not found");
+
+    verifyNoInteractions(userSession);
+    verify(dbSession).close();
+  }
+
+  @Test
   public void assertUserHasPermission_whenProjectBranchIsMissing_shouldReturnNotFound() {
     when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> HistoryControllerUtils.assertUserHasPermission(userSession, dbClient, PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH))
+    assertThatThrownBy(() -> HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Project branch with uuid 'branch-1' not found");
 
@@ -129,72 +149,11 @@ public class HistoryControllerUtilsTest {
       .thenReturn(Optional.of(new BranchDto().setUuid(PROJECT_BRANCH_ID).setProjectUuid(PROJECT_UUID)));
     when(projectDao.selectByUuid(dbSession, PROJECT_UUID)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> HistoryControllerUtils.assertUserHasPermission(userSession, dbClient, PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH))
+    assertThatThrownBy(() -> HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Project with uuid 'project-1' not found");
 
     verify(dbSession).close();
-  }
-
-  @Test
-  public void assertValidDateRange_whenEndDateIsNull_shouldUseCurrentInstant() {
-    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-
-    HistoryControllerUtils.HistoryDateRange result = HistoryControllerUtils.assertValidDateRange(clock, startDate, null);
-
-    assertThat(result.start()).isEqualTo(startDate.toInstant());
-    assertThat(result.end()).isEqualTo(NOW);
-  }
-
-  @Test
-  public void assertValidDateRange_whenEndDateIsInTheFuture_shouldClampToCurrentInstant() {
-    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
-    OffsetDateTime endDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
-
-    HistoryControllerUtils.HistoryDateRange result = HistoryControllerUtils.assertValidDateRange(clock, startDate, endDate);
-
-    assertThat(result.start()).isEqualTo(startDate.toInstant());
-    assertThat(result.end()).isEqualTo(NOW);
-  }
-
-  @Test
-  public void assertValidDateRange_whenStartDateIsInTheFuture_shouldReject() {
-    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T23:30:00-02:00");
-
-    assertThatThrownBy(() -> HistoryControllerUtils.assertValidDateRange(clock, startDate, null))
-      .hasMessageContaining("must be less than or equal to the current date");
-  }
-
-  @Test
-  public void assertValidEntityType_whenEntityTypeIsValid_shouldReturnEntityType() {
-    assertThat(HistoryControllerUtils.assertValidEntityType("PORTFOLIO")).isEqualTo(EntityType.PORTFOLIO);
-  }
-
-  @Test
-  public void assertValidEntityType_whenEntityTypeIsInvalid_shouldReturnBadRequestWithCause() {
-    assertThatThrownBy(() -> HistoryControllerUtils.assertValidEntityType("INVALID"))
-      .isInstanceOf(ResponseStatusException.class)
-      .hasMessageContaining("entityType must be one of: ")
-      .hasCauseInstanceOf(IllegalArgumentException.class)
-      .satisfies(exception -> {
-        ResponseStatusException responseStatusException = (ResponseStatusException) exception;
-        assertThat(responseStatusException.getCause()).isExactlyInstanceOf(IllegalArgumentException.class);
-      });
-
-    verifyNoInteractions(dbClient, userSession);
-  }
-
-  @Test
-  public void assertValidDateRange_whenDateRangeIsInvalid_shouldReturnBadRequestWithCause() {
-    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
-    OffsetDateTime endDate = OffsetDateTime.parse("2026-07-07T23:59:59Z");
-
-    assertThatThrownBy(() -> HistoryControllerUtils.assertValidDateRange(clock, startDate, endDate))
-      .isInstanceOf(ResponseStatusException.class)
-      .hasMessageContaining("must be greater than or equal to start date")
-      .hasCauseInstanceOf(HistoryDateRangeException.class);
-
-    verifyNoInteractions(dbClient, userSession);
   }
 
   private static ProjectDto project(String uuid, String qualifier) {

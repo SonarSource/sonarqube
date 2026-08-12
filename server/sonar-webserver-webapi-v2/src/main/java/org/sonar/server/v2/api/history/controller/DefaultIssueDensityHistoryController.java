@@ -28,12 +28,15 @@ import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.security.RequireAuthentication;
+import org.sonarsource.history.HistoryDateRange;
+import org.sonarsource.history.api.HistoryControllerUtils;
 import org.sonarsource.history.api.mapper.HistoryModelConverter;
 import org.sonarsource.history.api.model.IssueCountDistributionType;
 import org.sonarsource.history.api.model.IssueDensityHistoryResponse;
 import org.sonarsource.history.api.model.IssueCountStatus;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
+import org.sonarsource.history.api.model.HistoryEntityType;
 import org.sonarsource.history.api.rest.IssueDensityHistoryApi;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.server.service.IssueCountHistoryService;
@@ -71,7 +74,7 @@ public class DefaultIssueDensityHistoryController implements IssueDensityHistory
   @Override
   public ResponseEntity<IssueDensityHistoryResponse> getIssueDensityHistory(
       String entityId,
-      String entityType,
+      HistoryEntityType entityType,
       OffsetDateTime startDate,
       @Nullable OffsetDateTime endDate,
       @Nullable List<String> impacts,
@@ -83,9 +86,9 @@ public class DefaultIssueDensityHistoryController implements IssueDensityHistory
     LOG.debug("getIssueDensityHistory invoked: entityId={}, entityType={}, startDate={}, endDate={}, filters=[{}]",
       entityId, entityType, startDate, endDate, Arrays.asList(sliceBy, impacts, issueTypes, ruleKeys, severities, statuses));
 
-    EntityType entityTypeEnum = HistoryControllerUtils.assertValidEntityType(entityType);
-    HistoryControllerUtils.HistoryDateRange dateRange = HistoryControllerUtils.assertValidDateRange(clock, startDate, endDate);
-    HistoryControllerUtils.assertUserHasPermission(userSession, dbClient, entityId, entityTypeEnum);
+    EntityType entityTypeEnum = HistoryControllerUtils.ensureValidEntityType(entityType);
+    HistoryDateRange dateRange = HistoryControllerUtils.ensureValidDateRange(startDate, endDate, clock);
+    HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, entityId, entityTypeEnum);
 
     try {
       return ResponseEntity.ok(

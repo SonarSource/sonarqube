@@ -28,6 +28,7 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.ServerUserSession;
+import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.model.ProjectBranch;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -114,7 +115,7 @@ class ProjectCollectionContextLoaderIT {
   @Test
   void loadApplicationReturnsOnlyProjectsBelongingToThatApplication() {
     ProjectCollectionContext applicationContext = underTest.load(
-      db.getSession(), "APPLICATION", nestedApplication.getMainBranchDto().getUuid());
+      db.getSession(), ProjectCollectionHistoryEntityType.APPLICATION, nestedApplication.getMainBranchDto().getUuid());
 
     assertThat(applicationContext.branches())
       .extracting(ProjectBranch::branchId)
@@ -128,8 +129,8 @@ class ProjectCollectionContextLoaderIT {
 
   @Test
   void loadSelectedSubportfolioReturnsOnlyProjectsWithinItsNestedHierarchy() {
-    ProjectCollectionContext childContext = underTest.load(db.getSession(), "PORTFOLIO", childWithProject.uuid());
-    ProjectCollectionContext grandchildContext = underTest.load(db.getSession(), "PORTFOLIO", grandchildWithoutDirectProjects.uuid());
+    ProjectCollectionContext childContext = underTest.load(db.getSession(), ProjectCollectionHistoryEntityType.PORTFOLIO, childWithProject.uuid());
+    ProjectCollectionContext grandchildContext = underTest.load(db.getSession(), ProjectCollectionHistoryEntityType.PORTFOLIO, grandchildWithoutDirectProjects.uuid());
 
     assertThat(childContext.branches())
       .extracting(ProjectBranch::branchId)
@@ -147,8 +148,8 @@ class ProjectCollectionContextLoaderIT {
 
   @Test
   void loadSubportfolioWithoutProjectsReturnsAnEmptyFlatList() {
-    ProjectCollectionContext emptyChildContext = underTest.load(db.getSession(), "PORTFOLIO", emptyChild.uuid());
-    ProjectCollectionContext emptyGrandchildContext = underTest.load(db.getSession(), "PORTFOLIO", emptyGrandchild.uuid());
+    ProjectCollectionContext emptyChildContext = underTest.load(db.getSession(), ProjectCollectionHistoryEntityType.PORTFOLIO, emptyChild.uuid());
+    ProjectCollectionContext emptyGrandchildContext = underTest.load(db.getSession(), ProjectCollectionHistoryEntityType.PORTFOLIO, emptyGrandchild.uuid());
 
     assertThat(emptyChildContext.branches()).isEmpty();
     assertThat(emptyGrandchildContext.branches()).isEmpty();

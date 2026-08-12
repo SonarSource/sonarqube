@@ -26,7 +26,9 @@ import java.util.Objects;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.v2.security.RequireAuthentication;
+import org.sonarsource.history.api.ProjectBreakdownRequestValidator;
 import org.sonarsource.history.api.mapper.HistoryModelConverter;
+import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.api.model.IssueCountStatus;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
@@ -66,7 +68,7 @@ public class DefaultProjectIssueCountsController implements ProjectIssueCountsAp
   @Override
   public ResponseEntity<ProjectIssueCountsResponse> getProjectIssueCounts(
     @Nullable String portfolioId,
-    @Nullable String entityType,
+    @Nullable ProjectCollectionHistoryEntityType entityType,
     @Nullable String entityId,
     @Nullable List<String> ruleKeys,
     @Nullable List<IssueSeverity> severities,

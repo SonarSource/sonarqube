@@ -29,11 +29,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDao;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.ProjectPermission;
+import org.sonar.db.project.ProjectDao;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
+import org.sonarsource.history.api.model.HistoryEntityType;
 import org.sonarsource.history.api.model.IssueCountDistributionType;
 import org.sonarsource.history.api.model.IssueDensityHistoryResponse;
 import org.sonarsource.history.model.EntityType;
@@ -42,7 +47,6 @@ import org.sonarsource.history.model.IssueDensityDistribution;
 import org.sonarsource.history.model.IssueDensityHistoryPoint;
 import org.sonarsource.history.server.service.IssueCountHistoryService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -61,14 +65,56 @@ public class DefaultIssueDensityHistoryControllerTest {
   private final UserSession userSession = mock();
   private final DbClient dbClient = mock();
   private final DbSession dbSession = mock();
+  private final BranchDao branchDao = mock();
   private final ComponentDao componentDao = mock();
+  private final ProjectDao projectDao = mock();
   private final DefaultIssueDensityHistoryController underTest = new DefaultIssueDensityHistoryController(
     userSession, dbClient, issueHistoryService, Clock.fixed(NOW, ZoneOffset.UTC));
 
   @Before
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.branchDao()).thenReturn(branchDao);
     when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.projectDao()).thenReturn(projectDao);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenStartInstantIsAfterUtcMidnight_shouldReject() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T23:30:00-02:00");
+
+    assertThatThrownBy(() -> underTest.getIssueDensityHistory(
+      ENTITY_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("End date [null] must be greater than or equal to start date [2026-07-07T23:30-02:00].");
+
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenEndInstantIsAfterNow_shouldReject() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    OffsetDateTime endDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
+
+    assertThatThrownBy(() -> underTest.getIssueDensityHistory(
+      ENTITY_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("End date 2026-07-09T00:00Z must be less than or equal to the current date.");
+
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenEndInstantIsBeforeStartInstant_shouldReject() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
+    OffsetDateTime endDate = OffsetDateTime.parse("2026-07-07T23:59:59Z");
+
+    assertThatThrownBy(() -> underTest.getIssueDensityHistory(
+      ENTITY_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("End date [2026-07-07T23:59:59Z] must be greater than or equal to start date [2026-07-08T00:00Z].");
+
+    verifyNoInteractions(issueHistoryService);
   }
 
   @Test
@@ -89,7 +135,7 @@ public class DefaultIssueDensityHistoryControllerTest {
           List.of(new IssueDensityDistribution("all", null))))));
 
     ResponseEntity<IssueDensityHistoryResponse> result = underTest.getIssueDensityHistory(
-      ENTITY_ID, "PORTFOLIO", startDate, endDate, null, null, null, null, IssueCountDistributionType.STATUS, null);
+      ENTITY_ID, HistoryEntityType.PORTFOLIO, startDate, endDate, null, null, null, null, IssueCountDistributionType.STATUS, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     assertThat(result.getBody().getIssueDensityHistory()).singleElement()
@@ -102,14 +148,28 @@ public class DefaultIssueDensityHistoryControllerTest {
   }
 
   @Test
-  public void getIssueDensityHistory_whenEntityTypeIsInvalid_shouldRejectWithoutQueryingService() {
+  public void getIssueDensityHistory_whenApplicationBranchIsAuthorized_shouldQueryHistory() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    OffsetDateTime endDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
+    ProjectDto application = new ProjectDto().setUuid("application-uuid").setQualifier(ComponentQualifiers.APP);
+    when(branchDao.selectByUuid(dbSession, ENTITY_ID))
+      .thenReturn(Optional.of(new BranchDto().setUuid(ENTITY_ID).setProjectUuid(application.getUuid())));
+    when(projectDao.selectByUuid(dbSession, application.getUuid())).thenReturn(Optional.of(application));
+    when(issueHistoryService.queryIssueDensityHistory(
+      ENTITY_ID, EntityType.APPLICATION, startDate.toInstant(), endDate.toInstant(),
+      null, null, null, null, null, IssueCountDistribution.STATUS))
+      .thenReturn(new org.sonarsource.history.model.IssueDensityHistoryResponse(List.of()));
 
-    assertThatThrownBy(() -> underTest.getIssueDensityHistory(
-      ENTITY_ID, "INVALID", startDate, null, null, null, null, null, null, null))
-      .isInstanceOf(ResponseStatusException.class)
-      .hasMessageContaining("entityType must be one of");
+    ResponseEntity<IssueDensityHistoryResponse> result = underTest.getIssueDensityHistory(
+      ENTITY_ID, HistoryEntityType.APPLICATION, startDate, endDate, null, null, null, null,
+      IssueCountDistributionType.STATUS, null);
 
-    verifyNoInteractions(issueHistoryService);
+    assertThat(result.getStatusCode()).isEqualTo(OK);
+    verify(userSession).checkEntityPermission(ProjectPermission.USER, application);
+    verify(userSession).checkChildProjectsPermission(ProjectPermission.USER, application);
+    verify(issueHistoryService).queryIssueDensityHistory(
+      ENTITY_ID, EntityType.APPLICATION, startDate.toInstant(), endDate.toInstant(),
+      null, null, null, null, null, IssueCountDistribution.STATUS);
   }
+
 }

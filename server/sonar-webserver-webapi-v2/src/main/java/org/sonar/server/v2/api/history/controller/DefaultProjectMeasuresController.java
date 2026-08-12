@@ -27,7 +27,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.v2.security.RequireAuthentication;
+import org.sonarsource.history.api.ProjectBreakdownRequestValidator;
 import org.sonarsource.history.api.mapper.HistoryModelConverter;
+import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.api.model.ProjectMeasuresResponse;
 import org.sonarsource.history.api.rest.ProjectMeasuresApi;
 import org.sonarsource.history.server.service.ProjectMeasuresService;
@@ -68,7 +70,7 @@ public class DefaultProjectMeasuresController implements ProjectMeasuresApi {
     Integer pageIndex,
     Integer pageSize,
     @Nullable String portfolioId,
-    @Nullable String entityType,
+    @Nullable ProjectCollectionHistoryEntityType entityType,
     @Nullable String entityId,
     @Nullable OffsetDateTime referenceDate,
     List<String> sort,
