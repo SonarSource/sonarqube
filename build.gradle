@@ -628,6 +628,7 @@ subprojects {
           exclude 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
         }
       }
+      imports { mavenBom 'org.testcontainers:testcontainers-bom:1.21.4' }
       dependency "com.sonarsource.pdfreport:portfolio-report-pdf-generation:${pdfreportVersion}"
       dependency "com.sonarsource.pdfreport:regulatory-report-pdf-generation:${pdfreportVersion}"
       dependency "com.sonarsource.pdfreport:security-report-pdf-generation:${pdfreportVersion}"
