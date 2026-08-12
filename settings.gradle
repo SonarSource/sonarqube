@@ -112,7 +112,17 @@ def useLocalUnificationModule = { String propName, String subPath, List<String> 
 
 useLocalUnificationModule('useLocalOrg', 'organizations', ['organizations-api', 'organizations-server-app'])
 useLocalUnificationModule('useLocalProjects', 'projects', ['projects-api', 'projects-server-app'])
-useLocalUnificationModule('useLocalEntitlements', 'billing/entitlements', ['entitlements-api'])
+useLocalUnificationModule('useLocalEntitlements', 'billing/entitlements',
+  ['entitlements-api', 'entitlements-server-app', 'entitlements-server-license'], [
+    groups: [
+      'entitlements-server-app': 'com.sonarsource.sonarqube',
+      'entitlements-server-license': 'com.sonarsource.sonarqube',
+    ],
+    projectPaths: [
+      'entitlements-server-app': ':private:entitlements-server-app',
+      'entitlements-server-license': ':private:entitlements-server-license',
+    ],
+  ])
 useLocalUnificationModule('useLocalConsumption', 'billing/consumption', ['consumption-api', 'consumption-server-app'], [
   groups: ['consumption-server-app': 'com.sonarsource.sonarqube'],
   projectPaths: ['consumption-server-app': ':private:consumption-server-app'],
