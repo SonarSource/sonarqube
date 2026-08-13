@@ -21,7 +21,6 @@ package org.sonar.db.jira;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
@@ -53,7 +52,6 @@ class JiraSelectedWorkTypeDaoTest {
   }
 
   @Test
-  @Disabled("SONAR-31444: Oracle ORA-00933 on multi-row INSERT ... VALUES in JiraSelectedWorkTypeMapper.saveAll")
   void findByJiraProjectBindingId_shouldReturnOnlyMatchingBinding() {
     when(system2.now()).thenReturn(1000L);
     when(uuidFactory.create()).thenReturn("uuid-1", "uuid-2", "uuid-3");
@@ -91,7 +89,6 @@ class JiraSelectedWorkTypeDaoTest {
   }
 
   @Test
-  @Disabled("SONAR-31444: Oracle ORA-00933 on multi-row INSERT ... VALUES in JiraSelectedWorkTypeMapper.saveAll")
   void deleteByJiraProjectBindingId_shouldDeleteAllWorkTypes_forBinding() {
     when(system2.now()).thenReturn(1000L);
     when(uuidFactory.create()).thenReturn("uuid-10", "uuid-20", "uuid-30");
@@ -116,7 +113,6 @@ class JiraSelectedWorkTypeDaoTest {
   }
 
   @Test
-  @Disabled("SONAR-31444: Oracle ORA-00933 on multi-row INSERT ... VALUES in JiraSelectedWorkTypeMapper.saveAll")
   void saveAll_shouldSaveAllWorkTypes() {
     assertThat(underTest.findByJiraProjectBindingId(db.getSession(), "binding-1")).isEmpty();
 

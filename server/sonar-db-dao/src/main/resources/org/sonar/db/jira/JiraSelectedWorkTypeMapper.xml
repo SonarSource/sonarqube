@@ -45,4 +45,26 @@
     </foreach>
   </insert>
 
+  <insert id="saveAll" parameterType="list" databaseId="oracle">
+    INSERT ALL
+    <foreach collection="list" item="workType">
+      INTO jira_selected_work_types
+      (
+        id,
+        jira_project_binding_id,
+        work_type_id,
+        created_at,
+        updated_at
+      )
+      VALUES (
+        #{workType.id, jdbcType=VARCHAR},
+        #{workType.jiraProjectBindingId, jdbcType=VARCHAR},
+        #{workType.workTypeId, jdbcType=VARCHAR},
+        #{workType.createdAt, jdbcType=BIGINT},
+        #{workType.updatedAt, jdbcType=BIGINT}
+      )
+    </foreach>
+    SELECT * FROM dual
+  </insert>
+
 </mapper>
