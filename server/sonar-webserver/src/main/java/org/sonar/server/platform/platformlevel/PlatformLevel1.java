@@ -41,6 +41,7 @@ import org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments;
 import org.sonarsource.measures.server.MeasuresServerPlatformLevel1Module;
 import org.sonarsource.metrics.server.bean.MetricsServerPlatformLevel1Module;
 import org.sonarsource.history.server.bean.HistoryServerPlatformLevel1Module;
+import org.sonarsource.projects.server.bean.ProjectsServerPlatformLevel1Module;
 import org.sonarsource.users.server.bean.UsersServerPlatformLevel1Module;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.DefaultMyBatis;
@@ -162,6 +163,8 @@ public class PlatformLevel1 extends PlatformLevel {
     addAll(MetricsServerPlatformLevel1Module.components());
     // measures
     addAll(MeasuresServerPlatformLevel1Module.components());
+    // projects
+    addAll(ProjectsServerPlatformLevel1Module.components());
     // cluster
     add(DefaultNodeInformation.class);
 
