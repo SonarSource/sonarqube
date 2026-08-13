@@ -16,11 +16,14 @@ dependencies {
     api 'org.springframework.security:spring-security-config'
     api 'org.springframework.security:spring-security-web'
 
+    api project(':server:sonar-alm-client')
+    api project(':server:sonar-auth-github')
     api project(':server:sonar-db-dao')
     api project(':server:sonar-webserver-monitoring')
     implementation 'org.sonarsource.sonarqube:history-api'
     implementation 'org.sonarsource.sonarqube:history-core'
     implementation 'org.sonarsource.sonarqube:history-server-app'
+    api 'org.sonarsource.sonarqube:onboarding-unified-app'
     api 'org.sonarsource.sonarqube:sonar-spring'
     api project(':server:sonar-webserver-common')
 

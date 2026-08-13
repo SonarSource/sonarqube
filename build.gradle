@@ -416,6 +416,10 @@ subprojects {
       dependency "org.sonarsource.sonarqube:projects-server-app:$projectsApiVersion"
       dependency "org.sonarsource.sonarqube:enterprises-api:$enterprisesApiVersion"
       dependency "org.sonarsource.sonarqube:enterprises-server-app:$enterprisesApiVersion"
+      dependencySet(group: 'org.sonarsource.sonarqube', version: "$onboardingVersion") {
+        entry 'onboarding-api'
+        entry 'onboarding-unified-app'
+      }
       dependencySet(group: 'org.sonarsource.sonarqube', version: "$metricsApiVersion") {
         entry 'metrics-api'
         entry 'metrics-server-app'

@@ -75,6 +75,7 @@ import org.sonar.server.util.GlobalLockManagerImpl;
 import org.sonar.server.util.OkHttpClientProvider;
 import org.sonar.server.util.Paths2Impl;
 import org.sonar.server.util.TempFolderCleaner;
+import org.sonarsource.onboarding.server.config.OnboardingServerComponents;
 
 import static org.sonar.core.extension.CoreExtensionsInstaller.noAdditionalSideFilter;
 import static org.sonar.core.extension.PlatformLevelPredicates.hasPlatformLevel;
@@ -165,6 +166,9 @@ public class PlatformLevel1 extends PlatformLevel {
     addAll(MeasuresServerPlatformLevel1Module.components());
     // projects
     addAll(ProjectsServerPlatformLevel1Module.components());
+    // onboarding dashboard (unification capability)
+    addAll(OnboardingServerComponents.components());
+
     // cluster
     add(DefaultNodeInformation.class);
 
