@@ -129,7 +129,7 @@ public final class PurgeProperties {
 
       PropertyDefinition.builder(PurgeConstants.DAYS_BEFORE_DELETING_HISTORY)
         .defaultValue(String.valueOf(DEFAULT_HISTORY_MAX_AGE_IN_DAYS))
-        .name("Delete history after")
+        .name("Delete dashboard history after")
         .description("History for issue counts, issue resolution data, and measures older than this many days will be deleted.")
         .type(PropertyType.INTEGER)
         .category(CoreProperties.CATEGORY_HOUSEKEEPING)
