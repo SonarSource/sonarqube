@@ -172,6 +172,36 @@ public class RuleDao implements Dao {
       .forEach(section -> mapper(session).insertRuleDescriptionSection(ruleUuid, section));
   }
 
+  /**
+   * Upserts a single {@code (rule_uuid, kee, context_key)} row, unlike {@link #insert(DbSession, RuleDto)} and
+   * {@link #update(DbSession, RuleDto)}, which delete and reinsert a rule's <b>entire</b> section set from the
+   * in-memory {@link RuleDto}. That bulk approach is unsafe when concurrent callers each merge a
+   * <b>different</b> section into the same rule, since neither call locks between reading and rewriting the full
+   * set; this method avoids that by touching only the targeted row, via a portable (H2/PostgreSQL/Oracle/SQL
+   * Server) try-UPDATE-then-INSERT.
+   *
+   * <p>That try-UPDATE-then-INSERT is itself non-atomic: it does <b>not</b> protect against two concurrent
+   * callers upserting the exact <b>same</b> (rule_uuid, kee, context_key) row at once, since both can observe
+   * zero rows updated and then both attempt the insert, one of which fails the {@code uniq_rule_desc_sections}
+   * unique index. Same limitation as {@code BranchDao#upsert} and {@code NewCodePeriodDao#upsert}; callers racing
+   * on the identical row are expected to retry (e.g. via upstream event redelivery) rather than have this method
+   * retry internally.
+   */
+  public void upsertRuleDescriptionSection(DbSession session, String ruleUuid, RuleDescriptionSectionDto section) {
+    RuleMapper mapper = mapper(session);
+    if (mapper.updateRuleDescriptionSectionContent(ruleUuid, section) == 0) {
+      mapper.insertRuleDescriptionSection(ruleUuid, section);
+    }
+  }
+
+  /**
+   * Clears only {@code rules.ad_hoc_description}, unlike {@link #update(DbSession, RuleDto)}, which would also
+   * delete and reinsert the rule's entire {@code rule_desc_sections} set from the in-memory {@link RuleDto}.
+   */
+  public void clearAdHocDescription(DbSession session, String ruleUuid) {
+    mapper(session).clearAdHocDescription(ruleUuid);
+  }
+
   private static void updateRuleDefaultImpacts(RuleDto ruleDto, RuleMapper mapper) {
     mapper.deleteRuleDefaultImpacts(ruleDto.getUuid());
     insertRuleDefaultImpacts(ruleDto, mapper);

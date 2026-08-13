@@ -394,6 +394,24 @@
     )
   </insert>
 
+  <update id="updateRuleDescriptionSectionContent" parameterType="Map">
+    update rule_desc_sections
+    set
+      content = #{dto.content,jdbcType=VARCHAR},
+      context_display_name = #{dto.context.displayName,jdbcType=VARCHAR}
+    where
+      rule_uuid = #{ruleUuid,jdbcType=VARCHAR}
+      and kee = #{dto.key,jdbcType=VARCHAR}
+      <choose>
+        <when test="dto.context != null">
+          and context_key = #{dto.context.key,jdbcType=VARCHAR}
+        </when>
+        <otherwise>
+          and context_key is null
+        </otherwise>
+      </choose>
+  </update>
+
   <insert id="insertRule" parameterType="org.sonar.db.rule.RuleDto" useGeneratedKeys="false">
     insert into rules (
       uuid,
@@ -535,6 +553,10 @@
     where
       rule_uuid=#{ruleUuid,jdbcType=VARCHAR}
   </delete>
+
+  <update id="clearAdHocDescription" parameterType="String">
+    update rules set ad_hoc_description = null where uuid = #{ruleUuid,jdbcType=VARCHAR}
+  </update>
 
   <delete id="deleteRuleDefaultImpacts" parameterType="String">
     delete from
