@@ -87,30 +87,35 @@
   </update>
 
   <select id="countJiraRelatedDataBySonarOrganizationUuid" parameterType="String" resultType="int">
-    SELECT
-      (SELECT COUNT(*)
-       FROM jira_org_bindings ob
-       WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}) +
-      (SELECT COUNT(*)
-       FROM jira_project_bindings pb
-       INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
-       WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}) +
-      (SELECT COUNT(*)
-       FROM jira_work_items wi
-       INNER JOIN jira_project_bindings pb ON wi.jira_project_binding_id = pb.id
-       INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
-       WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}) +
-      (SELECT COUNT(*)
-       FROM jira_work_items_resources wir
-       INNER JOIN jira_work_items wi ON wir.jira_work_item_id = wi.id
-       INNER JOIN jira_project_bindings pb ON wi.jira_project_binding_id = pb.id
-       INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
-       WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}) +
-      (SELECT COUNT(*)
-       FROM jira_selected_work_types swt
-       INNER JOIN jira_project_bindings pb ON swt.jira_project_binding_id = pb.id
-       INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
-       WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR})
+    SELECT SUM(cnt) FROM (
+      SELECT COUNT(*) AS cnt
+        FROM jira_org_bindings ob
+        WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}
+      UNION ALL
+      SELECT COUNT(*) AS cnt
+        FROM jira_project_bindings pb
+        INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
+        WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}
+      UNION ALL
+      SELECT COUNT(*) AS cnt
+        FROM jira_work_items wi
+        INNER JOIN jira_project_bindings pb ON wi.jira_project_binding_id = pb.id
+        INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
+        WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}
+      UNION ALL
+      SELECT COUNT(*) AS cnt
+        FROM jira_work_items_resources wir
+        INNER JOIN jira_work_items wi ON wir.jira_work_item_id = wi.id
+        INNER JOIN jira_project_bindings pb ON wi.jira_project_binding_id = pb.id
+        INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
+        WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}
+      UNION ALL
+      SELECT COUNT(*) AS cnt
+        FROM jira_selected_work_types swt
+        INNER JOIN jira_project_bindings pb ON swt.jira_project_binding_id = pb.id
+        INNER JOIN jira_org_bindings ob ON pb.jira_organization_binding_id = ob.id
+        WHERE ob.sonar_organization_uuid = #{sonarOrganizationUuid, jdbcType=VARCHAR}
+    ) counts
   </select>
 
   <sql id="deleteBySonarOrganizationUuidQuery">
