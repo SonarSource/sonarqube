@@ -23,5 +23,6 @@ import java.util.List;
 import java.util.Set;
 import org.sonarsource.history.model.ProjectBranch;
 
-record ProjectCollectionContext(List<ProjectBranch> branches, Set<String> visibleBranchIds) {
+/** Project branches in a portfolio or application and the subset visible to the requester. */
+public record ProjectCollectionContext(List<ProjectBranch> branches, Set<String> visibleBranchIds) {
 }

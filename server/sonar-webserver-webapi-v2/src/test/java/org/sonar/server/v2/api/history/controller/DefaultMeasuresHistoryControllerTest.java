@@ -87,8 +87,9 @@ public class DefaultMeasuresHistoryControllerTest {
   @Test
   public void getMeasuresHistory_whenMetricKeysAreEmpty_shouldReject() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    List<String> emptyMetricKeys = List.of();
 
-    assertThatThrownBy(() -> underTest.getMeasuresHistory(ENTITY_TYPE, ENTITY_ID, List.of(), startDate, null))
+    assertThatThrownBy(() -> underTest.getMeasuresHistory(ENTITY_TYPE, ENTITY_ID, emptyMetricKeys, startDate, null))
       .isInstanceOf(ResponseStatusException.class)
       .hasMessageContaining("metricKeys must not be empty");
 
@@ -154,7 +155,7 @@ public class DefaultMeasuresHistoryControllerTest {
   }
 
   @Test
-  public void getMeasuresHistory_whenStartInstantIsAfterUtcMidnight_shouldReject() {
+  public void getMeasuresHistory_whenStartDateIsInFuture_shouldReject() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T23:30:00-02:00");
 
     assertThatThrownBy(() -> underTest.getMeasuresHistory(
@@ -176,6 +177,24 @@ public class DefaultMeasuresHistoryControllerTest {
       .hasMessage("End date [2026-07-07T23:59:59Z] must be greater than or equal to start date [2026-07-08T00:00Z].");
 
     verifyNoInteractions(measuresHistoryService);
+  }
+
+  @Test
+  public void getMeasuresHistory_whenEndDateIsInFuture_shouldClampToNow() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    OffsetDateTime endDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
+    stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
+    org.sonarsource.history.model.MeasuresHistoryResponse response = mock();
+    when(measuresHistoryService.queryMeasuresHistory(
+      PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH, METRIC_KEYS, startDate.toInstant(), NOW))
+      .thenReturn(response);
+
+    ResponseEntity<MeasuresHistoryResponse> result = underTest.getMeasuresHistory(
+      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, endDate);
+
+    assertThat(result.getStatusCode()).isEqualTo(OK);
+    verify(measuresHistoryService).queryMeasuresHistory(
+      PROJECT_BRANCH_ID, EntityType.PROJECT_BRANCH, METRIC_KEYS, startDate.toInstant(), NOW);
   }
 
   @Test

@@ -50,6 +50,8 @@ import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -80,15 +82,35 @@ public class DefaultIssueDensityHistoryControllerTest {
   }
 
   @Test
-  public void getIssueDensityHistory_whenStartInstantIsAfterUtcMidnight_shouldReject() {
+  public void getIssueDensityHistory_whenStartDateIsInFuture_shouldReject() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T23:30:00-02:00");
 
     assertThatThrownBy(() -> underTest.getIssueDensityHistory(
       ENTITY_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Start date [2026-07-07T23:30-02:00] must not be in the future.");
-
     verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenEndDateIsInFuture_shouldClampToNow() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    OffsetDateTime endDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
+    ProjectDto project = new ProjectDto().setUuid("project-uuid").setQualifier(ComponentQualifiers.PROJECT);
+    when(branchDao.selectByUuid(dbSession, ENTITY_ID))
+      .thenReturn(Optional.of(new BranchDto().setUuid(ENTITY_ID).setProjectUuid(project.getUuid())));
+    when(projectDao.selectByUuid(dbSession, project.getUuid())).thenReturn(Optional.of(project));
+    when(issueHistoryService.queryIssueDensityHistory(
+      eq(ENTITY_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      .thenReturn(new org.sonarsource.history.model.IssueDensityHistoryResponse(List.of()));
+
+    ResponseEntity<IssueDensityHistoryResponse> result = underTest.getIssueDensityHistory(
+      ENTITY_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null);
+    assertThat(result.getStatusCode()).isEqualTo(OK);
+    verify(issueHistoryService).queryIssueDensityHistory(
+      eq(ENTITY_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test

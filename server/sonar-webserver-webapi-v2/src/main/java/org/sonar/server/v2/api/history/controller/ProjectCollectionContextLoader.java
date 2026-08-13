@@ -52,11 +52,11 @@ public class ProjectCollectionContextLoader {
     this.dbClient = dbClient;
   }
 
-  ProjectCollectionContext load(DbSession session, String portfolioId) {
+  public ProjectCollectionContext load(DbSession session, String portfolioId) {
     return loadPortfolioContext(session, portfolioId);
   }
 
-  ProjectCollectionContext load(DbSession session, ProjectCollectionHistoryEntityType entityType, String entityId) {
+  public ProjectCollectionContext load(DbSession session, ProjectCollectionHistoryEntityType entityType, String entityId) {
     return switch (entityType) {
       case PORTFOLIO -> loadPortfolioContext(session, entityId);
       case APPLICATION -> loadApplicationContext(session, entityId);

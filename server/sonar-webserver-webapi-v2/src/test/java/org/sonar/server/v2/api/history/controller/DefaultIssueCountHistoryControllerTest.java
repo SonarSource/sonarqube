@@ -170,7 +170,7 @@ public class DefaultIssueCountHistoryControllerTest {
   }
 
   @Test
-  public void getIssueCountHistory_whenStartInstantIsAfterNow_shouldReject() {
+  public void getIssueCountHistory_whenStartDateIsInFuture_shouldReject() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T23:30:00-02:00");
 
     assertThatThrownBy(() -> underTest.getIssueCountHistory(
@@ -182,7 +182,7 @@ public class DefaultIssueCountHistoryControllerTest {
   }
 
   @Test
-  public void getIssueCountHistory_whenEndInstantIsAfterNow_shouldClampToNow() {
+  public void getIssueCountHistory_whenEndDateIsInFuture_shouldClampToNow() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
     stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
