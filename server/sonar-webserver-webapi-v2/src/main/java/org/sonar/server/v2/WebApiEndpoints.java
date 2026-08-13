@@ -59,6 +59,8 @@ public class WebApiEndpoints {
   public static final String HISTORY_DOMAIN = "/history";
   public static final String MEASURES_HISTORY_ENDPOINT = HISTORY_DOMAIN + "/measures-history";
   public static final String ISSUE_COUNT_HISTORY_ENDPOINT = HISTORY_DOMAIN + "/issue-count-history";
+  public static final String ISSUE_RESOLUTION_HISTORY_ENDPOINT = HISTORY_DOMAIN + "/issue-resolution-history";
+  public static final String PROJECT_ISSUE_RESOLUTION_ENDPOINT = HISTORY_DOMAIN + "/project-issue-resolution";
 
   public static final String SCA_DOMAIN = "/sca";
   public static final String SCA_RELEASES_ENDPOINT = SCA_DOMAIN + "/releases";

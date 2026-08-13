@@ -86,20 +86,7 @@ public class DefaultIssueDensityHistoryControllerTest {
     assertThatThrownBy(() -> underTest.getIssueDensityHistory(
       ENTITY_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("End date [null] must be greater than or equal to start date [2026-07-07T23:30-02:00].");
-
-    verifyNoInteractions(issueHistoryService);
-  }
-
-  @Test
-  public void getIssueDensityHistory_whenEndInstantIsAfterNow_shouldReject() {
-    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    OffsetDateTime endDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
-
-    assertThatThrownBy(() -> underTest.getIssueDensityHistory(
-      ENTITY_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("End date 2026-07-09T00:00Z must be less than or equal to the current date.");
+      .hasMessage("Start date [2026-07-07T23:30-02:00] must not be in the future.");
 
     verifyNoInteractions(issueHistoryService);
   }

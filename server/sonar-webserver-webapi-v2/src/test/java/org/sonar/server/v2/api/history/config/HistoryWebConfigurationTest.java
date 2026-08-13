@@ -22,8 +22,10 @@ package org.sonar.server.v2.api.history.config;
 import org.junit.jupiter.api.Test;
 import org.sonar.server.v2.api.history.controller.DefaultIssueCountHistoryController;
 import org.sonar.server.v2.api.history.controller.DefaultIssueDensityHistoryController;
+import org.sonar.server.v2.api.history.controller.DefaultIssueResolutionHistoryController;
 import org.sonar.server.v2.api.history.controller.DefaultMeasuresHistoryController;
 import org.sonar.server.v2.api.history.controller.DefaultProjectIssueCountsController;
+import org.sonar.server.v2.api.history.controller.DefaultProjectIssueResolutionController;
 import org.sonar.server.v2.api.history.controller.DefaultProjectMeasuresController;
 import org.sonar.server.v2.api.history.controller.ProjectCollectionContextLoader;
 import org.springframework.context.annotation.Configuration;
@@ -40,8 +42,10 @@ class HistoryWebConfigurationTest {
       .containsExactlyInAnyOrder(
         DefaultIssueCountHistoryController.class,
         DefaultIssueDensityHistoryController.class,
+        DefaultIssueResolutionHistoryController.class,
         DefaultMeasuresHistoryController.class,
         DefaultProjectIssueCountsController.class,
+        DefaultProjectIssueResolutionController.class,
         DefaultProjectMeasuresController.class,
         ProjectCollectionContextLoader.class);
   }

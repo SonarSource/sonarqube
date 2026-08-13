@@ -160,7 +160,7 @@ public class DefaultMeasuresHistoryControllerTest {
     assertThatThrownBy(() -> underTest.getMeasuresHistory(
       HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("End date [null] must be greater than or equal to start date [2026-07-07T23:30-02:00].");
+      .hasMessage("Start date [2026-07-07T23:30-02:00] must not be in the future.");
 
     verifyNoInteractions(measuresHistoryService);
   }
@@ -174,19 +174,6 @@ public class DefaultMeasuresHistoryControllerTest {
       HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, endDate))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("End date [2026-07-07T23:59:59Z] must be greater than or equal to start date [2026-07-08T00:00Z].");
-
-    verifyNoInteractions(measuresHistoryService);
-  }
-
-  @Test
-  public void getMeasuresHistory_whenEndInstantIsAfterNow_shouldReject() {
-    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    OffsetDateTime endDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
-
-    assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, endDate))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("End date 2026-07-09T00:00Z must be less than or equal to the current date.");
 
     verifyNoInteractions(measuresHistoryService);
   }

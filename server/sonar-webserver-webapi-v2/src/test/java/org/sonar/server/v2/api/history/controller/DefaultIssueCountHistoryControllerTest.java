@@ -170,28 +170,34 @@ public class DefaultIssueCountHistoryControllerTest {
   }
 
   @Test
-  public void getIssueCountHistory_whenStartInstantIsAfterUtcMidnight_shouldReject() {
+  public void getIssueCountHistory_whenStartInstantIsAfterNow_shouldReject() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T23:30:00-02:00");
 
     assertThatThrownBy(() -> underTest.getIssueCountHistory(
       PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("End date [null] must be greater than or equal to start date [2026-07-07T23:30-02:00].");
+      .hasMessage("Start date [2026-07-07T23:30-02:00] must not be in the future.");
 
     verifyNoInteractions(issueHistoryService);
   }
 
   @Test
-  public void getIssueCountHistory_whenEndInstantIsAfterNow_shouldReject() {
+  public void getIssueCountHistory_whenEndInstantIsAfterNow_shouldClampToNow() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
+    stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
+    when(issueHistoryService.queryIssueCountHistory(
+      eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
 
-    assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("End date 2026-07-09T00:00Z must be less than or equal to the current date.");
+    ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null);
 
-    verifyNoInteractions(issueHistoryService);
+    assertThat(result.getStatusCode()).isEqualTo(OK);
+    verify(issueHistoryService).queryIssueCountHistory(
+      eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test
