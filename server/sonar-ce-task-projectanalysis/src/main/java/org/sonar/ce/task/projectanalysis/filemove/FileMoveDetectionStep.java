@@ -74,12 +74,11 @@ public class FileMoveDetectionStep implements ComputationStep {
   private final MutableMovedFilesRepository movedFilesRepository;
   private final SourceLinesHashRepository sourceLinesHash;
   private final ScoreMatrixDumper scoreMatrixDumper;
-  private final MutableAddedFileRepository addedFileRepository;
   private final HeapSizeChecker heapSizeChecker;
 
   public FileMoveDetectionStep(AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder rootHolder, DbClient dbClient,
     FileSimilarity fileSimilarity, MutableMovedFilesRepository movedFilesRepository, SourceLinesHashRepository sourceLinesHash,
-    ScoreMatrixDumper scoreMatrixDumper, MutableAddedFileRepository addedFileRepository, HeapSizeChecker heapSizeChecker) {
+    ScoreMatrixDumper scoreMatrixDumper, HeapSizeChecker heapSizeChecker) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.rootHolder = rootHolder;
     this.dbClient = dbClient;
@@ -87,7 +86,6 @@ public class FileMoveDetectionStep implements ComputationStep {
     this.movedFilesRepository = movedFilesRepository;
     this.sourceLinesHash = sourceLinesHash;
     this.scoreMatrixDumper = scoreMatrixDumper;
-    this.addedFileRepository = addedFileRepository;
     this.heapSizeChecker = heapSizeChecker;
   }
 
@@ -125,7 +123,6 @@ public class FileMoveDetectionStep implements ComputationStep {
     context.getStatistics().add("addedFiles", addedFileUuids.size());
 
     if (dbFilesByUuid.isEmpty()) {
-      registerAddedFiles(addedFileUuids, reportFilesByUuid, null);
       LOG.debug("Previous snapshot has no file. No file move detection.");
       return;
     }
@@ -134,7 +131,6 @@ public class FileMoveDetectionStep implements ComputationStep {
 
     // can't find matches if at least one of the added or removed files groups is empty => abort
     if (addedFileUuids.isEmpty() || removedFileUuids.isEmpty()) {
-      registerAddedFiles(addedFileUuids, reportFilesByUuid, null);
       LOG.debug("Either no files added or no files removed. Do nothing.");
       return;
     }
@@ -152,7 +148,6 @@ public class FileMoveDetectionStep implements ComputationStep {
     // not a single match with score higher than MIN_REQUIRED_SCORE => abort
     if (scoreMatrix.getMaxScore() < MIN_REQUIRED_SCORE) {
       context.getStatistics().add("movedFiles", 0);
-      registerAddedFiles(addedFileUuids, reportFilesByUuid, null);
       LOG.debug("max score in matrix is less than min required score ({}). Do nothing.", MIN_REQUIRED_SCORE);
       return;
     }
@@ -165,7 +160,6 @@ public class FileMoveDetectionStep implements ComputationStep {
 
     context.getStatistics().add("movedFiles", electedMatches.size());
     registerMatches(dbFilesByUuid, reportFilesByUuid, electedMatches);
-    registerAddedFiles(addedFileUuids, reportFilesByUuid, electedMatches);
   }
 
   public Set<String> difference(Set<String> set1, Set<String> set2) {
@@ -182,22 +176,6 @@ public class FileMoveDetectionStep implements ComputationStep {
         reportFilesByUuid.get(validatedMatch.reportUuid()),
         toOriginalFile(dbFilesByUuid.get(validatedMatch.dbUuid())));
       LOG.trace("File move found: {}", validatedMatch);
-    }
-  }
-
-  private void registerAddedFiles(Set<String> addedFileUuids, Map<String, Component> reportFilesByUuid, @Nullable ElectedMatches electedMatches) {
-    if (electedMatches == null || electedMatches.isEmpty()) {
-      addedFileUuids.stream()
-        .map(reportFilesByUuid::get)
-        .forEach(addedFileRepository::register);
-    } else {
-      Set<String> reallyAddedFileUuids = new HashSet<>(addedFileUuids);
-      for (Match electedMatch : electedMatches) {
-        reallyAddedFileUuids.remove(electedMatch.reportUuid());
-      }
-      reallyAddedFileUuids.stream()
-        .map(reportFilesByUuid::get)
-        .forEach(addedFileRepository::register);
     }
   }
 

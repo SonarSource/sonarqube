@@ -53,15 +53,13 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
   private final TreeRootHolder rootHolder;
   private final DbClient dbClient;
   private final MutableMovedFilesRepository movedFilesRepository;
-  private final MutableAddedFileRepository addedFileRepository;
 
   public PullRequestFileMoveDetectionStep(AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder rootHolder, DbClient dbClient,
-    MutableMovedFilesRepository movedFilesRepository, MutableAddedFileRepository addedFileRepository) {
+    MutableMovedFilesRepository movedFilesRepository) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.rootHolder = rootHolder;
     this.dbClient = dbClient;
     this.movedFilesRepository = movedFilesRepository;
-    this.addedFileRepository = addedFileRepository;
   }
 
   @Override
@@ -88,7 +86,6 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
     context.getStatistics().add("dbFiles", targetBranchDbFilesByUuid.size());
 
     if (targetBranchDbFilesByUuid.isEmpty()) {
-      registerNewlyAddedFiles(reportFilesByUuid);
       context.getStatistics().add("addedFiles", reportFilesByUuid.size());
       LOG.debug("Target branch has no files. No file move detection.");
       return;
@@ -103,7 +100,6 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
     Map<String, DbComponent> dbFilesByPathReference = toDbFilesByPathReferenceMap(targetBranchDbFilesByUuid.values());
 
     registerMovedFiles(movedFiles, dbFilesByPathReference);
-    registerNewlyAddedFiles(newlyAddedFilesByUuid);
   }
 
   private void registerMovedFiles(Collection<Component> movedFiles, Map<String, DbComponent> dbFilesByPathReference) {
@@ -114,12 +110,6 @@ public class PullRequestFileMoveDetectionStep implements ComputationStep {
   private void registerMovedFile(Map<String, DbComponent> dbFiles, Component movedFile) {
     retrieveDbFile(dbFiles, movedFile)
       .ifPresent(dbFile -> movedFilesRepository.setOriginalPullRequestFile(movedFile, toOriginalFile(dbFile)));
-  }
-
-  private void registerNewlyAddedFiles(Map<String, Component> newAddedFilesByUuid) {
-    newAddedFilesByUuid
-      .values()
-      .forEach(addedFileRepository::register);
   }
 
   private static Map<String, Component> getNewlyAddedFilesByUuid(Map<String, Component> reportFilesByUuid, Map<String, DbComponent> dbFilesByUuid) {

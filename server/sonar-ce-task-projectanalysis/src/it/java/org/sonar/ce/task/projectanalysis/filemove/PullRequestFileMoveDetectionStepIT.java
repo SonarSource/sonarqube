@@ -36,7 +36,6 @@ import org.sonar.ce.task.projectanalysis.analysis.Branch;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
-import org.sonar.ce.task.projectanalysis.filemove.FileMoveDetectionStepIT.RecordingMutableAddedFileRepository;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository.OriginalFile;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.util.Uuids;
@@ -96,8 +95,7 @@ public class PullRequestFileMoveDetectionStepIT {
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final AnalysisMetadataHolderRule analysisMetadataHolder = mock(AnalysisMetadataHolderRule.class);
-  private final RecordingMutableAddedFileRepository addedFileRepository = new RecordingMutableAddedFileRepository();
-  private final PullRequestFileMoveDetectionStep underTest = new PullRequestFileMoveDetectionStep(analysisMetadataHolder, treeRootHolder, dbClient, movedFilesRepository, addedFileRepository);
+  private final PullRequestFileMoveDetectionStep underTest = new PullRequestFileMoveDetectionStep(analysisMetadataHolder, treeRootHolder, dbClient, movedFilesRepository);
 
   @Before
   public void setUp() throws Exception {
@@ -132,7 +130,6 @@ public class PullRequestFileMoveDetectionStepIT {
     underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
-    assertThat(addedFileRepository.getComponents()).isEmpty();
     verifyStatistics(context, 0, null, null, null);
   }
 
@@ -140,13 +137,12 @@ public class PullRequestFileMoveDetectionStepIT {
   public void execute_detects_no_move_if_target_branch_has_no_files() {
     preparePullRequestAnalysis(ANALYSIS);
     Set<FileReference> fileReferences = Set.of(FileReference.of(FILE_1_REF), FileReference.of(FILE_2_REF));
-    Map<String, Component> reportFilesByUuid = initializeAnalysisReportComponents(fileReferences);
+    initializeAnalysisReportComponents(fileReferences);
 
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
-    assertThat(addedFileRepository.getComponents()).containsOnlyOnceElementsOf(reportFilesByUuid.values());
     verifyStatistics(context, 2, 0, 2, null);
   }
 
@@ -159,7 +155,6 @@ public class PullRequestFileMoveDetectionStepIT {
     underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
-    assertThat(addedFileRepository.getComponents()).isEmpty();
     verifyStatistics(context, 0, null, null, null);
   }
 
@@ -175,7 +170,6 @@ public class PullRequestFileMoveDetectionStepIT {
     underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
-    assertThat(addedFileRepository.getComponents()).isEmpty();
     verifyStatistics(context, 2, 2, 0, 0);
   }
 
@@ -193,7 +187,6 @@ public class PullRequestFileMoveDetectionStepIT {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    assertThat(addedFileRepository.getComponents()).isEmpty();
     assertThat(movedFilesRepository.getComponentsWithOriginal()).hasSize(1);
     assertThatFileRenameHasBeenDetected(reportFilesByUuid, databaseFilesByUuid, FILE_2_REF, FILE_1_REF);
     verifyStatistics(context, 1, 1, 0, 1);
@@ -226,7 +219,6 @@ public class PullRequestFileMoveDetectionStepIT {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    assertThat(addedFileRepository.getComponents()).hasSize(1);
     assertThat(movedFilesRepository.getComponentsWithOriginal()).hasSize(2);
     assertThatFileAdditionHasBeenDetected(reportFilesByUuid, FILE_7_REF);
     assertThatFileRenameHasBeenDetected(reportFilesByUuid, databaseFilesByUuid, FILE_3_REF, FILE_1_REF);
@@ -237,7 +229,6 @@ public class PullRequestFileMoveDetectionStepIT {
   private void assertThatFileAdditionHasBeenDetected(Map<String, Component> reportFilesByUuid, String fileInReportReference) {
     Component fileInReport = reportFilesByUuid.get(fileInReportReference);
 
-    assertThat(addedFileRepository.getComponents()).contains(fileInReport);
     assertThat(movedFilesRepository.getOriginalPullRequestFile(fileInReport)).isEmpty();
   }
 

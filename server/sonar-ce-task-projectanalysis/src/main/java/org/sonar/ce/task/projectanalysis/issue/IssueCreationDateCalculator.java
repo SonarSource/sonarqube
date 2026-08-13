@@ -22,17 +22,9 @@ package org.sonar.ce.task.projectanalysis.issue;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Optional;
-import java.util.function.Supplier;
-import javax.annotation.Nullable;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.filemove.AddedFileRepository;
-import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
-import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
-import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
@@ -40,35 +32,24 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueFieldsSetter;
 
-import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.UNCHANGED;
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByScanBuilder;
 
 /**
- * Calculates the creation date of an issue. Takes into account, that the issue
- * might be raised by adding a rule to a quality profile.
+ * Calculates the creation date of an issue. A new issue is always backdated to the date of the latest SCM changeset of
+ * the lines it points to, so that an issue raised on code which has not been changed does not show up in New Code.
+ * Issues for which no SCM information is available keep the analysis date.
  */
 public class IssueCreationDateCalculator extends IssueVisitor {
 
   private final ScmInfoRepository scmInfoRepository;
   private final IssueFieldsSetter issueUpdater;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final IssueChangeContext changeContext;
-  private final ActiveRulesHolder activeRulesHolder;
-  private final RuleRepository ruleRepository;
-  private final AddedFileRepository addedFileRepository;
-  private QProfileStatusRepository qProfileStatusRepository;
 
   public IssueCreationDateCalculator(AnalysisMetadataHolder analysisMetadataHolder, ScmInfoRepository scmInfoRepository,
-    IssueFieldsSetter issueUpdater, ActiveRulesHolder activeRulesHolder, RuleRepository ruleRepository,
-    AddedFileRepository addedFileRepository, QProfileStatusRepository qProfileStatusRepository) {
+    IssueFieldsSetter issueUpdater) {
     this.scmInfoRepository = scmInfoRepository;
     this.issueUpdater = issueUpdater;
-    this.analysisMetadataHolder = analysisMetadataHolder;
-    this.ruleRepository = ruleRepository;
     this.changeContext = issueChangeContextByScanBuilder(new Date(analysisMetadataHolder.getAnalysisDate())).build();
-    this.activeRulesHolder = activeRulesHolder;
-    this.addedFileRepository = addedFileRepository;
-    this.qProfileStatusRepository = qProfileStatusRepository;
   }
 
   @Override
@@ -77,76 +58,13 @@ public class IssueCreationDateCalculator extends IssueVisitor {
       return;
     }
 
-    Optional<Long> lastAnalysisOptional = lastAnalysis();
-    boolean firstAnalysis = lastAnalysisOptional.isEmpty();
-    if (firstAnalysis || isNewFile(component)) {
-      backdateIssue(component, issue);
-      return;
-    }
-
-    Rule rule = ruleRepository.findByKey(issue.getRuleKey())
-      .orElseThrow(illegalStateException("The rule with key '%s' raised an issue, but no rule with that key was found", issue.getRuleKey()));
-    if (rule.isExternal()) {
-      backdateIssue(component, issue);
-    } else {
-      // Rule can't be inactive (see contract of IssueVisitor)
-      ActiveRule activeRule = activeRulesHolder.get(issue.getRuleKey()).get();
-      if (activeRuleIsNewOrChanged(activeRule, lastAnalysisOptional.get())
-        || ruleImplementationChanged(activeRule.getPluginKey(), lastAnalysisOptional.get())
-        || qualityProfileChanged(activeRule.getQProfileKey())) {
-        backdateIssue(component, issue);
-      }
-    }
-  }
-
-  private boolean qualityProfileChanged(String qpKey) {
-    return qProfileStatusRepository.get(qpKey).filter(s -> !s.equals(UNCHANGED)).isPresent();
-  }
-
-  private boolean isNewFile(Component component) {
-    return component.getType() == Component.Type.FILE && addedFileRepository.isAdded(component);
-  }
-
-  private void backdateIssue(Component component, DefaultIssue issue) {
     getDateOfLatestChange(component, issue).ifPresent(changeDate -> updateDate(issue, changeDate));
-  }
-
-  private boolean ruleImplementationChanged(@Nullable String pluginKey, long lastAnalysisDate) {
-    if (pluginKey == null) {
-      return false;
-    }
-
-    ScannerPlugin scannerPlugin = analysisMetadataHolder.getScannerPluginsByKey().get(pluginKey);
-    return scannerPlugin == null
-      || pluginIsNew(scannerPlugin, lastAnalysisDate)
-      || basePluginIsNew(scannerPlugin, lastAnalysisDate);
-  }
-
-  private boolean basePluginIsNew(ScannerPlugin scannerPlugin, long lastAnalysisDate) {
-    String basePluginKey = scannerPlugin.getBasePluginKey();
-    if (basePluginKey == null) {
-      return false;
-    }
-    ScannerPlugin basePlugin = analysisMetadataHolder.getScannerPluginsByKey().get(basePluginKey);
-    return lastAnalysisDate < basePlugin.getUpdatedAt();
-  }
-
-  private static boolean pluginIsNew(ScannerPlugin scannerPlugin, long lastAnalysisDate) {
-    return lastAnalysisDate < scannerPlugin.getUpdatedAt();
-  }
-
-  private static boolean activeRuleIsNewOrChanged(ActiveRule activeRule, Long lastAnalysisDate) {
-    return lastAnalysisDate < activeRule.getUpdatedAt();
   }
 
   private Optional<Date> getDateOfLatestChange(Component component, DefaultIssue issue) {
     return getScmInfo(component)
       .flatMap(scmInfo -> getLatestChangeset(component, scmInfo, issue))
       .map(IssueCreationDateCalculator::getChangeDate);
-  }
-
-  private Optional<Long> lastAnalysis() {
-    return Optional.ofNullable(analysisMetadataHolder.getBaseAnalysis()).map(Analysis::getCreatedAt);
   }
 
   private Optional<ScmInfo> getScmInfo(Component component) {
@@ -170,9 +88,5 @@ public class IssueCreationDateCalculator extends IssueVisitor {
 
   private void updateDate(DefaultIssue issue, Date scmDate) {
     issueUpdater.setCreationDate(issue, scmDate, changeContext);
-  }
-
-  private static Supplier<? extends IllegalStateException> illegalStateException(String str, Object... args) {
-    return () -> new IllegalStateException(String.format(str, args));
   }
 }

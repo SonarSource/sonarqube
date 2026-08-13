@@ -45,7 +45,6 @@ import org.sonar.ce.task.projectanalysis.duplication.DuplicationMeasures;
 import org.sonar.ce.task.projectanalysis.duplication.DuplicationRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.duplication.IntegrateCrossProjectDuplications;
 import org.sonar.ce.task.projectanalysis.event.EventRepositoryImpl;
-import org.sonar.ce.task.projectanalysis.filemove.AddedFileRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.filemove.FileSimilarityImpl;
 import org.sonar.ce.task.projectanalysis.filemove.HeapSizeCheckerImpl;
 import org.sonar.ce.task.projectanalysis.filemove.MutableMovedFilesRepositoryImpl;
@@ -342,7 +341,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       SourceSimilarityImpl.class,
       FileSimilarityImpl.class,
       MutableMovedFilesRepositoryImpl.class,
-      AddedFileRepositoryImpl.class,
       HeapSizeCheckerImpl.class,
 
       // duplication

@@ -21,8 +21,6 @@ package org.sonar.ce.task.projectanalysis.issue;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
@@ -33,14 +31,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.ce.task.projectanalysis.analysis.ScannerPlugin;
 import org.sonar.ce.task.projectanalysis.component.Component;
-import org.sonar.ce.task.projectanalysis.filemove.AddedFileRepository;
-import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
-import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
-import org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository;
 import org.sonar.ce.task.projectanalysis.scm.Changeset;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfo;
 import org.sonar.ce.task.projectanalysis.scm.ScmInfoRepository;
@@ -52,8 +44,6 @@ import org.sonar.db.protobuf.DbIssues.Location;
 import org.sonar.db.protobuf.DbIssues.Locations.Builder;
 import org.sonar.server.issue.IssueFieldsSetter;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -62,9 +52,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRepository.Status.UNCHANGED;
 
 public class IssueCreationDateCalculatorTest {
   private static final String COMPONENT_UUID = "ab12";
@@ -74,80 +62,37 @@ public class IssueCreationDateCalculatorTest {
 
   private final ScmInfoRepository scmInfoRepository = mock(ScmInfoRepository.class);
   private final IssueFieldsSetter issueUpdater = mock(IssueFieldsSetter.class);
-  private final ActiveRulesHolder activeRulesHolder = mock(ActiveRulesHolder.class);
   private final Component component = mock(Component.class);
   private final RuleKey ruleKey = RuleKey.of("reop", "rule");
   private final DefaultIssue issue = mock(DefaultIssue.class);
-  private final ActiveRule activeRule = mock(ActiveRule.class);
-
-  private final Analysis baseAnalysis = mock(Analysis.class);
-  private final Map<String, ScannerPlugin> scannerPlugins = new HashMap<>();
-  private final RuleRepository ruleRepository = mock(RuleRepository.class);
-  private final AddedFileRepository addedFileRepository = mock(AddedFileRepository.class);
-  private final QProfileStatusRepository qProfileStatusRepository = mock(QProfileStatusRepository.class);
-  private final Rule rule = mock(Rule.class);
 
   private IssueCreationDateCalculator underTest;
   private ScmInfo scmInfo;
 
   @BeforeEach
   void before() {
-    analysisMetadataHolder.setScannerPluginsByKey(scannerPlugins);
     analysisMetadataHolder.setAnalysisDate(new Date(1_704_067_200_000L));
     when(component.getUuid()).thenReturn(COMPONENT_UUID);
-    underTest = new IssueCreationDateCalculator(analysisMetadataHolder, scmInfoRepository, issueUpdater, activeRulesHolder, ruleRepository, addedFileRepository, qProfileStatusRepository);
+    underTest = new IssueCreationDateCalculator(analysisMetadataHolder, scmInfoRepository, issueUpdater);
 
-    when(ruleRepository.findByKey(ruleKey)).thenReturn(Optional.of(rule));
-    when(activeRulesHolder.get(any(RuleKey.class))).thenReturn(Optional.empty());
-    when(activeRulesHolder.get(ruleKey)).thenReturn(Optional.of(activeRule));
-    when(activeRule.getQProfileKey()).thenReturn("qpKey");
     when(issue.getRuleKey()).thenReturn(ruleKey);
-    when(qProfileStatusRepository.get(any())).thenReturn(Optional.of(UNCHANGED));
+  }
+
+  @ParameterizedTest
+  @MethodSource("backdatingDateCases")
+  void should_backdate_to_the_latest_scm_date_of_the_lines_of_the_issue(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
+    makeIssueNew();
+    configure.accept(issue, createMockScmInfo());
+
+    run();
+
+    assertChangeOfCreationDateTo(expectedDate);
   }
 
   @Test
   void should_not_backdate_if_no_scm_available() {
-    previousAnalysisWas(2000L);
-    currentAnalysisIs(3000L);
-
     makeIssueNew();
     noScm();
-    setRuleUpdatedAt(2800L);
-
-    run();
-
-    assertNoChangeOfCreationDate();
-  }
-
-  @ParameterizedTest
-  @MethodSource("backdatingDateCases")
-  void should_not_backdate_if_rule_and_plugin_and_base_plugin_are_old(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
-    previousAnalysisWas(2000L);
-    currentAnalysisIs(3000L);
-
-    makeIssueNew();
-    configure.accept(issue, createMockScmInfo());
-    setRuleUpdatedAt(1500L);
-    rulePlugin("customjava");
-    pluginUpdatedAt("customjava", "java", 1700L);
-    pluginUpdatedAt("java", 1700L);
-
-    run();
-
-    assertNoChangeOfCreationDate();
-  }
-
-  @ParameterizedTest
-  @MethodSource("backdatingDateCases")
-  void should_not_backdate_if_rule_and_plugin_are_old_and_no_base_plugin(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
-    previousAnalysisWas(2000L);
-    currentAnalysisIs(3000L);
-
-    makeIssueNew();
-    configure.accept(issue, createMockScmInfo());
-    setRuleUpdatedAt(1500L);
-    rulePlugin("java");
-    pluginUpdatedAt("java", 1700L);
 
     run();
 
@@ -157,183 +102,12 @@ public class IssueCreationDateCalculatorTest {
   @ParameterizedTest
   @MethodSource("backdatingDateCases")
   void should_not_backdate_if_issue_existed_before(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
-    previousAnalysisWas(2000L);
-    currentAnalysisIs(3000L);
-
     makeIssueNotNew();
     configure.accept(issue, createMockScmInfo());
-    setRuleUpdatedAt(2800L);
 
     run();
 
     assertNoChangeOfCreationDate();
-  }
-
-  @Test
-  void should_not_fail_for_issue_about_to_be_closed() {
-    previousAnalysisWas(2000L);
-    currentAnalysisIs(3000L);
-
-    makeIssueNotNew();
-    setIssueBelongToNonExistingRule();
-
-    run();
-
-    assertNoChangeOfCreationDate();
-  }
-
-  @Test
-  void should_fail_if_rule_is_not_found() {
-    previousAnalysisWas(2000L);
-    currentAnalysisIs(3000L);
-
-    when(ruleRepository.findByKey(ruleKey)).thenReturn(Optional.empty());
-    makeIssueNew();
-
-    assertThatThrownBy(this::run)
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("The rule with key 'reop:rule' raised an issue, but no rule with that key was found");
-  }
-
-  @ParameterizedTest
-  @MethodSource("backdatingDateCases")
-  void should_backdate_date_if_scm_is_available_and_rule_is_new(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
-    previousAnalysisWas(2000L);
-    currentAnalysisIs(3000L);
-
-    makeIssueNew();
-    configure.accept(issue, createMockScmInfo());
-    setRuleUpdatedAt(2800L);
-
-    run();
-
-    assertChangeOfCreationDateTo(expectedDate);
-  }
-
-  @ParameterizedTest
-  @MethodSource("backdatingDateCases")
-  void should_backdate_date_if_scm_is_available_and_first_analysis(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
-    currentAnalysisIsFirstAnalysis();
-    currentAnalysisIs(3000L);
-
-    makeIssueNew();
-    configure.accept(issue, createMockScmInfo());
-
-    run();
-
-    assertChangeOfCreationDateTo(expectedDate);
-  }
-
-  @ParameterizedTest
-  @MethodSource("backdatingDateCases")
-  void should_backdate_date_if_scm_is_available_and_current_component_is_new_file(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
-    previousAnalysisWas(2000L);
-    currentAnalysisIs(3000L);
-
-    makeIssueNew();
-    configure.accept(issue, createMockScmInfo());
-    currentComponentIsNewFile();
-
-    run();
-
-    assertChangeOfCreationDateTo(expectedDate);
-  }
-
-  @ParameterizedTest
-  @MethodSource("backdatingDateAndChangedQPStatusCases")
-  void should_backdate_if_qp_of_the_rule_which_raised_the_issue_has_changed(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate, QProfileStatusRepository.Status status) {
-    previousAnalysisWas(2000L);
-    currentAnalysisIs(3000L);
-
-    makeIssueNew();
-    configure.accept(issue, createMockScmInfo());
-    changeQualityProfile(status);
-
-    run();
-
-    assertChangeOfCreationDateTo(expectedDate);
-  }
-
-  @ParameterizedTest
-  @MethodSource("backdatingDateCases")
-  void should_backdate_if_scm_is_available_and_plugin_is_new(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
-    previousAnalysisWas(2000L);
-    currentAnalysisIs(3000L);
-
-    makeIssueNew();
-    configure.accept(issue, createMockScmInfo());
-    setRuleUpdatedAt(1500L);
-    rulePlugin("java");
-    pluginUpdatedAt("java", 2500L);
-
-    run();
-
-    assertChangeOfCreationDateTo(expectedDate);
-  }
-
-  @ParameterizedTest
-  @MethodSource("backdatingDateCases")
-  void should_backdate_if_scm_is_available_and_base_plugin_is_new(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
-    previousAnalysisWas(2000L);
-    currentAnalysisIs(3000L);
-
-    makeIssueNew();
-    configure.accept(issue, createMockScmInfo());
-    setRuleUpdatedAt(1500L);
-    rulePlugin("customjava");
-    pluginUpdatedAt("customjava", "java", 1000L);
-    pluginUpdatedAt("java", 2500L);
-
-    run();
-
-    assertChangeOfCreationDateTo(expectedDate);
-  }
-
-  @ParameterizedTest
-  @MethodSource("backdatingDateCases")
-  void should_backdate_external_issues(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
-    currentAnalysisIsFirstAnalysis();
-    currentAnalysisIs(3000L);
-
-    makeIssueNew();
-    when(rule.isExternal()).thenReturn(true);
-    configure.accept(issue, createMockScmInfo());
-
-    run();
-
-    assertChangeOfCreationDateTo(expectedDate);
-    verifyNoInteractions(activeRulesHolder);
-  }
-
-  @ParameterizedTest
-  @MethodSource("backdatingDateCases")
-  void should_backdate_if_plugin_is_not_found(BiConsumer<DefaultIssue, ScmInfo> configure, long expectedDate) {
-    previousAnalysisWas(2000L);
-    currentAnalysisIs(3000L);
-
-    makeIssueNew();
-    configure.accept(issue, createMockScmInfo());
-    setRuleUpdatedAt(1500L);
-    rulePlugin("java");
-
-    assertThat(scannerPlugins)
-      .as("No scanner plugin should be set")
-      .isEmpty();
-
-    run();
-
-    assertChangeOfCreationDateTo(expectedDate);
-  }
-
-  public static Stream<Arguments> backdatingDateAndChangedQPStatusCases() {
-    return Stream.of(QProfileStatusRepository.Status.values())
-      .filter(s -> !UNCHANGED.equals(s))
-      .flatMap(s -> Stream.of(
-        arguments(new NoIssueLocation(), 1200L, s),
-        arguments(new OnlyPrimaryLocation(), 1300L, s),
-        arguments(new FlowOnCurrentFileOnly(), 1900L, s),
-        arguments(new FlowOnMultipleFiles(), 1700L, s)
-      ));
   }
 
   public static Stream<Arguments> backdatingDateCases() {
@@ -397,33 +171,6 @@ public class IssueCreationDateCalculatorTest {
     }
   }
 
-  private void previousAnalysisWas(long analysisDate) {
-    analysisMetadataHolder.setBaseAnalysis(baseAnalysis);
-    when(baseAnalysis.getCreatedAt())
-      .thenReturn(analysisDate);
-  }
-
-  private void pluginUpdatedAt(String pluginKey, long updatedAt) {
-    scannerPlugins.put(pluginKey, new ScannerPlugin(pluginKey, null, updatedAt));
-  }
-
-  private void pluginUpdatedAt(String pluginKey, String basePluginKey, long updatedAt) {
-    scannerPlugins.put(pluginKey, new ScannerPlugin(pluginKey, basePluginKey, updatedAt));
-  }
-
-  private AnalysisMetadataHolderRule currentAnalysisIsFirstAnalysis() {
-    return analysisMetadataHolder.setBaseAnalysis(null);
-  }
-
-  private void currentAnalysisIs(long analysisDate) {
-    analysisMetadataHolder.setAnalysisDate(analysisDate);
-  }
-
-  private void currentComponentIsNewFile() {
-    when(component.getType()).thenReturn(Component.Type.FILE);
-    when(addedFileRepository.isAdded(component)).thenReturn(true);
-  }
-
   private void makeIssueNew() {
     when(issue.isNew())
       .thenReturn(true);
@@ -432,15 +179,6 @@ public class IssueCreationDateCalculatorTest {
   private void makeIssueNotNew() {
     when(issue.isNew())
       .thenReturn(false);
-  }
-
-  private void changeQualityProfile(QProfileStatusRepository.Status status) {
-    when(qProfileStatusRepository.get(any())).thenReturn(Optional.of(status));
-  }
-
-  private void setIssueBelongToNonExistingRule() {
-    when(issue.getRuleKey())
-      .thenReturn(RuleKey.of("repo", "disabled"));
   }
 
   private void noScm() {
@@ -466,14 +204,6 @@ public class IssueCreationDateCalculatorTest {
         .thenReturn(Optional.of(scmInfo));
     }
     return scmInfo;
-  }
-
-  private void setRuleUpdatedAt(long updateAt) {
-    when(activeRule.getUpdatedAt()).thenReturn(updateAt);
-  }
-
-  private void rulePlugin(String pluginKey) {
-    when(activeRule.getPluginKey()).thenReturn(pluginKey);
   }
 
   private static Location newLocation(int startLine, int endLine) {

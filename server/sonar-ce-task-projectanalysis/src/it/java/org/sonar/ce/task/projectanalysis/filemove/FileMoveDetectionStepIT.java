@@ -22,9 +22,7 @@ package org.sonar.ce.task.projectanalysis.filemove;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
@@ -230,10 +228,9 @@ public class FileMoveDetectionStepIT {
   private final SourceLinesHashRepository sourceLinesHash = mock(SourceLinesHashRepository.class);
   private final FileSimilarity fileSimilarity = new FileSimilarityImpl(new SourceSimilarityImpl());
   private final CapturingScoreMatrixDumper scoreMatrixDumper = new CapturingScoreMatrixDumper();
-  private final RecordingMutableAddedFileRepository addedFileRepository = new RecordingMutableAddedFileRepository();
 
   private final FileMoveDetectionStep underTest = new FileMoveDetectionStep(analysisMetadataHolder, treeRootHolder, dbClient,
-    fileSimilarity, movedFilesRepository, sourceLinesHash, scoreMatrixDumper, addedFileRepository, new NoOpHeapSizeChecker());
+    fileSimilarity, movedFilesRepository, sourceLinesHash, scoreMatrixDumper, new NoOpHeapSizeChecker());
 
   @Before
   public void setUp() throws Exception {
@@ -277,7 +274,6 @@ public class FileMoveDetectionStepIT {
     underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
-    assertThat(addedFileRepository.getComponents()).isEmpty();
     verifyStatistics(context, 0, null, null, null);
   }
 
@@ -292,7 +288,6 @@ public class FileMoveDetectionStepIT {
     underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
-    assertThat(addedFileRepository.getComponents()).containsOnly(file1, file2);
     verifyStatistics(context, 2, 0, 2, null);
   }
 
@@ -306,7 +301,6 @@ public class FileMoveDetectionStepIT {
     underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
-    assertThat(addedFileRepository.getComponents()).isEmpty();
     verifyStatistics(context, 0, null, null, null);
   }
 
@@ -324,7 +318,6 @@ public class FileMoveDetectionStepIT {
     underTest.execute(context);
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
-    assertThat(addedFileRepository.getComponents()).isEmpty();
     verifyStatistics(context, 2, 2, 0, null);
   }
 
@@ -344,7 +337,6 @@ public class FileMoveDetectionStepIT {
     MovedFilesRepository.OriginalFile originalFile = movedFilesRepository.getOriginalFile(file2).get();
     assertThat(originalFile.key()).isEqualTo(dtos[0].getKey());
     assertThat(originalFile.uuid()).isEqualTo(dtos[0].uuid());
-    assertThat(addedFileRepository.getComponents()).isEmpty();
     verifyStatistics(context, 1, 1, 1, 1);
   }
 
@@ -364,7 +356,6 @@ public class FileMoveDetectionStepIT {
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore())
       .isPositive()
       .isLessThan(MIN_REQUIRED_SCORE);
-    assertThat(addedFileRepository.getComponents()).contains(file2);
     verifyStatistics(context, 1, 1, 1, 0);
   }
 
@@ -382,7 +373,6 @@ public class FileMoveDetectionStepIT {
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isZero();
-    assertThat(addedFileRepository.getComponents()).contains(file2);
     verifyStatistics(context, 1, 1, 1, 0);
   }
 
@@ -400,7 +390,6 @@ public class FileMoveDetectionStepIT {
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix).isNull();
-    assertThat(addedFileRepository.getComponents()).containsOnly(file2);
     verifyStatistics(context, 1, 0, 1, null);
   }
 
@@ -418,7 +407,6 @@ public class FileMoveDetectionStepIT {
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isZero();
-    assertThat(addedFileRepository.getComponents()).contains(file2);
     verifyStatistics(context, 1, 1, 1, 0);
     assertThat(logTester.logs(Level.DEBUG)).contains("max score in matrix is less than min required score (85). Do nothing.");
   }
@@ -438,7 +426,6 @@ public class FileMoveDetectionStepIT {
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isEqualTo(100);
-    assertThat(addedFileRepository.getComponents()).containsOnly(file2, file3);
     verifyStatistics(context, 2, 1, 2, 0);
   }
 
@@ -458,7 +445,6 @@ public class FileMoveDetectionStepIT {
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isEqualTo(100);
-    assertThat(addedFileRepository.getComponents()).containsOnly(file3);
     verifyStatistics(context, 1, 2, 1, 0);
   }
 
@@ -477,7 +463,6 @@ public class FileMoveDetectionStepIT {
 
     assertThat(movedFilesRepository.getComponentsWithOriginal()).isEmpty();
     assertThat(scoreMatrixDumper.scoreMatrix).isNull();
-    assertThat(addedFileRepository.getComponents()).isEmpty();
     verifyStatistics(context, 2, 2, 0, null);
   }
 
@@ -513,7 +498,6 @@ public class FileMoveDetectionStepIT {
     assertThat(originalFile5.key()).isEqualTo(dtos[3].getKey());
     assertThat(originalFile5.uuid()).isEqualTo(dtos[3].uuid());
     assertThat(scoreMatrixDumper.scoreMatrix.getMaxScore()).isGreaterThan(MIN_REQUIRED_SCORE);
-    assertThat(addedFileRepository.getComponents()).isEmpty();
     verifyStatistics(context, 3, 4, 2, 2);
   }
 
@@ -690,23 +674,5 @@ public class FileMoveDetectionStepIT {
     context.getStatistics().assertValue("dbFiles", expectedDbFiles);
     context.getStatistics().assertValue("addedFiles", expectedAddedFiles);
     context.getStatistics().assertValue("movedFiles", expectedMovedFiles);
-  }
-
-  public static class RecordingMutableAddedFileRepository implements MutableAddedFileRepository {
-    private final List<Component> components = new ArrayList<>();
-
-    @Override
-    public void register(Component file) {
-      components.add(file);
-    }
-
-    @Override
-    public boolean isAdded(Component component) {
-      throw new UnsupportedOperationException("isAdded should not be called");
-    }
-
-    public List<Component> getComponents() {
-      return components;
-    }
   }
 }
