@@ -20,7 +20,6 @@
 package org.sonar.server.v2.api.agentic.controller;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -85,11 +84,11 @@ public class DefaultAgenticJobsController implements AgenticJobsController {
       query.setAgentTypes(types);
     }
     Optional.ofNullable(parseStartingDateOrDateTime(request.createdAfter()))
-      .map(Date::toInstant)
-      .ifPresent(instant -> query.setMinCreatedAt(instant.toEpochMilli()));
+      .map(date -> date.toInstant().toEpochMilli())
+      .ifPresent(query::setMinCreatedAt);
     Optional.ofNullable(parseEndingDateOrDateTime(request.createdBefore()))
-      .map(Date::toInstant)
-      .ifPresent(instant -> query.setMaxCreatedAt(instant.toEpochMilli()));
+      .map(date -> date.toInstant().toEpochMilli())
+      .ifPresent(query::setMaxCreatedAt);
     return query;
   }
 
