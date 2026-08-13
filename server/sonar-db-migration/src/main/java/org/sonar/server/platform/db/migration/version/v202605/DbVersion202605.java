@@ -71,6 +71,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_040, "Create 'finding_locations' table", CreateFindingLocationsTable.class)
       .add(2026_05_041, "Create 'organization_configs' table", CreateOrganizationConfigsTable.class)
       .add(2026_05_042, "Create 'project_configs' table", CreateProjectConfigsTable.class)
-      .add(2026_05_043, "Add 'selected_project_ids' column to 'agent_schedules' table", AddSelectedProjectIdsToAgentSchedulesTable.class);
+      .add(2026_05_043, "Add 'selected_project_ids' column to 'agent_schedules' table", AddSelectedProjectIdsToAgentSchedulesTable.class)
+      .add(2026_05_044, "Add 'dop_user_id' column to 'remediation_agent_jobs' table", AddDopUserIdToRemediationAgentJobsTable.class);
   }
 }
