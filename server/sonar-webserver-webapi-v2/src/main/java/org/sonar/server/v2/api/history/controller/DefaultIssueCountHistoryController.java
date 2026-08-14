@@ -43,10 +43,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import static org.sonar.server.v2.WebApiEndpoints.HISTORY_DOMAIN;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /** Serves issue-count history requests for authenticated project branches. */
 @RestController
@@ -88,15 +86,14 @@ public class DefaultIssueCountHistoryController implements IssueCountHistoryApi 
     HistoryDateRange dateRange = HistoryControllerUtils.ensureValidDateRange(startDate, endDate, clock);
     HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, entityId, entityTypeEnum);
 
-    try {
-      return ResponseEntity.ok(HistoryModelConverter.toApiIssueCountHistoryResponse(issueHistoryService.queryIssueCountHistory(
+    return ResponseEntity.ok(
+      HistoryModelConverter.toApiIssueCountHistoryResponse(
+        issueHistoryService.queryIssueCountHistory(
           entityId, entityTypeEnum, dateRange.start(), dateRange.end(),
-           ruleKeys, HistoryModelConverter.toCoreSeverities(severities), HistoryModelConverter.toCoreIssueTypes(issueTypes),
-            HistoryModelConverter.toCoreStatuses(statuses), impacts,
-            HistoryModelConverter.toCoreIssueCountDistribution(sliceBy))));
-    } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(BAD_REQUEST, e.getMessage(), e);
-    }
+          ruleKeys, HistoryModelConverter.toCoreSeverities(severities),
+          HistoryModelConverter.toCoreIssueTypes(issueTypes),
+          HistoryModelConverter.toCoreStatuses(statuses), impacts,
+          HistoryModelConverter.toCoreIssueCountDistribution(sliceBy))));
   }
 
 }

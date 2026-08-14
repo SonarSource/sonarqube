@@ -33,6 +33,7 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.ProjectPermission;
+import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.user.UserSession;
 import org.sonarsource.history.api.model.HistoryEntityType;
 import org.sonarsource.history.api.model.IssueResolutionHistoryResponse;
@@ -42,12 +43,14 @@ import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.model.IssueCountHistoryFilters;
+import org.sonarsource.history.model.IssueResolutionHistoryQuery;
 import org.sonarsource.history.model.IssueResolutionHistoryPoint;
 import org.sonarsource.history.server.service.IssueTtrHistoryService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -55,6 +58,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class DefaultIssueResolutionHistoryControllerTest {
 
@@ -70,6 +76,7 @@ public class DefaultIssueResolutionHistoryControllerTest {
   private final ComponentDao componentDao = mock();
   private final DefaultIssueResolutionHistoryController underTest = new DefaultIssueResolutionHistoryController(
     userSession, dbClient, issueTtrHistoryService, Clock.fixed(NOW, ZoneOffset.UTC));
+  private final MockMvc mockMvc = ControllerTester.getMockMvc(underTest);
 
   @Before
   public void setUp() {
@@ -112,22 +119,40 @@ public class DefaultIssueResolutionHistoryControllerTest {
   }
 
   @Test
-  public void getIssueResolutionHistoryRejectsFutureStartBeforeQuerying() {
+  public void getIssueResolutionHistory_whenStartDateIsInFuture_shouldReturnBadRequest() throws Exception {
     OffsetDateTime future = OffsetDateTime.parse("2026-07-08T02:00:00Z");
 
-    assertThatThrownBy(() -> underTest.getIssueResolutionHistory(
-      ENTITY_ID,
-      HistoryEntityType.PROJECT_BRANCH,
-      IssueResolutionStatistic.RESOLVED_ISSUES,
-      future,
-      null,
-      null,
-      null,
-      null,
-      null))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("must not be in the future.");
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("statistic", "RESOLVED_ISSUES")
+        .queryParam("startDate", future.toString()))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Start date [2026-07-08T02:00Z] must not be in the future.\"}"));
 
     verifyNoInteractions(issueTtrHistoryService);
+  }
+
+  @Test
+  public void getIssueResolutionHistory_whenServiceRejects_shouldReturnBadRequestToClient() throws Exception {
+    ComponentDto portfolio = portfolio();
+    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    when(issueTtrHistoryService.query(
+      eq(org.sonarsource.history.model.IssueResolutionStatistic.MTTR), any(IssueResolutionHistoryQuery.class)))
+      .thenThrow(new IllegalArgumentException("Unsupported resolution filter"));
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("statistic", "MTTR")
+        .queryParam("startDate", START.toString()))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Unsupported resolution filter\"}"));
+  }
+
+  private static ComponentDto portfolio() {
+    return new ComponentDto()
+      .setUuid(ENTITY_ID)
+      .setBranchUuid(ENTITY_ID)
+      .setQualifier(ComponentQualifiers.VIEW);
   }
 }

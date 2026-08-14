@@ -37,7 +37,7 @@ import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDao;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.user.UserSession;
 import org.sonarsource.history.api.model.HistoryEntityType;
 import org.sonarsource.history.api.model.IssueCountDistributionType;
@@ -46,10 +46,9 @@ import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.model.IssueCountDistribution;
 import org.sonarsource.history.server.service.IssueCountHistoryService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
@@ -58,6 +57,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class DefaultIssueCountHistoryControllerTest {
 
@@ -77,6 +79,7 @@ public class DefaultIssueCountHistoryControllerTest {
   private final ProjectDao projectDao = mock();
   private final DefaultIssueCountHistoryController underTest = new DefaultIssueCountHistoryController(
     userSession, dbClient, issueHistoryService, Clock.fixed(NOW, ZoneOffset.UTC));
+  private final MockMvc mockMvc = ControllerTester.getMockMvc(underTest);
 
   @Before
   public void setUp() {
@@ -109,28 +112,32 @@ public class DefaultIssueCountHistoryControllerTest {
   }
 
   @Test
-  public void getIssueCountHistory_whenPortfolioIsMissing_shouldReturnNotFound() {
+  public void getIssueCountHistory_whenPortfolioIsMissing_shouldReturnNotFound() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      ENTITY_ID, ENTITY_TYPE, startDate, null, null, null, null, null, null, null))
-      .isInstanceOf(NotFoundException.class);
+    mockMvc.perform(get("/history/issue-count-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isNotFound());
 
     verifyNoInteractions(issueHistoryService);
   }
 
   @Test
-  public void getIssueCountHistory_whenPortfolioIsUnauthorized_shouldNotQueryHistory() {
+  public void getIssueCountHistory_whenPortfolioIsUnauthorized_shouldReturnForbidden() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     ComponentDto portfolio = portfolio();
     when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     doThrow(new ForbiddenException("Access forbidden"))
       .when(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
 
-    assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      ENTITY_ID, ENTITY_TYPE, startDate, null, null, null, null, null, null, null))
-      .isInstanceOf(ForbiddenException.class);
+    mockMvc.perform(get("/history/issue-count-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isForbidden());
 
     verifyNoInteractions(issueHistoryService);
   }
@@ -155,7 +162,7 @@ public class DefaultIssueCountHistoryControllerTest {
   }
 
   @Test
-  public void getIssueCountHistory_whenServiceRejects_shouldReturnBadRequest() {
+  public void getIssueCountHistory_whenServiceRejects_shouldReturnBadRequest() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
     when(issueHistoryService.queryIssueCountHistory(
@@ -163,20 +170,24 @@ public class DefaultIssueCountHistoryControllerTest {
       isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenThrow(new IllegalArgumentException("Unsupported history filter"));
 
-    assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
-      .isInstanceOf(ResponseStatusException.class)
-      .hasMessageContaining("Unsupported history filter");
+    mockMvc.perform(get("/history/issue-count-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Unsupported history filter\"}"));
   }
 
   @Test
-  public void getIssueCountHistory_whenStartDateIsInFuture_shouldReject() {
+  public void getIssueCountHistory_whenStartDateIsInFuture_shouldReturnBadRequest() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T23:30:00-02:00");
 
-    assertThatThrownBy(() -> underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Start date [2026-07-07T23:30-02:00] must not be in the future.");
+    mockMvc.perform(get("/history/issue-count-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Start date [2026-07-07T23:30-02:00] must not be in the future.\"}"));
 
     verifyNoInteractions(issueHistoryService);
   }
@@ -201,14 +212,17 @@ public class DefaultIssueCountHistoryControllerTest {
   }
 
   @Test
-  public void getIssueCountHistory_whenEndInstantIsBeforeStartInstant_shouldReject() {
+  public void getIssueCountHistory_whenEndInstantIsBeforeStartInstant_shouldReturnBadRequest() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-07T23:59:59Z");
 
-    assertThatThrownBy(() -> underTest.getIssueCountHistory(
-       PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("End date [2026-07-07T23:59:59Z] must be greater than or equal to start date [2026-07-08T00:00Z].");
+    mockMvc.perform(get("/history/issue-count-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("startDate", startDate.toString())
+        .queryParam("endDate", endDate.toString()))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"End date [2026-07-07T23:59:59Z] must be greater than or equal to start date [2026-07-08T00:00Z].\"}"));
 
     verifyNoInteractions(issueHistoryService);
   }
@@ -278,16 +292,18 @@ public class DefaultIssueCountHistoryControllerTest {
   }
 
   @Test
-  public void getIssueCountHistory_whenProjectBranchIsUnauthorized_shouldNotQueryHistory() {
+  public void getIssueCountHistory_whenProjectBranchIsUnauthorized_shouldReturnForbidden() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     ProjectDto project = project(PROJECT_UUID, ComponentQualifiers.PROJECT);
     stubProjectBranch(project);
     doThrow(new ForbiddenException("Access forbidden"))
       .when(userSession).checkEntityPermission(ProjectPermission.USER, project);
 
-    assertThatThrownBy(() -> underTest.getIssueCountHistory(
-       PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
-      .isInstanceOf(ForbiddenException.class);
+    mockMvc.perform(get("/history/issue-count-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isForbidden());
 
     verifyNoInteractions(issueHistoryService);
   }
@@ -311,27 +327,31 @@ public class DefaultIssueCountHistoryControllerTest {
   }
 
   @Test
-  public void getIssueCountHistory_whenProjectBranchIsMissing_shouldReturnNotFound() {
+  public void getIssueCountHistory_whenProjectBranchIsMissing_shouldReturnNotFound() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> underTest.getIssueCountHistory(
-       PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
-      .isInstanceOf(NotFoundException.class);
+    mockMvc.perform(get("/history/issue-count-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isNotFound());
 
     verifyNoInteractions(projectDao, issueHistoryService);
   }
 
   @Test
-  public void getIssueCountHistory_whenProjectIsMissing_shouldReturnNotFound() {
+  public void getIssueCountHistory_whenProjectIsMissing_shouldReturnNotFound() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID))
       .thenReturn(Optional.of(new BranchDto().setUuid(PROJECT_BRANCH_ID).setProjectUuid(PROJECT_UUID)));
     when(projectDao.selectByUuid(dbSession, PROJECT_UUID)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> underTest.getIssueCountHistory(
-       PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null))
-      .isInstanceOf(NotFoundException.class);
+    mockMvc.perform(get("/history/issue-count-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isNotFound());
 
     verifyNoInteractions(issueHistoryService);
   }

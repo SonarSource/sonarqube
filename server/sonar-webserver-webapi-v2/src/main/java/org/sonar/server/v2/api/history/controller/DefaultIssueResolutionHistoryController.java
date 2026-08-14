@@ -46,10 +46,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import static org.sonar.server.v2.WebApiEndpoints.HISTORY_DOMAIN;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /** Serves issue-resolution history requests for authenticated entities. */
 @RestController
@@ -93,24 +91,20 @@ public class DefaultIssueResolutionHistoryController implements IssueResolutionH
     HistoryDateRange dateRange = HistoryControllerUtils.ensureValidDateRange(startDate, endDate, clock);
     HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, entityId, entityTypeEnum);
 
-    try {
-      var filters = IssueCountHistoryService.buildFilters(
-        null,
-        HistoryModelConverter.toCoreSeverities(severities),
-        HistoryModelConverter.toCoreIssueTypes(issueTypes),
-        null,
-        impacts);
-      var query = IssueResolutionHistoryQuery.builder(entityId, entityTypeEnum, dateRange.start())
-        .endDate(dateRange.end())
-        .sliceBy(HistoryModelConverter.toCoreIssueResolutionSliceBy(sliceBy))
-        .filters(filters)
-        .build();
-      var response = new org.sonarsource.history.model.IssueResolutionHistoryResponse(
-        HistoryModelConverter.toCoreIssueResolutionStatistic(statistic),
-        issueTtrHistoryService.query(HistoryModelConverter.toCoreIssueResolutionStatistic(statistic), query));
-      return ResponseEntity.ok(HistoryModelConverter.toApiIssueResolutionHistoryResponse(response));
-    } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(BAD_REQUEST, e.getMessage(), e);
-    }
+    var filters = IssueCountHistoryService.buildFilters(
+      null,
+      HistoryModelConverter.toCoreSeverities(severities),
+      HistoryModelConverter.toCoreIssueTypes(issueTypes),
+      null,
+      impacts);
+    var query = IssueResolutionHistoryQuery.builder(entityId, entityTypeEnum, dateRange.start())
+      .endDate(dateRange.end())
+      .sliceBy(HistoryModelConverter.toCoreIssueResolutionSliceBy(sliceBy))
+      .filters(filters)
+      .build();
+    var response = new org.sonarsource.history.model.IssueResolutionHistoryResponse(
+      HistoryModelConverter.toCoreIssueResolutionStatistic(statistic),
+      issueTtrHistoryService.query(HistoryModelConverter.toCoreIssueResolutionStatistic(statistic), query));
+    return ResponseEntity.ok(HistoryModelConverter.toApiIssueResolutionHistoryResponse(response));
   }
 }
