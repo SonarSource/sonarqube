@@ -22,7 +22,10 @@ package org.sonar.server.v2.api.history.controller;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.security.RequireAuthentication;
 import org.sonarsource.history.HistoryDateRange;
@@ -37,10 +40,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.server.v2.WebApiEndpoints.HISTORY_DOMAIN;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /** Serves measure history requests for authenticated project branches. */
 @RestController
@@ -69,18 +71,28 @@ public class DefaultMeasuresHistoryController implements MeasuresHistoryApi {
     OffsetDateTime startDate,
     @Nullable OffsetDateTime endDate) {
     if (metricKeys.isEmpty()) {
-      throw new ResponseStatusException(BAD_REQUEST, "metricKeys must not be empty");
+      throw new IllegalArgumentException("metricKeys must not be empty");
     }
 
     EntityType entityTypeEnum = HistoryControllerUtils.ensureValidEntityType(entityType);
     HistoryDateRange dateRange = HistoryControllerUtils.ensureValidDateRange(startDate, endDate, clock);
     HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, entityId, entityTypeEnum);
 
-    try {
-      return ResponseEntity.ok(HistoryModelConverter.toApiMeasuresHistoryResponse(measuresHistoryService.queryMeasuresHistory(
-        entityId, entityTypeEnum, metricKeys, dateRange.start(), dateRange.end())));
-    } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(BAD_REQUEST, e.getMessage(), e);
+    validateMetricKeys(metricKeys);
+    return ResponseEntity.ok(HistoryModelConverter.toApiMeasuresHistoryResponse(measuresHistoryService.queryMeasuresHistory(
+      entityId, entityTypeEnum, metricKeys, dateRange.start(), dateRange.end())));
+  }
+
+  private void validateMetricKeys(List<String> metricKeys) {
+    try (DbSession session = dbClient.openSession(false)) {
+      Set<String> knownMetricKeys = dbClient.metricDao().selectByKeys(session, metricKeys).stream()
+        .map(MetricDto::getKey)
+        .collect(toSet());
+      for (String metricKey : metricKeys) {
+        if (!knownMetricKeys.contains(metricKey)) {
+          throw new IllegalArgumentException("Invalid metric key: '%s'".formatted(metricKey));
+        }
+      }
     }
   }
 

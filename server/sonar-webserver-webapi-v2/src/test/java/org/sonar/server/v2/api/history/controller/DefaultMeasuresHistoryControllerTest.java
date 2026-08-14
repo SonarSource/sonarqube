@@ -34,27 +34,31 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.metric.MetricDao;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDao;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.user.UserSession;
 import org.sonarsource.history.api.model.HistoryEntityType;
 import org.sonarsource.history.api.model.MeasuresHistoryResponse;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.server.service.MeasuresHistoryService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class DefaultMeasuresHistoryControllerTest {
 
@@ -72,32 +76,38 @@ public class DefaultMeasuresHistoryControllerTest {
   private final DbSession dbSession = mock();
   private final BranchDao branchDao = mock();
   private final ComponentDao componentDao = mock();
+  private final MetricDao metricDao = mock();
   private final ProjectDao projectDao = mock();
   private final DefaultMeasuresHistoryController underTest = new DefaultMeasuresHistoryController(
     userSession, dbClient, measuresHistoryService, Clock.fixed(NOW, ZoneOffset.UTC));
+  private final MockMvc mockMvc = ControllerTester.getMockMvc(underTest);
 
   @Before
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.branchDao()).thenReturn(branchDao);
     when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.metricDao()).thenReturn(metricDao);
     when(dbClient.projectDao()).thenReturn(projectDao);
+    when(metricDao.selectByKeys(dbSession, METRIC_KEYS)).thenReturn(List.of(new MetricDto().setKey("ncloc")));
   }
 
   @Test
-  public void getMeasuresHistory_whenMetricKeysAreEmpty_shouldReject() {
+  public void getMeasuresHistory_whenMetricKeysAreEmpty_shouldReturnBadRequest() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    List<String> emptyMetricKeys = List.of();
 
-    assertThatThrownBy(() -> underTest.getMeasuresHistory(ENTITY_TYPE, ENTITY_ID, emptyMetricKeys, startDate, null))
-      .isInstanceOf(ResponseStatusException.class)
-      .hasMessageContaining("metricKeys must not be empty");
-
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("metricKeys")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"metricKeys must not be empty\"}"));
     verifyNoInteractions(measuresHistoryService);
   }
 
   @Test
-  public void getMeasuresHistory_whenServiceRejects_shouldReturnBadRequest() {
+  public void getMeasuresHistory_whenServiceRejects_shouldReturnBadRequest() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
     when(measuresHistoryService.queryMeasuresHistory(
@@ -105,10 +115,76 @@ public class DefaultMeasuresHistoryControllerTest {
       startDate.toInstant(), UTC_MIDNIGHT))
       .thenThrow(new IllegalArgumentException("Unsupported metric"));
 
-    assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
-      .isInstanceOf(ResponseStatusException.class)
-      .hasMessageContaining("Unsupported metric");
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("metricKeys", "ncloc")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Unsupported metric\"}"));
+  }
+
+  @Test
+  public void getMeasuresHistory_whenMetricKeyIsInvalid_shouldReturnBadRequest() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ComponentDto portfolio = portfolio();
+    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    when(metricDao.selectByKeys(dbSession, List.of("teehee"))).thenReturn(List.of());
+
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("metricKeys", "teehee")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Invalid metric key: 'teehee'\"}"));
+    verifyNoInteractions(measuresHistoryService);
+  }
+
+  @Test
+  public void getMeasuresHistory_whenPortfolioIsMissing_shouldReturnNotFoundToClient() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.empty());
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("metricKeys", "ncloc")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isNotFound());
+    verifyNoInteractions(measuresHistoryService);
+  }
+
+  @Test
+  public void getMeasuresHistory_whenPortfolioIsUnauthorized_shouldReturnForbiddenToClient() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ComponentDto portfolio = portfolio();
+    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    doThrow(new ForbiddenException("Access forbidden"))
+      .when(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("metricKeys", "ncloc")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isForbidden());
+    verifyNoInteractions(measuresHistoryService);
+  }
+
+  @Test
+  public void getMeasuresHistory_whenServiceFailsUnexpectedly_shouldReturnInternalServerErrorToClient() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ComponentDto portfolio = portfolio();
+    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    when(measuresHistoryService.queryMeasuresHistory(
+      ENTITY_ID, EntityType.PORTFOLIO, METRIC_KEYS, startDate.toInstant(), UTC_MIDNIGHT))
+      .thenThrow(new IllegalStateException("History service unavailable"));
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("metricKeys", "ncloc")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isInternalServerError())
+      .andExpect(content().json("{\"message\":\"History service unavailable\"}"));
   }
 
   @Test
@@ -130,51 +206,33 @@ public class DefaultMeasuresHistoryControllerTest {
   }
 
   @Test
-  public void getMeasuresHistory_whenPortfolioIsMissing_shouldReturnNotFound() {
-    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.empty());
-
-    assertThatThrownBy(() -> underTest.getMeasuresHistory(ENTITY_TYPE, ENTITY_ID, METRIC_KEYS, startDate, null))
-      .isInstanceOf(NotFoundException.class);
-
-    verifyNoInteractions(measuresHistoryService);
-  }
-
-  @Test
-  public void getMeasuresHistory_whenPortfolioIsUnauthorized_shouldNotQueryHistory() {
-    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    ComponentDto portfolio = portfolio();
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
-    doThrow(new ForbiddenException("Access forbidden"))
-      .when(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
-
-    assertThatThrownBy(() -> underTest.getMeasuresHistory(ENTITY_TYPE, ENTITY_ID, METRIC_KEYS, startDate, null))
-      .isInstanceOf(ForbiddenException.class);
-
-    verifyNoInteractions(measuresHistoryService);
-  }
-
-  @Test
-  public void getMeasuresHistory_whenStartDateIsInFuture_shouldReject() {
+  public void getMeasuresHistory_whenStartDateIsInFuture_shouldReturnBadRequest() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T23:30:00-02:00");
 
-    assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Start date [2026-07-07T23:30-02:00] must not be in the future.");
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("metricKeys", "ncloc")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Start date [2026-07-07T23:30-02:00] must not be in the future.\"}"));
 
     verifyNoInteractions(measuresHistoryService);
   }
 
   @Test
-  public void getMeasuresHistory_whenEndInstantIsBeforeStartInstant_shouldReject() {
+  public void getMeasuresHistory_whenEndInstantIsBeforeStartInstant_shouldReturnBadRequest() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-07T23:59:59Z");
 
-    assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, endDate))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("End date [2026-07-07T23:59:59Z] must be greater than or equal to start date [2026-07-08T00:00Z].");
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("metricKeys", "ncloc")
+        .queryParam("startDate", startDate.toString())
+        .queryParam("endDate", endDate.toString()))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"End date [2026-07-07T23:59:59Z] must be greater than or equal to start date [2026-07-08T00:00Z].\"}"));
 
     verifyNoInteractions(measuresHistoryService);
   }
@@ -284,16 +342,19 @@ public class DefaultMeasuresHistoryControllerTest {
   }
 
   @Test
-  public void getMeasuresHistory_whenProjectBranchIsUnauthorized_shouldNotQueryHistory() {
+  public void getMeasuresHistory_whenProjectBranchIsUnauthorized_shouldReturnForbidden() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     ProjectDto project = project(PROJECT_UUID, ComponentQualifiers.PROJECT);
     stubProjectBranch(project);
     doThrow(new ForbiddenException("Access forbidden"))
       .when(userSession).checkEntityPermission(ProjectPermission.USER, project);
 
-    assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
-      .isInstanceOf(ForbiddenException.class);
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("metricKeys", "ncloc")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isForbidden());
 
     verifyNoInteractions(measuresHistoryService);
   }
@@ -318,27 +379,33 @@ public class DefaultMeasuresHistoryControllerTest {
   }
 
   @Test
-  public void getMeasuresHistory_whenProjectBranchIsMissing_shouldReturnNotFound() {
+  public void getMeasuresHistory_whenProjectBranchIsMissing_shouldReturnNotFound() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
-      .isInstanceOf(NotFoundException.class);
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("metricKeys", "ncloc")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isNotFound());
 
     verifyNoInteractions(projectDao, measuresHistoryService);
   }
 
   @Test
-  public void getMeasuresHistory_whenProjectIsMissing_shouldReturnNotFound() {
+  public void getMeasuresHistory_whenProjectIsMissing_shouldReturnNotFound() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID))
       .thenReturn(Optional.of(new BranchDto().setUuid(PROJECT_BRANCH_ID).setProjectUuid(PROJECT_UUID)));
     when(projectDao.selectByUuid(dbSession, PROJECT_UUID)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> underTest.getMeasuresHistory(
-      HistoryEntityType.PROJECT_BRANCH, PROJECT_BRANCH_ID, METRIC_KEYS, startDate, null))
-      .isInstanceOf(NotFoundException.class);
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("metricKeys", "ncloc")
+        .queryParam("startDate", startDate.toString()))
+      .andExpect(status().isNotFound());
 
     verifyNoInteractions(measuresHistoryService);
   }
