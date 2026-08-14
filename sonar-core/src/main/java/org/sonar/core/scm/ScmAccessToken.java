@@ -19,6 +19,8 @@
  */
 package org.sonar.core.scm;
 
+import javax.annotation.Nullable;
+
 /**
  * A short-lived, DOP-agnostic git credential minted for a single project's bound repository.
  *
@@ -28,7 +30,8 @@ package org.sonar.core.scm;
  * @param username  how to embed {@code secret} in a git remote URL ({@code https://username:secret@host}),
  *                  e.g. {@code "x-access-token"} for GitHub, the token's own name for GitLab
  * @param secret    the minted token
- * @param expiresAt ISO-8601 expiry timestamp of {@code secret}
+ * @param expiresAt ISO-8601 expiry timestamp of {@code secret}, or {@code null} for a platform (e.g.
+ *                  Azure DevOps) whose credential has no per-request expiry to report
  */
-public record ScmAccessToken(String alm, String username, String secret, String expiresAt) {
+public record ScmAccessToken(String alm, String username, String secret, @Nullable String expiresAt) {
 }
