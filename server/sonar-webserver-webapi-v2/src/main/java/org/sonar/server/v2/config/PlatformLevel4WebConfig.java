@@ -19,10 +19,15 @@
  */
 package org.sonar.server.v2.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.api.config.Configuration;
 import org.sonar.server.monitoring.ServerMonitoringMetrics;
+import org.sonar.server.resolver.DefaultsArgumentResolver;
+import org.sonar.server.resolver.DefaultsRequestBodyAdvice;
 import org.sonar.server.rule.ActiveRuleService;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.agentic.controller.DefaultAgenticJobsController;
 import org.sonar.server.v2.api.analysis.controller.DefaultActiveRulesController;
 import org.sonar.server.v2.api.analysis.controller.DefaultJresController;
 import org.sonar.server.v2.api.analysis.controller.DefaultScannerEngineController;
@@ -30,7 +35,6 @@ import org.sonar.server.v2.api.analysis.controller.DefaultVersionController;
 import org.sonar.server.v2.api.analysis.service.ActiveRulesHandlerImpl;
 import org.sonar.server.v2.api.analysis.service.JresHandlerImpl;
 import org.sonar.server.v2.api.analysis.service.ScannerEngineHandlerImpl;
-import org.sonar.server.v2.api.agentic.controller.DefaultAgenticJobsController;
 import org.sonar.server.v2.api.azurebilling.controller.DefaultAzureBillingController;
 import org.sonar.server.v2.api.azurebilling.environment.AzureEnvironment;
 import org.sonar.server.v2.api.azurebilling.service.DefaultAzureBillingHandler;
@@ -54,8 +58,6 @@ import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;
 import org.sonar.server.v2.api.user.controller.DefaultUserController;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
-import org.sonar.server.resolver.DefaultsArgumentResolver;
-import org.sonar.server.resolver.DefaultsRequestBodyAdvice;
 import org.sonar.server.v2.common.DeprecatedHandler;
 import org.sonar.server.v2.common.WebApiV2MetricsInterceptor;
 import org.sonar.server.v2.security.WebSecurityConfig;
@@ -67,8 +69,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
-import java.util.ArrayList;
-import java.util.List;
 
 @org.springframework.context.annotation.Configuration
 @Import({
