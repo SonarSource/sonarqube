@@ -48,6 +48,7 @@ import org.sonar.server.v2.api.projectbindings.controller.DefaultProjectBindings
 import org.sonar.server.v2.api.projects.controller.DefaultBoundProjectsController;
 import org.sonar.server.v2.api.rule.controller.DefaultRuleController;
 import org.sonar.server.v2.api.rule.converter.RuleRestResponseGenerator;
+import org.sonar.server.v2.api.scmaccesstoken.controller.DefaultScmAccessTokenController;
 import org.sonar.server.v2.api.system.controller.DatabaseMigrationsController;
 import org.sonar.server.v2.api.system.controller.DefaultLivenessController;
 import org.sonar.server.v2.api.system.controller.HealthController;
@@ -94,6 +95,7 @@ import java.util.List;
   DefaultProjectBindingsController.class,
   DefaultRuleController.class,
   DefaultScannerEngineController.class,
+  DefaultScmAccessTokenController.class,
   DefaultUserController.class,
   DefaultVersionController.class,
 

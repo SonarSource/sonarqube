@@ -1,0 +1,53 @@
+/*
+ * SonarQube
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.v2.api.scmaccesstoken.controller;
+
+import org.sonar.core.scm.ScmAccessToken;
+import org.sonar.core.scm.ScmAccessTokenProvider;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.UserSession;
+import org.sonar.server.v2.api.scmaccesstoken.response.ScmAccessTokenRestResponse;
+
+import static java.lang.String.format;
+
+public class DefaultScmAccessTokenController implements ScmAccessTokenController {
+
+  private final UserSession userSession;
+  private final ScmAccessTokenProvider scmAccessTokenProvider;
+
+  public DefaultScmAccessTokenController(UserSession userSession, ScmAccessTokenProvider scmAccessTokenProvider) {
+    this.userSession = userSession;
+    this.scmAccessTokenProvider = scmAccessTokenProvider;
+  }
+
+  @Override
+  public ScmAccessTokenRestResponse generateScmAccessToken(String projectKey) {
+    // Same deliberately conservative default as the GitHub-only endpoint this generalises (see
+    // DefaultGithubInstallationTokenController): minting yields a token that can push branches and
+    // open a PR/MR on the bound repository, materially more sensitive than reading binding metadata.
+    userSession.checkIsSystemAdministrator();
+
+    ScmAccessToken token = scmAccessTokenProvider.mint(projectKey)
+      .orElseThrow(() -> new NotFoundException(format(
+        "Failed to mint an SCM access token for project '%s' — is it bound to a working DevOps Platform?", projectKey)));
+
+    return new ScmAccessTokenRestResponse(token.alm(), token.username(), token.secret(), token.expiresAt());
+  }
+}

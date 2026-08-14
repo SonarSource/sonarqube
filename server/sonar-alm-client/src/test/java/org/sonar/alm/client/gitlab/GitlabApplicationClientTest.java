@@ -21,6 +21,7 @@ package org.sonar.alm.client.gitlab;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -411,6 +412,66 @@ public class GitlabApplicationClientTest {
     assertThat(gitlabUrlCall).isEqualTo(
       server.url("") + "projects/1234");
     assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
+  }
+
+  @Test
+  public void create_project_access_token() throws InterruptedException {
+    MockResponse tokenResponse = new MockResponse()
+      .setResponseCode(201)
+      .setBody("""
+        {\
+          "id": 42,\
+          "name": "sonarqube-remediation-agent",\
+          "token": "glpat-abc123",\
+          "expires_at": "2026-08-06",\
+          "scopes": ["api", "write_repository"]\
+        }""");
+    server.enqueue(tokenResponse);
+
+    GitlabProjectAccessToken token = underTest.createProjectAccessToken(gitlabUrl, "pat", 1234L,
+      "sonarqube-remediation-agent", List.of("api", "write_repository"), java.time.LocalDate.of(2026, 8, 6));
+
+    RecordedRequest request = server.takeRequest(10, TimeUnit.SECONDS);
+
+    assertThat(token.getId()).isEqualTo(42L);
+    assertThat(token.getName()).isEqualTo("sonarqube-remediation-agent");
+    assertThat(token.getToken()).isEqualTo("glpat-abc123");
+    assertThat(token.getExpiresAt()).isEqualTo("2026-08-06");
+    assertThat(token.getScopes()).containsExactly("api", "write_repository");
+
+    assertThat(request.getRequestUrl()).hasToString(server.url("") + "projects/1234/access_tokens");
+    assertThat(request.getMethod()).isEqualTo("POST");
+    assertThat(request.getHeader("Private-Token")).isEqualTo("pat");
+    assertThat(request.getBody().readUtf8()).isEqualTo(
+      "{\"name\":\"sonarqube-remediation-agent\",\"scopes\":[\"api\",\"write_repository\"],\"expires_at\":\"2026-08-06\"}");
+  }
+
+  @Test
+  public void create_project_access_token_fails_when_response_is_not_json() {
+    MockResponse response = new MockResponse()
+      .setResponseCode(200)
+      .setBody("not json");
+    server.enqueue(response);
+
+    List<String> scopes = List.of("api", "write_repository");
+    LocalDate expiresAt = LocalDate.of(2026, 8, 6);
+    assertThatThrownBy(() -> underTest.createProjectAccessToken(gitlabUrl, "pat", 1234L, "sonarqube-remediation-agent", scopes, expiresAt))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Could not parse GitLab answer when creating a project access token");
+  }
+
+  @Test
+  public void create_project_access_token_fails_when_insufficient_permissions() {
+    MockResponse response = new MockResponse()
+      .setResponseCode(403)
+      .setBody("{\"message\":\"403 Forbidden\"}");
+    server.enqueue(response);
+
+    List<String> scopes = List.of("api", "write_repository");
+    LocalDate expiresAt = LocalDate.of(2026, 8, 6);
+    assertThatThrownBy(() -> underTest.createProjectAccessToken(gitlabUrl, "pat", 1234L, "sonarqube-remediation-agent", scopes, expiresAt))
+      .isInstanceOf(GitlabServerException.class)
+      .hasMessageContaining("Forbidden");
   }
 
   @Test

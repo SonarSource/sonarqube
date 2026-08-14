@@ -27,6 +27,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -239,6 +240,42 @@ public class GitlabApplicationClient {
       }
     }
     return false;
+  }
+
+  /**
+   * Mints a GitLab project access token (SONAR-31165), scoped to both {@code api} (needed to open a
+   * merge request via the REST API) and {@code write_repository} (needed to push over git) — neither
+   * scope is a documented superset of the other, so both are required for the same minted token to
+   * cover both operations.
+   * https://docs.gitlab.com/ee/api/project_access_tokens.html#create-a-project-access-token
+   */
+  public GitlabProjectAccessToken createProjectAccessToken(String gitlabUrl, String personalAccessToken,
+    Long gitlabProjectId, String name, List<String> scopes, LocalDate expiresAt) {
+    String url = format("%s/projects/%s/access_tokens", gitlabUrl, gitlabProjectId);
+    String requestJson = GSON.toJson(new GsonProjectAccessTokenRequest(name, scopes, expiresAt.toString()));
+    LOG.debug("create project access token : [{}]", url);
+    Request request = new Request.Builder()
+      .addHeader(PRIVATE_TOKEN, personalAccessToken)
+      .addHeader("Content-Type", MediaTypes.JSON)
+      .url(url)
+      .post(RequestBody.create(requestJson.getBytes(UTF_8)))
+      .build();
+
+    try (Response response = client.newCall(request).execute()) {
+      checkResponseIsSuccessful(response, "Could not create GitLab project access token");
+      String body = response.body().string();
+      // Never log `body` verbatim: the create-token response's "token" field is the newly minted
+      // secret itself (CWE-532) — only its non-sensitive metadata is safe to trace.
+      GitlabProjectAccessToken token = new GsonBuilder().create().fromJson(body, GitlabProjectAccessToken.class);
+      LOG.trace("create project access token result : id=[{}] name=[{}] expires_at=[{}] scopes=[{}]",
+        token.getId(), token.getName(), token.getExpiresAt(), token.getScopes());
+      return token;
+    } catch (JsonSyntaxException e) {
+      throw new IllegalArgumentException("Could not parse GitLab answer when creating a project access token. Got a non-json payload as result.");
+    } catch (IOException e) {
+      logException(url, e);
+      throw new IllegalStateException(e.getMessage(), e);
+    }
   }
 
   public Project getProject(String gitlabUrl, String pat, Long gitlabProjectId) {

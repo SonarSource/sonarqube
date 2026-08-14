@@ -90,14 +90,17 @@ import org.sonar.server.ce.projectdump.ProjectExportWsModule;
 import org.sonar.server.ce.ws.CeWsModule;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DelegatingDevOpsProjectCreatorFactory;
+import org.sonar.server.common.almsettings.DelegatingScmAccessTokenProvider;
 import org.sonar.server.common.almsettings.azuredevops.AzureDevOpsProjectCreatorFactory;
 import org.sonar.server.common.almsettings.bitbucketcloud.BitbucketCloudProjectCreatorFactory;
 import org.sonar.server.common.almsettings.bitbucketserver.BitbucketServerProjectCreatorFactory;
 import org.sonar.server.common.almsettings.github.GithubDevOpsProjectCreationContextService;
 import org.sonar.server.common.almsettings.github.GithubInstallationTokenProviderImpl;
 import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
+import org.sonar.server.common.almsettings.github.GithubScmAccessTokenProviderAdapter;
 import org.sonar.server.common.almsettings.gitlab.GitlabDevOpsProjectCreationContextService;
 import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
+import org.sonar.server.common.almsettings.gitlab.GitlabScmAccessTokenProvider;
 import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.github.config.GithubConfigurationService;
@@ -697,6 +700,11 @@ public class PlatformLevel4 extends PlatformLevel {
       GitlabGlobalSettingsValidator.class,
       GitlabProjectCreatorFactory.class,
       AzureDevOpsValidator.class,
+
+      // SCM access token brokering (SONAR-31165)
+      GithubScmAccessTokenProviderAdapter.class,
+      GitlabScmAccessTokenProvider.class,
+      DelegatingScmAccessTokenProvider.class,
 
       // ALM settings
       new AlmSettingsWsModule(),
