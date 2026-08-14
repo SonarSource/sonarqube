@@ -74,6 +74,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_043, "Add 'selected_project_ids' column to 'agent_schedules' table", AddSelectedProjectIdsToAgentSchedulesTable.class)
       .add(2026_05_044, "Add 'dop_user_id' column to 'remediation_agent_jobs' table", AddDopUserIdToRemediationAgentJobsTable.class)
       .add(2026_05_045, "Add 'issues_selection_strategy' column to 'remediation_agent_jobs' table", AddIssuesSelectionStrategyToRemediationAgentJobsTable.class)
-      .add(2026_05_046, "Create 'hunter_scheduled_tasks' table", CreateHunterScheduledTasksTable.class);
+      .add(2026_05_046, "Create 'hunter_scheduled_tasks' table", CreateHunterScheduledTasksTable.class)
+      .add(2026_05_047, "Make legacy-id columns nullable in 'project_configs'", MakeProjectConfigsLegacyIdsNullable.class);
   }
 }
