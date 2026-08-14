@@ -39,6 +39,7 @@ import org.sonar.ce.task.projectexport.steps.DumpWriter;
 import org.sonar.ce.task.projectexport.steps.ProjectHolder;
 import org.sonar.ce.task.projectexport.steps.StreamWriter;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
@@ -116,12 +117,20 @@ public class ExportIssuesStep implements ComputationStep {
       .setProjectUuid(issueDto.getProjectUuid())
       .setCodeVariants(Optional.of(issueDto).map(IssueDto::getCodeVariantsString).orElse(""))
       .setPrioritizedRule(issueDto.isPrioritizedRule())
-      .setInternalTags(Optional.of(issueDto).map(IssueDto::getInternalTagsString).orElse(""));
+      .setInternalTags(Optional.of(issueDto).map(IssueDto::getInternalTagsString).orElse(""))
+      .setProducer(Optional.of(issueDto).map(IssueDto::getIssueProducer).map(ExportIssuesStep::toDumpIssueProducer).orElse(ProjectDump.IssueProducer.ISSUE_PRODUCER_SCANNER));
     setLocations(builder, issueDto);
     setMessageFormattings(builder, issueDto);
     mergeImpacts(builder, issueDto);
 
     return builder.build();
+  }
+
+  private static ProjectDump.IssueProducer toDumpIssueProducer(IssueProducer producer) {
+    return switch (producer) {
+      case SCANNER -> ProjectDump.IssueProducer.ISSUE_PRODUCER_SCANNER;
+      case HUNTER_AGENT -> ProjectDump.IssueProducer.ISSUE_PRODUCER_HUNTER_AGENT;
+    };
   }
 
   private static void mergeImpacts(ProjectDump.Issue.Builder builder, IssueDto issueDto) {

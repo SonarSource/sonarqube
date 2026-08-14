@@ -40,6 +40,7 @@ import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
@@ -237,7 +238,8 @@ public class ExportIssuesStepIT {
       .setIssueCloseTime(741L)
       .setCodeVariants(List.of("v1", "v2"))
       .setPrioritizedRule(true)
-      .setInternalTagsString("internal-tag-1,internal-tag-2");
+      .setInternalTagsString("internal-tag-1,internal-tag-2")
+      .setIssueProducer(IssueProducer.HUNTER_AGENT);
 
     // fields tested separately and/or required to match SQL request
     issueDto
@@ -280,6 +282,27 @@ public class ExportIssuesStepIT {
     assertThat(issue.getCodeVariants()).isEqualTo(issueDto.getCodeVariantsString());
     assertThat(issue.getPrioritizedRule()).isEqualTo(issueDto.isPrioritizedRule());
     assertThat(issue.getInternalTags()).isEqualTo(issueDto.getInternalTagsString());
+    assertThat(issue.getProducer()).isEqualTo(ProjectDump.IssueProducer.ISSUE_PRODUCER_HUNTER_AGENT);
+  }
+
+  @Test
+  public void verify_scanner_producer_is_exported_as_proto_default() {
+    IssueDto issueDto = createBaseIssueDto(readyRuleDto, SOME_PROJECT_UUID)
+      .setIssueProducer(IssueProducer.SCANNER);
+    insertIssue(issueDto);
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(getWrittenIssue().getProducer()).isEqualTo(ProjectDump.IssueProducer.ISSUE_PRODUCER_SCANNER);
+  }
+
+  @Test
+  public void verify_null_producer_is_exported_as_proto_default() {
+    insertIssue(readyRuleDto, SOME_PROJECT_UUID, STATUS_OPEN);
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(getWrittenIssue().getProducer()).isEqualTo(ProjectDump.IssueProducer.ISSUE_PRODUCER_SCANNER);
   }
 
   @Test

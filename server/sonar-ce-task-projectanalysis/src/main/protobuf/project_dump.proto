@@ -130,6 +130,8 @@ message Issue {
   bool prioritized_rule = 28;
 
   optional string internal_tags = 29;
+
+  optional IssueProducer producer = 30;
 }
 
 message Impact {
@@ -239,6 +241,11 @@ message MessageFormatting {
   int32 start = 1;
   int32 end = 2;
   MessageFormattingType type = 3;
+}
+
+enum IssueProducer {
+  ISSUE_PRODUCER_SCANNER = 0;
+  ISSUE_PRODUCER_HUNTER_AGENT = 1;
 }
 
 enum MessageFormattingType {
