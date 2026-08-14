@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonarsource.sonarqube.events.api.FakeEventsApi;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
@@ -101,6 +102,29 @@ public class PluginClassloaderFactoryTest {
     ClassLoader classLoader = map.get(def);
 
     assertThat(canLoadClass(classLoader, FooBar.class.getCanonicalName())).isTrue();
+  }
+
+  @Test
+  public void classloader_blocks_events_api_for_regular_plugins() {
+    PluginClassLoaderDef def = basePluginDef();
+    Map<PluginClassLoaderDef, ClassLoader> map = factory.create(emptyMap(), asList(def));
+
+    ClassLoader classLoader = map.get(def);
+
+    assertThat(canLoadClass(classLoader, FakeEventsApi.class.getCanonicalName())).isFalse();
+  }
+
+  @Test
+  public void classloader_exposes_events_api_for_events_simulation_plugin() {
+    PluginClassLoaderDef def = new PluginClassLoaderDef("sonareventssimulation");
+    def.addMainClass("sonareventssimulation", BASE_PLUGIN_CLASSNAME);
+    def.addFiles(asList(fakePluginJar("base-plugin/target/base-plugin-0.1-SNAPSHOT.jar")));
+
+    Map<PluginClassLoaderDef, ClassLoader> map = factory.create(emptyMap(), asList(def));
+
+    ClassLoader classLoader = map.get(def);
+
+    assertThat(canLoadClass(classLoader, FakeEventsApi.class.getCanonicalName())).isTrue();
   }
 
   private static PluginClassLoaderDef basePluginDef() {

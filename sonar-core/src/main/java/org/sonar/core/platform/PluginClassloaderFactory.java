@@ -50,6 +50,10 @@ public class PluginClassloaderFactory {
 
   // underscores are used to not conflict with plugin keys (if someday a plugin key is "api")
   private static final String API_CLASSLOADER_KEY = "_api_";
+  // dedicated classloader that additionally exposes the events API, used only by the simulation plugin
+  private static final String EVENTS_API_CLASSLOADER_KEY = "_api_events_";
+  private static final String EVENTS_SIMULATION_PLUGIN_KEY = "sonareventssimulation";
+  private static final String EVENTS_API_PACKAGE = "org/sonarsource/sonarqube/events/api/";
 
   /**
    * Creates as many classloaders as requested by the input parameter.
@@ -65,10 +69,13 @@ public class PluginClassloaderFactory {
     ClassloaderBuilder builder = new ClassloaderBuilder(previouslyCreatedClassloaders.values());
     builder.newClassloader(API_CLASSLOADER_KEY, baseClassLoader);
     builder.setMask(API_CLASSLOADER_KEY, apiMask());
+    builder.newClassloader(EVENTS_API_CLASSLOADER_KEY, baseClassLoader);
+    builder.setMask(EVENTS_API_CLASSLOADER_KEY, apiWithEventsMask());
 
     for (PluginClassLoaderDef def : newDefs) {
       builder.newClassloader(def.getBasePluginKey());
-      builder.setParent(def.getBasePluginKey(), API_CLASSLOADER_KEY, Mask.ALL);
+      String parentKey = EVENTS_SIMULATION_PLUGIN_KEY.equals(def.getBasePluginKey()) ? EVENTS_API_CLASSLOADER_KEY : API_CLASSLOADER_KEY;
+      builder.setParent(def.getBasePluginKey(), parentKey, Mask.ALL);
       builder.setLoadingOrder(def.getBasePluginKey(), def.isSelfFirstStrategy() ? SELF_FIRST : PARENT_FIRST);
       for (File jar : def.getFiles()) {
         builder.addURL(def.getBasePluginKey(), fileToUrl(jar));
@@ -152,6 +159,13 @@ public class PluginClassloaderFactory {
 
       // API exclusions
       .exclude("org/sonar/api/internal/")
+      .build();
+  }
+
+  private static Mask apiWithEventsMask() {
+    return Mask.builder()
+      .copy(apiMask())
+      .include(EVENTS_API_PACKAGE)
       .build();
   }
 }
