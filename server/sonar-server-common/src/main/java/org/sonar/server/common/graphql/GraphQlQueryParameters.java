@@ -33,6 +33,23 @@ public interface GraphQlQueryParameters {
                                       Map<String, V> queryVariables,
                                       Function<GsonGraphQlAnswer<T>, List<U>> extractAndMapResultsFunction,
                                       Function<GsonGraphQlAnswer<T>, String> extractCursorFunction,
-                                      Predicate<GsonGraphQlAnswer<T>> hasNextPage, Type answerDataType) {
+                                      Predicate<GsonGraphQlAnswer<T>> hasNextPage, Type answerDataType, int maxPages) {
+
+    /**
+     * Defensive ceiling applied when no explicit {@code maxPages} is provided: no legitimate use case of this client
+     * should require more pages than this, and it prevents a GraphQL server bug, API change or unexpected dataset size
+     * from making {@link GraphQlClient#executeQuery} loop unbounded.
+     */
+    public static final int DEFAULT_MAX_PAGES = 500;
+
+    public QueryWithPagination(String appUrl,
+                               String accessToken,
+                               String queryString,
+                               Map<String, V> queryVariables,
+                               Function<GsonGraphQlAnswer<T>, List<U>> extractAndMapResultsFunction,
+                               Function<GsonGraphQlAnswer<T>, String> extractCursorFunction,
+                               Predicate<GsonGraphQlAnswer<T>> hasNextPage, Type answerDataType) {
+      this(appUrl, accessToken, queryString, queryVariables, extractAndMapResultsFunction, extractCursorFunction, hasNextPage, answerDataType, DEFAULT_MAX_PAGES);
+    }
   }
 }

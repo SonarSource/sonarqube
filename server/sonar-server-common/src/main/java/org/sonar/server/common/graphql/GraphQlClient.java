@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import okhttp3.MediaType;
@@ -50,11 +51,11 @@ public class GraphQlClient {
   private static final Logger LOG = LoggerFactory.getLogger(GraphQlClient.class);
 
   private static final Gson GSON = new GsonBuilder().serializeNulls().create();
+  private static final int CALL_TIMEOUT_IN_MS = 60_000;
   private final OkHttpClient client;
 
-
   public GraphQlClient(OkHttpClient client) {
-    this.client = client;
+    this.client = client.newBuilder().callTimeout(CALL_TIMEOUT_IN_MS, TimeUnit.MILLISECONDS).build();
   }
 
   public <T, U, V> List<U> executeQuery(GraphQlQueryParameters.QueryWithPagination<T, U, V> graphQlQueryParameters) {
@@ -63,6 +64,8 @@ public class GraphQlClient {
     List<U> results = new ArrayList<>();
     Map<String, Object> variables = new HashMap<>(graphQlQueryParameters.queryVariables());
     GsonGraphQlQuery graphQlQuery = new GsonGraphQlQuery(graphQlQueryParameters.queryString(), variables);
+    int pageCount = 0;
+    boolean hasNextPage;
     do {
       GsonGraphQlQuery paginatedQuery = buildQueryForCursor(graphQlQuery, cursor);
       try {
@@ -78,8 +81,15 @@ public class GraphQlClient {
       }
       cursor = graphQlQueryParameters.extractCursorFunction().apply(graphQlAnswer);
       results.addAll(graphQlQueryParameters.extractAndMapResultsFunction().apply(graphQlAnswer));
+      pageCount++;
+      hasNextPage = graphQlQueryParameters.hasNextPage().test(graphQlAnswer);
+      if (hasNextPage && pageCount >= graphQlQueryParameters.maxPages()) {
+        LOG.warn("GraphQL query to {} reached its maximum of {} pages ({} results fetched so far); stopping pagination early to avoid an unbounded loop.",
+          graphQlQueryParameters.appUrl(), graphQlQueryParameters.maxPages(), results.size());
+        hasNextPage = false;
+      }
     }
-    while (graphQlQueryParameters.hasNextPage().test(graphQlAnswer));
+    while (hasNextPage);
     return results;
   }
 
