@@ -161,6 +161,7 @@ import org.sonar.server.setting.DatabaseSettingsEnabler;
 import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.telemetry.gessie.GessieFlushExecutorServiceImpl;
 import org.sonar.server.telemetry.gessie.GessieIngestorExecutorServiceImpl;
+import org.sonar.server.telemetry.gessie.GessieMetadataSourceImpl;
 import org.sonar.server.util.OkHttpClientProvider;
 import org.sonar.server.util.Paths2Impl;
 import org.sonar.server.view.index.ViewIndex;
@@ -505,6 +506,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     level4Container.add(GessieIngestorExecutorServiceImpl.class);
     level4Container.add(GessieTelemetryCeConfiguration.class);
     level4Container.add(InstallationDateProviderImpl.class);
+    level4Container.add(GessieMetadataSourceImpl.class);
 
     addClusterOrStandaloneComponents(level4Container, props);
 

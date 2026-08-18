@@ -321,6 +321,7 @@ import org.sonar.server.telemetry.TelemetryAgenticQPAdoptionProvider;
 import org.sonar.server.telemetry.TelemetryQualityGateBeforeNcdStartProvider;
 import org.sonar.server.telemetry.gessie.GessieFlushExecutorServiceImpl;
 import org.sonar.server.telemetry.gessie.GessieIngestorExecutorServiceImpl;
+import org.sonar.server.telemetry.gessie.GessieMetadataSourceImpl;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.WebAnalyticsLoaderImpl;
 import org.sonar.server.ui.ws.NavigationWsModule;
@@ -860,6 +861,7 @@ public class PlatformLevel4 extends PlatformLevel {
     add(GessieFlushExecutorServiceImpl.class);
     add(GessieIngestorExecutorServiceImpl.class);
     add(GessieTelemetryWebConfiguration.class);
+    add(GessieMetadataSourceImpl.class);
 
     // registered via history-server-app
     addAll(HistoryServerComponents.queryComponents());
