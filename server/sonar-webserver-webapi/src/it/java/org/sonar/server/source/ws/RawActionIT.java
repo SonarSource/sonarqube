@@ -26,6 +26,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.protobuf.DbCommons;
+import org.sonar.db.protobuf.DbIssues;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -71,6 +75,31 @@ public class RawActionIT {
       .execute().getInput();
 
     assertThat(result).isEqualTo("public class HelloWorld {\n}\n");
+  }
+
+  @Test
+  public void raw_whenFileHasSecretIssue_shouldRedactSecretValue() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    userSession.addProjectPermission(ProjectPermission.CODEVIEWER, project);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    db.fileSources().insertFileSource(file, s -> s.setSourceData(
+      Data.newBuilder().addLines(Line.newBuilder().setLine(1).setSource("token=secret-value").build()).build()));
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("secrets").setRuleKey("S1001"));
+    DbCommons.TextRange textRange = DbCommons.TextRange.newBuilder()
+      .setStartLine(1)
+      .setStartOffset(6)
+      .setEndLine(1)
+      .setEndOffset(18)
+      .build();
+    db.issues().insert(rule, project, file, issue -> issue
+      .setLine(1)
+      .setLocations(DbIssues.Locations.newBuilder().setTextRange(textRange).build()));
+
+    String result = ws.newRequest()
+      .setParam("key", file.getKey())
+      .execute().getInput();
+
+    assertThat(result).isEqualTo("token=************\n");
   }
 
   @Test

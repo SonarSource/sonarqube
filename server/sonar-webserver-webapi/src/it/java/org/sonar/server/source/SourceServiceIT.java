@@ -31,7 +31,9 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.source.index.FileSourceTesting;
 
@@ -39,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class SourceServiceIT {
 
@@ -90,6 +93,50 @@ public class SourceServiceIT {
     assertThat(linesOpt).isPresent();
     List<String> lines = Lists.newArrayList(linesOpt.get());
     assertThat(lines).containsExactly("SOURCE_5", "SOURCE_6", "SOURCE_7");
+  }
+
+  @Test
+  public void getLinesAsRawText_whenFileHasClosedSecretIssue_shouldRedactReturnedSource() {
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    FileSourceDto dto = new FileSourceDto();
+    dto.setFileUuid(file.uuid()).setUuid(Uuids.createFast()).setProjectUuid(project.uuid());
+    dto.setSourceData(DbFileSources.Data.newBuilder()
+      .addLines(DbFileSources.Line.newBuilder().setLine(1).setSource("token=secret-value"))
+      .build());
+    dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), dto);
+
+    RuleDto rule = dbTester.rules().insert(r -> r.setRepositoryKey("secrets").setRuleKey("S1001"));
+    dbTester.issues().insert(rule, project, file, issue -> issue.setStatus("CLOSED").setLine(1));
+    dbTester.commit();
+
+    Optional<Iterable<String>> linesOpt = underTest.getLinesAsRawText(dbTester.getSession(), file.uuid(), 1, 1);
+
+    assertThat(linesOpt).isPresent();
+    assertThat(linesOpt.get()).containsExactly("******************");
+  }
+
+  @Test
+  public void getLinesAsRawText_whenFileHasHardCodedPasswordIssue_shouldRedactEntireReturnedSource() {
+    ComponentDto project = dbTester.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = dbTester.components().insertComponent(newFileDto(project));
+    String secretValueLine = "  \"secret-value\";";
+    FileSourceDto dto = new FileSourceDto();
+    dto.setFileUuid(file.uuid()).setUuid(Uuids.createFast()).setProjectUuid(project.uuid());
+    dto.setSourceData(DbFileSources.Data.newBuilder()
+      .addLines(DbFileSources.Line.newBuilder().setLine(1).setSource("String password ="))
+      .addLines(DbFileSources.Line.newBuilder().setLine(2).setSource(secretValueLine))
+      .build());
+    dbTester.getDbClient().fileSourceDao().insert(dbTester.getSession(), dto);
+
+    RuleDto rule = dbTester.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S2068"));
+    dbTester.issues().insert(rule, project, file, issue -> issue.setLine(1));
+    dbTester.commit();
+
+    Optional<Iterable<String>> linesOpt = underTest.getLinesAsRawText(dbTester.getSession(), file.uuid(), 2, 2);
+
+    assertThat(linesOpt).isPresent();
+    assertThat(linesOpt.get()).containsExactly("  " + "*".repeat(secretValueLine.length() - 2));
   }
 
   @Test

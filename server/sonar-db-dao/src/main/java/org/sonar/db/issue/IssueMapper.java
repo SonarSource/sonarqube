@@ -37,6 +37,8 @@ public interface IssueMapper {
 
   List<IssueDto> selectByKeys(List<String> keys);
 
+  List<IssueDto> selectSourceRedactionIssues(@Param("componentUuid") String componentUuid, @Param("ruleKeys") Collection<String> ruleKeys);
+
   Set<String> selectIssueKeysByComponentUuid(@Param("componentUuid") String componentUuid);
 
   Set<String> selectIssueKeysByComponentUuidWithFilters(@Param("componentUuid") String componentUuid,

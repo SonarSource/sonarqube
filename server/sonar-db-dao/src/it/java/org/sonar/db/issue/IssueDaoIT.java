@@ -141,6 +141,33 @@ class IssueDaoIT {
   }
 
   @Test
+  void selectSourceRedactionIssues_whenRequestedComponentHasScopedSecretIssues_shouldReturnOnlyIssuesForThatComponent() {
+    ComponentDto selectedFile = db.components().insertComponent(newFileDto(projectDto));
+    ComponentDto otherFile = db.components().insertComponent(newFileDto(projectDto));
+    RuleDto s6437Rule = db.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S6437"));
+    RuleDto s2068Rule = db.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S2068"));
+    RuleDto secretsRule = db.rules().insert(r -> r.setRepositoryKey("secrets").setRuleKey("S6689"));
+    RuleDto unrelatedRule = db.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S0001"));
+
+    db.issues().insert(s6437Rule, projectDto, selectedFile, issue -> issue.setKee("s6437-on-selected-file"));
+    db.issues().insert(s2068Rule, projectDto, selectedFile, issue -> issue.setKee("s2068-on-selected-file"));
+    db.issues().insert(secretsRule, projectDto, selectedFile, issue -> issue.setKee("secrets-on-selected-file"));
+    db.issues().insert(unrelatedRule, projectDto, selectedFile, issue -> issue.setKee("unrelated-on-selected-file"));
+    db.issues().insert(s6437Rule, projectDto, otherFile, issue -> issue.setKee("s6437-on-other-file"));
+    db.commit();
+
+    List<IssueDto> result = underTest.selectSourceRedactionIssues(
+      db.getSession(), selectedFile.uuid(), Set.of("S2068", "S6418", "S6437"));
+
+    assertThat(result).extracting(IssueDto::getComponentUuid, IssueDto::getRuleRepo,
+      issue -> issue.getRuleKey().rule())
+      .containsExactlyInAnyOrder(
+        tuple(selectedFile.uuid(), "java", "S6437"),
+        tuple(selectedFile.uuid(), "java", "S2068"),
+        tuple(selectedFile.uuid(), "secrets", "S6689"));
+  }
+
+  @Test
   void selectByKeyOrFail() {
     prepareTables();
     IssueDto expected = new IssueDto()

@@ -62,6 +62,10 @@ public class IssueDao implements Dao {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
+  public List<IssueDto> selectSourceRedactionIssues(DbSession session, String componentUuid, Collection<String> ruleKeys) {
+    return mapper(session).selectSourceRedactionIssues(componentUuid, ruleKeys);
+  }
+
   public Set<String> selectIssueKeysByComponentUuid(DbSession session, String componentUuid) {
     return mapper(session).selectIssueKeysByComponentUuid(componentUuid);
   }

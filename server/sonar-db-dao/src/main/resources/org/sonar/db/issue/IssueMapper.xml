@@ -766,6 +766,23 @@
     </foreach>
   </select>
 
+  <select id="selectSourceRedactionIssues" parameterType="map" resultType="Issue">
+    select
+    i.component_uuid as componentUuid,
+    i.line as line,
+    i.locations as locations,
+    r.plugin_rule_key as ruleKey,
+    r.plugin_name as ruleRepo
+    from issues i
+    inner join rules r on r.uuid=i.rule_uuid
+    where i.component_uuid=#{componentUuid,jdbcType=VARCHAR}
+      and (r.plugin_name = 'secrets' or r.plugin_rule_key in
+      <foreach collection="ruleKeys" open="(" close=")" item="ruleKey" separator=",">
+        #{ruleKey,jdbcType=VARCHAR}
+      </foreach>
+      )
+  </select>
+
   <select id="selectByKeysIfNotUpdatedAt" parameterType="map" resultMap="issueResultMap">
     select
       <include refid="issueColumns"/>
