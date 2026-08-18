@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.Cookies.SAMESITE_LAX;
 import static org.sonar.server.authentication.Cookies.findCookie;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 
@@ -113,6 +114,18 @@ public class CookiesTest {
   public void fail_with_NPE_when_cookie_has_no_name() {
     assertThatThrownBy(() -> newCookieBuilder(request).setName(null))
       .isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  public void toValueString_includes_max_age_when_expiry_is_not_negative() {
+    String value = newCookieBuilder(request).setName("name").setValue("value").setHttpOnly(true).setExpiry(30).setSameSite(SAMESITE_LAX).toValueString();
+    assertThat(value).isEqualTo("name=value; Path=/; SameSite=Lax; Max-Age=30; HttpOnly");
+  }
+
+  @Test
+  public void toValueString_omits_max_age_when_expiry_is_negative_to_create_a_session_cookie() {
+    String value = newCookieBuilder(request).setName("name").setValue("value").setHttpOnly(true).setExpiry(-1).setSameSite(SAMESITE_LAX).toValueString();
+    assertThat(value).isEqualTo("name=value; Path=/; SameSite=Lax; HttpOnly").doesNotContain("Max-Age");
   }
 
 }

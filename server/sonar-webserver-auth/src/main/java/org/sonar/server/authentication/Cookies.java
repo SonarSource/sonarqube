@@ -124,7 +124,13 @@ public class Cookies {
     }
 
     public String toValueString() {
-      String output = String.format("%s=%s; Path=%s; SameSite=%s; Max-Age=%d", name, value, getContextPath(request), sameSite, expiry);
+      String output = String.format("%s=%s; Path=%s; SameSite=%s", name, value, getContextPath(request), sameSite);
+      // A negative Max-Age means a session cookie (deleted when the browser closes), matching Cookie#setMaxAge(int).
+      // The Max-Age attribute must be omitted rather than set to a negative value, since RFC 6265 treats
+      // a non-positive Max-Age as "expire this cookie immediately".
+      if (expiry >= 0) {
+        output += String.format("; Max-Age=%d", expiry);
+      }
       if (httpOnly) {
         output += "; HttpOnly";
       }
