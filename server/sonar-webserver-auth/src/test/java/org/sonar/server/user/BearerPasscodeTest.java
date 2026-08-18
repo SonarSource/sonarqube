@@ -55,6 +55,16 @@ public class BearerPasscodeTest {
     verifyIsValid(false, "foo", "");
   }
 
+  @Test
+  public void isValid_is_false_if_request_header_is_a_prefix_of_configured_passcode() {
+    verifyIsValid(false, "foo", "fo");
+  }
+
+  @Test
+  public void isValid_is_false_if_request_header_extends_configured_passcode() {
+    verifyIsValid(false, "foo", "foox");
+  }
+
   private void verifyIsValid(boolean expectedResult, String configuredPasscode, String token) {
     configurePasscode(configuredPasscode);
 

@@ -19,11 +19,13 @@
  */
 package org.sonar.server.user;
 
+import java.security.MessageDigest;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.process.ProcessProperties.Property.WEB_SYSTEM_PASS_CODE;
 
 public class BearerPasscode {
@@ -46,7 +48,8 @@ public class BearerPasscode {
     String configuredPasscode = passcodeOpt.get();
     return request.header(PASSCODE_HTTP_HEADER)
       .map(s -> s.replace("Bearer ", ""))
-      .map(configuredPasscode::equals)
+      // Constant-time comparison to avoid leaking the passcode through response timing.
+      .map(token -> MessageDigest.isEqual(configuredPasscode.getBytes(UTF_8), token.getBytes(UTF_8)))
       .orElse(false);
   }
 
