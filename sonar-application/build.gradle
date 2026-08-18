@@ -514,7 +514,8 @@ zip {
     // When building with local snapshot artifacts (useLocalSca, useLocalArchitecture, etc.) the archive
     // will be larger than a published build because snapshot JARs include test classes and debug info.
     // Skip the upper-bound check in that case to avoid spurious failures during local development.
-    def usingLocalArtifacts = ['useLocalSca', 'useLocalArchitecture', 'useLocalCagHub', 'useLocalMetrics', 'useLocalOrg'].any {
+    def usingLocalArtifacts = ['useLocalSca', 'useLocalArchitecture', 'useLocalCagHub', 'useLocalMetrics', 'useLocalOrg',
+                               'useLocalOnboarding', 'useLocalContactForm'].any {
       project.hasProperty(it) && project.property(it) == 'true'
     }
     if (archiveSize < minArchiveSize && System.getenv("CI") == "true")

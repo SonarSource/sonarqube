@@ -170,6 +170,9 @@ useLocalUnificationModule('useLocalDashboards', 'reporting/dashboards', ['dashbo
   ]
 ])
 useLocalUnificationModule('useLocalDopTranslation', 'integration/dop-translation', ['dop-translation-api'])
+// Growth capabilities. Each one is its own composite build under growth/, so it gets its own flag.
+useLocalUnificationModule('useLocalOnboarding', 'growth/onboarding', ['onboarding-api', 'onboarding-unified-app'])
+useLocalUnificationModule('useLocalContactForm', 'growth/contact-form', ['contact-form-api', 'contact-form-unified-app'])
 
 ext.isCiServer = System.getenv().containsKey("GITHUB_ACTIONS")
 
