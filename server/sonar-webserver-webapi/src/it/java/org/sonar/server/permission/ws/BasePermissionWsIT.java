@@ -30,12 +30,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.es.EsTester;
+import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexersImpl;
 import org.sonar.server.common.permission.GroupPermissionChanger;
 import org.sonar.server.common.permission.PermissionUpdater;
 import org.sonar.server.common.permission.UserPermissionChanger;
-import org.sonar.server.permission.index.FooIndexDefinition;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -46,17 +45,11 @@ import org.sonar.server.ws.WsActionTester;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
-import org.junit.experimental.categories.Category;
-import org.sonar.test.tags.ElasticsearchTest;
 
-@Category(ElasticsearchTest.class)
 public abstract class BasePermissionWsIT<A extends PermissionsWsAction> {
 
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
-
-  @Rule
-  public EsTester es = EsTester.createCustom(new FooIndexDefinition());
 
   protected UserSessionRule userSession = UserSessionRule.standalone();
   protected WsActionTester wsTester;
@@ -84,7 +77,7 @@ public abstract class BasePermissionWsIT<A extends PermissionsWsAction> {
 
   protected PermissionUpdater newPermissionUpdater() {
     return new PermissionUpdater(
-      new IndexersImpl(new PermissionIndexer(db.getDbClient(), es.client())),
+      new IndexersImpl(new PermissionIndexer(db.getDbClient(), mock(EsClient.class))),
       Set.of(new UserPermissionChanger(db.getDbClient(), new SequenceUuidFactory()),
         new GroupPermissionChanger(db.getDbClient(), new SequenceUuidFactory())));
   }

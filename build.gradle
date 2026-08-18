@@ -808,8 +808,6 @@ subprojects {
   // -PexcludeElasticsearchTests → junit CI job (no ES cluster needed)
   // -PincludeElasticsearchTests → es-junit CI job (requires live ES cluster)
   // Neither property → all tests run (default for local/IDE runs)
-  // Only applied to tasks already using JUnit Platform; modules still on the
-  // JUnit 4 native runner (e.g. sonar-markdown, sonar-duplications) are left alone.
   if (project.hasProperty('excludeElasticsearchTests') || project.hasProperty('includeElasticsearchTests')) {
     afterEvaluate {
       tasks.withType(Test).configureEach { testTask ->
@@ -820,6 +818,8 @@ subprojects {
           } else if (project.hasProperty('includeElasticsearchTests')) {
             platformOptions.includeTags.addAll(['elasticsearch', 'org.sonar.test.tags.ElasticsearchTest'])
           }
+        } else if (project.hasProperty('includeElasticsearchTests')) {
+          testTask.enabled = false
         }
       }
     }
