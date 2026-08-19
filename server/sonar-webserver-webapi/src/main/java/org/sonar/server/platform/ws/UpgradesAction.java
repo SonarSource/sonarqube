@@ -22,6 +22,8 @@ package org.sonar.server.platform.ws;
 import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -59,6 +61,7 @@ public class UpgradesAction implements SystemWsAction {
   private static final String PROPERTY_ENTERPRISE_DOWNLOAD_URL = "downloadEnterpriseUrl";
   private static final String PROPERTY_DATACENTER_DOWNLOAD_URL = "downloadDatacenterUrl";
   private static final String PROPERTY_PRODUCT = "product";
+  private static final String PROPERTY_LTA = "lta";
   private static final String OBJECT_PLUGINS = "plugins";
   private static final String ARRAY_REQUIRE_UPDATE = "requireUpdate";
   private static final String ARRAY_INCOMPATIBLE = "incompatible";
@@ -87,7 +90,7 @@ public class UpgradesAction implements SystemWsAction {
     this.documentationLinkGenerator = documentationLinkGenerator;
   }
 
-  private void writeMetadata(JsonWriter jsonWriter, Release release) {
+  private void writeMetadata(JsonWriter jsonWriter, Release release, Set<String> ltaMajorMinors) {
     jsonWriter.prop(PROPERTY_VERSION, VersionFormatter.format(release.getVersion().getName()));
     jsonWriter.prop(PROPERTY_DESCRIPTION, release.getDescription());
     jsonWriter.propDate(PROPERTY_RELEASE_DATE, release.getDate());
@@ -98,6 +101,18 @@ public class UpgradesAction implements SystemWsAction {
     jsonWriter.prop(PROPERTY_DATACENTER_DOWNLOAD_URL, release.getDownloadUrl(Release.Edition.DATACENTER));
     jsonWriter.prop(PROPERTY_PRODUCT, release.getProduct().name());
     jsonWriter.prop(PROPERTY_DOCUMENTATION_URL, buildDocumentationUrl(release.getVersion()));
+    jsonWriter.prop(PROPERTY_LTA, isLtaRelease(release, ltaMajorMinors));
+  }
+
+  private static boolean isLtaRelease(Release release, Set<String> ltaMajorMinors) {
+    Version version = release.getVersion();
+    return ltaMajorMinors.contains(version.getMajor() + "." + version.getMinor());
+  }
+
+  private static Set<String> ltaMajorMinors(UpdateCenter updateCenter) {
+    return updateCenter.getSonar().getLtaVersions().stream()
+      .map(release -> release.getVersion().getMajor() + "." + release.getVersion().getMinor())
+      .collect(Collectors.toSet());
   }
 
   private String buildDocumentationUrl(Version version) {
@@ -122,7 +137,8 @@ public class UpgradesAction implements SystemWsAction {
       .setChangelog(new Change("10.5", "The field 'ltsVersion' is deprecated from the response"))
       .setChangelog(new Change("10.5", "The field 'ltaVersion' is added to indicate the Long-Term Active Version"))
       .setChangelog(new Change("10.5", "The field 'installedVersionActive' is added to indicate if the installed version is an active version"))
-      .setChangelog(new Change("2026.2", "The field 'documentationUrl' is added to each upgrade entry to point to the target version's documentation"));
+      .setChangelog(new Change("2026.2", "The field 'documentationUrl' is added to each upgrade entry to point to the target version's documentation"))
+      .setChangelog(new Change("2026.5", "The field 'lta' is added to each upgrade entry to indicate whether it belongs to a Long-Term Active line"));
   }
 
   @Override
@@ -172,18 +188,19 @@ public class UpgradesAction implements SystemWsAction {
     jsonWriter.name(ARRAY_UPGRADES).beginArray();
 
     if (updateCenter.isPresent()) {
+      Set<String> ltaMajorMinors = ltaMajorMinors(updateCenter.get());
       for (SonarUpdate sonarUpdate : updateCenter.get().findSonarUpdates()) {
-        writeUpgrade(jsonWriter, sonarUpdate);
+        writeUpgrade(jsonWriter, sonarUpdate, ltaMajorMinors);
       }
     }
 
     jsonWriter.endArray();
   }
 
-  private void writeUpgrade(JsonWriter jsonWriter, SonarUpdate sonarUpdate) {
+  private void writeUpgrade(JsonWriter jsonWriter, SonarUpdate sonarUpdate, Set<String> ltaMajorMinors) {
     jsonWriter.beginObject();
 
-    writeMetadata(jsonWriter, sonarUpdate.getRelease());
+    writeMetadata(jsonWriter, sonarUpdate.getRelease(), ltaMajorMinors);
 
     writePlugins(jsonWriter, sonarUpdate);
 

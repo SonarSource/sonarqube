@@ -20,10 +20,14 @@
 package org.sonar.server.platform.ws;
 
 import com.google.common.collect.Lists;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.SonarQubeVersion;
@@ -50,6 +54,12 @@ public class ActiveVersionEvaluator {
       return true;
     }
 
+    Optional<Release> installedLtaLineWithEolDate = findMatchingLtaWithEolDate(updateCenter, installedVersion);
+    if (installedLtaLineWithEolDate.isPresent()) {
+      LocalDate eolDate = installedLtaLineWithEolDate.get().getEolDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+      return !today().isAfter(eolDate);
+    }
+
     if (compareWithoutPatchVersion(installedVersion, updateCenter.getSonar().getLtaVersion().getVersion()) == 0) {
       return true;
     }
@@ -71,6 +81,17 @@ public class ActiveVersionEvaluator {
     }
   }
 
+
+  private static Optional<Release> findMatchingLtaWithEolDate(UpdateCenter updateCenter, Version installedVersion) {
+    return updateCenter.getSonar().getLtaVersions().stream()
+      .filter(release -> compareWithoutPatchVersion(installedVersion, release.getVersion()) == 0)
+      .filter(release -> release.getEolDate() != null)
+      .findFirst();
+  }
+
+  private LocalDate today() {
+    return Instant.ofEpochMilli(system2.now()).atZone(ZoneId.systemDefault()).toLocalDate();
+  }
 
   private static int compareWithoutPatchVersion(Version v1, Version v2) {
     return COMPARATOR.compare(v1, v2);

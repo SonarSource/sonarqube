@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -140,6 +141,38 @@ class UpgradesActionTest {
     TestResponse response = tester.newRequest().execute();
 
     assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
+  }
+
+  @Test
+  void upgrade_entry_is_flagged_as_lta_when_its_majorMinor_is_in_ltaVersions() {
+    SonarUpdate sonarUpdate = createSonar_20251_update();
+    when(sonarQubeVersion.get()).thenReturn(parse("8.9.0"));
+    when(sonar.getLtaVersion()).thenReturn(new Release(sonar, Version.create("8.9.2")));
+    when(sonar.getLtaVersions()).thenReturn(List.of(new Release(sonar, Version.create("2025.1"))));
+    when(updateCenter.findSonarUpdates()).thenReturn(List.of(sonarUpdate));
+    when(updateCenter.getSonar().getAllReleases()).thenReturn(getReleases());
+
+    TestResponse response = tester.newRequest().execute();
+
+    assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo("{" +
+      "  \"upgrades\": [{ \"version\": \"2025.1 (build 5498)\", \"lta\": true }]" +
+      "}");
+  }
+
+  @Test
+  void upgrade_entry_is_not_flagged_as_lta_when_its_majorMinor_is_not_in_ltaVersions() {
+    SonarUpdate sonarUpdate = createSonar_20251_update();
+    when(sonarQubeVersion.get()).thenReturn(parse("8.9.0"));
+    when(sonar.getLtaVersion()).thenReturn(new Release(sonar, Version.create("8.9.2")));
+    when(sonar.getLtaVersions()).thenReturn(List.of(new Release(sonar, Version.create("9.9"))));
+    when(updateCenter.findSonarUpdates()).thenReturn(List.of(sonarUpdate));
+    when(updateCenter.getSonar().getAllReleases()).thenReturn(getReleases());
+
+    TestResponse response = tester.newRequest().execute();
+
+    assertJson(response.getInput()).withStrictArrayOrder().isSimilarTo("{" +
+      "  \"upgrades\": [{ \"version\": \"2025.1 (build 5498)\", \"lta\": false }]" +
+      "}");
   }
 
   @Test
