@@ -50,6 +50,7 @@ dependencies {
   api project(':sonar-markdown')
   api project(':sonar-plugin-api-impl')
   api project(':sonar-ws')
+  implementation 'org.sonarsource.sonarqube:history-server-app'
   implementation project(path: ':server:sonar-webserver-webapi')
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'

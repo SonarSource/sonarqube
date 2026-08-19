@@ -49,6 +49,7 @@ import org.sonar.server.rule.registration.RulesRegistrant;
 import org.sonar.server.rule.registration.StartupRuleUpdater;
 import org.sonar.server.rule.registration.ActiveRulesImpactInitializer;
 import org.sonar.server.startup.IssueFlagResetSetupTask;
+import org.sonar.server.startup.RegisterMeasureKeyMappings;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.startup.RegisterPermissionTemplates;
 import org.sonar.server.startup.RegisterPlugins;
@@ -84,6 +85,9 @@ public class PlatformLevelStartup extends PlatformLevel {
       RegisterMetrics.class,
       RegisterQualityGates.class,
       BuiltInQProfileLoader.class);
+    // Run after RegisterMetrics and also when no plugin changed, to backfill mappings after a migration.
+    addIfStartupLeader(
+      RegisterMeasureKeyMappings.class);
     addIfStartupLeader(
       BuiltInQualityProfilesUpdateListener.class,
       BuiltInQProfileUpdateImpl.class);
