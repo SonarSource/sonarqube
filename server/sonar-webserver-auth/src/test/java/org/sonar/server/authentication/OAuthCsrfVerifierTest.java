@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 
 public class OAuthCsrfVerifierTest {
   private static final String PROVIDER_NAME = "provider name";
@@ -58,8 +59,28 @@ public class OAuthCsrfVerifierTest {
   }
 
   @Test
-  public void generate_state() {
-    String state = underTest.generateState(request, response);
+  public void generate_state_sets_explicit_SameSite_Lax_cookie_for_GET_binding_providers() {
+    String state = underTest.generateState(request, response, "github");
+    assertThat(state).isNotEmpty();
+
+    verify(response).addHeader(SET_COOKIE, String.format("OAUTHSTATE=%s; Path=/; SameSite=Lax; HttpOnly", sha256Hex(state)));
+  }
+
+  @Test
+  public void generate_state_does_not_set_explicit_SameSite_for_saml_since_its_callback_is_a_cross_site_POST() {
+    String state = underTest.generateState(request, response, "saml");
+    assertThat(state).isNotEmpty();
+
+    verify(response).addCookie(cookieArgumentCaptor.capture());
+    verifyCookie(cookieArgumentCaptor.getValue());
+  }
+
+  @Test
+  public void generate_state_defaults_unknown_providers_to_legacy_no_explicit_SameSite_cookie() {
+    // A provider key we don't recognize (e.g. a third-party plugin) must NOT get an explicit SameSite=Lax
+    // cookie by default: if it uses a POST-binding callback (e.g. OIDC with response_mode=form_post), an
+    // explicit SameSite=Lax would silently break it the same way it broke SAML in SONAR-30979.
+    String state = underTest.generateState(request, response, "some-third-party-oidc-provider");
     assertThat(state).isNotEmpty();
 
     verify(response).addCookie(cookieArgumentCaptor.capture());

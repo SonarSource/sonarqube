@@ -28,6 +28,7 @@ import org.sonar.api.server.http.HttpResponse;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.FilterChain;
 import org.sonar.auth.saml.SamlAuthenticator;
+import org.sonar.auth.saml.SamlIdentityProvider;
 import org.sonar.server.authentication.OAuth2ContextFactory;
 import org.sonar.server.authentication.OAuthCsrfVerifier;
 import org.sonar.server.tester.UserSessionRule;
@@ -149,6 +150,6 @@ public class ValidationInitActionTest {
   }
 
   private void mockCsrfTokenGeneration(HttpRequest servletRequest, HttpResponse servletResponse) {
-    when(oAuthCsrfVerifier.generateState(servletRequest, servletResponse)).thenReturn("CSRF_TOKEN");
+    when(oAuthCsrfVerifier.generateState(servletRequest, servletResponse, SamlIdentityProvider.KEY)).thenReturn("CSRF_TOKEN");
   }
 }

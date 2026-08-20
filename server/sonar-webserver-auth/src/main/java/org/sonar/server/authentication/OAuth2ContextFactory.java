@@ -93,7 +93,7 @@ public class OAuth2ContextFactory {
 
     @Override
     public String generateCsrfState() {
-      return csrfVerifier.generateState(request, response);
+      return csrfVerifier.generateState(request, response, identityProvider.getKey());
     }
 
     @Override

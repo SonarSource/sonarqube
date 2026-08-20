@@ -81,7 +81,7 @@ public class ValidationInitAction extends HttpFilter implements SamlAction {
       return;
     }
 
-    String csrfState = oAuthCsrfVerifier.generateState(request, response);
+    String csrfState = oAuthCsrfVerifier.generateState(request, response, SamlIdentityProvider.KEY);
 
     try {
       samlAuthenticator.initLogin(oAuth2ContextFactory.generateCallbackUrl(SamlIdentityProvider.KEY),

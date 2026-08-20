@@ -103,7 +103,7 @@ public class OAuth2ContextFactoryTest {
 
     context.generateCsrfState();
 
-    verify(csrfVerifier).generateState(httpRequest, httpResponse);
+    verify(csrfVerifier).generateState(httpRequest, httpResponse, PROVIDER_KEY);
   }
 
   @Test
