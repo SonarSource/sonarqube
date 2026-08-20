@@ -30,8 +30,6 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import static java.lang.String.format;
 import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.sonar.server.authentication.Cookies.SAMESITE_LAX;
-import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 import static org.sonar.server.authentication.Cookies.findCookie;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
@@ -44,14 +42,12 @@ public class OAuthCsrfVerifier {
   public String generateState(HttpRequest request, HttpResponse response) {
     // Create a state token to prevent request forgery.
     // Store it in the session for later validation.
+    // Note: this cookie must NOT declare an explicit SameSite attribute. Browsers only apply the
+    // "Lax+POST" grace period (allowing the cookie on a cross-site top-level POST, as used by the
+    // SAML HTTP-POST binding callback) to cookies with no explicit SameSite value. Setting
+    // SameSite=Lax explicitly disables that grace period and breaks SAML login (see SONAR-30979).
     String state = new BigInteger(130, new SecureRandom()).toString(32);
-    response.addHeader(SET_COOKIE, newCookieBuilder(request)
-      .setName(CSRF_STATE_COOKIE)
-      .setValue(sha256Hex(state))
-      .setHttpOnly(true)
-      .setExpiry(-1)
-      .setSameSite(SAMESITE_LAX)
-      .toValueString());
+    response.addCookie(newCookieBuilder(request).setName(CSRF_STATE_COOKIE).setValue(sha256Hex(state)).setHttpOnly(true).setExpiry(-1).build());
     return state;
   }
 
