@@ -67,7 +67,11 @@ public class UserSessionInitializer {
     "/api/users/identity_providers", "/api/l10n/index",
     "/api/authentication/login", "/api/authentication/logout", "/api/authentication/validate",
     "/api/project_badges/measure", "/api/project_badges/quality_gate", "/api/project_badges/ai_code_assurance",
-    "/api/settings/login_message");
+    "/api/settings/login_message",
+    // Slack-initiated requests carry no SonarQube session; they are authenticated by
+    // Slack's HMAC signature (see SlackSignatureValidationAdviceBase)
+    "/api/v2/integrations/slack/events",
+    "/api/v2/integrations/slack/slash-commands");
 
   private static final Set<String> URL_USING_PASSCODE = Set.of(
     "/api/ce/info", "/api/ce/pause",
