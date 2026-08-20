@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
+import org.sonar.server.v2.api.ControllerTester;
 import org.sonarsource.history.api.mapper.HistoryModelConverter;
 import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.api.model.IssueCountStatus;
@@ -42,11 +42,9 @@ import org.sonarsource.history.model.ProjectIssueCountsResponse;
 import org.sonarsource.history.server.service.IssueCountHistoryService;
 import org.sonarsource.history.server.service.ProjectIssueCountsService;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.mockito.InOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.inOrder;
@@ -55,6 +53,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class DefaultProjectIssueCountsControllerTest {
@@ -74,6 +73,7 @@ public class DefaultProjectIssueCountsControllerTest {
   private final ProjectIssueCountsService projectIssueCountsService = mock();
   private final DefaultProjectIssueCountsController underTest = new DefaultProjectIssueCountsController(
     dbClient, contextLoader, projectIssueCountsService, Clock.fixed(NOW, ZoneOffset.UTC));
+  private final MockMvc mockMvc = ControllerTester.getMockMvc(underTest);
 
   @Before
   public void setUp() {
@@ -166,28 +166,30 @@ public class DefaultProjectIssueCountsControllerTest {
   }
 
   @Test
-  public void getProjectIssueCountsRejectsFutureReferenceDateBeforeLoadingContext() {
+  public void getProjectIssueCountsRejectsFutureReferenceDateBeforeLoadingContext() throws Exception {
     OffsetDateTime referenceDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
 
-    assertThatThrownBy(() -> underTest.getProjectIssueCounts(
-      PORTFOLIO_ID, null, null, null, null, null, null, null, null, referenceDate,
-      1, 50, SORT, false))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("referenceDate 2026-07-09T00:00:00Z must be before the current date");
+    mockMvc.perform(get("/history/project-issue-counts")
+        .queryParam("portfolioId", PORTFOLIO_ID)
+        .queryParam("referenceDate", referenceDate.toString()))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"referenceDate 2026-07-09T00:00:00Z must be before the current date\"}"));
 
     verifyNoInteractions(contextLoader, projectIssueCountsService);
     verify(dbClient, never()).openSession(false);
   }
 
   @Test
-  public void getProjectIssueCountsRejectsCurrentMidnightReferenceDateBeforeLoadingContext() {
+  public void getProjectIssueCountsRejectsCurrentMidnightReferenceDateBeforeLoadingContext() throws Exception {
     OffsetDateTime referenceDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
 
-    assertThatThrownBy(() -> underTest.getProjectIssueCounts(
-      PORTFOLIO_ID, null, null, null, null, null, null, null, null, referenceDate,
-      1, 50, SORT, false))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("referenceDate 2026-07-08T00:00:00Z must be before the current date");
+    mockMvc.perform(get("/history/project-issue-counts")
+        .queryParam("portfolioId", PORTFOLIO_ID)
+        .queryParam("referenceDate", referenceDate.toString()))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"referenceDate 2026-07-08T00:00:00Z must be before the current date\"}"));
 
     verifyNoInteractions(contextLoader, projectIssueCountsService);
     verify(dbClient, never()).openSession(false);
@@ -215,12 +217,12 @@ public class DefaultProjectIssueCountsControllerTest {
   }
 
   @Test
-  public void getProjectIssueCountsRejectsInvalidSelectorBeforeOpeningSession() {
-    assertThatThrownBy(() -> underTest.getProjectIssueCounts(
-      null, null, null, null, null, null, null, null, null, VALID_REFERENCE_DATE,
-      1, 50, SORT, false))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Either portfolioId or both entityType and entityId must be provided");
+  public void getProjectIssueCountsRejectsInvalidSelectorBeforeOpeningSession() throws Exception {
+    mockMvc.perform(get("/history/project-issue-counts")
+        .queryParam("referenceDate", VALID_REFERENCE_DATE.toString()))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"Either portfolioId or both entityType and entityId must be provided\"}"));
 
     verify(dbClient, never()).openSession(false);
     verifyNoInteractions(contextLoader, projectIssueCountsService);
@@ -228,10 +230,6 @@ public class DefaultProjectIssueCountsControllerTest {
 
   @Test
   public void getProjectIssueCountsReturnsBadRequestForMixedLegacyAndTypedSelectors() throws Exception {
-    MockMvc mockMvc = MockMvcBuilders.standaloneSetup(underTest)
-      .setControllerAdvice(new RestResponseEntityExceptionHandler())
-      .build();
-
     mockMvc.perform(get("/history/project-issue-counts")
       .queryParam("portfolioId", PORTFOLIO_ID)
       .queryParam("entityType", "PORTFOLIO")

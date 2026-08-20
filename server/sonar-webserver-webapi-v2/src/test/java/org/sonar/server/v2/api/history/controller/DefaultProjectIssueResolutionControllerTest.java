@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.v2.api.ControllerTester;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
 import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
@@ -38,9 +39,9 @@ import org.sonarsource.history.model.IssueCountHistoryFilters;
 import org.sonarsource.history.model.ProjectBranch;
 import org.sonarsource.history.server.service.ProjectIssueResolutionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -48,6 +49,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class DefaultProjectIssueResolutionControllerTest {
 
@@ -63,6 +67,7 @@ public class DefaultProjectIssueResolutionControllerTest {
   private final ProjectIssueResolutionService projectIssueResolutionService = mock();
   private final DefaultProjectIssueResolutionController underTest = new DefaultProjectIssueResolutionController(
     dbClient, contextLoader, projectIssueResolutionService, Clock.fixed(NOW, ZoneOffset.UTC));
+  private final MockMvc mockMvc = ControllerTester.getMockMvc(underTest);
 
   @Before
   public void setUp() {
@@ -144,43 +149,30 @@ public class DefaultProjectIssueResolutionControllerTest {
   }
 
   @Test
-  public void getProjectIssueResolutionRejectsInvalidSelectorBeforeLoadingContext() {
-    assertThatThrownBy(() -> underTest.getProjectIssueResolution(
-      ProjectIssueResolutionStatistic.MTTR,
-      PORTFOLIO_ID,
-      ProjectCollectionHistoryEntityType.PORTFOLIO,
-      PORTFOLIO_ID,
-      null,
-      null,
-      null,
-      null,
-      null,
-      1,
-      50))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("portfolioId cannot be combined with entityType or entityId");
+  public void getProjectIssueResolutionRejectsInvalidSelectorBeforeLoadingContext() throws Exception {
+    mockMvc.perform(get("/history/project-issue-resolution")
+        .queryParam("statistic", "MTTR")
+        .queryParam("portfolioId", PORTFOLIO_ID)
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("entityId", PORTFOLIO_ID))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"portfolioId cannot be combined with entityType or entityId\"}"));
 
     verifyNoInteractions(contextLoader, projectIssueResolutionService);
   }
 
   @Test
-  public void getProjectIssueResolutionRejectsCurrentDayTrendBeforeLoadingContext() {
+  public void getProjectIssueResolutionRejectsCurrentDayTrendBeforeLoadingContext() throws Exception {
     OffsetDateTime currentDay = OffsetDateTime.parse("2026-07-08T00:00:00Z");
 
-    assertThatThrownBy(() -> underTest.getProjectIssueResolution(
-      ProjectIssueResolutionStatistic.MTTR,
-      PORTFOLIO_ID,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      currentDay,
-      1,
-      50))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("must be before the current date");
+    mockMvc.perform(get("/history/project-issue-resolution")
+        .queryParam("statistic", "MTTR")
+        .queryParam("portfolioId", PORTFOLIO_ID)
+        .queryParam("trendSince", currentDay.toString()))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"referenceDate 2026-07-08T00:00:00Z must be before the current date\"}"));
 
     verifyNoInteractions(contextLoader, projectIssueResolutionService);
   }

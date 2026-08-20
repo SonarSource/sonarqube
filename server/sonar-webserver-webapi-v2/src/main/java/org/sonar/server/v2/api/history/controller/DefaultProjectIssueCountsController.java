@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Objects;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.v2.security.RequireAuthentication;
 import org.sonarsource.history.api.ProjectBreakdownRequestValidator;
 import org.sonarsource.history.api.mapper.HistoryModelConverter;
 import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
@@ -46,7 +45,6 @@ import static org.sonar.server.v2.WebApiEndpoints.HISTORY_DOMAIN;
 /** Serves project issue-count breakdown requests. */
 @RestController
 @RequestMapping(HISTORY_DOMAIN)
-@RequireAuthentication
 public class DefaultProjectIssueCountsController implements ProjectIssueCountsApi {
 
   private final DbClient dbClient;

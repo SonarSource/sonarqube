@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.v2.security.RequireAuthentication;
 import org.sonarsource.history.api.ProjectBreakdownRequestValidator;
 import org.sonarsource.history.api.mapper.HistoryModelConverter;
 import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
@@ -48,7 +47,6 @@ import static org.sonar.server.v2.WebApiEndpoints.HISTORY_DOMAIN;
 /** Serves project issue-resolution breakdown requests. */
 @RestController
 @RequestMapping(HISTORY_DOMAIN)
-@RequireAuthentication
 public class DefaultProjectIssueResolutionController implements ProjectIssueResolutionApi {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectIssueResolutionController.class);

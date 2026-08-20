@@ -31,7 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
+import org.sonar.server.v2.api.ControllerTester;
 import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.model.Pagination;
 import org.sonarsource.history.model.ProjectBranch;
@@ -41,10 +41,8 @@ import org.sonarsource.history.model.ProjectMeasuresResponse.ProjectMeasureMetri
 import org.sonarsource.history.server.service.ProjectMeasuresService;
 import org.mockito.InOrder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.inOrder;
@@ -53,6 +51,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class DefaultProjectMeasuresControllerTest {
@@ -73,6 +72,7 @@ public class DefaultProjectMeasuresControllerTest {
   private final ProjectMeasuresService projectMeasuresService = mock();
   private final DefaultProjectMeasuresController underTest = new DefaultProjectMeasuresController(
     dbClient, contextLoader, projectMeasuresService, Clock.fixed(NOW, ZoneOffset.UTC));
+  private final MockMvc mockMvc = ControllerTester.getMockMvc(underTest);
 
   @Before
   public void setUp() {
@@ -152,41 +152,48 @@ public class DefaultProjectMeasuresControllerTest {
   }
 
   @Test
-  public void getProjectMeasuresRejectsUnknownMetric() {
+  public void getProjectMeasuresRejectsUnknownMetric() throws Exception {
     when(metricDao.selectByKey(dbSession, METRIC_KEY)).thenReturn(null);
 
-    assertThatThrownBy(() -> underTest.getProjectMeasures(
-      METRIC_KEY, null, null, 1, 50, PORTFOLIO_ID, null, null, VALID_REFERENCE_DATE, SORT, false))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Metric with key %s not found", METRIC_KEY);
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", METRIC_KEY)
+        .queryParam("portfolioId", PORTFOLIO_ID)
+        .queryParam("referenceDate", VALID_REFERENCE_DATE.toString()))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"Metric with key coverage not found\"}"));
 
     verifyNoInteractions(contextLoader, projectMeasuresService);
     verify(dbSession).close();
   }
 
   @Test
-  public void getProjectMeasuresRejectsFutureReferenceDateBeforeLoadingContext() {
+  public void getProjectMeasuresRejectsFutureReferenceDateBeforeLoadingContext() throws Exception {
     OffsetDateTime referenceDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");
 
-    assertThatThrownBy(() -> underTest.getProjectMeasures(
-      METRIC_KEY, null, null, 1, 50, PORTFOLIO_ID, null, null, referenceDate,
-      SORT, false))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("referenceDate 2026-07-09T00:00:00Z must be before the current date");
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", METRIC_KEY)
+        .queryParam("portfolioId", PORTFOLIO_ID)
+        .queryParam("referenceDate", referenceDate.toString()))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"referenceDate 2026-07-09T00:00:00Z must be before the current date\"}"));
 
     verifyNoInteractions(contextLoader, projectMeasuresService);
     verify(dbClient, never()).openSession(false);
   }
 
   @Test
-  public void getProjectMeasuresRejectsCurrentMidnightReferenceDateBeforeLoadingContext() {
+  public void getProjectMeasuresRejectsCurrentMidnightReferenceDateBeforeLoadingContext() throws Exception {
     OffsetDateTime referenceDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
 
-    assertThatThrownBy(() -> underTest.getProjectMeasures(
-      METRIC_KEY, null, null, 1, 50, PORTFOLIO_ID, null, null, referenceDate,
-      SORT, false))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("referenceDate 2026-07-08T00:00:00Z must be before the current date");
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", METRIC_KEY)
+        .queryParam("portfolioId", PORTFOLIO_ID)
+        .queryParam("referenceDate", referenceDate.toString()))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"referenceDate 2026-07-08T00:00:00Z must be before the current date\"}"));
 
     verifyNoInteractions(contextLoader, projectMeasuresService);
     verify(dbClient, never()).openSession(false);
@@ -214,12 +221,13 @@ public class DefaultProjectMeasuresControllerTest {
   }
 
   @Test
-  public void getProjectMeasuresRejectsInvalidSelectorBeforeOpeningSession() {
-    assertThatThrownBy(() -> underTest.getProjectMeasures(
-      METRIC_KEY, null, null, 1, 50, null, null, null, VALID_REFERENCE_DATE,
-      SORT, false))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Either portfolioId or both entityType and entityId must be provided");
+  public void getProjectMeasuresRejectsInvalidSelectorBeforeOpeningSession() throws Exception {
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", METRIC_KEY)
+        .queryParam("referenceDate", VALID_REFERENCE_DATE.toString()))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"Either portfolioId or both entityType and entityId must be provided\"}"));
 
     verify(dbClient, never()).openSession(false);
     verifyNoInteractions(contextLoader, projectMeasuresService);
@@ -227,10 +235,6 @@ public class DefaultProjectMeasuresControllerTest {
 
   @Test
   public void getProjectMeasuresReturnsBadRequestForMixedLegacyAndTypedSelectors() throws Exception {
-    MockMvc mockMvc = MockMvcBuilders.standaloneSetup(underTest)
-      .setControllerAdvice(new RestResponseEntityExceptionHandler())
-      .build();
-
     mockMvc.perform(get("/history/project-measures")
       .queryParam("metricKey", METRIC_KEY)
       .queryParam("portfolioId", PORTFOLIO_ID)

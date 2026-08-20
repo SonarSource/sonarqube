@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.v2.security.RequireAuthentication;
 import org.sonarsource.history.HistoryDateRange;
 import org.sonarsource.history.api.HistoryControllerUtils;
 import org.sonarsource.history.api.mapper.HistoryModelConverter;
@@ -46,10 +45,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.sonar.server.v2.WebApiEndpoints.HISTORY_DOMAIN;
 
-/** Serves issue-count history requests for authenticated project branches. */
+/** Serves issue-count history requests for project branches. */
 @RestController
 @RequestMapping(HISTORY_DOMAIN)
-@RequireAuthentication
 public class DefaultIssueCountHistoryController implements IssueCountHistoryApi {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultIssueCountHistoryController.class);
