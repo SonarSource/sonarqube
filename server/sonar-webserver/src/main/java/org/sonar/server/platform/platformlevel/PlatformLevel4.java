@@ -50,6 +50,7 @@ import org.sonar.auth.ldap.LdapModule;
 import org.sonar.auth.saml.SamlModule;
 import org.sonar.ce.task.projectanalysis.notification.ReportAnalysisFailureNotificationModule;
 import org.sonar.ce.task.projectanalysis.taskprocessor.AuditPurgeTaskProcessor;
+import org.sonar.ce.task.projectanalysis.taskprocessor.HistoryPurgeTaskProcessor;
 import org.sonar.ce.task.projectanalysis.taskprocessor.IssueSyncTaskProcessor;
 import org.sonar.ce.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 import org.sonar.ce.task.projectexport.taskprocessor.ProjectExportTaskProcessor;
@@ -57,7 +58,6 @@ import org.sonar.ce.task.purgehistory.HistoryPurgeExecutorServiceImpl;
 import org.sonar.ce.task.purgehistory.HistoryPurgeInitializer;
 import org.sonar.ce.task.purgehistory.HistoryPurgePropertyChangeHandler;
 import org.sonar.ce.task.purgehistory.HistoryPurgeSchedulerImpl;
-import org.sonar.ce.task.projectanalysis.taskprocessor.HistoryPurgeTaskProcessor;
 import org.sonar.core.extension.CoreExtensionsInstaller;
 import org.sonar.core.language.LanguagesProvider;
 import org.sonar.core.metric.SoftwareQualitiesMetrics;
@@ -224,20 +224,25 @@ import org.sonar.server.platform.db.migration.DatabaseMigrationPersister;
 import org.sonar.server.platform.db.migration.DatabaseMigrationTelemetry;
 import org.sonar.server.platform.issue.IssueCountsByStatusComputation;
 import org.sonar.server.platform.issue.IssueCountsByStatusComputationExecutorServiceImpl;
+import org.sonar.server.platform.telemetry.OnboardingSystemInfoSection;
 import org.sonar.server.platform.telemetry.TelemetryFipsEnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryIpv6EnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryIssueCountsPerStatusProvider;
 import org.sonar.server.platform.telemetry.TelemetryMQRModePropertyProvider;
 import org.sonar.server.platform.telemetry.TelemetryNclocProvider;
+import org.sonar.server.platform.telemetry.TelemetryOnboardingBoundProjectsByAlmProvider;
+import org.sonar.server.platform.telemetry.TelemetryOnboardingCountsProvider;
+import org.sonar.server.platform.telemetry.TelemetryOnboardingDiscoveredRepoCountByAlmProvider;
+import org.sonar.server.platform.telemetry.TelemetryOnboardingLastAnalysisBucketProvider;
 import org.sonar.server.platform.telemetry.TelemetryPortfolioSelectionModeProvider;
 import org.sonar.server.platform.telemetry.TelemetrySubportfolioSelectionModeProvider;
 import org.sonar.server.platform.telemetry.TelemetryUserEnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryVersionProvider;
 import org.sonar.server.platform.web.ActionDeprecationLoggerInterceptor;
 import org.sonar.server.platform.web.ConcurrentCallsLimitInterceptor;
-import org.sonar.server.platform.web.WebApiV1MetricsInterceptor;
 import org.sonar.server.platform.web.NoCacheFilter;
 import org.sonar.server.platform.web.SonarQubeIdeConnectionFilter;
+import org.sonar.server.platform.web.WebApiV1MetricsInterceptor;
 import org.sonar.server.platform.web.WebServiceFilter;
 import org.sonar.server.platform.web.WebServiceReroutingFilter;
 import org.sonar.server.platform.web.requestid.HttpRequestIdModule;
@@ -795,6 +800,13 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryAgenticQGNcdOutcomeProvider.class,
       AgenticQPProjectResolver.class,
       TelemetryAgenticQPAdoptionProvider.class,
+
+      // Onboarding telemetry (SONAR-31715)
+      TelemetryOnboardingCountsProvider.class,
+      TelemetryOnboardingBoundProjectsByAlmProvider.class,
+      TelemetryOnboardingLastAnalysisBucketProvider.class,
+      TelemetryOnboardingDiscoveredRepoCountByAlmProvider.class,
+      OnboardingSystemInfoSection.class,
 
       // Reports telemetry
       TelemetryApplicationSubscriptionsProvider.class,
