@@ -43,6 +43,7 @@ public final class SqTables {
     "app_projects",
     "atlassian_auth_details",
     "audits",
+    "cag_usage",
     "ce_activity",
     "ce_queue",
     "ce_task_characteristics",
