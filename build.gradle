@@ -338,7 +338,7 @@ subprojects {
       dependency 'com.sonarsource.abap:sonar-abap-plugin:3.22.0.8389'
       dependency 'com.sonarsource.analysisasaservice:common-a3s-context-collector:1.0.0.7220'
       dependency 'com.sonarsource.armor:sonar-jasmin-plugin:1.21.0.11571'
-      dependency 'com.sonarsource.cobol:sonar-cobol-plugin:5.12.0.10754'
+      dependency 'com.sonarsource.cobol:sonar-cobol-plugin:5.14.0.11418'
       dependency 'com.sonarsource.cpp:sonar-cfamily-dependencies-plugin:6.84.0.101652'
       dependency 'com.sonarsource.cpp:sonar-cfamily-plugin:6.84.0.101652'
       dependency 'com.sonarsource.dart:sonar-dart-plugin:1.8.1.5004'
