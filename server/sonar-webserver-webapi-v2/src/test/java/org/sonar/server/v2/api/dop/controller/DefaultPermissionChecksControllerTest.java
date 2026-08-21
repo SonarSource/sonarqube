@@ -34,6 +34,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.common.almsettings.permission.DopPermissionCheck;
 import org.sonar.server.common.almsettings.permission.DopPermissionValidationService;
 import org.sonar.server.common.almsettings.permission.PermissionCheckStatus;
+import org.sonar.server.common.almsettings.permission.TimestampedPermissionCheck;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.v2.api.dop.response.PermissionCheckResource;
@@ -83,20 +84,20 @@ class DefaultPermissionChecksControllerTest {
     AlmSettingDto gitlabDto = almSetting(ALM.GITLAB);
     AlmSettingDto bitbucketDto = almSetting(ALM.BITBUCKET);
     when(dbClient.almSettingDao().selectAll(dbSession)).thenReturn(List.of(githubDto, gitlabDto, bitbucketDto));
-    when(dopPermissionValidationService.checkAll(any())).thenReturn(List.of(
-      DopPermissionCheck.insufficient(),
-      DopPermissionCheck.checkFailed()));
+    when(dopPermissionValidationService.checkAllCached(any())).thenReturn(List.of(
+      new TimestampedPermissionCheck(DopPermissionCheck.insufficient(), 1_000L),
+      new TimestampedPermissionCheck(DopPermissionCheck.checkFailed(), 2_000L)));
 
     userSession.logIn().setSystemAdministrator();
     MvcResult mvcResult = mockMvc.perform(get(PERMISSION_CHECKS_ENDPOINT)).andExpect(status().isOk()).andReturn();
 
     PermissionChecksRestResponse response = gson.fromJson(mvcResult.getResponse().getContentAsString(), PermissionChecksRestResponse.class);
-    // Bitbucket is filtered out; supported platforms are mapped with their status.
+    // Bitbucket is filtered out; supported platforms are mapped with their status and cache timestamp.
     assertThat(response.permissionChecks())
-      .extracting(PermissionCheckResource::key, PermissionCheckResource::type, PermissionCheckResource::status)
+      .extracting(PermissionCheckResource::key, PermissionCheckResource::type, PermissionCheckResource::status, PermissionCheckResource::checkedAt)
       .containsExactly(
-        tuple("key_github", "github", PermissionCheckStatus.INSUFFICIENT),
-        tuple("key_gitlab", "gitlab", PermissionCheckStatus.CHECK_FAILED));
+        tuple("key_github", "github", PermissionCheckStatus.INSUFFICIENT, 1_000L),
+        tuple("key_gitlab", "gitlab", PermissionCheckStatus.CHECK_FAILED, 2_000L));
   }
 
   @Test
@@ -117,7 +118,7 @@ class DefaultPermissionChecksControllerTest {
     when(dbClient.projectDao().selectProjectByKey(dbSession, "my-project")).thenReturn(Optional.of(project));
     when(dbClient.projectAlmSettingDao().selectByProject(dbSession, project)).thenReturn(Optional.of(binding));
     when(dbClient.almSettingDao().selectByUuid(dbSession, "alm-uuid")).thenReturn(Optional.of(gitlabDto));
-    when(dopPermissionValidationService.check(gitlabDto)).thenReturn(DopPermissionCheck.checkFailed());
+    when(dopPermissionValidationService.checkCached(gitlabDto)).thenReturn(new TimestampedPermissionCheck(DopPermissionCheck.checkFailed(), 1_000L));
 
     userSession.logIn().addProjectPermission(USER, project);
     MvcResult mvcResult = mockMvc.perform(get(PERMISSION_CHECKS_ENDPOINT).param("project", "my-project")).andExpect(status().isOk()).andReturn();
@@ -126,6 +127,7 @@ class DefaultPermissionChecksControllerTest {
     PermissionCheckResource resource = response.permissionChecks().get(0);
     assertThat(resource.key()).isEqualTo("key_gitlab");
     assertThat(resource.status()).isEqualTo(PermissionCheckStatus.CHECK_FAILED);
+    assertThat(resource.checkedAt()).isEqualTo(1_000L);
   }
 
   @Test

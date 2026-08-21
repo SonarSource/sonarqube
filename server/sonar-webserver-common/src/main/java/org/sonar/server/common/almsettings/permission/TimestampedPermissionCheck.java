@@ -17,22 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.v2.api.dop.response;
+package org.sonar.server.common.almsettings.permission;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.sonar.server.common.almsettings.permission.PermissionCheckStatus;
-
-public record PermissionCheckResource(
-  @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Key of the DevOps Platform configuration")
-  String key,
-
-  @Schema(description = "DevOps Platform type of the configuration (github, gitlab, azure)")
-  String type,
-
-  @Schema(description = "Whether the configuration grants the write permissions the Remediation Agent needs to clone and open pull requests")
-  PermissionCheckStatus status,
-
-  @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Epoch milliseconds when this status was last computed. May reflect a cached result.")
-  long checkedAt
-) {
+/**
+ * A {@link DopPermissionCheck} together with the epoch-millis instant it was computed at — either just now (cache
+ * miss) or when the cache entry backing it was last populated (cache hit).
+ */
+public record TimestampedPermissionCheck(DopPermissionCheck check, long checkedAt) {
 }

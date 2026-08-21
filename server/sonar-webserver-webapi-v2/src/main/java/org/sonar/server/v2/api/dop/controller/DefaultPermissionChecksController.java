@@ -31,8 +31,8 @@ import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
-import org.sonar.server.common.almsettings.permission.DopPermissionCheck;
 import org.sonar.server.common.almsettings.permission.DopPermissionValidationService;
+import org.sonar.server.common.almsettings.permission.TimestampedPermissionCheck;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.dop.response.PermissionCheckResource;
 import org.sonar.server.v2.api.dop.response.PermissionChecksRestResponse;
@@ -71,9 +71,9 @@ public class DefaultPermissionChecksController implements PermissionChecksContro
         .filter(almSetting -> SUPPORTED_ALMS.contains(almSetting.getAlm()))
         .toList();
     }
-    // Validation hits the DevOps Platform APIs, so it runs after the DB session is closed (no connection held) and in
-    // parallel.
-    List<DopPermissionCheck> checks = dopPermissionValidationService.checkAll(almSettings);
+    // A cache hit is instant; a miss hits the DevOps Platform APIs, so this runs after the DB session is closed (no
+    // connection held) and in parallel.
+    List<TimestampedPermissionCheck> checks = dopPermissionValidationService.checkAllCached(almSettings);
     return toResponse(almSettings, checks);
   }
 
@@ -91,11 +91,11 @@ public class DefaultPermissionChecksController implements PermissionChecksContro
       return new PermissionChecksRestResponse(List.of());
     }
     AlmSettingDto almSetting = boundAlmSetting.get();
-    DopPermissionCheck check = dopPermissionValidationService.check(almSetting);
+    TimestampedPermissionCheck check = dopPermissionValidationService.checkCached(almSetting);
     return toResponse(List.of(almSetting), List.of(check));
   }
 
-  private static PermissionChecksRestResponse toResponse(List<AlmSettingDto> almSettings, List<DopPermissionCheck> checks) {
+  private static PermissionChecksRestResponse toResponse(List<AlmSettingDto> almSettings, List<TimestampedPermissionCheck> checks) {
     List<PermissionCheckResource> resources = new ArrayList<>(almSettings.size());
     for (int i = 0; i < almSettings.size(); i++) {
       resources.add(toResource(almSettings.get(i), checks.get(i)));
@@ -103,11 +103,12 @@ public class DefaultPermissionChecksController implements PermissionChecksContro
     return new PermissionChecksRestResponse(resources);
   }
 
-  private static PermissionCheckResource toResource(AlmSettingDto almSetting, DopPermissionCheck check) {
+  private static PermissionCheckResource toResource(AlmSettingDto almSetting, TimestampedPermissionCheck timestampedCheck) {
     return new PermissionCheckResource(
       almSetting.getKey(),
       toResponseAlm(almSetting.getAlm()).name(),
-      check.status());
+      timestampedCheck.check().status(),
+      timestampedCheck.checkedAt());
   }
 
 }
