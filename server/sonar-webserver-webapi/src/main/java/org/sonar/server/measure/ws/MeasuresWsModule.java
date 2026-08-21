@@ -88,18 +88,18 @@ public class MeasuresWsModule extends Module {
       SoftwareQualitiesMetrics.SOFTWARE_QUALITY_INFO_ISSUES,
       SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MEDIUM_ISSUES,
       SoftwareQualitiesMetrics.SOFTWARE_QUALITY_LOW_ISSUES,
-      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES,
-      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES,
-      SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES,
+      CoreMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES,
+      CoreMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES,
+      CoreMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES,
 
       SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES,
       SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_HIGH_ISSUES,
       SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_INFO_ISSUES,
       SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES,
       SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_LOW_ISSUES,
-      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES,
-      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES,
-      SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES)
+      CoreMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES,
+      CoreMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES,
+      CoreMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES)
       .map(e -> "'" + e.getKey() + "'")
       .collect(Collectors.joining(", "));
   }

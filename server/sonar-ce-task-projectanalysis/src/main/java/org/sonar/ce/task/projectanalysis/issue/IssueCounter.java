@@ -77,12 +77,18 @@ import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_ISSUE_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUE_SEVERITY_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.REOPENED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.api.rule.Severity.BLOCKER;
@@ -148,14 +154,14 @@ public class IssueCounter extends IssueVisitor implements IssueMeasureVisitor {
     SoftwareQuality.MAINTAINABILITY.name(), NEW_MAINTAINABILITY_ISSUES_KEY);
 
   static final Map<String, String> IMPACT_TO_METRIC_KEY = Map.of(
-    SoftwareQuality.SECURITY.name(), SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES_KEY,
-    SoftwareQuality.RELIABILITY.name(), SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY,
-    SoftwareQuality.MAINTAINABILITY.name(), SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY);
+    SoftwareQuality.SECURITY.name(), SOFTWARE_QUALITY_SECURITY_ISSUES_KEY,
+    SoftwareQuality.RELIABILITY.name(), SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY,
+    SoftwareQuality.MAINTAINABILITY.name(), SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY);
 
   static final Map<String, String> IMPACT_TO_NEW_METRIC_KEY = Map.of(
-    SoftwareQuality.SECURITY.name(), SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES_KEY,
-    SoftwareQuality.RELIABILITY.name(), SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY,
-    SoftwareQuality.MAINTAINABILITY.name(), SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY);
+    SoftwareQuality.SECURITY.name(), NEW_SOFTWARE_QUALITY_SECURITY_ISSUES_KEY,
+    SoftwareQuality.RELIABILITY.name(), NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY,
+    SoftwareQuality.MAINTAINABILITY.name(), NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY);
 
   private static final Map<RuleType, String> TYPE_TO_METRIC_KEY = ImmutableMap.<RuleType, String>builder()
     .put(CODE_SMELL, CODE_SMELLS_KEY)

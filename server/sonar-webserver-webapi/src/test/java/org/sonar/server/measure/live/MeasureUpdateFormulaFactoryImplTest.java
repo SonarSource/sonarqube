@@ -1327,9 +1327,9 @@ class MeasureUpdateFormulaFactoryImplTest {
   @Test
   void compute_shouldComputeCountPerSoftwareQualityOnOverallCode() {
     withNoIssues()
-      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, 0)
-      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES, 0)
-      .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES, 0);
+      .assertThatValueIs(CoreMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, 0)
+      .assertThatValueIs(CoreMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES, 0)
+      .assertThatValueIs(CoreMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES, 0);
 
     with(
       newImpactGroup(RELIABILITY, HIGH, 3),
@@ -1342,17 +1342,17 @@ class MeasureUpdateFormulaFactoryImplTest {
       newImpactGroup(RELIABILITY, HIGH, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 8, 1d, false),
       newImpactGroup(MAINTAINABILITY, MEDIUM, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, 8, 1d, false))
 
-        .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, 1 + 1)
-        .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES, 3 + 1)
-        .assertThatValueIs(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES, 1);
+        .assertThatValueIs(CoreMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, 1 + 1)
+        .assertThatValueIs(CoreMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES, 3 + 1)
+        .assertThatValueIs(CoreMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES, 1);
   }
 
   @Test
   void compute_shouldComputeCountPerSoftwareQualityOnNewCode() {
     withNoIssues()
-      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, 0)
-      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES, 0)
-      .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES, 0);
+      .assertThatLeakValueIs(CoreMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, 0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES, 0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES, 0);
 
     with(
       newImpactGroup(RELIABILITY, HIGH, 3, true),
@@ -1368,9 +1368,9 @@ class MeasureUpdateFormulaFactoryImplTest {
       // Should not be counted because on overall code
       newImpactGroup(MAINTAINABILITY, MEDIUM, 1, false))
 
-        .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, 1 + 1)
-        .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES, 3 + 1)
-        .assertThatLeakValueIs(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES, 1 + 12);
+        .assertThatLeakValueIs(CoreMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, 1 + 1)
+        .assertThatLeakValueIs(CoreMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES, 3 + 1)
+        .assertThatLeakValueIs(CoreMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES, 1 + 12);
   }
 
   @Test

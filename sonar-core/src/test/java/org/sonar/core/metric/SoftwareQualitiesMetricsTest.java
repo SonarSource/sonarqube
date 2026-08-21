@@ -28,16 +28,10 @@ class SoftwareQualitiesMetricsTest {
   void getMetrics() {
     assertThat(new SoftwareQualitiesMetrics().getMetrics())
       .containsExactlyInAnyOrder(
-        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES,
-        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES,
         SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING,
         SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING,
-        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES,
-        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES,
         SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING,
         SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING,
-        SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES,
-        SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES,
         SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING,
         SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING,
         SoftwareQualitiesMetrics.EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A,

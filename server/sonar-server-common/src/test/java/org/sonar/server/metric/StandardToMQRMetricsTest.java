@@ -31,7 +31,7 @@ class StandardToMQRMetricsTest {
     Assertions.assertThat(StandardToMQRMetrics.isMQRMetric(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_HIGH_ISSUES_KEY)).isTrue();
 
     Assertions.assertThat(StandardToMQRMetrics.isMQRMetric(CoreMetrics.SECURITY_RATING_KEY)).isFalse();
-    Assertions.assertThat(StandardToMQRMetrics.isStandardMetric(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY)).isFalse();
+    Assertions.assertThat(StandardToMQRMetrics.isStandardMetric(CoreMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY)).isFalse();
   }
 
   @Test

@@ -28,30 +28,10 @@ import static org.sonar.api.measures.CoreMetrics.DOMAIN_MAINTAINABILITY;
 import static org.sonar.api.measures.CoreMetrics.DOMAIN_RELIABILITY;
 import static org.sonar.api.measures.CoreMetrics.DOMAIN_SECURITY;
 
+/**
+ * All metrics defined in this class should eventually be moved to CoreMetrics, unless a place for W&S metrics shared between SQS & SQC is defined
+ */
 public class SoftwareQualitiesMetrics implements Metrics {
-
-  public static final String SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY = "software_quality_maintainability_issues";
-  public static final Metric<Integer> SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES =
-    new Metric.Builder(SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY, "Maintainability Issues", Metric.ValueType.INT)
-    .setDescription("Maintainability Issues")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
-    .setDomain(DOMAIN_MAINTAINABILITY)
-    .setBestValue(0.0)
-    .setOptimizedBestValue(true)
-    .create();
-
-  public static final String NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY = "new_software_quality_maintainability_issues";
-  public static final Metric<Integer> NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES =
-    new Metric.Builder(NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY, "New Maintainability Issues", Metric.ValueType.INT)
-      .setDescription("New Maintainability Issues")
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true)
-      .setDomain(DOMAIN_MAINTAINABILITY)
-      .setBestValue(0.0)
-      .setOptimizedBestValue(true)
-      .setDeleteHistoricalData(true)
-      .create();
 
   public static final String SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY = "software_quality_maintainability_rating";
   public static final Metric<Integer> SOFTWARE_QUALITY_MAINTAINABILITY_RATING =
@@ -78,29 +58,6 @@ public class SoftwareQualitiesMetrics implements Metrics {
       .setWorstValue(5.0)
       .create();
 
-  public static final String SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY = "software_quality_reliability_issues";
-  public static final Metric<Integer> SOFTWARE_QUALITY_RELIABILITY_ISSUES =
-    new Metric.Builder(SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY, "Reliability Issues", Metric.ValueType.INT)
-      .setDescription("Reliability Issues")
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(false)
-      .setDomain(DOMAIN_RELIABILITY)
-      .setBestValue(0.0)
-      .setOptimizedBestValue(true)
-      .create();
-
-  public static final String NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY = "new_software_quality_reliability_issues";
-  public static final Metric<Integer> NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES =
-    new Metric.Builder(NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY, "New Reliability Issues", Metric.ValueType.INT)
-      .setDescription("New Reliability Issues")
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true)
-      .setDomain(DOMAIN_RELIABILITY)
-      .setBestValue(0.0)
-      .setOptimizedBestValue(true)
-      .setDeleteHistoricalData(true)
-      .create();
-
   public static final String SOFTWARE_QUALITY_RELIABILITY_RATING_KEY = "software_quality_reliability_rating";
   public static final Metric<Integer> SOFTWARE_QUALITY_RELIABILITY_RATING = new Metric.Builder(SOFTWARE_QUALITY_RELIABILITY_RATING_KEY,
     "Reliability Rating", Metric.ValueType.RATING)
@@ -124,29 +81,6 @@ public class SoftwareQualitiesMetrics implements Metrics {
     .setBestValue(1.0)
     .setWorstValue(5.0)
     .create();
-
-  public static final String SOFTWARE_QUALITY_SECURITY_ISSUES_KEY = "software_quality_security_issues";
-  public static final Metric<Integer> SOFTWARE_QUALITY_SECURITY_ISSUES =
-    new Metric.Builder(SOFTWARE_QUALITY_SECURITY_ISSUES_KEY, "Security Issues", Metric.ValueType.INT)
-      .setDescription("Security Issues")
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(false)
-      .setDomain(DOMAIN_SECURITY)
-      .setBestValue(0.0)
-      .setOptimizedBestValue(true)
-      .create();
-
-  public static final String NEW_SOFTWARE_QUALITY_SECURITY_ISSUES_KEY = "new_software_quality_security_issues";
-  public static final Metric<Integer> NEW_SOFTWARE_QUALITY_SECURITY_ISSUES =
-    new Metric.Builder(NEW_SOFTWARE_QUALITY_SECURITY_ISSUES_KEY, "New Security Issues", Metric.ValueType.INT)
-      .setDescription("New Security Issues")
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true)
-      .setDomain(DOMAIN_SECURITY)
-      .setBestValue(0.0)
-      .setOptimizedBestValue(true)
-      .setDeleteHistoricalData(true)
-      .create();
 
   public static final String SOFTWARE_QUALITY_SECURITY_RATING_KEY = "software_quality_security_rating";
   public static final Metric<Integer> SOFTWARE_QUALITY_SECURITY_RATING = new Metric.Builder(SOFTWARE_QUALITY_SECURITY_RATING_KEY,
@@ -409,16 +343,10 @@ public class SoftwareQualitiesMetrics implements Metrics {
   @Override
   public List<Metric> getMetrics() {
     return List.of(
-      SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES,
-      NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES,
       SOFTWARE_QUALITY_MAINTAINABILITY_RATING,
       NEW_SOFTWARE_QUALITY_MAINTAINABILITY_RATING,
-      SOFTWARE_QUALITY_RELIABILITY_ISSUES,
-      NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES,
       SOFTWARE_QUALITY_RELIABILITY_RATING,
       NEW_SOFTWARE_QUALITY_RELIABILITY_RATING,
-      SOFTWARE_QUALITY_SECURITY_ISSUES,
-      NEW_SOFTWARE_QUALITY_SECURITY_ISSUES,
       SOFTWARE_QUALITY_SECURITY_RATING,
       NEW_SOFTWARE_QUALITY_SECURITY_RATING,
       EFFORT_TO_REACH_SOFTWARE_QUALITY_MAINTAINABILITY_RATING_A,

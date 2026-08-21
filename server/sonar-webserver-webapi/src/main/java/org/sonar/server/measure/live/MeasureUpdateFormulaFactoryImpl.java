@@ -325,22 +325,22 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
     new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_INFO_ISSUES, true, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.INFO, true))),
 
-    new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, false, true, new AddChildren(),
+    new MeasureUpdateFormula(CoreMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, false, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, false))),
 
-    new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES, false, true, new AddChildren(),
+    new MeasureUpdateFormula(CoreMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES, false, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.RELIABILITY, false))),
 
-    new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES, false, true, new AddChildren(),
+    new MeasureUpdateFormula(CoreMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES, false, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.SECURITY, false))),
 
-    new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, true, true, new AddChildren(),
+    new MeasureUpdateFormula(CoreMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, true, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, true))),
 
-    new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES, true, true, new AddChildren(),
+    new MeasureUpdateFormula(CoreMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES, true, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.RELIABILITY, true))),
 
-    new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES, true, true, new AddChildren(),
+    new MeasureUpdateFormula(CoreMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES, true, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.SECURITY, true))),
 
     new MeasureUpdateFormula(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, false, true, new AddChildren(),

@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.System2;
-import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -39,7 +38,7 @@ class QualityGateConditionsValidatorIT {
   @Test
   void hasConditionsMismatch_hasMismatchForStandardMode_shouldReturnExpectedValue() {
     QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate();
-    MetricDto mqrMetric = db.measures().insertMetric(m -> m.setKey(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY));
+    MetricDto mqrMetric = db.measures().insertMetric(m -> m.setKey(CoreMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY));
     db.qualityGates().addCondition(qualityGateDto, mqrMetric);
 
     Assertions.assertThat(underTest.hasConditionsMismatch(false)).isTrue();
