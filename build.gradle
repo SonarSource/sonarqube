@@ -352,7 +352,7 @@ subprojects {
       dependency 'com.sonarsource.go:sonar-go-enterprise-plugin:1.41.0.7435'
       dependency 'com.sonarsource.java:java-a3s-context-collector:2.8.0.293'
       dependency 'com.sonarsource.pli:sonar-pli-plugin:1.25.0.7689'
-      dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.22.0.8329'
+      dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.23.0.8518'
       dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.19.0.7510'
       dependency 'com.sonarsource.rpg:sonar-rpg-plugin:3.18.0.8642'
       dependency "com.sonarsource.security:sonar-cve-reachability-plugin:$sonarSecurityVersion"
