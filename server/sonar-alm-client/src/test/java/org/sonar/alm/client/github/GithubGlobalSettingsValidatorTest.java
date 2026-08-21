@@ -19,6 +19,7 @@
  */
 package org.sonar.alm.client.github;
 
+import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -135,6 +136,20 @@ public class GithubGlobalSettingsValidatorTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Missing Client Secret");
 
+  }
+
+  @Test
+  public void findMissingPermissions_delegatesToClientAndReturnsResult() {
+    AlmSettingDto almSettingDto = createNewGithubDto("clientId", "clientSecret", EXAMPLE_APP_ID, EXAMPLE_PRIVATE_KEY);
+
+    when(encryption.isEncrypted(any())).thenReturn(false);
+    when(appClient.findMissingAppPermissions(any(), eq(GithubAppPermissions.TOKEN_MINTING_PERMISSIONS))).thenReturn(List.of("contents"));
+
+    List<String> missingPermissions = underTest.findMissingPermissions(almSettingDto, GithubAppPermissions.TOKEN_MINTING_PERMISSIONS);
+
+    assertThat(missingPermissions).containsExactly("contents");
+    verify(appClient).checkApiEndpoint(any());
+    verify(appClient).findMissingAppPermissions(any(), eq(GithubAppPermissions.TOKEN_MINTING_PERMISSIONS));
   }
 
   private AlmSettingDto createNewGithubDto(@Nullable String clientId, @Nullable String clientSecret,

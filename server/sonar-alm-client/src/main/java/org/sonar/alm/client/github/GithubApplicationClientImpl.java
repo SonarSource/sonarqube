@@ -193,6 +193,23 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
 
   @Override
   public void checkAppPermissions(GithubAppConfiguration githubAppConfiguration, Map<String, String> permissions) {
+    Map<String, String> grantedPermissions = getAppPermissions(githubAppConfiguration);
+    List<String> missingPermissions = computeMissingPermissions(permissions, grantedPermissions);
+    if (!missingPermissions.isEmpty()) {
+      String message = missingPermissions.stream()
+        .map(perm -> perm + " is '" + grantedPermissions.get(perm) + "', should be '" + permissions.get(perm) + "'")
+        .collect(Collectors.joining(", "));
+
+      throw new IllegalArgumentException("Missing permissions; permission granted on " + message);
+    }
+  }
+
+  @Override
+  public List<String> findMissingAppPermissions(GithubAppConfiguration githubAppConfiguration, Map<String, String> permissions) {
+    return computeMissingPermissions(permissions, getAppPermissions(githubAppConfiguration));
+  }
+
+  private Map<String, String> getAppPermissions(GithubAppConfiguration githubAppConfiguration) {
     AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
 
     String endPoint = "/app";
@@ -204,28 +221,23 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
       throw new IllegalArgumentException("Failed to validate configuration, check URL and Private Key");
     }
     if (response.getCode() == HTTP_OK) {
-      Map<String, String> perms = handleResponse(response, endPoint, GsonApp.class)
+      return handleResponse(response, endPoint, GsonApp.class)
         .map(GsonApp::getPermissions)
         .orElseThrow(() -> new IllegalArgumentException("Failed to get app permissions, unexpected response body"));
-      List<String> missingPermissions = permissions.entrySet().stream()
-        .filter(permission -> !Objects.equals(permission.getValue(), perms.get(permission.getKey())))
-        .map(Map.Entry::getKey)
-        // sorted for a deterministic message: REQUIRED_PERMISSIONS is a Map.of, whose iteration order is randomized per JVM
-        .sorted()
-        .toList();
-
-      if (!missingPermissions.isEmpty()) {
-        String message = missingPermissions.stream()
-          .map(perm -> perm + " is '" + perms.get(perm) + "', should be '" + permissions.get(perm) + "'")
-          .collect(Collectors.joining(", "));
-
-        throw new IllegalArgumentException("Missing permissions; permission granted on " + message);
-      }
     } else if (response.getCode() == HTTP_UNAUTHORIZED || response.getCode() == HTTP_FORBIDDEN) {
       throw new IllegalArgumentException("Authentication failed, verify the Client Id, Client Secret and Private Key fields");
     } else {
       throw new IllegalArgumentException("Failed to check permissions with Github, check the configuration");
     }
+  }
+
+  private static List<String> computeMissingPermissions(Map<String, String> requiredPermissions, Map<String, String> grantedPermissions) {
+    return requiredPermissions.entrySet().stream()
+      .filter(permission -> !Objects.equals(permission.getValue(), grantedPermissions.get(permission.getKey())))
+      .map(Map.Entry::getKey)
+      // sorted for a deterministic message: REQUIRED_PERMISSIONS is a Map.of, whose iteration order is randomized per JVM
+      .sorted()
+      .toList();
   }
 
   @Override

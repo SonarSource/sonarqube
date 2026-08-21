@@ -50,6 +50,7 @@ public class WebApiEndpoints {
   public static final String GITHUB_INSTALLATION_TOKEN_ENDPOINT = DOP_TRANSLATION_DOMAIN + "/github-installation-tokens";
   public static final String GITLAB_PERMISSIONS_MAPPING_ENDPOINT = DOP_TRANSLATION_DOMAIN + "/gitlab-permission-mappings";
   public static final String SCM_ACCESS_TOKEN_ENDPOINT = DOP_TRANSLATION_DOMAIN + "/scm-access-tokens";
+  public static final String PERMISSION_CHECKS_ENDPOINT = DOP_TRANSLATION_DOMAIN + "/permission-checks";
 
   public static final String ANALYSIS_DOMAIN = "/analysis";
   public static final String VERSION_ENDPOINT = ANALYSIS_DOMAIN + "/version";

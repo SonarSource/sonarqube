@@ -313,6 +313,29 @@ public class GithubApplicationClientImplTest {
   }
 
   @Test
+  public void findMissingAppPermissions_returnsMissingKeys() throws IOException {
+    AppToken appToken = mockAppToken();
+
+    String json = """
+      {
+            "permissions": {
+              "checks": "write",
+              "metadata": "read",
+              "pull_requests": "write",
+              "contents": "read"
+            }
+      }
+      """;
+
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse(json));
+
+    Map<String, String> tokenMintingPermissions = new HashMap<>(GithubAppPermissions.REQUIRED_PERMISSIONS);
+    tokenMintingPermissions.put("contents", "write");
+
+    assertThat(underTest.findMissingAppPermissions(githubAppConfiguration, tokenMintingPermissions)).containsExactly("contents");
+  }
+
+  @Test
   public void getInstallationId_returns_installation_id_of_given_account() throws IOException {
     AppToken appToken = new AppToken(APP_JWT_TOKEN);
     when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);

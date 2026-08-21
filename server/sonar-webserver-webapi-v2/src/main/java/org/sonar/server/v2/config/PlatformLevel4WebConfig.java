@@ -39,6 +39,7 @@ import org.sonar.server.v2.api.azurebilling.controller.DefaultAzureBillingContro
 import org.sonar.server.v2.api.azurebilling.environment.AzureEnvironment;
 import org.sonar.server.v2.api.azurebilling.service.DefaultAzureBillingHandler;
 import org.sonar.server.v2.api.dop.controller.DefaultDopSettingsController;
+import org.sonar.server.v2.api.dop.controller.DefaultPermissionChecksController;
 import org.sonar.server.v2.api.email.config.controller.DefaultEmailConfigurationController;
 import org.sonar.server.v2.api.github.config.controller.DefaultGithubConfigurationController;
 import org.sonar.server.v2.api.github.installationtoken.controller.DefaultGithubInstallationTokenController;
@@ -84,6 +85,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
   HistoryWebConfiguration.class,
   DefaultBoundProjectsController.class,
   DefaultDopSettingsController.class,
+  DefaultPermissionChecksController.class,
   DefaultEmailConfigurationController.class,
   DefaultGithubConfigurationController.class,
   DefaultGithubInstallationTokenController.class,

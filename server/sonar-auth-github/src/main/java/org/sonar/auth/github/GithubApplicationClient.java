@@ -121,6 +121,14 @@ public interface GithubApplicationClient {
   void checkAppPermissions(GithubAppConfiguration githubAppConfiguration, Map<String, String> requiredPermissions);
 
   /**
+   * Same permission check as {@link #checkAppPermissions(GithubAppConfiguration, Map)}, but returns the sorted list of
+   * missing permission keys (empty when all {@code requiredPermissions} are granted) instead of throwing when some are
+   * missing — for callers that need the structured result rather than a failure (SONAR-31626). Still throws
+   * {@link IllegalArgumentException} on authentication or connectivity failures.
+   */
+  List<String> findMissingAppPermissions(GithubAppConfiguration githubAppConfiguration, Map<String, String> requiredPermissions);
+
+  /**
    * Returns the repository identified by the repositoryKey owned by the provided organization.
    */
   Optional<Repository> getRepository(String appUrl, AccessToken accessToken, String repositoryKey);

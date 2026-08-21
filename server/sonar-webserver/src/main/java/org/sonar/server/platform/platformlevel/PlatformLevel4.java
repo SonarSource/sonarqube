@@ -91,6 +91,7 @@ import org.sonar.server.ce.ws.CeWsModule;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DelegatingDevOpsProjectCreatorFactory;
 import org.sonar.server.common.almsettings.DelegatingScmAccessTokenProvider;
+import org.sonar.server.common.almsettings.permission.DopPermissionValidationService;
 import org.sonar.server.common.almsettings.azuredevops.AzureDevOpsProjectCreatorFactory;
 import org.sonar.server.common.almsettings.azuredevops.AzureDevOpsScmAccessTokenProvider;
 import org.sonar.server.common.almsettings.bitbucketcloud.BitbucketCloudProjectCreatorFactory;
@@ -702,6 +703,9 @@ public class PlatformLevel4 extends PlatformLevel {
       GitlabGlobalSettingsValidator.class,
       GitlabProjectCreatorFactory.class,
       AzureDevOpsValidator.class,
+
+      // DevOps Platform permission validation for the Remediation Agent (SONAR-31626)
+      DopPermissionValidationService.class,
 
       // SCM access token brokering (SONAR-31165)
       GithubScmAccessTokenProviderAdapter.class,
