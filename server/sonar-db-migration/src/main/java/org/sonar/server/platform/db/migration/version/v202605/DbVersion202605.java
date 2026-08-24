@@ -78,6 +78,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_047, "Make legacy-id columns nullable in 'project_configs'", MakeProjectConfigsLegacyIdsNullable.class)
       .add(2026_05_048, "Create 'agent_orch_tasks' table", CreateAgentOrchTasksTable.class)
       .add(2026_05_049, "Create 'remediation_sched_tasks' table", CreateRemediationSchedTasksTable.class)
-      .add(2026_05_050, "Create table 'cag_usage'", CreateCagUsageTable.class);
+      .add(2026_05_050, "Create table 'cag_usage'", CreateCagUsageTable.class)
+      .add(2026_05_051, "Create 'hunter_agent_jobs' table", CreateHunterAgentJobsTable.class);
   }
 }
