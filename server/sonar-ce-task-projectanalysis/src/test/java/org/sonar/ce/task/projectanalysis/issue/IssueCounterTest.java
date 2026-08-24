@@ -90,6 +90,8 @@ import static org.sonar.api.measures.CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.INFO_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUE_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUE_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.MAJOR_VIOLATIONS;
 import static org.sonar.api.measures.CoreMetrics.MAJOR_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.MINOR_VIOLATIONS;
@@ -137,10 +139,14 @@ import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_SEVERITY_KE
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUE_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUE_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.REOPENED_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUES;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUE_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUE_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES;
 import static org.sonar.api.measures.CoreMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES;
@@ -258,7 +264,10 @@ class IssueCounterTest {
     .add(NEW_CODE_SMELLS_SEVERITY)
     .add(NEW_RELIABILITY_ISSUE_SEVERITY)
     .add(NEW_SECURITY_ISSUE_SEVERITY)
-    .add(NEW_MAINTAINABILITY_ISSUE_SEVERITY);
+    .add(NEW_MAINTAINABILITY_ISSUE_SEVERITY)
+    .add(RELIABILITY_ISSUE_SEVERITY)
+    .add(SECURITY_ISSUE_SEVERITY)
+    .add(MAINTAINABILITY_ISSUE_SEVERITY);
 
   @RegisterExtension
   private final MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -887,6 +896,65 @@ class IssueCounterTest {
       Arguments.of(MAINTAINABILITY, MEDIUM,  SECURITY,        NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.MEDIUM),
       Arguments.of(MAINTAINABILITY, HIGH,    SECURITY,        NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.HIGH),
       Arguments.of(MAINTAINABILITY, BLOCKER, SECURITY,        NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.BLOCKER));
+  }
+
+  @ParameterizedTest
+  @MethodSource("overallMqrSeverityCases")
+  void onIssue_shouldComputeMaxSeverityBySoftwareQuality(SoftwareQuality quality,
+    Severity impactSeverity, SoftwareQuality otherQuality, String metricKey, int expectedValue) {
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, quality, impactSeverity));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, quality, INFO));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_RESOLVED, quality, BLOCKER));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, otherQuality, BLOCKER));
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(FILE2);
+    underTest.afterComponent(FILE2);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertIntValue(FILE1, entry(metricKey, expectedValue));
+    assertIntValue(FILE2, entry(metricKey, SeverityValues.NO_ISSUES));
+    assertIntValue(PROJECT, entry(metricKey, expectedValue));
+  }
+
+  private static Stream<Arguments> overallMqrSeverityCases() {
+    return Stream.of(
+      Arguments.of(RELIABILITY, INFO, MAINTAINABILITY, RELIABILITY_ISSUE_SEVERITY_KEY, SeverityValues.INFO),
+      Arguments.of(RELIABILITY, LOW, MAINTAINABILITY, RELIABILITY_ISSUE_SEVERITY_KEY, SeverityValues.LOW),
+      Arguments.of(RELIABILITY, MEDIUM, MAINTAINABILITY, RELIABILITY_ISSUE_SEVERITY_KEY, SeverityValues.MEDIUM),
+      Arguments.of(RELIABILITY, HIGH, MAINTAINABILITY, RELIABILITY_ISSUE_SEVERITY_KEY, SeverityValues.HIGH),
+      Arguments.of(RELIABILITY, BLOCKER, MAINTAINABILITY, RELIABILITY_ISSUE_SEVERITY_KEY, SeverityValues.BLOCKER),
+
+      Arguments.of(SECURITY, INFO, RELIABILITY, SECURITY_ISSUE_SEVERITY_KEY, SeverityValues.INFO),
+      Arguments.of(SECURITY, LOW, RELIABILITY, SECURITY_ISSUE_SEVERITY_KEY, SeverityValues.LOW),
+      Arguments.of(SECURITY, MEDIUM, RELIABILITY, SECURITY_ISSUE_SEVERITY_KEY, SeverityValues.MEDIUM),
+      Arguments.of(SECURITY, HIGH, RELIABILITY, SECURITY_ISSUE_SEVERITY_KEY, SeverityValues.HIGH),
+      Arguments.of(SECURITY, BLOCKER, RELIABILITY, SECURITY_ISSUE_SEVERITY_KEY, SeverityValues.BLOCKER),
+
+      Arguments.of(MAINTAINABILITY, INFO, SECURITY, MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.INFO),
+      Arguments.of(MAINTAINABILITY, LOW, SECURITY, MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.LOW),
+      Arguments.of(MAINTAINABILITY, MEDIUM, SECURITY, MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.MEDIUM),
+      Arguments.of(MAINTAINABILITY, HIGH, SECURITY, MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.HIGH),
+      Arguments.of(MAINTAINABILITY, BLOCKER, SECURITY, MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.BLOCKER));
+  }
+
+  @Test
+  void onIssue_whenResolvedOrSandbox_shouldExcludeFromMaxQualitySeverity() {
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_RESOLVED, RELIABILITY, HIGH));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_IN_SANDBOX, SECURITY, BLOCKER));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, MAINTAINABILITY, MEDIUM));
+    underTest.afterComponent(FILE1);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertIntValue(FILE1, entry(MAINTAINABILITY_ISSUE_SEVERITY_KEY, SeverityValues.MEDIUM));
+    assertIntValue(FILE1, entry(RELIABILITY_ISSUE_SEVERITY_KEY, SeverityValues.NO_ISSUES));
+    assertIntValue(FILE1, entry(SECURITY_ISSUE_SEVERITY_KEY, SeverityValues.NO_ISSUES));
   }
 
   @ParameterizedTest

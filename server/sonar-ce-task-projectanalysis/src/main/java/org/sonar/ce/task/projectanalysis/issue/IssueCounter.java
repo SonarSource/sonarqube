@@ -72,6 +72,7 @@ import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_KEY;
+import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUE_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY;
@@ -83,9 +84,11 @@ import static org.sonar.api.measures.CoreMetrics.NEW_SOFTWARE_QUALITY_SECURITY_I
 import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUE_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.REOPENED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_HOTSPOTS_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUES_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUE_SEVERITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES_KEY;
@@ -186,6 +189,11 @@ public class IssueCounter extends IssueVisitor implements IssueMeasureVisitor {
     SoftwareQuality.SECURITY, NEW_SECURITY_ISSUE_SEVERITY_KEY,
     SoftwareQuality.MAINTAINABILITY, NEW_MAINTAINABILITY_ISSUE_SEVERITY_KEY);
 
+  private static final Map<SoftwareQuality, String> QUALITY_TO_SEVERITY_METRIC_KEY = Map.of(
+    SoftwareQuality.RELIABILITY, RELIABILITY_ISSUE_SEVERITY_KEY,
+    SoftwareQuality.SECURITY, SECURITY_ISSUE_SEVERITY_KEY,
+    SoftwareQuality.MAINTAINABILITY, MAINTAINABILITY_ISSUE_SEVERITY_KEY);
+
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final NewIssueClassifier newIssueClassifier;
@@ -223,6 +231,7 @@ public class IssueCounter extends IssueVisitor implements IssueMeasureVisitor {
   public void afterComponent(Component component) {
     addMeasuresBySeverity(component);
     addMeasuresByImpactSeverity(component);
+    addMeasuresByQualitySeverity(component);
     addMeasuresByStatus(component);
     addMeasuresByType(component);
     addMeasuresByImpact(component);
@@ -236,6 +245,13 @@ public class IssueCounter extends IssueVisitor implements IssueMeasureVisitor {
 
   private void addMeasuresByImpactSeverity(Component component) {
     addMeasures(component, IMPACT_SEVERITY_TO_METRIC_KEY, currentCounters.counter().impactSeverityBag);
+  }
+
+  private void addMeasuresByQualitySeverity(Component component) {
+    for (Map.Entry<SoftwareQuality, String> entry : QUALITY_TO_SEVERITY_METRIC_KEY.entrySet()) {
+      int max = currentCounters.counter().highestSeverityByQuality.getOrDefault(entry.getKey(), SeverityValues.NO_ISSUES);
+      addMeasure(component, entry.getValue(), max);
+    }
   }
 
   private void addMeasuresByStatus(Component component) {

@@ -1586,6 +1586,66 @@ class MeasureUpdateFormulaFactoryImplTest {
         .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_ISSUE_SEVERITY, 0d);
   }
 
+  @Test
+  void compute_reliabilityIssueSeverity() {
+    withNoIssues().assertThatValueIs(CoreMetrics.RELIABILITY_ISSUE_SEVERITY, 0d);
+
+    with(
+      newImpactGroup(RELIABILITY, BLOCKER, 1))
+        .assertThatValueIs(CoreMetrics.RELIABILITY_ISSUE_SEVERITY, SeverityValues.BLOCKER);
+
+    with(
+      newImpactGroup(RELIABILITY, HIGH, 1, true),
+      newImpactGroup(RELIABILITY, MEDIUM, 1, false))
+        // overall code: max across leak and non-leak groups
+        .assertThatValueIs(CoreMetrics.RELIABILITY_ISSUE_SEVERITY, SeverityValues.HIGH);
+
+    with(
+      // wrong quality — excluded
+      newImpactGroup(SECURITY, BLOCKER, 1))
+        .assertThatValueIs(CoreMetrics.RELIABILITY_ISSUE_SEVERITY, 0d);
+  }
+
+  @Test
+  void compute_securityIssueSeverity() {
+    withNoIssues().assertThatValueIs(CoreMetrics.SECURITY_ISSUE_SEVERITY, 0d);
+
+    with(
+      newImpactGroup(SECURITY, HIGH, 1))
+        .assertThatValueIs(CoreMetrics.SECURITY_ISSUE_SEVERITY, SeverityValues.HIGH);
+
+    with(
+      newImpactGroup(SECURITY, MEDIUM, 1, true),
+      newImpactGroup(SECURITY, LOW, 1, false))
+        // overall code: max across leak and non-leak groups
+        .assertThatValueIs(CoreMetrics.SECURITY_ISSUE_SEVERITY, SeverityValues.MEDIUM);
+
+    with(
+      // wrong quality — excluded
+      newImpactGroup(RELIABILITY, BLOCKER, 1))
+        .assertThatValueIs(CoreMetrics.SECURITY_ISSUE_SEVERITY, 0d);
+  }
+
+  @Test
+  void compute_maintainabilityIssueSeverity() {
+    withNoIssues().assertThatValueIs(CoreMetrics.MAINTAINABILITY_ISSUE_SEVERITY, 0d);
+
+    with(
+      newImpactGroup(MAINTAINABILITY, LOW, 1))
+        .assertThatValueIs(CoreMetrics.MAINTAINABILITY_ISSUE_SEVERITY, SeverityValues.LOW);
+
+    with(
+      newImpactGroup(MAINTAINABILITY, BLOCKER, 1, true),
+      newImpactGroup(MAINTAINABILITY, HIGH, 1, false))
+        // highest across leak and non-leak groups is BLOCKER
+        .assertThatValueIs(CoreMetrics.MAINTAINABILITY_ISSUE_SEVERITY, SeverityValues.BLOCKER);
+
+    with(
+      // wrong quality — excluded
+      newImpactGroup(SECURITY, BLOCKER, 1))
+        .assertThatValueIs(CoreMetrics.MAINTAINABILITY_ISSUE_SEVERITY, 0d);
+  }
+
   static List<Metric<?>> newSeverityMetrics() {
     return List.of(
       CoreMetrics.NEW_BUGS_SEVERITY,
@@ -1594,6 +1654,13 @@ class MeasureUpdateFormulaFactoryImplTest {
       CoreMetrics.NEW_RELIABILITY_ISSUE_SEVERITY,
       CoreMetrics.NEW_SECURITY_ISSUE_SEVERITY,
       CoreMetrics.NEW_MAINTAINABILITY_ISSUE_SEVERITY);
+  }
+
+  static List<Metric<?>> overallSeverityMetrics() {
+    return List.of(
+      CoreMetrics.RELIABILITY_ISSUE_SEVERITY,
+      CoreMetrics.SECURITY_ISSUE_SEVERITY,
+      CoreMetrics.MAINTAINABILITY_ISSUE_SEVERITY);
   }
 
   @MethodSource("newSeverityMetrics")
@@ -1617,6 +1684,32 @@ class MeasureUpdateFormulaFactoryImplTest {
   @MethodSource("newSeverityMetrics")
   @ParameterizedTest
   void hierarchy_newSeverityMetrics_whenNoChildren_shouldNotSetValue(Metric<?> metric) {
+    new HierarchyTester(metric)
+      .withValue(10d)
+      .expectedResult(null);
+  }
+
+  @MethodSource("overallSeverityMetrics")
+  @ParameterizedTest
+  void hierarchy_overallSeverityMetrics_whenChildHigher_shouldUseChildValue(Metric<?> metric) {
+    new HierarchyTester(metric)
+      .withValue(10d)
+      .withChildrenValues(20d)
+      .expectedResult(20d);
+  }
+
+  @MethodSource("overallSeverityMetrics")
+  @ParameterizedTest
+  void hierarchy_overallSeverityMetrics_whenCurrentHigher_shouldKeepCurrentValue(Metric<?> metric) {
+    new HierarchyTester(metric)
+      .withValue(25d)
+      .withChildrenValues(10d)
+      .expectedResult(25d);
+  }
+
+  @MethodSource("overallSeverityMetrics")
+  @ParameterizedTest
+  void hierarchy_overallSeverityMetrics_whenNoChildren_shouldNotSetValue(Metric<?> metric) {
     new HierarchyTester(metric)
       .withValue(10d)
       .expectedResult(null);

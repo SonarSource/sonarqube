@@ -59,12 +59,15 @@ import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RE
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT;
+import static org.sonar.api.measures.CoreMetrics.MAINTAINABILITY_ISSUE_SEVERITY;
 import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_SEVERITY;
 import static org.sonar.api.measures.CoreMetrics.NEW_CODE_SMELLS_SEVERITY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_ISSUE_SEVERITY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_ISSUE_SEVERITY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_ISSUE_SEVERITY;
 import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_ISSUE_SEVERITY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_ISSUE_SEVERITY;
 import static org.sonar.server.measure.Rating.RATING_BY_SEVERITY;
 import static org.sonar.server.measure.Rating.RATING_BY_SOFTWARE_QUALITY_SEVERITY;
 import static org.sonar.server.metric.IssueCountMetrics.ISSUES_IN_SANDBOX;
@@ -451,6 +454,24 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
     new MeasureUpdateFormula(NEW_MAINTAINABILITY_ISSUE_SEVERITY, true, true, new MaxValueChildren(),
       (context, issues) -> context.setValue(
         issues.getHighestSeverityOfUnresolved(SoftwareQuality.MAINTAINABILITY, true)
+          .map(SeverityValues::fromImpactSeverity)
+          .orElse(SeverityValues.NO_ISSUES))),
+
+    new MeasureUpdateFormula(RELIABILITY_ISSUE_SEVERITY, false, true, new MaxValueChildren(),
+      (context, issues) -> context.setValue(
+        issues.getHighestSeverityOfUnresolved(SoftwareQuality.RELIABILITY, false)
+          .map(SeverityValues::fromImpactSeverity)
+          .orElse(SeverityValues.NO_ISSUES))),
+
+    new MeasureUpdateFormula(SECURITY_ISSUE_SEVERITY, false, true, new MaxValueChildren(),
+      (context, issues) -> context.setValue(
+        issues.getHighestSeverityOfUnresolved(SoftwareQuality.SECURITY, false)
+          .map(SeverityValues::fromImpactSeverity)
+          .orElse(SeverityValues.NO_ISSUES))),
+
+    new MeasureUpdateFormula(MAINTAINABILITY_ISSUE_SEVERITY, false, true, new MaxValueChildren(),
+      (context, issues) -> context.setValue(
+        issues.getHighestSeverityOfUnresolved(SoftwareQuality.MAINTAINABILITY, false)
           .map(SeverityValues::fromImpactSeverity)
           .orElse(SeverityValues.NO_ISSUES))),
     newScaRatingFormula(SCA_RATING_ANY_ISSUE_METRIC, false),
