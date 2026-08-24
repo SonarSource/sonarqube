@@ -27,7 +27,7 @@ import org.sonarsource.history.model.EntityType;
 public interface ScaTtrHistoryRecorder {
 
   /**
-   * Records SCA TTR history for an aggregated entity.
+   * Records SCA TTR history for an analyzed entity.
    */
   void recordTtrHistory(String entityUuid, EntityType entityType);
 }

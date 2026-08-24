@@ -96,9 +96,7 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
   }
 
   private void recordScaTtrHistory(String entityUuid, EntityType entityType) {
-    if (entityType == EntityType.PORTFOLIO || entityType == EntityType.APPLICATION) {
-      scaTtrHistoryRecorder.recordTtrHistory(entityUuid, entityType);
-    }
+    scaTtrHistoryRecorder.recordTtrHistory(entityUuid, entityType);
   }
 
   // -------------------------------------------------------------------------

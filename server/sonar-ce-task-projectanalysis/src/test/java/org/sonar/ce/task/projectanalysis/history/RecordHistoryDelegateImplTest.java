@@ -240,12 +240,12 @@ class RecordHistoryDelegateImplTest {
   }
 
   @Test
-  void recordHistory_whenProjectBranch_shouldNotRecordScaTtrHistory() {
+  void recordHistory_whenProjectBranch_shouldRecordScaTtrHistory() {
     givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
 
     recordBranchHistory();
 
-    verifyNoInteractions(scaTtrHistoryRecorder);
+    verify(scaTtrHistoryRecorder).recordTtrHistory(ENTITY_UUID, EntityType.PROJECT_BRANCH);
   }
 
   @Test
