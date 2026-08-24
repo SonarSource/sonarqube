@@ -28,6 +28,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import okhttp3.mockwebserver.SocketPolicy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -346,6 +347,70 @@ public class AzureDevOpsHttpClientTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage(
         "Unable to contact Azure DevOps server : TF200016: The following project does not exist: projectName. Verify that the name of the project is correct and that the project exists on the specified Azure DevOps Server.");
+  }
+
+  @Test
+  public void isGlobalPat_returns_true_when_response_is_successful() throws InterruptedException {
+    enqueueResponse(200, "{}");
+
+    boolean result = underTest.isGlobalPat(server.url("").toString(), "token");
+
+    assertThat(result).isTrue();
+    RecordedRequest request = server.takeRequest(10, TimeUnit.SECONDS);
+    assertThat(request.getRequestUrl()).hasToString(server.url("") + "_apis/connectionData?api-version=3.0-preview");
+    assertThat(request.getMethod()).isEqualTo("GET");
+    assertThat(request.getHeader("Authorization")).isNotBlank();
+  }
+
+  @Test
+  public void isGlobalPat_returns_false_when_response_is_401() {
+    enqueueResponse(401);
+
+    boolean result = underTest.isGlobalPat(server.url("").toString(), "token");
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  public void isGlobalPat_returns_false_when_response_is_403() {
+    enqueueResponse(403);
+
+    boolean result = underTest.isGlobalPat(server.url("").toString(), "token");
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  public void isGlobalPat_throws_when_response_is_server_error() {
+    enqueueResponse(500);
+
+    String serverUrl = server.url("").toString();
+    assertThatThrownBy(() -> underTest.isGlobalPat(serverUrl, "token"))
+      .isInstanceOf(AzureDevopsServerException.class);
+  }
+
+  @Test
+  public void isGlobalPat_throws_when_response_is_203_non_authoritative() {
+    enqueueResponse(203);
+
+    String serverUrl = server.url("").toString();
+    assertThatThrownBy(() -> underTest.isGlobalPat(serverUrl, "token"))
+      .isInstanceOf(AzureDevopsServerException.class);
+  }
+
+  @Test
+  public void isGlobalPat_times_out_quickly_when_probe_host_is_unreachable() {
+    server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
+    String serverUrl = server.url("").toString();
+
+    long start = System.currentTimeMillis();
+    assertThatThrownBy(() -> underTest.isGlobalPat(serverUrl, "token"))
+      .isInstanceOf(IllegalArgumentException.class);
+    long elapsedMs = System.currentTimeMillis() - start;
+
+    // underTest is configured with a 10s timeout (see prepare()); the probe must use its own
+    // shorter timeout instead of blocking for that long.
+    assertThat(elapsedMs).isLessThan(9_000);
   }
 
   private void enqueueResponse(int responseCode) {

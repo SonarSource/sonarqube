@@ -47,11 +47,13 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -198,6 +200,20 @@ public class ValidateActionIT {
       .execute();
 
     verify(azureDevOpsHttpClient).checkPAT(almSetting.getUrl(), decryptedToken);
+  }
+
+  @Test
+  public void azure_devops_validation_does_not_probe_or_fail_for_a_stored_global_pat() {
+    // validate re-checks an already-stored binding, so a global PAT already on file must keep
+    // working (grandfathered) rather than suddenly get rejected: the probe only runs at bind time
+    // (create/update), so isGlobalPat must never even be called here.
+    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertAzureAlmSetting(s -> s.setUrl("https://dev.azure.com/myorg")));
+    when(encryption.isEncrypted(any())).thenReturn(false);
+
+    TestRequest request = ws.newRequest().setParam("key", almSetting.getKey());
+
+    assertThatCode(request::execute).doesNotThrowAnyException();
+    verify(azureDevOpsHttpClient, never()).isGlobalPat(any());
   }
 
   @Test

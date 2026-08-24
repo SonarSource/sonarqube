@@ -52,6 +52,7 @@ public class AzureDevOpsHttpClient {
 
   protected static final String GET = "GET";
   protected static final String UNABLE_TO_CONTACT_AZURE_SERVER = "Unable to contact Azure DevOps server";
+  protected static final String UNABLE_TO_CONTACT_AZURE_SERVER_MESSAGE_FORMAT = "%s for request [%s]: [%s]";
   protected static final String INVALID_SERVER_URL = "Invalid Azure DevOps server URL";
   protected static final String MISSING_RESPONSE_BODY = "Response body is null";
 
@@ -64,11 +65,20 @@ public class AzureDevOpsHttpClient {
   protected static final String PATH_GIT = "git";
   protected static final String PATH_REPOSITORIES = "repositories";
   protected static final String PATH_PROJECTS = "projects";
+  protected static final String PATH_CONNECTION_DATA = "connectionData";
 
   // Query parameter names
   protected static final String PARAM_API_VERSION = "api-version";
 
+  // Cross-org identity endpoint used to detect Global PATs ("All accessible organizations").
+  // It carries no organization segment, so only a cross-org-scoped PAT can authenticate against
+  // it: a 200 response means the PAT is global, 401/403 means it is scoped to a single organization.
+  // Azure DevOps Server has no equivalent (no cross-org scope).
+  protected static final String VSSPS_GLOBAL_URL = "https://app.vssps.visualstudio.com";
+  private static final long GLOBAL_PAT_PROBE_TIMEOUT_MS = 5_000;
+
   protected final OkHttpClient client;
+  private final OkHttpClient globalPatProbeClient;
 
   public AzureDevOpsHttpClient(TimeoutConfiguration timeoutConfiguration, OkHttpClient okHttpClient) {
     client = okHttpClient.newBuilder()
@@ -76,6 +86,10 @@ public class AzureDevOpsHttpClient {
       .readTimeout(timeoutConfiguration.getReadTimeout(), TimeUnit.MILLISECONDS)
       .followRedirects(false)
       .followSslRedirects(false)
+      .build();
+    globalPatProbeClient = client.newBuilder()
+      .connectTimeout(GLOBAL_PAT_PROBE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+      .readTimeout(GLOBAL_PAT_PROBE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
       .build();
   }
 
@@ -141,6 +155,38 @@ public class AzureDevOpsHttpClient {
     return doGet(token, url, r -> buildGson().fromJson(Objects.requireNonNull(r.body(), MISSING_RESPONSE_BODY).charStream(), GsonAzureRepo.class));
   }
 
+  /**
+   * True when {@code token} is a Global PAT ("All accessible organizations"), probed against
+   * {@link #VSSPS_GLOBAL_URL}. Callers should only invoke this for Azure DevOps Services URLs;
+   * Azure DevOps Server has no such concept.
+   */
+  public boolean isGlobalPat(String token) {
+    return isGlobalPat(VSSPS_GLOBAL_URL, token);
+  }
+
+  protected boolean isGlobalPat(String vsspsGlobalUrl, String token) {
+    HttpUrl url = Objects.requireNonNull(HttpUrl.parse(vsspsGlobalUrl), INVALID_SERVER_URL)
+      .newBuilder()
+      .addPathSegment(PATH_APIS)
+      .addPathSegment(PATH_CONNECTION_DATA)
+      .addQueryParameter(PARAM_API_VERSION, API_VERSION_3_PREVIEW_VALUE)
+      .build();
+    Request request = prepareRequestWithToken(token, GET, url, null);
+    try (Response response = globalPatProbeClient.newCall(request).execute()) {
+      if (response.code() == HttpURLConnection.HTTP_OK) {
+        return true;
+      }
+      if (response.code() == HttpURLConnection.HTTP_UNAUTHORIZED || response.code() == HttpURLConnection.HTTP_FORBIDDEN) {
+        return false;
+      }
+      String body = Objects.requireNonNull(response.body(), MISSING_RESPONSE_BODY).string();
+      throw new AzureDevopsServerException(response.code(), generateErrorMessage(body));
+    } catch (IOException e) {
+      throw new IllegalArgumentException(
+        String.format(UNABLE_TO_CONTACT_AZURE_SERVER_MESSAGE_FORMAT, UNABLE_TO_CONTACT_AZURE_SERVER, request.url(), e.getMessage()), e);
+    }
+  }
+
   private void doGet(String token, HttpUrl url) {
     Request request = prepareRequestWithToken(token, GET, url, null);
     doCall(request);
@@ -151,7 +197,7 @@ public class AzureDevOpsHttpClient {
       checkResponseIsSuccessful(response);
     } catch (IOException e) {
       throw new IllegalArgumentException(
-        String.format("%s for request [%s]: [%s]", UNABLE_TO_CONTACT_AZURE_SERVER, request.url(), e.getMessage()),
+        String.format(UNABLE_TO_CONTACT_AZURE_SERVER_MESSAGE_FORMAT, UNABLE_TO_CONTACT_AZURE_SERVER, request.url(), e.getMessage()),
         e);
     }
   }
@@ -171,7 +217,7 @@ public class AzureDevOpsHttpClient {
         e);
     } catch (IOException e) {
       throw new IllegalArgumentException(
-        String.format("%s for request [%s]: [%s]", UNABLE_TO_CONTACT_AZURE_SERVER, request.url(), e.getMessage()),
+        String.format(UNABLE_TO_CONTACT_AZURE_SERVER_MESSAGE_FORMAT, UNABLE_TO_CONTACT_AZURE_SERVER, request.url(), e.getMessage()),
         e);
     }
   }

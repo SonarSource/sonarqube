@@ -19,6 +19,7 @@
  */
 package org.sonar.server.almsettings.ws;
 
+import org.sonar.alm.client.azure.AzureDevOpsValidator;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -40,11 +41,13 @@ public class UpdateAzureAction implements AlmSettingsWsAction {
   private final DbClient dbClient;
   private UserSession userSession;
   private final AlmSettingsSupport almSettingsSupport;
+  private final AzureDevOpsValidator azureDevOpsValidator;
 
-  public UpdateAzureAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport) {
+  public UpdateAzureAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport, AzureDevOpsValidator azureDevOpsValidator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.almSettingsSupport = almSettingsSupport;
+    this.azureDevOpsValidator = azureDevOpsValidator;
   }
 
   @Override
@@ -98,6 +101,7 @@ public class UpdateAzureAction implements AlmSettingsWsAction {
       almSettingsSupport.checkPatOnUrlUpdate(almSettingDto, url, pat);
 
       if (isNotBlank(pat)) {
+        azureDevOpsValidator.checkPatIsNotGlobal(url, pat);
         almSettingDto.setPersonalAccessToken(pat);
       }
 

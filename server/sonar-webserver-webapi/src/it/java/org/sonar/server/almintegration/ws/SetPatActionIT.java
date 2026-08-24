@@ -22,6 +22,7 @@ package org.sonar.server.almintegration.ws;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.alm.client.azure.AzureDevOpsValidator;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.pat.AlmPatDto;
@@ -39,6 +40,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 
 public class SetPatActionIT {
@@ -50,7 +55,9 @@ public class SetPatActionIT {
 
   public ImportHelper importHelper = new ImportHelper(db.getDbClient(), userSession);
 
-  private final WsActionTester ws = new WsActionTester(new SetPatAction(db.getDbClient(), userSession, importHelper));
+  private final AzureDevOpsValidator azureDevOpsValidator = mock(AzureDevOpsValidator.class);
+
+  private final WsActionTester ws = new WsActionTester(new SetPatAction(db.getDbClient(), userSession, importHelper, azureDevOpsValidator));
 
   @Test
   public void set_new_azuredevops_pat() {
@@ -68,6 +75,26 @@ public class SetPatActionIT {
     assertThat(actualAlmPat.get().getPersonalAccessToken()).isEqualTo("12345678987654321");
     assertThat(actualAlmPat.get().getUserUuid()).isEqualTo(user.getUuid());
     assertThat(actualAlmPat.get().getAlmSettingUuid()).isEqualTo(almSetting.getUuid());
+    verify(azureDevOpsValidator).checkPatIsNotGlobal(almSetting.getUrl(), "12345678987654321");
+  }
+
+  @Test
+  public void fail_when_azuredevops_pat_is_global() {
+    UserDto user = db.users().insertUser();
+    AlmSettingDto almSetting = db.almSettings().insertAzureAlmSetting();
+    userSession.logIn(user).addPermission(PROVISION_PROJECTS);
+    doThrow(new IllegalArgumentException(AzureDevOpsValidator.GLOBAL_PAT_ERROR_MESSAGE))
+      .when(azureDevOpsValidator).checkPatIsNotGlobal(any(), any());
+
+    TestRequest request = ws.newRequest()
+      .setParam("almSetting", almSetting.getKey())
+      .setParam("pat", "12345678987654321");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(AzureDevOpsValidator.GLOBAL_PAT_ERROR_MESSAGE);
+
+    assertThat(db.getDbClient().almPatDao().selectByUserAndAlmSetting(db.getSession(), user.getUuid(), almSetting)).isEmpty();
   }
 
   @Test

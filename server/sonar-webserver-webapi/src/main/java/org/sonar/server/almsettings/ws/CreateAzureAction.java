@@ -19,6 +19,7 @@
  */
 package org.sonar.server.almsettings.ws;
 
+import org.sonar.alm.client.azure.AzureDevOpsValidator;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -41,13 +42,15 @@ public class CreateAzureAction implements AlmSettingsWsAction {
   private UserSession userSession;
   private final AlmSettingsSupport almSettingsSupport;
   private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry;
+  private final AzureDevOpsValidator azureDevOpsValidator;
 
   public CreateAzureAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport,
-    DevOpsConfigurationTelemetry devOpsConfigurationTelemetry) {
+    DevOpsConfigurationTelemetry devOpsConfigurationTelemetry, AzureDevOpsValidator azureDevOpsValidator) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.almSettingsSupport = almSettingsSupport;
     this.devOpsConfigurationTelemetry = devOpsConfigurationTelemetry;
+    this.azureDevOpsValidator = azureDevOpsValidator;
   }
 
   @Override
@@ -89,6 +92,7 @@ public class CreateAzureAction implements AlmSettingsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       almSettingsSupport.checkAlmMultipleFeatureEnabled(AZURE_DEVOPS);
       almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, key);
+      azureDevOpsValidator.checkPatIsNotGlobal(url, pat);
       dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
         .setAlm(AZURE_DEVOPS)
         .setKey(key)
