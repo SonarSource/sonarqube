@@ -23,17 +23,20 @@ import java.util.Set;
 import org.sonar.db.issue.IssueDto;
 
 /**
- * Defines secret-rule handling policy: {@code secrets:*} uses trusted ranges, {@code S2068} and {@code S6418} redact whole source responses,
- * and {@code S6437} redacts its primary and flow locations when available.
+ * Defines secret-rule handling policy: {@code secrets:*} uses trusted ranges. {@code S2068}, {@code S6418}, {@code S6472}, {@code S6779}, and {@code S6781}
+ * redact whole source responses; {@code S6437} redacts its primary and flow locations when available.
  */
 public final class SecretIssueRedactionRules {
   private static final String SECRETS_REPOSITORY = "secrets";
   private static final String S2068_RULE_KEY = "S2068";
   private static final String S6418_RULE_KEY = "S6418";
   private static final String S6437_RULE_KEY = "S6437";
+  private static final String S6472_RULE_KEY = "S6472";
+  private static final String S6779_RULE_KEY = "S6779";
+  private static final String S6781_RULE_KEY = "S6781";
 
   private static final Set<String> FLOW_BASED_SOURCE_RULE_KEYS = Set.of(S6437_RULE_KEY);
-  private static final Set<String> SOURCE_REDACTION_RULE_KEYS = Set.of(S2068_RULE_KEY, S6418_RULE_KEY, S6437_RULE_KEY);
+  private static final Set<String> SOURCE_REDACTION_RULE_KEYS = Set.of(S2068_RULE_KEY, S6418_RULE_KEY, S6437_RULE_KEY, S6472_RULE_KEY, S6779_RULE_KEY, S6781_RULE_KEY);
 
   private SecretIssueRedactionRules() {
   }

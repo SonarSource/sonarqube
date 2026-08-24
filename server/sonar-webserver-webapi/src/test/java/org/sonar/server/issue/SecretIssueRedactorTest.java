@@ -62,6 +62,16 @@ class SecretIssueRedactorTest {
   }
 
   @Test
+  void redactSourceLines_whenIssueIsS2115_shouldNotRedactSource() {
+    IssueDto issue = secretIssue("java", "S2115", 1, 0, 1);
+    List<DbFileSources.Line> lines = List.of(line(1, "password="), line(2, "safe"));
+
+    List<DbFileSources.Line> result = SecretIssueRedactor.redactSourceLines(lines, List.of(issue));
+
+    assertThat(result).extracting(DbFileSources.Line::getSource).containsExactly("password=", "safe");
+  }
+
+  @Test
   void redactSourceLines_whenTrustedSecretIssueHasNoTextRange_shouldRedactEntireReturnedSource() {
     IssueDto issue = new IssueDto().setRuleKey("secrets", "S1001").setLine(1);
 
@@ -123,6 +133,9 @@ class SecretIssueRedactorTest {
     for (IssueDto issue : List.of(
       secretIssue("java", "S2068", 1, 0, 8),
       secretIssue("python", "S6418", 1, 0, 6),
+      secretIssue("docker", "S6472", 1, 0, 10),
+      secretIssue("python", "S6779", 1, 0, 10),
+      secretIssue("python", "S6781", 1, 0, 10),
       secretIssue("java", "S6437", 1, 0, 8))) {
       List<DbFileSources.Line> result = SecretIssueRedactor.redactSourceLines(lines, List.of(issue));
 
