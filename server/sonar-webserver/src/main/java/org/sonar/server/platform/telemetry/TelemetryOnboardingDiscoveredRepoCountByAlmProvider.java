@@ -44,16 +44,41 @@ import org.sonar.telemetry.core.TelemetryDataType;
 
 /**
  * Repository counts as reported directly by each configured DevOps platform, including repositories never
- * imported into SonarQube — one cheap, count-only API call per configured ALM setting, never a full
- * repository listing (see the per-ALM helpers below). This mirrors the onboarding dashboard's own adapters
- * (OnboardingAlmConfiguration, server/sonar-webserver-webapi-v2), which can't be reused directly here: that
- * configuration is a Spring bean in the web-only context, while telemetry providers are resolved from the
- * Pico container, so each side adapts its own native ALM setting type independently.
+ * imported into SonarQube. This mirrors the onboarding dashboard's own adapters (OnboardingAlmConfiguration,
+ * server/sonar-webserver-webapi-v2), which can't be reused directly here: that configuration is a Spring bean
+ * in the web-only context, while telemetry providers are resolved from the Pico container, so each side adapts
+ * its own native ALM setting type independently.
+ *
+ * <p>Per-ALM call cost differs, based on what each platform's API actually exposes — not a uniform "count-only"
+ * guarantee, and not a uniform single-call cost either:
+ * <ul>
+ *   <li>GitLab: a single {@code pageSize=1} call whose response carries a genuine total-across-all-pages
+ *   field. Only one real repository object is ever returned.</li>
+ *   <li>GitHub: also count-only, but the total is scoped per GitHub App installation, so the real cost is
+ *   one {@code getWhitelistedGithubAppInstallations} call plus a token exchange and a {@code pageSize=1}
+ *   listing call for <em>each</em> installation (1+2N calls, not a single call).</li>
+ *   <li>Bitbucket Cloud: also count-only, but two calls per setting rather than one — it never has a static
+ *   PAT on the setting, only an OAuth consumer ({@code clientId}/{@code clientSecret}), so
+ *   {@link #countBitbucketCloudRepos} first exchanges that consumer for a short-lived Bearer token via
+ *   {@link BitbucketCloudRestClient#createAccessToken} (the same workspace-wide, no-user-context mechanism
+ *   already used by PR decoration and live binding resolution elsewhere in this codebase), then makes the
+ *   {@code pagelen=1} count call with it.</li>
+ *   <li>Bitbucket Server: its paginated response envelope has no total-count field at all (only per-page
+ *   {@code size} plus {@code isLastPage}), so getting a count means paginating through the full listing and
+ *   summing page sizes — no artificial page cap, since a legitimately large install should still get an
+ *   accurate count; the only thing that stops the loop early is a non-advancing {@code nextPageStart},
+ *   which means the server is stuck rather than genuinely still paginating.</li>
+ *   <li>Azure DevOps: the Git Repositories List API supports no pagination or limiting parameter whatsoever —
+ *   every call returns the platform's entire repository listing, full metadata included, in one response.
+ *   There is no lighter-weight endpoint to fall back to; this is a platform limitation, not an implementation
+ *   gap.</li>
+ * </ul>
  *
  * <p>Daily granularity, per the SQS LTA Onboarding Telemetry Gap Sheet's target cadence for this metric.
- * Note this still makes one live API call per configured ALM setting on every daily cycle — the sheet's own
- * open questions flag that this load hasn't been confirmed safe at scale for installations with many ALM
- * settings, so revisit this cadence if that turns out to be a problem in practice.
+ * Note the live-API-call cost above (whether 1 call or many, per the breakdown above) is paid once per
+ * configured ALM setting on every daily cycle — the sheet's own open questions flag that this load hasn't
+ * been confirmed safe at scale for installations with many ALM settings, so revisit this cadence if that
+ * turns out to be a problem in practice.
  */
 @ServerSide
 public class TelemetryOnboardingDiscoveredRepoCountByAlmProvider extends AbstractTelemetryDataProvider<Integer> {
@@ -62,8 +87,6 @@ public class TelemetryOnboardingDiscoveredRepoCountByAlmProvider extends Abstrac
 
   private static final Logger LOG = LoggerFactory.getLogger(TelemetryOnboardingDiscoveredRepoCountByAlmProvider.class);
   private static final int PAGE_SIZE = 100;
-  /** Safety bound so a misbehaving endpoint (non-advancing pagination) can't stall the telemetry cycle indefinitely. */
-  private static final int MAX_PAGES = 1000;
 
   private final DbClient dbClient;
   private final Encryption encryption;
@@ -169,7 +192,7 @@ public class TelemetryOnboardingDiscoveredRepoCountByAlmProvider extends Abstrac
     }
     long total = 0;
     int start = 0;
-    for (int i = 0; i < MAX_PAGES; i++) {
+    while (true) {
       var page = bitbucketServerClient.getRepos(url, pat, null, null, start, PAGE_SIZE);
       total += page.getValues().size();
       if (page.isLastPage() || page.getNextPageStart() <= start) {
@@ -180,25 +203,16 @@ public class TelemetryOnboardingDiscoveredRepoCountByAlmProvider extends Abstrac
     return OptionalLong.of(total);
   }
 
-  /** Bitbucket Cloud's RepositoryList has no total-count field, so this still paginates — but only to count pages, never to collect a listing. */
   private OptionalLong countBitbucketCloudRepos(AlmSettingDto setting) {
     String workspace = setting.getAppId();
-    String pat = setting.getDecryptedPersonalAccessToken(encryption);
-    if (workspace == null || pat == null) {
+    String clientId = setting.getClientId();
+    String clientSecret = setting.getDecryptedClientSecret(encryption);
+    if (workspace == null || clientId == null || clientSecret == null) {
       return OptionalLong.empty();
     }
-    long total = 0;
-    int page = 1;
-    boolean hasMore = true;
-    while (hasMore && page <= MAX_PAGES) {
-      var repoList = bitbucketCloudClient.searchRepos(pat, workspace, null, page, PAGE_SIZE);
-      boolean hasValues = repoList.getValues() != null && !repoList.getValues().isEmpty();
-      hasMore = hasValues && repoList.getNext() != null;
-      if (hasValues) {
-        total += repoList.getValues().size();
-      }
-      page++;
-    }
-    return total > 0 ? OptionalLong.of(total) : OptionalLong.empty();
+    String accessToken = bitbucketCloudClient.createAccessToken(clientId, clientSecret);
+    var repoList = bitbucketCloudClient.searchReposWithAccessToken(accessToken, workspace, null, 1, 1);
+    Integer size = repoList != null ? repoList.getSize() : null;
+    return size != null ? OptionalLong.of(size) : OptionalLong.empty();
   }
 }

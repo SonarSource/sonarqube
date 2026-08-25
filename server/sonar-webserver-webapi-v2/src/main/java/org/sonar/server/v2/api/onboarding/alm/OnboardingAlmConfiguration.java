@@ -28,6 +28,9 @@ import org.sonar.alm.client.bitbucketserver.BitbucketServerRestClient;
 import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubApplicationClient;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonarsource.onboarding.server.db.OnboardingRows;
 import org.sonarsource.onboarding.server.db.OnboardingSecretDecryptor;
 import org.sonarsource.onboarding.shared.port.AlmRepoCountProvider;
@@ -40,10 +43,30 @@ import org.springframework.context.annotation.Configuration;
  * These are wired into {@link org.sonarsource.onboarding.server.ServerAlmDiscoveryProvider}
  * via the {@code List<AlmRepoCountProvider>} constructor argument.
  *
- * <p>Every implementation here answers only a repository <em>count</em>. The onboarding dashboard
- * never enumerates discovered repositories, so none of these beans build or return a repository
- * listing — for most ALMs that means a single {@code pageSize=1} call; Bitbucket Cloud's API has no
- * total-count field, so it still paginates, but only to count, never to collect.
+ * <p>Every implementation here answers only a repository <em>count</em> — the onboarding dashboard never
+ * enumerates discovered repositories. But per-ALM call cost differs based on what each platform's API
+ * actually exposes, and isn't uniformly a single call either:
+ * <ul>
+ *   <li>GitLab: a single {@code pageSize=1} call whose response carries a genuine total-across-all-pages
+ *   field. Only one real repository object is ever returned.</li>
+ *   <li>GitHub: also count-only, but the total is scoped per GitHub App installation, so the real cost is
+ *   one installations call plus a token exchange and a {@code pageSize=1} listing call for <em>each</em>
+ *   installation (1+2N calls, not a single call).</li>
+ *   <li>Bitbucket Cloud: also count-only, but two calls per setting rather than one. It never has a static
+ *   PAT on the setting, only an OAuth consumer ({@code clientId}/{@code clientSecret}), exchanged at call
+ *   time for a Bearer token (see {@link BitbucketCloudAlmRepoCountProvider}'s own Javadoc) — so this is the
+ *   one ALM whose provider reaches into the database on its own rather than relying purely on the
+ *   {@code OnboardingRows.AlmSetting} it's handed, which doesn't carry that OAuth consumer.</li>
+ *   <li>Bitbucket Server: its paginated response envelope has no total-count field at all (only per-page
+ *   {@code size} plus {@code isLastPage}), so getting a count means paginating through the full listing
+ *   and summing page sizes — no artificial page cap, since a legitimately large install should still get
+ *   an accurate count; the only thing that stops the loop early is a non-advancing {@code nextPageStart},
+ *   which means the server is stuck rather than genuinely still paginating.</li>
+ *   <li>Azure DevOps: the Git Repositories List API supports no pagination or limiting parameter
+ *   whatsoever — every call returns the platform's entire repository listing, full metadata included, in
+ *   one response. There is no lighter-weight endpoint to fall back to; this is a platform limitation, not
+ *   an implementation gap.</li>
+ * </ul>
  */
 @Configuration
 public class OnboardingAlmConfiguration {
@@ -72,8 +95,8 @@ public class OnboardingAlmConfiguration {
   }
 
   @Bean
-  public AlmRepoCountProvider bitbucketCloudAlmRepoCountProvider(BitbucketCloudRestClient bbCloudClient) {
-    return new BitbucketCloudAlmRepoCountProvider(bbCloudClient);
+  public AlmRepoCountProvider bitbucketCloudAlmRepoCountProvider(BitbucketCloudRestClient bbCloudClient, DbClient dbClient) {
+    return new BitbucketCloudAlmRepoCountProvider(bbCloudClient, dbClient);
   }
 
   private static final class GithubAlmRepoCountProvider implements AlmRepoCountProvider {
@@ -125,10 +148,13 @@ public class OnboardingAlmConfiguration {
 
   /**
    * Common shape shared by every ALM whose count is fetched with a single access-token-bearing
-   * client call: check the two required setting fields once, decrypt the secret, then delegate to
-   * {@link #countRepos}. Fields are captured into locals exactly once and never re-read off
-   * {@code setting} afterward, since a value re-read after crossing another method call (the
-   * decrypt) can no longer be proven non-null by the caller.
+   * client call, where that token comes straight off the setting itself: check the two required
+   * setting fields once, decrypt the secret, then delegate to {@link #countRepos}. Fields are
+   * captured into locals exactly once and never re-read off {@code setting} afterward, since a
+   * value re-read after crossing another method call (the decrypt) can no longer be proven
+   * non-null by the caller. Bitbucket Cloud does NOT extend this: its token never comes from the
+   * setting at all (see {@link BitbucketCloudAlmRepoCountProvider}), so it implements
+   * {@link AlmRepoCountProvider} directly instead.
    */
   private abstract static class PatAlmRepoCountProvider implements AlmRepoCountProvider {
 
@@ -222,7 +248,7 @@ public class OnboardingAlmConfiguration {
       while (true) {
         var page = client.getRepos(url, pat, null, null, start, PAGE_SIZE);
         total += page.getValues().size();
-        if (page.isLastPage()) {
+        if (page.isLastPage() || page.getNextPageStart() <= start) {
           break;
         }
         start = page.getNextPageStart();
@@ -231,12 +257,24 @@ public class OnboardingAlmConfiguration {
     }
   }
 
-  private static final class BitbucketCloudAlmRepoCountProvider extends PatAlmRepoCountProvider {
+  /**
+   * Unlike every other ALM, Bitbucket Cloud settings never carry a static PAT — only an OAuth consumer
+   * ({@code clientId}/{@code clientSecret}), exchanged at call time for a short-lived Bearer token via
+   * {@link BitbucketCloudRestClient#createAccessToken}. This is the same workspace-wide, no-user-context
+   * mechanism already used by PR decoration and live binding resolution elsewhere in this codebase — see
+   * {@code BitbucketCloudPrDecoratorFactory} and {@code ProjectBindingsServiceServerImpl.resolveBitbucketCloud}.
+   * {@code OnboardingRows.AlmSetting} doesn't carry that OAuth consumer (it only exists on the native
+   * {@link AlmSettingDto}), so this provider can't extend {@link PatAlmRepoCountProvider} — it resolves
+   * the real setting by key and reads the consumer off it directly.
+   */
+  private static final class BitbucketCloudAlmRepoCountProvider implements AlmRepoCountProvider {
 
     private final BitbucketCloudRestClient client;
+    private final DbClient dbClient;
 
-    private BitbucketCloudAlmRepoCountProvider(BitbucketCloudRestClient client) {
+    private BitbucketCloudAlmRepoCountProvider(BitbucketCloudRestClient client, DbClient dbClient) {
       this.client = client;
+      this.dbClient = dbClient;
     }
 
     @Override
@@ -245,27 +283,32 @@ public class OnboardingAlmConfiguration {
     }
 
     @Override
-    protected String primaryField(OnboardingRows.AlmSetting setting) {
-      return setting.appId();
-    }
-
-    @Override
-    protected OptionalLong countRepos(String workspace, String pat) {
-      // Bitbucket Cloud's RepositoryList has no total-count field, so this still paginates —
-      // but only to count pages, never to collect a listing.
-      long total = 0;
-      int page = 1;
-      boolean hasMore = true;
-      while (hasMore) {
-        var repoList = client.searchRepos(pat, workspace, null, page, PAGE_SIZE);
-        boolean hasValues = repoList.getValues() != null && !repoList.getValues().isEmpty();
-        hasMore = hasValues && repoList.getNext() != null;
-        if (hasValues) {
-          total += repoList.getValues().size();
-        }
-        page++;
+    public OptionalLong fetchTotalCount(OnboardingRows.AlmSetting setting, OnboardingSecretDecryptor decryptor) {
+      String workspace = setting.appId();
+      if (workspace == null) {
+        return OptionalLong.empty();
       }
-      return total > 0 ? OptionalLong.of(total) : OptionalLong.empty();
+      try {
+        AlmSettingDto almSettingDto;
+        try (DbSession dbSession = dbClient.openSession(false)) {
+          almSettingDto = dbClient.almSettingDao().selectByKey(dbSession, setting.key()).orElse(null);
+        }
+        if (almSettingDto == null) {
+          return OptionalLong.empty();
+        }
+        String clientId = almSettingDto.getClientId();
+        String clientSecret = decryptor.decrypt(almSettingDto.getClientSecret());
+        if (clientId == null || clientSecret == null) {
+          return OptionalLong.empty();
+        }
+        String accessToken = client.createAccessToken(clientId, clientSecret);
+        var repoList = client.searchReposWithAccessToken(accessToken, workspace, null, 1, 1);
+        Integer size = repoList != null ? repoList.getSize() : null;
+        return size != null ? OptionalLong.of(size) : OptionalLong.empty();
+      } catch (Exception e) {
+        LOG.warn("Failed to count bitbucket_cloud repos for ALM setting '{}'", setting.key(), e);
+        return OptionalLong.empty();
+      }
     }
   }
 }

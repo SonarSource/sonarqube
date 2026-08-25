@@ -33,6 +33,9 @@ public class RepositoryList {
   @SerializedName("pagelen")
   private Integer pagelen;
 
+  @SerializedName("size")
+  private Integer size;
+
   @SerializedName("values")
   private List<Repository> values;
 
@@ -45,6 +48,11 @@ public class RepositoryList {
     this.values = values;
     this.page = page;
     this.pagelen = pagelen;
+  }
+
+  public RepositoryList(String next, List<Repository> values, Integer page, Integer pagelen, Integer size) {
+    this(next, values, page, pagelen);
+    this.size = size;
   }
 
   public String getNext() {
@@ -61,6 +69,11 @@ public class RepositoryList {
 
   public Integer getPagelen() {
     return pagelen;
+  }
+
+  /** Total number of matching repositories across all pages, per Bitbucket Cloud's paginated-response envelope. */
+  public Integer getSize() {
+    return size;
   }
 
 }

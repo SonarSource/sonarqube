@@ -191,6 +191,40 @@ class BitbucketCloudRestClientTest {
   }
 
   @Test
+  void searchReposWithAccessToken_authenticatesWithBearerAndReturnsSize() throws Exception {
+    Project project = new Project("PROJECT-UUID-ONE", "projectKey", "projectName");
+    MainBranch mainBranch = new MainBranch("branch", "develop");
+    Repository repository = new Repository("REPO-UUID-ONE", "repo-slug", "repoName", project, mainBranch);
+    RepositoryList repos = new RepositoryList(null, List.of(repository), 1, 1, 42);
+    server.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json;charset=UTF-8")
+      .setBody(new Gson().toJson(repos)));
+
+    RepositoryList repositoryList = underTest.searchReposWithAccessToken("some-access-token", "workspace", null, 1, 1);
+
+    assertThat(repositoryList.getSize()).isEqualTo(42);
+    assertThat(repositoryList.getValues())
+      .extracting(Repository::getUuid, Repository::getSlug)
+      .containsExactly(tuple("REPO-UUID-ONE", "repo-slug"));
+
+    RecordedRequest request = server.takeRequest();
+    assertThat(request.getPath()).startsWith("/2.0/repositories/workspace");
+    assertThat(request.getHeader("Authorization")).isEqualTo("Bearer some-access-token");
+  }
+
+  @Test
+  void searchReposWithAccessToken_withError_throwsBitbucketCloudException() {
+    String response = """
+      {"type": "error", "error": {"message": "Access forbidden"}}
+      """;
+    server.enqueue(new MockResponse().setBody(response).setResponseCode(403).setHeader("Content-Type", JSON_MEDIA_TYPE));
+
+    assertThatExceptionOfType(BitbucketCloudRestClient.BitbucketCloudException.class)
+      .isThrownBy(() -> underTest.searchReposWithAccessToken("some-access-token", "workspace", null, 1, 1))
+      .withMessage("Error returned by Bitbucket Cloud: Access forbidden [HTTP 403]");
+  }
+
+  @Test
   void validate_fails_if_unauthorized() {
     server.enqueue(new MockResponse().setResponseCode(401).setBody("Unauthorized"));
 

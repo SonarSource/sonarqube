@@ -38,6 +38,11 @@ import org.sonar.alm.client.gitlab.ProjectList;
 import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GithubAppInstallation;
 import org.sonar.auth.github.GithubApplicationClient;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.alm.setting.ALM;
+import org.sonar.db.alm.setting.AlmSettingDao;
+import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonarsource.onboarding.server.db.OnboardingRows;
 import org.sonarsource.onboarding.server.db.OnboardingSecretDecryptor;
 import org.sonarsource.onboarding.shared.port.AlmRepoCountProvider;
@@ -46,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -332,69 +338,125 @@ class OnboardingAlmConfigurationTest {
     assertThat(provider.fetchTotalCount(bitbucketServerSetting("https://bb.example.com", "pat"), IDENTITY_DECRYPTOR)).isEmpty();
   }
 
+  @Test
+  void fetchTotalCount_whenBitbucketServerPaginationDoesNotAdvance_shouldStopAfterOnePage() {
+    BitbucketServerRestClient client = mock(BitbucketServerRestClient.class);
+    var stuckPage = new RepositoryList(false, 0, 5, repeatedBitbucketServerRepos(5));
+    when(client.getRepos(any(), any(), any(), any(), any(), anyInt())).thenReturn(stuckPage);
+    AlmRepoCountProvider provider = underTest.bitbucketServerAlmRepoCountProvider(client);
+
+    assertThat(provider.fetchTotalCount(bitbucketServerSetting("https://bb.example.com", "pat"), IDENTITY_DECRYPTOR))
+      .isEqualTo(OptionalLong.of(5));
+    verify(client, times(1)).getRepos(any(), any(), any(), any(), any(), anyInt());
+  }
+
   // ── Bitbucket Cloud ─────────────────────────────────────────────────────────
 
   @Test
   void supportedAlm_whenBitbucketCloudProvider_shouldReturnBitbucketCloud() {
-    assertThat(underTest.bitbucketCloudAlmRepoCountProvider(mock(BitbucketCloudRestClient.class)).supportedAlm())
+    assertThat(underTest.bitbucketCloudAlmRepoCountProvider(mock(BitbucketCloudRestClient.class), mock(DbClient.class)).supportedAlm())
       .isEqualTo("bitbucket_cloud");
   }
 
   @Test
   void fetchTotalCount_whenBitbucketCloudWorkspaceMissing_shouldReturnEmpty() {
-    AlmRepoCountProvider provider = underTest.bitbucketCloudAlmRepoCountProvider(mock(BitbucketCloudRestClient.class));
+    AlmRepoCountProvider provider = underTest.bitbucketCloudAlmRepoCountProvider(mock(BitbucketCloudRestClient.class), mock(DbClient.class));
 
     assertThat(provider.fetchTotalCount(bitbucketCloudSetting(null, "pat"), IDENTITY_DECRYPTOR)).isEmpty();
   }
 
+  /**
+   * The realistic case: Bitbucket Cloud settings never carry a static PAT — only an OAuth consumer
+   * stored on the native {@code AlmSettingDto}, which this provider resolves by key (since
+   * {@code OnboardingRows.AlmSetting} doesn't carry a consumer at all) and exchanges for a Bearer
+   * token before counting.
+   */
   @Test
-  void fetchTotalCount_whenBitbucketCloudPatMissing_shouldReturnEmpty() {
-    AlmRepoCountProvider provider = underTest.bitbucketCloudAlmRepoCountProvider(mock(BitbucketCloudRestClient.class));
+  void fetchTotalCount_whenBitbucketCloudConfigured_shouldExchangeConsumerForAccessTokenThenCount() {
+    BitbucketCloudRestClient client = mock(BitbucketCloudRestClient.class);
+    when(client.createAccessToken("client-id", "client-secret")).thenReturn("access-token");
+    when(client.searchReposWithAccessToken(any(), any(), any(), any(), any()))
+      .thenReturn(new org.sonar.alm.client.bitbucket.bitbucketcloud.RepositoryList(null, repeatedBitbucketCloudRepos(1), 1, 1, 55));
+    DbClient dbClient = mock(DbClient.class);
+    DbSession dbSession = mock(DbSession.class);
+    AlmSettingDao almSettingDao = mock(AlmSettingDao.class);
+    when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.almSettingDao()).thenReturn(almSettingDao);
+    AlmSettingDto storedSetting = new AlmSettingDto().setAlm(ALM.BITBUCKET_CLOUD).setKey("bbc").setAppId("workspace")
+      .setClientId("client-id").setClientSecret("client-secret");
+    when(almSettingDao.selectByKey(dbSession, "bbc")).thenReturn(Optional.of(storedSetting));
+    AlmRepoCountProvider provider = underTest.bitbucketCloudAlmRepoCountProvider(client, dbClient);
+
+    assertThat(provider.fetchTotalCount(bitbucketCloudSetting("workspace", null), IDENTITY_DECRYPTOR))
+      .isEqualTo(OptionalLong.of(55));
+    verify(client).searchReposWithAccessToken(eq("access-token"), any(), any(), eq(1), eq(1));
+  }
+
+  @Test
+  void fetchTotalCount_whenBitbucketCloudSettingNotFoundInDb_shouldReturnEmpty() {
+    BitbucketCloudRestClient client = mock(BitbucketCloudRestClient.class);
+    DbClient dbClient = mock(DbClient.class);
+    DbSession dbSession = mock(DbSession.class);
+    AlmSettingDao almSettingDao = mock(AlmSettingDao.class);
+    when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.almSettingDao()).thenReturn(almSettingDao);
+    when(almSettingDao.selectByKey(dbSession, "bbc")).thenReturn(Optional.empty());
+    AlmRepoCountProvider provider = underTest.bitbucketCloudAlmRepoCountProvider(client, dbClient);
+
+    assertThat(provider.fetchTotalCount(bitbucketCloudSetting("workspace", null), IDENTITY_DECRYPTOR)).isEmpty();
+    verify(client, never()).createAccessToken(any(), any());
+  }
+
+  @Test
+  void fetchTotalCount_whenBitbucketCloudConsumerMissing_shouldReturnEmpty() {
+    BitbucketCloudRestClient client = mock(BitbucketCloudRestClient.class);
+    DbClient dbClient = mock(DbClient.class);
+    DbSession dbSession = mock(DbSession.class);
+    AlmSettingDao almSettingDao = mock(AlmSettingDao.class);
+    when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.almSettingDao()).thenReturn(almSettingDao);
+    AlmSettingDto storedSetting = new AlmSettingDto().setAlm(ALM.BITBUCKET_CLOUD).setKey("bbc").setAppId("workspace");
+    when(almSettingDao.selectByKey(dbSession, "bbc")).thenReturn(Optional.of(storedSetting));
+    AlmRepoCountProvider provider = underTest.bitbucketCloudAlmRepoCountProvider(client, dbClient);
+
+    assertThat(provider.fetchTotalCount(bitbucketCloudSetting("workspace", null), IDENTITY_DECRYPTOR)).isEmpty();
+    verify(client, never()).createAccessToken(any(), any());
+  }
+
+  @Test
+  void fetchTotalCount_whenBitbucketCloudSizeMissing_shouldReturnEmpty() {
+    BitbucketCloudRestClient client = mock(BitbucketCloudRestClient.class);
+    when(client.createAccessToken(any(), any())).thenReturn("access-token");
+    when(client.searchReposWithAccessToken(any(), any(), any(), any(), any()))
+      .thenReturn(new org.sonar.alm.client.bitbucket.bitbucketcloud.RepositoryList(null, List.of(), 1, 1));
+    DbClient dbClient = mock(DbClient.class);
+    DbSession dbSession = mock(DbSession.class);
+    AlmSettingDao almSettingDao = mock(AlmSettingDao.class);
+    when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.almSettingDao()).thenReturn(almSettingDao);
+    AlmSettingDto storedSetting = new AlmSettingDto().setAlm(ALM.BITBUCKET_CLOUD).setKey("bbc").setAppId("workspace")
+      .setClientId("client-id").setClientSecret("client-secret");
+    when(almSettingDao.selectByKey(dbSession, "bbc")).thenReturn(Optional.of(storedSetting));
+    AlmRepoCountProvider provider = underTest.bitbucketCloudAlmRepoCountProvider(client, dbClient);
 
     assertThat(provider.fetchTotalCount(bitbucketCloudSetting("workspace", null), IDENTITY_DECRYPTOR)).isEmpty();
   }
 
   @Test
-  void fetchTotalCount_whenBitbucketCloudDecryptReturnsNull_shouldReturnEmpty() {
-    BitbucketCloudRestClient client = mock(BitbucketCloudRestClient.class);
-    AlmRepoCountProvider provider = underTest.bitbucketCloudAlmRepoCountProvider(client);
-
-    assertThat(provider.fetchTotalCount(bitbucketCloudSetting("workspace", "pat"), value -> null)).isEmpty();
-    verify(client, never()).searchRepos(any(), any(), any(), any(), any());
-  }
-
-  @Test
-  void fetchTotalCount_whenBitbucketCloudHasNoRepos_shouldReturnEmpty() {
-    BitbucketCloudRestClient client = mock(BitbucketCloudRestClient.class);
-    when(client.searchRepos(any(), any(), any(), any(), any()))
-      .thenReturn(new org.sonar.alm.client.bitbucket.bitbucketcloud.RepositoryList(null, List.of(), 1, 100));
-    AlmRepoCountProvider provider = underTest.bitbucketCloudAlmRepoCountProvider(client);
-
-    assertThat(provider.fetchTotalCount(bitbucketCloudSetting("workspace", "pat"), IDENTITY_DECRYPTOR)).isEmpty();
-  }
-
-  @Test
-  void fetchTotalCount_whenBitbucketCloudHasMultiplePages_shouldSumAcrossPagesAndStop() {
-    BitbucketCloudRestClient client = mock(BitbucketCloudRestClient.class);
-    var firstPage = new org.sonar.alm.client.bitbucket.bitbucketcloud.RepositoryList(
-      "https://api.bitbucket.org/next", repeatedBitbucketCloudRepos(2), 1, 100);
-    var secondPage = new org.sonar.alm.client.bitbucket.bitbucketcloud.RepositoryList(
-      null, repeatedBitbucketCloudRepos(1), 2, 100);
-    when(client.searchRepos(any(), any(), any(), any(), any())).thenReturn(firstPage).thenReturn(secondPage);
-    AlmRepoCountProvider provider = underTest.bitbucketCloudAlmRepoCountProvider(client);
-
-    assertThat(provider.fetchTotalCount(bitbucketCloudSetting("workspace", "pat"), IDENTITY_DECRYPTOR))
-      .isEqualTo(OptionalLong.of(3));
-    verify(client, times(2)).searchRepos(any(), any(), any(), any(), any());
-  }
-
-  @Test
   void fetchTotalCount_whenBitbucketCloudClientThrows_shouldReturnEmpty() {
     BitbucketCloudRestClient client = mock(BitbucketCloudRestClient.class);
-    when(client.searchRepos(any(), any(), any(), any(), any())).thenThrow(new RuntimeException("unreachable"));
-    AlmRepoCountProvider provider = underTest.bitbucketCloudAlmRepoCountProvider(client);
+    DbClient dbClient = mock(DbClient.class);
+    DbSession dbSession = mock(DbSession.class);
+    AlmSettingDao almSettingDao = mock(AlmSettingDao.class);
+    when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.almSettingDao()).thenReturn(almSettingDao);
+    AlmSettingDto storedSetting = new AlmSettingDto().setAlm(ALM.BITBUCKET_CLOUD).setKey("bbc").setAppId("workspace")
+      .setClientId("client-id").setClientSecret("client-secret");
+    when(almSettingDao.selectByKey(dbSession, "bbc")).thenReturn(Optional.of(storedSetting));
+    when(client.createAccessToken(any(), any())).thenThrow(new RuntimeException("unreachable"));
+    AlmRepoCountProvider provider = underTest.bitbucketCloudAlmRepoCountProvider(client, dbClient);
 
-    assertThat(provider.fetchTotalCount(bitbucketCloudSetting("workspace", "pat"), IDENTITY_DECRYPTOR)).isEmpty();
+    assertThat(provider.fetchTotalCount(bitbucketCloudSetting("workspace", null), IDENTITY_DECRYPTOR)).isEmpty();
   }
 
   // ── Fixtures ────────────────────────────────────────────────────────────────

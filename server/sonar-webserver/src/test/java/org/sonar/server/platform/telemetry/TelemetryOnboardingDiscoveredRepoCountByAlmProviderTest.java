@@ -50,7 +50,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class TelemetryOnboardingDiscoveredRepoCountByAlmProviderTest {
@@ -154,14 +158,41 @@ class TelemetryOnboardingDiscoveredRepoCountByAlmProviderTest {
   }
 
   @Test
-  void getValues_whenBitbucketCloudConfigured_shouldSumAcrossPages() {
-    var firstPage = new org.sonar.alm.client.bitbucket.bitbucketcloud.RepositoryList(
-      "https://api.bitbucket.org/next", repeatedBitbucketCloudRepos(2), 1, 100);
-    var secondPage = new org.sonar.alm.client.bitbucket.bitbucketcloud.RepositoryList(null, repeatedBitbucketCloudRepos(1), 2, 100);
-    when(bitbucketCloudClient.searchRepos(any(), any(), any(), any(), any())).thenReturn(firstPage).thenReturn(secondPage);
-    withSettings(almSetting(ALM.BITBUCKET_CLOUD, null).setAppId("workspace").setPersonalAccessToken("pat"));
+  void getValues_whenBitbucketCloudConfigured_shouldExchangeConsumerForAccessTokenThenCount() {
+    when(bitbucketCloudClient.createAccessToken("client-id", "client-secret")).thenReturn("access-token");
+    var repoList = new org.sonar.alm.client.bitbucket.bitbucketcloud.RepositoryList(
+      null, repeatedBitbucketCloudRepos(1), 1, 1, 102);
+    when(bitbucketCloudClient.searchReposWithAccessToken(any(), any(), any(), any(), any())).thenReturn(repoList);
+    withSettings(almSetting(ALM.BITBUCKET_CLOUD, null).setAppId("workspace").setClientId("client-id").setClientSecret("client-secret"));
 
-    assertThat(underTest.getValues()).containsExactly(Map.entry("bitbucket_cloud", 3));
+    assertThat(underTest.getValues()).containsExactly(Map.entry("bitbucket_cloud", 102));
+    verify(bitbucketCloudClient, times(1)).searchReposWithAccessToken(eq("access-token"), any(), any(), eq(1), eq(1));
+  }
+
+  @Test
+  void getValues_whenBitbucketCloudSizeMissing_shouldSkipSetting() {
+    when(bitbucketCloudClient.createAccessToken(any(), any())).thenReturn("access-token");
+    var repoList = new org.sonar.alm.client.bitbucket.bitbucketcloud.RepositoryList(null, repeatedBitbucketCloudRepos(1), 1, 1);
+    when(bitbucketCloudClient.searchReposWithAccessToken(any(), any(), any(), any(), any())).thenReturn(repoList);
+    withSettings(almSetting(ALM.BITBUCKET_CLOUD, null).setAppId("workspace").setClientId("client-id").setClientSecret("client-secret"));
+
+    assertThat(underTest.getValues()).isEmpty();
+  }
+
+  @Test
+  void getValues_whenBitbucketCloudConsumerMissing_shouldSkipSettingWithoutCallingClient() {
+    withSettings(almSetting(ALM.BITBUCKET_CLOUD, null).setAppId("workspace"));
+
+    assertThat(underTest.getValues()).isEmpty();
+    verify(bitbucketCloudClient, never()).createAccessToken(any(), any());
+  }
+
+  @Test
+  void getValues_whenBitbucketCloudWorkspaceMissing_shouldSkipSettingWithoutCallingClient() {
+    withSettings(almSetting(ALM.BITBUCKET_CLOUD, null).setClientId("client-id").setClientSecret("client-secret"));
+
+    assertThat(underTest.getValues()).isEmpty();
+    verify(bitbucketCloudClient, never()).createAccessToken(any(), any());
   }
 
   @Test
