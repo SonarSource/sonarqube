@@ -244,17 +244,27 @@ public class SearchActionIT {
   }
 
   @Test
-  public void return_scm_accounts() {
+  public void return_scm_accounts_only_when_system_administer_or_self() {
     UserDto user = db.users().insertUser(u -> u.setScmAccounts(asList("john1", "john2")));
 
-    userSession.logIn();
+    userSession.logIn().setSystemAdministrator();
+    assertThat(ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin, u -> u.getScmAccounts().getScmAccountsList())
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), asList("john1", "john2")));
 
-    SearchWsResponse response = ws.newRequest()
-      .executeProtobuf(SearchWsResponse.class);
+    userSession.logIn(user);
+    assertThat(ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin, u -> u.getScmAccounts().getScmAccountsList())
+        .containsExactlyInAnyOrder(tuple(user.getLogin(), asList("john1", "john2")));
 
-    assertThat(response.getUsersList())
-      .extracting(User::getLogin, u -> u.getScmAccounts().getScmAccountsList())
-      .containsExactlyInAnyOrder(tuple(user.getLogin(), asList("john1", "john2")));
+    UserDto otherUser = db.users().insertUser();
+    userSession.logIn(otherUser);
+    assertThat(ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class).getUsersList())
+        .extracting(User::getLogin, User::hasScmAccounts)
+        .contains(tuple(user.getLogin(), false));
   }
 
   @Test
@@ -415,7 +425,7 @@ public class SearchActionIT {
         .extracting(User::getLogin, User::getName, User::hasEmail, User::hasExternalIdentity, User::hasExternalProvider,
           User::hasScmAccounts, User::hasAvatar, User::hasGroups, User::hasTokensCount, User::hasLastConnectionDate)
         .containsExactlyInAnyOrder(
-          tuple(user.getLogin(), user.getName(), false, false, true, true, true, false, false, false));
+          tuple(user.getLogin(), user.getName(), false, false, true, false, true, false, false, false));
   }
 
   @Test

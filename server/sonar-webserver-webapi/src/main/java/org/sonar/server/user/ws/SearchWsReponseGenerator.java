@@ -62,12 +62,12 @@ public class SearchWsReponseGenerator implements UsersSearchResponseGenerator<Us
       userBuilder.setActive(userDto.isActive());
       userBuilder.setLocal(userDto.isLocal());
       ofNullable(userDto.getExternalIdentityProvider()).ifPresent(userBuilder::setExternalProvider);
-      if (!userDto.getSortedScmAccounts().isEmpty()) {
-        userBuilder.setScmAccounts(Users.SearchWsResponse.ScmAccounts.newBuilder().addAllScmAccounts(userDto.getSortedScmAccounts()));
-      }
     }
     if (userSession.isSystemAdministrator() || Objects.equals(userSession.getUuid(), userDto.getUuid())) {
       ofNullable(userDto.getEmail()).ifPresent(userBuilder::setEmail);
+      if (!userDto.getSortedScmAccounts().isEmpty()) {
+        userBuilder.setScmAccounts(Users.SearchWsResponse.ScmAccounts.newBuilder().addAllScmAccounts(userDto.getSortedScmAccounts()));
+      }
       if (!userInformation.groups().isEmpty()) {
         userBuilder.setGroups(Users.SearchWsResponse.Groups.newBuilder().addAllGroups(userInformation.groups()));
       }

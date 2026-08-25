@@ -74,12 +74,14 @@ public class SearchAction implements UsersWsAction {
         "   <li>'externalProvider'</li>" +
         "   <li>'groups'</li>" +
         "   <li>'lastConnectionDate'</li>" +
+        "   <li>'scmAccounts'</li>" +
         "   <li>'sonarLintLastConnectionDate'</li>" +
         "   <li>'tokensCount'</li>" +
         "</ul>" +
         "Field 'lastConnectionDate' is only updated every hour, so it may not be accurate, for instance when a user authenticates many times in less than one hour.")
       .setSince("3.6")
       .setChangelog(
+        new Change("26.9", "Field 'scmAccounts' is only returned when user has Administer System permission or for the logged-in user"),
         new Change("10.4", "Deprecated. Use GET api/v2/users-management/users instead"),
         new Change("10.3", "New optional parameters " + EXTERNAL_IDENTITY + " to find a user by its IdP login"),
         new Change("10.1", "New optional parameters " + SONAR_LINT_LAST_CONNECTION_DATE_FROM +
