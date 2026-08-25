@@ -638,13 +638,15 @@ subprojects {
       dependency "com.sonarsource.pdfreport:security-report-pdf-generation:${pdfreportVersion}"
       dependency "com.sonarsource.pdfreport:pdf-generator-utils:${pdfreportVersion}"
       dependency 'com.sonarsource.fixsuggestions:ai-suggestions-shared:1.0.0.1775'
-      dependencySet(group: 'dev.langchain4j', version: '1.16.1') {
+      dependency 'com.sonarsource.sonarqube:llm-chat-client:1.0.0.14081'
+      dependencySet(group: 'dev.langchain4j', version: '1.18.1') {
         entry 'langchain4j-azure-open-ai'
         entry 'langchain4j-bedrock'
         entry 'langchain4j-http-client-jdk'
         entry 'langchain4j-open-ai'
+        entry 'langchain4j-core'
       }
-      dependency 'software.amazon.awssdk:apache-client:2.46.6'
+      imports { mavenBom 'software.amazon.awssdk:bom:2.48.3' }
       dependency 'org.sonarsource.update-center:sonar-update-center-common:1.37.0.4844'
       dependency 'org.sonarsource.classloader:sonar-classloader:1.2.1.2095'
       dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:3.1.0'
