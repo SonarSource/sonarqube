@@ -81,6 +81,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_050, "Create table 'cag_usage'", CreateCagUsageTable.class)
       .add(2026_05_051, "Create 'hunter_agent_jobs' table", CreateHunterAgentJobsTable.class)
       .add(2026_05_052, "Create 'dop_pr_snapshots' table", CreateDopPrSnapshotsTable.class)
-      .add(2026_05_053, "Create 'hunter_agent_runs' table", CreateHunterAgentRunsTable.class);
+      .add(2026_05_053, "Create 'hunter_agent_runs' table", CreateHunterAgentRunsTable.class)
+      .add(2026_05_054, "Create index 'group_roles_ent_role_grp' on 'group_roles'", CreateIndexOnGroupRolesEntityRoleGroup.class);
   }
 }
