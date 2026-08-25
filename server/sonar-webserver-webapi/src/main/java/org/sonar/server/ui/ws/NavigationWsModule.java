@@ -28,6 +28,7 @@ public class NavigationWsModule extends Module {
       NavigationWs.class,
       ComponentAction.class,
       GlobalAction.class,
+      VersionEolProvider.class,
       MarketplaceAction.class,
       SettingsAction.class);
   }

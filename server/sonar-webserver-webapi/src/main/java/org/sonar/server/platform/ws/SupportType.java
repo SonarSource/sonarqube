@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui.ws;
+package org.sonar.server.platform.ws;
 
-import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+/**
+ * Known values for the support type field exposed by the billing squad via {@code License#getSupportType()}.
+ * Update this class when a new support tier is introduced.
+ * {@code STANDARD} and {@code CORE} are documented here for completeness but are not actively read by the current code.
+ */
+public final class SupportType {
 
-import static org.assertj.core.api.Assertions.assertThat;
+  public static final String STANDARD = "standard";
+  public static final String PREMIUM = "premium";
+  public static final String CORE = "core";
 
-public class NavigationWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ListContainer container = new ListContainer();
-    new NavigationWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(6);
+  private SupportType() {
+    // constants only
   }
 }

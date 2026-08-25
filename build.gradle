@@ -647,7 +647,7 @@ subprojects {
         entry 'langchain4j-core'
       }
       imports { mavenBom 'software.amazon.awssdk:bom:2.48.3' }
-      dependency 'org.sonarsource.update-center:sonar-update-center-common:1.37.0.4844'
+      dependency 'org.sonarsource.update-center:sonar-update-center-common:1.38.0.4919'
       dependency 'org.sonarsource.classloader:sonar-classloader:1.2.1.2095'
       dependency 'org.springdoc:springdoc-openapi-starter-webmvc-api:3.1.0'
       dependencySet(group: 'com.icegreen', version: '2.1.8') {

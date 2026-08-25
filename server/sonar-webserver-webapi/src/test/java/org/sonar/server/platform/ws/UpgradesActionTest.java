@@ -60,7 +60,7 @@ class UpgradesActionTest {
   private final System2 system2 = mock(System2.class);
   private final DocumentationLinkGenerator documentationLinkGenerator = mock(DocumentationLinkGenerator.class);
 
-  private final ActiveVersionEvaluator activeVersionEvaluator = new ActiveVersionEvaluator(sonarQubeVersion, system2);
+  private final ActiveVersionEvaluator activeVersionEvaluator = new ActiveVersionEvaluator(sonarQubeVersion, system2, new DefaultLicenseSupportTypeReader());
   private final UpgradesAction underTest = new UpgradesAction(updateCenterFactory, activeVersionEvaluator, documentationLinkGenerator);
 
   private final WsActionTester tester = new WsActionTester(underTest);

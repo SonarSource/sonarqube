@@ -91,4 +91,32 @@ class MetadataLoaderTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessageContaining("Can not load /sq-version-eol.txt from classpath");
   }
+
+  @Test
+  void loadSqPremiumVersionEol_shouldLoadCorrectEol() {
+    String eol = MetadataLoader.loadSqPremiumVersionEol(System2.INSTANCE);
+    assertThat(eol).isNotNull();
+  }
+
+  @Test
+  void loadSqPremiumVersionEol_whenFileNotFound_shouldThrowException() throws MalformedURLException {
+    when(system.getResource(anyString())).thenReturn(new File("target/unknown").toURI().toURL());
+    assertThatThrownBy(() -> MetadataLoader.loadSqPremiumVersionEol(system))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Can not load /sq-version-premium-eol.txt from classpath");
+  }
+
+  @Test
+  void loadSqIsLta_shouldReturnBooleanFromFile() {
+    boolean isLta = MetadataLoader.loadSqIsLta(System2.INSTANCE);
+    assertThat(isLta).isIn(true, false);
+  }
+
+  @Test
+  void loadSqIsLta_whenFileNotFound_shouldThrowException() throws MalformedURLException {
+    when(system.getResource(anyString())).thenReturn(new File("target/unknown").toURI().toURL());
+    assertThatThrownBy(() -> MetadataLoader.loadSqIsLta(system))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("Can not load /sq-is-lta-version.txt from classpath");
+  }
 }

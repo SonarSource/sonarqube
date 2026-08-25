@@ -35,7 +35,9 @@ import org.apache.tools.ant.filters.ReplaceTokens
 processResources {
   filter ReplaceTokens, tokens: [
           'project.version': project.version,
-          'versionEOL': project.properties["versionEOL"]
+          'versionEOL': project.properties["versionEOL"],
+          'premiumVersionEOL': project.properties["premiumVersionEOL"],
+          'isLta': project.properties["isLta"]
   ]
 }
 

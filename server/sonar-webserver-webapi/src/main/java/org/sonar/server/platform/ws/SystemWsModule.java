@@ -44,7 +44,8 @@ public class SystemWsModule extends Module {
       StatusAction.class,
       UpgradesAction.class,
       SystemWs.class,
-      ActiveVersionEvaluator.class
+      ActiveVersionEvaluator.class,
+      DefaultLicenseSupportTypeReader.class
 
     );
   }

@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedSet;
+import java.util.function.Function;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.updatecenter.common.Product;
@@ -42,22 +43,33 @@ public class ActiveVersionEvaluator {
     .thenComparingInt((Version v) -> Integer.parseInt(v.getMinor()));
   private final SonarQubeVersion sonarQubeVersion;
   private final System2 system2;
+  private final LicenseSupportTypeReader licenseSupportTypeReader;
 
-  public ActiveVersionEvaluator(SonarQubeVersion sonarQubeVersion, System2 system2) {
+  public ActiveVersionEvaluator(SonarQubeVersion sonarQubeVersion, System2 system2, LicenseSupportTypeReader licenseSupportTypeReader) {
     this.sonarQubeVersion = sonarQubeVersion;
     this.system2 = system2;
+    this.licenseSupportTypeReader = licenseSupportTypeReader;
   }
 
   public boolean evaluateIfActiveVersion(UpdateCenter updateCenter) {
-    Version installedVersion = Version.create(sonarQubeVersion.get().toString());
+    String supportType = licenseSupportTypeReader.getSupportType();
+    Function<Release, Date> eolDateSelector = SupportType.PREMIUM.equals(supportType)
+      ? ActiveVersionEvaluator::getPremiumEolDateOrFallback
+      : Release::getEolDate;
+    return evaluateIfActiveVersion(updateCenter, eolDateSelector);
+  }
+
+  private boolean evaluateIfActiveVersion(UpdateCenter updateCenter, Function<Release, Date> eolDateSelector) {
+    final Version installedVersion = Version.create(sonarQubeVersion.get().toString());
     if (updateCenter.getInstalledSonarProduct() == Product.SONARQUBE_COMMUNITY_BUILD) {
       return true;
     }
 
-    Optional<Release> installedLtaLineWithEolDate = findMatchingLtaWithEolDate(updateCenter, installedVersion);
-    if (installedLtaLineWithEolDate.isPresent()) {
-      LocalDate eolDate = installedLtaLineWithEolDate.get().getEolDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-      return !today().isAfter(eolDate);
+    Date effectiveEolDate = findMatchingLtaLine(updateCenter, installedVersion, eolDateSelector)
+      .map(eolDateSelector)
+      .orElse(null);
+    if (effectiveEolDate != null) {
+      return !today().isAfter(effectiveEolDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
     }
 
     if (compareWithoutPatchVersion(installedVersion, updateCenter.getSonar().getLtaVersion().getVersion()) == 0) {
@@ -82,11 +94,20 @@ public class ActiveVersionEvaluator {
   }
 
 
-  private static Optional<Release> findMatchingLtaWithEolDate(UpdateCenter updateCenter, Version installedVersion) {
+  private static Optional<Release> findMatchingLtaLine(UpdateCenter updateCenter, Version installedVersion,
+    Function<Release, Date> eolDateSelector) {
     return updateCenter.getSonar().getLtaVersions().stream()
       .filter(release -> compareWithoutPatchVersion(installedVersion, release.getVersion()) == 0)
-      .filter(release -> release.getEolDate() != null)
+      .filter(release -> eolDateSelector.apply(release) != null)
       .findFirst();
+  }
+
+  private static Date getPremiumEolDateOrFallback(Release release) {
+    Date premiumEol = release.getPremiumEolDate();
+    if (premiumEol != null) {
+      return premiumEol;
+    }
+    return release.getEolDate();
   }
 
   private LocalDate today() {

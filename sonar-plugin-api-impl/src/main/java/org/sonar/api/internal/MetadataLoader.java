@@ -42,6 +42,8 @@ public class MetadataLoader {
   private static final String SONAR_API_VERSION_FILE_PATH = "/sonar-api-version.txt";
   private static final String EDITION_FILE_PATH = "/sonar-edition.txt";
   private static final String SQ_VERSION_EOL_FILE_PATH = "/sq-version-eol.txt";
+  private static final String SQ_VERSION_PREMIUM_EOL_FILE_PATH = "/sq-version-premium-eol.txt";
+  private static final String SQ_IS_LTA_FILE_PATH = "/sq-is-lta-version.txt";
   public static final String CAN_NOT_LOAD_FROM_CLASSPATH = "Can not load %s from classpath";
 
   private MetadataLoader() {
@@ -58,6 +60,14 @@ public class MetadataLoader {
 
   public static String loadSqVersionEol(System2 system) {
     return getParamFromFile(system, SQ_VERSION_EOL_FILE_PATH);
+  }
+
+  public static String loadSqPremiumVersionEol(System2 system) {
+    return getParamFromFile(system, SQ_VERSION_PREMIUM_EOL_FILE_PATH);
+  }
+
+  public static boolean loadSqIsLta(System2 system) {
+    return Boolean.parseBoolean(getParamFromFile(system, SQ_IS_LTA_FILE_PATH));
   }
 
   private static Version getVersion(System2 system, String versionFilePath) {

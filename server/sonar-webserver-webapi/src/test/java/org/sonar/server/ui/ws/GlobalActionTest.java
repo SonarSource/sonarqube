@@ -44,6 +44,7 @@ import org.sonar.db.dialect.PostgreSql;
 import org.sonar.server.authentication.DefaultAdminCredentialsVerifier;
 import org.sonar.server.issue.index.IssueIndexSyncProgressChecker;
 import org.sonar.server.platform.NodeInformation;
+import org.sonar.server.platform.ws.DefaultLicenseSupportTypeReader;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.WebAnalyticsLoader;
@@ -375,7 +376,8 @@ class GlobalActionTest {
     pageRepository.start();
     GlobalAction wsAction = new GlobalAction(pageRepository, settings.asConfig(), new ComponentTypes(componentTypeTrees), server,
       nodeInformation, dbClient, userSession, editionProvider, webAnalyticsLoader,
-      indexSyncProgressChecker, defaultAdminCredentialsVerifier, documentationLinkGenerator);
+      indexSyncProgressChecker, defaultAdminCredentialsVerifier, documentationLinkGenerator,
+      new VersionEolProvider(new DefaultLicenseSupportTypeReader()));
     ws = new WsActionTester(wsAction);
     wsAction.start();
   }

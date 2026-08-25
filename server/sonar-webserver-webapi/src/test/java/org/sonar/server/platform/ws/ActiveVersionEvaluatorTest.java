@@ -52,7 +52,7 @@ class ActiveVersionEvaluatorTest {
   private final UpdateCenter updateCenter = mock(UpdateCenter.class);
   private static final Sonar sonar = mock(Sonar.class);
   private final System2 system2 = mock(System2.class);
-  private final ActiveVersionEvaluator underTest = new ActiveVersionEvaluator(sonarQubeVersion, system2);
+  private final ActiveVersionEvaluator underTest = new ActiveVersionEvaluator(sonarQubeVersion, system2, new DefaultLicenseSupportTypeReader());
 
   @BeforeEach
   void setup() {
@@ -132,6 +132,74 @@ class ActiveVersionEvaluatorTest {
 
   private static Release ltaReleaseWithEolDate(String version, LocalDate eolDate) {
     return new Release(sonar, Version.create(version)).setEolDate(Date.from(eolDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+  }
+
+  private static Release ltaReleaseWithBothEolDates(String version, LocalDate eolDate, LocalDate premiumEolDate) {
+    return new Release(sonar, Version.create(version))
+      .setEolDate(Date.from(eolDate.atStartOfDay(ZoneId.systemDefault()).toInstant()))
+      .setPremiumEolDate(Date.from(premiumEolDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+  }
+
+  @Test
+  void evaluateIfActiveVersion_whenStandardCustomerAndEolDateNotPassed_shouldReturnActive() {
+    ActiveVersionEvaluator standardEvaluator = new ActiveVersionEvaluator(sonarQubeVersion, system2, () -> null);
+    when(sonarQubeVersion.get()).thenReturn(parse("2026.1"));
+    when(system2.now()).thenReturn(LocalDate.of(2026, Month.DECEMBER, 1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+    when(sonar.getLtaVersions()).thenReturn(List.of(
+      ltaReleaseWithBothEolDates("2026.1", LocalDate.of(2027, Month.JANUARY, 27), LocalDate.of(2027, Month.AUGUST, 1))));
+
+    // standard customer (isPremiumSupport=false) uses standard eolDate — still active in Dec 2026
+    assertThat(standardEvaluator.evaluateIfActiveVersion(updateCenter)).isTrue();
+  }
+
+  @Test
+  void evaluateIfActiveVersion_whenPremiumCustomerAndPremiumEolDateNotPassed_shouldReturnActive() {
+    ActiveVersionEvaluator premiumEvaluator = new ActiveVersionEvaluator(sonarQubeVersion, system2, () -> SupportType.PREMIUM);
+    when(sonarQubeVersion.get()).thenReturn(parse("2026.1"));
+    // Feb 2027: standard eolDate (2027-01-27) has passed but premiumEolDate (2027-08-01) has not
+    when(system2.now()).thenReturn(LocalDate.of(2027, Month.FEBRUARY, 1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+    when(sonar.getLtaVersions()).thenReturn(List.of(
+      ltaReleaseWithBothEolDates("2026.1", LocalDate.of(2027, Month.JANUARY, 27), LocalDate.of(2027, Month.AUGUST, 1))));
+
+    // premium customer uses premiumEolDate — still active in Feb 2027
+    assertThat(premiumEvaluator.evaluateIfActiveVersion(updateCenter)).isTrue();
+  }
+
+  @Test
+  void evaluateIfActiveVersion_whenStandardCustomerAndEolDatePassed_shouldReturnNotActive() {
+    ActiveVersionEvaluator standardEvaluator = new ActiveVersionEvaluator(sonarQubeVersion, system2, () -> null);
+    when(sonarQubeVersion.get()).thenReturn(parse("2026.1"));
+    // Feb 2027: standard eolDate has passed
+    when(system2.now()).thenReturn(LocalDate.of(2027, Month.FEBRUARY, 1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+    when(sonar.getLtaVersions()).thenReturn(List.of(
+      ltaReleaseWithBothEolDates("2026.1", LocalDate.of(2027, Month.JANUARY, 27), LocalDate.of(2027, Month.AUGUST, 1))));
+
+    // standard customer uses eolDate — inactive in Feb 2027 (past 2027-01-27)
+    assertThat(standardEvaluator.evaluateIfActiveVersion(updateCenter)).isFalse();
+  }
+
+  @Test
+  void evaluateIfActiveVersion_whenPremiumCustomerAndPremiumEolDatePassed_shouldReturnNotActive() {
+    ActiveVersionEvaluator premiumEvaluator = new ActiveVersionEvaluator(sonarQubeVersion, system2, () -> SupportType.PREMIUM);
+    when(sonarQubeVersion.get()).thenReturn(parse("2026.1"));
+    when(system2.now()).thenReturn(LocalDate.of(2027, Month.SEPTEMBER, 1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+    when(sonar.getLtaVersions()).thenReturn(List.of(
+      ltaReleaseWithBothEolDates("2026.1", LocalDate.of(2027, Month.JANUARY, 27), LocalDate.of(2027, Month.AUGUST, 1))));
+
+    // premium customer uses premiumEolDate — inactive in Sep 2027 (past 2027-08-01)
+    assertThat(premiumEvaluator.evaluateIfActiveVersion(updateCenter)).isFalse();
+  }
+
+  @Test
+  void evaluateIfActiveVersion_whenPremiumCustomerButNoPremiumEolDate_shouldFallBackToStandardEolDate() {
+    ActiveVersionEvaluator premiumEvaluator = new ActiveVersionEvaluator(sonarQubeVersion, system2, () -> SupportType.PREMIUM);
+    when(sonarQubeVersion.get()).thenReturn(parse("2026.1"));
+    when(system2.now()).thenReturn(LocalDate.of(2026, Month.DECEMBER, 1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+    when(sonar.getLtaVersions()).thenReturn(List.of(
+      ltaReleaseWithEolDate("2026.1", LocalDate.of(2027, Month.JANUARY, 27))));
+
+    // premium flag is true but no premiumEolDate set — falls back to eolDate, still active in Dec 2026
+    assertThat(premiumEvaluator.evaluateIfActiveVersion(updateCenter)).isTrue();
   }
 
   @Test

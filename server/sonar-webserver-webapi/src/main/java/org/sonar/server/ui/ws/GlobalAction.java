@@ -30,7 +30,6 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.page.Page;
 import org.sonar.core.documentation.DocumentationLinkGenerator;
@@ -51,7 +50,6 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.CoreProperties.DEVELOPER_AGGREGATED_INFO_DISABLED;
 import static org.sonar.api.CoreProperties.RATING_GRID;
-import static org.sonar.api.internal.MetadataLoader.loadSqVersionEol;
 import static org.sonar.core.config.WebConstants.SONAR_LF_ENABLE_GRAVATAR;
 import static org.sonar.core.config.WebConstants.SONAR_LF_GRAVATAR_SERVER_URL;
 import static org.sonar.core.config.WebConstants.SONAR_LF_LOGO_URL;
@@ -82,11 +80,13 @@ public class GlobalAction implements NavigationWsAction, Startable {
   private final IssueIndexSyncProgressChecker issueIndexSyncChecker;
   private final DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier;
   private final DocumentationLinkGenerator documentationLinkGenerator;
+  private final VersionEolProvider versionEolProvider;
 
   public GlobalAction(PageRepository pageRepository, Configuration config, ComponentTypes componentTypes, Server server,
     NodeInformation nodeInformation, DbClient dbClient, UserSession userSession, PlatformEditionProvider editionProvider,
     WebAnalyticsLoader webAnalyticsLoader, IssueIndexSyncProgressChecker issueIndexSyncChecker,
-    DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier, DocumentationLinkGenerator documentationLinkGenerator) {
+    DefaultAdminCredentialsVerifier defaultAdminCredentialsVerifier, DocumentationLinkGenerator documentationLinkGenerator,
+    VersionEolProvider versionEolProvider) {
     this.pageRepository = pageRepository;
     this.config = config;
     this.componentTypes = componentTypes;
@@ -100,6 +100,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
     this.issueIndexSyncChecker = issueIndexSyncChecker;
     this.defaultAdminCredentialsVerifier = defaultAdminCredentialsVerifier;
     this.documentationLinkGenerator = documentationLinkGenerator;
+    this.versionEolProvider = versionEolProvider;
   }
 
   @Override
@@ -192,7 +193,7 @@ public class GlobalAction implements NavigationWsAction, Startable {
   }
 
   private void writeVersionEol(JsonWriter json) {
-    json.prop("versionEOL", loadSqVersionEol(System2.INSTANCE));
+    json.prop("versionEOL", versionEolProvider.getEffectiveVersionEol());
   }
 
   private void writeDatabaseProduction(JsonWriter json) {

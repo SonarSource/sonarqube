@@ -17,18 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui.ws;
+package org.sonar.server.platform.ws;
 
-import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+import javax.annotation.CheckForNull;
+import org.sonar.api.server.ServerSide;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class NavigationWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ListContainer container = new ListContainer();
-    new NavigationWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(6);
-  }
+@ServerSide
+public interface LicenseSupportTypeReader {
+  @CheckForNull
+  String getSupportType();
 }
