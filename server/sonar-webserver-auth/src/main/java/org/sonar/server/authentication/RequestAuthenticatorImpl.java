@@ -19,6 +19,8 @@
  */
 package org.sonar.server.authentication;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
@@ -26,6 +28,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserSessionFactory;
 import org.sonar.server.usertoken.UserTokenAuthentication;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.util.Objects.nonNull;
@@ -43,28 +46,55 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
   private final HttpHeadersAuthentication httpHeadersAuthentication;
   private final GithubWebhookAuthentication githubWebhookAuthentication;
   private final UserSessionFactory userSessionFactory;
+  private final List<ServiceAuthentication> serviceAuthentications;
 
+  /**
+   * Injected via {@link ObjectProvider} because {@link ServiceAuthentication} has no implementation in
+   * the server itself: a plain collection parameter would leave this constructor unsatisfiable on any
+   * installation without a core extension registering one, which is every Community Build.
+   */
   @Autowired(required = false)
   public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, UserTokenAuthentication userTokenAuthentication,
     HttpHeadersAuthentication httpHeadersAuthentication,
-    GithubWebhookAuthentication githubWebhookAuthentication, UserSessionFactory userSessionFactory) {
+    GithubWebhookAuthentication githubWebhookAuthentication, UserSessionFactory userSessionFactory,
+    ObjectProvider<ServiceAuthentication> serviceAuthentications) {
+    this(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication, githubWebhookAuthentication, userSessionFactory,
+      serviceAuthentications.orderedStream().toList());
+  }
+
+  public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, UserTokenAuthentication userTokenAuthentication,
+    HttpHeadersAuthentication httpHeadersAuthentication,
+    GithubWebhookAuthentication githubWebhookAuthentication, UserSessionFactory userSessionFactory,
+    List<ServiceAuthentication> serviceAuthentications) {
     this.jwtHttpHandler = jwtHttpHandler;
     this.basicAuthentication = basicAuthentication;
     this.userTokenAuthentication = userTokenAuthentication;
     this.httpHeadersAuthentication = httpHeadersAuthentication;
     this.githubWebhookAuthentication = githubWebhookAuthentication;
     this.userSessionFactory = userSessionFactory;
+    this.serviceAuthentications = List.copyOf(serviceAuthentications);
   }
 
-  @Autowired(required = false)
+  public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, UserTokenAuthentication userTokenAuthentication,
+    HttpHeadersAuthentication httpHeadersAuthentication,
+    GithubWebhookAuthentication githubWebhookAuthentication, UserSessionFactory userSessionFactory) {
+    this(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication, githubWebhookAuthentication, userSessionFactory, List.of());
+  }
+
   public RequestAuthenticatorImpl(JwtHttpHandler jwtHttpHandler, BasicAuthentication basicAuthentication, UserTokenAuthentication userTokenAuthentication,
     HttpHeadersAuthentication httpHeadersAuthentication,
     UserSessionFactory userSessionFactory, GithubWebhookAuthentication githubWebhookAuthentication) {
-    this(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication, githubWebhookAuthentication, userSessionFactory);
+    this(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication, githubWebhookAuthentication, userSessionFactory, List.of());
   }
 
   @Override
   public UserSession authenticate(HttpRequest request, HttpResponse response) {
+    // Service callers present none of the user-facing credentials, so they are resolved first.
+    Optional<UserSession> serviceSession = authenticateService(request);
+    if (serviceSession.isPresent()) {
+      return serviceSession.get();
+    }
+
     UserAuthResult userAuthResult = loadUser(request, response);
     if (nonNull(userAuthResult.getUserDto())) {
       if (TOKEN.equals(userAuthResult.getAuthType())) {
@@ -76,6 +106,16 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
       return userSessionFactory.createGithubWebhookUserSession();
     }
     return userSessionFactory.createAnonymous();
+  }
+
+  private Optional<UserSession> authenticateService(HttpRequest request) {
+    for (ServiceAuthentication serviceAuthentication : serviceAuthentications) {
+      Optional<UserSession> session = serviceAuthentication.authenticate(request);
+      if (session.isPresent()) {
+        return session;
+      }
+    }
+    return Optional.empty();
   }
 
   private UserAuthResult loadUser(HttpRequest request, HttpResponse response) {

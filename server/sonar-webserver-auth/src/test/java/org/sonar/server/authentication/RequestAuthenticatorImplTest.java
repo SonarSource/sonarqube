@@ -19,6 +19,7 @@
  */
 package org.sonar.server.authentication;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,6 +79,34 @@ public class RequestAuthenticatorImplTest {
     when(sessionFactory.create(A_USER, A_USER_TOKEN)).thenReturn(new MockUserSession(A_USER));
     when(sessionFactory.createAnonymous()).thenReturn(new AnonymousMockUserSession());
     when(sessionFactory.createGithubWebhookUserSession()).thenReturn(githubWebhookMockUserSession);
+  }
+
+  @Test
+  public void authenticate_from_service_authentication() {
+    UserSession serviceSession = mock(UserSession.class);
+    ServiceAuthentication serviceAuthentication = mock(ServiceAuthentication.class);
+    when(serviceAuthentication.authenticate(request)).thenReturn(Optional.of(serviceSession));
+    RequestAuthenticator withService = new RequestAuthenticatorImpl(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication,
+      githubWebhookAuthentication, sessionFactory, List.of(serviceAuthentication));
+
+    assertThat(withService.authenticate(request, response)).isSameAs(serviceSession);
+
+    // A service caller presents none of the user-facing credentials, so none is consulted.
+    verify(httpHeadersAuthentication, never()).authenticate(request, response);
+    verify(jwtHttpHandler, never()).validateToken(request, response);
+    verify(response, never()).setStatus(anyInt());
+  }
+
+  @Test
+  public void authenticate_should_fall_through_when_service_authentication_declines() {
+    ServiceAuthentication serviceAuthentication = mock(ServiceAuthentication.class);
+    when(serviceAuthentication.authenticate(request)).thenReturn(Optional.empty());
+    RequestAuthenticator withService = new RequestAuthenticatorImpl(jwtHttpHandler, basicAuthentication, userTokenAuthentication, httpHeadersAuthentication,
+      githubWebhookAuthentication, sessionFactory, List.of(serviceAuthentication));
+    when(httpHeadersAuthentication.authenticate(request, response)).thenReturn(Optional.empty());
+    when(jwtHttpHandler.validateToken(request, response)).thenReturn(Optional.of(A_USER));
+
+    assertThat(withService.authenticate(request, response).getUuid()).isEqualTo(A_USER.getUuid());
   }
 
   @Test

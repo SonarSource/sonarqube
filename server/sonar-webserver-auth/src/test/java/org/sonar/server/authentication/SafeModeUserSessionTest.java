@@ -20,10 +20,14 @@
 package org.sonar.server.authentication;
 
 import org.junit.Test;
-import org.sonar.db.permission.ProjectPermission;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SafeModeUserSessionTest {
 
@@ -41,13 +45,22 @@ public class SafeModeUserSessionTest {
     assertThat(underTest.isAuthenticatedBrowserSession()).isFalse();
   }
 
+  /** Asked through the public entry points, so this still holds if the protected hooks move again. */
   @Test
   public void session_has_no_permissions() {
+    EntityDto entity = mock(EntityDto.class);
+    when(entity.getUuid()).thenReturn("foo");
+    when(entity.getAuthUuid()).thenReturn("foo");
+    ComponentDto portfolio = mock(ComponentDto.class);
+    when(portfolio.uuid()).thenReturn("foo");
+
     assertThat(underTest.shouldResetPassword()).isFalse();
     assertThat(underTest.isSystemAdministrator()).isFalse();
-    assertThat(underTest.hasPermissionImpl(GlobalPermission.ADMINISTER)).isFalse();
-    assertThat(underTest.hasEntityUuidPermission(ProjectPermission.USER, "foo")).isFalse();
-    assertThat(underTest.hasChildProjectsPermission(ProjectPermission.USER, "foo")).isFalse();
-    assertThat(underTest.hasPortfolioChildProjectsPermission(ProjectPermission.USER, "foo")).isFalse();
+    assertThat(underTest.hasPermission(GlobalPermission.ADMINISTER)).isFalse();
+    assertThat(underTest.hasEntityPermission(ProjectPermission.USER, "foo")).isFalse();
+    assertThat(underTest.hasEntityPermission(ProjectPermission.USER, entity)).isFalse();
+    assertThat(underTest.hasChildProjectsPermission(ProjectPermission.USER, entity)).isFalse();
+    assertThat(underTest.hasPortfolioChildProjectsPermission(ProjectPermission.USER, portfolio)).isFalse();
+    assertThat(underTest.hasComponentUuidPermission(ProjectPermission.USER, "foo")).isFalse();
   }
 }

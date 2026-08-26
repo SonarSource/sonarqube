@@ -70,6 +70,11 @@ public interface AuthenticationEvent {
      */
     GITHUB_WEBHOOK,
     /**
+     * Authentication of a service caller by a signature over the request, verified by a
+     * {@link org.sonar.server.authentication.ServiceAuthentication} implementation.
+     */
+    SERVICE_SIGNATURE,
+    /**
      * External authentication (ie. fully implemented out of SQ's core code, see {@link BaseIdentityProvider}).
      */
     EXTERNAL
@@ -96,6 +101,11 @@ public interface AuthenticationEvent {
      * User authentication done thanks to the signature hash provided by github in the request headers generated with a common secret.
      */
     GITHUB_WEBHOOK,
+    /**
+     * Authentication of a service rather than a user. The provider name identifies which service
+     * authenticator handled it.
+     */
+    SERVICE,
     /**
      * User authentication made by external provider (see {@link BaseIdentityProvider}).
      */
@@ -143,6 +153,14 @@ public interface AuthenticationEvent {
 
     public static Source githubWebhook() {
       return GITHUB_WEBHOOK_INSTANCE;
+    }
+
+    /**
+     * @param providerName identifies which service authenticator handled the request, so a failure in
+     *                     the auth log can be traced to one boundary.
+     */
+    public static Source serviceSignature(String providerName) {
+      return new Source(Method.SERVICE_SIGNATURE, Provider.SERVICE, providerName);
     }
 
     public static Source external(IdentityProvider identityProvider) {

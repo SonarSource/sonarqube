@@ -19,43 +19,16 @@
  */
 package org.sonar.server.authentication;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.db.permission.GlobalPermission;
-import org.sonar.db.permission.ProjectPermission;
-import org.sonar.db.user.GroupDto;
-import org.sonar.server.user.AbstractUserSession;
+import org.sonar.server.user.PermissionlessUserSession;
 
+/**
+ * The session requests run as while the server is in safe mode: nameless, not logged in, not active,
+ * and holding no permission at all (see {@link PermissionlessUserSession}).
+ */
 @Immutable
-public class SafeModeUserSession extends AbstractUserSession {
-
-  @Override
-  protected boolean hasPermissionImpl(GlobalPermission permission) {
-    return false;
-  }
-
-  @Override
-  protected Optional<String> componentUuidToEntityUuid(String componentUuid) {
-    return Optional.empty();
-  }
-
-  @Override
-  protected boolean hasEntityUuidPermission(ProjectPermission permission, String entityUuid) {
-    return false;
-  }
-
-  @Override
-  protected boolean hasChildProjectsPermission(ProjectPermission permission, String applicationUuid) {
-    return false;
-  }
-
-  @Override
-  protected boolean hasPortfolioChildProjectsPermission(ProjectPermission permission, String portfolioUuid) {
-    return false;
-  }
+public class SafeModeUserSession extends PermissionlessUserSession {
 
   @CheckForNull
   @Override
@@ -76,42 +49,12 @@ public class SafeModeUserSession extends AbstractUserSession {
   }
 
   @Override
-  public Collection<GroupDto> getGroups() {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public boolean shouldResetPassword() {
-    return false;
-  }
-
-  @Override
-  public Optional<IdentityProvider> getIdentityProvider() {
-    return Optional.empty();
-  }
-
-  @Override
-  public Optional<ExternalIdentity> getExternalIdentity() {
-    return Optional.empty();
-  }
-
-  @Override
   public boolean isLoggedIn() {
     return false;
   }
 
   @Override
-  public boolean isSystemAdministrator() {
-    return false;
-  }
-
-  @Override
   public boolean isActive() {
-    return false;
-  }
-
-  @Override
-  public boolean isAuthenticatedBrowserSession() {
     return false;
   }
 }
