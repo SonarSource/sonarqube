@@ -95,13 +95,14 @@ public class ApplyTemplateAction implements PermissionsWsAction {
   }
 
   private void doHandle(ApplyTemplateRequest request) {
+    checkGlobalAdmin(userSession);
+
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getTemplateName()));
 
       ProjectWsRef.validateUuidAndKeyPair(request.getProjectId(), request.getProjectKey());
       EntityDto entityDto = getEntityByKeyOrUuid(request.getProjectId(), request.getProjectKey(), dbSession);
-      checkGlobalAdmin(userSession);
 
       if (entityDto.isProject()) {
         managedInstanceChecker.throwIfProjectIsManaged(dbSession, entityDto.getUuid());

@@ -216,6 +216,24 @@ public class ApplyTemplateActionIT extends BasePermissionWsIT<ApplyTemplateActio
       .isInstanceOf(ForbiddenException.class);
   }
 
+  @Test
+  public void fail_with_forbidden_instead_of_not_found_when_not_admin_and_unknown_template() {
+    userSession.logIn().addPermission(SCAN);
+
+    String projectUuid = project.getUuid();
+    assertThatThrownBy(() -> newRequest("unknown-template-uuid", projectUuid, null))
+      .isInstanceOf(ForbiddenException.class);
+  }
+
+  @Test
+  public void fail_with_forbidden_instead_of_not_found_when_not_admin_and_unknown_project() {
+    userSession.logIn().addPermission(SCAN);
+
+    String templateUuid = template1.getUuid();
+    assertThatThrownBy(() -> newRequest(templateUuid, "unknown-project-uuid", null))
+      .isInstanceOf(ForbiddenException.class);
+  }
+
   private void assertTemplate1AppliedToProject() {
     assertThat(selectProjectPermissionGroups(project, ProjectPermission.ADMIN)).containsExactly(group1.getName());
     assertThat(selectProjectPermissionGroups(project, ProjectPermission.USER)).containsExactly(group2.getName());

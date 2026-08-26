@@ -45,6 +45,7 @@ import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.l18n.I18nRule;
 import org.sonar.server.management.ManagedProjectService;
@@ -61,6 +62,7 @@ import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.db.component.ComponentQualifiers.PROJECT;
 import static org.sonar.db.component.ComponentQualifiers.VIEW;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
+import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ANALYZED_BEFORE;
@@ -331,6 +333,14 @@ public class BulkApplyTemplateActionIT extends BasePermissionWsIT<BulkApplyTempl
     assertThatThrownBy(() -> newRequest().setParam(PARAM_TEMPLATE_ID, "unknown-template-uuid").execute())
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Permission template with id 'unknown-template-uuid' is not found");
+  }
+
+  @Test
+  public void fail_with_forbidden_instead_of_not_found_when_not_admin_and_unknown_template() {
+    userSession.logIn().addPermission(SCAN);
+
+    assertThatThrownBy(() -> newRequest().setParam(PARAM_TEMPLATE_ID, "unknown-template-uuid").execute())
+      .isInstanceOf(ForbiddenException.class);
   }
 
   private void assertTemplate1AppliedToPublicProject(ProjectDto project) {

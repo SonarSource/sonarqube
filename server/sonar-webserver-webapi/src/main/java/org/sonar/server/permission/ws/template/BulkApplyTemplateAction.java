@@ -152,10 +152,11 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
   }
 
   private void doHandle(BulkApplyTemplateRequest request) {
+    checkGlobalAdmin(userSession);
+
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getTemplateName()));
-      checkGlobalAdmin(userSession);
 
       ComponentQuery componentQuery = buildDbQuery(request);
       List<ComponentDto> components = dbClient.componentDao().selectByQuery(dbSession, componentQuery, forPage(1).andSize(CeTaskQuery.MAX_COMPONENT_UUIDS));
