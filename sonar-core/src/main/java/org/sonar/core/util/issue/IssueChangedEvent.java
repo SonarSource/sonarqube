@@ -23,7 +23,7 @@ import java.io.Serializable;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class IssueChangedEvent implements Serializable {
+public final class IssueChangedEvent implements Serializable {
   private static final String EVENT = "IssueChanged";
 
   private final String projectKey;

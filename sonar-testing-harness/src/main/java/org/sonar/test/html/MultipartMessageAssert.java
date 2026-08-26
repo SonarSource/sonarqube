@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 
-public class MultipartMessageAssert extends AbstractAssert<MultipartMessageAssert, Multipart> {
+public final class MultipartMessageAssert extends AbstractAssert<MultipartMessageAssert, Multipart> {
   private final Iterator<BodyPart> bodyParts;
 
   MultipartMessageAssert(MimeMultipart m) {

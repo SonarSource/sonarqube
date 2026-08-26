@@ -66,7 +66,7 @@ import org.apache.hc.core5.net.URIBuilder;
  * host is tried; other failures (including responses received from a node) are propagated without retry, so
  * a non-idempotent request such as a bulk is never re-sent after it reached a node.
  */
-public class SynchronousEsHttpClient implements TransportHttpClient {
+public final class SynchronousEsHttpClient implements TransportHttpClient {
 
   private final CloseableHttpClient httpClient;
   private final List<HttpHost> hosts;

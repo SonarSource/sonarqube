@@ -33,7 +33,7 @@ import org.sonar.scanner.protobuf.utils.CloseableIterator;
 /**
  * Serialize and deserialize objects on disk. No search capabilities, only traversal (full scan).
  */
-public class JavaSerializationDiskCache<O extends Serializable> implements DiskCache<O> {
+public final class JavaSerializationDiskCache<O extends Serializable> implements DiskCache<O> {
 
   private final File file;
   private final System2 system2;

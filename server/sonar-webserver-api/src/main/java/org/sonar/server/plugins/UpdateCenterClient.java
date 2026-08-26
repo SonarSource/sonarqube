@@ -62,7 +62,7 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
     // hidden from UI
     global = false)
 })
-public class UpdateCenterClient {
+public final class UpdateCenterClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(UpdateCenterClient.class);
   static final String URL_PROPERTY = "sonar.updatecenter.url";

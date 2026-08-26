@@ -64,7 +64,7 @@ import static org.sonar.process.sharedmemoryfile.ProcessCommands.MAX_PROCESSES;
  * </ul>
  * </p>
  */
-public class AllProcessesCommands implements AutoCloseable {
+public final class AllProcessesCommands implements AutoCloseable {
   private static final int UP_BYTE_OFFSET = 0;
   private static final int HARD_STOP_BYTE_OFFSET = 1;
   private static final int STOP_BYTE_OFFSET = 2;

@@ -25,7 +25,7 @@ import org.sonar.duplications.statement.matcher.TokenMatcher;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenQueue;
 
-public class BridgeWithExceptionTokenMatcher extends TokenMatcher {
+public final class BridgeWithExceptionTokenMatcher extends TokenMatcher {
 
   private final String lToken;
   private final String rToken;

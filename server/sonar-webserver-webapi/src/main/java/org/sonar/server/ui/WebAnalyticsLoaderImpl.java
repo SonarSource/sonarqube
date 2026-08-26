@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.web.WebAnalytics;
 
-public class WebAnalyticsLoaderImpl implements WebAnalyticsLoader {
+public final class WebAnalyticsLoaderImpl implements WebAnalyticsLoader {
 
   @Nullable
   private final WebAnalytics analytics;

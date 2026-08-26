@@ -38,7 +38,7 @@ import static org.sonar.process.ProcessProperties.Property.SONAR_SECURITY_REALM;
  * @since 2.14
  */
 @ServerSide
-public class SecurityRealmFactory implements Startable {
+public final class SecurityRealmFactory implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger("org.sonar.INFO");
   private static final String LDAP_SECURITY_REALM = "LDAP";

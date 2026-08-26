@@ -27,7 +27,7 @@ import java.io.ObjectInputStream;
 import org.apache.commons.io.IOUtils;
 import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
-public class ObjectInputStreamIterator<E> extends CloseableIterator<E> {
+public final class ObjectInputStreamIterator<E> extends CloseableIterator<E> {
 
   private ObjectInputStream stream;
 

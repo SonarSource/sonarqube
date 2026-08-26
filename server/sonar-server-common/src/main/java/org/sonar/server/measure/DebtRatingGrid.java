@@ -35,7 +35,7 @@ import static org.sonar.server.measure.Rating.C;
 import static org.sonar.server.measure.Rating.D;
 import static org.sonar.server.measure.Rating.E;
 
-public class DebtRatingGrid {
+public final class DebtRatingGrid {
 
   private final double[] gridValues;
   private final EnumMap<Rating, Bounds> ratingBounds;

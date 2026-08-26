@@ -50,7 +50,7 @@ public class PluginFilesAndMd5 {
   }
 
   @Immutable
-  public static class FileAndMd5 {
+  public static final class FileAndMd5 {
     private final File file;
     private final String md5;
 

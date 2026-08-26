@@ -27,7 +27,7 @@ import org.sonar.duplications.token.TokenQueue;
 /**
  * Consumes only one specified token.
  */
-public class ExactTokenMatcher extends TokenMatcher {
+public final class ExactTokenMatcher extends TokenMatcher {
 
   private final String tokenToMatch;
 

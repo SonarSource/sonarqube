@@ -30,7 +30,7 @@ import org.sonar.duplications.token.TokenQueue;
 /**
  * Consumes everything up to one of the specified tokens.
  */
-public class UptoTokenMatcher extends TokenMatcher {
+public final class UptoTokenMatcher extends TokenMatcher {
 
   private final Set<String> uptoMatchTokens = new HashSet<>();
 

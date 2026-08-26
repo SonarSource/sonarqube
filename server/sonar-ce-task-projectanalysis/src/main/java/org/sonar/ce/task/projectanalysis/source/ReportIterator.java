@@ -29,7 +29,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
-public class ReportIterator<E> extends CloseableIterator<E> {
+public final class ReportIterator<E> extends CloseableIterator<E> {
 
   private final Parser<E> parser;
   private InputStream stream;

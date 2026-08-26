@@ -21,7 +21,7 @@ package org.sonar.core.util.rule;
 
 import java.io.Serializable;
 
-public class RuleSetChangedEvent implements Serializable {
+public final class RuleSetChangedEvent implements Serializable {
   private final String[] projects;
   private final RuleChange[] activatedRules;
   private final String[] deactivatedRules;

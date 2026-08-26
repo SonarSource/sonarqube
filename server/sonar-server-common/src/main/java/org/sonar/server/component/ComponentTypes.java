@@ -39,6 +39,7 @@ public class ComponentTypes {
   private final Map<String, ComponentType> typeByQualifier;
   private final Collection<ComponentType> rootTypes;
 
+  @SuppressWarnings("java:S9345")
   public ComponentTypes(ComponentTypeTree[] trees) {
     requireNonNull(trees);
 

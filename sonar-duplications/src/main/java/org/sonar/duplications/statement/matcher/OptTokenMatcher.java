@@ -27,7 +27,7 @@ import org.sonar.duplications.token.TokenQueue;
 /**
  * Delegates consumption to another matcher.
  */
-public class OptTokenMatcher extends TokenMatcher {
+public final class OptTokenMatcher extends TokenMatcher {
 
   private final TokenMatcher matcher;
 

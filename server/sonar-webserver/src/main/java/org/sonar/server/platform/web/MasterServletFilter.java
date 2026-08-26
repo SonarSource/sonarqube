@@ -48,7 +48,7 @@ import org.sonar.server.platform.PlatformImpl;
 /**
  * Inspired by http://stackoverflow.com/a/7592883/229031
  */
-public class MasterServletFilter implements Filter {
+public final class MasterServletFilter implements Filter {
 
   private static final String SCIM_FILTER_PATH = "/api/scim/v2/";
   private static final Logger LOG = LoggerFactory.getLogger(MasterServletFilter.class);

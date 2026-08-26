@@ -27,7 +27,7 @@ import org.sonar.duplications.token.TokenQueue;
 /**
  * Consumes everything between pair of tokens.
  */
-public class BridgeTokenMatcher extends TokenMatcher {
+public final class BridgeTokenMatcher extends TokenMatcher {
 
   private final String lToken;
   private final String rToken;

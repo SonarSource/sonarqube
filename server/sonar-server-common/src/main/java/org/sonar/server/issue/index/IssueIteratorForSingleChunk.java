@@ -51,7 +51,7 @@ import static org.sonar.server.security.SecurityStandards.fromSecurityStandards;
  * Scrolls over table ISSUES and reads documents to populate
  * the issues index
  */
-class IssueIteratorForSingleChunk implements IssueIterator {
+final class IssueIteratorForSingleChunk implements IssueIterator {
   private static final Logger LOG = LoggerFactory.getLogger(IssueIteratorForSingleChunk.class);
 
   static final Splitter STRING_LIST_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
