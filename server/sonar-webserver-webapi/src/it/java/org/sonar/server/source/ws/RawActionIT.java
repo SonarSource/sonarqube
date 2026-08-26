@@ -26,7 +26,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
