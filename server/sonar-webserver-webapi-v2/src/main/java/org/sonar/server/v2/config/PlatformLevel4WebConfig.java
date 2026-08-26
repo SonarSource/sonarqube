@@ -38,6 +38,7 @@ import org.sonar.server.v2.api.analysis.service.ScannerEngineHandlerImpl;
 import org.sonar.server.v2.api.azurebilling.controller.DefaultAzureBillingController;
 import org.sonar.server.v2.api.azurebilling.environment.AzureEnvironment;
 import org.sonar.server.v2.api.azurebilling.service.DefaultAzureBillingHandler;
+import org.sonar.server.v2.api.dashboards.config.BuiltInDashboardsWebConfiguration;
 import org.sonar.server.v2.api.dop.controller.DefaultDopSettingsController;
 import org.sonar.server.v2.api.dop.controller.DefaultPermissionChecksController;
 import org.sonar.server.v2.api.email.config.controller.DefaultEmailConfigurationController;
@@ -111,7 +112,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
   RuleRestResponseGenerator.class,
   AzureEnvironment.class,
   DefaultAzureBillingHandler.class,
-  DefaultAzureBillingController.class
+  DefaultAzureBillingController.class,
+  BuiltInDashboardsWebConfiguration.class
 })
 public class PlatformLevel4WebConfig implements WebMvcConfigurer {
 
