@@ -266,7 +266,7 @@ public class GitlabApplicationClientTest {
 
     RecordedRequest projectGitlabRequest = server.takeRequest(10, TimeUnit.SECONDS);
     String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();
-    assertThat(gitlabUrlCall).isEqualTo(server.url("") + "projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=example&page=1&per_page=10");
+    assertThat(gitlabUrlCall).isEqualTo(server.url("") + "projects?archived=false&simple=true&membership=true&search=example&page=1&per_page=10");
     assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
   }
 
@@ -303,7 +303,7 @@ public class GitlabApplicationClientTest {
 
     RecordedRequest projectGitlabRequest = server.takeRequest(10, TimeUnit.SECONDS);
     String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();
-    assertThat(gitlabUrlCall).isEqualTo(server.url("") + "projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=example&page=1&per_page=10");
+    assertThat(gitlabUrlCall).isEqualTo(server.url("") + "projects?archived=false&simple=true&membership=true&search=example&page=1&per_page=10");
     assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
   }
 
@@ -341,7 +341,7 @@ public class GitlabApplicationClientTest {
 
     RecordedRequest projectGitlabRequest = server.takeRequest(10, TimeUnit.SECONDS);
     String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();
-    assertThat(gitlabUrlCall).isEqualTo(server.url("") + "projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=example&page=1&per_page=10");
+    assertThat(gitlabUrlCall).isEqualTo(server.url("") + "projects?archived=false&simple=true&membership=true&search=example&page=1&per_page=10");
     assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
   }
 
@@ -362,7 +362,7 @@ public class GitlabApplicationClientTest {
     assertThat(projectList.getProjects()).isEmpty();
     assertThat(gitlabUrlCall).isEqualTo(
       server.url("")
-        + "projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&search=%26page%3D%3Cscript%3Ealert%28%27nasty%27%29%3C%2Fscript%3E&page=1&per_page=10");
+        + "projects?archived=false&simple=true&membership=true&search=%26page%3D%3Cscript%3Ealert%28%27nasty%27%29%3C%2Fscript%3E&page=1&per_page=10");
     assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
   }
 
@@ -382,7 +382,7 @@ public class GitlabApplicationClientTest {
     String gitlabUrlCall = projectGitlabRequest.getRequestUrl().toString();
     assertThat(projectList.getProjects()).isEmpty();
     assertThat(gitlabUrlCall).isEqualTo(
-      server.url("") + "projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&page=1&per_page=10");
+      server.url("") + "projects?archived=false&simple=true&membership=true&page=1&per_page=10");
     assertThat(projectGitlabRequest.getMethod()).isEqualTo("GET");
   }
 
@@ -651,7 +651,7 @@ public class GitlabApplicationClientTest {
       .hasMessageContaining("Failed to connect to");
     assertThat(logTester.logs(Level.INFO).get(0))
       .contains(
-        "Gitlab API call to [" + server.url("/projects?archived=false&simple=true&membership=true&order_by=name&sort=asc&page=1&per_page=1")
+        "Gitlab API call to [" + server.url("/projects?archived=false&simple=true&membership=true&page=1&per_page=1")
           + "] " +
           "failed with error message : [Failed to connect to ")
       .contains( server.getHostName());
