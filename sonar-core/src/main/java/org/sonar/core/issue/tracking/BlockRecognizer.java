@@ -177,11 +177,11 @@ class BlockRecognizer<RAW extends Trackable, BASE extends Trackable> {
 
     @Override
     public int compare(LinePair o1, LinePair o2) {
-      int weightDiff = o2.weight - o1.weight;
+      int weightDiff = Integer.compare(o2.weight, o1.weight);
       if (weightDiff != 0) {
         return weightDiff;
       } else {
-        return Math.abs(o1.baseLine - o1.rawLine) - Math.abs(o2.baseLine - o2.rawLine);
+        return Integer.compare(Math.abs(o1.baseLine - o1.rawLine), Math.abs(o2.baseLine - o2.rawLine));
       }
     }
   }

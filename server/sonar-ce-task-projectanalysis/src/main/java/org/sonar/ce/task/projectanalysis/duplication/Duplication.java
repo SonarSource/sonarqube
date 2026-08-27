@@ -111,7 +111,7 @@ public final class Duplication {
 
     @Override
     public int compare(Duplicate o1, Duplicate o2) {
-      return toIndexType(o1) - toIndexType(o2);
+      return Integer.compare(toIndexType(o1), toIndexType(o2));
     }
 
     private static int toIndexType(Duplicate duplicate) {

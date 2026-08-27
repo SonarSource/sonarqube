@@ -56,9 +56,9 @@ public class TextBlock implements Comparable<TextBlock> {
 
   @Override
   public int compareTo(TextBlock other) {
-    int res = start - other.start;
+    int res = Integer.compare(start, other.start);
     if (res == 0) {
-      return end - other.end;
+      return Integer.compare(end, other.end);
     }
     return res;
   }

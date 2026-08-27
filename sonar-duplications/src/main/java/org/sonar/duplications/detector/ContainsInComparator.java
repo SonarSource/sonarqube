@@ -42,7 +42,7 @@ public final class ContainsInComparator implements Comparator<ClonePart> {
   public static final Comparator<ClonePart> CLONEPART_COMPARATOR = (o1, o2) -> {
     int c = RESOURCE_ID_COMPARATOR.compare(o1, o2);
     if (c == 0) {
-      return o1.getUnitStart() - o2.getUnitStart();
+      return Integer.compare(o1.getUnitStart(), o2.getUnitStart());
     }
     return c;
   };

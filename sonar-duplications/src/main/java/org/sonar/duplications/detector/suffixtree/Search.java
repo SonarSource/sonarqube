@@ -36,7 +36,7 @@ public final class Search {
   private final List<Integer> list = new ArrayList<>();
   private final List<Node> innerNodes = new ArrayList<>();
   
-  private static final Comparator<Node> DEPTH_COMPARATOR = (o1, o2) -> o2.depth - o1.depth;
+  private static final Comparator<Node> DEPTH_COMPARATOR = (o1, o2) -> Integer.compare(o2.depth, o1.depth);
 
   private Search(SuffixTree tree, TextSet text, Collector reporter) {
     this.tree = tree;

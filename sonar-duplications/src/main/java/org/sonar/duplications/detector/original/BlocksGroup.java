@@ -205,7 +205,7 @@ final class BlocksGroup {
     public int compare(Block b1, Block b2) {
       int c = RESOURCE_ID_COMPARATOR.compare(b1.getResourceId(), b2.getResourceId());
       if (c == 0) {
-        return b1.getIndexInFile() - b2.getIndexInFile();
+        return Integer.compare(b1.getIndexInFile(), b2.getIndexInFile());
       }
       return c;
     }

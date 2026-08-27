@@ -35,7 +35,7 @@ import org.sonar.duplications.index.CloneIndex;
 
 public final class SuffixTreeCloneDetectionAlgorithm {
   
-  private static final Comparator<Block> BLOCK_COMPARATOR = (o1, o2) -> o1.getIndexInFile() - o2.getIndexInFile();
+  private static final Comparator<Block> BLOCK_COMPARATOR = (o1, o2) -> Integer.compare(o1.getIndexInFile(), o2.getIndexInFile());
 
   private SuffixTreeCloneDetectionAlgorithm() {
     // only statics
