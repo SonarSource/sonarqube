@@ -134,6 +134,12 @@ useLocalUnificationModule('useLocalEvents', 'unified-core', ['sonar-events-api',
     'sonar-events-server': ':sonar-events:sonar-events-server',
   ]
 ])
+useLocalUnificationModule('useLocalIssueProcessingEvents', 'workflow-and-standards/issue-processing', ['detection-agent-events'], [
+  group: 'com.sonarsource.sonarqube',
+  projectPaths: [
+    'detection-agent-events': ':private:detection-agent-events',
+  ]
+])
 useLocalUnificationModule('useLocalArchitecture', 'architecture',
   ['architecture-server-app', 'architecture-api', 'architecture-unified-app', 'architecture-datastructure'],
   [
