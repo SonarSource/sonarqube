@@ -138,6 +138,22 @@ class TelemetryOnboardingDiscoveredRepoCountByAlmProviderTest {
     assertThat(underTest.getValues()).containsExactly(Map.entry("gitlab", 12));
   }
 
+  /**
+   * GitLab's projects endpoint has been reported to 500 when {@code membership=true} is combined with a
+   * {@code per_page} under 12 (see {@link TelemetryOnboardingDiscoveredRepoCountByAlmProvider}'s
+   * {@code GITLAB_COUNT_PAGE_SIZE} javadoc); a count-only call can afford a slightly larger page since it
+   * only reads the {@code X-Total} header.
+   */
+  @Test
+  void getValues_whenGitlabConfigured_shouldRequestSaferPageSize() {
+    when(gitlabClient.searchProjects(any(), any(), any(), any(), any())).thenReturn(new ProjectList(List.of(), 1, 1, 12));
+    withSettings(almSetting(ALM.GITLAB, "https://gitlab.com").setPersonalAccessToken("pat"));
+
+    underTest.getValues();
+
+    verify(gitlabClient).searchProjects("https://gitlab.com", "pat", null, 1, 20);
+  }
+
   @Test
   void getValues_whenAzureConfigured_shouldCountRepos() {
     when(azureClient.getRepos(any(), any(), any()))

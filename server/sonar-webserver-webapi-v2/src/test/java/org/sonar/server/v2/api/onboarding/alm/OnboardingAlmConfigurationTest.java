@@ -196,6 +196,22 @@ class OnboardingAlmConfigurationTest {
       .isEqualTo(OptionalLong.of(12));
   }
 
+  /**
+   * GitLab's projects endpoint has been reported to 500 when {@code membership=true} is combined with a
+   * {@code per_page} under 12 (see {@link OnboardingAlmConfiguration}'s {@code GITLAB_COUNT_PAGE_SIZE} javadoc);
+   * a count-only call can afford a slightly larger page since it only reads the {@code X-Total} header.
+   */
+  @Test
+  void fetchTotalCount_whenGitlabCounting_shouldRequestSaferPageSize() {
+    GitlabApplicationClient client = mock(GitlabApplicationClient.class);
+    when(client.searchProjects(any(), any(), any(), any(), any())).thenReturn(new ProjectList(List.of(), 1, 1, 12));
+    AlmRepoCountProvider provider = underTest.gitlabAlmRepoCountProvider(client);
+
+    provider.fetchTotalCount(gitlabSetting("https://gitlab.com", "pat"), IDENTITY_DECRYPTOR);
+
+    verify(client).searchProjects("https://gitlab.com", "pat", null, 1, 20);
+  }
+
   @Test
   void fetchTotalCount_whenGitlabTotalNull_shouldReturnEmpty() {
     GitlabApplicationClient client = mock(GitlabApplicationClient.class);

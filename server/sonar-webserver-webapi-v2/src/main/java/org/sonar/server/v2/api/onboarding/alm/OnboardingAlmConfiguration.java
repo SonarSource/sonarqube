@@ -74,6 +74,14 @@ public class OnboardingAlmConfiguration {
   private static final Logger LOG = LoggerFactory.getLogger(OnboardingAlmConfiguration.class);
   private static final int PAGE_SIZE = 100;
 
+  /**
+   * GitLab's projects listing has been reported to 500 when {@code membership=true} is combined with a
+   * {@code per_page} under 12 (https://gitlab.com/gitlab-org/gitlab/-/issues/334667); the count-only call only
+   * reads the {@code X-Total} header regardless of how many project objects come back in the body, so asking
+   * for a page comfortably above that threshold costs nothing but may avoid the 500.
+   */
+  private static final int GITLAB_COUNT_PAGE_SIZE = 20;
+
   @Bean
   public AlmRepoCountProvider githubAlmRepoCountProvider(GithubApplicationClient githubClient) {
     return new GithubAlmRepoCountProvider(githubClient);
@@ -202,7 +210,7 @@ public class OnboardingAlmConfiguration {
 
     @Override
     protected OptionalLong countRepos(String url, String pat) {
-      var result = client.searchProjects(url, pat, null, 1, 1);
+      var result = client.searchProjects(url, pat, null, 1, GITLAB_COUNT_PAGE_SIZE);
       return result.getTotal() != null ? OptionalLong.of(result.getTotal()) : OptionalLong.empty();
     }
   }
