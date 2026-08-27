@@ -431,7 +431,61 @@ public class LogbackHelperTest {
   }
 
   @Test
-  public void changeRoot_sets_level_of_ROOT_and_all_loggers_with_a_config_but_the_hardcoded_one() {
+  public void apply_sets_logger_level_from_matching_named_logger_property() {
+    props.set("sonar.log.level.logger.com.sonarsource.hub.server", "DEBUG");
+
+    LoggerContext context = underTest.apply(newLogLevelConfig().build(), props);
+
+    assertThat(context.getLogger("com.sonarsource.hub.server").getLevel()).isEqualTo(Level.DEBUG);
+  }
+
+  @Test
+  @UseDataProvider("logbackLevels")
+  public void apply_accepts_any_level_for_named_logger_property(Level level) {
+    props.set("sonar.log.level.logger.foo", level.toString());
+
+    LoggerContext context = underTest.apply(newLogLevelConfig().build(), props);
+
+    assertThat(context.getLogger("foo").getLevel()).isEqualTo(level);
+  }
+
+  @Test
+  public void apply_ignores_named_logger_property_with_no_logger_name_suffix() {
+    props.set("sonar.log.level.logger.", "DEBUG");
+
+    LoggerContext context = underTest.apply(newLogLevelConfig().build(), props);
+
+    assertThat(context.getLogger("").getLevel()).isNull();
+  }
+
+  @Test
+  public void apply_logs_warning_and_ignores_named_logger_property_with_unsupported_level() {
+    MemoryAppender memoryAppender = new MemoryAppender();
+    memoryAppender.start();
+    underTest.getRootContext().getLogger(ROOT_LOGGER_NAME).addAppender(memoryAppender);
+    props.set("sonar.log.level.logger.foo", "FOO");
+
+    LoggerContext context = underTest.apply(newLogLevelConfig().build(), props);
+
+    assertThat(context.getLogger("foo").getLevel()).isNull();
+    assertThat(memoryAppender.getLogs())
+      .extracting(ILoggingEvent::getFormattedMessage)
+      .anyMatch(message -> message.equals("Ignoring property sonar.log.level.logger.foo: log level FOO is not a supported value "
+        + "(allowed levels are [TRACE, DEBUG, INFO, WARN, ERROR, OFF])"));
+  }
+
+  @Test
+  public void apply_applies_named_logger_level_after_offUnlessTrace_even_if_names_collide() {
+    LogLevelConfig config = newLogLevelConfig().offUnlessTrace("foo").build();
+    props.set("sonar.log.level.logger.foo", "DEBUG");
+
+    LoggerContext context = underTest.apply(config, props);
+
+    assertThat(context.getLogger("foo").getLevel()).isEqualTo(Level.DEBUG);
+  }
+
+  @Test
+  public void changeRoot_sets_level_of_ROOT_and_all_loggers_with_a_config_but_the_hardcoded_and_named_logger_ones() {
     LogLevelConfig config = newLogLevelConfig()
       .rootLevelFor(WEB_SERVER)
       .levelByDomain("foo", WEB_SERVER, LogDomain.JMX)
@@ -439,20 +493,36 @@ public class LogbackHelperTest {
       .immutableLevel("doh", Level.ERROR)
       .immutableLevel("pif", Level.TRACE)
       .build();
+    props.set("sonar.log.level.logger.hub", "INFO");
+    props.set("sonar.log.level.logger.bar", "WARN");
     LoggerContext context = underTest.apply(config, props);
     assertThat(context.getLogger(ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.INFO);
     assertThat(context.getLogger("foo").getLevel()).isEqualTo(Level.INFO);
-    assertThat(context.getLogger("bar").getLevel()).isEqualTo(Level.INFO);
+    assertThat(context.getLogger("bar").getLevel()).isEqualTo(Level.WARN);
     assertThat(context.getLogger("doh").getLevel()).isEqualTo(Level.ERROR);
     assertThat(context.getLogger("pif").getLevel()).isEqualTo(Level.TRACE);
+    assertThat(context.getLogger("hub").getLevel()).isEqualTo(Level.INFO);
 
     underTest.changeRoot(config, Level.DEBUG);
 
     assertThat(context.getLogger(ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.DEBUG);
     assertThat(context.getLogger("foo").getLevel()).isEqualTo(Level.DEBUG);
-    assertThat(context.getLogger("bar").getLevel()).isEqualTo(Level.DEBUG);
+    assertThat(context.getLogger("bar").getLevel()).isEqualTo(Level.WARN);
     assertThat(context.getLogger("doh").getLevel()).isEqualTo(Level.ERROR);
     assertThat(context.getLogger("pif").getLevel()).isEqualTo(Level.TRACE);
+    assertThat(context.getLogger("hub").getLevel()).isEqualTo(Level.INFO);
+  }
+
+  @Test
+  public void changeRoot_does_not_reset_ROOT_if_ROOT_logger_name_is_a_named_logger_property() {
+    LogLevelConfig config = newLogLevelConfig().rootLevelFor(WEB_SERVER).build();
+    props.set("sonar.log.level.logger." + ROOT_LOGGER_NAME, "WARN");
+    LoggerContext context = underTest.apply(config, props);
+    assertThat(context.getLogger(ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.WARN);
+
+    underTest.changeRoot(config, Level.DEBUG);
+
+    assertThat(context.getLogger(ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.WARN);
   }
 
   @Test

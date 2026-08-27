@@ -40,8 +40,12 @@ import ch.qos.logback.core.util.FileSize;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.logging.LogManager;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -67,6 +71,30 @@ public class LogbackHelper extends AbstractLogHelper {
   private static final String LOGBACK_LOGGER_NAME_PATTERN = "%logger{20}";
 
   public static final String DEPRECATION_LOGGER_NAME = "SONAR_DEPRECATION";
+
+  /**
+   * Prefix of properties setting the level of an arbitrary logger by name, read once at startup, e.g.
+   * {@code sonar.log.level.logger.com.sonarsource.hub.server=INFO}. Loggers configured this way keep their level
+   * regardless of any root/global log level change requested at runtime (see {@link #changeRoot(LogLevelConfig, Level)}).
+   * Exception: {@code com.sonarsource} and {@code org.sonarsource} themselves are reserved unified-prefix logger
+   * names managed by {@code org.sonar.server.log.ServerLogging}/{@code ServerProcessLogging} — pinning one of those
+   * two exact names is not guaranteed to survive; pin a more specific logger underneath instead.
+   */
+  private static final String NAMED_LOGGER_LEVEL_PROPERTY_PREFIX = "sonar.log.level.logger.";
+
+  /**
+   * Unlike {@link #ALLOWED_ROOT_LOG_LEVELS}, a named logger only affects itself, not the whole process, so the full
+   * range of Logback levels is allowed, including {@link Level#WARN}, {@link Level#ERROR} and {@link Level#OFF} to
+   * silence a noisy logger.
+   */
+  private static final List<String> ALLOWED_NAMED_LOGGER_LEVELS = List.of("TRACE", "DEBUG", "INFO", "WARN", "ERROR", "OFF");
+
+  /**
+   * Names of the loggers configured through {@link #NAMED_LOGGER_LEVEL_PROPERTY_PREFIX}, populated by
+   * {@link #applyNamedLoggerLevels(LoggerContext, Props)}. Read by {@link #changeRoot(LogLevelConfig, Level)} so it
+   * never resets a level that was explicitly set by name.
+   */
+  private final Set<String> namedLoggerLevelNames = new HashSet<>();
 
   public LogbackHelper() {
     super(LOGBACK_LOGGER_NAME_PATTERN);
@@ -115,7 +143,9 @@ public class LogbackHelper extends AbstractLogHelper {
   /**
    * Applies the specified {@link LogLevelConfig} reading the specified {@link Props}.
    *
-   * @throws IllegalArgumentException if the any level specified in a property is not one of {@link #ALLOWED_ROOT_LOG_LEVELS}
+   * @throws IllegalArgumentException if any level specified in a {@link LogLevelConfig} property is not one of
+   *                                   {@link #ALLOWED_ROOT_LOG_LEVELS}. A {@link #NAMED_LOGGER_LEVEL_PROPERTY_PREFIX}
+   *                                   property with an unsupported value is logged as a warning and ignored instead.
    */
   public LoggerContext apply(LogLevelConfig logLevelConfig, Props props) {
     if (!ROOT_LOGGER_NAME.equals(logLevelConfig.getRootLoggerName())) {
@@ -128,7 +158,40 @@ public class LogbackHelper extends AbstractLogHelper {
     Level propertyValueAsLevel = getPropertyValueAsLevel(props, LOG_LEVEL.getKey());
     boolean traceGloballyEnabled = propertyValueAsLevel == Level.TRACE;
     logLevelConfig.getOffUnlessTrace().forEach(logger -> applyHardUnlessTrace(rootContext, logger, traceGloballyEnabled));
+    // Applied last so a named logger level wins over any other step above, in case of a name collision.
+    applyNamedLoggerLevels(rootContext, props);
     return rootContext;
+  }
+
+  /**
+   * Sets the level of any logger named after a property matching {@link #NAMED_LOGGER_LEVEL_PROPERTY_PREFIX}, e.g.
+   * {@code sonar.log.level.logger.com.sonarsource.hub.server=INFO} sets logger {@code com.sonarsource.hub.server} to
+   * {@link Level#INFO}. Unlike {@link LogLevelConfig#getConfiguredByProperties()}, these loggers are never touched by
+   * {@link #changeRoot(LogLevelConfig, Level)}, so they take precedence over any runtime log level change.
+   * <p>
+   * A property with an unsupported level value is logged as a warning and ignored: it does not fail startup.
+   */
+  private void applyNamedLoggerLevels(LoggerContext rootContext, Props props) {
+    props.rawProperties().stringPropertyNames().stream()
+      .filter(key -> key.startsWith(NAMED_LOGGER_LEVEL_PROPERTY_PREFIX) && key.length() > NAMED_LOGGER_LEVEL_PROPERTY_PREFIX.length())
+      .forEach(key -> {
+        String rawValue = props.value(key);
+        Level level = resolveNamedLoggerLevel(rawValue);
+        if (level == null) {
+          LoggerFactory.getLogger(LogbackHelper.class).warn("Ignoring property {}: log level {} is not a supported value (allowed levels are {})",
+            key, rawValue, ALLOWED_NAMED_LOGGER_LEVELS);
+          return;
+        }
+        String loggerName = key.substring(NAMED_LOGGER_LEVEL_PROPERTY_PREFIX.length());
+        rootContext.getLogger(loggerName).setLevel(level);
+        namedLoggerLevelNames.add(loggerName);
+      });
+  }
+
+  @CheckForNull
+  private static Level resolveNamedLoggerLevel(@CheckForNull String rawValue) {
+    String normalized = rawValue == null ? "" : rawValue.trim().toUpperCase(Locale.ROOT);
+    return ALLOWED_NAMED_LOGGER_LEVELS.contains(normalized) ? Level.toLevel(normalized) : null;
   }
 
   private static void applyLevelByProperty(Props props, Logger logger, List<String> properties) {
@@ -148,8 +211,12 @@ public class LogbackHelper extends AbstractLogHelper {
   public void changeRoot(LogLevelConfig logLevelConfig, Level newLevel) {
     ensureSupportedLevel(newLevel);
     LoggerContext rootContext = getRootContext();
-    rootContext.getLogger(ROOT_LOGGER_NAME).setLevel(newLevel);
-    logLevelConfig.getConfiguredByProperties().forEach((key, value) -> rootContext.getLogger(key).setLevel(newLevel));
+    if (!namedLoggerLevelNames.contains(ROOT_LOGGER_NAME)) {
+      rootContext.getLogger(ROOT_LOGGER_NAME).setLevel(newLevel);
+    }
+    logLevelConfig.getConfiguredByProperties().keySet().stream()
+      .filter(key -> !namedLoggerLevelNames.contains(key))
+      .forEach(key -> rootContext.getLogger(key).setLevel(newLevel));
   }
 
   private static void ensureSupportedLevel(Level newLevel) {
