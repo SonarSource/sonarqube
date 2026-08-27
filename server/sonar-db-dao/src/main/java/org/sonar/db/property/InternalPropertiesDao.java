@@ -32,8 +32,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.utils.System2;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.audit.AuditPersister;
@@ -45,6 +46,8 @@ import static java.util.Collections.singletonList;
 
 public class InternalPropertiesDao implements Dao {
 
+  private static final Logger LOG = LoggerFactory.getLogger(InternalPropertiesDao.class);
+
   /**
    * A common prefix used by locks. {@see InternalPropertiesDao#tryLock}
    */
@@ -54,6 +57,7 @@ public class InternalPropertiesDao implements Dao {
   public static final int LOCK_NAME_MAX_LENGTH = KEY_MAX_LENGTH - LOCK_PREFIX.length();
 
   private static final int TEXT_VALUE_MAX_LENGTH = 4000;
+  private static final int MAX_RAISE_ATTEMPTS = 8;
   private static final Optional<String> OPTIONAL_OF_EMPTY_STRING = Optional.of("");
 
   private final System2 system2;
@@ -188,9 +192,8 @@ public class InternalPropertiesDao implements Dao {
     }
     res = enforceSingleElement(key, mapper.selectAsClob(singletonList(key)));
     if (res == null) {
-      LoggerFactory.getLogger(InternalPropertiesDao.class)
-        .debug("Internal property {} has been found in db but has neither text value nor is empty. " +
-          "Still it couldn't be retrieved with clob value. Ignoring the property.", key);
+      LOG.debug("Internal property {} has been found in db but has neither text value nor is empty. " +
+        "Still it couldn't be retrieved with clob value. Ignoring the property.", key);
       return Optional.empty();
     }
     return Optional.of(res.getValue());
@@ -203,7 +206,74 @@ public class InternalPropertiesDao implements Dao {
     }
     int size = rows.size();
     checkState(size <= 1, "%s rows retrieved for single property %s", size, key);
-    return rows.iterator().next();
+    return rows.getFirst();
+  }
+
+  /**
+   * Raise a decimal-long text property to {@code value} if it is absent or strictly smaller.
+   * Returns the resulting stored value. Concurrent callers observe the maximum, using the same
+   * insert-or-{@link InternalPropertiesMapper#replaceValue} compare-and-set as {@link #tryLock}.
+   * A non-numeric row (empty, unparseable, clob) is overwritten with {@link #save}.
+   *
+   * <p>A lost insert (duplicate key) rolls {@code dbSession} back before retrying: PostgreSQL
+   * aborts the transaction on the failed statement. Callers that share this session with other
+   * uncommitted writes must not use this method.
+   */
+  public long raiseTextIfGreater(DbSession dbSession, String key, long value) {
+    checkKey(key);
+    String asText = Long.toString(value);
+    InternalPropertiesMapper mapper = getMapper(dbSession);
+    for (int attempt = 0; attempt < MAX_RAISE_ATTEMPTS; attempt++) {
+      Long raised = tryRaiseOnce(dbSession, mapper, key, value, asText);
+      if (raised != null) {
+        return raised;
+      }
+    }
+    return storedAtLeastOrThrow(dbSession, key, value);
+  }
+
+  @CheckForNull
+  private Long tryRaiseOnce(DbSession dbSession, InternalPropertiesMapper mapper, String key, long value, String asText) {
+    Optional<String> current = selectByKey(dbSession, key);
+    if (current.isEmpty()) {
+      return insertTextOrRetry(dbSession, mapper, key, value, asText);
+    }
+    Long stored = parseNumeric(current.get());
+    if (stored == null) {
+      save(dbSession, key, asText);
+      return value;
+    }
+    if (stored >= value) {
+      return stored;
+    }
+    if (mapper.replaceValue(key, current.get(), asText) == 1) {
+      return value;
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private Long insertTextOrRetry(DbSession dbSession, InternalPropertiesMapper mapper, String key, long value, String asText) {
+    try {
+      mapper.insertAsText(key, asText, system2.now());
+      return value;
+    } catch (Exception e) {
+      dbSession.rollback();
+      if (selectByKey(dbSession, key).isEmpty()) {
+        throw new IllegalStateException("Failed to insert internal property: " + key, e);
+      }
+      LOG.debug("Lost insert race for internal property {}", key, e);
+      return null;
+    }
+  }
+
+  private long storedAtLeastOrThrow(DbSession dbSession, String key, long value) {
+    Long stored = parseNumeric(selectByKey(dbSession, key).orElse(null));
+    if (stored != null && stored >= value) {
+      return stored;
+    }
+    throw new IllegalStateException("Failed to raise internal property " + key + " to " + value
+      + " after " + MAX_RAISE_ATTEMPTS + " attempts (stored=" + stored + ")");
   }
 
   /**
@@ -235,24 +305,37 @@ public class InternalPropertiesDao implements Dao {
     long now = system2.now();
 
     Optional<String> timestampAsStringOpt = selectByKey(dbSession, key);
-    if (!timestampAsStringOpt.isPresent()) {
-      return tryCreateLock(dbSession, key, String.valueOf(now));
+    if (timestampAsStringOpt.isEmpty()) {
+      return tryInsertText(dbSession, key, String.valueOf(now));
     }
 
     String oldTimestampString = timestampAsStringOpt.get();
     long oldTimestamp = Long.parseLong(oldTimestampString);
-    if (oldTimestamp > now - maxAgeInSeconds * 1000) {
+    if (oldTimestamp > now - maxAgeInSeconds * 1000L) {
       return false;
     }
 
     return getMapper(dbSession).replaceValue(key, oldTimestampString, String.valueOf(now)) == 1;
   }
 
-  private boolean tryCreateLock(DbSession dbSession, String name, String value) {
+  @CheckForNull
+  private static Long parseNumeric(@Nullable String current) {
+    if (current == null || current.isEmpty()) {
+      return null;
+    }
     try {
-      getMapper(dbSession).insertAsText(name, value, system2.now());
+      return Long.parseLong(current);
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
+  private boolean tryInsertText(DbSession dbSession, String key, String value) {
+    try {
+      getMapper(dbSession).insertAsText(key, value, system2.now());
       return true;
-    } catch (Exception ignored) {
+    } catch (Exception e) {
+      LOG.debug("Failed to insert internal property {}", key, e);
       return false;
     }
   }
