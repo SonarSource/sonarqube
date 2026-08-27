@@ -80,6 +80,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_049, "Create 'remediation_sched_tasks' table", CreateRemediationSchedTasksTable.class)
       .add(2026_05_050, "Create table 'cag_usage'", CreateCagUsageTable.class)
       .add(2026_05_051, "Create 'hunter_agent_jobs' table", CreateHunterAgentJobsTable.class)
-      .add(2026_05_052, "Create 'dop_pr_snapshots' table", CreateDopPrSnapshotsTable.class);
+      .add(2026_05_052, "Create 'dop_pr_snapshots' table", CreateDopPrSnapshotsTable.class)
+      .add(2026_05_053, "Create 'hunter_agent_runs' table", CreateHunterAgentRunsTable.class);
   }
 }
