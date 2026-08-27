@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -36,8 +37,12 @@ import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.telemetry.core.event.AnalyticsEventPublisher;
 import org.sonar.telemetry.core.event.workflow.IssueBacklogTelemetryEvent;
 import org.sonar.telemetry.core.event.workflow.IssueBacklogTelemetryEvent.RuleBacklog;
+import org.sonar.telemetry.core.event.workflow.IssueTelemetryStatus;
+import org.sonar.telemetry.core.event.workflow.IssueUpdatedBatchEvent;
+import org.sonar.telemetry.core.event.workflow.IssueUpdatedBatchEvent.IssueUpdate;
 
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ISSUE_EVENTS_MAX_PER_ANALYSIS;
 
 public class SendIssueTelemetryStep implements ComputationStep {
 
@@ -60,34 +65,96 @@ public class SendIssueTelemetryStep implements ComputationStep {
 
   @Override
   public void execute(Context context) {
-    if (!config.getBoolean(SONAR_TELEMETRY_ENABLE.getKey()).orElse(false)
-      || !analysisMetadataHolder.isFirstAnalysis()
-      || analysisMetadataHolder.isPullRequest()) {
+    if (!config.getBoolean(SONAR_TELEMETRY_ENABLE.getKey()).orElse(false) || analysisMetadataHolder.isPullRequest()) {
       return;
     }
 
     try {
-      RuleCounts ruleCounts = countIssuesByRule();
-      if (ruleCounts.totalByRule.isEmpty()) {
-        return;
+      if (analysisMetadataHolder.isFirstAnalysis()) {
+        publishBacklogAggregate();
+      } else {
+        publishIssueUpdates();
       }
-
-      List<RuleBacklog> rules = ruleCounts.totalByRule.entrySet().stream()
-        .map(entry -> toRuleBacklog(entry.getKey(), entry.getValue(), ruleCounts.statusCountsByRule.getOrDefault(entry.getKey(), Map.of())))
-        .toList();
-
-      IssueBacklogTelemetryEvent event = new IssueBacklogTelemetryEvent(
-        analysisMetadataHolder.getProject().getUuid(),
-        treeRootHolder.getRoot().getUuid(),
-        analysisMetadataHolder.getBranch().getType().name(),
-        analysisMetadataHolder.getAnalysisDate(),
-        rules);
-
-      analyticsEventPublisher.publish(IssueBacklogTelemetryEvent.TYPE, event);
     } catch (RuntimeException e) {
       // Telemetry must never fail an analysis.
-      LOG.warn("Failed to send issue backlog telemetry", e);
+      LOG.warn("Failed to send issue telemetry", e);
     }
+  }
+
+  private void publishBacklogAggregate() {
+    RuleCounts ruleCounts = countIssuesByRule();
+    if (ruleCounts.totalByRule.isEmpty()) {
+      return;
+    }
+
+    List<RuleBacklog> rules = ruleCounts.totalByRule.entrySet().stream()
+      .map(entry -> toRuleBacklog(entry.getKey(), entry.getValue(), ruleCounts.statusCountsByRule.getOrDefault(entry.getKey(), Map.of())))
+      .toList();
+
+    IssueBacklogTelemetryEvent event = new IssueBacklogTelemetryEvent(
+      analysisMetadataHolder.getProject().getUuid(),
+      treeRootHolder.getRoot().getUuid(),
+      analysisMetadataHolder.getBranch().getType().name(),
+      analysisMetadataHolder.getAnalysisDate(),
+      rules);
+
+    analyticsEventPublisher.publish(IssueBacklogTelemetryEvent.TYPE, event);
+  }
+
+  private void publishIssueUpdates() {
+    int maxPerAnalysis = config.getInt(SONAR_TELEMETRY_ISSUE_EVENTS_MAX_PER_ANALYSIS.getKey())
+      .orElse(Integer.parseInt(SONAR_TELEMETRY_ISSUE_EVENTS_MAX_PER_ANALYSIS.getDefaultValue()));
+
+    List<IssueUpdate> buffered = new ArrayList<>();
+    try (CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
+      while (issues.hasNext()) {
+        DefaultIssue issue = issues.next();
+        // Hotspot has null status, and we don't care about hotspot anymore
+        String issueStatus = IssueTelemetryStatus.of(issue.status(), issue.resolution());
+        if (isChangedIssue(issue) && issueStatus != null) {
+          buffered.add(toIssueUpdate(issue));
+          if (buffered.size() >= maxPerAnalysis) {
+            break;
+          }
+        }
+      }
+    }
+
+    if (buffered.isEmpty()) {
+      return;
+    }
+
+    publishIssueUpdatesInChunks(buffered);
+  }
+
+  private void publishIssueUpdatesInChunks(List<IssueUpdate> issueUpdates) {
+    String projectUuid = analysisMetadataHolder.getProject().getUuid();
+    String branchId = treeRootHolder.getRoot().getUuid();
+    String branchType = analysisMetadataHolder.getBranch().getType().name();
+
+    for (int fromIndex = 0; fromIndex < issueUpdates.size(); fromIndex += IssueUpdatedBatchEvent.MAX_ISSUES_PER_EVENT) {
+      int toIndex = Math.min(fromIndex + IssueUpdatedBatchEvent.MAX_ISSUES_PER_EVENT, issueUpdates.size());
+      publishChunk(projectUuid, branchId, branchType, issueUpdates.subList(fromIndex, toIndex));
+    }
+  }
+
+  private void publishChunk(String projectUuid, String branchId, String branchType, List<IssueUpdate> chunk) {
+    IssueUpdatedBatchEvent event = new IssueUpdatedBatchEvent(projectUuid, branchId, branchType, List.copyOf(chunk));
+    analyticsEventPublisher.publish(IssueUpdatedBatchEvent.TYPE, event);
+  }
+
+  private static boolean isChangedIssue(DefaultIssue issue) {
+    return issue.isNew() || issue.isChanged() || issue.isCopied();
+  }
+
+  private static IssueUpdate toIssueUpdate(DefaultIssue issue) {
+    Long issueResolvedAt = issue.closeDate() != null ? issue.closeDate().getTime() : null;
+    return new IssueUpdate(
+      issue.key(),
+      issue.ruleKey().toString(),
+      issue.creationDate().getTime(),
+      IssueTelemetryStatus.of(issue.status(), issue.resolution()),
+      issueResolvedAt);
   }
 
   private RuleCounts countIssuesByRule() {
@@ -120,7 +187,7 @@ public class SendIssueTelemetryStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Send issue backlog telemetry on first analysis of a branch, excluding pull requests";
+    return "Send issue backlog telemetry on first analysis, and per-issue update telemetry on subsequent analyses, excluding pull requests";
   }
 
   private record RuleCounts(Map<String, Integer> totalByRule, Map<String, Map<IssueStatus, Integer>> statusCountsByRule) {

@@ -23,7 +23,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -48,15 +51,20 @@ import org.sonar.server.project.Project;
 import org.sonar.telemetry.core.event.AnalyticsEventPublisher;
 import org.sonar.telemetry.core.event.workflow.IssueBacklogTelemetryEvent;
 import org.sonar.telemetry.core.event.workflow.IssueBacklogTelemetryEvent.RuleBacklog;
+import org.sonar.telemetry.core.event.workflow.IssueUpdatedBatchEvent;
+import org.sonar.telemetry.core.event.workflow.IssueUpdatedBatchEvent.IssueUpdate;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ISSUE_EVENTS_MAX_PER_ANALYSIS;
 
 class SendIssueTelemetryStepTest {
 
@@ -212,9 +220,140 @@ class SendIssueTelemetryStepTest {
   }
 
   @Test
-  void execute_whenNotFirstAnalysis_doesNotPublish() {
-    analysisMetadataHolder.setBaseAnalysis(mock(Analysis.class));
-    givenCachedIssues(openIssue("issue1", "java", "S1234"));
+  void execute_whenNotFirstAnalysis_publishesOnlyNewChangedAndCopiedIssues() {
+    givenNotFirstAnalysis();
+    givenCachedIssues(
+      newIssue("issueNew", "S1234", Issue.STATUS_OPEN, null),
+      changedIssue("issueChanged", "S1234", Issue.STATUS_CONFIRMED, null),
+      copiedIssue("issueCopied", "S1234", Issue.STATUS_OPEN, null),
+      untouchedIssue("issueUntouched", "S1234", Issue.STATUS_OPEN, null));
+
+    underTest.execute(new TestComputationStepContext());
+
+    ArgumentCaptor<IssueUpdatedBatchEvent> eventCaptor = ArgumentCaptor.forClass(IssueUpdatedBatchEvent.class);
+    verify(analyticsEventPublisher).publish(eq(IssueUpdatedBatchEvent.TYPE), eventCaptor.capture());
+    IssueUpdatedBatchEvent event = eventCaptor.getValue();
+    assertThat(event.projectUuid()).isEqualTo(PROJECT_UUID);
+    assertThat(event.branchId()).isEqualTo(BRANCH_UUID);
+    assertThat(event.branchType()).isEqualTo("BRANCH");
+    assertThat(event.issues()).extracting(IssueUpdate::issueKey)
+      .containsExactlyInAnyOrder("issueNew", "issueChanged", "issueCopied");
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysis_mapsIssueFieldsAndStatus() {
+    givenNotFirstAnalysis();
+    DefaultIssue issue = changedIssue("issue1", "S1234", Issue.STATUS_CLOSED, Issue.RESOLUTION_REMOVED)
+      .setCloseDate(new Date(ANALYSIS_DATE + 1_000));
+    givenCachedIssues(issue);
+
+    underTest.execute(new TestComputationStepContext());
+
+    ArgumentCaptor<IssueUpdatedBatchEvent> eventCaptor = ArgumentCaptor.forClass(IssueUpdatedBatchEvent.class);
+    verify(analyticsEventPublisher).publish(eq(IssueUpdatedBatchEvent.TYPE), eventCaptor.capture());
+    IssueUpdate issueUpdate = eventCaptor.getValue().issues().get(0);
+    assertThat(issueUpdate.issueKey()).isEqualTo("issue1");
+    assertThat(issueUpdate.pluginRuleKey()).isEqualTo("java:S1234");
+    assertThat(issueUpdate.issueRaisedAt()).isEqualTo(ANALYSIS_DATE);
+    assertThat(issueUpdate.issueStatus()).isEqualTo("REMOVED");
+    assertThat(issueUpdate.issueResolvedAt()).isEqualTo(ANALYSIS_DATE + 1_000);
+  }
+
+  @Test
+  void execute_whenIssueStatusSetDirectlyBypassingWorkflow_isStillReported() {
+    // Simulates UpdateConflictResolver / AnalyzerUpdateIssueVisitor / HunterAgentIssueDiffer, which
+    // set status directly and flip isChanged() without going through workflow or changelog.
+    givenNotFirstAnalysis();
+    givenCachedIssues(changedIssue("issue1", "S1234", Issue.STATUS_CLOSED, Issue.RESOLUTION_REMOVED));
+
+    List<IssueUpdatedBatchEvent> events = executeAndCaptureIssueUpdateEvents();
+
+    assertThat(events).hasSize(1);
+    assertThat(events.get(0).issues().get(0).issueStatus()).isEqualTo("REMOVED");
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysis_andNoChangedIssues_doesNotPublish() {
+    givenNotFirstAnalysis();
+    givenCachedIssues(untouchedIssue("issue1", "S1234", Issue.STATUS_OPEN, null));
+
+    underTest.execute(new TestComputationStepContext());
+
+    verifyNoInteractions(analyticsEventPublisher);
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysis_andCacheEmpty_doesNotPublish() {
+    givenNotFirstAnalysis();
+    givenCachedIssues();
+
+    underTest.execute(new TestComputationStepContext());
+
+    verifyNoInteractions(analyticsEventPublisher);
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysis_andOneChangedIssue_publishesOneEventWithOneElementArray() {
+    givenNotFirstAnalysis();
+    givenCachedIssues(changedIssues(1));
+
+    List<IssueUpdatedBatchEvent> events = executeAndCaptureIssueUpdateEvents();
+
+    assertThat(events).hasSize(1);
+    assertThat(events.get(0).issues()).hasSize(1);
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysis_andExactly500ChangedIssues_publishesOneEventNotOnePlusEmpty() {
+    givenNotFirstAnalysis();
+    givenCachedIssues(changedIssues(500));
+
+    List<IssueUpdatedBatchEvent> events = executeAndCaptureIssueUpdateEvents();
+
+    assertThat(events).hasSize(1);
+    assertThat(events.get(0).issues()).hasSize(500);
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysis_and501ChangedIssues_publishesTwoEventsOf500And1() {
+    givenNotFirstAnalysis();
+    givenCachedIssues(changedIssues(501));
+
+    List<IssueUpdatedBatchEvent> events = executeAndCaptureIssueUpdateEvents();
+
+    assertThat(events).extracting(e -> e.issues().size()).containsExactly(500, 1);
+    assertUnionOfIssueKeysHasNoDuplicatesOrDrops(events, 501);
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysis_and1000ChangedIssues_publishesExactlyTwoFullEvents() {
+    givenNotFirstAnalysis();
+    givenCachedIssues(changedIssues(1_000));
+
+    List<IssueUpdatedBatchEvent> events = executeAndCaptureIssueUpdateEvents();
+
+    assertThat(events).extracting(e -> e.issues().size()).containsExactly(500, 500);
+    assertUnionOfIssueKeysHasNoDuplicatesOrDrops(events, 1_000);
+  }
+
+  @Test
+  void execute_whenChangedIssueCountExceedsMaxPerAnalysis_sendsOnlyTheFirstMaxPerAnalysisIssues() {
+    when(config.getInt(SONAR_TELEMETRY_ISSUE_EVENTS_MAX_PER_ANALYSIS.getKey())).thenReturn(Optional.of(2));
+    givenNotFirstAnalysis();
+    givenCachedIssues(changedIssues(3));
+
+    List<IssueUpdatedBatchEvent> events = executeAndCaptureIssueUpdateEvents();
+
+    verify(analyticsEventPublisher, never()).publish(eq(IssueBacklogTelemetryEvent.TYPE), any());
+    assertThat(events).hasSize(1);
+    assertThat(events.get(0).issues()).hasSize(2);
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysisAndPullRequest_doesNotPublish() {
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    givenNotFirstAnalysis();
+    givenCachedIssues(changedIssues(1));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -247,6 +386,26 @@ class SendIssueTelemetryStepTest {
     analysisMetadataHolder.setBaseAnalysis(null);
   }
 
+  private void givenNotFirstAnalysis() {
+    analysisMetadataHolder.setBaseAnalysis(mock(Analysis.class));
+  }
+
+  private List<IssueUpdatedBatchEvent> executeAndCaptureIssueUpdateEvents() {
+    underTest.execute(new TestComputationStepContext());
+    ArgumentCaptor<IssueUpdatedBatchEvent> eventCaptor = ArgumentCaptor.forClass(IssueUpdatedBatchEvent.class);
+    verify(analyticsEventPublisher, atLeastOnce()).publish(eq(IssueUpdatedBatchEvent.TYPE), eventCaptor.capture());
+    return eventCaptor.getAllValues();
+  }
+
+  private static void assertUnionOfIssueKeysHasNoDuplicatesOrDrops(List<IssueUpdatedBatchEvent> events, int expectedCount) {
+    List<String> issueKeys = events.stream()
+      .flatMap(event -> event.issues().stream())
+      .map(IssueUpdate::issueKey)
+      .toList();
+    assertThat(issueKeys).hasSize(expectedCount);
+    assertThat(new HashSet<>(issueKeys)).hasSize(expectedCount);
+  }
+
   private void givenCachedIssues(DefaultIssue... issues) {
     var appender = protoIssueCache.newAppender();
     for (DefaultIssue issue : issues) {
@@ -272,5 +431,27 @@ class SendIssueTelemetryStepTest {
       .setResolution(resolution)
       .setCreationDate(new Date(ANALYSIS_DATE))
       .setNew(true);
+  }
+
+  private static DefaultIssue newIssue(String issueKey, String ruleKey, String status, String resolution) {
+    return issueWithStatus(issueKey, "java", ruleKey, status, resolution);
+  }
+
+  private static DefaultIssue changedIssue(String issueKey, String ruleKey, String status, String resolution) {
+    return issueWithStatus(issueKey, "java", ruleKey, status, resolution).setNew(false).setChanged(true);
+  }
+
+  private static DefaultIssue copiedIssue(String issueKey, String ruleKey, String status, String resolution) {
+    return issueWithStatus(issueKey, "java", ruleKey, status, resolution).setNew(false).setCopied(true);
+  }
+
+  private static DefaultIssue untouchedIssue(String issueKey, String ruleKey, String status, String resolution) {
+    return issueWithStatus(issueKey, "java", ruleKey, status, resolution).setNew(false);
+  }
+
+  private static DefaultIssue[] changedIssues(int count) {
+    return IntStream.range(0, count)
+      .mapToObj(i -> changedIssue("issue" + i, "S1234", Issue.STATUS_OPEN, null))
+      .toArray(DefaultIssue[]::new);
   }
 }
