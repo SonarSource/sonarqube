@@ -130,12 +130,11 @@ public class OnboardingAlmConfiguration {
         long total = 0;
         for (var installation : client.getWhitelistedGithubAppInstallations(config)) {
           var token = client.createAppInstallationToken(config, Long.parseLong(installation.installationId()));
-          if (token.isEmpty()) {
-            continue;
-          }
-          var repos = client.listRepositories(url, token.get(), installation.organizationName(), null, 1, 1);
-          if (repos != null) {
-            total += repos.getTotal();
+          if (token.isPresent()) {
+            var repos = client.listRepositories(url, token.get(), installation.organizationName(), null, 1, 1);
+            if (repos != null) {
+              total += repos.getTotal();
+            }
           }
         }
         return OptionalLong.of(total);

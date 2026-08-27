@@ -153,12 +153,11 @@ public class TelemetryOnboardingDiscoveredRepoCountByAlmProvider extends Abstrac
     long total = 0;
     for (var installation : githubClient.getWhitelistedGithubAppInstallations(config)) {
       var token = githubClient.createAppInstallationToken(config, Long.parseLong(installation.installationId()));
-      if (token.isEmpty()) {
-        continue;
-      }
-      var repos = githubClient.listRepositories(url, token.get(), installation.organizationName(), null, 1, 1);
-      if (repos != null) {
-        total += repos.getTotal();
+      if (token.isPresent()) {
+        var repos = githubClient.listRepositories(url, token.get(), installation.organizationName(), null, 1, 1);
+        if (repos != null) {
+          total += repos.getTotal();
+        }
       }
     }
     return OptionalLong.of(total);
