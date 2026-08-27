@@ -1515,6 +1515,24 @@ class IssueDaoIT {
   }
 
   @Test
+  void updateHunterAgentIssue_updatesTagsAndRuleDescriptionContextKey() {
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1).setIssueProducer(IssueProducer.HUNTER_AGENT)
+      .setTags(List.of("old-tag"))
+      .setRuleDescriptionContextKey("old-context");
+    underTest.insert(db.getSession(), issue);
+
+    IssueDto toUpdate = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1)
+      .setTags(List.of("security", "owasp-a3"))
+      .setRuleDescriptionContextKey("new-context");
+
+    underTest.updateHunterAgentIssue(db.getSession(), toUpdate);
+
+    IssueDto updated = underTest.selectOrFailByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(updated.getTags()).containsExactlyInAnyOrder("security", "owasp-a3");
+    assertThat(updated.getOptionalRuleDescriptionContextKey()).contains("new-context");
+  }
+
+  @Test
   void updateHunterAgentIssue_whenComponentUuidChanges_movesIssue() {
     ComponentDto otherFile = db.components().insertComponent(newFileDto(projectDto));
     IssueDto issue = createIssueWithKey(ISSUE_KEY1).setIssueProducer(IssueProducer.HUNTER_AGENT);

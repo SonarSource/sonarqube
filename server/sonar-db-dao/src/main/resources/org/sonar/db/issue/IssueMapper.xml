@@ -347,6 +347,8 @@
     severity=#{severity,jdbcType=VARCHAR},
     manual_severity=#{manualSeverity,jdbcType=BOOLEAN},
     message=#{message,jdbcType=VARCHAR},
+    tags=#{tagsString,jdbcType=VARCHAR},
+    rule_description_context_key=#{ruleDescriptionContextKey,jdbcType=VARCHAR},
     line=#{line,jdbcType=INTEGER},
     locations=#{locations,jdbcType=BINARY},
     effort=#{effort,jdbcType=INTEGER},
