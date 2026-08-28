@@ -26,6 +26,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.scmaccesstoken.response.ScmAccessTokenRestResponse;
 
 import static java.lang.String.format;
+import static org.sonar.server.user.ServiceIdentity.AGENTIC_SHARED;
 
 public class DefaultScmAccessTokenController implements ScmAccessTokenController {
 
@@ -39,10 +40,13 @@ public class DefaultScmAccessTokenController implements ScmAccessTokenController
 
   @Override
   public ScmAccessTokenRestResponse generateScmAccessToken(String projectKey) {
-    // Same deliberately conservative default as the GitHub-only endpoint this generalises (see
+    // Same deliberately conservative user default as the GitHub-only endpoint this generalises (see
     // DefaultGithubInstallationTokenController): minting yields a token that can push branches and
-    // open a PR/MR on the bound repository, materially more sensitive than reading binding metadata.
-    userSession.checkIsSystemAdministrator();
+    // open a PR/MR on the bound repository. The agentic shared service has its own endpoint-scoped trust
+    // boundary and therefore does not need to masquerade as a system administrator.
+    if (userSession.getServiceIdentity().orElse(null) != AGENTIC_SHARED) {
+      userSession.checkIsSystemAdministrator();
+    }
 
     ScmAccessToken token = scmAccessTokenProvider.mint(projectKey)
       .orElseThrow(() -> new NotFoundException(format(

@@ -36,6 +36,7 @@ import org.sonar.server.common.almsettings.permission.DopPermissionValidationSer
 import org.sonar.server.common.almsettings.permission.PermissionCheckStatus;
 import org.sonar.server.common.almsettings.permission.TimestampedPermissionCheck;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.v2.api.dop.response.PermissionCheckResource;
 import org.sonar.server.v2.api.dop.response.PermissionChecksRestResponse;
@@ -47,8 +48,12 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.ProjectPermission.USER;
+import static org.sonar.server.user.ServiceIdentity.AGENTIC_SHARED;
+import static org.sonar.server.user.ServiceIdentity.REMEDIATION_TO_SQS;
 import static org.sonar.server.v2.WebApiEndpoints.PERMISSION_CHECKS_ENDPOINT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -98,6 +103,34 @@ class DefaultPermissionChecksControllerTest {
       .containsExactly(
         tuple("key_github", "github", PermissionCheckStatus.INSUFFICIENT, 1_000L),
         tuple("key_gitlab", "gitlab", PermissionCheckStatus.CHECK_FAILED, 2_000L));
+  }
+
+  @Test
+  void checkPermissions_asAgenticSharedService_checksAllConfigurationsWithoutSystemAdminPermission() throws Exception {
+    UserSession serviceSession = mock(UserSession.class);
+    when(serviceSession.getServiceIdentity()).thenReturn(Optional.of(AGENTIC_SHARED));
+    when(dbClient.almSettingDao().selectAll(dbSession)).thenReturn(List.of());
+    when(dopPermissionValidationService.checkAllCached(List.of())).thenReturn(List.of());
+    MockMvc serviceMockMvc = ControllerTester.getMockMvc(
+      new DefaultPermissionChecksController(serviceSession, dbClient, dopPermissionValidationService));
+
+    serviceMockMvc.perform(get(PERMISSION_CHECKS_ENDPOINT)).andExpect(status().isOk());
+
+    verify(serviceSession, never()).checkIsSystemAdministrator();
+  }
+
+  @Test
+  void checkPermissions_asAnotherService_stillChecksSystemAdminPermission() throws Exception {
+    UserSession serviceSession = mock(UserSession.class);
+    when(serviceSession.getServiceIdentity()).thenReturn(Optional.of(REMEDIATION_TO_SQS));
+    when(dbClient.almSettingDao().selectAll(dbSession)).thenReturn(List.of());
+    when(dopPermissionValidationService.checkAllCached(List.of())).thenReturn(List.of());
+    MockMvc serviceMockMvc = ControllerTester.getMockMvc(
+      new DefaultPermissionChecksController(serviceSession, dbClient, dopPermissionValidationService));
+
+    serviceMockMvc.perform(get(PERMISSION_CHECKS_ENDPOINT)).andExpect(status().isOk());
+
+    verify(serviceSession).checkIsSystemAdministrator();
   }
 
   @Test

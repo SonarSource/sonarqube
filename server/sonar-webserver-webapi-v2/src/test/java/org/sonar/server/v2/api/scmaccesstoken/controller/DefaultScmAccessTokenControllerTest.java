@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.core.scm.ScmAccessToken;
 import org.sonar.core.scm.ScmAccessTokenProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.v2.api.scmaccesstoken.response.ScmAccessTokenRestResponse;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,7 +34,11 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.user.ServiceIdentity.AGENTIC_SHARED;
+import static org.sonar.server.user.ServiceIdentity.REMEDIATION_TO_SQS;
 import static org.sonar.server.v2.WebApiEndpoints.SCM_ACCESS_TOKEN_ENDPOINT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -81,5 +86,35 @@ class DefaultScmAccessTokenControllerTest {
 
     ScmAccessTokenRestResponse response = gson.fromJson(mvcResult.getResponse().getContentAsString(), ScmAccessTokenRestResponse.class);
     assertThat(response).isEqualTo(new ScmAccessTokenRestResponse("gitlab", "sonarqube-remediation-agent", "glpat-abc123", "2026-08-06"));
+  }
+
+  @Test
+  void generateScmAccessToken_whenCalledByAgenticSharedService_returnsTokenWithoutSystemAdminPermission() throws Exception {
+    UserSession serviceSession = mock(UserSession.class);
+    when(serviceSession.getServiceIdentity()).thenReturn(Optional.of(AGENTIC_SHARED));
+    when(scmAccessTokenProvider.mint("my-project")).thenReturn(Optional.of(
+      new ScmAccessToken("gitlab", "sonarqube-remediation-agent", "glpat-abc123", "2026-08-06")));
+    MockMvc serviceMockMvc = ControllerTester.getMockMvc(
+      new DefaultScmAccessTokenController(serviceSession, scmAccessTokenProvider));
+
+    serviceMockMvc.perform(post(SCM_ACCESS_TOKEN_ENDPOINT).param("project", "my-project"))
+      .andExpect(status().isOk());
+
+    verify(serviceSession, never()).checkIsSystemAdministrator();
+  }
+
+  @Test
+  void generateScmAccessToken_whenCalledByAnotherService_stillChecksSystemAdminPermission() throws Exception {
+    UserSession serviceSession = mock(UserSession.class);
+    when(serviceSession.getServiceIdentity()).thenReturn(Optional.of(REMEDIATION_TO_SQS));
+    when(scmAccessTokenProvider.mint("my-project")).thenReturn(Optional.of(
+      new ScmAccessToken("gitlab", "sonarqube-remediation-agent", "glpat-abc123", "2026-08-06")));
+    MockMvc serviceMockMvc = ControllerTester.getMockMvc(
+      new DefaultScmAccessTokenController(serviceSession, scmAccessTokenProvider));
+
+    serviceMockMvc.perform(post(SCM_ACCESS_TOKEN_ENDPOINT).param("project", "my-project"))
+      .andExpect(status().isOk());
+
+    verify(serviceSession).checkIsSystemAdministrator();
   }
 }

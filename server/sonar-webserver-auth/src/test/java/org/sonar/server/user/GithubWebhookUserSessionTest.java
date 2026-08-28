@@ -27,6 +27,7 @@ import org.sonar.db.permission.ProjectPermission;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.sonar.server.user.GithubWebhookUserSession.GITHUB_WEBHOOK_USER_NAME;
+import static org.sonar.server.user.ServiceIdentity.GITHUB_WEBHOOK;
 
 public class GithubWebhookUserSessionTest {
 
@@ -70,6 +71,12 @@ public class GithubWebhookUserSessionTest {
   @Test
   public void isLoggedIn() {
     assertThat(githubWebhookUserSession.isLoggedIn()).isTrue();
+  }
+
+  @Test
+  public void isServiceSession() {
+    assertThat(githubWebhookUserSession.isServiceSession()).isTrue();
+    assertThat(githubWebhookUserSession.getServiceIdentity()).contains(GITHUB_WEBHOOK);
   }
 
   @Test

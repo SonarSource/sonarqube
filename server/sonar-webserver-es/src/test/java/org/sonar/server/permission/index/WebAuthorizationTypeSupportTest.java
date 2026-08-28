@@ -25,6 +25,7 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import jakarta.json.spi.JsonProvider;
 import jakarta.json.stream.JsonGenerator;
 import java.io.StringWriter;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.user.GroupDto;
@@ -32,8 +33,13 @@ import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.GithubWebhookUserSession;
+import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.server.user.ServiceIdentity.AGENTIC_SHARED;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class WebAuthorizationTypeSupportTest {
@@ -42,6 +48,26 @@ public class WebAuthorizationTypeSupportTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private WebAuthorizationTypeSupport underTest = new WebAuthorizationTypeSupport(userSession);
+
+  @Test
+  public void createQueryFilter_matches_every_document_with_an_authorization_parent_for_the_agentic_shared_service() {
+    UserSession agenticSharedServiceSession = mock(UserSession.class);
+    when(agenticSharedServiceSession.getServiceIdentity()).thenReturn(Optional.of(AGENTIC_SHARED));
+
+    Query filter = new WebAuthorizationTypeSupport(agenticSharedServiceSession).createQueryFilterV2();
+
+    assertThat(filter.isHasParent()).isTrue();
+    assertThat(filter.hasParent().parentType()).isEqualTo("auth");
+    assertThat(filter.hasParent().query().isMatchAll()).isTrue();
+  }
+
+  @Test
+  public void createQueryFilter_does_not_match_every_document_for_another_service() {
+    Query filter = new WebAuthorizationTypeSupport(new GithubWebhookUserSession()).createQueryFilterV2();
+
+    assertThat(filter.isHasParent()).isTrue();
+    assertThat(filter.hasParent().query().isMatchAll()).isFalse();
+  }
 
   @Test
   public void createQueryFilter_sets_filter_on_anyone_group_if_user_is_anonymous() {

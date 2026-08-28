@@ -112,10 +112,16 @@ public class SonarUserDetails implements UserDetails {
    * SecurityContextUtils uses when extracting from SonarUserDetails.
    * </p>
    *
-   * @return the user UUID
+   * Service sessions have no user UUID; their authenticated key id is their stable Spring Security
+   * identifier instead.
+   *
+   * @return the user UUID, or the service key id for a service session
    */
   @Override
   public @NonNull String getUsername() {
+    if (userSession.isServiceSession()) {
+      return Objects.requireNonNull(userSession.getLogin());
+    }
     return Objects.requireNonNull(userSession.getUuid());
   }
 

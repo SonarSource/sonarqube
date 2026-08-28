@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +37,10 @@ import org.sonar.server.tester.MockUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.ProjectPermission.USER;
+import static org.sonar.server.user.ServiceIdentity.AGENTIC_SHARED;
 
 public class ThreadLocalUserSessionTest {
 
@@ -91,6 +95,17 @@ public class ThreadLocalUserSessionTest {
     assertThat(threadLocalUserSession.isLoggedIn()).isFalse();
     assertThat(threadLocalUserSession.shouldResetPassword()).isFalse();
     assertThat(threadLocalUserSession.getGroups()).isEmpty();
+  }
+
+  @Test
+  public void delegate_service_session_properties() {
+    UserSession expected = mock(UserSession.class);
+    when(expected.isServiceSession()).thenReturn(true);
+    when(expected.getServiceIdentity()).thenReturn(Optional.of(AGENTIC_SHARED));
+    threadLocalUserSession.set(expected);
+
+    assertThat(threadLocalUserSession.isServiceSession()).isTrue();
+    assertThat(threadLocalUserSession.getServiceIdentity()).contains(AGENTIC_SHARED);
   }
 
   @Test

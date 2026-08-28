@@ -44,9 +44,10 @@ public interface PermissionChecksController {
   @Operation(operationId = "checkDopPermissions", summary = "Check DevOps Platform permissions for the Remediation Agent", description = """
     Validates whether the configured DevOps Platforms (GitHub, GitLab, Azure DevOps) grant the write permissions the
     SonarQube Remediation Agent needs to clone a repository, push a branch and open a pull/merge request. Without a
-    'project' parameter it checks every configuration and requires the 'Administer System' permission. With a 'project'
-    parameter it checks the platform bound to that project and requires 'Browse' permission on the project. Results are
-    cached for a short time. Internal endpoint used by the Remediation Agent UI (SONAR-31626, SONAR-31641).
+    'project' parameter it checks every configuration and requires the 'Administer System' permission or trusted
+    privileged-service authentication. With a 'project' parameter it checks the platform bound to that project and
+    requires 'Browse' permission on the project. Results are cached for a short time. Internal endpoint used by the
+    Remediation Agent UI.
     """,
     extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))
   PermissionChecksRestResponse checkPermissions(

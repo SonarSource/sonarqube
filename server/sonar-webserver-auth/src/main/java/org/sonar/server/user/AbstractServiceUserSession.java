@@ -21,19 +21,23 @@ package org.sonar.server.user;
 
 /**
  * The session a caller that is a <em>service</em> rather than a person runs as: logged in and
- * attributable by name, holding no permission at all, and backed by no user account. Subclasses
- * supply only the login.
+ * attributable by name and backed by no user account. Subclasses supply the login and may grant
+ * permissions when their authentication mechanism provides an authorization boundary of its own.
  *
- * <p>Being logged in is what satisfies {@code sonar.forceAuthentication}. Holding no permission — see
- * {@link PermissionlessUserSession} — is a floor, not a fence: such a caller can still reach any
- * endpoint that performs no permission check of its own. Bounding that is the job of the
- * {@link org.sonar.server.authentication.ServiceAuthentication} that authenticated it.
+ * <p>Being logged in is what satisfies {@code sonar.forceAuthentication}.
+ * {@link PermissionlessUserSession} provides the safe default; a subclass that elevates it must be
+ * bounded by the {@link org.sonar.server.authentication.ServiceAuthentication} that created it.
  */
 public abstract class AbstractServiceUserSession extends PermissionlessUserSession {
 
   @Override
   public String getName() {
     return getLogin();
+  }
+
+  @Override
+  public boolean isServiceSession() {
+    return true;
   }
 
   /**

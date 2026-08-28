@@ -48,7 +48,7 @@ public interface ScmAccessTokenController {
   @Operation(operationId = "generateScmAccessToken", summary = "Mint a scoped, short-lived SCM access token", description = """
     Mint a scoped, short-lived git credential for the given project's bound DevOps Platform (GitHub or
     GitLab). Internal endpoint used by the agentic-workflows remediation orchestrator (SONAR-31165).
-    Requires the 'Administer System' permission.
+    Requires the 'Administer System' permission or trusted privileged-service authentication.
     """,
     extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))
   ScmAccessTokenRestResponse generateScmAccessToken(

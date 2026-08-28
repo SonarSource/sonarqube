@@ -35,6 +35,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * This test demonstrates how Spring Security integration works with the UserSession bridge.
@@ -96,6 +100,18 @@ class SpringSecurityIntegrationExampleTest {
     AuthenticatedUser authenticatedUser = org.sonar.server.v2.security.SecurityContextUtils.requireAuthenticatedUser();
     assertThat(authenticatedUser.getId()).isEqualTo(expectedUuid);
     assertThat(authenticatedUser.getLogin()).isEqualTo(expectedLogin);
+  }
+
+  @Test
+  void authentication_shouldUseKeyIdAsTheSpringIdentifier_forServiceSessions() {
+    UserSession serviceSession = mock(UserSession.class);
+    when(serviceSession.isServiceSession()).thenReturn(true);
+    when(serviceSession.getLogin()).thenReturn("agentic-shared");
+
+    SonarUserDetails userDetails = new SonarUserDetails(serviceSession, List.of());
+
+    assertThat(userDetails.getUsername()).isEqualTo("agentic-shared");
+    verify(serviceSession, never()).getUuid();
   }
 
   @Test

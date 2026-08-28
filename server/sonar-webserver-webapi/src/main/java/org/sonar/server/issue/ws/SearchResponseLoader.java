@@ -221,10 +221,14 @@ public class SearchResponseLoader {
   }
 
   private boolean canEditOrDelete(IssueChangeDto dto) {
-    return userSession.isLoggedIn() && requireNonNull(userSession.getUuid(), "User uuid should not be null").equals(dto.getUserUuid());
+    return userSession.isLoggedIn() && !userSession.isServiceSession()
+      && requireNonNull(userSession.getUuid(), "User uuid should not be null").equals(dto.getUserUuid());
   }
 
   private void loadActionsAndTransitions(SearchResponseData result, Set<SearchAdditionalField> fields) {
+    if (userSession.isServiceSession()) {
+      return;
+    }
     if (fields.contains(ACTIONS) || fields.contains(TRANSITIONS)) {
       Map<String, ComponentDto> componentsByProjectUuid = result.getComponents()
         .stream()

@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.user.ServiceIdentity.AGENTIC_SHARED;
 
 /**
  * Tests for SecurityContextBackedUserSession - ensures all methods properly delegate
@@ -120,6 +121,16 @@ class SecurityContextBackedUserSessionTest {
     String uuid = securityContextBackedUserSession.getUuid();
 
     assertThat(uuid).isEqualTo("user-uuid-123");
+  }
+
+  @Test
+  void serviceSessionProperties_shouldDelegateToSecurityContext() {
+    when(mockUserSession.isServiceSession()).thenReturn(true);
+    when(mockUserSession.getServiceIdentity()).thenReturn(Optional.of(AGENTIC_SHARED));
+    setUpSecurityContext(mockUserSession);
+
+    assertThat(securityContextBackedUserSession.isServiceSession()).isTrue();
+    assertThat(securityContextBackedUserSession.getServiceIdentity()).contains(AGENTIC_SHARED);
   }
 
   @Test

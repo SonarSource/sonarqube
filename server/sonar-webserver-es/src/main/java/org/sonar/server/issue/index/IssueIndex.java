@@ -1070,6 +1070,9 @@ public class IssueIndex {
 
   private void addAssignedToMeFacetIfNeeded(SearchOptions options, TopAggregationHelper aggregationHelper,
     co.elastic.clients.elasticsearch.core.SearchRequest.Builder esRequest) {
+    if (userSession.isServiceSession()) {
+      return;
+    }
     String uuid = userSession.getUuid();
     if (options.getFacets().contains(ASSIGNED_TO_ME.getName()) && !StringUtils.isEmpty(uuid)) {
       Aggregation aggregation = aggregationHelper.buildTopAggregationV2(

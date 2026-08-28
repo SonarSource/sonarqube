@@ -29,6 +29,7 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.user.ServiceIdentity;
 import org.sonar.server.user.UserSession;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -115,6 +116,16 @@ public class SecurityContextBackedUserSession implements UserSession {
   @Override
   public boolean isLoggedIn() {
     return delegate().isLoggedIn();
+  }
+
+  @Override
+  public boolean isServiceSession() {
+    return delegate().isServiceSession();
+  }
+
+  @Override
+  public Optional<ServiceIdentity> getServiceIdentity() {
+    return delegate().getServiceIdentity();
   }
 
   @Override

@@ -40,6 +40,7 @@ import org.sonar.server.v2.api.dop.response.PermissionChecksRestResponse;
 import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.server.common.AlmSettingMapper.toResponseAlm;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.sonar.server.user.ServiceIdentity.AGENTIC_SHARED;
 
 public class DefaultPermissionChecksController implements PermissionChecksController {
 
@@ -64,7 +65,9 @@ public class DefaultPermissionChecksController implements PermissionChecksContro
   }
 
   private PermissionChecksRestResponse checkAllConfigurations() {
-    userSession.checkIsSystemAdministrator();
+    if (userSession.getServiceIdentity().orElse(null) != AGENTIC_SHARED) {
+      userSession.checkIsSystemAdministrator();
+    }
     List<AlmSettingDto> almSettings;
     try (DbSession dbSession = dbClient.openSession(false)) {
       almSettings = dbClient.almSettingDao().selectAll(dbSession).stream()

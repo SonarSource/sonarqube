@@ -102,6 +102,16 @@ public class ThreadLocalUserSession implements UserSession {
   }
 
   @Override
+  public boolean isServiceSession() {
+    return get().isServiceSession();
+  }
+
+  @Override
+  public Optional<ServiceIdentity> getServiceIdentity() {
+    return get().getServiceIdentity();
+  }
+
+  @Override
   public UserSession checkLoggedIn() {
     get().checkLoggedIn();
     return this;

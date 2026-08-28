@@ -690,7 +690,9 @@ public class SearchAction implements IssuesWsAction {
       assignees.remove(LOGIN_MYSELF);
     }
     addMandatoryValuesToFacet(facets, PARAM_ASSIGNEES, assignees);
-    addMandatoryValuesToFacet(facets, FACET_ASSIGNED_TO_ME, singletonList(userSession.getUuid()));
+    if (!userSession.isServiceSession()) {
+      addMandatoryValuesToFacet(facets, FACET_ASSIGNED_TO_ME, singletonList(userSession.getUuid()));
+    }
     addMandatoryValuesToFacet(facets, PARAM_RULES, query.ruleUuids());
     addMandatoryValuesToFacet(facets, PARAM_SCOPES, ISSUE_SCOPES);
     addMandatoryValuesToFacet(facets, PARAM_LANGUAGES, request.getLanguages());
@@ -775,7 +777,7 @@ public class SearchAction implements IssuesWsAction {
   }
 
   private void collectLoggedInUser(SearchResponseLoader.Collector collector) {
-    if (userSession.isLoggedIn()) {
+    if (userSession.isLoggedIn() && !userSession.isServiceSession()) {
       collector.addUserUuids(singletonList(userSession.getUuid()));
     }
   }

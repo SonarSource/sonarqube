@@ -608,6 +608,7 @@ subprojects {
       dependencySet(group: 'org.springframework', version: '7.0.8') {
         entry 'spring-test'
         entry 'spring-context'
+        entry 'spring-web'
         entry 'spring-webmvc'
       }
       dependencySet(group: 'org.springframework.security', version: "${springSecurityVersion}") {

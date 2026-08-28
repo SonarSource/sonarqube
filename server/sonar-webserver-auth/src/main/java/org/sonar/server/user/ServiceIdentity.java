@@ -19,24 +19,9 @@
  */
 package org.sonar.server.user;
 
-import java.util.Optional;
-
-/**
- * The principal a GitHub webhook call runs as, once
- * {@link org.sonar.server.authentication.GithubWebhookAuthentication} has verified its HMAC signature.
- */
-public class GithubWebhookUserSession extends AbstractServiceUserSession {
-
-  public static final String GITHUB_WEBHOOK_USER_NAME = "github-webhook";
-
-  @Override
-  public String getLogin() {
-    return GITHUB_WEBHOOK_USER_NAME;
-  }
-
-  @Override
-  public Optional<ServiceIdentity> getServiceIdentity() {
-    return Optional.of(ServiceIdentity.GITHUB_WEBHOOK);
-  }
-
+/** Services for which authorization rules exist in SonarQube Server. */
+public enum ServiceIdentity {
+  GITHUB_WEBHOOK,
+  AGENTIC_SHARED,
+  REMEDIATION_TO_SQS
 }

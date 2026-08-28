@@ -29,10 +29,12 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.es.ES8QueryHelper.matchAllQuery;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIELD_ALLOW_ANYONE;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIELD_GROUP_IDS;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIELD_USER_IDS;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.TYPE_AUTHORIZATION;
+import static org.sonar.server.user.ServiceIdentity.AGENTIC_SHARED;
 
 @ServerSide
 public class WebAuthorizationTypeSupport {
@@ -48,6 +50,13 @@ public class WebAuthorizationTypeSupport {
    * user has read access using the new Elasticsearch Java API Client (8.x).
    */
   public Query createQueryFilterV2() {
+    if (userSession.getServiceIdentity().orElse(null) == AGENTIC_SHARED) {
+      return Query.of(q -> q.hasParent(HasParentQuery.of(hp -> hp
+        .parentType(TYPE_AUTHORIZATION)
+        .query(matchAllQuery())
+        .score(false))));
+    }
+
     List<Query> shouldQueries = new ArrayList<>();
 
     // anyone
@@ -56,10 +65,12 @@ public class WebAuthorizationTypeSupport {
       .value(true))));
 
     // users
-    Optional.ofNullable(userSession.getUuid())
-      .ifPresent(uuid -> shouldQueries.add(Query.of(q -> q.term(t -> t
-        .field(FIELD_USER_IDS)
-        .value(uuid)))));
+    if (!userSession.isServiceSession()) {
+      Optional.ofNullable(userSession.getUuid())
+        .ifPresent(uuid -> shouldQueries.add(Query.of(q -> q.term(t -> t
+          .field(FIELD_USER_IDS)
+          .value(uuid)))));
+    }
 
     // groups
     shouldQueries.addAll(

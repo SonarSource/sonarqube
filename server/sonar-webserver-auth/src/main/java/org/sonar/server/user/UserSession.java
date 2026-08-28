@@ -122,6 +122,21 @@ public interface UserSession {
   boolean isLoggedIn();
 
   /**
+   * Whether this session represents another service rather than a user account.
+   */
+  default boolean isServiceSession() {
+    return false;
+  }
+
+  /**
+   * Identifies the authenticated service so authorization decisions can explicitly allow only the
+   * services they support. Empty for user and anonymous sessions.
+   */
+  default Optional<ServiceIdentity> getServiceIdentity() {
+    return Optional.empty();
+  }
+
+  /**
    * Ensures that user is logged in otherwise throws {@link org.sonar.server.exceptions.UnauthorizedException}.
    */
   UserSession checkLoggedIn();

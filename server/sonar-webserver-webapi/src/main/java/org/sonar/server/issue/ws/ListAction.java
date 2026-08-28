@@ -247,7 +247,7 @@ public class ListAction implements IssuesWsAction {
   }
 
   private void collectLoggedInUser(SearchResponseLoader.Collector collector) {
-    if (userSession.isLoggedIn()) {
+    if (userSession.isLoggedIn() && !userSession.isServiceSession()) {
       collector.addUserUuids(singletonList(userSession.getUuid()));
     }
   }

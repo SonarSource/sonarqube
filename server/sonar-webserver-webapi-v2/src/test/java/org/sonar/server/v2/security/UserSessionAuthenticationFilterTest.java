@@ -22,6 +22,8 @@ package org.sonar.server.v2.security;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +40,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.server.user.ServiceIdentity.AGENTIC_SHARED;
 
 @ExtendWith(MockitoExtension.class)
 class UserSessionAuthenticationFilterTest {
@@ -80,6 +85,26 @@ class UserSessionAuthenticationFilterTest {
       assertThat(authentication).isInstanceOf(PreAuthenticatedAuthenticationToken.class);
       assertThat(authentication.getName()).isEqualTo("john.doe");
       assertThat(authentication.isAuthenticated()).isTrue();
+    });
+  }
+
+  @Test
+  void doFilterInternal_withAgenticSharedServiceSession_shouldNotGrantAdminRole() throws Exception {
+    UserSession serviceSession = mock(UserSession.class);
+    when(serviceSession.getLogin()).thenReturn("agentic-shared");
+    when(serviceSession.isLoggedIn()).thenReturn(true);
+    when(serviceSession.isServiceSession()).thenReturn(true);
+    when(serviceSession.getServiceIdentity()).thenReturn(Optional.of(AGENTIC_SHARED));
+    when(serviceSession.getGroups()).thenReturn(List.of());
+    threadLocalUserSession.set(serviceSession);
+
+    filter.doFilterInternal(request, response, (req, res) -> {
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      assertThat(threadLocalUserSession.isServiceSession()).isTrue();
+      assertThat(threadLocalUserSession.getServiceIdentity()).contains(AGENTIC_SHARED);
+      assertThat(authentication.getAuthorities())
+        .extracting("authority")
+        .containsExactly("ROLE_USER");
     });
   }
 
