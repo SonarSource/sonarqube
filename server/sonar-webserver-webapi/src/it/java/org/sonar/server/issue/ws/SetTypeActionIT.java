@@ -56,6 +56,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.issue.IssueUpdatedTelemetryPublisher;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -117,7 +118,8 @@ public class SetTypeActionIT {
   private WsActionTester tester = new WsActionTester(new SetTypeAction(userSession, dbClient, issueChangeEventService,
     new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, new SequenceUuidFactory()),
+      new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, new SequenceUuidFactory(),
+        mock(IssueUpdatedTelemetryPublisher.class)),
       mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer),
     responseWriter, system2));
 

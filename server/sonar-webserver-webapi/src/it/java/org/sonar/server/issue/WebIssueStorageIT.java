@@ -63,7 +63,7 @@ public class WebIssueStorageIT {
   private final DbClient dbClient = db.getDbClient();
   private final IssueIndexer issueIndexer = mock(IssueIndexer.class);
   private final WebIssueStorage underTest = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(db.getDbClient(), mock(RuleDescriptionFormatter.class)), issueIndexer,
-    new SequenceUuidFactory());
+    new SequenceUuidFactory(), mock(IssueUpdatedTelemetryPublisher.class));
 
   @Test
   public void load_component_id_from_db() {

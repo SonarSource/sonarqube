@@ -24,12 +24,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.telemetry.core.event.AnalyticsEventType;
 
-/**
- * Batch of per-issue changes detected during a regular branch's re-analysis: new, changed or
- * copied issues since the previous analysis. {@code project_uuid}/{@code branch_id}/
- * {@code branch_type} are constant across an event's issues and hoisted out of the per-issue
- * records. Pull-request analyses are entirely out of scope for this event.
- */
 public record IssueUpdatedBatchEvent(
   @JsonProperty("project_uuid") String projectUuid,
   @JsonProperty("branch_id") String branchId,

@@ -61,13 +61,16 @@ public class WebIssueStorage extends IssueStorage {
   private final DbClient dbClient;
   private final IssueIndexer indexer;
   private final UuidFactory uuidFactory;
+  private final IssueUpdatedTelemetryPublisher issueUpdatedTelemetryPublisher;
 
-  public WebIssueStorage(System2 system2, DbClient dbClient, ServerRuleFinder ruleFinder, IssueIndexer indexer, UuidFactory uuidFactory) {
+  public WebIssueStorage(System2 system2, DbClient dbClient, ServerRuleFinder ruleFinder, IssueIndexer indexer, UuidFactory uuidFactory,
+    IssueUpdatedTelemetryPublisher issueUpdatedTelemetryPublisher) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.ruleFinder = ruleFinder;
     this.indexer = indexer;
     this.uuidFactory = uuidFactory;
+    this.issueUpdatedTelemetryPublisher = issueUpdatedTelemetryPublisher;
   }
 
   protected DbClient getDbClient() {
@@ -87,14 +90,15 @@ public class WebIssueStorage extends IssueStorage {
     Collection<IssueDto> updated = update(issuesToUpdate, now);
 
     doAfterSave(dbSession, Stream.concat(inserted.stream(), updated.stream())
-      .collect(Collectors.toSet()));
+      .collect(Collectors.toSet()), issuesToUpdate);
 
     return Stream.concat(inserted.stream(), updated.stream())
       .collect(Collectors.toSet());
   }
 
-  private void doAfterSave(DbSession dbSession, Collection<IssueDto> issues) {
+  private void doAfterSave(DbSession dbSession, Collection<IssueDto> issues, Collection<DefaultIssue> issuesToUpdate) {
     indexer.commitAndIndexIssues(dbSession, issues);
+    issueUpdatedTelemetryPublisher.publish(dbSession, issuesToUpdate);
   }
 
   /**

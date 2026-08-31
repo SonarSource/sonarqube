@@ -37,6 +37,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.IssueUpdatedTelemetryPublisher;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -91,8 +92,9 @@ public class IssueUpdaterIT {
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private IssueUpdater underTest = new IssueUpdater(dbClient,
-    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, new SequenceUuidFactory()), notificationManager,
-    issueChangePostProcessor, issuesChangesSerializer);
+    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, new SequenceUuidFactory(),
+      mock(IssueUpdatedTelemetryPublisher.class)),
+    notificationManager, issueChangePostProcessor, issuesChangesSerializer);
 
   @Test
   public void update_issue() {

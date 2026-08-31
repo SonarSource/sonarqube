@@ -93,6 +93,10 @@ public class AnalyticsEventPublisher {
     }
   }
 
+  public boolean isTelemetryEnabled() {
+    return configuration.getBoolean(SONAR_TELEMETRY_ENABLE.getKey()).orElse(false);
+  }
+
   private Event<?> toEvent(AnalyticsEventType type, Object payload) {
     return new BaseEvent<>(
       new EventMetadata(
@@ -100,9 +104,5 @@ public class AnalyticsEventPublisher {
         type.eventType(),
         type.eventVersion()),
       payload);
-  }
-
-  private boolean isTelemetryEnabled() {
-    return configuration.getBoolean(SONAR_TELEMETRY_ENABLE.getKey()).orElse(false);
   }
 }

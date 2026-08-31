@@ -41,17 +41,23 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.hotspot.ws.HotspotsToIssuesMigrator.MigrationResult;
 import org.sonar.server.hotspot.ws.HotspotsToIssuesMigrator.ProjectMigrationResult;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.IssueUpdatedTelemetryPublisher;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.telemetry.core.event.AnalyticsEventPublisher;
+import org.sonar.telemetry.core.event.workflow.IssueUpdatedBatchEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
@@ -72,11 +78,13 @@ public class HotspotsToIssuesMigratorIT {
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   // Indexer mocked: verifies DB/changelog/scope behaviour, not ES indexing (avoids an ES dependency).
   private final IssueIndexer issueIndexer = mock(IssueIndexer.class);
+  private final AnalyticsEventPublisher analyticsEventPublisher = mock(AnalyticsEventPublisher.class);
+  private final IssueUpdatedTelemetryPublisher issueUpdatedTelemetryPublisher = new IssueUpdatedTelemetryPublisher(dbClient, analyticsEventPublisher);
   private final WebIssueStorage issueStorage = new WebIssueStorage(system2, dbClient,
-    new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, uuidFactory);
+    new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, uuidFactory, issueUpdatedTelemetryPublisher);
   private final TestIssueChangePostProcessor postProcessor = new TestIssueChangePostProcessor();
   private final MigrationBatchWriter batchWriter = new MigrationBatchWriter(dbClient, issueStorage, postProcessor,
-    issueIndexer, uuidFactory, system2);
+    issueIndexer, uuidFactory, system2, issueUpdatedTelemetryPublisher);
 
   private final HotspotsToIssuesMigrator underTest = new HotspotsToIssuesMigrator(dbClient, issueFieldsSetter, batchWriter,
     system2, userSession);
@@ -89,6 +97,7 @@ public class HotspotsToIssuesMigratorIT {
 
   @Test
   public void migrate_shouldSetRuleTargetTypeAndFormerHotspotTag() {
+    when(analyticsEventPublisher.isTelemetryEnabled()).thenReturn(true);
     logInAdmin();
     RuleDto vulnerabilityRule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
     RuleDto codeSmellRule = db.rules().insert(r -> r.setType(RuleType.CODE_SMELL));
@@ -107,6 +116,7 @@ public class HotspotsToIssuesMigratorIT {
     assertThat(reload(onCodeSmell).getType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
     assertThat(reload(onVuln).getTags()).containsExactly(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
     assertThat(postProcessor.wasCalled()).isTrue();
+    verify(analyticsEventPublisher).publishAll(eq(IssueUpdatedBatchEvent.TYPE), any());
   }
 
   @Test

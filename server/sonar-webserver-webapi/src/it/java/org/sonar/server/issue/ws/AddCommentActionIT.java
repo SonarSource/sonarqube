@@ -44,6 +44,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.issue.IssueUpdatedTelemetryPublisher;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -94,7 +95,7 @@ public class AddCommentActionIT {
 
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
   private WebIssueStorage serverIssueStorage = new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer,
-    new SequenceUuidFactory());
+    new SequenceUuidFactory(), mock(IssueUpdatedTelemetryPublisher.class));
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient, serverIssueStorage, mock(NotificationManager.class), issueChangePostProcessor,
     new IssuesChangesNotificationSerializer());
