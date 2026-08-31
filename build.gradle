@@ -448,14 +448,14 @@ subprojects {
       dependency "org.sonarsource.sonarqube:sonar-events-server:$unifiedCoreVersion"
 
       // please keep this list alphabetically ordered
-      dependencySet(group: 'ch.qos.logback', version: '1.5.34') {
+      dependencySet(group: 'ch.qos.logback', version: '1.6.3') {
         entry 'logback-classic'
         entry 'logback-core'
       }
 
-      // https://mvnrepository.com/artifact/ch.qos.logback.access/common
-      dependency('ch.qos.logback.access:common:2.0.3')
-      dependency('ch.qos.logback.access:logback-access-tomcat:2.0.12')
+      // https://mvnrepository.com/artifact/ch.qos.logback.access/logback-access-common
+      dependency('ch.qos.logback.access:logback-access-common:2.0.15')
+      dependency('ch.qos.logback.access:logback-access-tomcat:2.0.15')
       dependency 'commons-codec:commons-codec:1.22.0'
       dependency 'commons-dbutils:commons-dbutils:1.8.1'
       dependency 'commons-io:commons-io:2.22.0'
