@@ -424,6 +424,26 @@ public class CeProcessLoggingTest {
   }
 
   @Test
+  public void unified_prefixes_use_sonar_log_level_unified_override() {
+    props.set("sonar.log.level.unified", "INFO");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    assertThat(ctx.getLogger("com.sonarsource").getLevel()).isEqualTo(Level.INFO);
+    assertThat(ctx.getLogger("org.sonarsource").getLevel()).isEqualTo(Level.INFO);
+  }
+
+  @Test
+  public void unified_prefixes_ignore_invalid_sonar_log_level_unified_value() {
+    props.set("sonar.log.level.unified", "not_a_level");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    assertThat(ctx.getLogger("com.sonarsource").getLevel()).isEqualTo(Level.WARN);
+    assertThat(ctx.getLogger("org.sonarsource").getLevel()).isEqualTo(Level.WARN);
+  }
+
+  @Test
   public void configure_defines_hardcoded_levels() {
     LoggerContext context = underTest.configure(props);
 

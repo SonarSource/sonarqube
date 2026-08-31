@@ -77,6 +77,7 @@ public class ProcessProperties {
     LOG_LEVEL_WEB("sonar.log.level.web"),
     LOG_LEVEL_CE("sonar.log.level.ce"),
     LOG_LEVEL_ES("sonar.log.level.es"),
+    LOG_LEVEL_UNIFIED("sonar.log.level.unified"),
     LOG_ROLLING_POLICY("sonar.log.rollingPolicy"),
     LOG_MAX_FILES("sonar.log.maxFiles"),
     LOG_CONSOLE("sonar.log.console"),

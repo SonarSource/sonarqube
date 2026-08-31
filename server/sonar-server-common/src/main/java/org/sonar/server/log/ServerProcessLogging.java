@@ -35,6 +35,7 @@ import org.sonar.process.logging.RootLoggerConfig;
 
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_NAME;
+import static org.sonar.process.ProcessProperties.Property.LOG_LEVEL_UNIFIED;
 import static org.sonar.process.logging.RootLoggerConfig.newRootLoggerConfigBuilder;
 
 public abstract class ServerProcessLogging {
@@ -123,16 +124,17 @@ public abstract class ServerProcessLogging {
     helper.apply(logLevelConfig, props);
     configureDirectToConsoleLoggers(props, ctx, STARTUP_LOGGER_NAME);
     extendConfigure(props);
-    applyUnifiedPrefixLevel(ctx);
+    applyUnifiedPrefixLevel(ctx, props);
 
     helper.enableJulChangePropagation(ctx);
 
     return ctx;
   }
 
-  private void applyUnifiedPrefixLevel(LoggerContext ctx) {
+  private void applyUnifiedPrefixLevel(LoggerContext ctx, Props props) {
     Level rootLevel = ctx.getLogger(helper.getRootLoggerName()).getLevel();
-    ServerLogging.UNIFIED_PREFIXES.forEach(prefix -> ctx.getLogger(prefix).setLevel(ServerLogging.toUnifiedLevel(rootLevel)));
+    Level unifiedPrefixLevelOverride = ServerLogging.resolveUnifiedPrefixLevelOverride(props.value(LOG_LEVEL_UNIFIED.getKey()));
+    ServerLogging.UNIFIED_PREFIXES.forEach(prefix -> ctx.getLogger(prefix).setLevel(ServerLogging.toUnifiedLevel(rootLevel, unifiedPrefixLevelOverride)));
   }
 
   public LogLevelConfig getLogLevelConfig() {
