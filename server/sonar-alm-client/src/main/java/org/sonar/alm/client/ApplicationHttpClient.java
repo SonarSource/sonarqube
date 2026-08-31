@@ -20,10 +20,11 @@
 package org.sonar.alm.client;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
-import org.sonar.auth.github.security.AccessToken;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
+import org.sonar.auth.github.security.AccessToken;
 
 @ServerSide
 @ComputeEngineSide
@@ -52,6 +53,22 @@ public interface ApplicationHttpClient {
    * Content type will be application/json; charset=utf-8
    */
   Response post(String appUrl, AccessToken token, String endPoint, String json) throws IOException;
+
+  /**
+   * Content of the response is populated if response's HTTP code is {@link java.net.HttpURLConnection#HTTP_OK OK} or
+   * {@link java.net.HttpURLConnection#HTTP_CREATED CREATED}.
+   * Extra headers are added on top of the standard authorization and API-version headers.
+   */
+  Response post(String appUrl, AccessToken token, String endPoint, Map<String, String> extraHeaders) throws IOException;
+
+  /**
+   * Content of the response is populated if response's HTTP code is {@link java.net.HttpURLConnection#HTTP_OK OK} or
+   * {@link java.net.HttpURLConnection#HTTP_CREATED CREATED}.
+   *
+   * Content type will be application/json; charset=utf-8
+   * Extra headers are added on top of the standard authorization and API-version headers.
+   */
+  Response post(String appUrl, AccessToken token, String endPoint, String json, Map<String, String> extraHeaders) throws IOException;
 
   /**
    * Content of the response is populated if response's HTTP code is {@link java.net.HttpURLConnection#HTTP_OK OK}.

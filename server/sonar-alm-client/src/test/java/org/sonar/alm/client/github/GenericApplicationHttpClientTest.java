@@ -24,6 +24,7 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -513,6 +514,32 @@ public class GenericApplicationHttpClientTest {
     TestApplicationHttpClient client = new TestApplicationHttpClient(new GithubHeaders(), customTimeout, new okhttp3.OkHttpClient());
 
     assertThat(client).isNotNull();
+  }
+
+  @Test
+  public void post_with_extra_headers_adds_them_to_request() throws IOException, InterruptedException {
+    server.enqueue(new MockResponse());
+
+    underTest.post(appUrl, accessToken, randomEndPoint, Map.of("X-Custom-Header", "custom-value"));
+
+    RecordedRequest recordedRequest = server.takeRequest();
+    assertThat(recordedRequest.getHeader("Authorization")).isEqualTo("token " + accessToken.getValue());
+    assertThat(recordedRequest.getHeader(GH_API_VERSION_HEADER)).isEqualTo(GH_API_VERSION);
+    assertThat(recordedRequest.getHeader("X-Custom-Header")).isEqualTo("custom-value");
+  }
+
+  @Test
+  public void post_with_json_body_and_extra_headers_adds_them_to_request() throws IOException, InterruptedException {
+    server.enqueue(new MockResponse());
+    String jsonBody = "{\"foo\": \"bar\"}";
+
+    underTest.post(appUrl, accessToken, randomEndPoint, jsonBody, Map.of("X-Custom-Header", "custom-value"));
+
+    RecordedRequest recordedRequest = server.takeRequest();
+    assertThat(recordedRequest.getHeader("Authorization")).isEqualTo("token " + accessToken.getValue());
+    assertThat(recordedRequest.getHeader(GH_API_VERSION_HEADER)).isEqualTo(GH_API_VERSION);
+    assertThat(recordedRequest.getHeader("X-Custom-Header")).isEqualTo("custom-value");
+    assertThat(recordedRequest.getBody().readUtf8()).isEqualTo(jsonBody);
   }
 
   @Test

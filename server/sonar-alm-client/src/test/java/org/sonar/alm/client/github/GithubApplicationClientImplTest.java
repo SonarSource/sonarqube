@@ -1182,7 +1182,8 @@ public class GithubApplicationClientImplTest {
   @Test
   public void createAppInstallationToken_returns_empty_if_post_throws_IOE() throws IOException {
     mockAppToken();
-    when(githubApplicationHttpClient.post(anyString(), any(AccessToken.class), anyString())).thenThrow(IOException.class);
+    Map<String, String> anyHeaders = any();
+    when(githubApplicationHttpClient.post(anyString(), any(AccessToken.class), anyString(), anyHeaders)).thenThrow(IOException.class);
     Optional<ExpiringAppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID);
 
     assertThat(accessToken).isEmpty();
@@ -1197,7 +1198,8 @@ public class GithubApplicationClientImplTest {
     Optional<ExpiringAppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID);
 
     assertThat(accessToken).isEmpty();
-    verify(githubApplicationHttpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens");
+    verify(githubApplicationHttpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens",
+      Map.of(GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER, GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER_VALUE));
   }
 
   @Test
@@ -1208,7 +1210,8 @@ public class GithubApplicationClientImplTest {
     Optional<ExpiringAppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID);
 
     assertThat(accessToken).hasValue(installToken);
-    verify(githubApplicationHttpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens");
+    verify(githubApplicationHttpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens",
+      Map.of(GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER, GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER_VALUE));
   }
 
   @Test
@@ -1220,7 +1223,8 @@ public class GithubApplicationClientImplTest {
 
     assertThat(accessToken).hasValue(installToken);
     verify(githubApplicationHttpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens",
-      "{\"repositories\":[\"Hello-World\"]}");
+      "{\"repositories\":[\"Hello-World\"]}",
+      Map.of(GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER, GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER_VALUE));
   }
 
   @Test
@@ -1229,7 +1233,7 @@ public class GithubApplicationClientImplTest {
     Response response = mock(Response.class);
     when(response.getContent()).thenReturn(Optional.empty());
     when(response.getCode()).thenReturn(HTTP_UNAUTHORIZED);
-    when(githubApplicationHttpClient.post(eq(appUrl), eq(appToken), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"), anyString())).thenReturn(response);
+    when(githubApplicationHttpClient.post(eq(appUrl), eq(appToken), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"), anyString(), any())).thenReturn(response);
 
     Optional<ExpiringAppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID, "Hello-World");
 
@@ -1305,7 +1309,8 @@ public class GithubApplicationClientImplTest {
     Response response = mock(Response.class);
     when(response.getContent()).thenReturn(Optional.empty());
     when(response.getCode()).thenReturn(HTTP_UNAUTHORIZED);
-    when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"))).thenReturn(response);
+    when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"),
+      eq(Map.of(GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER, GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER_VALUE)))).thenReturn(response);
   }
 
   private AppToken mockAppToken() {
@@ -1315,7 +1320,7 @@ public class GithubApplicationClientImplTest {
   }
 
   private ExpiringAppInstallationToken mockCreateAccessTokenCallingGithub() throws IOException {
-    String token = secure().nextAlphanumeric(5);
+    String token = "v1." + secure().nextAlphanumeric(43) + "." + secure().nextAlphanumeric(43) + "." + secure().nextAlphanumeric(86);
     Response response = mock(Response.class);
     when(response.getContent()).thenReturn(Optional.of(format("""
         {
@@ -1331,12 +1336,13 @@ public class GithubApplicationClientImplTest {
         }
       """, token)));
     when(response.getCode()).thenReturn(HTTP_CREATED);
-    when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"))).thenReturn(response);
+    when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"),
+      eq(Map.of(GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER, GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER_VALUE)))).thenReturn(response);
     return new ExpiringAppInstallationToken(clock, token, "2024-08-28T10:44:51Z");
   }
 
   private ExpiringAppInstallationToken mockCreateAccessTokenCallingGithubWithBody() throws IOException {
-    String token = secure().nextAlphanumeric(5);
+    String token = "v1." + secure().nextAlphanumeric(43) + "." + secure().nextAlphanumeric(43) + "." + secure().nextAlphanumeric(86);
     Response response = mock(Response.class);
     when(response.getContent()).thenReturn(Optional.of(format("""
         {
@@ -1346,7 +1352,8 @@ public class GithubApplicationClientImplTest {
         }
       """, token)));
     when(response.getCode()).thenReturn(HTTP_CREATED);
-    when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"), anyString())).thenReturn(response);
+    when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"), anyString(),
+      eq(Map.of(GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER, GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER_VALUE)))).thenReturn(response);
     return new ExpiringAppInstallationToken(clock, token, "2024-08-28T10:44:51Z");
   }
 

@@ -28,6 +28,9 @@ import org.sonar.api.server.ServerSide;
 @ComputeEngineSide
 public class GithubHeaders implements DevopsPlatformHeaders {
 
+  static final String STATELESS_INSTALLATION_TOKEN_HEADER = "X-GitHub-Stateless-S2S-Token";
+  static final String STATELESS_INSTALLATION_TOKEN_HEADER_VALUE = "enabled";
+
   @Override
   public Optional<String> getApiVersionHeader() {
     return Optional.of("X-GitHub-Api-Version");

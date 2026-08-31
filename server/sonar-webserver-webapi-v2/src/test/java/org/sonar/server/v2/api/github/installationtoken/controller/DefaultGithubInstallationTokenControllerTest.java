@@ -71,8 +71,9 @@ class DefaultGithubInstallationTokenControllerTest {
   @Test
   void generateInstallationToken_whenTokenIsMinted_returnsIt() throws Exception {
     userSession.logIn().setSystemAdministrator();
+    String statelessToken = "v1.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
     when(tokenProvider.mint("my-project")).thenReturn(Optional.of(
-      new GithubInstallationToken("ghs_abc123", "2026-07-15T15:00:00Z")));
+      new GithubInstallationToken(statelessToken, "2026-07-15T15:00:00Z")));
 
     MvcResult mvcResult = mockMvc
       .perform(post(GITHUB_INSTALLATION_TOKEN_ENDPOINT).param("project", "my-project"))
@@ -80,6 +81,6 @@ class DefaultGithubInstallationTokenControllerTest {
       .andReturn();
 
     GithubInstallationTokenRestResponse response = gson.fromJson(mvcResult.getResponse().getContentAsString(), GithubInstallationTokenRestResponse.class);
-    assertThat(response).isEqualTo(new GithubInstallationTokenRestResponse("ghs_abc123", "2026-07-15T15:00:00Z"));
+    assertThat(response).isEqualTo(new GithubInstallationTokenRestResponse(statelessToken, "2026-07-15T15:00:00Z"));
   }
 }

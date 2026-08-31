@@ -167,13 +167,14 @@ public class GithubInstallationTokenProviderImplTest {
 
     OffsetDateTime expiresAt = OffsetDateTime.parse("2026-07-15T15:00:00Z");
     ExpiringAppInstallationToken token = mock();
-    when(token.getValue()).thenReturn("ghs_abc123");
+    String tokenValue = "v1.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
+    when(token.getValue()).thenReturn(tokenValue);
     when(token.getExpiresAt()).thenReturn(expiresAt);
     when(githubApplicationClient.createAppInstallationToken(configuration, INSTALLATION_ID, BARE_REPO_NAME)).thenReturn(Optional.of(token));
 
     Optional<GithubInstallationToken> result = underTest.mint(PROJECT_KEY);
 
-    assertThat(result).contains(new GithubInstallationToken("ghs_abc123", expiresAt.format(ISO_OFFSET_DATE_TIME)));
+    assertThat(result).contains(new GithubInstallationToken(tokenValue, expiresAt.format(ISO_OFFSET_DATE_TIME)));
   }
 
   private ProjectDto mockProject() {

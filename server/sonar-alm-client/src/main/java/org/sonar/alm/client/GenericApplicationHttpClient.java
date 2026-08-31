@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -106,13 +107,23 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
 
   @Override
   public Response post(String appUrl, @Nullable AccessToken token, String endPoint) throws IOException {
-    return doPost(appUrl, token, endPoint, new FormBody.Builder().build());
+    return post(appUrl, token, endPoint, Map.of());
   }
 
   @Override
   public Response post(String appUrl, AccessToken token, String endPoint, String json) throws IOException {
+    return post(appUrl, token, endPoint, json, Map.of());
+  }
+
+  @Override
+  public Response post(String appUrl, @Nullable AccessToken token, String endPoint, Map<String, String> extraHeaders) throws IOException {
+    return doPost(appUrl, token, endPoint, new FormBody.Builder().build(), extraHeaders);
+  }
+
+  @Override
+  public Response post(String appUrl, AccessToken token, String endPoint, String json, Map<String, String> extraHeaders) throws IOException {
     RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
-    return doPost(appUrl, token, endPoint, body);
+    return doPost(appUrl, token, endPoint, body, extraHeaders);
   }
 
   @Override
@@ -141,10 +152,10 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
     return newRequestBuilder(appUrl, token, endPoint).delete().build();
   }
 
-  private Response doPost(String appUrl, @Nullable AccessToken token, String endPoint, RequestBody body) throws IOException {
+  private Response doPost(String appUrl, @Nullable AccessToken token, String endPoint, RequestBody body, Map<String, String> extraHeaders) throws IOException {
     validateEndPoint(endPoint);
 
-    try (okhttp3.Response response = client.newCall(newPostRequest(appUrl, token, endPoint, body)).execute()) {
+    try (okhttp3.Response response = client.newCall(newPostRequest(appUrl, token, endPoint, body, extraHeaders)).execute()) {
       int responseCode = response.code();
       RateLimit rateLimit = readRateLimit(response);
       if (responseCode == HTTP_OK || responseCode == HTTP_CREATED || responseCode == HTTP_ACCEPTED) {
@@ -175,8 +186,8 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
     }
   }
 
-  private Request newPostRequest(String appUrl, @Nullable AccessToken token, String endPoint, RequestBody body) {
-    return newRequestBuilder(appUrl, token, endPoint).post(body).build();
+  private Request newPostRequest(String appUrl, @Nullable AccessToken token, String endPoint, RequestBody body, Map<String, String> extraHeaders) {
+    return newRequestBuilder(appUrl, token, endPoint, extraHeaders).post(body).build();
   }
 
   private Request newPatchRequest(AccessToken token, String appUrl, String endPoint, RequestBody body) {
@@ -184,6 +195,10 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
   }
 
   private Request.Builder newRequestBuilder(String appUrl, @Nullable AccessToken token, String endPoint) {
+    return newRequestBuilder(appUrl, token, endPoint, Map.of());
+  }
+
+  private Request.Builder newRequestBuilder(String appUrl, @Nullable AccessToken token, String endPoint, Map<String, String> extraHeaders) {
     Request.Builder url = new Request.Builder().url(toAbsoluteEndPoint(appUrl, endPoint));
     if (token != null) {
       url.addHeader(devopsPlatformHeaders.getAuthorizationHeader(), token.getAuthorizationHeaderPrefix() + " " + token.getValue());
@@ -191,6 +206,7 @@ public abstract class GenericApplicationHttpClient implements ApplicationHttpCli
         url.addHeader(devopsPlatformHeaders.getApiVersionHeader().orElseThrow(), apiVersion)
       );
     }
+    extraHeaders.forEach(url::addHeader);
     return url;
   }
 
