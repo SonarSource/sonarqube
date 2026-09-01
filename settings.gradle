@@ -182,6 +182,9 @@ useLocalUnificationModule('useLocalRemediationEnablement', 'agentic-workflows',
     autoSubstitution: true,
   ]
 )
+useLocalUnificationModule('useLocalAgenticHttpSigning', 'agentic-workflows', ['agentic-http-signing'], [
+  autoSubstitution: true,
+])
 // Growth capabilities. Each one is its own composite build under growth/, so it gets its own flag.
 useLocalUnificationModule('useLocalOnboarding', 'growth/onboarding', ['onboarding-api', 'onboarding-unified-app'])
 useLocalUnificationModule('useLocalContactForm', 'growth/contact-form', ['contact-form-api', 'contact-form-unified-app'])
