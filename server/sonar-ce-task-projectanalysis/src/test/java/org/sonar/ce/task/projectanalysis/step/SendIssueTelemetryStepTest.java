@@ -350,18 +350,7 @@ class SendIssueTelemetryStepTest {
   }
 
   @Test
-  void execute_whenNotFirstAnalysisAndPullRequest_doesNotPublish() {
-    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
-    givenNotFirstAnalysis();
-    givenCachedIssues(changedIssues(1));
-
-    underTest.execute(new TestComputationStepContext());
-
-    verifyNoInteractions(analyticsEventPublisher);
-  }
-
-  @Test
-  void execute_whenPullRequestFirstAnalysis_doesNotPublish() {
+  void execute_whenPullRequestFirstAnalysis_andNothingFixed_doesNotPublish() {
     when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
     givenFirstAnalysis();
     givenCachedIssues(openIssue("issue1", "java", "S1234"));
@@ -369,6 +358,90 @@ class SendIssueTelemetryStepTest {
     underTest.execute(new TestComputationStepContext());
 
     verifyNoInteractions(analyticsEventPublisher);
+  }
+
+  @Test
+  void execute_whenPullRequestFirstAnalysis_andIssueResolvedAsFixed_publishesIssueUpdate() {
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    givenFirstAnalysis();
+    givenCachedIssues(changedIssue("issueFixed", "S1234", Issue.STATUS_RESOLVED, Issue.RESOLUTION_FIXED));
+
+    List<IssueUpdatedBatchEvent> events = executeAndCaptureIssueUpdateEvents();
+
+    assertThat(events).hasSize(1);
+    assertThat(events.get(0).branchType()).isEqualTo("PULL_REQUEST");
+    assertThat(events.get(0).issues()).extracting(IssueUpdate::issueKey).containsExactly("issueFixed");
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysisAndPullRequest_publishesOnlyTheFixedIssue() {
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    givenNotFirstAnalysis();
+    givenCachedIssues(
+      changedIssue("issueFixed", "S1234", Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED),
+      newIssue("issueNew", "S1234", Issue.STATUS_OPEN, null),
+      copiedIssue("issueCopied", "S1234", Issue.STATUS_OPEN, null),
+      changedIssue("issueReopened", "S1234", Issue.STATUS_REOPENED, null));
+
+    List<IssueUpdatedBatchEvent> events = executeAndCaptureIssueUpdateEvents();
+
+    assertThat(events).hasSize(1);
+    assertThat(events.get(0).issues()).extracting(IssueUpdate::issueKey).containsExactly("issueFixed");
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysisAndBranch_theIdenticalIssueMixIsUnaffectedByThePrFilter() {
+    givenNotFirstAnalysis();
+    givenCachedIssues(
+      changedIssue("issueFixed", "S1234", Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED),
+      newIssue("issueNew", "S1234", Issue.STATUS_OPEN, null),
+      copiedIssue("issueCopied", "S1234", Issue.STATUS_OPEN, null),
+      changedIssue("issueReopened", "S1234", Issue.STATUS_REOPENED, null));
+
+    List<IssueUpdatedBatchEvent> events = executeAndCaptureIssueUpdateEvents();
+
+    assertThat(events).hasSize(1);
+    assertThat(events.get(0).issues()).extracting(IssueUpdate::issueKey)
+      .containsExactlyInAnyOrder("issueFixed", "issueNew", "issueCopied", "issueReopened");
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysisAndPullRequest_andNothingFixed_doesNotPublish() {
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    givenNotFirstAnalysis();
+    givenCachedIssues(
+      newIssue("issueNew", "S1234", Issue.STATUS_OPEN, null),
+      copiedIssue("issueCopied", "S1234", Issue.STATUS_OPEN, null),
+      changedIssue("issueReopened", "S1234", Issue.STATUS_REOPENED, null));
+
+    underTest.execute(new TestComputationStepContext());
+
+    verifyNoInteractions(analyticsEventPublisher);
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysisAndPullRequest_andIssueRemovedMidAnalysis_doesNotPublish() {
+    // Regression coverage for the IssueTelemetryStatus REMOVED guard (STATUS_CLOSED, not STATUS_RESOLVED):
+    // without it, a rule deactivated mid-PR-analysis would be misreported as FIXED.
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    givenNotFirstAnalysis();
+    givenCachedIssues(changedIssue("issue1", "S1234", Issue.STATUS_CLOSED, Issue.RESOLUTION_REMOVED));
+
+    underTest.execute(new TestComputationStepContext());
+
+    verifyNoInteractions(analyticsEventPublisher);
+  }
+
+  @Test
+  void execute_whenNotFirstAnalysisAndPullRequest_and501FixedIssues_publishesTwoEventsOf500And1() {
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    givenNotFirstAnalysis();
+    givenCachedIssues(fixedIssues(501));
+
+    List<IssueUpdatedBatchEvent> events = executeAndCaptureIssueUpdateEvents();
+
+    assertThat(events).extracting(e -> e.issues().size()).containsExactly(500, 1);
+    assertUnionOfIssueKeysHasNoDuplicatesOrDrops(events, 501);
   }
 
   @Test
@@ -452,6 +525,12 @@ class SendIssueTelemetryStepTest {
   private static DefaultIssue[] changedIssues(int count) {
     return IntStream.range(0, count)
       .mapToObj(i -> changedIssue("issue" + i, "S1234", Issue.STATUS_OPEN, null))
+      .toArray(DefaultIssue[]::new);
+  }
+
+  private static DefaultIssue[] fixedIssues(int count) {
+    return IntStream.range(0, count)
+      .mapToObj(i -> changedIssue("issue" + i, "S1234", Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED))
       .toArray(DefaultIssue[]::new);
   }
 }

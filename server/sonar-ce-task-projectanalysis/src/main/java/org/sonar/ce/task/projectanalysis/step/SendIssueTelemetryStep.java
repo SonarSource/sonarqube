@@ -65,12 +65,12 @@ public class SendIssueTelemetryStep implements ComputationStep {
 
   @Override
   public void execute(Context context) {
-    if (!config.getBoolean(SONAR_TELEMETRY_ENABLE.getKey()).orElse(false) || analysisMetadataHolder.isPullRequest()) {
+    if (!config.getBoolean(SONAR_TELEMETRY_ENABLE.getKey()).orElse(false)) {
       return;
     }
 
     try {
-      if (analysisMetadataHolder.isFirstAnalysis()) {
+      if (analysisMetadataHolder.isFirstAnalysis() && !analysisMetadataHolder.isPullRequest()) {
         publishBacklogAggregate();
       } else {
         publishIssueUpdates();
@@ -109,9 +109,7 @@ public class SendIssueTelemetryStep implements ComputationStep {
     try (CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();
-        // Hotspot has null status, and we don't care about hotspot anymore
-        String issueStatus = IssueTelemetryStatus.of(issue.status(), issue.resolution());
-        if (isChangedIssue(issue) && issueStatus != null) {
+        if (shouldSendTelemetry(issue)) {
           buffered.add(toIssueUpdate(issue));
           if (buffered.size() >= maxPerAnalysis) {
             break;
@@ -125,6 +123,15 @@ public class SendIssueTelemetryStep implements ComputationStep {
     }
 
     publishIssueUpdatesInChunks(buffered);
+  }
+
+  private boolean shouldSendTelemetry(DefaultIssue issue){
+    String issueStatus = IssueTelemetryStatus.of(issue.status(), issue.resolution());
+    return isChangedIssue(issue) &&
+      // Hotspot has null status, and we don't care about hotspot anymore
+      issueStatus != null &&
+      // On a pull request, only issues fixed by this analysis are telemetry-worthy.
+      (!analysisMetadataHolder.isPullRequest() || IssueStatus.FIXED.name().equals(issueStatus));
   }
 
   private void publishIssueUpdatesInChunks(List<IssueUpdate> issueUpdates) {
@@ -187,7 +194,7 @@ public class SendIssueTelemetryStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Send issue backlog telemetry on first analysis, and per-issue update telemetry on subsequent analyses, excluding pull requests";
+    return "Send issue telemetry";
   }
 
   private record RuleCounts(Map<String, Integer> totalByRule, Map<String, Map<IssueStatus, Integer>> statusCountsByRule) {

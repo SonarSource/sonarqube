@@ -32,10 +32,6 @@ public record IssueUpdatedBatchEvent(
 
   public static final AnalyticsEventType TYPE = new AnalyticsEventType("Analytics.Workflow.IssueUpdated", "1.0", "Workflow", "IssueTelemetry");
 
-  /**
-   * Maximum number of issues carried by a single event. Not a property: batching only amortises
-   * the per-event transport overhead, there is nothing for an operator to tune.
-   */
   public static final int MAX_ISSUES_PER_EVENT = 500;
 
   public record IssueUpdate(
