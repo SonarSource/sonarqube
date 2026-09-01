@@ -489,7 +489,7 @@ subprojects {
       dependency 'io.prometheus:simpleclient:0.16.0'
       dependency 'io.prometheus:simpleclient_common:0.16.0'
       dependency 'io.prometheus:simpleclient_servlet:0.16.0'
-      dependency 'io.swagger.parser.v3:swagger-parser:2.1.43'
+      dependency 'io.swagger.parser.v3:swagger-parser:2.1.48'
       dependency 'com.github.spotbugs:spotbugs-annotations:4.10.1'
       dependency 'com.google.code.gson:gson:2.14.0'
       dependency('com.google.guava:guava:33.6.0-jre') {
