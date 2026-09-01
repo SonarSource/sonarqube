@@ -560,7 +560,7 @@ subprojects {
         entry 'kerb-simplekdc'
         entry 'ldap-backend'
       }
-      dependency 'org.apache.mina:mina-core:2.2.8'
+      dependency 'org.apache.mina:mina-core:2.2.9'
       dependency 'com.zaxxer:HikariCP:7.0.2'
       dependency('org.apache.directory.server:apacheds-server-integ:2.0.0.AM27') {
         exclude 'log4j:log4j'
