@@ -647,7 +647,7 @@ subprojects {
       dependency "com.sonarsource.pdfreport:pdf-generator-utils:${pdfreportVersion}"
       dependency 'com.sonarsource.fixsuggestions:ai-suggestions-shared:1.0.0.1775'
       dependency 'com.sonarsource.sonarqube:llm-chat-client:1.0.0.17870'
-      dependencySet(group: 'dev.langchain4j', version: '1.18.1') {
+      dependencySet(group: 'dev.langchain4j', version: '1.19.0') {
         entry 'langchain4j-azure-open-ai'
         entry 'langchain4j-bedrock'
         entry 'langchain4j-http-client-jdk'
