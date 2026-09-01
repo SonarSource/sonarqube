@@ -469,7 +469,7 @@ subprojects {
       imports { mavenBom 'com.fasterxml.jackson:jackson-bom:2.22.2' }
       // Jackson 3 (the 'tools.jackson' coordinates) is pulled in transitively by Springdoc.
       // Pin the BOM so that jackson-core and jackson-databind stay aligned on a fixed version.
-      imports { mavenBom 'tools.jackson:jackson-bom:3.1.5' }
+      imports { mavenBom 'tools.jackson:jackson-bom:3.2.2' }
       dependencySet(group: 'com.github.scribejava', version: '8.3.3') {
         entry 'scribejava-apis'
         entry 'scribejava-core'
