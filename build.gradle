@@ -463,7 +463,7 @@ subprojects {
       // https://mvnrepository.com/artifact/ch.qos.logback.access/logback-access-common
       dependency('ch.qos.logback.access:logback-access-common:2.0.15')
       dependency('ch.qos.logback.access:logback-access-tomcat:2.0.15')
-      dependency 'commons-codec:commons-codec:1.22.0'
+      dependency 'commons-codec:commons-codec:1.22.1'
       dependency 'commons-dbutils:commons-dbutils:1.8.1'
       dependency 'commons-io:commons-io:2.22.0'
       imports { mavenBom 'com.fasterxml.jackson:jackson-bom:2.22.1' }
