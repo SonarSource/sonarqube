@@ -34,7 +34,10 @@ import org.sonar.server.authentication.event.AuthenticationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.Cookies.SET_COOKIE;
@@ -66,6 +69,7 @@ public class JwtCsrfVerifierTest {
     assertThat(state).isNotEmpty();
 
     verify(response).addHeader(SET_COOKIE, String.format("XSRF-TOKEN=%s; Path=/; SameSite=Lax; Max-Age=30", state));
+    verify(response).setHeader("X-XSRF-TOKEN", state);
   }
 
   @Test
@@ -145,6 +149,17 @@ public class JwtCsrfVerifierTest {
     underTest.refreshState(request, response, CSRF_STATE, 30);
 
     verify(response).addHeader(SET_COOKIE, String.format("XSRF-TOKEN=%s; Path=/; SameSite=Lax; Max-Age=30", CSRF_STATE));
+    verify(response).setHeader("X-XSRF-TOKEN", CSRF_STATE);
+  }
+
+  @Test
+  public void set_csrf_header_replaces_rather_than_appends() {
+    underTest.setCsrfHeader(response, "OLD_STATE");
+    underTest.setCsrfHeader(response, CSRF_STATE);
+
+    verify(response).setHeader("X-XSRF-TOKEN", "OLD_STATE");
+    verify(response).setHeader("X-XSRF-TOKEN", CSRF_STATE);
+    verify(response, never()).addHeader(eq("X-XSRF-TOKEN"), anyString());
   }
 
   @Test

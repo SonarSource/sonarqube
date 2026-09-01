@@ -161,7 +161,9 @@ public class JwtHttpHandler {
     if (now.after(addSeconds(token.getIssuedAt(), (int) activeSessionTimeout.toSeconds()))) {
       return Optional.empty();
     }
-    jwtCsrfVerifier.verifyState(request, (String) token.get(CSRF_JWT_PARAM), token.getSubject());
+    String csrfState = (String) token.get(CSRF_JWT_PARAM);
+    jwtCsrfVerifier.verifyState(request, csrfState, token.getSubject());
+    jwtCsrfVerifier.setCsrfHeader(response, csrfState);
 
     if (now.after(addSeconds(getLastRefreshDate(token), (int) SESSION_REFRESH.toSeconds()))) {
       refreshToken(dbSession, sessionToken.get(), token, request, response);

@@ -45,16 +45,21 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.SessionTokenDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.event.AuthenticationEvent.Method;
+import org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.http.JakartaHttpRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -291,6 +296,38 @@ class JwtHttpHandlerIT {
     underTest.validateToken(request, response);
 
     verify(jwtCsrfVerifier).verifyState(request, CSRF_STATE, user.getUuid());
+  }
+
+  @Test
+  void validate_token_sets_xsrf_token_response_header() {
+    UserDto user = db.users().insertUser();
+    addJwtCookie();
+    SessionTokenDto sessionToken = db.users().insertSessionToken(user, st -> st.setExpirationDate(IN_FIVE_MINUTES));
+    Claims claims = createTokenBuilder(sessionToken, NOW)
+      .add("xsrfToken", CSRF_STATE)
+      .build();
+    when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
+
+    underTest.validateToken(request, response);
+
+    verify(jwtCsrfVerifier).setCsrfHeader(response, CSRF_STATE);
+  }
+
+  @Test
+  void validate_token_does_not_set_xsrf_token_response_header_when_csrf_verification_fails() {
+    UserDto user = db.users().insertUser();
+    addJwtCookie();
+    SessionTokenDto sessionToken = db.users().insertSessionToken(user, st -> st.setExpirationDate(IN_FIVE_MINUTES));
+    Claims claims = createTokenBuilder(sessionToken, NOW)
+      .add("xsrfToken", CSRF_STATE)
+      .build();
+    when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
+    doThrow(AuthenticationException.newBuilder().setSource(Source.local(Method.JWT)).setMessage("Wrong CSRF").build())
+      .when(jwtCsrfVerifier).verifyState(request, CSRF_STATE, user.getUuid());
+
+    assertThatThrownBy(() -> underTest.validateToken(request, response)).isInstanceOf(AuthenticationException.class);
+
+    verify(jwtCsrfVerifier, never()).setCsrfHeader(any(), any());
   }
 
   @Test

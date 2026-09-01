@@ -55,6 +55,7 @@ public class JwtCsrfVerifier {
       .setExpiry(timeoutInSeconds)
       .setSameSite(SAMESITE_LAX)
       .toValueString());
+    setCsrfHeader(response, state);
     return state;
   }
 
@@ -93,10 +94,23 @@ public class JwtCsrfVerifier {
         .setExpiry(timeoutInSeconds)
         .setSameSite(SAMESITE_LAX)
         .toValueString());
+    setCsrfHeader(response, csrfState);
   }
 
   public void removeState(HttpRequest request, HttpResponse response) {
     response.addCookie(newCookieBuilder(request).setName(CSRF_STATE_COOKIE).setValue(null).setHttpOnly(false).setExpiry(0).build());
+  }
+
+  /**
+   * Exposes the CSRF token carried by an already-validated JWT session as a response header, so that
+   * same-origin JavaScript can read it even when the {@value #CSRF_STATE_COOKIE} cookie is rewritten
+   * {@code HttpOnly} by a reverse proxy. Always uses {@link HttpResponse#setHeader} (replace), never
+   * {@code addHeader}, so whichever call writes the header last within a response — a plain validation,
+   * a token refresh, or a fresh {@link #generateState} — is the one whose value survives, matching the
+   * CSRF state actually embedded in the cookies written to that same response.
+   */
+  void setCsrfHeader(HttpResponse response, String csrfState) {
+    response.setHeader(CSRF_HEADER, csrfState);
   }
 
   private static boolean shouldRequestBeChecked(HttpRequest request) {
