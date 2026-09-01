@@ -583,7 +583,7 @@ subprojects {
         entry 'assertj-core'
         entry 'assertj-guava'
       }
-      dependencySet(group: 'org.bouncycastle', version: '1.84') {
+      dependencySet(group: 'org.bouncycastle', version: '1.85') {
         entry 'bcpkix-jdk18on'
         entry 'bcprov-jdk18on'
       }
