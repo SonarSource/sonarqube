@@ -539,7 +539,7 @@ subprojects {
       dependency 'jakarta.servlet:jakarta.servlet-api:6.1.0'
       dependency 'joda-time:joda-time:2.14.3'
       dependency 'junit:junit:4.13.2'
-      dependencySet(group: 'org.xmlunit', version: '2.12.0') {
+      dependencySet(group: 'org.xmlunit', version: '2.13.0') {
         entry 'xmlunit-core'
         entry 'xmlunit-matchers'
       }
