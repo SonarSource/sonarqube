@@ -410,6 +410,9 @@ subprojects {
         entry 'sonar-db-commons-testfixtures'
         entry 'sonar-spring'
       }
+      // Record generation for portable modules (e.g. security-alerts-unified-app), mirroring sonar-sca's usage.
+      dependency 'io.soabase.record-builder:record-builder-core:52'
+      dependency 'io.soabase.record-builder:record-builder-processor:52'
       dependency "org.sonarsource.sonarqube:organizations-api:$organizationsApiVersion"
       dependency "org.sonarsource.sonarqube:organizations-server-app:$organizationsApiVersion"
       dependency "org.sonarsource.sonarqube:projects-api:$projectsApiVersion"
