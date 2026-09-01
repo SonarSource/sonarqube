@@ -406,11 +406,13 @@ subprojects {
       dependency "org.sonarsource.sonarqube:webapp-assets:$webappVersion"
 
       // Shared libraries from sonarqube-unification
-      dependencySet(group: 'org.sonarsource.sonarqube', version: '1.15.0.5023') {
+      dependencySet(group: 'org.sonarsource.sonarqube', version: '1.19.0.15371') {
         entry 'sonar-db-commons'
         entry 'sonar-db-commons-testfixtures'
-        entry 'sonar-spring'
       }
+      // Pinned below the rest of the shared libs: newer sonar-spring versions break exception-to-HTTP-status
+      // mapping for Remediation Agent's validation errors (SONAR-28139).
+      dependency 'org.sonarsource.sonarqube:sonar-spring:1.15.0.5023'
       // Record generation for portable modules (e.g. security-alerts-unified-app), mirroring sonar-sca's usage.
       dependency 'io.soabase.record-builder:record-builder-core:52'
       dependency 'io.soabase.record-builder:record-builder-processor:52'
