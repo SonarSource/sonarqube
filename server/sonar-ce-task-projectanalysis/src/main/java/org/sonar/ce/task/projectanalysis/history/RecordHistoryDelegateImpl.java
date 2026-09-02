@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.history;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -29,21 +28,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.ibatis.cursor.Cursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.db.issue.ImpactDto;
-import org.sonar.db.issue.IndexedIssueDto;
+import org.sonar.db.issue.IssueCountDimensionDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarsource.history.model.EntityType;
-import org.sonarsource.history.model.Impact;
-import org.sonarsource.history.model.IssueDtoForHistory;
+import org.sonarsource.history.model.IssueCountDimensionKey;
 import org.sonarsource.history.model.Measure;
 import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
 import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
@@ -56,7 +50,6 @@ import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
 public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
 
   private static final Logger LOG = LoggerFactory.getLogger(RecordHistoryDelegateImpl.class);
-  private static final String CLOSED_STATUS = "CLOSED";
   private static final ScaTtrHistoryRecorder NO_OP_SCA_TTR_HISTORY_RECORDER = (entityUuid, entityType) -> {
     // SCA history is available only when the private SCA extension provides a recorder.
   };
@@ -64,7 +57,6 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
   private final DbClient dbClient;
   private final IssueCountHistoryRecordingService issueHistoryService;
   private final MeasuresHistoryRecordingService measuresHistoryService;
-  private final RuleRepository ruleRepository;
   private final IssueTtrHistoryRecorder issueTtrHistoryRecorder;
   private final ScaTtrHistoryRecorder scaTtrHistoryRecorder;
 
@@ -72,13 +64,11 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
     DbClient dbClient,
     IssueCountHistoryRecordingService issueHistoryService,
     MeasuresHistoryRecordingService measuresHistoryService,
-    RuleRepository ruleRepository,
     IssueTtrHistoryRecorder issueTtrHistoryRecorder,
     @Nullable ScaTtrHistoryRecorder scaTtrHistoryRecorder) {
     this.dbClient = dbClient;
     this.issueHistoryService = issueHistoryService;
     this.measuresHistoryService = measuresHistoryService;
-    this.ruleRepository = ruleRepository;
     this.issueTtrHistoryRecorder = issueTtrHistoryRecorder;
     this.scaTtrHistoryRecorder = scaTtrHistoryRecorder == null ? NO_OP_SCA_TTR_HISTORY_RECORDER : scaTtrHistoryRecorder;
   }
@@ -104,75 +94,36 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
   // -------------------------------------------------------------------------
 
   private void recordIssueHistory(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids, LocalDate today) {
-    List<IssueDtoForHistory> issues = fetchIssues(issueSourceBranchUuids);
-    issueHistoryService.recordIssueHistory(entityUuid, entityType, issues, today);
+    Map<IssueCountDimensionKey, Integer> issueCounts = fetchIssueCounts(issueSourceBranchUuids);
+    issueHistoryService.recordIssueHistory(entityUuid, entityType, issueCounts, today);
   }
 
-  private List<IssueDtoForHistory> fetchIssues(Collection<String> issueSourceBranchUuids) {
-    List<IssueDtoForHistory> result = new ArrayList<>();
+  /**
+   * Merges the pre-aggregated dimension counts into a single map, summing counts for dimensions shared
+   * across branches (e.g. when recording history for an application) or across DB batches (branches are
+   * queried in batches of at most 1000 due to DB parameter limits). The grouping itself is done in SQL,
+   * so no individual issue is ever loaded into memory here (SONAR-31731).
+   */
+  private Map<IssueCountDimensionKey, Integer> fetchIssueCounts(Collection<String> issueSourceBranchUuids) {
+    Map<IssueCountDimensionKey, Integer> issueCounts = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      issueSourceBranchUuids.forEach(issueSourceBranchUuid -> collectIssues(dbSession, issueSourceBranchUuid, result));
-    }
-    return result;
-  }
-
-  private void collectIssues(DbSession dbSession, String issueSourceUuid, List<IssueDtoForHistory> result) {
-    try (Cursor<IndexedIssueDto> cursor = dbClient.issueDao().scrollIssuesForIndexation(dbSession, issueSourceUuid, null)) {
-      for (IndexedIssueDto indexed : cursor) {
-        if (CLOSED_STATUS.equals(indexed.getStatus())) {
-          continue;
-        }
-        IssueDtoForHistory dto = toIssueDtoForHistory(indexed);
-        if (dto != null) {
-          result.add(dto);
-        }
+      for (IssueCountDimensionDto row : dbClient.issueDao().selectIssueCountDimensionsForBranches(dbSession, issueSourceBranchUuids)) {
+        issueCounts.merge(toIssueCountDimensionKey(row), row.issueCount(), Integer::sum);
       }
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to close issue cursor for entity " + issueSourceUuid, e);
     }
+    return issueCounts;
   }
 
-  private IssueDtoForHistory toIssueDtoForHistory(IndexedIssueDto indexed) {
-    String ruleKeyString;
-    try {
-      ruleKeyString = ruleRepository.findByUuid(indexed.getRuleUuid())
-        .map(rule -> rule.getKey().toString())
-        .orElseGet(() -> {
-          LOG.warn("Rule not found for UUID '{}' on issue '{}'; skipping issue.", indexed.getRuleUuid(), indexed.getIssueKey());
-          return null;
-        });
-    } catch (Exception e) {
-      LOG.warn("Failed to resolve rule UUID '{}' for issue '{}'; skipping issue.", indexed.getRuleUuid(), indexed.getIssueKey(), e);
-      return null;
-    }
-    if (ruleKeyString == null) {
-      return null;
-    }
-
-    List<Impact> overriddenImpacts = indexed.getImpacts().stream()
-      .map(RecordHistoryDelegateImpl::toImpact)
-      .toList();
-
-    List<Impact> ruleDefaultImpacts = indexed.getRuleDefaultImpacts().stream()
-      .map(RecordHistoryDelegateImpl::toImpact)
-      .toList();
-
-    return new IssueDtoForHistory(
-      indexed.getIssueType() != null ? indexed.getIssueType() : 0,
-      indexed.getSeverity(),
-      indexed.getIssueStatus(),
-      indexed.getStatus(),
-      indexed.getResolution(),
-      ComponentQualifiers.UNIT_TEST_FILE.equals(indexed.getQualifier()) ? "TEST" : "MAIN",
-      ruleKeyString,
-      overriddenImpacts,
-      ruleDefaultImpacts);
-  }
-
-  private static Impact toImpact(ImpactDto dto) {
-    return new Impact(
-      dto.getSoftwareQuality() != null ? dto.getSoftwareQuality().name() : null,
-      dto.getSeverity() != null ? dto.getSeverity().name() : null);
+  private static IssueCountDimensionKey toIssueCountDimensionKey(IssueCountDimensionDto row) {
+    return new IssueCountDimensionKey(
+      row.hotspotResolution(),
+      row.codeScope(),
+      row.severity(),
+      row.issueStatus(),
+      row.status(),
+      row.issueType(),
+      row.ruleKey(),
+      row.effectiveImpacts());
   }
 
   // -------------------------------------------------------------------------

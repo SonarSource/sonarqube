@@ -101,6 +101,8 @@ public interface IssueMapper {
 
   Cursor<IssueStatsDto> scrollIssuesForIssueStats(@Param("branchUuid") String branchUuid);
 
+  List<IssueCountDimensionDto> selectIssueCountDimensionsForBranches(@Param("branchUuids") List<String> branchUuids);
+
   AggregatedIssueStatsDto aggregateIssueStatsForBranchUuidAndRuleKey(@Param("branchUuid") String branchUuid,
     @Param("ruleRepository") String repository, @Param("ruleKey") String rule);
 

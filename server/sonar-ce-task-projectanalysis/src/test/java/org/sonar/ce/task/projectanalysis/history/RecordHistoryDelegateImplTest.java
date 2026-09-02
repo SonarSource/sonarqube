@@ -19,43 +19,33 @@
  */
 package org.sonar.ce.task.projectanalysis.history;
 
-import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import org.apache.ibatis.cursor.Cursor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.issue.impact.Severity;
-import org.sonar.api.issue.impact.SoftwareQuality;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.ce.task.projectanalysis.issue.Rule;
-import org.sonar.ce.task.projectanalysis.issue.RuleRepository;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentQualifiers;
-import org.sonar.db.issue.ImpactDto;
-import org.sonar.db.issue.IndexedIssueDto;
+import org.sonar.db.issue.IssueCountDimensionDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
 import org.sonarsource.history.model.EntityType;
-import org.sonarsource.history.model.Impact;
-import org.sonarsource.history.model.IssueDtoForHistory;
+import org.sonarsource.history.model.IssueCountDimensionKey;
 import org.sonarsource.history.model.Measure;
 import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
 import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -64,7 +54,6 @@ import static org.mockito.Mockito.when;
 class RecordHistoryDelegateImplTest {
 
   private static final String ENTITY_UUID = "entity-uuid";
-  private static final String RULE_UUID = "rule-uuid";
 
   private final DbClient dbClient = mock(DbClient.class);
   private final DbSession dbSession = mock(DbSession.class);
@@ -73,12 +62,10 @@ class RecordHistoryDelegateImplTest {
   private final MetricDao metricDao = mock(MetricDao.class);
   private final IssueCountHistoryRecordingService issueHistoryService = mock(IssueCountHistoryRecordingService.class);
   private final MeasuresHistoryRecordingService measuresHistoryService = mock(MeasuresHistoryRecordingService.class);
-  private final RuleRepository ruleRepository = mock(RuleRepository.class);
   private final IssueTtrHistoryRecorder issueTtrHistoryRecorder = mock();
   private final ScaTtrHistoryRecorder scaTtrHistoryRecorder = mock();
-  private final Rule rule = mock(Rule.class);
   private final RecordHistoryDelegateImpl underTest = new RecordHistoryDelegateImpl(
-    dbClient, issueHistoryService, measuresHistoryService, ruleRepository, issueTtrHistoryRecorder, scaTtrHistoryRecorder);
+    dbClient, issueHistoryService, measuresHistoryService, issueTtrHistoryRecorder, scaTtrHistoryRecorder);
 
   @BeforeEach
   void setUp() {
@@ -87,95 +74,35 @@ class RecordHistoryDelegateImplTest {
     when(dbClient.measureDao()).thenReturn(measureDao);
     when(dbClient.metricDao()).thenReturn(metricDao);
     when(measureDao.selectByComponentUuid(dbSession, ENTITY_UUID)).thenReturn(Optional.empty());
-    when(ruleRepository.findByUuid(RULE_UUID)).thenReturn(Optional.of(rule));
-    when(rule.getKey()).thenReturn(RuleKey.of("java", "S1234"));
   }
 
   @Test
-  void recordHistory_shouldMapNonUnitTestQualifierToMainCodeScope() {
-    IndexedIssueDto issue = issueWithQualifier(ComponentQualifiers.FILE).setCodeVariants("TEST");
-    givenIssueCursor(issue);
+  void recordHistory_shouldMapDimensionRowFieldsIntoDimensionKeyAndCount() {
+    givenDimensionRows(ENTITY_UUID, new IssueCountDimensionDto(
+      2, "CRITICAL", "FALSE_POSITIVE", "RESOLVED", null, "TEST", "java:S1234", null, "HIGH", "MEDIUM", 3));
 
     recordBranchHistory();
 
-    assertThat(capturedIssue().getCodeScope()).isEqualTo("MAIN");
-  }
-
-  @Test
-  void recordHistory_shouldMapUnitTestQualifierToTestCodeScope() {
-    IndexedIssueDto issue = issueWithQualifier(ComponentQualifiers.UNIT_TEST_FILE).setCodeVariants("MAIN");
-    givenIssueCursor(issue);
-
-    recordBranchHistory();
-
-    assertThat(capturedIssue().getCodeScope()).isEqualTo("TEST");
-  }
-
-  @Test
-  void recordHistory_shouldSkipClosedIssues() {
-    IndexedIssueDto closedIssue = issueWithQualifier(ComponentQualifiers.FILE).setStatus("CLOSED");
-    givenIssueCursor(closedIssue);
-
-    recordBranchHistory();
-
-    assertThat(capturedIssues()).isEmpty();
-  }
-
-  @Test
-  void recordHistory_whenIssueCursorCannotClose_shouldIdentifyIssueSource() throws IOException {
-    Cursor<IndexedIssueDto> cursor = mock(Cursor.class);
-    when(cursor.iterator()).thenReturn(List.<IndexedIssueDto>of().iterator());
-    when(issueDao.scrollIssuesForIndexation(dbSession, ENTITY_UUID, null)).thenReturn(cursor);
-    doThrow(new IOException("close failure")).when(cursor).close();
-
-    assertThatThrownBy(this::recordBranchHistory)
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to close issue cursor for entity " + ENTITY_UUID);
-  }
-
-  @Test
-  void recordHistory_shouldSkipIssuesWithMissingRules() {
-    IndexedIssueDto issue = issueWithQualifier(ComponentQualifiers.FILE).setRuleUuid("missing-rule-uuid");
-    givenIssueCursor(issue);
-    when(ruleRepository.findByUuid("missing-rule-uuid")).thenReturn(Optional.empty());
-
-    recordBranchHistory();
-
-    assertThat(capturedIssues()).isEmpty();
-  }
-
-  @Test
-  void recordHistory_shouldMapIssueFieldsAndImpacts() {
-    IndexedIssueDto issue = issueWithQualifier(ComponentQualifiers.UNIT_TEST_FILE)
-      .setIssueType(2)
-      .setSeverity("CRITICAL")
-      .setStatus("RESOLVED")
-      .setResolution("FALSE-POSITIVE");
-    issue.getImpacts().add(new ImpactDto(SoftwareQuality.SECURITY, Severity.HIGH));
-    issue.getRuleDefaultImpacts().add(new ImpactDto(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
-    givenIssueCursor(issue);
-
-    recordBranchHistory();
-
-    IssueDtoForHistory mappedIssue = capturedIssue();
-    assertThat(mappedIssue.getType()).isEqualTo(2);
-    assertThat(mappedIssue.getSeverity()).isEqualTo("CRITICAL");
-    assertThat(mappedIssue.getIssueStatus()).isEqualTo("FALSE_POSITIVE");
-    assertThat(mappedIssue.getStatus()).isEqualTo("RESOLVED");
-    assertThat(mappedIssue.getResolution()).isEqualTo("FALSE-POSITIVE");
-    assertThat(mappedIssue.getCodeScope()).isEqualTo("TEST");
-    assertThat(mappedIssue.getRuleKey()).isEqualTo("java:S1234");
-    assertThat(mappedIssue.getOverriddenImpacts())
-      .extracting(Impact::getSoftwareQuality, Impact::getSeverity)
-      .containsExactly(tuple("SECURITY", "HIGH"));
-    assertThat(mappedIssue.getRuleDefaultImpacts())
-      .extracting(Impact::getSoftwareQuality, Impact::getSeverity)
-      .containsExactly(tuple("RELIABILITY", "MEDIUM"));
+    Map<IssueCountDimensionKey, Integer> counts = capturedIssueCounts(EntityType.PROJECT_BRANCH);
+    assertThat(counts).hasSize(1);
+    Map.Entry<IssueCountDimensionKey, Integer> entry = counts.entrySet().iterator().next();
+    IssueCountDimensionKey key = entry.getKey();
+    assertThat(key.issueType()).isEqualTo(2);
+    assertThat(key.issueSeverity()).isEqualTo("CRITICAL");
+    assertThat(key.issueStatus()).isEqualTo("FALSE_POSITIVE");
+    assertThat(key.status()).isEqualTo("RESOLVED");
+    assertThat(key.issueCodeScope()).isEqualTo("TEST");
+    assertThat(key.ruleKey()).isEqualTo("java:S1234");
+    assertThat(key.hotspotResolution()).isNull();
+    assertThat(key.maintainabilityRating()).isZero();
+    assertThat(key.securityRating()).isEqualTo((short) 4);
+    assertThat(key.reliabilityRating()).isEqualTo((short) 3);
+    assertThat(entry.getValue()).isEqualTo(3);
   }
 
   @Test
   void recordHistory_shouldRecordIssueAndMeasureHistory() {
-    givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
+    givenDimensionRows(ENTITY_UUID, defaultDimensionRow());
     MeasureDto measureDto = new MeasureDto()
       .addValue("ncloc", 42.0)
       .addValue("coverage", 85.5)
@@ -189,7 +116,7 @@ class RecordHistoryDelegateImplTest {
 
     recordBranchHistory();
 
-    assertThat(capturedIssue()).isNotNull();
+    assertThat(capturedIssueCounts(EntityType.PROJECT_BRANCH)).isNotEmpty();
     assertThat(capturedMeasures()).containsExactly(
       new Measure("alert_status", "LEVEL", "OK"),
       new Measure("coverage", "FLOAT", "85.5"),
@@ -197,9 +124,9 @@ class RecordHistoryDelegateImplTest {
   }
 
   @Test
-  void recordHistory_whenApplication_shouldAggregateIssuesFromProjectBranchesAndRecordApplicationMeasures() {
-    givenIssueCursor("branch-1", issueWithQualifier(ComponentQualifiers.FILE));
-    givenIssueCursor("branch-2", issueWithQualifier(ComponentQualifiers.UNIT_TEST_FILE));
+  void recordHistory_whenApplication_shouldMergeSameDimensionCountsAcrossBranches() {
+    givenDimensionRows(List.of("branch-1", "branch-2"),
+      defaultDimensionRow().withIssueCount(2), defaultDimensionRow().withIssueCount(3));
     MeasureDto measureDto = new MeasureDto().addValue("ncloc", 84.0);
     when(measureDao.selectByComponentUuid(dbSession, ENTITY_UUID)).thenReturn(Optional.of(measureDto));
     when(metricDao.selectByKeys(eq(dbSession), any())).thenReturn(List.of(
@@ -207,10 +134,8 @@ class RecordHistoryDelegateImplTest {
 
     underTest.recordHistory(ENTITY_UUID, EntityType.APPLICATION, List.of("branch-1", "branch-2"));
 
-    ArgumentCaptor<List<IssueDtoForHistory>> issuesCaptor = ArgumentCaptor.forClass(List.class);
-    verify(issueHistoryService).recordIssueHistory(
-      eq(ENTITY_UUID), eq(EntityType.APPLICATION), issuesCaptor.capture(), any(LocalDate.class));
-    assertThat(issuesCaptor.getValue()).extracting(IssueDtoForHistory::getCodeScope).containsExactly("MAIN", "TEST");
+    Map<IssueCountDimensionKey, Integer> counts = capturedIssueCounts(EntityType.APPLICATION);
+    assertThat(counts.values()).containsExactly(5);
 
     ArgumentCaptor<List<Measure>> measuresCaptor = ArgumentCaptor.forClass(List.class);
     verify(measuresHistoryService).recordMeasureHistory(
@@ -220,8 +145,24 @@ class RecordHistoryDelegateImplTest {
   }
 
   @Test
+  void recordHistory_whenApplication_shouldKeepDistinctBranchDimensionsSeparate() {
+    givenDimensionRows(List.of("branch-1", "branch-2"),
+      defaultDimensionRow().withCodeScope("MAIN"), defaultDimensionRow().withCodeScope("TEST").withSeverity("CRITICAL"));
+
+    underTest.recordHistory(ENTITY_UUID, EntityType.APPLICATION, List.of("branch-1", "branch-2"));
+
+    Map<IssueCountDimensionKey, Integer> counts = capturedIssueCounts(EntityType.APPLICATION);
+    assertThat(counts.keySet())
+      .extracting(IssueCountDimensionKey::issueCodeScope, IssueCountDimensionKey::issueSeverity)
+      .containsExactlyInAnyOrder(
+        tuple("MAIN", "MAJOR"),
+        tuple("TEST", "CRITICAL"));
+    verify(issueDao).selectIssueCountDimensionsForBranches(dbSession, List.of("branch-1", "branch-2"));
+  }
+
+  @Test
   void recordHistory_whenPortfolio_shouldRecordScaTtrHistoryForAggregation() {
-    givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
+    givenDimensionRows(ENTITY_UUID, defaultDimensionRow());
 
     underTest.recordHistory(ENTITY_UUID, EntityType.PORTFOLIO, List.of(ENTITY_UUID));
 
@@ -230,9 +171,9 @@ class RecordHistoryDelegateImplTest {
 
   @Test
   void recordHistory_whenScaTtrHistoryRecorderIsMissing_shouldNotFail() {
-    givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
+    givenDimensionRows(ENTITY_UUID, defaultDimensionRow());
     RecordHistoryDelegateImpl delegateWithoutScaTtrHistoryRecorder = new RecordHistoryDelegateImpl(
-      dbClient, issueHistoryService, measuresHistoryService, ruleRepository, issueTtrHistoryRecorder, null);
+      dbClient, issueHistoryService, measuresHistoryService, issueTtrHistoryRecorder, null);
 
     assertThatCode(() -> delegateWithoutScaTtrHistoryRecorder.recordHistory(
       ENTITY_UUID, EntityType.PORTFOLIO, List.of(ENTITY_UUID)))
@@ -241,7 +182,7 @@ class RecordHistoryDelegateImplTest {
 
   @Test
   void recordHistory_whenProjectBranch_shouldRecordScaTtrHistory() {
-    givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
+    givenDimensionRows(ENTITY_UUID, defaultDimensionRow());
 
     recordBranchHistory();
 
@@ -249,31 +190,8 @@ class RecordHistoryDelegateImplTest {
   }
 
   @Test
-  void recordHistory_whenApplication_shouldCollectEveryProjectBranchIssueIntoOneApplicationSnapshot() {
-    givenIssueCursor("branch-1",
-      issueWithQualifier(ComponentQualifiers.FILE),
-      issueWithQualifier(ComponentQualifiers.FILE));
-    givenIssueCursor("branch-2",
-      issueWithQualifier(ComponentQualifiers.UNIT_TEST_FILE).setSeverity("CRITICAL"));
-
-    underTest.recordHistory(ENTITY_UUID, EntityType.APPLICATION, List.of("branch-1", "branch-2"));
-
-    ArgumentCaptor<List<IssueDtoForHistory>> issuesCaptor = ArgumentCaptor.forClass(List.class);
-    verify(issueHistoryService).recordIssueHistory(
-      eq(ENTITY_UUID), eq(EntityType.APPLICATION), issuesCaptor.capture(), any(LocalDate.class));
-    assertThat(issuesCaptor.getValue())
-      .extracting(IssueDtoForHistory::getCodeScope, IssueDtoForHistory::getSeverity, IssueDtoForHistory::getRuleKey)
-      .containsExactly(
-        tuple("MAIN", "MAJOR", "java:S1234"),
-        tuple("MAIN", "MAJOR", "java:S1234"),
-        tuple("TEST", "CRITICAL", "java:S1234"));
-    verify(issueDao).scrollIssuesForIndexation(dbSession, "branch-1", null);
-    verify(issueDao).scrollIssuesForIndexation(dbSession, "branch-2", null);
-  }
-
-  @Test
   void recordHistory_shouldRecordMeasureHistoryWhenMetricValueTypeIsNull() {
-    givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
+    givenDimensionRows(ENTITY_UUID, defaultDimensionRow());
     MeasureDto measureDto = new MeasureDto().addValue("ncloc", 42.0);
     when(measureDao.selectByComponentUuid(dbSession, ENTITY_UUID)).thenReturn(Optional.of(measureDto));
     when(metricDao.selectByKeys(eq(dbSession), any())).thenReturn(List.of(
@@ -286,69 +204,55 @@ class RecordHistoryDelegateImplTest {
 
   @Test
   void recordHistory_shouldNotRecordMeasureHistoryWhenMeasureDataIsMissing() {
-    givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
+    givenDimensionRows(ENTITY_UUID, defaultDimensionRow());
 
     recordBranchHistory();
 
-    assertThat(capturedIssue()).isNotNull();
+    assertThat(capturedIssueCounts(EntityType.PROJECT_BRANCH)).isNotEmpty();
     verifyNoInteractions(measuresHistoryService);
   }
 
   @Test
   void recordHistory_shouldNotRecordMeasureHistoryWhenMetricValuesAreEmpty() {
-    givenIssueCursor(issueWithQualifier(ComponentQualifiers.FILE));
+    givenDimensionRows(ENTITY_UUID, defaultDimensionRow());
     when(measureDao.selectByComponentUuid(dbSession, ENTITY_UUID)).thenReturn(Optional.of(new MeasureDto()));
 
     recordBranchHistory();
 
-    assertThat(capturedIssue()).isNotNull();
+    assertThat(capturedIssueCounts(EntityType.PROJECT_BRANCH)).isNotEmpty();
     verifyNoInteractions(measuresHistoryService);
   }
 
   @Test
   void recordHistory_shouldRecordIssueTtrHistory() {
-    IndexedIssueDto issue = issueWithQualifier(ComponentQualifiers.FILE).setCodeVariants("TEST");
-    givenIssueCursor(issue);
+    givenDimensionRows(ENTITY_UUID, defaultDimensionRow());
 
     underTest.recordHistory(ENTITY_UUID, EntityType.PROJECT_BRANCH, List.of(ENTITY_UUID));
 
     verify(issueTtrHistoryRecorder).recordTtrHistory(ENTITY_UUID);
   }
 
-  private IndexedIssueDto issueWithQualifier(String qualifier) {
-    return new IndexedIssueDto()
-      .setIssueKey("issue-key")
-      .setRuleUuid(RULE_UUID)
-      .setIssueType(1)
-      .setSeverity("MAJOR")
-      .setStatus("OPEN")
-      .setQualifier(qualifier);
+  private static IssueCountDimensionDto defaultDimensionRow() {
+    return new IssueCountDimensionDto(1, "MAJOR", "OPEN", "OPEN", null, "MAIN", "java:S1234", null, null, null, 0);
   }
 
   private void recordBranchHistory() {
     underTest.recordHistory(ENTITY_UUID, EntityType.PROJECT_BRANCH, List.of(ENTITY_UUID));
   }
 
-  private void givenIssueCursor(IndexedIssueDto... issues) {
-    givenIssueCursor(ENTITY_UUID, issues);
+  private void givenDimensionRows(String branchUuid, IssueCountDimensionDto... rows) {
+    givenDimensionRows(List.of(branchUuid), rows);
   }
 
-  @SuppressWarnings("unchecked")
-  private void givenIssueCursor(String entityUuid, IndexedIssueDto... issues) {
-    Cursor<IndexedIssueDto> cursor = mock(Cursor.class);
-    when(cursor.iterator()).thenReturn(List.of(issues).iterator());
-    when(issueDao.scrollIssuesForIndexation(dbSession, entityUuid, null)).thenReturn(cursor);
+  private void givenDimensionRows(Collection<String> branchUuids, IssueCountDimensionDto... rows) {
+    when(issueDao.selectIssueCountDimensionsForBranches(dbSession, branchUuids)).thenReturn(List.of(rows));
   }
 
-  private List<IssueDtoForHistory> capturedIssues() {
-    ArgumentCaptor<List<IssueDtoForHistory>> issuesCaptor = ArgumentCaptor.forClass(List.class);
+  private Map<IssueCountDimensionKey, Integer> capturedIssueCounts(EntityType entityType) {
+    ArgumentCaptor<Map<IssueCountDimensionKey, Integer>> issueCountsCaptor = ArgumentCaptor.forClass(Map.class);
     verify(issueHistoryService).recordIssueHistory(
-      eq(ENTITY_UUID), eq(EntityType.PROJECT_BRANCH), issuesCaptor.capture(), any(LocalDate.class));
-    return issuesCaptor.getValue();
-  }
-
-  private IssueDtoForHistory capturedIssue() {
-    return capturedIssues().get(0);
+      eq(ENTITY_UUID), eq(entityType), issueCountsCaptor.capture(), any(LocalDate.class));
+    return issueCountsCaptor.getValue();
   }
 
   private List<Measure> capturedMeasures() {

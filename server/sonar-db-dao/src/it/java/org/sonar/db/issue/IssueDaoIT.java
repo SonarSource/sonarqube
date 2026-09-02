@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -55,6 +56,7 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.protobuf.DbCommons;
@@ -336,6 +338,137 @@ class IssueDaoIT {
       .hasSize(3)
       .extracting(IssueStatsDto::getMqrSeverity)
       .containsOnly(null, null, null);
+  }
+
+  @Test
+  void selectIssueCountDimensionsForBranches_shouldGroupNonClosedIssuesByDimensionAndComputeIssueType() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    RuleDto bugRule = db.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S1234").setType(RuleType.BUG)
+      .addDefaultImpact(new ImpactDto().setSoftwareQuality(RELIABILITY).setSeverity(MEDIUM)));
+    RuleDto codeSmellRule = db.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S5678").setType(RuleType.CODE_SMELL));
+
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branchA"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    ComponentDto testFile = db.components().insertComponent(newFileDto(branch).setQualifier(ComponentQualifiers.UNIT_TEST_FILE));
+
+    // two OPEN bugs sharing the same dimension: must be counted together, not as two rows. IssueTesting.newIssue
+    // always attaches a MAINTAINABILITY override, so these already have an issue-level impact and (all-or-nothing)
+    // must NOT fall back to the rule's RELIABILITY default below
+    db.issues().insert(bugRule, branch, file, i -> i.setKee("bug-open-1").setType(bugRule.getType()).setStatus("OPEN").setResolution(null).setSeverity("MAJOR"));
+    db.issues().insert(bugRule, branch, file, i -> i.setKee("bug-open-2").setType(bugRule.getType()).setStatus("OPEN").setResolution(null).setSeverity("MAJOR"));
+
+    // a different issue type on the same rule-independent dimension: must stay a separate row (regression test for the
+    // `type`/`issueType` MyBatis alias mismatch, which used to collapse every type into issueType=0)
+    db.issues().insert(codeSmellRule, branch, file, i -> i.setKee("smell-open").setType(codeSmellRule.getType()).setStatus("OPEN").setResolution(null).setSeverity("MINOR"));
+
+    // a CLOSED issue: must be excluded entirely
+    db.issues().insert(bugRule, branch, file, i -> i.setKee("bug-closed").setType(bugRule.getType()).setStatus("CLOSED").setResolution("FIXED").setSeverity("MAJOR"));
+
+    // a unit-test-file issue with an issue-level impact override: codeScope must be TEST and the override must win over the rule default
+    db.issues().insert(bugRule, branch, testFile, i -> i.setKee("bug-test-file").setType(bugRule.getType()).setStatus("OPEN").setResolution(null).setSeverity("MAJOR")
+      .addImpact(new ImpactDto().setSoftwareQuality(RELIABILITY).setSeverity(HIGH)));
+
+    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
+
+    assertThat(rows)
+      .extracting(IssueCountDimensionDto::issueType, IssueCountDimensionDto::codeScope,
+        row -> row.effectiveImpacts().get("RELIABILITY"), IssueCountDimensionDto::issueCount)
+      .containsExactlyInAnyOrder(
+        tuple(RuleType.BUG.getDbConstant(), "MAIN", null, 2),
+        tuple(RuleType.CODE_SMELL.getDbConstant(), "MAIN", null, 1),
+        tuple(RuleType.BUG.getDbConstant(), "TEST", "HIGH", 1));
+    // ruleKey is already composed as repository:rule in SQL (nested concat(), portable to Oracle's 2-arg limit)
+    assertThat(rows).extracting(IssueCountDimensionDto::ruleKey)
+      .containsOnly("java:S1234", "java:S5678");
+  }
+
+  @Test
+  void selectIssueCountDimensionsForBranches_shouldComputeIssueStatusAndHotspotResolution() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S1234").setType(RuleType.BUG));
+    RuleDto hotspotRule = db.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S9999").setType(RuleType.SECURITY_HOTSPOT));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branchB"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    db.issues().insert(rule, branch, file, i -> i.setKee("false-positive").setType(rule.getType())
+      .setStatus("RESOLVED").setResolution("FALSE-POSITIVE").setSeverity("MAJOR"));
+    db.issues().insert(hotspotRule, branch, file, i -> i.setKee("reviewed-hotspot").setType(hotspotRule.getType())
+      .setStatus("REVIEWED").setResolution("FIXED").setSeverity("MAJOR"));
+
+    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
+
+    assertThat(rows)
+      .extracting(IssueCountDimensionDto::issueType, IssueCountDimensionDto::issueStatus, IssueCountDimensionDto::hotspotResolution)
+      .containsExactlyInAnyOrder(
+        tuple(RuleType.BUG.getDbConstant(), "FALSE_POSITIVE", null),
+        tuple(RuleType.SECURITY_HOTSPOT.getDbConstant(), null, "FIXED"));
+  }
+
+  @Test
+  void selectIssueCountDimensionsForBranches_shouldSumCountsAcrossBranchesInASingleQuery() {
+    ComponentDto projectA = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto projectB = db.components().insertPrivateProject().getMainBranchComponent();
+    RuleDto bugRule = db.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S1234").setType(RuleType.BUG));
+
+    ComponentDto branchA = db.components().insertProjectBranch(projectA, b -> b.setKey("branchA"));
+    ComponentDto fileA = db.components().insertComponent(newFileDto(branchA));
+    db.issues().insert(bugRule, branchA, fileA, i -> i.setKee("bug-a").setType(bugRule.getType()).setStatus("OPEN").setResolution(null).setSeverity("MAJOR"));
+
+    ComponentDto branchB = db.components().insertProjectBranch(projectB, b -> b.setKey("branchB"));
+    ComponentDto fileB = db.components().insertComponent(newFileDto(branchB));
+    db.issues().insert(bugRule, branchB, fileB, i -> i.setKee("bug-b").setType(bugRule.getType()).setStatus("OPEN").setResolution(null).setSeverity("MAJOR"));
+
+    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(),
+      List.of(branchA.branchUuid(), branchB.branchUuid()));
+
+    assertThat(rows)
+      .extracting(IssueCountDimensionDto::issueType, IssueCountDimensionDto::issueCount)
+      .containsExactly(tuple(RuleType.BUG.getDbConstant(), 2));
+  }
+
+  @Test
+  void selectIssueCountDimensionsForBranches_shouldNotFallBackToRuleDefaultsForQualitiesTheIssueDidNotOverride() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S1234").setType(RuleType.BUG)
+      .replaceAllDefaultImpacts(List.of(
+        new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(MEDIUM),
+        new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(MEDIUM),
+        new ImpactDto().setSoftwareQuality(RELIABILITY).setSeverity(MEDIUM))));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branchC"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    // the issue overrides only MAINTAINABILITY: SECURITY/RELIABILITY must stay absent, not fall back to the
+    // rule's MEDIUM defaults for those two qualities (all-or-nothing, mirroring IssueDto#getEffectiveImpacts)
+    db.issues().insert(rule, branch, file, i -> i.setKee("partial-override").setType(rule.getType()).setStatus("OPEN").setResolution(null).setSeverity("MAJOR")
+      .replaceAllImpacts(List.of(new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(HIGH))));
+
+    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
+
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).effectiveImpacts()).containsOnly(Map.entry("MAINTAINABILITY", "HIGH"));
+  }
+
+  @Test
+  void selectIssueCountDimensionsForBranches_shouldFallBackToRuleDefaultsWhenIssueHasNoImpactsAtAll() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S1234").setType(RuleType.BUG)
+      .replaceAllDefaultImpacts(List.of(
+        new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(MEDIUM),
+        new ImpactDto().setSoftwareQuality(RELIABILITY).setSeverity(LOW))));
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branchD"));
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+
+    // IssueTesting.newIssue always attaches a MAINTAINABILITY override; clear it so this issue truly has no
+    // impacts of its own and must fall back to every one of the rule's defaults
+    db.issues().insert(rule, branch, file, i -> i.setKee("no-override").setType(rule.getType()).setStatus("OPEN").setResolution(null).setSeverity("MAJOR")
+      .replaceAllImpacts(List.of()));
+
+    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
+
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).effectiveImpacts()).containsOnly(
+      Map.entry("MAINTAINABILITY", "MEDIUM"),
+      Map.entry("RELIABILITY", "LOW"));
   }
 
   @Test

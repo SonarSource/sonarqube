@@ -155,6 +155,17 @@ public class IssueDao implements Dao {
     return mapper(dbSession).scrollIssuesForIssueStats(branchUuid);
   }
 
+  /**
+   * Returns the non-closed issues of the given branches pre-aggregated by history dimension (type, severity,
+   * status, code scope, rule, effective impact severities), with its issue count. The grouping is done in SQL
+   * so the caller never materializes one object per issue (SONAR-31731).
+   * <p>Branches are queried in batches (DB parameter limits), so the same dimension may appear once per batch:
+   * callers must sum the counts of equal dimensions instead of assuming one row per combination.</p>
+   */
+  public List<IssueCountDimensionDto> selectIssueCountDimensionsForBranches(DbSession dbSession, Collection<String> branchUuids) {
+    return executeLargeInputs(branchUuids, mapper(dbSession)::selectIssueCountDimensionsForBranches);
+  }
+
   public AggregatedIssueStatsDto aggregateIssueStatsForBranchUuidAndRuleKey(DbSession dbSession,
     String branchUuid, RuleKey ruleKey) {
     return mapper(dbSession).aggregateIssueStatsForBranchUuidAndRuleKey(branchUuid, ruleKey.repository(), ruleKey.rule());

@@ -708,6 +708,82 @@
       and i.status not in ('CLOSED', 'IN_SANDBOX')
   </select>
 
+  <!--
+    Pre-aggregates non-closed issues of one or more branches by history dimension, one row per unique
+    combination with its issue count, so the caller never has to load individual issues to compute it
+    (SONAR-31731). The inner query first collapses the issues_impacts/rules_default_impacts join fan-out
+    to one row per issue (GROUP BY i.kee) before the outer COUNT(*), which keeps the top-level aggregation
+    cheap. The outer GROUP BY does not include the branch, so counts are already merged across every
+    branch passed in; callers batching more than 1000 branches still need to sum counts across batches.
+  -->
+  <select id="selectIssueCountDimensionsForBranches" parameterType="map" resultType="org.sonar.db.issue.IssueCountDimensionDto">
+    select
+      issueType, severity, issueStatus, status, hotspotResolution, codeScope, ruleKey,
+      effectiveMaintainability, effectiveSecurity, effectiveReliability,
+      count(*) as issueCount
+    from (
+      select
+        i.kee,
+        i.issue_type as issueType,
+        i.severity as severity,
+        case
+          when i.status in ('OPEN', 'REOPENED') then 'OPEN'
+          when i.status = 'CONFIRMED' then 'CONFIRMED'
+          when i.status = 'IN_SANDBOX' then 'IN_SANDBOX'
+          when i.status = 'RESOLVED' and i.resolution = 'FALSE-POSITIVE' then 'FALSE_POSITIVE'
+          when i.status = 'RESOLVED' and i.resolution = 'WONTFIX' then 'ACCEPTED'
+          when i.status = 'RESOLVED' and i.resolution = 'FIXED' then 'FIXED'
+          else null
+        end as issueStatus,
+        i.status as status,
+        case when i.issue_type = 4 then i.resolution else null end as hotspotResolution,
+        case when c.qualifier = 'UTS' then 'TEST' else 'MAIN' end as codeScope,
+        <!-- concat() (not ||/+) for portability: Oracle's concat() only takes 2 args, hence the nesting -->
+        concat(concat(r.plugin_name, ':'), r.plugin_rule_key) as ruleKey,
+        <!--
+          All-or-nothing fallback, mirroring IssueDto#getEffectiveImpacts: rule defaults are used only when
+          the issue has no issues_impacts row at all (max(ii.software_quality) is then null for every quality).
+          Once the issue overrides any quality, qualities it didn't override stay null instead of silently
+          picking up the rule's default for just that one quality.
+        -->
+        coalesce(
+          max(case when ii.software_quality = 'MAINTAINABILITY' then ii.severity end),
+          case when max(ii.software_quality) is null
+            then max(case when rdi.software_quality = 'MAINTAINABILITY' then rdi.severity end) end
+        ) as effectiveMaintainability,
+        coalesce(
+          max(case when ii.software_quality = 'SECURITY' then ii.severity end),
+          case when max(ii.software_quality) is null
+            then max(case when rdi.software_quality = 'SECURITY' then rdi.severity end) end
+        ) as effectiveSecurity,
+        coalesce(
+          max(case when ii.software_quality = 'RELIABILITY' then ii.severity end),
+          case when max(ii.software_quality) is null
+            then max(case when rdi.software_quality = 'RELIABILITY' then rdi.severity end) end
+        ) as effectiveReliability
+      from issues i
+      inner join rules r on r.uuid = i.rule_uuid
+      inner join components c on c.uuid = i.component_uuid
+      left outer join issues_impacts ii on i.kee = ii.issue_key
+      left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+      where
+        c.branch_uuid in
+          <foreach collection="branchUuids" open="(" close=")" item="branchUuid" separator=",">
+            #{branchUuid,jdbcType=VARCHAR}
+          </foreach>
+        and i.project_uuid in
+          <foreach collection="branchUuids" open="(" close=")" item="branchUuid" separator=",">
+            #{branchUuid,jdbcType=VARCHAR}
+          </foreach>
+        and i.status != 'CLOSED'
+      group by
+        i.kee, i.issue_type, i.severity, i.status, i.resolution, c.qualifier, r.plugin_name, r.plugin_rule_key
+    ) per_issue
+    group by
+      issueType, severity, issueStatus, status, hotspotResolution, codeScope, ruleKey,
+      effectiveMaintainability, effectiveSecurity, effectiveReliability
+  </select>
+
   <select id="aggregateIssueStatsForBranchUuidAndRuleKey" parameterType="map" resultType="org.sonar.db.issue.AggregatedIssueStatsDto">
     select
       max(case when i.issue_type = 4 then 0 else
