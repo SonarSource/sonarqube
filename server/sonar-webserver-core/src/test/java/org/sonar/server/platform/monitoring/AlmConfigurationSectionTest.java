@@ -54,7 +54,7 @@ public class AlmConfigurationSectionTest {
         tuple(github.getKey(), String.format("Alm:%s, Url:%s, App Id:%s, Client Id:%s", github.getRawAlm(), github.getUrl(), github.getAppId(), github.getClientId())),
         tuple(gitlab.getKey(), String.format("Alm:%s, Url:%s", gitlab.getRawAlm(), gitlab.getUrl())),
         tuple(bitbucket.getKey(), String.format("Alm:%s, Url:%s", bitbucket.getRawAlm(), bitbucket.getUrl())),
-        tuple(bitbucketCloud.getKey(), String.format("Alm:%s, Workspace Id:%s, OAuth Key:%s", bitbucketCloud.getRawAlm(), bitbucketCloud.getAppId(), bitbucketCloud.getClientId())));
+        tuple(bitbucketCloud.getKey(), String.format("Alm:%s, Workspace Id:%s, Client Id:%s", bitbucketCloud.getRawAlm(), bitbucketCloud.getAppId(), bitbucketCloud.getClientId())));
   }
 
   @Test

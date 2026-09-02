@@ -64,8 +64,7 @@ public class AlmConfigurationSection implements SystemInfoSection {
         value += String.format(", App Id:%s, Client Id:%s", almSettingDto.getAppId(), almSettingDto.getClientId());
         break;
       case BITBUCKET_CLOUD:
-        // WORKSPACE ID & OAuth key
-        value += String.format(", Workspace Id:%s, OAuth Key:%s", almSettingDto.getAppId(), almSettingDto.getClientId());
+        value += String.format(", Workspace Id:%s, Client Id:%s", almSettingDto.getAppId(), almSettingDto.getClientId());
         break;
       default:
         // no additional information for the other ALMs

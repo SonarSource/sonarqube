@@ -54,10 +54,10 @@ public class BitbucketCloudRestClient {
   private static final String VERSION = "2.0";
   protected static final String ERROR_BBC_SERVERS = "Error returned by Bitbucket Cloud";
   protected static final String UNABLE_TO_CONTACT_BBC_SERVERS = "Unable to contact Bitbucket Cloud servers";
-  protected static final String MISSING_PULL_REQUEST_READ_PERMISSION = "The OAuth consumer in the Bitbucket workspace is not configured with the permission to read pull requests.";
+  protected static final String MISSING_PULL_REQUEST_READ_PERMISSION = "The OAuth client in the Bitbucket workspace is not configured with the permission to read pull requests.";
   protected static final String SCOPE = "Scope is: %s";
   protected static final String UNAUTHORIZED_CLIENT = "Check your credentials";
-  protected static final String OAUTH_CONSUMER_NOT_PRIVATE = "Configure the OAuth consumer in the Bitbucket workspace to be a private consumer";
+  protected static final String OAUTH_CONSUMER_NOT_PRIVATE = "Configure the OAuth client in the Bitbucket workspace to be a private client";
   protected static final String BBC_FAIL_WITH_RESPONSE = "Bitbucket Cloud API call to [%s] failed with %s http code. Bitbucket Cloud response content : [%s]";
   protected static final String BBC_FAIL_WITH_ERROR = "Bitbucket Cloud API call to [%s] failed with error: %s";
 
