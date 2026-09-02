@@ -86,6 +86,8 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_055, "Add the rule body to 'findings'", AddRuleBodyToFindingsTable.class)
       .add(2026_05_056, "Add flow metadata to 'finding_locations'", AddFlowMetadataToFindingLocationsTable.class)
       .add(2026_05_057, "Add 'expected_credits' to 'agent_jobs'", AddExpectedCreditsToAgentJobsTable.class)
-      .add(2026_05_058, "Add 'analyzed_at' to 'hunter_agent_jobs'", AddAnalyzedAtToHunterAgentJobsTable.class);
+      .add(2026_05_058, "Add 'analyzed_at' to 'hunter_agent_jobs'", AddAnalyzedAtToHunterAgentJobsTable.class)
+      .add(2026_05_059, "Create table 'vortex_cag_events'", CreateVortexCagEventsTable.class)
+      .add(2026_05_060, "Create table 'vortex_sqaa_events'", CreateVortexSqaaEventsTable.class);
   }
 }

@@ -146,6 +146,8 @@ public final class SqTables {
     "user_dismissed_messages",
     "user_roles",
     "user_tokens",
+    "vortex_cag_events",
+    "vortex_sqaa_events",
     "webhooks",
     "webhook_deliveries");
 
