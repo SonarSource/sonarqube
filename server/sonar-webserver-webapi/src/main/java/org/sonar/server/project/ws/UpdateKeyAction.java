@@ -25,9 +25,11 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
+import org.sonar.server.user.UserSession;
 
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_UPDATE_KEY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
@@ -37,11 +39,13 @@ public class UpdateKeyAction implements ProjectsWsAction {
   private final DbClient dbClient;
   private final ComponentService componentService;
   private final ComponentFinder componentFinder;
+  private final UserSession userSession;
 
-  public UpdateKeyAction(DbClient dbClient, ComponentService componentService, ComponentFinder componentFinder) {
+  public UpdateKeyAction(DbClient dbClient, ComponentService componentService, ComponentFinder componentFinder, UserSession userSession) {
     this.dbClient = dbClient;
     this.componentService = componentService;
     this.componentFinder = componentFinder;
+    this.userSession = userSession;
   }
 
   @Override
@@ -79,7 +83,7 @@ public class UpdateKeyAction implements ProjectsWsAction {
     String newKey = request.mandatoryParam(PARAM_TO);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ProjectDto project = componentFinder.getProjectByKey(dbSession, key);
+      ProjectDto project = componentFinder.getProjectByKeyAndPermission(dbSession, key, userSession, ProjectPermission.ADMIN);
       componentService.updateKey(dbSession, project, newKey);
     }
     response.noContent();

@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.dismissmessage.MessageType;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.server.component.ComponentFinder;
@@ -79,7 +80,7 @@ public class CheckAction implements DismissMessageWsAction {
     Optional<UserDismissedMessageDto> userDismissedMessage;
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (projectKey != null) {
-        ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
+        ProjectDto project = componentFinder.getProjectByKeyAndPermission(dbSession, projectKey, userSession, ProjectPermission.USER);
         userDismissedMessage = dbClient.userDismissedMessagesDao().selectByUserAndProjectAndMessageType(dbSession, userSession.getUuid(), project, type);
       } else {
         userDismissedMessage = dbClient.userDismissedMessagesDao().selectByUserUuidAndMessageType(dbSession, userSession.getUuid(), type);

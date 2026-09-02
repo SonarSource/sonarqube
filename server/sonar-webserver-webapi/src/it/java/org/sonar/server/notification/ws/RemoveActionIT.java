@@ -26,6 +26,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -113,6 +114,7 @@ class RemoveActionIT {
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    userSession.addProjectPermission(ProjectPermission.USER, project);
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
     dbSession.commit();
 
@@ -142,7 +144,8 @@ class RemoveActionIT {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    userSession.addProjectPermission(ProjectPermission.USER, project);
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
 
@@ -179,6 +182,49 @@ class RemoveActionIT {
     call(request.setLogin(user.getLogin()));
 
     db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), null);
+  }
+
+  @Test
+  void throw_404_when_sysadmin_self_service_on_private_project_without_browse_permission() {
+    UserDto admin = db.users().insertUser();
+    userSession.logIn(admin).setSystemAdministrator();
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+
+    RemoveRequest request = this.request.setProject(project.getKey());
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + project.getKey() + "' not found");
+  }
+
+  @Test
+  void throw_404_when_sysadmin_passes_own_login_on_private_project_without_browse_permission() {
+    UserDto admin = db.users().insertUser();
+    userSession.logIn(admin).setSystemAdministrator();
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+
+    RemoveRequest request = this.request.setProject(project.getKey()).setLogin(admin.getLogin());
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + project.getKey() + "' not found");
+  }
+
+  @Test
+  void remove_a_project_notification_from_a_user_as_system_administrator() {
+    UserDto user = db.users().insertUser();
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
+    userSession.logIn().setSystemAdministrator();
+    dbSession.commit();
+
+    call(request.setLogin(user.getLogin()).setProject(project.getKey()));
+
+    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), project);
   }
 
   @Test
@@ -299,6 +345,20 @@ class RemoveActionIT {
 
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(UnauthorizedException.class);
+  }
+
+  @Test
+  void throw_404_when_project_exists_but_user_has_no_browse_permission() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+
+    RemoveRequest request = this.request.setProject(project.getKey());
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + project.getKey() + "' not found");
   }
 
   @Test

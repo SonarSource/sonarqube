@@ -28,6 +28,7 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.user.UserDismissedMessageDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -66,7 +67,7 @@ public class CheckActionIT {
   public void return_true_when_user_dismissed_message() {
     UserDto user = db.users().insertUser();
     ProjectData project = db.components().insertPrivateProject();
-    userSession.logIn(user);
+    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, project.getProjectDto());
 
     db.getDbClient().userDismissedMessagesDao().insert(db.getSession(), new UserDismissedMessageDto()
       .setUuid("uuid")
@@ -89,7 +90,7 @@ public class CheckActionIT {
   public void return_false_when_user_has_not_dismissed_message() {
     UserDto user = db.users().insertUser();
     ProjectData project = db.components().insertPrivateProject();
-    userSession.logIn(user);
+    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, project.getProjectDto());
 
     TestResponse response = underTest.newRequest()
       .setParam("projectKey", project.projectKey())
@@ -98,6 +99,21 @@ public class CheckActionIT {
 
     assertThat(response.getStatus()).isEqualTo(200);
     assertJson(response.getInput()).isSimilarTo("{\"dismissed\": false}");
+  }
+
+  @Test
+  public void throw_404_when_project_exists_but_user_has_no_browse_permission() {
+    UserDto user = db.users().insertUser();
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.logIn(user);
+
+    TestRequest request = underTest.newRequest()
+      .setParam("projectKey", project.projectKey())
+      .setParam("messageType", MessageType.BRANCH_NCD_90.name());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + project.projectKey() + "' not found");
   }
 
   @Test

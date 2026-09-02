@@ -59,7 +59,7 @@ public class UpdateKeyActionIT {
   private final Indexers indexers = new IndexersImpl();
   private final ComponentService componentService = new ComponentService(dbClient, userSessionRule, indexers, new ProjectLifeCycleListenersImpl());
   private final ComponentFinder componentFinder = new ComponentFinder(dbClient, null);
-  private final WsActionTester ws = new WsActionTester(new UpdateKeyAction(dbClient, componentService, componentFinder));
+  private final WsActionTester ws = new WsActionTester(new UpdateKeyAction(dbClient, componentService, componentFinder, userSessionRule));
 
   @Test
   public void update_key_of_project_referenced_by_its_key() {
@@ -82,8 +82,18 @@ public class UpdateKeyActionIT {
 
     String projectKey = project.projectKey();
     assertThatThrownBy(() -> call(projectKey, ANOTHER_KEY))
-      .isInstanceOf(ForbiddenException.class)
-      .hasMessage("Insufficient privileges");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + projectKey + "' not found");
+  }
+
+  @Test
+  public void fail_with_404_when_project_exists_but_user_cannot_browse() {
+    ProjectData project = insertProject();
+
+    String projectKey = project.projectKey();
+    assertThatThrownBy(() -> call(projectKey, ANOTHER_KEY))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + projectKey + "' not found");
   }
 
   @Test

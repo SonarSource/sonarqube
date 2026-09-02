@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
@@ -127,7 +128,14 @@ public class RemoveAction implements NotificationsWsAction {
   }
 
   private Optional<ProjectDto> searchProject(DbSession dbSession, RemoveRequest request) {
-    return request.getProject() == null ? empty() : Optional.of(componentFinder.getProjectByKey(dbSession, request.getProject()));
+    if (request.getProject() == null) {
+      return empty();
+    }
+    boolean actingOnAnotherUser = request.getLogin() != null && !request.getLogin().equals(userSession.getLogin());
+    if (actingOnAnotherUser) {
+      return Optional.of(componentFinder.getProjectByKey(dbSession, request.getProject()));
+    }
+    return Optional.of(componentFinder.getProjectByKeyAndPermission(dbSession, request.getProject(), userSession, ProjectPermission.USER));
   }
 
   private void checkPermissions(RemoveRequest request) {

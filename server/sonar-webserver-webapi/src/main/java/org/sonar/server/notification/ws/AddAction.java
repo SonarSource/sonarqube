@@ -127,9 +127,14 @@ public class AddAction implements NotificationsWsAction {
   }
 
   private Optional<ProjectDto> searchProject(DbSession dbSession, AddRequest request) {
-    Optional<ProjectDto> project = request.getProject() == null ? empty() : Optional.of(componentFinder.getProjectByKey(dbSession, request.getProject()));
-    project.ifPresent(p -> userSession.checkEntityPermission(ProjectPermission.USER, p));
-    return project;
+    if (request.getProject() == null) {
+      return empty();
+    }
+    boolean actingOnAnotherUser = request.getLogin() != null && !request.getLogin().equals(userSession.getLogin());
+    if (actingOnAnotherUser) {
+      return Optional.of(componentFinder.getProjectByKey(dbSession, request.getProject()));
+    }
+    return Optional.of(componentFinder.getProjectByKeyAndPermission(dbSession, request.getProject(), userSession, ProjectPermission.USER));
   }
 
   private void checkPermissions(AddRequest request) {

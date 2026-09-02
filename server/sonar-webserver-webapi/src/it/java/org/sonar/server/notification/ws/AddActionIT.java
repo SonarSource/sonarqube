@@ -231,7 +231,49 @@ class AddActionIT {
 
     String projectKey = project.getKey();
     assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, projectKey, null))
-      .isInstanceOf(ForbiddenException.class);
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + projectKey + "' not found");
+  }
+
+  @Test
+  void throw_404_when_sysadmin_self_service_on_private_project_without_browse_permission() {
+    UserDto admin = db.users().insertUser();
+    userSession.logIn(admin).setSystemAdministrator();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+
+    String projectKey = project.getKey();
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, projectKey, null))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + projectKey + "' not found");
+  }
+
+  @Test
+  void throw_404_when_sysadmin_passes_own_login_on_private_project_without_browse_permission() {
+    UserDto admin = db.users().insertUser();
+    userSession.logIn(admin).setSystemAdministrator();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+
+    String projectKey = project.getKey();
+    assertThatThrownBy(() -> call(NOTIF_MY_NEW_ISSUES, null, projectKey, admin.getLogin()))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + projectKey + "' not found");
+  }
+
+  @Test
+  void add_a_project_notification_to_a_user_as_system_administrator() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn().setSystemAdministrator();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+    when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
+
+    call(NOTIF_MY_NEW_ISSUES, null, project.getKey(), user.getLogin());
+
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getUuid(), project, true);
   }
 
   @Test

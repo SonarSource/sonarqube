@@ -26,8 +26,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -105,7 +107,7 @@ public class DismissActionIT {
   public void return_204_on_success() {
     UserDto user = db.users().insertUser();
     ProjectData project = db.components().insertPrivateProject();
-    userSession.logIn(user);
+    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, project.getProjectDto());
 
     TestResponse response = underTest.newRequest()
       .setParam("projectKey", project.projectKey())
@@ -116,6 +118,21 @@ public class DismissActionIT {
     assertThat(db.select("select * from user_dismissed_messages"))
       .extracting("USER_UUID", "PROJECT_UUID", "MESSAGE_TYPE")
       .containsExactly(tuple(userSession.getUuid(), project.projectUuid(), MessageType.BRANCH_NCD_90.name()));
+  }
+
+  @Test
+  public void throw_404_when_project_exists_but_user_has_no_browse_permission() {
+    UserDto user = db.users().insertUser();
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.logIn(user);
+
+    TestRequest request = underTest.newRequest()
+      .setParam("projectKey", project.projectKey())
+      .setParam("messageType", MessageType.BRANCH_NCD_90.name());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + project.projectKey() + "' not found");
   }
 
 }

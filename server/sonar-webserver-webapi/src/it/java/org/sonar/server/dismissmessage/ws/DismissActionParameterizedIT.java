@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.dismissmessage.MessageType;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.tester.UserSessionRule;
@@ -59,6 +60,7 @@ class DismissActionParameterizedIT {
 
     if(!isProjectKeyNull) {
       ProjectData project = db.components().insertPrivateProject();
+      userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
       request.setParam("projectKey", project.projectKey());
     }
 

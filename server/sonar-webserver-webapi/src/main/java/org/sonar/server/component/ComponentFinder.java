@@ -31,8 +31,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -86,6 +88,14 @@ public class ComponentFinder {
   public ProjectDto getProjectByKey(DbSession dbSession, String projectKey) {
     return dbClient.projectDao().selectProjectByKey(dbSession, projectKey)
       .orElseThrow(() -> new NotFoundException(String.format(LABEL_PROJECT_NOT_FOUND, projectKey)));
+  }
+
+  public ProjectDto getProjectByKeyAndPermission(DbSession dbSession, String projectKey, UserSession userSession, ProjectPermission permission) {
+    ProjectDto project = getProjectByKey(dbSession, projectKey);
+    if (!userSession.hasEntityPermission(permission, project)) {
+      throw new NotFoundException(String.format(LABEL_PROJECT_NOT_FOUND, projectKey));
+    }
+    return project;
   }
 
   public ProjectDto getApplicationByKey(DbSession dbSession, String applicationKey) {
