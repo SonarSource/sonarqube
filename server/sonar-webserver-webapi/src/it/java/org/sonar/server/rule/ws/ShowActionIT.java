@@ -72,6 +72,7 @@ import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.db.rule.RuleTesting.setTags;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
 import static org.sonar.server.rule.ws.ShowAction.PARAM_ACTIVES;
+import static org.sonar.server.rule.ws.ShowAction.PARAM_CONTEXT_KEY;
 import static org.sonar.server.rule.ws.ShowAction.PARAM_KEY;
 import static org.sonarqube.ws.Common.RuleType.UNKNOWN;
 import static org.sonarqube.ws.Common.RuleType.VULNERABILITY;
@@ -439,6 +440,111 @@ class ShowActionIT {
   }
 
   @Test
+  void show_rule_desc_sections_whenContextKeyProvided_returnsOnlyMatchingContextAndContextLessSections() {
+    when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    RuleDescriptionSectionDto rootCause = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>");
+    RuleDescriptionSectionDto assessTheProblem = createRuleDescriptionSection(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>");
+    RuleDescriptionSectionDto howToFixCtx1 = createRuleDescriptionSectionWithContext(HOW_TO_FIX_SECTION_KEY, "<div>Fix with Spring</div>", "ctx1");
+    RuleDescriptionSectionDto howToFixCtx2 = createRuleDescriptionSectionWithContext(HOW_TO_FIX_SECTION_KEY, "<div>Fix with Servlet</div>", "ctx2");
+
+    RuleDto rule = createRuleWithDescriptionSections(rootCause, assessTheProblem, howToFixCtx1, howToFixCtx2);
+    rule.setType(RuleType.SECURITY_HOTSPOT);
+    rule.setNoteUserUuid(userDto.getUuid());
+    db.rules().insert(rule);
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .setParam(PARAM_CONTEXT_KEY, "ctx1")
+      .executeProtobuf(ShowResponse.class);
+
+    assertThat(result.getRule().getDescriptionSections().getDescriptionSectionsList())
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
+      .containsExactlyInAnyOrder(
+        tuple(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>"),
+        tuple(ASSESS_THE_PROBLEM_SECTION_KEY, "<div>This is not a problem</div>"),
+        tuple(HOW_TO_FIX_SECTION_KEY, "<div>Fix with Spring</div>"));
+  }
+
+  @Test
+  void show_rule_desc_sections_whenContextKeyUnknown_returnsOnlyContextLessSections() {
+    when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    RuleDescriptionSectionDto rootCause = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>");
+    RuleDescriptionSectionDto howToFixCtx1 = createRuleDescriptionSectionWithContext(HOW_TO_FIX_SECTION_KEY, "<div>Fix with Spring</div>", "ctx1");
+
+    RuleDto rule = createRuleWithDescriptionSections(rootCause, howToFixCtx1);
+    rule.setType(RuleType.SECURITY_HOTSPOT);
+    rule.setNoteUserUuid(userDto.getUuid());
+    db.rules().insert(rule);
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .setParam(PARAM_CONTEXT_KEY, "unknown-context")
+      .executeProtobuf(ShowResponse.class);
+
+    assertThat(result.getRule().getDescriptionSections().getDescriptionSectionsList())
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
+      .containsExactly(tuple(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>"));
+  }
+
+  @Test
+  void show_rule_desc_sections_whenContextKeyBlank_returnsAllSections() {
+    when(macroInterpreter.interpret(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    RuleDescriptionSectionDto rootCause = createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>");
+    RuleDescriptionSectionDto howToFixCtx1 = createRuleDescriptionSectionWithContext(HOW_TO_FIX_SECTION_KEY, "<div>Fix with Spring</div>", "ctx1");
+    RuleDescriptionSectionDto howToFixCtx2 = createRuleDescriptionSectionWithContext(HOW_TO_FIX_SECTION_KEY, "<div>Fix with Servlet</div>", "ctx2");
+
+    RuleDto rule = createRuleWithDescriptionSections(rootCause, howToFixCtx1, howToFixCtx2);
+    rule.setType(RuleType.SECURITY_HOTSPOT);
+    rule.setNoteUserUuid(userDto.getUuid());
+    db.rules().insert(rule);
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .setParam(PARAM_CONTEXT_KEY, "")
+      .executeProtobuf(ShowResponse.class);
+
+    assertThat(result.getRule().getDescriptionSections().getDescriptionSectionsList())
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
+      .containsExactlyInAnyOrder(
+        tuple(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>"),
+        tuple(HOW_TO_FIX_SECTION_KEY, "<div>Fix with Spring</div>"),
+        tuple(HOW_TO_FIX_SECTION_KEY, "<div>Fix with Servlet</div>"));
+  }
+
+  @Test
+  void show_adhoc_rule_withAdHocDescription_ignoresContextKey() {
+    // The rule has real, context-bearing sections, but the ad-hoc description takes precedence
+    // over them regardless of contextKey (RuleMapper.setAdHocDescription clears/replaces the
+    // section list unconditionally once an ad-hoc description is set).
+    RuleDto rule = createRuleWithDescriptionSections(
+      createRuleDescriptionSection(ROOT_CAUSE_SECTION_KEY, "<div>Root is Root</div>"),
+      createRuleDescriptionSectionWithContext(HOW_TO_FIX_SECTION_KEY, "<div>Fix with Spring</div>", "ctx1"));
+    rule.setIsExternal(true)
+      .setIsAdHoc(true)
+      .setAdHocName("adhoc name")
+      .setAdHocDescription("<div>desc</div>")
+      .setAdHocSeverity(Severity.BLOCKER)
+      .setAdHocType(RuleType.VULNERABILITY)
+      .setNoteData(null)
+      .setNoteUserUuid(null);
+    RuleDto externalRule = db.rules().insert(rule);
+
+    doReturn("&lt;div&gt;desc2&lt;/div&gt;").when(macroInterpreter).interpret(externalRule.getAdHocDescription());
+
+    ShowResponse result = ws.newRequest()
+      .setParam(PARAM_KEY, externalRule.getKey().toString())
+      .setParam(PARAM_CONTEXT_KEY, "some-context")
+      .executeProtobuf(ShowResponse.class);
+
+    assertThat(result.getRule().getDescriptionSections().getDescriptionSectionsList())
+      .extracting(Rule.DescriptionSection::getKey, Rule.DescriptionSection::getContent)
+      .containsExactly(tuple(DEFAULT_KEY, "&lt;div&gt;desc2&lt;/div&gt;"));
+  }
+
+  @Test
   void show_rule_desc_sections_and_html_desc_with_macro() {
     RuleDescriptionSectionDto section = createRuleDescriptionSection(DEFAULT_KEY, "<div>Testing macro: {rule:java:S001}</div>");
     RuleDto rule = createRuleWithDescriptionSections(section);
@@ -618,7 +724,8 @@ class ShowActionIT {
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
         tuple("key", true),
-        tuple("actives", false));
+        tuple("actives", false),
+        tuple("contextKey", false));
   }
 
   private RuleDescriptionSectionDto createRuleDescriptionSection(String key, String content) {

@@ -58,11 +58,22 @@ public class RuleDao implements Dao {
   }
 
   public Optional<RuleDto> selectByKey(DbSession session, RuleKey key) {
-    return Optional.ofNullable(mapper(session).selectByKey(key));
+    return selectByKey(session, key, null);
+  }
+
+  /**
+   * @param contextKey when non-null, the returned {@link RuleDto} only carries description sections
+   *   whose context key matches {@code contextKey}, plus sections that have no context at all. The
+   *   result is therefore a partial view of the rule's sections: never pass it to
+   *   {@link #update(DbSession, RuleDto)}, which deletes and reinserts the rule's entire section set
+   *   from whatever is in the in-memory {@link RuleDto}.
+   */
+  public Optional<RuleDto> selectByKey(DbSession session, RuleKey key, @Nullable String contextKey) {
+    return Optional.ofNullable(mapper(session).selectByKey(key, contextKey));
   }
 
   public RuleDto selectOrFailByKey(DbSession session, RuleKey key) {
-    return Optional.ofNullable(mapper(session).selectByKey(key))
+    return Optional.ofNullable(mapper(session).selectByKey(key, null))
       .orElseThrow(() -> new RowNotFoundException(String.format("Rule with key '%s' does not exist", key)));
   }
 

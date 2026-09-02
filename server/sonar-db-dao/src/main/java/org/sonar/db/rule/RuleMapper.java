@@ -22,6 +22,7 @@ package org.sonar.db.rule;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
@@ -48,7 +49,12 @@ public interface RuleMapper {
 
   List<RuleDto> selectByUuids(@Param("uuids") List<String> uuids);
 
-  RuleDto selectByKey(@Param("ruleKey") RuleKey ruleKey);
+  /**
+   * @param contextKey when non-null, only description sections whose context key matches (plus
+   *   context-less ones) are populated on the returned {@link RuleDto}. See
+   *   {@link RuleDao#selectByKey(org.sonar.db.DbSession, RuleKey, String)}.
+   */
+  RuleDto selectByKey(@Param("ruleKey") RuleKey ruleKey, @Nullable @Param("contextKey") String contextKey);
 
   List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);
 

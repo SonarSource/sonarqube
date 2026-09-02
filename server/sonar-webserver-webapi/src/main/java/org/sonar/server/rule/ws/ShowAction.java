@@ -22,6 +22,7 @@ package org.sonar.server.rule.ws;
 import com.google.common.io.Resources;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -49,6 +50,11 @@ public class ShowAction implements RulesWsAction {
 
   public static final String PARAM_KEY = "key";
   public static final String PARAM_ACTIVES = "actives";
+  public static final String PARAM_CONTEXT_KEY = "contextKey";
+
+  // matches rule_desc_sections.context_key, varchar(50) (see CreateInitialSchema); a longer value
+  // could never match, so there is no point accepting one.
+  private static final int CONTEXT_KEY_MAXIMUM_LENGTH = 50;
 
   private final DbClient dbClient;
   private final RulesResponseFormatter rulesResponseFormatter;
@@ -91,7 +97,8 @@ public class ShowAction implements RulesWsAction {
         new Change("10.8", format("Possible values '%s' and '%s' for response field 'severity' of 'impacts' have been added.", INFO.name(), BLOCKER.name())),
         new Change("10.8", "The field 'severity' and 'type' in the response  are not deprecated anymore."),
         new Change("2025.1", "The deprecated field 'htmlDesc' is not returned anymore, even if specified in the 'fields' parameter."),
-        new Change("2026.2", "Description-related fields in the response are obfuscated for anonymous users."));
+        new Change("2026.2", "Description-related fields in the response are obfuscated for anonymous users."),
+        new Change("2026.5", "The 'contextKey' parameter has been added."));
 
     action
       .createParam(PARAM_KEY)
@@ -104,13 +111,22 @@ public class ShowAction implements RulesWsAction {
       .setDescription("Show rule's activations for all profiles (\"active rules\")")
       .setBooleanPossibleValues()
       .setDefaultValue(false);
+
+    action
+      .createParam(PARAM_CONTEXT_KEY)
+      .setDescription("Return only the description sections matching the given rule-description context key, " +
+        "along with sections that have no context. When not set, all description sections are returned.")
+      .setExampleValue("spring")
+      .setMaximumLength(CONTEXT_KEY_MAXIMUM_LENGTH)
+      .setSince("2026.5");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
+    String contextKey = StringUtils.trimToNull(request.param(PARAM_CONTEXT_KEY));
     try (DbSession dbSession = dbClient.openSession(false)) {
-      RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, key)
+      RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, key, contextKey)
         .orElseThrow(() -> new NotFoundException(format("Rule not found: %s", key)));
 
       List<RuleDto> templateRules = ofNullable(rule.getTemplateUuid())

@@ -46,6 +46,21 @@
       rds.rule_uuid = r.uuid
   </sql>
 
+  <!--
+    Used only by selectByKey, which is the only select that can be called with a non-null "contextKey"
+    parameter. Kept separate from leftOuterJoinRulesDescriptionSections (rather than adding the <if> there)
+    because that fragment is also included by selects that don't declare a "contextKey" @Param
+    (selectByUuid, selectByUuids, selectByKeys, ...); referencing it there would throw a MyBatis
+    BindingException on those statements.
+  -->
+  <sql id="leftOuterJoinRulesDescriptionSectionsFilteredByContext">
+    left outer join rule_desc_sections rds on
+      rds.rule_uuid = r.uuid
+      <if test="contextKey != null">
+        and (rds.context_key is null or rds.context_key = #{contextKey,jdbcType=VARCHAR})
+      </if>
+  </sql>
+
   <sql id="leftOuterJoinRulesDefaultImpacts">
     left outer join rules_default_impacts rdi on
       rdi.rule_uuid = r.uuid
@@ -205,7 +220,7 @@
       <include refid="selectJoinedTablesColumns"/>
     from
       rules r
-    <include refid="leftOuterJoinRulesDescriptionSections"/>
+    <include refid="leftOuterJoinRulesDescriptionSectionsFilteredByContext"/>
     <include refid="leftOuterJoinRulesDefaultImpacts"/>
     <include refid="leftOuterJoinRulesTags"/>
     where
