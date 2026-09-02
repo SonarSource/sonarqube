@@ -41,6 +41,7 @@ import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_D
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_DNA_TOUR;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_ENABLE_SCA;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_NEW_MODES_BANNER;
+import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_PROJECT_COVERAGE_TOUR;
 import static org.sonar.server.user.ws.DismissNoticeAction.DismissNotices.SHOW_SANDBOXED_ISSUES_INTRO;
 
 public class DismissNoticeAction implements UsersWsAction {
@@ -57,6 +58,7 @@ public class DismissNoticeAction implements UsersWsAction {
     SHOW_DNA_BANNER("showDesignAndArchitectureBanner"),
     SHOW_DNA_TOUR("showDesignAndArchitectureTour"),
     SHOW_ENABLE_SCA("showEnableSca"),
+    SHOW_PROJECT_COVERAGE_TOUR("showProjectCoverageTour"),
     ;
 
     private final String key;
@@ -101,6 +103,7 @@ public class DismissNoticeAction implements UsersWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("dismiss_notice")
       .setDescription("Dismiss a notice for the current user. Silently ignore if the notice is already dismissed.")
+      .setChangelog(new Change("2026.5", printNewNotice(SHOW_PROJECT_COVERAGE_TOUR)))
       .setChangelog(new Change("2026.1", printNewNotice(SHOW_SANDBOXED_ISSUES_INTRO)))
       .setChangelog(new Change("2025.3", printNewNotice(SHOW_ENABLE_SCA)))
       .setChangelog(new Change("2025.3", printNewNotice(SHOW_DNA_OPTIN_BANNER, SHOW_DNA_BANNER, SHOW_DNA_TOUR)))
