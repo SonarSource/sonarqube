@@ -85,6 +85,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_054, "Create index 'group_roles_ent_role_grp' on 'group_roles'", CreateIndexOnGroupRolesEntityRoleGroup.class)
       .add(2026_05_055, "Add the rule body to 'findings'", AddRuleBodyToFindingsTable.class)
       .add(2026_05_056, "Add flow metadata to 'finding_locations'", AddFlowMetadataToFindingLocationsTable.class)
-      .add(2026_05_057, "Add 'expected_credits' to 'agent_jobs'", AddExpectedCreditsToAgentJobsTable.class);
+      .add(2026_05_057, "Add 'expected_credits' to 'agent_jobs'", AddExpectedCreditsToAgentJobsTable.class)
+      .add(2026_05_058, "Add 'analyzed_at' to 'hunter_agent_jobs'", AddAnalyzedAtToHunterAgentJobsTable.class);
   }
 }
