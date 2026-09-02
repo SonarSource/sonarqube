@@ -165,7 +165,12 @@ useLocalUnificationModule('useLocalCagHub', 'cag/hub',
 )
 
 useLocalUnificationModule('useLocalHistory', 'reporting/history', ['history-api', 'history-server-app', 'history-core', 'history-sca'], [
-  autoSubstitution: true,
+  groups: [
+    'history-sca': 'com.sonarsource.sonarqube',
+  ],
+  projectPaths: [
+    'history-sca': ':private:history-sca',
+  ],
 ])
 useLocalUnificationModule('useLocalDashboards', 'reporting/dashboards', ['dashboards-api', 'dashboards-server-app', 'dashboards-core'], [
   group: 'com.sonarsource.sonarqube',

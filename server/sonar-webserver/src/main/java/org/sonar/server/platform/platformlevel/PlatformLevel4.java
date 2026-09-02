@@ -881,7 +881,7 @@ public class PlatformLevel4 extends PlatformLevel {
     add(GessieMetadataSourceImpl.class);
 
     // registered via history-server-app
-    addAll(HistoryServerComponents.queryComponents());
+    addAll(HistoryServerComponents.webComponents());
 
     // registered via sonar-unified-events
     addAll(EventsWebComponents.components());
