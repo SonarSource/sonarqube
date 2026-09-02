@@ -117,7 +117,8 @@ public class DefaultAgenticJobsController implements AgenticJobsController {
       dto.getUpdatedAt(),
       dto.getStartedAt(),
       dto.getFinishedAt(),
-      toFailureReason(dto));
+      toFailureReason(dto),
+      toErrorKey(dto));
   }
 
   @Nullable
@@ -126,6 +127,14 @@ public class DefaultAgenticJobsController implements AgenticJobsController {
       return null;
     }
     return dto.getSubStatus() != null ? dto.getSubStatus() : dto.getErrorKey();
+  }
+
+  @Nullable
+  private static String toErrorKey(AgentJobDto dto) {
+    if (!STATUS_FAILED.equals(dto.getStatus())) {
+      return null;
+    }
+    return dto.getErrorKey();
   }
 
   /**

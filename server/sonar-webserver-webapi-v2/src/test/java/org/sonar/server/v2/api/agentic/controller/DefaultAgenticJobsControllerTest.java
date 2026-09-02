@@ -372,7 +372,7 @@ public class DefaultAgenticJobsControllerTest {
       .setAgentType("REMEDIATION")
       .setAnalysisType("INCREMENTAL")
       .setStatus("FAILED")
-      .setSubStatus("some-failure-reason")
+      .setErrorKey("llm_provider_unreachable")
       .setCreatedAt(3_000L)
       .setUpdatedAt(3_000L);
     when(agentJobDao.countByQuery(eq(dbSession), any())).thenReturn(3);
@@ -388,15 +388,18 @@ public class DefaultAgenticJobsControllerTest {
     assertThat(response.jobs().get(0).id()).isEqualTo("job-1");
     assertThat(response.jobs().get(0).status()).isEqualTo("IN_PROGRESS");
     assertThat(response.jobs().get(0).failureReason()).isNull();
+    assertThat(response.jobs().get(0).errorKey()).isNull();
     assertThat(response.jobs().get(0).projectKey()).isNull();
     assertThat(response.jobs().get(0).projectName()).isNull();
     assertThat(response.jobs().get(1).id()).isEqualTo("job-2");
     assertThat(response.jobs().get(1).status()).isEqualTo("COMPLETED");
     assertThat(response.jobs().get(1).failureReason()).isNull();
+    assertThat(response.jobs().get(1).errorKey()).isNull();
     assertThat(response.jobs().get(1).projectKey()).isEqualTo("project-2-key");
     assertThat(response.jobs().get(1).projectName()).isEqualTo("Project Two");
     assertThat(response.jobs().get(2).id()).isEqualTo("job-3");
     assertThat(response.jobs().get(2).status()).isEqualTo("FAILED");
-    assertThat(response.jobs().get(2).failureReason()).isEqualTo("some-failure-reason");
+    assertThat(response.jobs().get(2).failureReason()).isEqualTo("llm_provider_unreachable");
+    assertThat(response.jobs().get(2).errorKey()).isEqualTo("llm_provider_unreachable");
   }
 }

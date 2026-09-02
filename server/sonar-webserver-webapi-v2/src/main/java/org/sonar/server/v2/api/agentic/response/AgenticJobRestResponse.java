@@ -83,8 +83,12 @@ public record AgenticJobRestResponse(
   Long finishedAt,
 
   @Nullable
-  @Schema(accessMode = READ_ONLY, description = "Only set when status is FAILED.")
-  String failureReason
+  @Schema(accessMode = READ_ONLY, deprecated = true, description = "Deprecated. Use errorKey instead.")
+  String failureReason,
+
+  @Nullable
+  @Schema(accessMode = READ_ONLY, description = "Stable customer-safe failure identifier. Only set when status is FAILED.")
+  String errorKey
 
 ) {
 }
