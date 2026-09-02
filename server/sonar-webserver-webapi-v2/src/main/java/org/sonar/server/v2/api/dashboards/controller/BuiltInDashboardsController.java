@@ -33,6 +33,7 @@ import java.util.Locale;
 import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.v2.telemetry.TelemetryBuiltInDashboardViewCountProvider;
 import org.sonarsource.reporting.dashboards.server.BuiltInDashboardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,10 +49,13 @@ public class BuiltInDashboardsController implements BuiltInDashboardsApi {
 
   private final BuiltInDashboardService builtInDashboardService;
   private final PlatformEditionProvider editionProvider;
+  private final TelemetryBuiltInDashboardViewCountProvider builtInDashboardViewCountProvider;
 
-  public BuiltInDashboardsController(BuiltInDashboardService builtInDashboardService, PlatformEditionProvider editionProvider) {
+  public BuiltInDashboardsController(BuiltInDashboardService builtInDashboardService, PlatformEditionProvider editionProvider,
+    TelemetryBuiltInDashboardViewCountProvider builtInDashboardViewCountProvider) {
     this.builtInDashboardService = builtInDashboardService;
     this.editionProvider = editionProvider;
+    this.builtInDashboardViewCountProvider = builtInDashboardViewCountProvider;
   }
 
   @GetMapping
@@ -74,7 +78,9 @@ public class BuiltInDashboardsController implements BuiltInDashboardsApi {
       throw new NotFoundException("Built-in dashboard not found with key: " + key);
     }
     try {
-      return ResponseEntity.ok(DashboardsModelConverter.toApiBuiltInDashboardResponse(builtInDashboardService.findByKey(key)));
+      BuiltInDashboardResponse apiBuiltInDashboardResponse = DashboardsModelConverter.toApiBuiltInDashboardResponse(builtInDashboardService.findByKey(key));
+      builtInDashboardViewCountProvider.incrementCount();
+      return ResponseEntity.ok(apiBuiltInDashboardResponse);
     } catch (DashboardNotFoundException e) {
       throw new NotFoundException(e.getMessage());
     }

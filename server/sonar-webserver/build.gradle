@@ -12,6 +12,8 @@ dependencies {
   api 'com.google.guava:guava'
   api 'org.apache.tomcat.embed:tomcat-embed-core'
   api 'ch.qos.logback.access:logback-access-tomcat'
+  implementation 'org.sonarsource.sonarqube:dashboards-built-in-server-app'
+  implementation 'org.sonarsource.sonarqube:dashboards-api'
   api "org.sonarsource.compliancereports:compliance-reports:${complianceReportsVersion}"
   api project(':sonar-core')
   api project(':server:sonar-auth-bitbucket')

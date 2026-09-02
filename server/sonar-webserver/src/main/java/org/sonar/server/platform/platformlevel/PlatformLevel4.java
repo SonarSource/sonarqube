@@ -91,7 +91,6 @@ import org.sonar.server.ce.ws.CeWsModule;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.DelegatingDevOpsProjectCreatorFactory;
 import org.sonar.server.common.almsettings.DelegatingScmAccessTokenProvider;
-import org.sonar.server.common.almsettings.permission.DopPermissionValidationService;
 import org.sonar.server.common.almsettings.azuredevops.AzureDevOpsProjectCreatorFactory;
 import org.sonar.server.common.almsettings.azuredevops.AzureDevOpsScmAccessTokenProvider;
 import org.sonar.server.common.almsettings.bitbucketcloud.BitbucketCloudProjectCreatorFactory;
@@ -103,6 +102,7 @@ import org.sonar.server.common.almsettings.github.GithubScmAccessTokenProviderAd
 import org.sonar.server.common.almsettings.gitlab.GitlabDevOpsProjectCreationContextService;
 import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.common.almsettings.gitlab.GitlabScmAccessTokenProvider;
+import org.sonar.server.common.almsettings.permission.DopPermissionValidationService;
 import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.github.config.GithubConfigurationService;
@@ -224,7 +224,10 @@ import org.sonar.server.platform.db.migration.DatabaseMigrationPersister;
 import org.sonar.server.platform.db.migration.DatabaseMigrationTelemetry;
 import org.sonar.server.platform.issue.IssueCountsByStatusComputation;
 import org.sonar.server.platform.issue.IssueCountsByStatusComputationExecutorServiceImpl;
+import org.sonar.server.platform.telemetry.DefaultDashboardCountService;
 import org.sonar.server.platform.telemetry.OnboardingSystemInfoSection;
+import org.sonar.server.platform.telemetry.TelemetryCustomPortfolioDashboardCountProvider;
+import org.sonar.server.platform.telemetry.TelemetryCustomProjectDashboardCountProvider;
 import org.sonar.server.platform.telemetry.TelemetryFipsEnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryIpv6EnabledProvider;
 import org.sonar.server.platform.telemetry.TelemetryIssueCountsPerStatusProvider;
@@ -343,6 +346,8 @@ import org.sonar.server.usergroups.ws.UserGroupsModule;
 import org.sonar.server.usertoken.UserTokenModule;
 import org.sonar.server.usertoken.ws.UserTokenWsModule;
 import org.sonar.server.util.TypeValidationModule;
+import org.sonar.server.v2.telemetry.TelemetryBuiltInDashboardViewCountProvider;
+import org.sonar.server.v2.telemetry.TelemetryCustomDashboardViewCountProvider;
 import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
@@ -814,6 +819,13 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryApplicationSubscriptionsProvider.class,
       TelemetryProjectSubscriptionsProvider.class,
       TelemetryPortfolioSubscriptionsProvider.class,
+
+      // Dashboards telemetry
+      DefaultDashboardCountService.class,
+      TelemetryBuiltInDashboardViewCountProvider.class,
+      TelemetryCustomDashboardViewCountProvider.class,
+      TelemetryCustomPortfolioDashboardCountProvider.class,
+      TelemetryCustomProjectDashboardCountProvider.class,
 
       // telemetry
       TelemetryMetricsLoader.class,

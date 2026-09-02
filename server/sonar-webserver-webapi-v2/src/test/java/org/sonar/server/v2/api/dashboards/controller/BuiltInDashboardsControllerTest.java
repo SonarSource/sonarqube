@@ -30,6 +30,7 @@ import org.sonarsource.reporting.dashboards.DashboardNotFoundException;
 import org.sonarsource.reporting.dashboards.api.model.BuiltInDashboardItem;
 import org.sonarsource.reporting.dashboards.api.model.DashboardResourceType;
 import org.sonarsource.reporting.dashboards.server.BuiltInDashboardService;
+import org.sonar.server.v2.telemetry.TelemetryBuiltInDashboardViewCountProvider;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -46,7 +47,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class BuiltInDashboardsControllerTest {
   private final BuiltInDashboardService builtInDashboardService = mock();
   private final PlatformEditionProvider editionProvider = mock();
-  private final BuiltInDashboardsController underTest = new BuiltInDashboardsController(builtInDashboardService, editionProvider);
+  private final TelemetryBuiltInDashboardViewCountProvider builtInDashboardViewCountProvider = mock();
+  private final BuiltInDashboardsController underTest = new BuiltInDashboardsController(builtInDashboardService, editionProvider,
+    builtInDashboardViewCountProvider);
   private final MockMvc mockMvc = ControllerTester.getMockMvc(underTest);
 
   @Test
@@ -150,6 +153,7 @@ class BuiltInDashboardsControllerTest {
     assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
     assertThat(response.getBody().getKey()).isEqualTo("project-health");
     verify(builtInDashboardService).findByKey("project-health");
+    verify(builtInDashboardViewCountProvider).incrementCount();
   }
 
   @Test
@@ -172,6 +176,8 @@ class BuiltInDashboardsControllerTest {
 
     mockMvc.perform(get("/dashboards/built-ins/project-health"))
       .andExpect(status().isNotFound());
+
+    verify(builtInDashboardViewCountProvider, never()).incrementCount();
   }
 
   @Test

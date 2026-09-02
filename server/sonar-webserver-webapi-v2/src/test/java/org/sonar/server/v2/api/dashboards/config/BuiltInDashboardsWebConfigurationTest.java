@@ -21,14 +21,23 @@ package org.sonar.server.v2.api.dashboards.config;
 
 import org.sonarsource.reporting.dashboards.api.config.EnumConverterConfiguration;
 import org.sonarsource.reporting.dashboards.api.model.DashboardResourceType;
+import org.sonarsource.reporting.dashboards.server.BuiltInDashboardService;
 import org.junit.jupiter.api.Test;
+import org.sonar.server.v2.api.dashboards.controller.BuiltInDashboardsController;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.support.DefaultFormattingConversionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BuiltInDashboardsWebConfigurationTest {
+
+  @Test
+  void importsOnlyWebComponents() {
+    assertThat(BuiltInDashboardsWebConfiguration.class.getAnnotation(Import.class).value())
+      .containsExactly(BuiltInDashboardsController.class, EnumConverterConfiguration.class, BuiltInDashboardService.class);
+  }
 
   @Test
   void addFormatters_registersLowercaseDashboardResourceTypeConverter() {
