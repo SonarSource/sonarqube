@@ -21,8 +21,12 @@ package org.sonar.server.authentication;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
+import java.util.Arrays;
 import java.util.Optional;
+import org.apache.commons.codec.digest.HmacAlgorithms;
+import org.apache.commons.codec.digest.HmacUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,6 +37,7 @@ import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
@@ -45,11 +50,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.authentication.GithubWebhookAuthentication.GITHUB_APP_ID_HEADER;
 import static org.sonar.server.authentication.GithubWebhookAuthentication.GITHUB_SIGNATURE_HEADER;
+import static org.sonar.server.authentication.GithubWebhookAuthentication.MAX_WEBHOOK_BODY_LENGTH_BYTES;
 import static org.sonar.server.authentication.GithubWebhookAuthentication.MSG_AUTHENTICATION_FAILED;
+import static org.sonar.server.authentication.GithubWebhookAuthentication.MSG_BODY_TOO_LARGE;
 import static org.sonar.server.authentication.GithubWebhookAuthentication.MSG_NO_BODY_FOUND;
 import static org.sonar.server.authentication.GithubWebhookAuthentication.MSG_NO_WEBHOOK_SECRET_FOUND;
 import static org.sonar.server.authentication.GithubWebhookAuthentication.MSG_UNAUTHENTICATED_GITHUB_CALLS_DENIED;
@@ -174,6 +183,127 @@ public class GithubWebhookAuthenticationIT {
       .isThrownBy(() -> githubWebhookAuthentication.authenticate(request))
       .withMessage(expectedMessage);
     assertThat(logTester.getLogs(LoggerLevel.WARN)).extracting(LogAndArguments::getFormattedMsg).contains(expectedMessage);
+  }
+
+  @Test
+  public void authenticate_whenBodyExceedsMaxSize_throwsBeforeSignatureCheck() throws IOException {
+    HttpRequest request = mockRequest(GITHUB_PAYLOAD, GITHUB_SIGNATURE);
+    when(request.getReader()).thenReturn(new BufferedReader(new SizedReader((long) MAX_WEBHOOK_BODY_LENGTH_BYTES + 1, 'a')));
+    DbClient spiedDbClient = spy(db.getDbClient());
+    GithubWebhookAuthentication authWithSpiedDbClient = new GithubWebhookAuthentication(authenticationEvent, spiedDbClient, settings);
+
+    assertThatExceptionOfType(AuthenticationException.class)
+      .isThrownBy(() -> authWithSpiedDbClient.authenticate(request))
+      .withMessage(MSG_BODY_TOO_LARGE);
+    assertThat(logTester.getLogs(LoggerLevel.WARN)).extracting(LogAndArguments::getFormattedMsg).contains(MSG_BODY_TOO_LARGE);
+    verify(spiedDbClient, never()).almSettingDao();
+  }
+
+  @Test
+  public void authenticate_whenBodyEqualsMaxSize_doesNotRejectBySize() throws IOException {
+    HttpRequest request = mockRequest(GITHUB_PAYLOAD, GITHUB_SIGNATURE);
+    when(request.getReader()).thenReturn(new BufferedReader(new SizedReader(MAX_WEBHOOK_BODY_LENGTH_BYTES, 'a')));
+
+    assertThatExceptionOfType(AuthenticationException.class)
+      .isThrownBy(() -> githubWebhookAuthentication.authenticate(request))
+      .withMessage(MSG_AUTHENTICATION_FAILED);
+    assertThat(logTester.getLogs(LoggerLevel.WARN))
+      .extracting(LogAndArguments::getFormattedMsg)
+      .contains(MSG_AUTHENTICATION_FAILED)
+      .doesNotContain(MSG_BODY_TOO_LARGE);
+  }
+
+  @Test
+  public void authenticate_whenMultibyteUtf8BodyExceedsByteCap_throws() throws IOException {
+    // U+20AC is 3 bytes in UTF-8 but a single Java char; emitting (MAX_BYTES / 3) + 1 chars puts us
+    // just over the byte cap while staying well under any hypothetical char-based cap.
+    HttpRequest request = mockRequest(GITHUB_PAYLOAD, GITHUB_SIGNATURE);
+    long charsToEmit = (MAX_WEBHOOK_BODY_LENGTH_BYTES / 3) + 1;
+    when(request.getReader()).thenReturn(new BufferedReader(new SizedReader(charsToEmit, '\u20AC')));
+    DbClient spiedDbClient = spy(db.getDbClient());
+    GithubWebhookAuthentication authWithSpiedDbClient = new GithubWebhookAuthentication(authenticationEvent, spiedDbClient, settings);
+
+    assertThatExceptionOfType(AuthenticationException.class)
+      .isThrownBy(() -> authWithSpiedDbClient.authenticate(request))
+      .withMessage(MSG_BODY_TOO_LARGE);
+    assertThat(logTester.getLogs(LoggerLevel.WARN)).extracting(LogAndArguments::getFormattedMsg).contains(MSG_BODY_TOO_LARGE);
+    verify(spiedDbClient, never()).almSettingDao();
+  }
+
+  @Test
+  public void authenticate_whenBodyHasNewlines_signsVerbatim() {
+    String multiLineBody = "{\n  \"line\": 1,\n  \"line\": 2\n}\n";
+    String signature = "sha256=" + new HmacUtils(HmacAlgorithms.HMAC_SHA_256, WEBHOOK_SECRET).hmacHex(multiLineBody);
+    HttpRequest request = mockRequest(multiLineBody, signature);
+
+    Optional<UserAuthResult> authentication = githubWebhookAuthentication.authenticate(request);
+
+    assertThat(authentication).isPresent();
+    assertThat(logTester.getLogs()).isEmpty();
+  }
+
+  @Test
+  public void utf8ByteLength_withSurrogatePairWithinChunk_countsAs4Bytes() {
+    // U+1F600 as a Java surrogate pair: 4 UTF-8 bytes.
+    char[] chunk = new char[]{'\uD83D', '\uDE00'};
+    assertThat(GithubWebhookAuthentication.utf8ByteLength(chunk, chunk.length, false)).isEqualTo(4);
+  }
+
+  @Test
+  public void utf8ByteLength_withSurrogatePairSplitAcrossChunks_countsAs4Bytes() {
+    // U+1F600 split across two reads: high surrogate ends chunk 1, low surrogate starts chunk 2.
+    // Without the pendingHighSurrogate credit, the pair would be counted as 3 + 3 = 6 bytes.
+    char[] chunk1 = new char[]{'\uD83D'};
+    char[] chunk2 = new char[]{'\uDE00'};
+    long bytes = GithubWebhookAuthentication.utf8ByteLength(chunk1, chunk1.length, false)
+      + GithubWebhookAuthentication.utf8ByteLength(chunk2, chunk2.length, true);
+    assertThat(bytes).isEqualTo(4);
+  }
+
+  @Test
+  public void utf8ByteLength_withPendingHighSurrogateButNextCharIsAscii_doesNotCredit() {
+    // If a chunk ends with a lone high surrogate and the next chunk starts with ASCII,
+    // no credit is applied: the unpaired high surrogate was correctly billed as 3 bytes.
+    char[] chunk1 = new char[]{'\uD83D'};
+    char[] chunk2 = new char[]{'a'};
+    long bytes = GithubWebhookAuthentication.utf8ByteLength(chunk1, chunk1.length, false)
+      + GithubWebhookAuthentication.utf8ByteLength(chunk2, chunk2.length, true);
+    assertThat(bytes).isEqualTo(3 + 1);
+  }
+
+  @Test
+  public void msgBodyTooLarge_derivesMbFromCapConstant() {
+    int expectedMb = MAX_WEBHOOK_BODY_LENGTH_BYTES / (1024 * 1024);
+    assertThat(MSG_BODY_TOO_LARGE)
+      .contains(expectedMb + " MB")
+      .contains(MAX_WEBHOOK_BODY_LENGTH_BYTES + " bytes");
+  }
+
+  private static final class SizedReader extends Reader {
+    private final long totalCharsToEmit;
+    private final char fill;
+    private long produced;
+
+    private SizedReader(long totalCharsToEmit, char fill) {
+      this.totalCharsToEmit = totalCharsToEmit;
+      this.fill = fill;
+    }
+
+    @Override
+    public int read(char[] cbuf, int off, int len) {
+      if (produced >= totalCharsToEmit) {
+        return -1;
+      }
+      int toWrite = (int) Math.min(len, totalCharsToEmit - produced);
+      Arrays.fill(cbuf, off, off + toWrite, fill);
+      produced += toWrite;
+      return toWrite;
+    }
+
+    @Override
+    public void close() {
+      // no-op
+    }
   }
 
   private static HttpRequest mockRequest(@Nullable String payload, @Nullable String gitHubSignature) {

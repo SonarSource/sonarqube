@@ -20,6 +20,7 @@
 package org.sonar.server.authentication;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.BufferedReader;
 import java.security.MessageDigest;
 import java.util.Optional;
 import org.apache.commons.codec.digest.HmacAlgorithms;
@@ -37,7 +38,6 @@ import org.sonar.server.authentication.event.AuthenticationException;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.sonar.server.user.GithubWebhookUserSession.GITHUB_WEBHOOK_USER_NAME;
 
@@ -62,6 +62,15 @@ public class GithubWebhookAuthentication {
 
   @VisibleForTesting
   static final String MSG_NO_BODY_FOUND = "No body found in GitHub Webhook event.";
+
+  @VisibleForTesting
+  static final int MAX_WEBHOOK_BODY_LENGTH_BYTES = 25 * 1024 * 1024;
+
+  @VisibleForTesting
+  static final String MSG_BODY_TOO_LARGE = "GitHub webhook payload exceeds the maximum allowed size of "
+    + (MAX_WEBHOOK_BODY_LENGTH_BYTES / (1024 * 1024)) + " MB (" + MAX_WEBHOOK_BODY_LENGTH_BYTES + " bytes).";
+
+  private static final int READ_BUFFER_SIZE = 8192;
 
   private static final String SHA_256_PREFIX = "sha256=";
 
@@ -104,11 +113,56 @@ public class GithubWebhookAuthentication {
 
   private static String getBody(HttpRequest request) {
     try {
-      return request.getReader().lines().collect(joining(System.lineSeparator()));
+      BufferedReader reader = request.getReader();
+      StringBuilder body = new StringBuilder();
+      char[] buffer = new char[READ_BUFFER_SIZE];
+      long utf8Bytes = 0;
+      int read;
+      boolean pendingHighSurrogate = false;
+      while ((read = reader.read(buffer)) != -1) {
+        utf8Bytes += utf8ByteLength(buffer, read, pendingHighSurrogate);
+        pendingHighSurrogate = read > 0 && Character.isHighSurrogate(buffer[read - 1]);
+        if (utf8Bytes > MAX_WEBHOOK_BODY_LENGTH_BYTES) {
+          logAuthenticationProblemAndThrow(MSG_BODY_TOO_LARGE);
+        }
+        body.append(buffer, 0, read);
+      }
+      return body.toString();
+    } catch (AuthenticationException e) {
+      throw e;
     } catch (Exception e) {
       logAuthenticationProblemAndThrow(MSG_NO_BODY_FOUND);
       return "";
     }
+  }
+
+  @VisibleForTesting
+  static long utf8ByteLength(char[] buffer, int length, boolean pendingHighSurrogate) {
+    long bytes = 0;
+    int i = 0;
+    if (pendingHighSurrogate && length > 0 && Character.isLowSurrogate(buffer[0])) {
+      // The high surrogate at the end of the previous chunk was billed as 3 bytes;
+      // credit the missing byte so the split pair totals 4 bytes, and skip the low surrogate here.
+      bytes += 1;
+      i = 1;
+    }
+    while (i < length) {
+      char c = buffer[i];
+      if (c < 0x80) {
+        bytes += 1;
+        i++;
+      } else if (c < 0x800) {
+        bytes += 2;
+        i++;
+      } else if (Character.isHighSurrogate(c) && i + 1 < length && Character.isLowSurrogate(buffer[i + 1])) {
+        bytes += 4;
+        i += 2;
+      } else {
+        bytes += 3;
+        i++;
+      }
+    }
+    return bytes;
   }
 
   private String getWebhookSecret(String githubAppId) {
