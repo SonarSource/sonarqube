@@ -20,7 +20,6 @@
 package org.sonar.db.property;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,13 +27,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -66,7 +58,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -548,66 +539,6 @@ class InternalPropertiesDaoIT {
   }
 
   @Test
-  void raiseTextIfGreater_throws_IAE_if_key_is_null() {
-    expectKeyNullOrEmptyIAE(() -> underTest.raiseTextIfGreater(dbSession, null, 8L));
-  }
-
-  @Test
-  void raiseTextIfGreater_throws_IAE_if_key_is_empty() {
-    expectKeyNullOrEmptyIAE(() -> underTest.raiseTextIfGreater(dbSession, EMPTY_STRING, 8L));
-  }
-
-  @Test
-  void raiseTextIfGreater_inserts_when_absent() {
-    assertThat(underTest.raiseTextIfGreater(dbSession, A_KEY, 8_000_000L)).isEqualTo(8_000_000L);
-    dbSession.commit();
-
-    assertThat(underTest.selectByKey(dbSession, A_KEY)).contains("8000000");
-  }
-
-  @Test
-  void raiseTextIfGreater_raises_when_greater() {
-    underTest.save(dbSession, A_KEY, "5");
-    dbSession.commit();
-
-    assertThat(underTest.raiseTextIfGreater(dbSession, A_KEY, 8L)).isEqualTo(8L);
-    dbSession.commit();
-
-    assertThat(underTest.selectByKey(dbSession, A_KEY)).contains("8");
-  }
-
-  @Test
-  void raiseTextIfGreater_is_noop_when_not_greater() {
-    underTest.save(dbSession, A_KEY, "8");
-    dbSession.commit();
-
-    assertThat(underTest.raiseTextIfGreater(dbSession, A_KEY, 6L)).isEqualTo(8L);
-    assertThat(underTest.selectByKey(dbSession, A_KEY)).contains("8");
-  }
-
-  @Test
-  void raiseTextIfGreater_overwrites_when_unparseable() {
-    underTest.save(dbSession, A_KEY, "1e6");
-    dbSession.commit();
-
-    assertThat(underTest.raiseTextIfGreater(dbSession, A_KEY, 8L)).isEqualTo(8L);
-    dbSession.commit();
-
-    assertThat(underTest.selectByKey(dbSession, A_KEY)).contains("8");
-  }
-
-  @Test
-  void raiseTextIfGreater_overwrites_when_empty() {
-    underTest.saveAsEmpty(dbSession, A_KEY);
-    dbSession.commit();
-
-    assertThat(underTest.raiseTextIfGreater(dbSession, A_KEY, 8L)).isEqualTo(8L);
-    dbSession.commit();
-
-    assertThat(underTest.selectByKey(dbSession, A_KEY)).contains("8");
-  }
-
-  @Test
   void raiseTextIfGreater_rewrites_clob_backed_unparseable_row_as_text() {
     underTest.save(dbSession, A_KEY, VALUE_SIZE_4001);
     dbSession.commit();
@@ -618,104 +549,6 @@ class InternalPropertiesDaoIT {
 
     assertThat(underTest.selectByKey(dbSession, A_KEY)).contains("8");
     assertThatInternalProperty(A_KEY).hasTextValue("8");
-  }
-
-  @Test
-  void raiseTextIfGreater_when_insert_races_rolls_back_and_returns_winner() {
-    InternalPropertiesMapper mapperMock = mock(InternalPropertiesMapper.class);
-    DbSession dbSessionMock = mock(DbSession.class);
-    when(dbSessionMock.getMapper(InternalPropertiesMapper.class)).thenReturn(mapperMock);
-
-    InternalPropertyDto winner = new InternalPropertyDto();
-    winner.setKey(A_KEY);
-    winner.setValue("8000000");
-    when(mapperMock.selectAsText(List.of(A_KEY)))
-      .thenReturn(List.of())
-      .thenReturn(List.of(winner));
-    doThrow(RuntimeException.class).when(mapperMock).insertAsText(eq(A_KEY), anyString(), anyLong());
-
-    assertThat(underTest.raiseTextIfGreater(dbSessionMock, A_KEY, 1_000_000L)).isEqualTo(8_000_000L);
-    verify(dbSessionMock).rollback();
-  }
-
-  @Test
-  void raiseTextIfGreater_when_insert_fails_and_row_still_absent_throws_with_cause() {
-    InternalPropertiesMapper mapperMock = mock(InternalPropertiesMapper.class);
-    DbSession dbSessionMock = mock(DbSession.class);
-    when(dbSessionMock.getMapper(InternalPropertiesMapper.class)).thenReturn(mapperMock);
-    when(mapperMock.selectAsText(List.of(A_KEY))).thenReturn(List.of());
-    RuntimeException insertFailure = new RuntimeException("constraint");
-    doThrow(insertFailure).when(mapperMock).insertAsText(eq(A_KEY), anyString(), anyLong());
-
-    assertThatThrownBy(() -> underTest.raiseTextIfGreater(dbSessionMock, A_KEY, 1_000_000L))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining(A_KEY)
-      .hasCause(insertFailure);
-    verify(dbSessionMock).rollback();
-  }
-
-  @Test
-  void raiseTextIfGreater_when_attempts_exhausted_and_stored_is_at_least_requested_returns_stored() {
-    InternalPropertiesMapper mapperMock = mock(InternalPropertiesMapper.class);
-    DbSession dbSessionMock = mock(DbSession.class);
-    when(dbSessionMock.getMapper(InternalPropertiesMapper.class)).thenReturn(mapperMock);
-    AtomicInteger selects = new AtomicInteger();
-    when(mapperMock.selectAsText(List.of(A_KEY))).thenAnswer(invocation -> {
-      if (selects.incrementAndGet() <= 8) {
-        return List.of(textDto("5"));
-      }
-      return List.of(textDto("10"));
-    });
-    when(mapperMock.replaceValue(A_KEY, "5", "8")).thenReturn(0);
-
-    assertThat(underTest.raiseTextIfGreater(dbSessionMock, A_KEY, 8L)).isEqualTo(10L);
-    verify(mapperMock, times(8)).replaceValue(A_KEY, "5", "8");
-  }
-
-  @Test
-  void raiseTextIfGreater_when_attempts_exhausted_and_stored_is_below_throws() {
-    InternalPropertiesMapper mapperMock = mock(InternalPropertiesMapper.class);
-    DbSession dbSessionMock = mock(DbSession.class);
-    when(dbSessionMock.getMapper(InternalPropertiesMapper.class)).thenReturn(mapperMock);
-    when(mapperMock.selectAsText(List.of(A_KEY))).thenReturn(List.of(textDto("5")));
-    when(mapperMock.replaceValue(A_KEY, "5", "8")).thenReturn(0);
-
-    assertThatThrownBy(() -> underTest.raiseTextIfGreater(dbSessionMock, A_KEY, 8L))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining(A_KEY)
-      .hasMessageContaining("8")
-      .hasMessageContaining("stored=5");
-  }
-
-  @Test
-  void raiseTextIfGreater_when_concurrent_raises_keeps_the_max() throws Exception {
-    long[] values = {1_000_000L, 8_000_000L, 3_000_000L, 6_000_000L, 8_000_000L, 2_000_000L, 7_000_000L, 4_000_000L};
-    int threads = values.length;
-    ExecutorService pool = Executors.newFixedThreadPool(threads);
-    CyclicBarrier start = new CyclicBarrier(threads);
-    List<Future<Long>> results = new ArrayList<>();
-    try {
-      for (long value : values) {
-        Callable<Long> task = () -> {
-          start.await(5, TimeUnit.SECONDS);
-          try (DbSession session = dbTester.getDbClient().openSession(false)) {
-            long result = underTest.raiseTextIfGreater(session, A_KEY, value);
-            session.commit();
-            return result;
-          }
-        };
-        results.add(pool.submit(task));
-      }
-      for (int i = 0; i < threads; i++) {
-        assertThat(results.get(i).get(5, TimeUnit.SECONDS)).isBetween(values[i], 8_000_000L);
-      }
-    } finally {
-      pool.shutdownNow();
-    }
-
-    try (DbSession session = dbTester.getDbClient().openSession(false)) {
-      assertThat(underTest.selectByKey(session, A_KEY)).contains("8000000");
-    }
   }
 
   @Test

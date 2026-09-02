@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.function.Function;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -57,6 +59,7 @@ public class InternalPropertiesDao implements Dao {
   public static final int LOCK_NAME_MAX_LENGTH = KEY_MAX_LENGTH - LOCK_PREFIX.length();
 
   private static final int TEXT_VALUE_MAX_LENGTH = 4000;
+  private static final char STAMP_SEPARATOR = ':';
   private static final int MAX_RAISE_ATTEMPTS = 8;
   private static final Optional<String> OPTIONAL_OF_EMPTY_STRING = Optional.of("");
 
@@ -221,35 +224,13 @@ public class InternalPropertiesDao implements Dao {
    */
   public long raiseTextIfGreater(DbSession dbSession, String key, long value) {
     checkKey(key);
-    String asText = Long.toString(value);
-    InternalPropertiesMapper mapper = getMapper(dbSession);
-    for (int attempt = 0; attempt < MAX_RAISE_ATTEMPTS; attempt++) {
-      Long raised = tryRaiseOnce(dbSession, mapper, key, value, asText);
-      if (raised != null) {
-        return raised;
+    return casRaise(dbSession, key, Long.toString(value), value, current -> {
+      Long stored = parseNumeric(current);
+      if (stored == null) {
+        return new Unreadable();
       }
-    }
-    return storedAtLeastOrThrow(dbSession, key, value);
-  }
-
-  @CheckForNull
-  private Long tryRaiseOnce(DbSession dbSession, InternalPropertiesMapper mapper, String key, long value, String asText) {
-    Optional<String> current = selectByKey(dbSession, key);
-    if (current.isEmpty()) {
-      return insertTextOrRetry(dbSession, mapper, key, value, asText);
-    }
-    Long stored = parseNumeric(current.get());
-    if (stored == null) {
-      save(dbSession, key, asText);
-      return value;
-    }
-    if (stored >= value) {
-      return stored;
-    }
-    if (mapper.replaceValue(key, current.get(), asText) == 1) {
-      return value;
-    }
-    return null;
+      return stored >= value ? new Satisfied(stored) : new Stale();
+    });
   }
 
   @CheckForNull
@@ -267,13 +248,123 @@ public class InternalPropertiesDao implements Dao {
     }
   }
 
-  private long storedAtLeastOrThrow(DbSession dbSession, String key, long value) {
-    Long stored = parseNumeric(selectByKey(dbSession, key).orElse(null));
-    if (stored != null && stored >= value) {
-      return stored;
+  /**
+   * Read, decide, and write only if nothing changed underneath, retrying on contention. Shared by every
+   * compare-and-set raise on this DAO so the retry and failure semantics are defined once; the callers differ only
+   * in how they read the stored value.
+   */
+  private long casRaise(DbSession dbSession, String key, String encoded, long value, Function<String, Stored> interpret) {
+    InternalPropertiesMapper mapper = getMapper(dbSession);
+    for (int attempt = 0; attempt < MAX_RAISE_ATTEMPTS; attempt++) {
+      Optional<String> current = selectByKey(dbSession, key);
+      if (current.isEmpty()) {
+        Long inserted = insertTextOrRetry(dbSession, mapper, key, value, encoded);
+        if (inserted != null) {
+          return inserted;
+        }
+        continue;
+      }
+      Stored stored = interpret.apply(current.get());
+      if (stored instanceof Satisfied(long satisfied)) {
+        return satisfied;
+      }
+      if (stored instanceof Unreadable) {
+        // Not in the expected format (empty, unparseable, or clob-backed), so there is nothing to compare
+        // against and the compare-and-set could never match. Overwrite it outright.
+        save(dbSession, key, encoded);
+        return value;
+      }
+      if (mapper.replaceValue(key, current.get(), encoded) == 1) {
+        return value;
+      }
+    }
+    return afterAttemptsExhausted(dbSession, key, value, interpret);
+  }
+
+  /** A writer that beat us to it may already have stored something that satisfies the request. */
+  private long afterAttemptsExhausted(DbSession dbSession, String key, long value,
+    Function<String, Stored> interpret) {
+    Optional<String> current = selectByKey(dbSession, key);
+    if (current.isPresent() && interpret.apply(current.get()) instanceof Satisfied(long satisfied)) {
+      return satisfied;
     }
     throw new IllegalStateException("Failed to raise internal property " + key + " to " + value
-      + " after " + MAX_RAISE_ATTEMPTS + " attempts (stored=" + stored + ")");
+      + " after " + MAX_RAISE_ATTEMPTS + " attempts (stored=" + current.orElse(null) + ")");
+  }
+
+  /** What the currently stored value means for a pending raise. */
+  private sealed interface Stored {
+  }
+
+  /** Already at or above what was asked for: no write needed. */
+  private record Satisfied(long value) implements Stored {
+  }
+
+  /** Understood, but lower or from an earlier window: compare-and-set over it. */
+  private record Stale() implements Stored {
+  }
+
+  /** Not in the expected format, so there is nothing to compare against. */
+  private record Unreadable() implements Stored {
+  }
+
+  /**
+   * Raise a window-stamped maximum. Keeps the highest {@code value} seen while {@code stamp} is unchanged, and
+   * starts again from {@code value} when the stamp differs — so a window rolls lazily on the next write, with
+   * nothing scheduled to reset it. Returns the maximum in force after the call.
+   *
+   * <p>The pair is stored as {@code <stamp>:<value>} in a single row, so a reader can never see a stamp from one
+   * window beside a maximum from another. Uses the same insert-or-{@link InternalPropertiesMapper#replaceValue}
+   * compare-and-set as {@link #raiseTextIfGreater}; an unparseable row is overwritten with {@link #save}.
+   *
+   * <p>Deliberately unaudited, as {@link #raiseTextIfGreater} is: both are internal counters, never a tracked
+   * property.
+   *
+   * <p>A lost insert (duplicate key) rolls {@code dbSession} back before retrying, so callers must not share this
+   * session with other uncommitted writes.
+   */
+  public long raiseStampedMax(DbSession dbSession, String key, String stamp, long value) {
+    checkKey(key);
+    checkArgument(!stamp.isEmpty() && stamp.indexOf(STAMP_SEPARATOR) < 0,
+      "stamp can't be empty nor contain '%s'", STAMP_SEPARATOR);
+    String encoded = stamp + STAMP_SEPARATOR + value;
+    checkArgument(encoded.length() <= TEXT_VALUE_MAX_LENGTH, "stamped value is too long to compare-and-set");
+    return casRaise(dbSession, key, encoded, value, current -> parseStamped(current)
+      .map(stored -> stored.stamp().equals(stamp) && stored.max() >= value
+        ? (Stored) new Satisfied(stored.max())
+        : new Stale())
+      .orElseGet(Unreadable::new));
+  }
+
+  /**
+   * The stamped maximum stored under {@code key}, when it belongs to {@code stamp}. Empty when nothing is stored,
+   * the row is unparseable, or the stored value is left over from an earlier window — an earlier window says
+   * nothing about this one.
+   */
+  public OptionalLong selectStampedMax(DbSession dbSession, String key, String stamp) {
+    checkKey(key);
+    return parseStamped(selectByKey(dbSession, key).orElse(null))
+      .filter(stored -> stored.stamp().equals(stamp))
+      .map(stored -> OptionalLong.of(stored.max()))
+      .orElseGet(OptionalLong::empty);
+  }
+
+  private static Optional<StampedMax> parseStamped(@Nullable String raw) {
+    if (raw == null) {
+      return Optional.empty();
+    }
+    int split = raw.indexOf(STAMP_SEPARATOR);
+    if (split <= 0 || split == raw.length() - 1) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(new StampedMax(raw.substring(0, split), Long.parseLong(raw.substring(split + 1))));
+    } catch (NumberFormatException e) {
+      return Optional.empty();
+    }
+  }
+
+  private record StampedMax(String stamp, long max) {
   }
 
   /**
