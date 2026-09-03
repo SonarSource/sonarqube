@@ -66,7 +66,9 @@ import org.sonar.ce.task.projectanalysis.issue.EffortAggregator;
 import org.sonar.ce.task.projectanalysis.issue.IntegrateIssuesVisitor;
 import org.sonar.ce.task.projectanalysis.issue.IssueAssigner;
 import org.sonar.ce.task.projectanalysis.issue.IssueChangesToDeleteRepository;
+import org.sonar.ce.task.projectanalysis.issue.IssueCountByRuleVisitor;
 import org.sonar.ce.task.projectanalysis.issue.IssueCounter;
+import org.sonar.ce.task.projectanalysis.issue.IssueCountsByRuleHolderImpl;
 import org.sonar.ce.task.projectanalysis.issue.IssueCreationDateCalculator;
 import org.sonar.ce.task.projectanalysis.issue.IssueLifecycle;
 import org.sonar.ce.task.projectanalysis.issue.IssueOnReferenceBranchVisitor;
@@ -293,6 +295,8 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       NewEffortAggregator.class,
       IssueAssigner.class,
       IssueCounter.class,
+      IssueCountsByRuleHolderImpl.class,
+      IssueCountByRuleVisitor.class,
       MovedIssueVisitor.class,
       IssuesRepositoryVisitor.class,
       RemoveProcessedComponentsVisitor.class,

@@ -13,12 +13,15 @@ dependencies {
     implementation project(':server:sonar-process')
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'org.sonarsource.sonarqube:sonar-events-api'
 
     testImplementation(platform("org.junit:junit-bom"))
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-params'
     testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.sonarsource.sonarqube:sonar-events-server'
+    testImplementation 'org.sonarsource.sonarqube:gessie-server-app'
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

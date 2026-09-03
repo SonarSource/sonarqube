@@ -38,6 +38,7 @@ public class TargetBranchComponentUuids {
   private final DbClient dbClient;
   private Map<String, String> targetBranchComponentsUuidsByKey;
   private boolean hasTargetBranchAnalysis;
+  private String targetBranchUuid;
 
   public TargetBranchComponentUuids(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
     this.analysisMetadataHolder = analysisMetadataHolder;
@@ -61,7 +62,7 @@ public class TargetBranchComponentUuids {
   private void initForTargetBranch(DbSession dbSession) {
     Optional<BranchDto> branchDtoOpt = dbClient.branchDao().selectByBranchKey(dbSession, analysisMetadataHolder.getProject().getUuid(),
       analysisMetadataHolder.getBranch().getTargetBranchName());
-    String targetBranchUuid = branchDtoOpt.map(BranchDto::getUuid).orElse(null);
+    targetBranchUuid = branchDtoOpt.map(BranchDto::getUuid).orElse(null);
     hasTargetBranchAnalysis = targetBranchUuid != null && dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, targetBranchUuid).isPresent();
     if (hasTargetBranchAnalysis) {
       List<ComponentDto> targetComponents = dbClient.componentDao().selectByBranchUuid(targetBranchUuid, dbSession);
@@ -80,5 +81,16 @@ public class TargetBranchComponentUuids {
   public String getTargetBranchComponentUuid(String key) {
     lazyInit();
     return targetBranchComponentsUuidsByKey.get(key);
+  }
+
+  /**
+   * The uuid of the pull request's target/base branch, regardless of whether that branch has been
+   * analyzed yet. {@code null} if the branch key from {@code sonar.pullrequest.base} doesn't match
+   * an existing branch, or if this analysis is not a pull request.
+   */
+  @CheckForNull
+  public String getTargetBranchUuid() {
+    lazyInit();
+    return targetBranchUuid;
   }
 }

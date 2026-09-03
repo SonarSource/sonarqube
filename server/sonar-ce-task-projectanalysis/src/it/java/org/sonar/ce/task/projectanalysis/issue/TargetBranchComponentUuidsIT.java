@@ -125,4 +125,34 @@ public class TargetBranchComponentUuidsIT {
 
     assertThat(underTest.getTargetBranchComponentUuid(pr1File.getKey())).isNull();
   }
+
+  @Test
+  public void get_target_branch_uuid_returns_uuid_even_if_target_branch_has_no_analysis() {
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    when(branch.getName()).thenReturn("prBranch");
+    when(branch.getTargetBranchName()).thenReturn(BRANCH_KEY);
+    when(branch.getPullRequestKey()).thenReturn(PR_KEY);
+
+    assertThat(underTest.getTargetBranchUuid()).isEqualTo(branch1.uuid());
+    assertThat(underTest.hasTargetBranchAnalysis()).isFalse();
+  }
+
+  @Test
+  public void get_target_branch_uuid_returns_null_if_target_branch_key_is_unknown() {
+    when(branch.getType()).thenReturn(BranchType.PULL_REQUEST);
+    when(branch.getName()).thenReturn("prBranch");
+    when(branch.getTargetBranchName()).thenReturn("unknown-branch");
+    when(branch.getPullRequestKey()).thenReturn(PR_KEY);
+
+    assertThat(underTest.getTargetBranchUuid()).isNull();
+  }
+
+  @Test
+  public void get_target_branch_uuid_returns_null_if_not_a_pull_request() {
+    when(branch.getType()).thenReturn(BranchType.BRANCH);
+    when(branch.getName()).thenReturn("prBranch");
+    when(branch.getTargetBranchName()).thenReturn(BRANCH_KEY);
+
+    assertThat(underTest.getTargetBranchUuid()).isNull();
+  }
 }

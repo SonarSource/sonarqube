@@ -138,7 +138,8 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     PublishTaskResultStep.class,
     TriggerViewRefreshStep.class,
 
-    // send analysis and steps statistics telemetry
+    // send analysis, steps and issue statistics telemetry
+    SendIssueTelemetryStep.class,
     SendAnalysisTelemetryStep.class);
 
   public ReportComputationSteps(TaskContainer taskContainer) {
