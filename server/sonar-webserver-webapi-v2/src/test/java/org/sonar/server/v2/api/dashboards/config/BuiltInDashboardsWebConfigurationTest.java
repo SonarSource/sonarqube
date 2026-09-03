@@ -19,8 +19,8 @@
  */
 package org.sonar.server.v2.api.dashboards.config;
 
-import com.sonarsource.reporting.dashboards.api.config.EnumConverterConfiguration;
-import com.sonarsource.reporting.dashboards.api.model.DashboardResourceType;
+import org.sonarsource.reporting.dashboards.api.config.EnumConverterConfiguration;
+import org.sonarsource.reporting.dashboards.api.model.DashboardResourceType;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.convert.converter.Converter;

@@ -172,12 +172,16 @@ useLocalUnificationModule('useLocalHistory', 'reporting/history', ['history-api'
     'history-sca': ':private:history-sca',
   ],
 ])
-useLocalUnificationModule('useLocalDashboards', 'reporting/dashboards', ['dashboards-api', 'dashboards-server-app', 'dashboards-core'], [
-  group: 'com.sonarsource.sonarqube',
+useLocalUnificationModule('useLocalDashboards', 'reporting/dashboards',
+  ['dashboards-api', 'dashboards-core', 'dashboards-built-in-server-app', 'dashboards-server-app'], [
+  groups: [
+    'dashboards-server-app': 'com.sonarsource.sonarqube',
+  ],
   projectPaths: [
-    'dashboards-api'       : ':private:dashboards-api',
-    'dashboards-server-app': ':private:dashboards-server-app',
-    'dashboards-core'      : ':private:dashboards-core',
+    'dashboards-api'                : ':dashboards-api',
+    'dashboards-core'               : ':dashboards-core',
+    'dashboards-built-in-server-app': ':dashboards-built-in-server-app',
+    'dashboards-server-app'         : ':private:dashboards-server-app',
   ]
 ])
 useLocalUnificationModule('useLocalDopTranslation', 'integration/dop-translation', ['dop-translation-api'])

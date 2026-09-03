@@ -19,17 +19,17 @@
  */
 package org.sonar.server.v2.api.dashboards.controller;
 
-import com.sonarsource.reporting.dashboards.BuiltInDashboard;
-import com.sonarsource.reporting.dashboards.DashboardNotFoundException;
-import com.sonarsource.reporting.dashboards.DashboardResourceType;
-import com.sonarsource.reporting.dashboards.api.model.BuiltInDashboardItem;
-import com.sonarsource.reporting.dashboards.server.BuiltInDashboardService;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.v2.api.ControllerTester;
+import org.sonarsource.reporting.dashboards.BuiltInDashboard;
+import org.sonarsource.reporting.dashboards.DashboardNotFoundException;
+import org.sonarsource.reporting.dashboards.api.model.BuiltInDashboardItem;
+import org.sonarsource.reporting.dashboards.api.model.DashboardResourceType;
+import org.sonarsource.reporting.dashboards.server.BuiltInDashboardService;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -78,7 +78,7 @@ class BuiltInDashboardsControllerTest {
     when(editionProvider.get()).thenReturn(Optional.of(Edition.COMMUNITY));
 
     var response = underTest.listBuiltInDashboards(null,
-      com.sonarsource.reporting.dashboards.api.model.DashboardResourceType.PORTFOLIO, 1, 50).getBody();
+      DashboardResourceType.PORTFOLIO, 1, 50).getBody();
 
     assertThat(response.getDashboards()).isEmpty();
     assertThat(response.getPage().getTotal()).isZero();
@@ -187,10 +187,10 @@ class BuiltInDashboardsControllerTest {
   }
 
   private static BuiltInDashboard projectHealth() {
-    return new BuiltInDashboard("project-health", "Project Health", "Description", 123L, DashboardResourceType.PROJECT, "{}");
+    return new BuiltInDashboard("project-health", "Project Health", "Description", 123L, org.sonarsource.reporting.dashboards.DashboardResourceType.PROJECT, "{}");
   }
 
   private static BuiltInDashboard securityOverview() {
-    return new BuiltInDashboard("security-overview", "Security Overview", "Description", 123L, DashboardResourceType.PROJECT, "{}");
+    return new BuiltInDashboard("security-overview", "Security Overview", "Description", 123L, org.sonarsource.reporting.dashboards.DashboardResourceType.PROJECT, "{}");
   }
 }

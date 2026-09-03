@@ -20,8 +20,8 @@ dependencies {
     api project(':server:sonar-auth-github')
     api project(':server:sonar-db-dao')
     api project(':server:sonar-webserver-monitoring')
-    implementation 'com.sonarsource.sonarqube:dashboards-api'
-    implementation 'com.sonarsource.sonarqube:dashboards-server-app'
+    implementation 'org.sonarsource.sonarqube:dashboards-api'
+    implementation 'org.sonarsource.sonarqube:dashboards-built-in-server-app'
     implementation 'org.sonarsource.sonarqube:history-api'
     implementation 'org.sonarsource.sonarqube:history-core'
     implementation 'org.sonarsource.sonarqube:history-server-app'

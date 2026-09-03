@@ -19,21 +19,21 @@
  */
 package org.sonar.server.v2.api.dashboards.controller;
 
-import com.sonarsource.reporting.dashboards.BuiltInDashboard;
-import com.sonarsource.reporting.dashboards.DashboardNotFoundException;
-import com.sonarsource.reporting.dashboards.api.model.BuiltInDashboardResponse;
-import com.sonarsource.reporting.dashboards.api.model.BuiltInDashboardsResponse;
-import com.sonarsource.reporting.dashboards.api.model.DashboardPage;
-import com.sonarsource.reporting.dashboards.api.model.DashboardResourceType;
-import com.sonarsource.reporting.dashboards.api.model.DashboardsModelConverter;
-import com.sonarsource.reporting.dashboards.api.rest.BuiltInDashboardsApi;
-import com.sonarsource.reporting.dashboards.server.BuiltInDashboardService;
+import org.sonarsource.reporting.dashboards.BuiltInDashboard;
+import org.sonarsource.reporting.dashboards.DashboardNotFoundException;
+import org.sonarsource.reporting.dashboards.api.model.BuiltInDashboardResponse;
+import org.sonarsource.reporting.dashboards.api.model.BuiltInDashboardsResponse;
+import org.sonarsource.reporting.dashboards.api.model.DashboardPage;
+import org.sonarsource.reporting.dashboards.api.model.DashboardResourceType;
+import org.sonarsource.reporting.dashboards.api.model.DashboardsModelConverter;
+import org.sonarsource.reporting.dashboards.api.rest.BuiltInDashboardsApi;
 import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonarsource.reporting.dashboards.server.BuiltInDashboardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -82,7 +82,7 @@ public class BuiltInDashboardsController implements BuiltInDashboardsApi {
 
   private ResponseEntity<BuiltInDashboardsResponse> listAllBuiltIns(@Nullable String q, @Nullable DashboardResourceType resourceType,
     Integer pageIndex, Integer pageSize) {
-    com.sonarsource.reporting.dashboards.DashboardResourceType coreResourceType = resourceType == null
+    org.sonarsource.reporting.dashboards.DashboardResourceType coreResourceType = resourceType == null
       ? null : DashboardsModelConverter.toCoreResourceType(resourceType);
     List<BuiltInDashboard> dashboards = pageSize > 0 ? builtInDashboardService.list(q, coreResourceType, pageIndex, pageSize) : List.of();
     int total = builtInDashboardService.count(q, coreResourceType);

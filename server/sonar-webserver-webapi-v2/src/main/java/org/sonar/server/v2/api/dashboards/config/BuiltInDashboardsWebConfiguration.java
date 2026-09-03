@@ -19,12 +19,10 @@
  */
 package org.sonar.server.v2.api.dashboards.config;
 
-import com.sonarsource.reporting.dashboards.api.config.EnumConverterConfiguration;
-import com.sonarsource.reporting.dashboards.api.model.DashboardResourceType;
-import com.sonarsource.reporting.dashboards.server.BuiltInDashboardService;
-import com.sonarsource.reporting.dashboards.server.db.DashboardsDbClient;
-import com.sonarsource.reporting.dashboards.server.db.repository.DashboardsRepository;
 import org.sonar.server.v2.api.dashboards.controller.BuiltInDashboardsController;
+import org.sonarsource.reporting.dashboards.api.config.EnumConverterConfiguration;
+import org.sonarsource.reporting.dashboards.api.model.DashboardResourceType;
+import org.sonarsource.reporting.dashboards.server.BuiltInDashboardService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
@@ -36,8 +34,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Import({
   BuiltInDashboardsController.class,
   EnumConverterConfiguration.class,
-  DashboardsDbClient.class,
-  DashboardsRepository.class,
   BuiltInDashboardService.class
 })
 public class BuiltInDashboardsWebConfiguration implements WebMvcConfigurer {
