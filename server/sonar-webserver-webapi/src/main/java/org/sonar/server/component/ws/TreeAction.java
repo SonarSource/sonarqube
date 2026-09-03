@@ -117,6 +117,7 @@ public class TreeAction implements ComponentsWsAction {
       .setSince("5.4")
       .setResponseExample(getClass().getResource("tree-example.json"))
       .setChangelog(
+        new Change("2026.5", "Response field 'refQualifier' has been added."),
         new Change("10.1", String.format("The use of module keys in parameter '%s' is removed", PARAM_COMPONENT)),
         new Change("10.1", String.format("The use of 'BRC' as value for parameter '%s' is removed", PARAM_QUALIFIERS)),
         new Change("7.6", String.format("The use of 'BRC' as value for parameter '%s' is deprecated", PARAM_QUALIFIERS)),
@@ -264,6 +265,7 @@ public class TreeAction implements ComponentsWsAction {
     if (referenceComponent != null) {
       wsComponent.setRefId(referenceComponent.uuid());
       wsComponent.setRefKey(referenceComponent.getKey());
+      wsComponent.setRefQualifier(referenceComponent.qualifier());
     }
 
     return wsComponent;

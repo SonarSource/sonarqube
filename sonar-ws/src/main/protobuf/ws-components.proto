@@ -119,6 +119,8 @@ message Component {
   optional AiCodeAssurance aiCodeAssurance = 24;
   optional bool containsAiCode = 25;
   optional string uuid = 26;
+  // Qualifier of the referenced component
+  optional string refQualifier = 27;
 
   message Tags {
     repeated string tags = 1;

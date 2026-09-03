@@ -101,6 +101,7 @@ public class TreeActionIT {
     assertThat(action.description()).isNotNull();
     assertThat(action.responseExample()).isNotNull();
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("2026.5", "Response field 'refQualifier' has been added."),
       tuple("10.1", "The use of module keys in parameter 'component' is removed"),
       tuple("10.1", "The use of 'BRC' as value for parameter 'qualifiers' is removed"),
       tuple("7.6", "The use of 'BRC' as value for parameter 'qualifiers' is deprecated"),
@@ -281,6 +282,33 @@ public class TreeActionIT {
     assertThat(response.getComponentsList()).extracting("key").containsExactly("KEY_view-uuidproject-key-1", "sub-view-key");
     assertThat(response.getComponentsList()).extracting("refId").containsExactly("project-uuid-1", "");
     assertThat(response.getComponentsList()).extracting("refKey").containsExactly("project-key-1", "");
+    assertThat(response.getComponentsList()).extracting("refQualifier").containsExactly("TRK", "");
+    assertThat(response.getComponents(0).hasRefQualifier()).isTrue();
+    assertThat(response.getComponents(1).hasRefQualifier()).isFalse();
+  }
+
+  @Test
+  public void application_reference_from_portfolio() {
+    ComponentDto view = ComponentTesting.newPortfolio("view-uuid");
+    db.components().insertPortfolioAndSnapshot(view);
+    ProjectData applicationData = db.components().insertPrivateProject(p -> p.setQualifier(APP).setUuid("application-uuid").setBranchUuid("application-uuid")
+      .setName("application-name").setKey("application-key"));
+    ComponentDto application = applicationData.getMainBranchComponent();
+    db.components().insertSnapshot(application);
+    db.components().insertComponent(ComponentTesting.newSubPortfolio(view, "application-copy-uuid", "application-copy-key")
+      .setName("application-copy-name").setCopyComponentUuid(application.uuid()));
+    db.commit();
+    userSession.logIn()
+      .registerPortfolios(view)
+      .registerApplication(applicationData.getProjectDto());
+
+    TreeWsResponse response = ws.newRequest()
+      .setParam(PARAM_STRATEGY, "children")
+      .setParam(PARAM_COMPONENT, view.getKey())
+      .executeProtobuf(TreeWsResponse.class);
+
+    assertThat(response.getComponentsList()).extracting("key", "qualifier", "refKey", "refQualifier")
+      .containsExactly(tuple("application-copy-key", "SVW", "application-key", APP));
   }
 
   @Test
