@@ -83,6 +83,27 @@ public class ProtobufIssueDiskCacheTest {
   }
 
   @Test
+  public void toDefaultIssue_whenDetectionDatePresent_shouldSetItInDefaultIssue() {
+    IssueCache.Issue issue = prepareIssueWithCompulsoryFields()
+      .setDetectionDate(1_704_067_200_000L)
+      .build();
+
+    DefaultIssue defaultIssue = ProtobufIssueDiskCache.toDefaultIssue(issue);
+
+    assertThat(defaultIssue.detectionDate()).isEqualTo(new Date(1_704_067_200_000L));
+  }
+
+  @Test
+  public void toDefaultIssue_whenDetectionDateAbsent_shouldNotSetItInDefaultIssue() {
+    IssueCache.Issue issue = prepareIssueWithCompulsoryFields()
+      .build();
+
+    DefaultIssue defaultIssue = ProtobufIssueDiskCache.toDefaultIssue(issue);
+
+    assertThat(defaultIssue.detectionDate()).isNull();
+  }
+
+  @Test
   public void toProto_whenRuleDescriptionContextKeySet_shouldCopyToIssueProto() {
     DefaultIssue defaultIssue = createDefaultIssueWithMandatoryFields();
     defaultIssue.setRuleDescriptionContextKey(TEST_CONTEXT_KEY);
@@ -124,6 +145,26 @@ public class ProtobufIssueDiskCacheTest {
     IssueCache.Issue issue = ProtobufIssueDiskCache.toProto(IssueCache.Issue.newBuilder(), defaultIssue);
 
     assertThat(issue.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.FOCUSED.name());
+  }
+
+  @Test
+  public void toProto_whenDetectionDateSet_shouldCopyToIssueProto() {
+    DefaultIssue defaultIssue = createDefaultIssueWithMandatoryFields();
+    defaultIssue.setDetectionDate(new Date(1_704_067_200_000L));
+
+    IssueCache.Issue issue = ProtobufIssueDiskCache.toProto(IssueCache.Issue.newBuilder(), defaultIssue);
+
+    assertThat(issue.hasDetectionDate()).isTrue();
+    assertThat(issue.getDetectionDate()).isEqualTo(1_704_067_200_000L);
+  }
+
+  @Test
+  public void toProto_whenDetectionDateNotSet_shouldCopyToIssueProto() {
+    DefaultIssue defaultIssue = createDefaultIssueWithMandatoryFields();
+
+    IssueCache.Issue issue = ProtobufIssueDiskCache.toProto(IssueCache.Issue.newBuilder(), defaultIssue);
+
+    assertThat(issue.hasDetectionDate()).isFalse();
   }
 
   private IssueCache.Impact toImpact(SoftwareQuality softwareQuality, Severity severity, boolean manualSeverity) {

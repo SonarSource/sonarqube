@@ -129,6 +129,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     defaultIssue.setCreationDate(new Date(next.getCreationDate()));
     defaultIssue.setUpdateDate(next.hasUpdateDate() ? new Date(next.getUpdateDate()) : null);
     defaultIssue.setCloseDate(next.hasCloseDate() ? new Date(next.getCloseDate()) : null);
+    defaultIssue.setDetectionDate(next.hasDetectionDate() ? new Date(next.getDetectionDate()) : null);
     defaultIssue.setCurrentChangeWithoutAddChange(next.hasCurrentChanges() ? toDefaultIssueChanges(next.getCurrentChanges()) : null);
     defaultIssue.setNew(next.getIsNew());
     defaultIssue.setIsOnChangedLine(next.getIsOnChangedLine());
@@ -192,6 +193,7 @@ public class ProtobufIssueDiskCache implements DiskCache<DefaultIssue> {
     builder.setCreationDate(defaultIssue.creationDate().getTime());
     ofNullable(defaultIssue.updateDate()).map(Date::getTime).ifPresent(builder::setUpdateDate);
     ofNullable(defaultIssue.closeDate()).map(Date::getTime).ifPresent(builder::setCloseDate);
+    ofNullable(defaultIssue.detectionDate()).map(Date::getTime).ifPresent(builder::setDetectionDate);
     ofNullable(defaultIssue.currentChange()).ifPresent(c -> builder.setCurrentChanges(toProtoIssueChanges(c)));
     builder.setIsNew(defaultIssue.isNew());
     builder.setIsOnChangedLine(defaultIssue.isOnChangedLine());

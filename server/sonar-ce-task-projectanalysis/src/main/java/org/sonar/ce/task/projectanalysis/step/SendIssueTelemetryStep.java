@@ -19,7 +19,10 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.time.Duration;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -27,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.Branch;
@@ -34,11 +39,16 @@ import org.sonar.ce.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.issue.IssueCounts;
 import org.sonar.ce.task.projectanalysis.issue.IssueCountsByRuleHolder;
+import org.sonar.ce.task.projectanalysis.issue.ProtoIssueCache;
 import org.sonar.ce.task.projectanalysis.issue.TargetBranchComponentUuids;
 import org.sonar.ce.task.step.ComputationStep;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.scanner.protobuf.utils.CloseableIterator;
 import org.sonar.telemetry.core.event.AnalyticsEventPublisher;
 import org.sonar.telemetry.core.event.workflow.IssueBacklogTelemetryEvent;
 import org.sonar.telemetry.core.event.workflow.IssueBacklogTelemetryEvent.RuleCounts;
+import org.sonar.telemetry.core.event.workflow.IssueDeltaTelemetryEvent;
+import org.sonar.telemetry.core.event.workflow.IssueDeltaTelemetryEvent.RuleDeltaCounts;
 
 import static org.sonar.core.config.PurgeConstants.BRANCHES_TO_KEEP_WHEN_INACTIVE;
 import static org.sonar.process.ProcessProperties.Property.SONAR_TELEMETRY_ENABLE;
@@ -52,17 +62,19 @@ public class SendIssueTelemetryStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final IssueCountsByRuleHolder issueCountsByRuleHolder;
   private final TargetBranchComponentUuids targetBranchComponentUuids;
+  private final ProtoIssueCache protoIssueCache;
   private final AnalyticsEventPublisher analyticsEventPublisher;
   private final ConfigurationRepository configurationRepository;
 
   public SendIssueTelemetryStep(Configuration config, AnalysisMetadataHolder analysisMetadataHolder,
     TreeRootHolder treeRootHolder, IssueCountsByRuleHolder issueCountsByRuleHolder, TargetBranchComponentUuids targetBranchComponentUuids,
-    AnalyticsEventPublisher analyticsEventPublisher, ConfigurationRepository configurationRepository) {
+    ProtoIssueCache protoIssueCache, AnalyticsEventPublisher analyticsEventPublisher, ConfigurationRepository configurationRepository) {
     this.config = config;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.treeRootHolder = treeRootHolder;
     this.issueCountsByRuleHolder = issueCountsByRuleHolder;
     this.targetBranchComponentUuids = targetBranchComponentUuids;
+    this.protoIssueCache = protoIssueCache;
     this.analyticsEventPublisher = analyticsEventPublisher;
     this.configurationRepository = configurationRepository;
   }
@@ -72,20 +84,25 @@ public class SendIssueTelemetryStep implements ComputationStep {
     if (!config.getBoolean(SONAR_TELEMETRY_ENABLE.getKey()).orElse(false)) {
       return;
     }
-    try {
-      publishIssueCountsByRule();
-    } catch (RuntimeException e) {
-      // Telemetry must never fail an analysis.
-      LOG.warn("Failed to send issue telemetry", e);
+
+    Branch branch = analysisMetadataHolder.getBranch();
+    if (isNonPurgableBranchOrPullRequest(branch)) {
+      try {
+        publishIssueCountsByRule(branch);
+      } catch (RuntimeException e) {
+        // Telemetry must never fail an analysis.
+        LOG.debug("Failed to send issue backlog telemetry", e);
+      }
+      try {
+        publishIssueDeltaByRule(branch);
+      } catch (RuntimeException e) {
+        // Telemetry must never fail an analysis.
+        LOG.debug("Failed to send issue delta telemetry", e);
+      }
     }
   }
 
-  private void publishIssueCountsByRule() {
-    Branch branch = analysisMetadataHolder.getBranch();
-    if (!isNonPurgableBranchOrPullRequest(branch)) {
-      return;
-    }
-
+  private void publishIssueCountsByRule(Branch branch) {
     Map<RuleKey, IssueCounts> counts = issueCountsByRuleHolder.getCounts();
     if (counts.isEmpty()) {
       return;
@@ -106,12 +123,6 @@ public class SendIssueTelemetryStep implements ComputationStep {
     analyticsEventPublisher.publish(IssueBacklogTelemetryEvent.TYPE, event);
   }
 
-  /**
-   * Only branches excluded from automatic purge (main branch, or a branch matching
-   * {@code sonar.dbcleaner.branchesToKeepWhenInactive}) are worth reporting backlog telemetry
-   * for, since purgable branches are short-lived. Pull requests are always purgable but are
-   * reported anyway, as their backlog is still a useful signal.
-   */
   private boolean isNonPurgableBranchOrPullRequest(Branch branch) {
     if (branch.isMain() || analysisMetadataHolder.isPullRequest()) {
       return true;
@@ -122,16 +133,6 @@ public class SendIssueTelemetryStep implements ComputationStep {
       .anyMatch(pattern -> pattern.matcher(branch.getName()).matches());
   }
 
-  /**
-   * The branch this analysis is compared against: the target branch for a pull request, or the
-   * reference branch for a regular branch — {@code null} only for the main branch, which has
-   * nothing to merge into. {@link Branch#getReferenceBranchUuid()} is the new-code-period
-   * reference branch, which is unrelated to (and, unless left unset, different from) a PR's
-   * target/base branch, so it must not be used for pull requests; {@link TargetBranchComponentUuids}
-   * already resolves the target branch's uuid as a side effect of PR issue tracking
-   * ({@code IntegrateIssuesVisitor} triggers it for every component, earlier in the same
-   * {@code ExecuteVisitorsStep} crawl), so reading it here adds no extra DB IO.
-   */
   @CheckForNull
   private String getMergeBranchUuid(Branch branch) {
     if (branch.isMain()) {
@@ -148,8 +149,106 @@ public class SendIssueTelemetryStep implements ComputationStep {
       counts.falsePositive(), counts.accepted(), counts.inSandbox());
   }
 
+
+  private void publishIssueDeltaByRule(Branch branch) {
+    Map<RuleKey, DeltaCounts> counts = new HashMap<>();
+    long analysisDate = analysisMetadataHolder.getAnalysisDate();
+    try (CloseableIterator<DefaultIssue> issues = protoIssueCache.traverse()) {
+      while (issues.hasNext()) {
+        accumulateDelta(counts, issues.next(), new Date(analysisDate));
+      }
+    }
+    if (counts.isEmpty()) {
+      return;
+    }
+
+    List<RuleDeltaCounts> rules = counts.entrySet().stream()
+      .map(entry -> toRuleDeltaCounts(entry.getKey(), entry.getValue()))
+      .toList();
+
+    IssueDeltaTelemetryEvent event = new IssueDeltaTelemetryEvent(
+      analysisMetadataHolder.getProject().getUuid(),
+      treeRootHolder.getRoot().getUuid(),
+      branch.getType().name(),
+      getMergeBranchUuid(branch),
+      analysisDate,
+      rules);
+
+    analyticsEventPublisher.publish(IssueDeltaTelemetryEvent.TYPE, event);
+  }
+
+
+  private static void accumulateDelta(Map<RuleKey, DeltaCounts> counts, DefaultIssue issue, Date analysisDate) {
+    if (issue.isBeingClosed()) {
+      if (Issue.RESOLUTION_FIXED.equals(issue.resolution())) {
+        Date closeDate = issue.closeDate() != null ? issue.closeDate() : analysisDate;
+        long fixDurationDays = Duration.between(getDetectionDate(issue).toInstant(), closeDate.toInstant()).toDays();
+        counts.computeIfAbsent(issue.ruleKey(), k -> new DeltaCounts()).incrementFixed(fixDurationDays);
+      }
+      return;
+    }
+    if (!issue.isNew()) {
+      return;
+    }
+    IssueStatus status = issue.issueStatus();
+    if (status == IssueStatus.OPEN) {
+      counts.computeIfAbsent(issue.ruleKey(), k -> new DeltaCounts()).incrementNewOpen();
+    } else if (status == IssueStatus.IN_SANDBOX) {
+      counts.computeIfAbsent(issue.ruleKey(), k -> new DeltaCounts()).incrementNewInSandbox();
+    }
+  }
+
+  /**
+   * Mirrors {@code FixedIssueVisitor#getDetectionDate}, so time-to-fix stays consistent with the
+   * Hunter Agent TTR history feature: {@code detectionDate} reflects when the issue was actually
+   * first seen, falling back to {@code creationDate} when unset.
+   */
+  private static Date getDetectionDate(DefaultIssue issue) {
+    Date detectionDate = issue.detectionDate();
+    return detectionDate != null ? detectionDate : issue.creationDate();
+  }
+
+  private static RuleDeltaCounts toRuleDeltaCounts(RuleKey ruleKey, DeltaCounts counts) {
+    return new RuleDeltaCounts(ruleKey.toString(), counts.newOpen, counts.newInSandbox, counts.newFixed,
+      counts.newFixedIn1Days, counts.newFixedIn7Days, counts.newFixedIn30Days);
+  }
+
   @Override
   public String getDescription() {
     return "Send issue telemetry";
+  }
+
+  /**
+   * Mutable per-rule delta accumulator. {@code newFixedInNDays} counters are cumulative
+   * (fixed within &le; N days), not disjoint histogram buckets.
+   */
+  private static final class DeltaCounts {
+    private int newOpen = 0;
+    private int newInSandbox = 0;
+    private int newFixed = 0;
+    private int newFixedIn1Days = 0;
+    private int newFixedIn7Days = 0;
+    private int newFixedIn30Days = 0;
+
+    private void incrementNewOpen() {
+      newOpen++;
+    }
+
+    private void incrementNewInSandbox() {
+      newInSandbox++;
+    }
+
+    private void incrementFixed(long fixDurationDays) {
+      newFixed++;
+      if (fixDurationDays <= 1) {
+        newFixedIn1Days++;
+      }
+      if (fixDurationDays <= 7) {
+        newFixedIn7Days++;
+      }
+      if (fixDurationDays <= 30) {
+        newFixedIn30Days++;
+      }
+    }
   }
 }

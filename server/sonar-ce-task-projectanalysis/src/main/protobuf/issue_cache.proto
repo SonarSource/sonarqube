@@ -89,6 +89,7 @@ message Issue {
   optional bool is_prioritized_rule = 51;
   optional bool is_from_sonarqube_update = 52;
   optional string internal_tags = 53;
+  optional int64 detection_date = 54;
 }
 
 message Comment {
