@@ -75,6 +75,7 @@ public class FixedIssueVisitor extends IssueVisitor {
     final Map<SoftwareQuality, Severity> impacts = new EnumMap<>(SoftwareQuality.class);
     impacts.putAll(issue.defaultRuleImpacts());
     impacts.putAll(issue.overriddenImpacts());
+    impacts.putAll(issue.impacts());
     return impacts.entrySet().stream()
       .collect(Collectors.toMap(
         entry -> entry.getKey().name(),

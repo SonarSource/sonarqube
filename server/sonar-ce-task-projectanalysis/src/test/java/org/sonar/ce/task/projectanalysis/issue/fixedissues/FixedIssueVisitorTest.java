@@ -72,6 +72,23 @@ class FixedIssueVisitorTest {
   }
 
   @Test
+  void onIssue_whenIssueHasImpacts_shouldRecordImpactsInHistory() {
+    var issue = getIssue()
+      .setDefaultRuleImpacts(Map.of())
+      .setOverriddenImpacts(Map.of())
+      .addImpact(SoftwareQuality.SECURITY, Severity.BLOCKER)
+      .setCreationDate(CREATION_DATE)
+      .setBeingClosed(true);
+
+    underTest.onIssue(component, issue);
+
+    assertThat(fixedIssueForHistoryRepository.getFixedIssues())
+      .singleElement()
+      .satisfies(fixedIssue -> assertThat(fixedIssue.impacts())
+        .containsExactlyEntriesOf(Map.of(SoftwareQuality.SECURITY.name(), Severity.BLOCKER.name())));
+  }
+
+  @Test
   void onIssue_whenIssueIsBeingClosed_shouldSkipIssueWithNullCreationDate() {
     var issue = getIssue()
       .setCreationDate(null)
