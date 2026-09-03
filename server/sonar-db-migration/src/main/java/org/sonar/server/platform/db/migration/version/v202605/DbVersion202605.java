@@ -88,6 +88,9 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_057, "Add 'expected_credits' to 'agent_jobs'", AddExpectedCreditsToAgentJobsTable.class)
       .add(2026_05_058, "Add 'analyzed_at' to 'hunter_agent_jobs'", AddAnalyzedAtToHunterAgentJobsTable.class)
       .add(2026_05_059, "Create table 'vortex_cag_events'", CreateVortexCagEventsTable.class)
-      .add(2026_05_060, "Create table 'vortex_sqaa_events'", CreateVortexSqaaEventsTable.class);
+      .add(2026_05_060, "Create table 'vortex_sqaa_events'", CreateVortexSqaaEventsTable.class)
+      .add(2026_05_061, "Create table 'security_alerts'", CreateSecurityAlertsTable.class)
+      .add(2026_05_062, "Create table 'security_alert_instances'", CreateSecurityAlertInstancesTable.class)
+      .add(2026_05_063, "Create table 'security_alert_sca_risks'", CreateSecurityAlertScaRisksTable.class);
   }
 }

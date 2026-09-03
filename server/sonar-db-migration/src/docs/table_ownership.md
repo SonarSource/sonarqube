@@ -107,6 +107,9 @@ Important read: [Data Ownership Principles](https://xtranet-sonarsource.atlassia
 | scim_groups |  |
 | scim_users |  |
 | scm_accounts |  |
+| security_alert_instances | SCA Squad |
+| security_alert_sca_risks | SCA Squad |
+| security_alerts | SCA Squad |
 | session_tokens | Identity Squad |
 | snapshots | Analysis Experience Squad |
 | user_dismissed_messages | Dev and Team Workflow Squad |
