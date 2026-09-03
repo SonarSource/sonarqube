@@ -34,6 +34,8 @@ class CreateDashboardsTableTest {
 
   @Test
   void migration_should_create_dashboard_schema() throws SQLException {
+    db.assertTableDoesNotExist(CreateDashboardsTable.TABLE_NAME);
+
     underTest.execute();
 
     db.assertTableExists(CreateDashboardsTable.TABLE_NAME);
@@ -43,8 +45,20 @@ class CreateDashboardsTableTest {
     db.assertColumnDefinition(CreateDashboardsTable.TABLE_NAME, CreateDashboardsTable.LAYOUT_STATE, Types.CLOB, null, false);
     db.assertColumnDefinition(CreateDashboardsTable.TABLE_NAME, CreateDashboardsTable.DESCRIPTION, Types.VARCHAR, 500, true);
     db.assertColumnDefinition(CreateDashboardsTable.TABLE_NAME, CreateDashboardsTable.CREATED_AT, Types.TIMESTAMP, null, false);
+    db.assertColumnDefinition(CreateDashboardsTable.TABLE_NAME, CreateDashboardsTable.UPDATED_AT, Types.TIMESTAMP, null, false);
+    db.assertColumnDefinition(CreateDashboardsTable.TABLE_NAME, CreateDashboardsTable.CREATOR_ID, Types.VARCHAR, 40, false);
     db.assertColumnDefinition(CreateDashboardsTable.TABLE_NAME, CreateDashboardsTable.RESOURCE_TYPE, Types.VARCHAR, 40, false);
+    db.assertColumnDefinition(CreateDashboardsTable.TABLE_NAME, CreateDashboardsTable.RESOURCE_ID, Types.VARCHAR, 40, false);
+    db.assertColumnDefinition(CreateDashboardsTable.TABLE_NAME, CreateDashboardsTable.UPDATE_BY_ID, Types.VARCHAR, 40, false);
     db.assertIndex(CreateDashboardsTable.TABLE_NAME, CreateDashboardsTable.DASHBOARDS_NAME_RESOURCE_IDX,
       CreateDashboardsTable.NAME, CreateDashboardsTable.RESOURCE_TYPE, CreateDashboardsTable.RESOURCE_ID);
+  }
+
+  @Test
+  void migration_should_be_reentrant() throws SQLException {
+    underTest.execute();
+    underTest.execute();
+
+    db.assertTableExists(CreateDashboardsTable.TABLE_NAME);
   }
 }
