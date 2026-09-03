@@ -322,7 +322,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private Set<String> loadFavoriteProjectUuids(DbSession dbSession) {
-    if (!userSession.isLoggedIn()) {
+    if (!userSession.isLoggedIn() || userSession.isServiceSession()) {
       return Collections.emptySet();
     }
 

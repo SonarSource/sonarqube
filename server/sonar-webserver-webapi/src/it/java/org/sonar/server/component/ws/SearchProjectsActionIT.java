@@ -66,6 +66,7 @@ import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
@@ -110,6 +111,7 @@ import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALIT
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.SOFTWARE_QUALITY_SECURITY_RATING_KEY;
+import static org.sonar.server.user.ServiceIdentity.AGENTIC_SHARED;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_003;
@@ -656,6 +658,26 @@ class SearchProjectsActionIT {
     SearchProjectsWsResponse result = call(request.setFilter("isFavorite"));
 
     assertThat(result.getComponentsCount()).isZero();
+  }
+
+  @Test
+  void search_projects_does_not_access_user_uuid_for_service_sessions() {
+    ComponentDto project = insertProject();
+    index();
+    UserSession serviceSession = mock(UserSession.class);
+    when(serviceSession.isLoggedIn()).thenReturn(true);
+    when(serviceSession.isServiceSession()).thenReturn(true);
+    when(serviceSession.getServiceIdentity()).thenReturn(Optional.of(AGENTIC_SHARED));
+    when(serviceSession.getUuid()).thenThrow(new AssertionError("A service session has no user UUID"));
+    when(serviceSession.keepAuthorizedEntities(any(), any())).thenAnswer(invocation -> invocation.getArgument(1));
+    ProjectMeasuresIndex serviceIndex = new ProjectMeasuresIndex(
+      es.client(), new WebAuthorizationTypeSupport(serviceSession), System2.INSTANCE);
+    underTest = new WsActionTester(
+      new SearchProjectsAction(dbClient, serviceIndex, serviceSession, editionProviderMock, aiCodeAssuranceEntitlement, aiCodeAssuranceVerifier));
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(project.getKey());
   }
 
   @ParameterizedTest
