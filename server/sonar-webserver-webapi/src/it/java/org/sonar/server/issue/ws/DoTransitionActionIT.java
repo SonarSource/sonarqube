@@ -51,7 +51,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
-import org.sonar.server.issue.IssueUpdatedTelemetryPublisher;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.TransitionService;
@@ -75,8 +74,6 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsAction;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.telemetry.core.event.AnalyticsEventPublisher;
-import org.sonar.telemetry.core.event.workflow.IssueUpdatedBatchEvent;
 import org.sonarsource.compliancereports.dao.AggregationType;
 import org.sonarsource.compliancereports.dao.IssueStats;
 import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
@@ -88,7 +85,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
@@ -128,11 +124,8 @@ class DoTransitionActionIT {
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
-  private AnalyticsEventPublisher analyticsEventPublisher = mock(AnalyticsEventPublisher.class);
-  private IssueUpdatedTelemetryPublisher issueUpdatedTelemetryPublisher = new IssueUpdatedTelemetryPublisher(dbClient, analyticsEventPublisher);
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
-    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, new SequenceUuidFactory(),
-      issueUpdatedTelemetryPublisher),
+    new WebIssueStorage(system2, dbClient, new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, new SequenceUuidFactory()),
     mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer);
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
   private IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDaoImpl = new IssueStatsByRuleKeyDaoImpl(dbClient);
@@ -143,7 +136,6 @@ class DoTransitionActionIT {
 
   @Test
   void do_transition() {
-    when(analyticsEventPublisher.isTelemetryEnabled()).thenReturn(true);
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     RuleDto rule = db.rules().insertIssueRule();
@@ -158,7 +150,6 @@ class DoTransitionActionIT {
     IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issue.getKey()).get();
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CONFIRMED);
     assertThat(issueChangePostProcessor.calledComponents()).containsExactlyInAnyOrder(file);
-    verify(analyticsEventPublisher).publishAll(eq(IssueUpdatedBatchEvent.TYPE), any());
   }
 
   @ParameterizedTest

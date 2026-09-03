@@ -352,7 +352,6 @@ import org.sonar.server.ws.WebServiceEngine;
 import org.sonar.server.ws.ws.WebServicesWsModule;
 import org.sonar.telemetry.TelemetryDaemon;
 import org.sonar.telemetry.core.TelemetryClient;
-import org.sonar.telemetry.core.event.AnalyticsEventPublisher;
 import org.sonar.telemetry.legacy.CloudUsageDataProvider;
 import org.sonar.telemetry.legacy.ProjectLocDistributionDataProvider;
 import org.sonar.telemetry.legacy.QualityProfileDataProvider;
@@ -887,8 +886,6 @@ public class PlatformLevel4 extends PlatformLevel {
     addAll(EventsWebComponents.components());
     // publishes a telemetry event on Web process startup
     add(ServerStartupEventPublisher.class);
-    // publishes Analytics.* cross-domain events onto the unified event bus
-    add(AnalyticsEventPublisher.class);
 
     // system info
     add(new SystemInfoWriterModule(getWebServer()));

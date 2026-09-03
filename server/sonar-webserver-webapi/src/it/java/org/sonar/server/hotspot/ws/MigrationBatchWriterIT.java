@@ -38,7 +38,6 @@ import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.IssueFieldsSetter;
-import org.sonar.server.issue.IssueUpdatedTelemetryPublisher;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -65,13 +64,12 @@ public class MigrationBatchWriterIT {
   private final SequenceUuidFactory uuidFactory = new SequenceUuidFactory();
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private final IssueIndexer issueIndexer = mock(IssueIndexer.class);
-  private final IssueUpdatedTelemetryPublisher issueUpdatedTelemetryPublisher = mock(IssueUpdatedTelemetryPublisher.class);
   private final WebIssueStorage issueStorage = new WebIssueStorage(system2, dbClient,
-    new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, uuidFactory, issueUpdatedTelemetryPublisher);
+    new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, uuidFactory);
   private final TestIssueChangePostProcessor postProcessor = new TestIssueChangePostProcessor();
 
   private final MigrationBatchWriter underTest = new MigrationBatchWriter(dbClient, issueStorage, postProcessor,
-    issueIndexer, uuidFactory, system2, issueUpdatedTelemetryPublisher);
+    issueIndexer, uuidFactory, system2);
 
   @Test
   public void write_shouldPersistFieldChangesAndChangelog() {

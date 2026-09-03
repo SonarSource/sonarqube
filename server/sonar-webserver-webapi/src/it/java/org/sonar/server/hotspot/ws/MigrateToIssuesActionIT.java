@@ -36,7 +36,6 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueFieldsSetter;
-import org.sonar.server.issue.IssueUpdatedTelemetryPublisher;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -67,12 +66,11 @@ public class MigrateToIssuesActionIT {
   private final IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   // Indexer is mocked: this test verifies DB/changelog/scope behaviour, not ES indexing (kept out to avoid an ES dependency).
   private final IssueIndexer issueIndexer = mock(IssueIndexer.class);
-  private final IssueUpdatedTelemetryPublisher issueUpdatedTelemetryPublisher = mock(IssueUpdatedTelemetryPublisher.class);
   private final WebIssueStorage issueStorage = new WebIssueStorage(system2, dbClient,
-    new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, uuidFactory, issueUpdatedTelemetryPublisher);
+    new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, uuidFactory);
   private final TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private final MigrationBatchWriter batchWriter = new MigrationBatchWriter(dbClient, issueStorage, issueChangePostProcessor,
-    issueIndexer, uuidFactory, system2, issueUpdatedTelemetryPublisher);
+    issueIndexer, uuidFactory, system2);
   private final HotspotsToIssuesMigrator migrator = new HotspotsToIssuesMigrator(dbClient, issueFieldsSetter, batchWriter,
     system2, userSession);
 

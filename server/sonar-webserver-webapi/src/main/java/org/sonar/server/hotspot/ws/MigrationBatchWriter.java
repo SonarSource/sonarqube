@@ -34,7 +34,6 @@ import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueChangePostProcessor;
-import org.sonar.server.issue.IssueUpdatedTelemetryPublisher;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 
@@ -65,18 +64,15 @@ public class MigrationBatchWriter {
   private final IssueIndexer issueIndexer;
   private final UuidFactory uuidFactory;
   private final System2 system2;
-  private final IssueUpdatedTelemetryPublisher issueUpdatedTelemetryPublisher;
 
   public MigrationBatchWriter(DbClient dbClient, WebIssueStorage issueStorage,
-    IssueChangePostProcessor issueChangePostProcessor, IssueIndexer issueIndexer, UuidFactory uuidFactory, System2 system2,
-    IssueUpdatedTelemetryPublisher issueUpdatedTelemetryPublisher) {
+    IssueChangePostProcessor issueChangePostProcessor, IssueIndexer issueIndexer, UuidFactory uuidFactory, System2 system2) {
     this.dbClient = dbClient;
     this.issueStorage = issueStorage;
     this.issueChangePostProcessor = issueChangePostProcessor;
     this.issueIndexer = issueIndexer;
     this.uuidFactory = uuidFactory;
     this.system2 = system2;
-    this.issueUpdatedTelemetryPublisher = issueUpdatedTelemetryPublisher;
   }
 
   public void write(List<DefaultIssue> batch) {
@@ -94,8 +90,6 @@ public class MigrationBatchWriter {
       // Measures + QG for the batch's branch (QG event triggers portfolio/application refresh). Commits the session.
       issueChangePostProcessor.process(dbSession, batch, touchedComponents(dbSession, batch), false);
       dbSession.commit();
-      // Bypasses WebIssueStorage.save (see class javadoc), so the issue-updated telemetry hook is called here too.
-      issueUpdatedTelemetryPublisher.publish(dbSession, batch);
       // Post-commit ES write; on failure the committed es_queue rows self-heal via the recovery indexer.
       issueIndexer.index(dbSession, esItems);
     }

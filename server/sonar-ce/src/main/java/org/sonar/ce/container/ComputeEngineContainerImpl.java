@@ -167,7 +167,6 @@ import org.sonar.server.util.Paths2Impl;
 import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.webhook.WebhookModule;
-import org.sonar.telemetry.core.event.AnalyticsEventPublisher;
 import org.sonarqube.ws.Rules;
 import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 import org.sonarsource.gessie.server.GessieProperties;
@@ -500,8 +499,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
     // registered via sonar-unified-events
     level4Container.add(toArray(EventsCeComponents.components()));
-    // publishes Analytics.* cross-domain events onto the unified event bus
-    level4Container.add(AnalyticsEventPublisher.class);
 
     // registered via gessie-server-app
     level4Container.add(GessieProperties.getPropertyDefinitions().toArray());

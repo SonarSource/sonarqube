@@ -186,7 +186,6 @@ public class ProcessProperties {
     SONAR_TELEMETRY_FREQUENCY_IN_SECONDS("sonar.telemetry.frequencyInSeconds", "10800"),
     SONAR_TELEMETRY_COMPRESSION("sonar.telemetry.compression", "true"),
     SONAR_TELEMETRY_METRICS_BATCH_SIZE("sonar.telemetry.metricsBatchSize", "10000"),
-    SONAR_TELEMETRY_ISSUE_EVENTS_MAX_PER_ANALYSIS("sonar.telemetry.issueEvents.maxPerAnalysis", "100000"),
 
     SONAR_UPDATECENTER_ACTIVATE("sonar.updatecenter.activate", "true"),
 

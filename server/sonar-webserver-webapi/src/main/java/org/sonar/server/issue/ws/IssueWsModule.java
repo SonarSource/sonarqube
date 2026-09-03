@@ -24,7 +24,6 @@ import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.issue.IssueChangeWSSupport;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
-import org.sonar.server.issue.IssueUpdatedTelemetryPublisher;
 import org.sonar.server.issue.NewCodePeriodResolver;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TextRangeResponseFormatter;
@@ -56,7 +55,6 @@ public class IssueWsModule extends Module {
       IssueFinder.class,
       TransitionService.class,
       WebIssueStorage.class,
-      IssueUpdatedTelemetryPublisher.class,
       IssueFieldsSetter.class,
       IssueWorkflow.class,
       CodeQualityIssueWorkflow.class,

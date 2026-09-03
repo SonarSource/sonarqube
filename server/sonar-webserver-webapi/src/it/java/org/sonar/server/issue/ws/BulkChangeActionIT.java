@@ -48,7 +48,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.Action;
 import org.sonar.server.issue.IssueFieldsSetter;
-import org.sonar.server.issue.IssueUpdatedTelemetryPublisher;
 import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.TransitionService;
@@ -75,8 +74,6 @@ import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.telemetry.core.event.AnalyticsEventPublisher;
-import org.sonar.telemetry.core.event.workflow.IssueUpdatedBatchEvent;
 import org.sonarqube.ws.Issues.BulkChangeWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -89,12 +86,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
@@ -140,11 +134,9 @@ public class BulkChangeActionIT {
   private IssueWorkflow issueWorkflow = new IssueWorkflow(
     new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(issueFieldsSetter), new CodeQualityIssueWorkflowDefinition(), mock(TaintChecker.class)),
     new SecurityHotspotWorkflow(new SecurityHotspotWorkflowActionsFactory(issueFieldsSetter), new SecurityHotspotWorkflowDefinition()));
-  private AnalyticsEventPublisher analyticsEventPublisher = mock(AnalyticsEventPublisher.class);
-  private IssueUpdatedTelemetryPublisher issueUpdatedTelemetryPublisher = new IssueUpdatedTelemetryPublisher(dbClient, analyticsEventPublisher);
   private WebIssueStorage issueStorage = new WebIssueStorage(system2, dbClient,
     new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)),
-    new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null), new SequenceUuidFactory(), issueUpdatedTelemetryPublisher);
+    new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient), null), new SequenceUuidFactory());
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
@@ -315,48 +307,6 @@ public class BulkChangeActionIT {
 
     verifyPostProcessorCalled(file);
     verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any());
-  }
-
-  @Test
-  public void bulk_change_publishes_issue_updated_telemetry_on_status_transition() {
-    when(analyticsEventPublisher.isTelemetryEnabled()).thenReturn(true);
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
-    ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto project = projectData.getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
-    RuleDto rule = db.rules().insertIssueRule();
-    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
-      .setStatus(STATUS_OPEN).setResolution(null));
-
-    call(builder()
-      .setIssues(singletonList(issue.getKey()))
-      .setDoTransition("confirm")
-      .build());
-
-    verify(analyticsEventPublisher).publishAll(eq(IssueUpdatedBatchEvent.TYPE), any());
-  }
-
-  @Test
-  public void bulk_change_does_not_publish_issue_updated_telemetry_when_status_is_unchanged() {
-    when(analyticsEventPublisher.isTelemetryEnabled()).thenReturn(true);
-    UserDto user = db.users().insertUser();
-    userSession.logIn(user);
-    ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto project = projectData.getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
-    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
-    RuleDto rule = db.rules().insertIssueRule();
-    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
-      .setStatus(STATUS_OPEN).setResolution(null));
-
-    call(builder()
-      .setIssues(singletonList(issue.getKey()))
-      .setSetType(CODE_SMELL.name())
-      .build());
-
-    verify(analyticsEventPublisher, never()).publishAll(any(), any());
   }
 
   @Test
