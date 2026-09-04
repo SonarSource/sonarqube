@@ -35,9 +35,11 @@ import static org.sonar.server.v2.WebApiEndpoints.SCM_ACCESS_TOKEN_ENDPOINT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
- * DOP-agnostic successor to {@code GithubInstallationTokenController} (SONAR-31165) — mints a scoped,
- * short-lived git credential for whichever DevOps Platform the project is bound to, dispatched
- * server-side. Additive: {@code github-installation-tokens} is left untouched.
+ * DOP-agnostic successor to {@code GithubInstallationTokenController} (SONAR-31165) — provides a
+ * scoped git credential for whichever DevOps Platform the project is bound to, dispatched server-side.
+ * GitHub credentials are short-lived and minted per call; GitLab credentials are cached in memory per
+ * SonarQube Server node and refreshed before expiry. Additive:
+ * {@code github-installation-tokens} is left untouched.
  */
 @RequestMapping(SCM_ACCESS_TOKEN_ENDPOINT)
 @RestController
@@ -45,9 +47,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public interface ScmAccessTokenController {
 
   @PostMapping(produces = APPLICATION_JSON_VALUE)
-  @Operation(operationId = "generateScmAccessToken", summary = "Mint a scoped, short-lived SCM access token", description = """
-    Mint a scoped, short-lived git credential for the given project's bound DevOps Platform (GitHub or
-    GitLab). Internal endpoint used by the agentic-workflows remediation orchestrator (SONAR-31165).
+  @Operation(operationId = "generateScmAccessToken", summary = "Provide a scoped SCM access token", description = """
+    Provide a scoped git credential for the given project's bound DevOps Platform (GitHub or GitLab).
+    GitHub credentials are short-lived and minted per call; GitLab credentials are cached in memory per
+    SonarQube Server node and refreshed before expiry. Internal endpoint used by the agentic-workflows
+    remediation orchestrator (SONAR-31165).
     Requires the 'Administer System' permission or trusted privileged-service authentication.
     """,
     extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))

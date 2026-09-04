@@ -19,11 +19,17 @@
  */
 package org.sonar.server.common.almsettings.gitlab;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.Striped;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.Lock;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -47,36 +53,32 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Mints a scoped, short-lived GitLab project access token (SONAR-31165) for a project's bound GitLab
- * repository — the GitLab counterpart to {@code GithubScmAccessTokenProviderAdapter}. Reuses the same
- * DB/ALM resolution shape as {@code GithubInstallationTokenProviderImpl} and the same
- * self-filtering-delegate convention as {@code GitlabProjectCreatorFactory} (returns {@code
- * Optional.empty()} whenever the project isn't bound to GitLab, rather than throwing).
+ * Provides a scoped GitLab project access token for a project's bound GitLab repository. GitLab
+ * creates a project bot member whenever a project access token is created, so tokens are cached in
+ * memory per SonarQube Server node and refreshed before their expiry. The credential is never
+ * persisted in the database.
  */
 @ServerSide
 public class GitlabScmAccessTokenProvider implements ScmAccessTokenProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(GitlabScmAccessTokenProvider.class);
   private static final Pattern CRLF_PATTERN = Pattern.compile("[\r\n]");
-
-  /**
-   * A fixed, URL-safe name for the minted token: it is embedded verbatim as the git-remote username
-   * ({@code https://<name>:<secret>@host}), so it must not contain characters GitLab could return
-   * back to us with spaces/specials that would break that URL.
-   */
   private static final String REMEDIATION_AGENT_NAME = "sonarqube-remediation-agent";
-
-  /**
-   * {@code api} is required to open a merge request via the REST API; {@code write_repository} is
-   * required to push over git. Neither scope is a documented superset of the other, so both are
-   * requested on the same minted token.
-   */
+  private static final String PROJECT_ACCESS_TOKEN_NULL_MESSAGE = "GitLab project access token cannot be null";
   private static final List<String> TOKEN_MINTING_SCOPES = List.of("api", "write_repository");
+  private static final int TOKEN_LIFETIME_DAYS = 180;
+  private static final int TOKEN_ROTATION_MARGIN_DAYS = 7;
+  private static final long MAX_CACHE_ENTRIES = 10_000;
 
   private final DbClient dbClient;
   private final GitlabGlobalSettingsValidator gitlabGlobalSettingsValidator;
   private final GitlabApplicationClient gitlabApplicationClient;
   private final Encryption encryption;
+  private final Cache<TokenCacheKey, ScmAccessToken> tokenCache = CacheBuilder.<TokenCacheKey, ScmAccessToken>newBuilder()
+    .expireAfterWrite(Duration.ofDays((long) TOKEN_LIFETIME_DAYS - TOKEN_ROTATION_MARGIN_DAYS))
+    .maximumSize(MAX_CACHE_ENTRIES)
+    .build();
+  private final Striped<Lock> tokenRefreshLocks = Striped.lazyWeakLock(128);
 
   public GitlabScmAccessTokenProvider(DbClient dbClient, GitlabGlobalSettingsValidator gitlabGlobalSettingsValidator,
     GitlabApplicationClient gitlabApplicationClient, Settings settings) {
@@ -89,69 +91,93 @@ public class GitlabScmAccessTokenProvider implements ScmAccessTokenProvider {
   @Override
   public Optional<ScmAccessToken> mint(String projectKey) {
     String safeProjectKey = sanitizeForLog(projectKey);
-    AlmSettingDto resolvedAlmSetting;
-    Long resolvedGitlabProjectId;
+    TokenMintRequest request;
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<ProjectDto> project = dbClient.projectDao().selectProjectByKey(dbSession, projectKey);
       if (project.isEmpty()) {
         LOG.warn("Cannot mint a GitLab access token: unknown project '{}'", safeProjectKey);
         return Optional.empty();
       }
-
       Optional<ProjectAlmSettingDto> projectAlmSetting = dbClient.projectAlmSettingDao().selectByProject(dbSession, project.get());
       if (projectAlmSetting.isEmpty()) {
         LOG.warn("Cannot mint a GitLab access token: project '{}' is not bound to any DevOps Platform", safeProjectKey);
         return Optional.empty();
       }
-
       Optional<AlmSettingDto> almSetting = dbClient.almSettingDao().selectByUuid(dbSession, projectAlmSetting.get().getAlmSettingUuid());
       if (almSetting.isEmpty() || almSetting.get().getAlm() != ALM.GITLAB) {
         return Optional.empty();
       }
-
-      String almRepo = projectAlmSetting.get().getAlmRepo();
-      Long gitlabProjectId = parseGitlabProjectId(almRepo, safeProjectKey);
+      Long gitlabProjectId = parseGitlabProjectId(projectAlmSetting.get().getAlmRepo(), safeProjectKey);
       if (gitlabProjectId == null) {
         return Optional.empty();
       }
-
-      resolvedAlmSetting = almSetting.get();
-      resolvedGitlabProjectId = gitlabProjectId;
+      request = new TokenMintRequest(new TokenCacheKey(requireNonNull(project.get().getUuid(), "Project UUID cannot be null"),
+        requireNonNull(almSetting.get().getUuid(), "ALM setting UUID cannot be null"), gitlabProjectId, almSetting.get().getUpdatedAt()), safeProjectKey,
+        almSetting.get());
     }
 
-    // GitLab API calls below are network I/O, deliberately made outside the DbSession above — see
-    // GithubInstallationTokenProviderImpl for the same rationale (a fresh token is minted before
-    // every git operation, no caching, so holding a pooled DB connection for their duration would add
-    // unnecessary contention under load).
-    return Optional.of(mint(projectKey, resolvedAlmSetting, resolvedGitlabProjectId));
+    // GitLab API calls below are network I/O, deliberately made outside the DbSession above, so a
+    // pooled DB connection is not held for their duration.
+    return Optional.of(getOrCreateToken(request));
   }
 
-  private ScmAccessToken mint(String projectKey, AlmSettingDto almSetting, Long gitlabProjectId) {
-    String safeProjectKey = sanitizeForLog(projectKey);
-
-    try {
-      // Precondition check, mirroring GithubGlobalSettingsValidator's role in the GitHub path: fail
-      // fast with an actionable message if the stored PAT/URL themselves are broken, rather than
-      // surfacing GitLab's own opaque 401/403 straight from the mint call below.
-      gitlabGlobalSettingsValidator.validate(almSetting);
-    } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException(
-        format("Cannot mint a GitLab access token for project '%s': invalid GitLab configuration: %s", safeProjectKey, e.getMessage()), e);
+  private ScmAccessToken getOrCreateToken(TokenMintRequest request) {
+    Optional<ScmAccessToken> cachedToken = getCachedToken(request.cacheKey);
+    if (cachedToken.isPresent()) {
+      return cachedToken.get();
     }
+    Lock refreshLock = tokenRefreshLocks.get(request.cacheKey);
+    refreshLock.lock();
+    try {
+      return getCachedToken(request.cacheKey).orElseGet(() -> {
+        ScmAccessToken token = createToken(request);
+        if (isExpiring(token)) {
+          LOG.warn("GitLab returned an access token for project '{}' expiring on '{}', within the {}-day rotation margin: it will not be reused",
+            request.safeProjectKey, token.expiresAt(), TOKEN_ROTATION_MARGIN_DAYS);
+          return token;
+        }
+        tokenCache.put(request.cacheKey, token);
+        return token;
+      });
+    } finally {
+      refreshLock.unlock();
+    }
+  }
 
-    // Both values are guaranteed set by the successful validate() call above, but their accessors are
-    // @CheckForNull at the DTO level (the same non-null-after-validation gap the GitHub/Bitbucket/Azure
-    // DevOps project creators narrow with requireNonNull on this DTO's getUrl()).
-    String gitlabUrl = requireNonNull(almSetting.getUrl(), "GitLab url cannot be null");
-    String personalAccessToken = requireNonNull(almSetting.getDecryptedPersonalAccessToken(encryption), "GitLab personal access token cannot be null");
-    // A fixed zone (rather than the JVM default) keeps the expiry date deterministic regardless of
-    // where this process runs.
-    LocalDate expiresAt = LocalDate.now(ZoneOffset.UTC).plusDays(1);
+  private Optional<ScmAccessToken> getCachedToken(TokenCacheKey cacheKey) {
+    ScmAccessToken token = tokenCache.getIfPresent(cacheKey);
+    if (token == null) {
+      return Optional.empty();
+    }
+    if (isExpiring(token)) {
+      tokenCache.invalidate(cacheKey);
+      return Optional.empty();
+    }
+    return Optional.of(token);
+  }
 
-    GitlabProjectAccessToken token = gitlabApplicationClient.createProjectAccessToken(
-      gitlabUrl, personalAccessToken, gitlabProjectId, REMEDIATION_AGENT_NAME, TOKEN_MINTING_SCOPES, expiresAt);
+  private ScmAccessToken createToken(TokenMintRequest request) {
+    try {
+      gitlabGlobalSettingsValidator.validate(request.almSetting);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(format("Cannot mint a GitLab access token for project '%s': invalid GitLab configuration: %s",
+        request.safeProjectKey, e.getMessage()), e);
+    }
+    String gitlabUrl = requireNonNull(request.almSetting.getUrl(), "GitLab url cannot be null");
+    String personalAccessToken = requireNonNull(request.almSetting.getDecryptedPersonalAccessToken(encryption), "GitLab personal access token cannot be null");
+    LocalDate expiresAt = LocalDate.now(ZoneOffset.UTC).plusDays(TOKEN_LIFETIME_DAYS);
+    GitlabProjectAccessToken token = gitlabApplicationClient.createProjectAccessToken(gitlabUrl, personalAccessToken,
+      request.cacheKey.gitlabProjectId, REMEDIATION_AGENT_NAME, TOKEN_MINTING_SCOPES, expiresAt);
+    return new ScmAccessToken(ALM.GITLAB.getId(), REMEDIATION_AGENT_NAME,
+      requireNonNull(token.getToken(), PROJECT_ACCESS_TOKEN_NULL_MESSAGE), formatExpiresAt(token.getExpiresAt(), expiresAt));
+  }
 
-    return new ScmAccessToken(ALM.GITLAB.getId(), token.getName(), token.getToken(), formatExpiresAt(token.getExpiresAt(), expiresAt));
+  private static boolean isExpiring(ScmAccessToken token) {
+    try {
+      return token.expiresAt() == null || !LocalDate.parse(token.expiresAt()).isAfter(LocalDate.now(ZoneOffset.UTC).plusDays(TOKEN_ROTATION_MARGIN_DAYS));
+    } catch (DateTimeParseException e) {
+      return true;
+    }
   }
 
   @Nullable
@@ -168,23 +194,24 @@ public class GitlabScmAccessTokenProvider implements ScmAccessTokenProvider {
     }
   }
 
-  /**
-   * GitLab's {@code expires_at} response field is a plain {@code YYYY-MM-DD} date, not an ISO-8601
-   * timestamp — fall back to the date we requested (formatted as a full ISO-8601 timestamp for
-   * consistency with the GitHub path) if GitLab's response omits it.
-   */
   private static String formatExpiresAt(@Nullable String responseExpiresAt, LocalDate requestedExpiresAt) {
     if (responseExpiresAt != null && !responseExpiresAt.isBlank()) {
-      return responseExpiresAt;
+      try {
+        return LocalDate.parse(responseExpiresAt.trim()).format(DateTimeFormatter.ISO_LOCAL_DATE);
+      } catch (DateTimeParseException e) {
+        LOG.warn("GitLab returned an unparseable token expiry '{}', falling back to the requested date", sanitizeForLog(responseExpiresAt));
+      }
     }
     return requestedExpiresAt.format(DateTimeFormatter.ISO_LOCAL_DATE);
   }
 
-  /**
-   * Strips CR/LF from user-controlled values (project key, ALM repo id) before logging them, so a
-   * crafted value cannot forge extra log lines/entries (CWE-117).
-   */
   private static String sanitizeForLog(String value) {
     return CRLF_PATTERN.matcher(value).replaceAll("_");
+  }
+
+  private record TokenCacheKey(String projectUuid, String almSettingUuid, long gitlabProjectId, long almSettingUpdatedAt) {
+  }
+
+  private record TokenMintRequest(TokenCacheKey cacheKey, String safeProjectKey, AlmSettingDto almSetting) {
   }
 }

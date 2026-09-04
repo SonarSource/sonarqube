@@ -28,6 +28,8 @@ import java.util.List;
  */
 public class GsonProjectAccessTokenRequest {
 
+  private static final int DEVELOPER_ACCESS_LEVEL = 40;
+
   @SerializedName("name")
   private final String name;
 
@@ -37,10 +39,14 @@ public class GsonProjectAccessTokenRequest {
   @SerializedName("expires_at")
   private final String expiresAt;
 
+  @SerializedName("access_level")
+  private final int accessLevel;
+
   public GsonProjectAccessTokenRequest(String name, List<String> scopes, String expiresAt) {
     this.name = name;
     this.scopes = scopes;
     this.expiresAt = expiresAt;
+    this.accessLevel = DEVELOPER_ACCESS_LEVEL;
   }
 
   public String getName() {
@@ -53,5 +59,9 @@ public class GsonProjectAccessTokenRequest {
 
   public String getExpiresAt() {
     return expiresAt;
+  }
+
+  public int getAccessLevel() {
+    return accessLevel;
   }
 }

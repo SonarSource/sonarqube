@@ -19,6 +19,8 @@
  */
 package org.sonar.server.common.almsettings.gitlab;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
@@ -44,6 +46,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -51,6 +55,7 @@ public class GitlabScmAccessTokenProviderTest {
 
   private static final String PROJECT_KEY = "my-project";
   private static final String ALM_SETTING_UUID = "almSettingUuid";
+  private static final String PROJECT_UUID = "projectUuid";
   private static final String GITLAB_PROJECT_ID = "12345";
   private static final String GITLAB_URL = "https://gitlab.example.com/api/v4";
   private static final String DECRYPTED_PAT = "glpat-admin-token";
@@ -132,21 +137,105 @@ public class GitlabScmAccessTokenProviderTest {
   public void mint_whenEverythingSucceeds_shouldReturnToken() {
     mockProjectAlmSetting(GITLAB_PROJECT_ID);
     mockGitlabAlmSetting();
-
-    GitlabProjectAccessToken token = mock();
-    when(token.getName()).thenReturn("sonarqube-remediation-agent");
-    when(token.getToken()).thenReturn("glpat-abc123");
-    when(token.getExpiresAt()).thenReturn("2026-08-06");
+    GitlabProjectAccessToken token = token("glpat-abc123", expiresInDays(180));
     when(gitlabApplicationClient.createProjectAccessToken(eq(GITLAB_URL), eq(DECRYPTED_PAT), eq(12345L),
       eq("sonarqube-remediation-agent"), eq(List.of("api", "write_repository")), any())).thenReturn(token);
 
-    Optional<ScmAccessToken> result = underTest.mint(PROJECT_KEY);
+    assertThat(underTest.mint(PROJECT_KEY)).contains(new ScmAccessToken("gitlab", "sonarqube-remediation-agent", "glpat-abc123", expiresInDays(180)));
+  }
 
-    assertThat(result).contains(new ScmAccessToken("gitlab", "sonarqube-remediation-agent", "glpat-abc123", "2026-08-06"));
+  @Test
+  public void mint_whenTokenIsCached_shouldReuseIt() {
+    mockProjectAlmSetting(GITLAB_PROJECT_ID);
+    AlmSettingDto almSetting = mockGitlabAlmSetting();
+    GitlabProjectAccessToken token = token("glpat-abc123", expiresInDays(180));
+    when(gitlabApplicationClient.createProjectAccessToken(eq(GITLAB_URL), eq(DECRYPTED_PAT), eq(12345L),
+      eq("sonarqube-remediation-agent"), eq(List.of("api", "write_repository")), any())).thenReturn(token);
+
+    Optional<ScmAccessToken> firstToken = underTest.mint(PROJECT_KEY);
+    Optional<ScmAccessToken> secondToken = underTest.mint(PROJECT_KEY);
+
+    assertThat(secondToken).isEqualTo(firstToken);
+    verify(gitlabApplicationClient, times(1)).createProjectAccessToken(eq(GITLAB_URL), eq(DECRYPTED_PAT), eq(12345L),
+      eq("sonarqube-remediation-agent"), eq(List.of("api", "write_repository")), any());
+    verify(gitlabGlobalSettingsValidator, times(1)).validate(almSetting);
+  }
+
+  @Test
+  public void mint_whenCreatedTokenIsExpiring_shouldNotCacheIt() {
+    mockProjectAlmSetting(GITLAB_PROJECT_ID);
+    mockGitlabAlmSetting();
+    GitlabProjectAccessToken expiringToken = token("glpat-expiring", expiresInDays(7));
+    GitlabProjectAccessToken replacementToken = token("glpat-replacement", expiresInDays(180));
+    when(gitlabApplicationClient.createProjectAccessToken(eq(GITLAB_URL), eq(DECRYPTED_PAT), eq(12345L),
+      eq("sonarqube-remediation-agent"), eq(List.of("api", "write_repository")), any())).thenReturn(expiringToken, replacementToken);
+
+    underTest.mint(PROJECT_KEY);
+
+    assertThat(underTest.mint(PROJECT_KEY)).contains(new ScmAccessToken("gitlab", "sonarqube-remediation-agent", "glpat-replacement", expiresInDays(180)));
+    verify(gitlabApplicationClient, times(2)).createProjectAccessToken(eq(GITLAB_URL), eq(DECRYPTED_PAT), eq(12345L),
+      eq("sonarqube-remediation-agent"), eq(List.of("api", "write_repository")), any());
+  }
+
+  @Test
+  public void mint_whenAlmSettingIsUpdated_shouldNotReuseCachedToken() {
+    mockProjectAlmSetting(GITLAB_PROJECT_ID);
+    AlmSettingDto almSetting = mockGitlabAlmSetting();
+    when(almSetting.getUpdatedAt()).thenReturn(1L, 2L);
+    GitlabProjectAccessToken firstToken = token("glpat-first", expiresInDays(180));
+    GitlabProjectAccessToken secondToken = token("glpat-second", expiresInDays(180));
+    when(gitlabApplicationClient.createProjectAccessToken(eq(GITLAB_URL), eq(DECRYPTED_PAT), eq(12345L),
+      eq("sonarqube-remediation-agent"), eq(List.of("api", "write_repository")), any())).thenReturn(firstToken, secondToken);
+
+    underTest.mint(PROJECT_KEY);
+
+    assertThat(underTest.mint(PROJECT_KEY)).contains(new ScmAccessToken("gitlab", "sonarqube-remediation-agent", "glpat-second", expiresInDays(180)));
+    verify(gitlabApplicationClient, times(2)).createProjectAccessToken(eq(GITLAB_URL), eq(DECRYPTED_PAT), eq(12345L),
+      eq("sonarqube-remediation-agent"), eq(List.of("api", "write_repository")), any());
+  }
+
+  @Test
+  public void mint_whenProjectBindingChanges_shouldNotReuseCachedToken() {
+    ProjectAlmSettingDto projectAlmSetting = mockProjectAlmSetting(GITLAB_PROJECT_ID);
+    when(projectAlmSetting.getAlmRepo()).thenReturn(GITLAB_PROJECT_ID, "67890");
+    mockGitlabAlmSetting();
+    GitlabProjectAccessToken firstToken = token("glpat-first", expiresInDays(180));
+    GitlabProjectAccessToken secondToken = token("glpat-second", expiresInDays(180));
+    when(gitlabApplicationClient.createProjectAccessToken(eq(GITLAB_URL), eq(DECRYPTED_PAT), any(),
+      eq("sonarqube-remediation-agent"), eq(List.of("api", "write_repository")), any())).thenReturn(firstToken, secondToken);
+
+    underTest.mint(PROJECT_KEY);
+
+    assertThat(underTest.mint(PROJECT_KEY)).contains(new ScmAccessToken("gitlab", "sonarqube-remediation-agent", "glpat-second", expiresInDays(180)));
+    verify(gitlabApplicationClient).createProjectAccessToken(eq(GITLAB_URL), eq(DECRYPTED_PAT), eq(67890L),
+      eq("sonarqube-remediation-agent"), eq(List.of("api", "write_repository")), any());
+  }
+
+  @Test
+  public void mint_whenGitlabReturnsInvalidExpiry_shouldUseRequestedExpiry() {
+    mockProjectAlmSetting(GITLAB_PROJECT_ID);
+    mockGitlabAlmSetting();
+    GitlabProjectAccessToken token = token("glpat-abc123", "not-a-date");
+    when(gitlabApplicationClient.createProjectAccessToken(eq(GITLAB_URL), eq(DECRYPTED_PAT), eq(12345L),
+      eq("sonarqube-remediation-agent"), eq(List.of("api", "write_repository")), any())).thenReturn(token);
+
+    assertThat(underTest.mint(PROJECT_KEY)).contains(new ScmAccessToken("gitlab", "sonarqube-remediation-agent", "glpat-abc123", expiresInDays(180)));
+  }
+
+  private GitlabProjectAccessToken token(String secret, String expiresAt) {
+    GitlabProjectAccessToken token = mock();
+    when(token.getToken()).thenReturn(secret);
+    when(token.getExpiresAt()).thenReturn(expiresAt);
+    return token;
+  }
+
+  private static String expiresInDays(int days) {
+    return LocalDate.now(ZoneOffset.UTC).plusDays(days).toString();
   }
 
   private ProjectDto mockProject() {
     ProjectDto project = mock();
+    when(project.getUuid()).thenReturn(PROJECT_UUID);
     when(dbClient.projectDao().selectProjectByKey(any(), eq(PROJECT_KEY))).thenReturn(Optional.of(project));
     return project;
   }
@@ -162,6 +251,7 @@ public class GitlabScmAccessTokenProviderTest {
 
   private AlmSettingDto mockGitlabAlmSetting() {
     AlmSettingDto almSetting = mock();
+    when(almSetting.getUuid()).thenReturn(ALM_SETTING_UUID);
     when(almSetting.getAlm()).thenReturn(ALM.GITLAB);
     when(almSetting.getUrl()).thenReturn(GITLAB_URL);
     when(almSetting.getDecryptedPersonalAccessToken(encryption)).thenReturn(DECRYPTED_PAT);

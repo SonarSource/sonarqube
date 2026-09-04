@@ -443,7 +443,7 @@ public class GitlabApplicationClientTest {
     assertThat(request.getMethod()).isEqualTo("POST");
     assertThat(request.getHeader("Private-Token")).isEqualTo("pat");
     assertThat(request.getBody().readUtf8()).isEqualTo(
-      "{\"name\":\"sonarqube-remediation-agent\",\"scopes\":[\"api\",\"write_repository\"],\"expires_at\":\"2026-08-06\"}");
+      "{\"name\":\"sonarqube-remediation-agent\",\"scopes\":[\"api\",\"write_repository\"],\"expires_at\":\"2026-08-06\",\"access_level\":40}");
   }
 
   @Test
