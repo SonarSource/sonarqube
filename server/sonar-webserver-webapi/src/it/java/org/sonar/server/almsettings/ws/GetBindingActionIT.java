@@ -275,11 +275,23 @@ class GetBindingActionIT {
         false);
   }
 
-  @Test
-  void get_bitbucket_project_binding() {
+  private static Stream<Arguments> bitbucketServerBindingParameters() {
+    return Stream.of(
+      Arguments.of("Bitbucket Server", "https://bitbucket.enterprise.com",
+        "https://bitbucket.enterprise.com/projects/MY_PROJECT/repos/my-repo"),
+      Arguments.of("Bitbucket Server with trailing slash", "https://bitbucket.enterprise.com/",
+        "https://bitbucket.enterprise.com/projects/MY_PROJECT/repos/my-repo"),
+      Arguments.of("Bitbucket Server with context path", "https://enterprise.com/bitbucket",
+        "https://enterprise.com/bitbucket/projects/MY_PROJECT/repos/my-repo"));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("bitbucketServerBindingParameters")
+  void get_bitbucket_project_binding(String testName, String bitbucketServerUrl, String expectedRepositoryUrl) {
     userSession.logIn(user).addProjectPermission(USER, project);
-    AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting();
-    ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting(setting -> setting.setUrl(bitbucketServerUrl));
+    ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertBitbucketProjectAlmSetting(
+      almSetting, project, projectAlmSetting -> projectAlmSetting.setAlmRepo("MY_PROJECT").setAlmSlug("my-repo"));
 
     GetBindingWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())
@@ -292,14 +304,16 @@ class GetBindingActionIT {
         GetBindingWsResponse::getRepository,
         GetBindingWsResponse::getUrl,
         GetBindingWsResponse::getSlug,
-        GetBindingWsResponse::hasSummaryCommentEnabled)
+        GetBindingWsResponse::hasSummaryCommentEnabled,
+        GetBindingWsResponse::getRepositoryUrl)
       .containsExactly(
         AlmSettings.Alm.bitbucket,
         almSetting.getKey(),
         projectAlmSettingDto.getAlmRepo(),
         almSetting.getUrl(),
         projectAlmSettingDto.getAlmSlug(),
-        false);
+        false,
+        expectedRepositoryUrl);
   }
 
   @Test
@@ -399,6 +413,27 @@ class GetBindingActionIT {
         GetBindingWsResponse::hasRepositoryUrl)
       .containsExactly(
         AlmSettings.Alm.azure,
+        almSetting.getKey(),
+        false);
+  }
+
+  @Test
+  void get_bitbucket_project_binding_returns_without_repository_url_when_url_is_invalid() {
+    userSession.logIn(user).addProjectPermission(USER, project);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting(setting -> setting.setUrl("invalid-url"));
+    db.almSettings().insertBitbucketProjectAlmSetting(almSetting, project);
+
+    GetBindingWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(GetBindingWsResponse.class);
+
+    assertThat(response)
+      .extracting(
+        GetBindingWsResponse::getAlm,
+        GetBindingWsResponse::getKey,
+        GetBindingWsResponse::hasRepositoryUrl)
+      .containsExactly(
+        AlmSettings.Alm.bitbucket,
         almSetting.getKey(),
         false);
   }

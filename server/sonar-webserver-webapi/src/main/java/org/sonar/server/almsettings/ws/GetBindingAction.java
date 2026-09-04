@@ -89,7 +89,7 @@ public class GetBindingAction implements AlmSettingsWsAction {
         new Change("2025.1", "Azure binding now contains a inlineAnnotationsEnabled flag for inline annotations feature"),
         new Change("2025.6", "GitHub, GitLab and Azure bindings now contain a repositoryUrl field with the URL to the repository"),
         new Change("2026.5", "GitHub and GitLab bindings now contain a slug field with the repository's full name or path"),
-        new Change("2026.5", "Bitbucket Cloud bindings now contain a repositoryUrl field with the URL to the repository"))
+        new Change("2026.5", "Bitbucket Cloud and Bitbucket Server bindings now contain a repositoryUrl field with the URL to the repository"))
       .setHandler(this);
 
     action
@@ -132,6 +132,8 @@ public class GetBindingAction implements AlmSettingsWsAction {
         setAzureRepositoryUrl(almSetting, projectAlmSetting, builder);
       } else if (almSetting.getAlm() == ALM.BITBUCKET_CLOUD) {
         setBitbucketCloudRepositoryUrl(almSetting, projectAlmSetting, builder);
+      } else if (almSetting.getAlm() == ALM.BITBUCKET) {
+        setBitbucketServerRepositoryUrl(almSetting, projectAlmSetting, builder);
       }
 
       return builder.build();
@@ -205,6 +207,27 @@ public class GetBindingAction implements AlmSettingsWsAction {
         LOG.warn("Failed to fetch Azure repository URL for ALM setting '{}', project '{}' and repository '{}'",
           almSetting.getKey(), projectAlmSetting.getAlmSlug(), projectAlmSetting.getAlmRepo(), e);
       }
+    }
+  }
+
+  private static void setBitbucketServerRepositoryUrl(AlmSettingDto almSetting, ProjectAlmSettingDto projectAlmSetting,
+    GetBindingWsResponse.Builder builder) {
+    String serverUrl = almSetting.getUrl();
+    String bitbucketProjectKey = projectAlmSetting.getAlmRepo();
+    String repositorySlug = projectAlmSetting.getAlmSlug();
+    if (isNotBlank(serverUrl) && isNotBlank(bitbucketProjectKey) && isNotBlank(repositorySlug)) {
+      HttpUrl baseUrl = HttpUrl.parse(serverUrl);
+      if (baseUrl == null) {
+        LOG.warn("Failed to construct Bitbucket Server repository URL for ALM setting '{}': invalid server URL", almSetting.getKey());
+        return;
+      }
+      builder.setRepositoryUrl(baseUrl.newBuilder()
+        .addPathSegment("projects")
+        .addPathSegment(bitbucketProjectKey)
+        .addPathSegment("repos")
+        .addPathSegment(repositorySlug)
+        .build()
+        .toString());
     }
   }
 
