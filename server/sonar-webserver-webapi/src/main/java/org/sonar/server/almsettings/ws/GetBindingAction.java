@@ -55,6 +55,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class GetBindingAction implements AlmSettingsWsAction {
 
   private static final Logger LOG = LoggerFactory.getLogger(GetBindingAction.class);
+  private static final String BITBUCKET_CLOUD_ROOT_URL = "https://bitbucket.org/";
   private static final String PARAM_PROJECT = "project";
 
   private final DbClient dbClient;
@@ -87,7 +88,8 @@ public class GetBindingAction implements AlmSettingsWsAction {
         new Change("10.1", "Permission needed changed from 'Administer' to 'Browse'"),
         new Change("2025.1", "Azure binding now contains a inlineAnnotationsEnabled flag for inline annotations feature"),
         new Change("2025.6", "GitHub, GitLab and Azure bindings now contain a repositoryUrl field with the URL to the repository"),
-        new Change("2026.5", "GitHub and GitLab bindings now contain a slug field with the repository's full name or path"))
+        new Change("2026.5", "GitHub and GitLab bindings now contain a slug field with the repository's full name or path"),
+        new Change("2026.5", "Bitbucket Cloud bindings now contain a repositoryUrl field with the URL to the repository"))
       .setHandler(this);
 
     action
@@ -128,6 +130,8 @@ public class GetBindingAction implements AlmSettingsWsAction {
         setGitlabRepositoryUrl(almSetting, projectAlmSetting, builder);
       } else if (almSetting.getAlm() == ALM.AZURE_DEVOPS) {
         setAzureRepositoryUrl(almSetting, projectAlmSetting, builder);
+      } else if (almSetting.getAlm() == ALM.BITBUCKET_CLOUD) {
+        setBitbucketCloudRepositoryUrl(almSetting, projectAlmSetting, builder);
       }
 
       return builder.build();
@@ -169,6 +173,19 @@ public class GetBindingAction implements AlmSettingsWsAction {
         LOG.warn("Failed to fetch GitLab repository URL for ALM setting '{}' and project ID '{}'",
           almSetting.getKey(), projectAlmSetting.getAlmRepo(), e);
       }
+    }
+  }
+
+  private static void setBitbucketCloudRepositoryUrl(AlmSettingDto almSetting, ProjectAlmSettingDto projectAlmSetting, GetBindingWsResponse.Builder builder) {
+    String workspace = almSetting.getAppId();
+    String slug = projectAlmSetting.getAlmRepo();
+    if (isNotBlank(workspace) && isNotBlank(slug)) {
+      HttpUrl repositoryUrl = requireNonNull(HttpUrl.parse(BITBUCKET_CLOUD_ROOT_URL))
+        .newBuilder()
+        .addPathSegment(workspace)
+        .addPathSegment(slug)
+        .build();
+      builder.setRepositoryUrl(repositoryUrl.toString());
     }
   }
 

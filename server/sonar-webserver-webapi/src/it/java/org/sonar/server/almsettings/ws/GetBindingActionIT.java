@@ -213,6 +213,69 @@ class GetBindingActionIT {
   }
 
   @Test
+  void get_bitbucketcloud_project_binding() {
+    userSession.logIn(user).addProjectPermission(USER, project);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting(
+      s -> s.setAppId("my-workspace"));
+    ProjectAlmSettingDto projectAlmSettingDto = db.almSettings().insertBitbucketCloudProjectAlmSetting(
+      almSetting, project, p -> p.setAlmRepo("my-repo"));
+
+    GetBindingWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(GetBindingWsResponse.class);
+
+    assertThat(response)
+      .extracting(
+        GetBindingWsResponse::getAlm,
+        GetBindingWsResponse::getKey,
+        GetBindingWsResponse::getRepository,
+        GetBindingWsResponse::getRepositoryUrl)
+      .containsExactly(
+        AlmSettings.Alm.bitbucketcloud,
+        almSetting.getKey(),
+        projectAlmSettingDto.getAlmRepo(),
+        "https://bitbucket.org/my-workspace/my-repo");
+  }
+
+  @Test
+  void get_bitbucketcloud_project_binding_encodes_repository_slug_in_repository_url() {
+    userSession.logIn(user).addProjectPermission(USER, project);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting(
+      s -> s.setAppId("my-workspace"));
+    db.almSettings().insertBitbucketCloudProjectAlmSetting(
+      almSetting, project, p -> p.setAlmRepo("my repo?x"));
+
+    GetBindingWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(GetBindingWsResponse.class);
+
+    assertThat(response.getRepositoryUrl()).isEqualTo("https://bitbucket.org/my-workspace/my%20repo%3Fx");
+  }
+
+  @Test
+  void get_bitbucketcloud_project_binding_returns_without_repository_url_when_workspace_is_missing() {
+    userSession.logIn(user).addProjectPermission(USER, project);
+    AlmSettingDto almSetting = db.almSettings().insertBitbucketCloudAlmSetting(
+      s -> s.setAppId(null));
+    db.almSettings().insertBitbucketCloudProjectAlmSetting(
+      almSetting, project, p -> p.setAlmRepo("my-repo"));
+
+    GetBindingWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(GetBindingWsResponse.class);
+
+    assertThat(response)
+      .extracting(
+        GetBindingWsResponse::getAlm,
+        GetBindingWsResponse::getKey,
+        GetBindingWsResponse::hasRepositoryUrl)
+      .containsExactly(
+        AlmSettings.Alm.bitbucketcloud,
+        almSetting.getKey(),
+        false);
+  }
+
+  @Test
   void get_bitbucket_project_binding() {
     userSession.logIn(user).addProjectPermission(USER, project);
     AlmSettingDto almSetting = db.almSettings().insertBitbucketAlmSetting();
