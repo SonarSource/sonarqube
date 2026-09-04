@@ -338,6 +338,10 @@ public class GithubBinding {
       // http://stackoverflow.com/a/18645370/229031
     }
 
+    public String getFullName() {
+      return fullName;
+    }
+
     public Repository toRepository() {
       return new Repository(this.id, this.name, this.isPrivate, this.fullName,
         this.htmlUrl, this.defaultBranch);
@@ -400,6 +404,8 @@ public class GithubBinding {
     GsonGithubCodeScanningAlert alert;
     @SerializedName("sender")
     GsonGithubCodeScanningAlertWebhookPayloadSender sender;
+    @SerializedName("repository")
+    GsonGithubRepository repository;
 
     public GsonGithubCodeScanningAlertWebhookPayload() {
       // even if empty constructor is not required for Gson, it is strongly
@@ -417,6 +423,11 @@ public class GithubBinding {
 
     public GsonGithubCodeScanningAlertWebhookPayloadSender getSender() {
       return sender;
+    }
+
+    @CheckForNull
+    public GsonGithubRepository getRepository() {
+      return repository;
     }
   }
 
