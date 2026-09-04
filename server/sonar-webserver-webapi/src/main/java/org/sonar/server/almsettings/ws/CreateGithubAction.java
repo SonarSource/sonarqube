@@ -96,30 +96,26 @@ public class CreateGithubAction implements AlmSettingsWsAction {
   @Override
   public void handle(Request request, Response response) {
     userSession.checkIsSystemAdministrator();
-    tryDoHandle(request);
+    doHandle(request);
     response.noContent();
   }
 
-  private void tryDoHandle(Request request) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      doHandle(request, dbSession);
-    }
-  }
-
-  private void doHandle(Request request, DbSession dbSession) {
-    almSettingsSupport.checkAlmMultipleFeatureEnabled(GITHUB);
-    String key = request.mandatoryParam(PARAM_KEY);
-    almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, key);
-
-    almSettingsSupport.createGithubSetting(dbSession, new AlmSettingsSupport.NewGithubSetting(key,
+  private void doHandle(Request request) {
+    AlmSettingsSupport.NewGithubSetting setting = new AlmSettingsSupport.NewGithubSetting(
+      request.mandatoryParam(PARAM_KEY),
       request.mandatoryParam(PARAM_URL),
       request.mandatoryParam(PARAM_APP_ID),
       request.mandatoryParam(PARAM_PRIVATE_KEY),
       request.mandatoryParam(PARAM_CLIENT_ID),
       request.mandatoryParam(PARAM_CLIENT_SECRET),
-      request.getParam(PARAM_WEBHOOK_SECRET).emptyAsNull().or(() -> null)));
+      request.getParam(PARAM_WEBHOOK_SECRET).emptyAsNull().or(() -> null));
 
-    dbSession.commit();
+    almSettingsSupport.withAlmSettingCreationLock(() -> {
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        almSettingsSupport.createGithubSetting(dbSession, setting);
+        dbSession.commit();
+      }
+    });
     devOpsConfigurationTelemetry.sendManualDevOpsConfig(GITHUB);
   }
 

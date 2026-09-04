@@ -118,11 +118,13 @@ public class CreateGithubFromManifestAction implements AlmSettingsWsAction {
     String appName = requireNonNull(request.getParam(PARAM_NAME).emptyAsNull().or(() -> DEFAULT_APP_NAME));
 
     if (setupDevops) {
-      almSettingsSupport.checkAlmMultipleFeatureEnabled(GITHUB);
       if (isBlank(key)) {
         throw BadRequestException.create("Parameter '" + PARAM_KEY + "' is required to create the DevOps Platform integration.");
       }
+      // Fail-fast UX only — the authoritative check-then-insert runs under the JVM lock in
+      // GithubManifestCallbackFilter#persistConfiguration once GitHub redirects back.
       try (DbSession dbSession = dbClient.openSession(false)) {
+        almSettingsSupport.checkAlmMultipleFeatureEnabled(dbSession, GITHUB);
         almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, key);
       }
     }

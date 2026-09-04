@@ -35,7 +35,6 @@ import org.sonar.api.web.HttpFilter;
 import org.sonar.api.web.UrlPattern;
 import org.sonar.auth.github.GithubAppCredentials;
 import org.sonar.auth.github.GithubApplicationClient;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.almsettings.ws.GithubManifestStateStore.PendingManifest;
 import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
@@ -43,7 +42,7 @@ import org.sonar.server.common.github.config.GithubConfiguration;
 import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.common.gitlab.config.ProvisioningType;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.sonar.server.almsettings.ws.GithubAppManifestGenerator.AUTH_SETTINGS_PATH;
@@ -61,8 +60,7 @@ public class GithubManifestCallbackFilter extends HttpFilter {
 
   private static final Logger LOG = LoggerFactory.getLogger(GithubManifestCallbackFilter.class);
 
-  private final DbClient dbClient;
-  private final UserSession userSession;
+  private final ThreadLocalUserSession userSession;
   private final AlmSettingsSupport almSettingsSupport;
   private final GithubAppManifestGenerator manifestGenerator;
   private final GithubManifestStateStore stateStore;
@@ -70,10 +68,9 @@ public class GithubManifestCallbackFilter extends HttpFilter {
   private final GithubConfigurationService githubConfigurationService;
   private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry;
 
-  public GithubManifestCallbackFilter(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport,
+  public GithubManifestCallbackFilter(ThreadLocalUserSession userSession, AlmSettingsSupport almSettingsSupport,
     GithubAppManifestGenerator manifestGenerator, GithubManifestStateStore stateStore, GithubApplicationClient githubApplicationClient,
     GithubConfigurationService githubConfigurationService, DevOpsConfigurationTelemetry devOpsConfigurationTelemetry) {
-    this.dbClient = dbClient;
     this.userSession = userSession;
     this.almSettingsSupport = almSettingsSupport;
     this.manifestGenerator = manifestGenerator;
@@ -98,7 +95,7 @@ public class GithubManifestCallbackFilter extends HttpFilter {
       return;
     }
 
-    if (!userSession.isSystemAdministrator()) {
+    if (!userSession.hasSession() || !userSession.isSystemAdministrator()) {
       redirect(response, error("You must be a system administrator to finish creating the GitHub App."));
       return;
     }
@@ -118,6 +115,12 @@ public class GithubManifestCallbackFilter extends HttpFilter {
       // account/organization so SonarQube can access repositories; without an installation, project
       // import finds no organizations.
       redirect(response, installUrl(credentials).orElseGet(() -> success(pending)));
+    } catch (BadRequestException e) {
+      // The cap violation from AlmSettingsSupport carries an actionable message ("A GITHUB setting is
+      // already defined") — surface it to the admin instead of the generic error so they know retrying
+      // will not help.
+      LOG.warn("GitHub App Manifest flow rejected: {}", e.getMessage());
+      redirect(response, error(pending, e.getMessage()));
     } catch (Exception e) {
       LOG.warn("Failed to complete the GitHub App Manifest flow", e);
       redirect(response, error(pending, "Failed to create the GitHub App. Please try again or configure it manually."));
@@ -129,11 +132,21 @@ public class GithubManifestCallbackFilter extends HttpFilter {
    * can never diverge: if either write fails, nothing is committed and the user can safely restart the
    * flow. (The GitHub App created on GitHub itself cannot be rolled back; a failed flow may leave it
    * unused, but no inconsistent SonarQube state is left behind.)
+   * <p>
+   * When the flow persists a DevOps binding, the whole transaction runs under {@link AlmSettingsSupport}'s
+   * JVM lock so the edition-gated single-configuration cap cannot be raced past.
    */
   private PersistResult persistConfiguration(PendingManifest pending, GithubAppCredentials credentials) {
+    if (pending.setupDevops()) {
+      return almSettingsSupport.withAlmSettingCreationLock(() -> doPersistConfiguration(pending, credentials));
+    }
+    return doPersistConfiguration(pending, credentials);
+  }
+
+  private PersistResult doPersistConfiguration(PendingManifest pending, GithubAppCredentials credentials) {
     boolean authConfigured = false;
     boolean devopsConfigured = false;
-    try (DbSession dbSession = dbClient.openSession(false)) {
+    try (DbSession dbSession = almSettingsSupport.getDbClient().openSession(false)) {
       if (pending.setupAuth()) {
         authConfigured = setupAuthentication(dbSession, credentials, pending.organization());
       }
@@ -169,7 +182,6 @@ public class GithubManifestCallbackFilter extends HttpFilter {
   }
 
   private void persistDevopsBinding(DbSession dbSession, String settingKey, GithubAppCredentials credentials) {
-    almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, settingKey);
     almSettingsSupport.createGithubSetting(dbSession, new AlmSettingsSupport.NewGithubSetting(settingKey, GITHUB_DOTCOM_API_URL,
       credentials.getAppId(), credentials.pem(), credentials.clientId(), credentials.clientSecret(), credentials.webhookSecret()));
   }

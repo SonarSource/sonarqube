@@ -19,6 +19,8 @@
  */
 package org.sonar.server.almsettings.ws;
 
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
@@ -37,7 +39,11 @@ import org.sonar.server.user.UserSession;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.Strings.CS;
+import static org.sonar.db.alm.setting.ALM.AZURE_DEVOPS;
+import static org.sonar.db.alm.setting.ALM.BITBUCKET;
+import static org.sonar.db.alm.setting.ALM.BITBUCKET_CLOUD;
 import static org.sonar.db.alm.setting.ALM.GITHUB;
+import static org.sonar.db.alm.setting.ALM.GITLAB;
 import static org.sonar.db.permission.ProjectPermission.ADMIN;
 
 @ServerSide
@@ -50,12 +56,21 @@ public class AlmSettingsSupport {
   private final ComponentFinder componentFinder;
   private final MultipleAlmFeature multipleAlmFeature;
 
+  // Serializes the edition-gated cap check + insert on Developer Edition (single-node by contract).
+  // Without this, two concurrent admin POSTs can each observe an empty count before either commits,
+  // persisting more than one ALM setting per family.
+  private final ReentrantLock almSettingCreationLock = new ReentrantLock();
+
   public AlmSettingsSupport(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder,
     MultipleAlmFeature multipleAlmFeature) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.multipleAlmFeature = multipleAlmFeature;
+  }
+
+  DbClient getDbClient() {
+    return dbClient;
   }
 
   public void checkAlmSettingDoesNotAlreadyExist(DbSession dbSession, String almSetting) {
@@ -65,11 +80,34 @@ public class AlmSettingsSupport {
       });
   }
 
-  public void checkAlmMultipleFeatureEnabled(ALM alm) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      if (!multipleAlmFeature.isAvailable() && !dbClient.almSettingDao().selectByAlm(dbSession, alm).isEmpty()) {
-        throw BadRequestException.create("A " + alm + " setting is already defined");
-      }
+  public void checkAlmMultipleFeatureEnabled(DbSession dbSession, ALM alm) {
+    if (!multipleAlmFeature.isAvailable() && !dbClient.almSettingDao().selectByAlm(dbSession, alm).isEmpty()) {
+      throw BadRequestException.create("A " + alm + " setting is already defined");
+    }
+  }
+
+  /**
+   * Wraps an ALM setting creation in the JVM-wide lock that guarantees the check-then-insert
+   * of {@link #checkAlmMultipleFeatureEnabled(DbSession, ALM)} is atomic. Callers must commit
+   * inside the lambda so the row is visible before the lock is released. Enterprise/Data Center
+   * editions still take the lock — the count check inside is a no-op there, so contention is
+   * limited to admin ALM setup, which is rare.
+   */
+  public void withAlmSettingCreationLock(Runnable action) {
+    almSettingCreationLock.lock();
+    try {
+      action.run();
+    } finally {
+      almSettingCreationLock.unlock();
+    }
+  }
+
+  public <T> T withAlmSettingCreationLock(Supplier<T> action) {
+    almSettingCreationLock.lock();
+    try {
+      return action.get();
+    } finally {
+      almSettingCreationLock.unlock();
     }
   }
 
@@ -92,6 +130,18 @@ public class AlmSettingsSupport {
     return project;
   }
 
+  public record NewAzureSetting(String key, String url, String personalAccessToken) {
+  }
+
+  public record NewGitlabSetting(String key, String url, String personalAccessToken) {
+  }
+
+  public record NewBitbucketSetting(String key, String url, String personalAccessToken) {
+  }
+
+  public record NewBitbucketCloudSetting(String key, String workspace, String clientId, String clientSecret) {
+  }
+
   /**
    * Values needed to persist a GitHub ALM setting, bundled so the same insertion logic can be shared by
    * the manual {@code create_github} web service and the GitHub App Manifest flow.
@@ -100,12 +150,61 @@ public class AlmSettingsSupport {
     String clientSecret, @Nullable String webhookSecret) {
   }
 
+  public void createAzureSetting(DbSession dbSession, NewAzureSetting setting) {
+    checkAlmMultipleFeatureEnabled(dbSession, AZURE_DEVOPS);
+    checkAlmSettingDoesNotAlreadyExist(dbSession, setting.key());
+    dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
+      .setAlm(AZURE_DEVOPS)
+      .setKey(setting.key())
+      .setUrl(setting.url())
+      .setPersonalAccessToken(setting.personalAccessToken()));
+  }
+
+  public void createGitlabSetting(DbSession dbSession, NewGitlabSetting setting) {
+    checkAlmMultipleFeatureEnabled(dbSession, GITLAB);
+    checkAlmSettingDoesNotAlreadyExist(dbSession, setting.key());
+    dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
+      .setAlm(GITLAB)
+      .setKey(setting.key())
+      .setUrl(setting.url())
+      .setPersonalAccessToken(setting.personalAccessToken()));
+  }
+
+  public void createBitbucketSetting(DbSession dbSession, NewBitbucketSetting setting) {
+    checkBitbucketFamilyCap(dbSession);
+    checkAlmSettingDoesNotAlreadyExist(dbSession, setting.key());
+    dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
+      .setAlm(BITBUCKET)
+      .setKey(setting.key())
+      .setUrl(setting.url())
+      .setPersonalAccessToken(setting.personalAccessToken()));
+  }
+
+  public void createBitbucketCloudSetting(DbSession dbSession, NewBitbucketCloudSetting setting) {
+    checkBitbucketFamilyCap(dbSession);
+    checkAlmSettingDoesNotAlreadyExist(dbSession, setting.key());
+    checkBitbucketCloudWorkspaceIDFormat(setting.workspace());
+    dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
+      .setAlm(BITBUCKET_CLOUD)
+      .setKey(setting.key())
+      .setAppId(setting.workspace())
+      .setClientId(setting.clientId())
+      .setClientSecret(setting.clientSecret()));
+  }
+
+  private void checkBitbucketFamilyCap(DbSession dbSession) {
+    checkAlmMultipleFeatureEnabled(dbSession, BITBUCKET);
+    checkAlmMultipleFeatureEnabled(dbSession, BITBUCKET_CLOUD);
+  }
+
   /**
    * Inserts a new GitHub ALM setting. Shared by the manual {@code create_github} web service and the
    * GitHub App Manifest flow so both persist credentials identically (encryption and auditing are
    * handled by the DAO).
    */
   public void createGithubSetting(DbSession dbSession, NewGithubSetting setting) {
+    checkAlmMultipleFeatureEnabled(dbSession, GITHUB);
+    checkAlmSettingDoesNotAlreadyExist(dbSession, setting.key());
     dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
       .setAlm(GITHUB)
       .setKey(setting.key())

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.almsettings.ws;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import org.sonar.server.component.ComponentTypes;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,6 +63,8 @@ public class GithubManifestCallbackFilterIT {
   @Rule
   public DbTester db = DbTester.create();
 
+  private final ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+
   private final MultipleAlmFeature multipleAlmFeature = mock(MultipleAlmFeature.class);
   private final Server server = mock(Server.class);
   private final GithubApplicationClient githubApplicationClient = mock(GithubApplicationClient.class);
@@ -78,12 +82,18 @@ public class GithubManifestCallbackFilterIT {
   private final HttpResponse response = mock(HttpResponse.class);
   private final FilterChain chain = mock(FilterChain.class);
 
-  private final GithubManifestCallbackFilter underTest = new GithubManifestCallbackFilter(db.getDbClient(), userSession,
+  private final GithubManifestCallbackFilter underTest = new GithubManifestCallbackFilter(threadLocalUserSession,
     almSettingsSupport, manifestGenerator, stateStore, githubApplicationClient, githubConfigurationService, devOpsConfigurationTelemetry);
 
   @Before
   public void setUp() {
     when(server.getPublicRootUrl()).thenReturn("https://sonarqube.example.com");
+    threadLocalUserSession.set(userSession);
+  }
+
+  @After
+  public void tearDown() {
+    threadLocalUserSession.unload();
   }
 
   @Test
@@ -103,6 +113,17 @@ public class GithubManifestCallbackFilterIT {
 
   @Test
   public void doFilter_whenNotSystemAdministrator_redirectsToError() throws Exception {
+    when(request.getParameter("code")).thenReturn("the-code");
+    when(request.getParameter("state")).thenReturn("the-state");
+
+    underTest.doFilter(request, response, chain);
+
+    assertThat(captureRedirect()).contains("almManifestResult=error").contains("system+administrator");
+  }
+
+  @Test
+  public void doFilter_whenNotAuthenticated_redirectsToError() throws Exception {
+    threadLocalUserSession.unload();
     when(request.getParameter("code")).thenReturn("the-code");
     when(request.getParameter("state")).thenReturn("the-state");
 

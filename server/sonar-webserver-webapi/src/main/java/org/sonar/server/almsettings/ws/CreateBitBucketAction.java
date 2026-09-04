@@ -24,12 +24,10 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.alm.setting.ALM.BITBUCKET;
-import static org.sonar.db.alm.setting.ALM.BITBUCKET_CLOUD;
 
 public class CreateBitBucketAction implements AlmSettingsWsAction {
 
@@ -38,7 +36,7 @@ public class CreateBitBucketAction implements AlmSettingsWsAction {
   private static final String PARAM_PERSONAL_ACCESS_TOKEN = "personalAccessToken";
 
   private final DbClient dbClient;
-  private UserSession userSession;
+  private final UserSession userSession;
   private final AlmSettingsSupport almSettingsSupport;
   private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry;
 
@@ -84,20 +82,14 @@ public class CreateBitBucketAction implements AlmSettingsWsAction {
     String key = request.mandatoryParam(PARAM_KEY);
     String url = request.mandatoryParam(PARAM_URL);
     String pat = request.mandatoryParam(PARAM_PERSONAL_ACCESS_TOKEN);
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      // We do not treat Bitbucket Server and Bitbucket Cloud as different ALMs when it comes to limiting the
-      // number of connections.
-      almSettingsSupport.checkAlmMultipleFeatureEnabled(BITBUCKET);
-      almSettingsSupport.checkAlmMultipleFeatureEnabled(BITBUCKET_CLOUD);
-      almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, key);
-      dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
-        .setAlm(BITBUCKET)
-        .setKey(key)
-        .setUrl(url)
-        .setPersonalAccessToken(pat));
-      dbSession.commit();
-      devOpsConfigurationTelemetry.sendManualDevOpsConfig(BITBUCKET);
-    }
+
+    almSettingsSupport.withAlmSettingCreationLock(() -> {
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        almSettingsSupport.createBitbucketSetting(dbSession, new AlmSettingsSupport.NewBitbucketSetting(key, url, pat));
+        dbSession.commit();
+      }
+    });
+    devOpsConfigurationTelemetry.sendManualDevOpsConfig(BITBUCKET);
   }
 
 }

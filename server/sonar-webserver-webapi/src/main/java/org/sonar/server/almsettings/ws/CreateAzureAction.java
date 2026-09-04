@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.user.UserSession;
 
@@ -39,7 +38,7 @@ public class CreateAzureAction implements AlmSettingsWsAction {
   private static final String PARAM_PERSONAL_ACCESS_TOKEN = "personalAccessToken";
 
   private final DbClient dbClient;
-  private UserSession userSession;
+  private final UserSession userSession;
   private final AlmSettingsSupport almSettingsSupport;
   private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry;
   private final AzureDevOpsValidator azureDevOpsValidator;
@@ -89,18 +88,24 @@ public class CreateAzureAction implements AlmSettingsWsAction {
     String pat = request.mandatoryParam(PARAM_PERSONAL_ACCESS_TOKEN);
     String url = request.mandatoryParam(PARAM_URL);
 
+    // Read-only pre-check preserves the original error precedence (cap/duplicate-key before the outbound
+    // Azure probe) so a rejected request does not issue an unnecessary network call. The authoritative
+    // check still runs inside the lock in createAzureSetting.
     try (DbSession dbSession = dbClient.openSession(false)) {
-      almSettingsSupport.checkAlmMultipleFeatureEnabled(AZURE_DEVOPS);
+      almSettingsSupport.checkAlmMultipleFeatureEnabled(dbSession, AZURE_DEVOPS);
       almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, key);
-      azureDevOpsValidator.checkPatIsNotGlobal(url, pat);
-      dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
-        .setAlm(AZURE_DEVOPS)
-        .setKey(key)
-        .setPersonalAccessToken(pat)
-        .setUrl(url));
-      dbSession.commit();
-      devOpsConfigurationTelemetry.sendManualDevOpsConfig(AZURE_DEVOPS);
     }
+
+    // Network call kept outside the JVM lock so the critical section stays CPU-only.
+    azureDevOpsValidator.checkPatIsNotGlobal(url, pat);
+
+    almSettingsSupport.withAlmSettingCreationLock(() -> {
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        almSettingsSupport.createAzureSetting(dbSession, new AlmSettingsSupport.NewAzureSetting(key, url, pat));
+        dbSession.commit();
+      }
+    });
+    devOpsConfigurationTelemetry.sendManualDevOpsConfig(AZURE_DEVOPS);
   }
 
 }

@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.user.UserSession;
 
@@ -39,7 +38,7 @@ public class CreateGitlabAction implements AlmSettingsWsAction {
   private static final String PARAM_PERSONAL_ACCESS_TOKEN = "personalAccessToken";
 
   private final DbClient dbClient;
-  private UserSession userSession;
+  private final UserSession userSession;
   private final AlmSettingsSupport almSettingsSupport;
   private final DevOpsConfigurationTelemetry devOpsConfigurationTelemetry;
 
@@ -86,17 +85,14 @@ public class CreateGitlabAction implements AlmSettingsWsAction {
     String key = request.mandatoryParam(PARAM_KEY);
     String url = StringUtils.trim(request.mandatoryParam(PARAM_URL));
     String pat = request.mandatoryParam(PARAM_PERSONAL_ACCESS_TOKEN);
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      almSettingsSupport.checkAlmMultipleFeatureEnabled(GITLAB);
-      almSettingsSupport.checkAlmSettingDoesNotAlreadyExist(dbSession, key);
-      dbClient.almSettingDao().insert(dbSession, new AlmSettingDto()
-        .setAlm(GITLAB)
-        .setUrl(url)
-        .setKey(key)
-        .setPersonalAccessToken(pat));
-      dbSession.commit();
-      devOpsConfigurationTelemetry.sendManualDevOpsConfig(GITLAB);
-    }
+
+    almSettingsSupport.withAlmSettingCreationLock(() -> {
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        almSettingsSupport.createGitlabSetting(dbSession, new AlmSettingsSupport.NewGitlabSetting(key, url, pat));
+        dbSession.commit();
+      }
+    });
+    devOpsConfigurationTelemetry.sendManualDevOpsConfig(GITLAB);
   }
 
 }
