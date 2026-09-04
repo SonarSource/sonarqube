@@ -31,6 +31,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.azure.AzureDevOpsValidator;
 import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.alm.client.gitlab.GitlabGlobalSettingsValidator;
@@ -56,6 +58,8 @@ import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
  */
 @ServerSide
 public class DopPermissionValidationService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DopPermissionValidationService.class);
 
   // Short TTL: enough to collapse a burst of near-simultaneous requests for the same configuration (e.g. several
   // projects sharing one DevOps Platform config, loaded within the same page render) without keeping a stale verdict
@@ -194,9 +198,11 @@ public class DopPermissionValidationService {
   }
 
   private DopPermissionCheck checkGitlab(AlmSettingDto almSetting) {
+    if (isUnsupportedGitlabToken(almSetting)) {
+      return DopPermissionCheck.unsupportedTokenType();
+    }
     try {
-      gitlabGlobalSettingsValidator.validate(almSetting);
-      return DopPermissionCheck.sufficient();
+      return gitlabGlobalSettingsValidator.hasApiScope(almSetting) ? DopPermissionCheck.sufficient() : DopPermissionCheck.insufficient();
     } catch (GitlabServerException e) {
       if (e.getHttpStatus() == HTTP_FORBIDDEN && hasInsufficientScope(e.getMessage())) {
         return DopPermissionCheck.insufficient();
@@ -204,6 +210,22 @@ public class DopPermissionValidationService {
       return DopPermissionCheck.checkFailed();
     } catch (Exception e) {
       return DopPermissionCheck.checkFailed();
+    }
+  }
+
+  /**
+   * Runs independently of the scope-based check above: a GitLab bot token (Project/Group Access Token) can have
+   * full read/write scope and still be unusable by the Remediation Agent, which needs to exchange the credential for
+   * a short-lived user token (SONAR-31770). Any failure while determining bot status falls through to the
+   * {@code hasApiScope()} check above, which already classifies invalid-credential/network failures.
+   */
+  private boolean isUnsupportedGitlabToken(AlmSettingDto almSetting) {
+    try {
+      return gitlabGlobalSettingsValidator.isBotToken(almSetting);
+    } catch (Exception e) {
+      LOG.debug("Could not determine whether the GitLab token for configuration '{}' belongs to a bot user; "
+        + "falling back to the scope-based check", almSetting.getKey(), e);
+      return false;
     }
   }
 

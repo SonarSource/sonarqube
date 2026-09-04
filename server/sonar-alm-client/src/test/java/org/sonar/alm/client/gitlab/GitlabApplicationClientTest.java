@@ -603,6 +603,69 @@ public class GitlabApplicationClientTest {
   }
 
   @Test
+  public void checkToken_whenTokenBelongsToBotUser_returnsGsonUserWithBotTrue() {
+    MockResponse response = new MockResponse()
+      .setResponseCode(200)
+      .setBody("{\"id\":42,\"username\":\"project_123_bot_4ffca233d8298ea1\",\"bot\":true}");
+    server.enqueue(response);
+
+    GsonUser user = underTest.checkToken(gitlabUrl, "token");
+
+    assertThat(user.isBot()).isTrue();
+    assertThat(user.getUsername()).isEqualTo("project_123_bot_4ffca233d8298ea1");
+  }
+
+  @Test
+  public void checkToken_whenTokenBelongsToHumanUser_returnsGsonUserWithBotFalse() {
+    MockResponse response = new MockResponse()
+      .setResponseCode(200)
+      .setBody("{\"id\":42,\"username\":\"jane-doe\"}");
+    server.enqueue(response);
+
+    GsonUser user = underTest.checkToken(gitlabUrl, "token");
+
+    assertThat(user.isBot()).isFalse();
+    assertThat(user.getUsername()).isEqualTo("jane-doe");
+  }
+
+  @Test
+  public void getPersonalAccessTokenInfo_whenTokenHasApiScope_returnsScopes() {
+    MockResponse response = new MockResponse()
+      .setResponseCode(200)
+      .setBody("{\"id\":1,\"scopes\":[\"api\"]}");
+    server.enqueue(response);
+
+    GsonPersonalAccessTokenInfo tokenInfo = underTest.getPersonalAccessTokenInfo(gitlabUrl, "token");
+
+    assertThat(tokenInfo.getScopes()).containsExactly("api");
+  }
+
+  @Test
+  public void getPersonalAccessTokenInfo_whenTokenHasOnlyReadApiScope_returnsScopesWithoutApi() {
+    MockResponse response = new MockResponse()
+      .setResponseCode(200)
+      .setBody("{\"id\":2,\"scopes\":[\"read_api\"]}");
+    server.enqueue(response);
+
+    GsonPersonalAccessTokenInfo tokenInfo = underTest.getPersonalAccessTokenInfo(gitlabUrl, "token");
+
+    assertThat(tokenInfo.getScopes()).containsExactly("read_api");
+  }
+
+  @Test
+  public void fail_check_personal_access_token_info_with_unexpected_io_exception_with_detailed_log() throws IOException {
+    server.shutdown();
+
+    assertThatThrownBy(() -> underTest.getPersonalAccessTokenInfo(gitlabUrl, "token"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Could not validate GitLab token scopes. Got an unexpected answer.");
+    assertThat(logTester.logs(Level.INFO).get(0))
+      .contains("Gitlab API call to [" + server.url("/personal_access_tokens/self") + "] " +
+        "failed with error message : [Failed to connect to ")
+      .contains(server.getHostName());
+  }
+
+  @Test
   public void fail_check_write_permission_with_unexpected_io_exception_with_detailed_log() throws IOException {
     server.shutdown();
 

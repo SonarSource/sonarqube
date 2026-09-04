@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -120,7 +121,50 @@ class DopPermissionValidationServiceTest {
   void check_whenGitlabTokenHasInsufficientScope_returnsInsufficient() {
     AlmSettingDto almSetting = almSetting(ALM.GITLAB);
     doThrow(new GitlabServerException(HTTP_FORBIDDEN, "Your GitLab token has insufficient scope"))
-      .when(gitlabGlobalSettingsValidator).validate(almSetting);
+      .when(gitlabGlobalSettingsValidator).hasApiScope(almSetting);
+
+    DopPermissionCheck result = underTest.check(almSetting);
+
+    assertThat(result.status()).isEqualTo(PermissionCheckStatus.INSUFFICIENT);
+  }
+
+  @Test
+  void check_whenGitlabTokenLacksApiScope_returnsInsufficient() {
+    AlmSettingDto almSetting = almSetting(ALM.GITLAB);
+    when(gitlabGlobalSettingsValidator.hasApiScope(almSetting)).thenReturn(false);
+
+    DopPermissionCheck result = underTest.check(almSetting);
+
+    assertThat(result.status()).isEqualTo(PermissionCheckStatus.INSUFFICIENT);
+  }
+
+  @Test
+  void check_whenGitlabTokenHasApiScope_returnsSufficient() {
+    AlmSettingDto almSetting = almSetting(ALM.GITLAB);
+    when(gitlabGlobalSettingsValidator.hasApiScope(almSetting)).thenReturn(true);
+
+    DopPermissionCheck result = underTest.check(almSetting);
+
+    assertThat(result.status()).isEqualTo(PermissionCheckStatus.SUFFICIENT);
+  }
+
+  @Test
+  void check_whenGitlabTokenIsBot_returnsUnsupportedTokenTypeWithoutValidatingScope() {
+    AlmSettingDto almSetting = almSetting(ALM.GITLAB);
+    when(gitlabGlobalSettingsValidator.isBotToken(almSetting)).thenReturn(true);
+
+    DopPermissionCheck result = underTest.check(almSetting);
+
+    assertThat(result.status()).isEqualTo(PermissionCheckStatus.UNSUPPORTED_TOKEN_TYPE);
+    verify(gitlabGlobalSettingsValidator, never()).hasApiScope(any());
+  }
+
+  @Test
+  void check_whenGitlabBotCheckThrows_fallsBackToScopeCheck() {
+    AlmSettingDto almSetting = almSetting(ALM.GITLAB);
+    when(gitlabGlobalSettingsValidator.isBotToken(almSetting)).thenThrow(new IllegalArgumentException("boom"));
+    doThrow(new GitlabServerException(HTTP_FORBIDDEN, "Your GitLab token has insufficient scope"))
+      .when(gitlabGlobalSettingsValidator).hasApiScope(almSetting);
 
     DopPermissionCheck result = underTest.check(almSetting);
 
@@ -151,7 +195,8 @@ class DopPermissionValidationServiceTest {
     AlmSettingDto gitlab = almSetting(ALM.GITLAB);
     AlmSettingDto azure = almSetting(ALM.AZURE_DEVOPS);
     when(githubGlobalSettingsValidator.findMissingPermissions(github, GithubAppPermissions.TOKEN_MINTING_PERMISSIONS)).thenReturn(List.of("contents"));
-    // gitlab: validate() succeeds (void) -> SUFFICIENT; azure: validate() succeeds (void) -> UNKNOWN advisory
+    when(gitlabGlobalSettingsValidator.hasApiScope(gitlab)).thenReturn(true);
+    // azure: validate() succeeds (void) -> UNKNOWN advisory
 
     List<DopPermissionCheck> results = underTest.checkAll(List.of(github, gitlab, azure));
 
@@ -209,6 +254,7 @@ class DopPermissionValidationServiceTest {
     AlmSettingDto github = almSetting(ALM.GITHUB);
     AlmSettingDto gitlab = almSetting(ALM.GITLAB);
     when(githubGlobalSettingsValidator.findMissingPermissions(github, GithubAppPermissions.TOKEN_MINTING_PERMISSIONS)).thenReturn(List.of("contents"));
+    when(gitlabGlobalSettingsValidator.hasApiScope(gitlab)).thenReturn(true);
 
     List<TimestampedPermissionCheck> first = underTest.checkAllCached(List.of(github, gitlab));
     List<TimestampedPermissionCheck> second = underTest.checkAllCached(List.of(github, gitlab));
@@ -216,7 +262,7 @@ class DopPermissionValidationServiceTest {
     assertThat(first).extracting(r -> r.check().status()).containsExactly(PermissionCheckStatus.INSUFFICIENT, PermissionCheckStatus.SUFFICIENT);
     assertThat(second).extracting(TimestampedPermissionCheck::checkedAt).containsExactly(1_000L, 1_000L);
     verify(githubGlobalSettingsValidator, times(1)).findMissingPermissions(any(), any());
-    verify(gitlabGlobalSettingsValidator, times(1)).validate(gitlab);
+    verify(gitlabGlobalSettingsValidator, times(1)).hasApiScope(gitlab);
   }
 
   private static AlmSettingDto almSetting(ALM alm) {

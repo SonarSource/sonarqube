@@ -122,7 +122,7 @@ public class GitlabApplicationClient {
     LOG.info(errorMessage, e);
   }
 
-  public void checkToken(String gitlabUrl, String personalAccessToken) {
+  public GsonUser checkToken(String gitlabUrl, String personalAccessToken) {
     String url = format("%s/user", gitlabUrl);
 
     LOG.debug("get current user : [{}]", url);
@@ -136,9 +136,31 @@ public class GitlabApplicationClient {
     String errorMessage = "Could not validate GitLab token. Got an unexpected answer.";
     try (Response response = client.newCall(request).execute()) {
       checkResponseIsSuccessful(response, errorMessage);
-      GsonId.parseOne(response.body().string());
+      return GsonUser.parse(response.body().string());
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to verify token. Got a non-json payload as result.");
+    } catch (IOException e) {
+      logException(url, e);
+      throw new IllegalArgumentException(errorMessage);
+    }
+  }
+
+  public GsonPersonalAccessTokenInfo getPersonalAccessTokenInfo(String gitlabUrl, String personalAccessToken) {
+    String url = format("%s/personal_access_tokens/self", gitlabUrl);
+
+    LOG.debug("get personal access token info : [{}]", url);
+    Request request = new Request.Builder()
+      .addHeader(PRIVATE_TOKEN, personalAccessToken)
+      .url(url)
+      .get()
+      .build();
+
+    String errorMessage = "Could not validate GitLab token scopes. Got an unexpected answer.";
+    try (Response response = client.newCall(request).execute()) {
+      checkResponseIsSuccessful(response, errorMessage);
+      return GsonPersonalAccessTokenInfo.parseOne(response.body().string());
+    } catch (JsonSyntaxException e) {
+      throw new IllegalArgumentException("Could not parse GitLab answer to verify token scopes. Got a non-json payload as result.");
     } catch (IOException e) {
       logException(url, e);
       throw new IllegalArgumentException(errorMessage);

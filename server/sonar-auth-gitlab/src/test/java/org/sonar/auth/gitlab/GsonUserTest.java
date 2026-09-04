@@ -72,5 +72,20 @@ public class GsonUserTest {
     assertThat(gsonUser.getUsername()).isEqualTo("pierre-guillot-sonarsource");
     assertThat(gsonUser.getName()).isEqualTo("Pierre Guillot");
     assertThat(gsonUser.getEmail()).isEqualTo("pierre.guillot@sonarsource.com");
+    assertThat(gsonUser.isBot()).isFalse();
+  }
+
+  @Test
+  public void parse_whenUserIsProjectAccessTokenBot_setsBotToTrue() {
+    GsonUser gsonUser = GsonUser.parse("""
+      {
+      "id": 42,
+      "username": "project_123_bot_4ffca233d8298ea1",
+      "name": "project_123_bot_4ffca233d8298ea1",
+      "bot": true
+      }""");
+
+    assertThat(gsonUser.isBot()).isTrue();
+    assertThat(gsonUser.getUsername()).isEqualTo("project_123_bot_4ffca233d8298ea1");
   }
 }

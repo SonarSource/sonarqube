@@ -17,30 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.common.almsettings.permission;
+package org.sonar.alm.client.gitlab;
 
-/**
- * Structured result of a DevOps Platform permission check.
- */
-public record DopPermissionCheck(PermissionCheckStatus status) {
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+import java.util.List;
+import javax.annotation.Nullable;
 
-  public static DopPermissionCheck sufficient() {
-    return new DopPermissionCheck(PermissionCheckStatus.SUFFICIENT);
+public class GsonPersonalAccessTokenInfo {
+
+  @SerializedName("scopes")
+  private final List<String> scopes;
+
+  public GsonPersonalAccessTokenInfo() {
+    // http://stackoverflow.com/a/18645370/229031
+    this(null);
   }
 
-  public static DopPermissionCheck insufficient() {
-    return new DopPermissionCheck(PermissionCheckStatus.INSUFFICIENT);
+  public GsonPersonalAccessTokenInfo(@Nullable List<String> scopes) {
+    this.scopes = scopes;
   }
 
-  public static DopPermissionCheck unknown() {
-    return new DopPermissionCheck(PermissionCheckStatus.UNKNOWN);
+  @Nullable
+  public List<String> getScopes() {
+    return scopes;
   }
 
-  public static DopPermissionCheck checkFailed() {
-    return new DopPermissionCheck(PermissionCheckStatus.CHECK_FAILED);
+  public static GsonPersonalAccessTokenInfo parseOne(String json) {
+    Gson gson = new Gson();
+    return gson.fromJson(json, GsonPersonalAccessTokenInfo.class);
   }
 
-  public static DopPermissionCheck unsupportedTokenType() {
-    return new DopPermissionCheck(PermissionCheckStatus.UNSUPPORTED_TOKEN_TYPE);
-  }
 }

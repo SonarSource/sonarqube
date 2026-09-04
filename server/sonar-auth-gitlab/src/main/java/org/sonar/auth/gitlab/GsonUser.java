@@ -34,6 +34,8 @@ public class GsonUser {
   @SerializedName("access_level")
   private int accessLevel;
 
+  private boolean bot;
+
   public GsonUser() {
     // even if empty constructor is not required for Gson, it is strongly
     // recommended:
@@ -58,6 +60,10 @@ public class GsonUser {
 
   public int getAccessLevel() {
     return accessLevel;
+  }
+
+  public boolean isBot() {
+    return bot;
   }
 
   public static GsonUser parse(String json) {

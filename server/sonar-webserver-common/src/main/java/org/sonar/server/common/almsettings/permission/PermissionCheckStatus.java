@@ -30,5 +30,7 @@ public enum PermissionCheckStatus {
   /** The permissions could not be determined (e.g. the platform does not expose token scopes). */
   UNKNOWN,
   /** The check itself failed (invalid credentials, rate limiting, platform unreachable, ...). */
-  CHECK_FAILED
+  CHECK_FAILED,
+  /** GitLab only: the credential belongs to a bot user (Project/Group Access Token), which can't be exchanged for the short-lived user token the Remediation Agent needs. */
+  UNSUPPORTED_TOKEN_TYPE
 }
