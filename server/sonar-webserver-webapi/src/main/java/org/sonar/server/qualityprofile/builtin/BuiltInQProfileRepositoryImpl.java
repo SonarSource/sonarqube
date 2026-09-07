@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -58,6 +59,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
   private final ServerRuleFinder ruleFinder;
   private final Languages languages;
   private final List<BuiltInQualityProfilesDefinition> definitions;
+  private final SonarWayVariants sonarWayVariants;
   private List<BuiltInQProfile> qProfiles;
 
   /**
@@ -74,6 +76,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     this.ruleFinder = ruleFinder;
     this.languages = languages;
     this.definitions = ImmutableList.copyOf(definitions);
+    this.sonarWayVariants = new SonarWayVariants(dbClient);
   }
 
   @Override
@@ -86,7 +89,10 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
       definition.define(context);
     }
     Map<String, Map<String, BuiltInQualityProfile>> rulesProfilesByLanguage = validateAndClean(context);
-    this.qProfiles = toFlatList(rulesProfilesByLanguage);
+    Map<RuleKey, RuleDto> rulesByRuleKey = rulesProfilesByLanguage.isEmpty() ? Map.of() : loadRuleDefinitionsByRuleKey();
+    List<BuiltInQProfile> profiles = toFlatList(rulesProfilesByLanguage, rulesByRuleKey);
+    List<BuiltInQProfile> variantProfiles = sonarWayVariants.deriveVariantsFrom(profiles, DEFAULT_PROFILE_NAME, rulesByRuleKey);
+    this.qProfiles = Stream.concat(profiles.stream(), variantProfiles.stream()).toList();
     ensureAllLanguagesHaveAtLeastOneBuiltInQP();
     profiler.stopDebug();
   }
@@ -124,11 +130,10 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     return profilesByLanguageAndName;
   }
 
-  private List<BuiltInQProfile> toFlatList(Map<String, Map<String, BuiltInQualityProfile>> rulesProfilesByLanguage) {
+  private List<BuiltInQProfile> toFlatList(Map<String, Map<String, BuiltInQualityProfile>> rulesProfilesByLanguage, Map<RuleKey, RuleDto> rulesByRuleKey) {
     if (rulesProfilesByLanguage.isEmpty()) {
       return Collections.emptyList();
     }
-    Map<RuleKey, RuleDto> rulesByRuleKey = loadRuleDefinitionsByRuleKey();
     Map<String, List<BuiltInQProfile.Builder>> buildersByLanguage = rulesProfilesByLanguage
       .entrySet()
       .stream()
