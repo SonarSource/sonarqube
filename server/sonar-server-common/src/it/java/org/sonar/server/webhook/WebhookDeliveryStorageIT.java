@@ -20,6 +20,7 @@
 package org.sonar.server.webhook;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -76,16 +77,63 @@ public class WebhookDeliveryStorageIT {
   }
 
   @Test
-  public void persist_error_stacktrace() {
+  public void persist_error_stacktrace_keeps_only_exception_class_name() {
     when(uuidFactory.create()).thenReturn(DELIVERY_UUID);
     WebhookDelivery delivery = newBuilderTemplate()
-      .setError(new IOException("fail to connect"))
+      .setError(new IOException("Unexpected status line: 220 mail.internal ESMTP Service ready"))
       .build();
 
     underTest.persist(delivery);
 
     WebhookDeliveryDto dto = dbClient.webhookDeliveryDao().selectByUuid(dbSession, DELIVERY_UUID).get();
-    assertThat(dto.getErrorStacktrace()).contains("java.io.IOException", "fail to connect");
+    assertThat(dto.getErrorStacktrace())
+      .isEqualTo("java.io.IOException")
+      .doesNotContain("mail.internal", "ESMTP", "Service ready");
+  }
+
+  @Test
+  public void persist_error_stacktrace_unwraps_nested_cause_and_keeps_only_root_class_name() {
+    when(uuidFactory.create()).thenReturn(DELIVERY_UUID);
+    IOException rootCause = new IOException("Unexpected status line: 220 mail.internal ESMTP Service ready");
+    WebhookDelivery delivery = newBuilderTemplate()
+      .setError(new RuntimeException("wrapped failure", rootCause))
+      .build();
+
+    underTest.persist(delivery);
+
+    WebhookDeliveryDto dto = dbClient.webhookDeliveryDao().selectByUuid(dbSession, DELIVERY_UUID).get();
+    assertThat(dto.getErrorStacktrace())
+      .isEqualTo("java.io.IOException")
+      .doesNotContain("wrapped failure", "mail.internal", "ESMTP", "Service ready");
+  }
+
+  @Test
+  public void persist_error_stacktrace_keeps_message_for_internal_validation_exceptions() {
+    when(uuidFactory.create()).thenReturn(DELIVERY_UUID);
+    WebhookDelivery delivery = newBuilderTemplate()
+      .setError(new IllegalArgumentException(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE))
+      .build();
+
+    underTest.persist(delivery);
+
+    WebhookDeliveryDto dto = dbClient.webhookDeliveryDao().selectByUuid(dbSession, DELIVERY_UUID).get();
+    assertThat(dto.getErrorStacktrace())
+      .isEqualTo("java.lang.IllegalArgumentException: " + WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
+  }
+
+  @Test
+  public void persist_error_stacktrace_keeps_message_for_unknown_host_exception() {
+    when(uuidFactory.create()).thenReturn(DELIVERY_UUID);
+    UnknownHostException error = new UnknownHostException("does_not_exist: Name or service not known");
+    WebhookDelivery delivery = newBuilderTemplate()
+      .setError(error)
+      .build();
+
+    underTest.persist(delivery);
+
+    WebhookDeliveryDto dto = dbClient.webhookDeliveryDao().selectByUuid(dbSession, DELIVERY_UUID).get();
+    assertThat(dto.getErrorStacktrace())
+      .isEqualTo("java.net.UnknownHostException: " + error.getMessage());
   }
 
   @Test

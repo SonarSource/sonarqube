@@ -20,6 +20,7 @@
 package org.sonar.server.webhook;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Optional;
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
@@ -52,9 +53,11 @@ public class WebhookCallerImpl implements WebhookCaller {
 
   private final System2 system;
   private final OkHttpClient okHttpClient;
+  private final WebhookCustomDns webhookCustomDns;
 
   public WebhookCallerImpl(System2 system, OkHttpClient okHttpClient, WebhookCustomDns webhookCustomDns) {
     this.system = system;
+    this.webhookCustomDns = webhookCustomDns;
     this.okHttpClient = newClientWithoutRedirect(okHttpClient, webhookCustomDns);
   }
 
@@ -73,6 +76,7 @@ public class WebhookCallerImpl implements WebhookCaller {
         throw new IllegalArgumentException("Webhook URL is not valid: " + webhook.getUrl());
       }
       builder.setEffectiveUrl(HttpUrlHelper.obfuscateCredentials(webhook.getUrl(), url));
+      validateHostIfResolvable(url);
       Request request = buildHttpRequest(url, webhook, payload);
       try (Response response = execute(request)) {
         builder.setHttpStatus(response.code());
@@ -119,21 +123,37 @@ public class WebhookCallerImpl implements WebhookCaller {
    * Inspired by https://github.com/square/okhttp/blob/parent-3.6.0/okhttp/src/main/java/okhttp3/internal/http/RetryAndFollowUpInterceptor.java#L286
    */
   private Response followPostRedirect(Response response) throws IOException {
+    String obfuscatedUrl = HttpUrlHelper.obfuscateCredentials(response.request().url().toString());
     String location = response.header("Location");
     if (location == null) {
-      throw new IllegalStateException(format("Missing HTTP header 'Location' in redirect of %s", response.request().url()));
+      throw new IllegalStateException(format("Missing HTTP header 'Location' in redirect of %s", obfuscatedUrl));
     }
     HttpUrl url = response.request().url().resolve(location);
 
     // Don't follow redirects to unsupported protocols.
     if (url == null) {
-      throw new IllegalStateException(format("Unsupported protocol in redirect of %s to %s", response.request().url(), location));
+      throw new IllegalStateException(format("Unsupported protocol in redirect of %s", obfuscatedUrl));
     }
-
     Request.Builder redirectRequest = response.request().newBuilder();
     redirectRequest.post(response.request().body());
     response.body().close();
+
+    validateHostIfResolvable(url);
+
     return okHttpClient.newCall(redirectRequest.url(url).build()).execute();
+  }
+
+  /**
+   * OkHttp may skip its {@code Dns} SPI for a host (literal-IP notation, or a proxy resolving it instead), so
+   * every host is validated explicitly here. A host that fails to resolve locally is left for {@code execute()}
+   * or the proxy to handle.
+   */
+  private void validateHostIfResolvable(HttpUrl url) throws IOException {
+    try {
+      webhookCustomDns.lookup(url.host());
+    } catch (UnknownHostException e) {
+      // not resolvable locally: a dead host (execute() will fail) or a proxy-only hostname
+    }
   }
 
   private static OkHttpClient newClientWithoutRedirect(OkHttpClient client, WebhookCustomDns webhookCustomDns) {

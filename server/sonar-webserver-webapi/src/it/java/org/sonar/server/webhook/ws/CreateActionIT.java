@@ -40,6 +40,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.network.NetworkInterfaceProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.webhook.WebhookAddressValidator;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Webhooks.CreateWsResponse;
@@ -254,6 +255,30 @@ public class CreateActionIT {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void fail_if_url_targets_the_cloud_metadata_endpoint() {
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
+    TestRequest request = wsActionTester.newRequest()
+      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
+      .setParam(URL_PARAM, "http://169.254.169.254/latest/meta-data/");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
+  }
+
+  @Test
+  public void fail_if_url_targets_the_aws_ipv6_metadata_endpoint() {
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER);
+    TestRequest request = wsActionTester.newRequest()
+      .setParam(NAME_PARAM, NAME_WEBHOOK_EXAMPLE_001)
+      .setParam(URL_PARAM, "http://[fd00:ec2::254]/latest/meta-data/");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
   }
 
   @Test

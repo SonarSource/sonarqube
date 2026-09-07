@@ -50,20 +50,16 @@ public class WebhookCustomDns implements Dns {
   @Override
   public List<InetAddress> lookup(@NotNull String host) throws UnknownHostException {
     InetAddress address = InetAddress.getByName(host);
-    if (configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY).orElse(SONAR_VALIDATE_WEBHOOKS_DEFAULT_VALUE)
-      && (address.isLoopbackAddress() || address.isAnyLocalAddress() || isLocalAddress(address))) {
-      throw new IllegalArgumentException("Invalid URL: loopback and wildcard addresses are not allowed for webhooks.");
+    if (configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY).orElse(SONAR_VALIDATE_WEBHOOKS_DEFAULT_VALUE)) {
+      try {
+        if (WebhookAddressValidator.isBlockedAddress(address, networkInterfaceProvider)) {
+          throw new IllegalArgumentException(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
+        }
+      } catch (SocketException e) {
+        throw new IllegalArgumentException("Network interfaces could not be fetched.");
+      }
     }
     return Collections.singletonList(address);
-  }
-
-  private boolean isLocalAddress(InetAddress address)  {
-    try {
-      return networkInterfaceProvider.getNetworkInterfaceAddresses().stream()
-        .anyMatch(a -> a != null && a.equals(address));
-    } catch (SocketException e) {
-      throw new IllegalArgumentException("Network interfaces could not be fetched.");
-    }
   }
 
 }

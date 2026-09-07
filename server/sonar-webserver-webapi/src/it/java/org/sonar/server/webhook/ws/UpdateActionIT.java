@@ -39,6 +39,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.network.NetworkInterfaceProvider;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.webhook.WebhookAddressValidator;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -271,6 +272,36 @@ public class UpdateActionIT {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void fail_if_url_targets_the_cloud_metadata_endpoint() {
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
+    WebhookDto dto = webhookDbTester.insertWebhook(project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
+    TestRequest request = wsActionTester.newRequest()
+      .setParam("webhook", dto.getUuid())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", "http://169.254.169.254/latest/meta-data/");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
+  }
+
+  @Test
+  public void fail_if_url_targets_the_aws_ipv6_metadata_endpoint() {
+    ProjectDto project = componentDbTester.insertPrivateProject().getProjectDto();
+    WebhookDto dto = webhookDbTester.insertWebhook(project);
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
+    TestRequest request = wsActionTester.newRequest()
+      .setParam("webhook", dto.getUuid())
+      .setParam("name", NAME_WEBHOOK_EXAMPLE_001)
+      .setParam("url", "http://[fd00:ec2::254]/latest/meta-data/");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
   }
 
 }

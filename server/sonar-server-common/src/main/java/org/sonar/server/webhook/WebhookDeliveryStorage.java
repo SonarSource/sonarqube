@@ -20,6 +20,7 @@
 package org.sonar.server.webhook;
 
 import com.google.common.base.Throwables;
+import java.net.UnknownHostException;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -76,9 +77,24 @@ public class WebhookDeliveryStorage {
     dto.setSuccess(delivery.isSuccess());
     dto.setHttpStatus(delivery.getHttpStatus().orElse(null));
     dto.setDurationMs(delivery.getDurationInMs().orElse(null));
-    dto.setErrorStacktrace(delivery.getError().map(Throwables::getStackTraceAsString).orElse(null));
+    dto.setErrorStacktrace(delivery.getError().map(WebhookDeliveryStorage::sanitizedError).orElse(null));
     dto.setPayload(delivery.getPayload().getJson());
     dto.setCreatedAt(delivery.getAt());
     return dto;
+  }
+
+  /**
+   * Keeps the message only for exceptions with a safe, bounded message: {@link IllegalArgumentException}/
+   * {@link IllegalStateException} (raised internally), and {@link UnknownHostException} (just the host name being
+   * resolved -- from the webhook URL or a redirect target -- plus the resolver's suffix). Other exceptions can
+   * embed raw bytes from the remote server (e.g. OkHttp's "Unexpected status line: &lt;raw banner&gt;"), so only
+   * their class name is kept.
+   */
+  private static String sanitizedError(Throwable t) {
+    Throwable rootCause = Throwables.getRootCause(t);
+    if (rootCause instanceof IllegalArgumentException || rootCause instanceof IllegalStateException || rootCause instanceof UnknownHostException) {
+      return rootCause.getClass().getName() + ": " + rootCause.getMessage();
+    }
+    return rootCause.getClass().getName();
   }
 }

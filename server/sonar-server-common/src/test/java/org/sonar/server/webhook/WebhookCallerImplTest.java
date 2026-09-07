@@ -21,6 +21,7 @@ package org.sonar.server.webhook;
 
 import com.google.common.collect.ImmutableList;
 import java.net.InetAddress;
+import java.util.List;
 import java.util.Optional;
 import okhttp3.Credentials;
 import okhttp3.HttpUrl;
@@ -32,7 +33,6 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -44,6 +44,9 @@ import org.sonar.server.util.OkHttpClientProvider;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
 
@@ -62,8 +65,8 @@ public class WebhookCallerImplTest {
   @Rule
   public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
-  Configuration configuration = Mockito.mock(Configuration.class);
-  NetworkInterfaceProvider networkInterfaceProvider = Mockito.mock(NetworkInterfaceProvider.class);
+  Configuration configuration = mock(Configuration.class);
+  NetworkInterfaceProvider networkInterfaceProvider = mock(NetworkInterfaceProvider.class);
 
   private System2 system = new TestSystem2().setNow(NOW);
 
@@ -184,6 +187,57 @@ public class WebhookCallerImplTest {
     assertThat(targetRequest.getHeader("Authorization")).isEqualTo(Credentials.basic(url.username(), url.password()));
   }
 
+  /**
+   * A redirect to a literal IP address bypasses {@link WebhookCustomDns} because OkHttp never calls it for
+   * literal hosts. {@link MockWebServer} binds to a loopback address, which validation always blocks, so the
+   * origin lookup is stubbed here to isolate the redirect target for validation.
+   */
+  @Test
+  public void redirects_are_rejected_when_validation_is_enabled_and_target_is_a_blocked_address() throws Exception {
+    HttpUrl originUrl = server.url("/redirect");
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      secure().nextAlphanumeric(40), "my-webhook", originUrl.toString(), null);
+
+    server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", "https://169.254.169.254/latest/meta-data/"));
+
+    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY)).thenReturn(Optional.of(true));
+    WebhookCustomDns dns = spy(new WebhookCustomDns(configuration, networkInterfaceProvider));
+    doReturn(List.of(InetAddress.getLoopbackAddress())).when(dns).lookup(originUrl.host());
+
+    SonarQubeVersion version = new SonarQubeVersion(Version.parse("6.2"));
+    WebhookCaller sender = new WebhookCallerImpl(system, new OkHttpClientProvider().provide(new MapSettings().asConfig(), version), dns);
+    WebhookDelivery delivery = sender.call(webhook, PAYLOAD);
+
+    assertThat(delivery.getHttpStatus()).isEmpty();
+    assertThat(delivery.getError().get()).isInstanceOf(IllegalArgumentException.class);
+    assertThat(delivery.getErrorMessage()).contains(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
+  }
+
+  /**
+   * OkHttp treats a bare-decimal host like {@code 2130706433} as a literal IP too (the JVM resolves it to
+   * {@code 127.0.0.1}), so validation must not skip such hosts either.
+   */
+  @Test
+  public void redirects_are_rejected_when_validation_is_enabled_and_target_is_a_bare_decimal_literal() throws Exception {
+    HttpUrl originUrl = server.url("/redirect");
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      secure().nextAlphanumeric(40), "my-webhook", originUrl.toString(), null);
+
+    server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", "http://2130706433/latest/meta-data/"));
+
+    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY)).thenReturn(Optional.of(true));
+    WebhookCustomDns dns = spy(new WebhookCustomDns(configuration, networkInterfaceProvider));
+    doReturn(List.of(InetAddress.getLoopbackAddress())).when(dns).lookup(originUrl.host());
+
+    SonarQubeVersion version = new SonarQubeVersion(Version.parse("6.2"));
+    WebhookCaller sender = new WebhookCallerImpl(system, new OkHttpClientProvider().provide(new MapSettings().asConfig(), version), dns);
+    WebhookDelivery delivery = sender.call(webhook, PAYLOAD);
+
+    assertThat(delivery.getHttpStatus()).isEmpty();
+    assertThat(delivery.getError().get()).isInstanceOf(IllegalArgumentException.class);
+    assertThat(delivery.getErrorMessage()).contains(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
+  }
+
   @Test
   public void redirects_throws_ISE_if_header_Location_is_missing() {
     HttpUrl url = server.url("/redirect");
@@ -213,7 +267,25 @@ public class WebhookCallerImplTest {
     Throwable error = delivery.getError().get();
     assertThat(error)
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Unsupported protocol in redirect of " + url + " to ftp://foo");
+      .hasMessage("Unsupported protocol in redirect of " + url)
+      .hasMessageNotContaining("ftp://foo");
+  }
+
+  @Test
+  public void redirects_throws_ISE_without_credentials_if_origin_url_contains_credentials() {
+    HttpUrl url = server.url("/redirect").newBuilder().username("theLogin").password("thePassword").build();
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      secure().nextAlphanumeric(40), "my-webhook", url.toString(), null);
+
+    server.enqueue(new MockResponse().setResponseCode(307));
+
+    WebhookDelivery delivery = newSender(false).call(webhook, PAYLOAD);
+
+    Throwable error = delivery.getError().get();
+    assertThat(error)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageNotContaining("theLogin")
+      .hasMessageNotContaining("thePassword");
   }
 
   @Test
@@ -233,19 +305,13 @@ public class WebhookCallerImplTest {
   }
 
   @Test
-  public void silently_catch_error_when_url_is_localhost(){
+  public void silently_catch_error_when_url_is_localhost() {
     Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
       secure().nextAlphanumeric(40), "my-webhook", "http://localhost", null);
 
     WebhookDelivery delivery = newSender(true).call(webhook, PAYLOAD);
 
-    assertThat(delivery.getHttpStatus()).isEmpty();
-    assertThat(delivery.getDurationInMs().get()).isNotNegative();
-    assertThat(delivery.getError().get()).isInstanceOf(IllegalArgumentException.class);
-    assertThat(delivery.getErrorMessage()).contains("Invalid URL: loopback and wildcard addresses are not allowed for webhooks.");
-    assertThat(delivery.getAt()).isEqualTo(NOW);
-    assertThat(delivery.getWebhook()).isSameAs(webhook);
-    assertThat(delivery.getPayload()).isSameAs(PAYLOAD);
+    assertBlockedByAddressValidation(delivery, webhook);
   }
 
   @Test
@@ -262,10 +328,28 @@ public class WebhookCallerImplTest {
 
     WebhookDelivery delivery = newSender(true).call(webhook, PAYLOAD);
 
+    assertBlockedByAddressValidation(delivery, webhook);
+  }
+
+  /**
+   * Unlike {@code localhost}, a literal IP is never passed to {@link WebhookCustomDns} by OkHttp itself, so
+   * this must be validated explicitly by {@code call()} rather than relying on the client's configured Dns.
+   */
+  @Test
+  public void silently_catch_error_when_url_is_a_literal_loopback_ip() {
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      secure().nextAlphanumeric(40), "my-webhook", "http://127.0.0.1:1234", null);
+
+    WebhookDelivery delivery = newSender(true).call(webhook, PAYLOAD);
+
+    assertBlockedByAddressValidation(delivery, webhook);
+  }
+
+  private void assertBlockedByAddressValidation(WebhookDelivery delivery, Webhook webhook) {
     assertThat(delivery.getHttpStatus()).isEmpty();
     assertThat(delivery.getDurationInMs().get()).isNotNegative();
     assertThat(delivery.getError().get()).isInstanceOf(IllegalArgumentException.class);
-    assertThat(delivery.getErrorMessage()).contains("Invalid URL: loopback and wildcard addresses are not allowed for webhooks.");
+    assertThat(delivery.getErrorMessage()).contains(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
     assertThat(delivery.getPayload()).isSameAs(PAYLOAD);

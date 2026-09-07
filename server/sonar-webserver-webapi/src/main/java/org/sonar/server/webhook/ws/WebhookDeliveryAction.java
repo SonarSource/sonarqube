@@ -56,8 +56,7 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
     WebService.NewAction action = controller.createAction("delivery")
       .setSince("6.2")
       .setDescription("Get a webhook delivery by its id.<br/>" +
-        "Require 'Administer System' permission.<br/>" +
-        "Note that additional information are returned by api/webhooks/delivery.")
+        "Require 'Administer' permission on the related project.")
       .setResponseExample(getClass().getResource("example-delivery.json"))
       .setHandler(this);
 

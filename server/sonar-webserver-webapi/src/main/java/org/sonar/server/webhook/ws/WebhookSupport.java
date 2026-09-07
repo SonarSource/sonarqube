@@ -29,6 +29,7 @@ import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.network.NetworkInterfaceProvider;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.webhook.WebhookAddressValidator;
 
 import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
@@ -63,8 +64,8 @@ public class WebhookSupport {
 
       if (configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY)
         .orElse(SONAR_VALIDATE_WEBHOOKS_DEFAULT_VALUE)
-        && (address.isLoopbackAddress() || address.isAnyLocalAddress() || isLocalAddress(address))) {
-        throw new IllegalArgumentException("Invalid URL: loopback and wildcard addresses are not allowed for webhooks.");
+        && WebhookAddressValidator.isBlockedAddress(address, networkInterfaceProvider)) {
+        throw new IllegalArgumentException(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
       }
     } catch (UnknownHostException e) {
       // if a host can not be resolved the deliveries will fail - no need to block it from being set
@@ -72,10 +73,5 @@ public class WebhookSupport {
     } catch (SocketException e) {
       throw new IllegalStateException("Can not retrieve a network interfaces", e);
     }
-  }
-
-  private boolean isLocalAddress(InetAddress address) throws SocketException {
-    return networkInterfaceProvider.getNetworkInterfaceAddresses().stream()
-      .anyMatch(a -> a != null && a.equals(address));
   }
 }
