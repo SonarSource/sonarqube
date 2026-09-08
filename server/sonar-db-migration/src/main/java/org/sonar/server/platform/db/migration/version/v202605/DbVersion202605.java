@@ -99,6 +99,8 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_068, "Remove default value on 'devops_perms_mapping.devops_platform'", RemoveDevopsPermsMappingDevopsPlatformDefaultValue.class)
       .add(2026_05_069, "Drop index 'components_uuid'", DropComponentsUuidIndex.class)
       .add(2026_05_070, "Add primary key on 'components.uuid'", AddComponentsUuidPrimaryKey.class)
-      .add(2026_05_071, "Add the previous job pointer to 'hunter_agent_jobs'", AddPreviousJobToHunterAgentJobsTable.class);
+      .add(2026_05_071, "Add the previous job pointer to 'hunter_agent_jobs'", AddPreviousJobToHunterAgentJobsTable.class)
+      .add(2026_05_072, "Add 'deferral_date' column to 'issues' table", AddDeferralDateColumnToIssuesTable.class)
+      .add(2026_05_073, "Create index 'issues_deferral_date' on 'issues'", CreateIndexOnIssuesDeferralDate.class);
   }
 }
