@@ -206,6 +206,24 @@ public class AllProcessesCommandsTest {
     }
   }
 
+  @Test
+  public void write_and_read_ping() throws IOException {
+    try (AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder())) {
+      int offset = 5;
+
+      assertThat(commands.getLastPing(PROCESS_NUMBER)).isZero();
+      assertThat(readLong(commands, offset)).isZero();
+
+      long before = System.currentTimeMillis();
+      commands.ping(PROCESS_NUMBER);
+      long after = System.currentTimeMillis();
+
+      long lastPing = commands.getLastPing(PROCESS_NUMBER);
+      assertThat(lastPing).isBetween(before, after);
+      assertThat(readLong(commands, offset)).isEqualTo(lastPing);
+    }
+  }
+
   private byte readByte(AllProcessesCommands commands, int offset) {
     return commands.mappedByteBuffer.get(commands.offset(PROCESS_NUMBER) + offset);
   }

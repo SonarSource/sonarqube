@@ -25,10 +25,13 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.sharedmemoryfile.DefaultProcessCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
+import static org.sonar.process.ProcessEntryPoint.PING_INTERVAL_MS;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 
 public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
+
+  static final long PING_TIMEOUT_MS = 6 * PING_INTERVAL_MS;
 
   private static final ProcessMethod<Void> SET_OPERATIONAL = processCommands -> {
     processCommands.setOperational();
@@ -42,7 +45,13 @@ public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
     processCommands.askForHardStop();
     return null;
   };
-  private static final ProcessMethod<Boolean> IS_OPERATIONAL = ProcessCommands::isOperational;
+  private static final ProcessMethod<Boolean> IS_OPERATIONAL_WITH_FRESH_PING = processCommands -> {
+    if (!processCommands.isOperational()) {
+      return false;
+    }
+    long lastPing = processCommands.getLastPing();
+    return lastPing > 0 && (System.currentTimeMillis() - lastPing) < PING_TIMEOUT_MS;
+  };
 
   private final Configuration config;
 
@@ -67,7 +76,7 @@ public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
 
   @Override
   public boolean isCeOperational() {
-    return call(IS_OPERATIONAL, ProcessId.COMPUTE_ENGINE.getIpcIndex());
+    return call(IS_OPERATIONAL_WITH_FRESH_PING, ProcessId.COMPUTE_ENGINE.getIpcIndex());
   }
 
   private int selfProcessNumber() {

@@ -84,5 +84,15 @@ public interface ProcessCommands {
    */
   void acknowledgeAskForRestart();
 
+  /**
+   * To be executed by child process to signal it is still alive. Records the current time.
+   */
+  void ping();
+
+  /**
+   * Returns the timestamp (ms since epoch) of the last ping written by the child process, or 0 if never pinged.
+   */
+  long getLastPing();
+
   void endWatch();
 }

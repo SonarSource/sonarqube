@@ -29,9 +29,11 @@ import org.slf4j.LoggerFactory;
 public class DefaultProcessCommands implements ProcessCommands, AutoCloseable {
   private final AllProcessesCommands allProcessesCommands;
   private final ProcessCommands delegate;
+  private final int processNumber;
 
   private DefaultProcessCommands(File directory, int processNumber, boolean clean) {
     this.allProcessesCommands = new AllProcessesCommands(directory);
+    this.processNumber = processNumber;
     this.delegate = clean ? allProcessesCommands.createAfterClean(processNumber) : allProcessesCommands.create(processNumber);
   }
 
@@ -124,6 +126,21 @@ public class DefaultProcessCommands implements ProcessCommands, AutoCloseable {
   @Override
   public void acknowledgeAskForRestart() {
     delegate.acknowledgeAskForRestart();
+  }
+
+  @Override
+  public void ping() {
+    delegate.ping();
+  }
+
+  // VisibleForTesting
+  public void ping(long timestamp) {
+    allProcessesCommands.ping(processNumber, timestamp);
+  }
+
+  @Override
+  public long getLastPing() {
+    return delegate.getLastPing();
   }
 
   @Override

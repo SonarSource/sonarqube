@@ -20,6 +20,8 @@
 package org.sonar.process;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,8 @@ public class ProcessEntryPoint {
   // 1 second
   private static final long HARD_STOP_TIMEOUT_MS = 1_000L;
 
+  public static final long PING_INTERVAL_MS = TimeUnit.SECONDS.toMillis(5);
+
   private final Props props;
   private final ProcessId processId;
   private final Lifecycle lifecycle = new Lifecycle();
@@ -48,6 +52,7 @@ public class ProcessEntryPoint {
   private final Runtime runtime;
   private Monitored monitored;
   private volatile StopperThread stopperThread;
+  private final AtomicReference<PingThread> pingThread = new AtomicReference<>();
 
   public ProcessEntryPoint(Props props, SystemExit exit, ProcessCommands commands, Runtime runtime) {
     this.props = props;
@@ -103,7 +108,11 @@ public class ProcessEntryPoint {
       if (lifecycle.tryToMoveTo(Lifecycle.State.STARTED)) {
         Monitored.Status newStatus = waitForStatus(s -> s == Monitored.Status.OPERATIONAL || s == Monitored.Status.FAILED);
         if (newStatus == Monitored.Status.OPERATIONAL && lifecycle.tryToMoveTo(Lifecycle.State.OPERATIONAL)) {
+          commands.ping();
           commands.setOperational();
+          PingThread pt = new PingThread(commands);
+          pingThread.set(pt);
+          pt.start();
         }
 
         monitored.awaitStop();
@@ -162,6 +171,10 @@ public class ProcessEntryPoint {
     lifecycle.tryToMoveTo(STOPPED);
     hardStopWatcher.stopWatching();
     stopWatcher.stopWatching();
+    PingThread pt = pingThread.get();
+    if (pt != null) {
+      pt.stopPinging();
+    }
     commands.endWatch();
   }
 
@@ -219,6 +232,46 @@ public class ProcessEntryPoint {
           monitored.hardStop();
           postAction.run();
         }, HARD_STOP_TIMEOUT_MS);
+    }
+  }
+
+  /**
+   * Writes a periodic heartbeat timestamp to shared memory so that the liveness probe can detect
+   * when this process has died (e.g. due to OOM) without having had a chance to clear its operational flag.
+   */
+  private static class PingThread {
+    private final Thread thread;
+    private volatile boolean running = true;
+
+    PingThread(ProcessCommands commands) {
+      this.thread = Thread.ofVirtual().name("Process Ping").unstarted(this.createRunnable(commands));
+    }
+
+    private Runnable createRunnable(ProcessCommands commands) {
+      return () -> {
+        while (running) {
+          try {
+            commands.ping();
+          } catch (Exception e) {
+            LoggerFactory.getLogger(PingThread.class).warn("Failed to write process ping", e);
+          }
+          try {
+            Thread.sleep(PING_INTERVAL_MS);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            break;
+          }
+        }
+      };
+    }
+
+    void start() {
+      thread.start();
+    }
+
+    void stopPinging() {
+      running = false;
+      thread.interrupt();
     }
   }
 }

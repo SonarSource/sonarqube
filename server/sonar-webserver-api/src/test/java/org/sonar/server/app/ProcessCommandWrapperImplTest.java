@@ -21,7 +21,6 @@ package org.sonar.server.app;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -132,20 +131,59 @@ public class ProcessCommandWrapperImplTest {
   }
 
   @Test
-  public void isCeOperational_reads_shared_memory_operational_flag_in_location_3() throws IOException {
+  public void isCeOperational_returns_false_when_operational_flag_not_set() throws IOException {
     File tmpDir = temp.newFolder().getAbsoluteFile();
     settings.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
 
-    boolean expected = new Random().nextBoolean();
-    if (expected) {
-      try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tmpDir, 3)) {
-        processCommands.setOperational();
-      }
+    ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings.asConfig());
+
+    assertThat(underTest.isCeOperational()).isFalse();
+  }
+
+  @Test
+  public void isCeOperational_returns_true_when_operational_flag_set_and_ping_is_fresh() throws IOException {
+    File tmpDir = temp.newFolder().getAbsoluteFile();
+    settings.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
+
+    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tmpDir, 3)) {
+      processCommands.setOperational();
+      processCommands.ping();
     }
 
     ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings.asConfig());
 
-    assertThat(underTest.isCeOperational()).isEqualTo(expected);
+    assertThat(underTest.isCeOperational()).isTrue();
+  }
+
+  @Test
+  public void isCeOperational_returns_false_when_operational_flag_set_but_ping_never_written() throws IOException {
+    File tmpDir = temp.newFolder().getAbsoluteFile();
+    settings.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
+
+    // Operational set but ping never written (lastPing == 0) — simulates CE dying before ever pinging
+    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tmpDir, 3)) {
+      processCommands.setOperational();
+    }
+
+    ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings.asConfig());
+
+    assertThat(underTest.isCeOperational()).isFalse();
+  }
+
+  @Test
+  public void isCeOperational_returns_false_when_ping_is_stale() throws IOException {
+    File tmpDir = temp.newFolder().getAbsoluteFile();
+    settings.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
+
+    long staleTimestamp = System.currentTimeMillis() - ProcessCommandWrapperImpl.PING_TIMEOUT_MS - 1_000L;
+    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tmpDir, 3)) {
+      processCommands.setOperational();
+      processCommands.ping(staleTimestamp);
+    }
+
+    ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings.asConfig());
+
+    assertThat(underTest.isCeOperational()).isFalse();
   }
 
 }

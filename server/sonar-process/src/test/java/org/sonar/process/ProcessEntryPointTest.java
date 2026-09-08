@@ -22,8 +22,11 @@ package org.sonar.process;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.io.FileUtils;
+import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -169,6 +172,24 @@ public class ProcessEntryPointTest {
     entryPoint.launch(process);
   }
 
+  @Test
+  public void ping_thread_writes_fresh_ping_once_operational() throws Exception {
+    Props props = createProps();
+    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, commands, runtime);
+    final StandardProcess process = new StandardProcess();
+
+    new Thread(() -> entryPoint.launch(process)).start();
+
+    waitForOperational(process, commands);
+
+    Awaitility.await()
+      .atMost(ProcessEntryPoint.PING_INTERVAL_MS + 1000L, TimeUnit.MILLISECONDS)
+      .until(() -> commands.getLastPing() > 0L);
+    assertThat(commands.getLastPing()).isPositive();
+
+    entryPoint.stop();
+  }
+
   private static void waitForOperational(StandardProcess process, ProcessCommands commands) throws InterruptedException {
     while (!(process.getState() == State.STARTED && commands.isOperational())) {
       Thread.sleep(10L);
@@ -214,6 +235,7 @@ public class ProcessEntryPointTest {
 
   private static class OperationalFlagOnlyProcessCommands implements ProcessCommands {
     private final AtomicBoolean operational = new AtomicBoolean(false);
+    private final AtomicLong lastPing = new AtomicLong(0L);
 
     @Override
     public boolean isUp() {
@@ -278,6 +300,16 @@ public class ProcessEntryPointTest {
     @Override
     public void acknowledgeAskForRestart() {
 
+    }
+
+    @Override
+    public void ping() {
+      lastPing.set(System.currentTimeMillis());
+    }
+
+    @Override
+    public long getLastPing() {
+      return lastPing.get();
     }
 
     @Override
