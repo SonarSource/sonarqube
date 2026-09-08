@@ -34,14 +34,14 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.qualityprofile.builtin.sonarwayvariants.SonarWayBalancedProfileDefinition;
-import org.sonar.server.qualityprofile.builtin.sonarwayvariants.SonarWayEssentialsProfileDefinition;
+import org.sonar.server.qualityprofile.builtin.sonarwayvariants.SonarWayCoreProfileDefinition;
+import org.sonar.server.qualityprofile.builtin.sonarwayvariants.SonarWayExtendedProfileDefinition;
 
 /**
- * Derives the "Sonar way variants" (e.g. "Sonar way essentials", "Sonar way balanced") from a base profile (e.g.
+ * Derives the "Sonar way variants" (e.g. "Sonar way core", "Sonar way extended") from a base profile (e.g.
  * "Sonar way"), keeping only rules that meet a per-variant impact-severity threshold, with optional per-rule
  * force-include/force-exclude overrides. Each variant's content lives in its own definition class under
- * {@code sonarwayvariants} — see {@link SonarWayEssentialsProfileDefinition}, {@link SonarWayBalancedProfileDefinition}
+ * {@code sonarwayvariants} — see {@link SonarWayCoreProfileDefinition}, {@link SonarWayExtendedProfileDefinition}
  * — so it can be reviewed/updated independently of this derivation mechanism.
  * <p>
  * Since installing or upgrading a plugin requires a server restart, {@link BuiltInQProfileRepositoryImpl#initialize()}
@@ -51,10 +51,10 @@ import org.sonar.server.qualityprofile.builtin.sonarwayvariants.SonarWayEssentia
 final class SonarWayVariants {
   private static final Logger LOGGER = Loggers.get(SonarWayVariants.class);
   private static final List<Spec> SPECS = List.of(
-    new Spec(SonarWayEssentialsProfileDefinition.NAME, SonarWayEssentialsProfileDefinition.MIN_IMPACT_SEVERITY,
-      SonarWayEssentialsProfileDefinition.FORCE_INCLUDED_RULE_KEYS, SonarWayEssentialsProfileDefinition.FORCE_EXCLUDED_RULE_KEYS),
-    new Spec(SonarWayBalancedProfileDefinition.NAME, SonarWayBalancedProfileDefinition.MIN_IMPACT_SEVERITY,
-      SonarWayBalancedProfileDefinition.FORCE_INCLUDED_RULE_KEYS, SonarWayBalancedProfileDefinition.FORCE_EXCLUDED_RULE_KEYS));
+    new Spec(SonarWayCoreProfileDefinition.NAME, SonarWayCoreProfileDefinition.MIN_IMPACT_SEVERITY,
+      SonarWayCoreProfileDefinition.FORCE_INCLUDED_RULE_KEYS, SonarWayCoreProfileDefinition.FORCE_EXCLUDED_RULE_KEYS),
+    new Spec(SonarWayExtendedProfileDefinition.NAME, SonarWayExtendedProfileDefinition.MIN_IMPACT_SEVERITY,
+      SonarWayExtendedProfileDefinition.FORCE_INCLUDED_RULE_KEYS, SonarWayExtendedProfileDefinition.FORCE_EXCLUDED_RULE_KEYS));
 
   /**
    * @param forceIncludedRuleKeys rules always kept, even if they don't meet {@code minImpactSeverity}
@@ -142,7 +142,7 @@ final class SonarWayVariants {
 
   /**
    * A plugin may declare its own profile under the same name as one of our derived variants (e.g. a language
-   * shipping a profile literally called "Sonar way balanced"). Persisting both would create two
+   * shipping a profile literally called "Sonar way extended"). Persisting both would create two
    * {@link BuiltInQProfile} sharing the same {@link QProfileName}, which downstream code (unique-indexing by
    * name, {@code RegisterQualityProfiles}) assumes cannot happen. Drop the derived one and log instead of failing.
    */

@@ -184,7 +184,7 @@ public class RegisterQualityProfiles implements Startable {
   private void ensureBuiltInAreDefaultQPWhenNoRules(DbSession dbSession) {
     Set<String> activeLanguages = Arrays.stream(languages.all()).map(Language::getKey).collect(toSet());
     Map<String, RulesProfileDto> builtInQProfileByLanguage = dbClient.qualityProfileDao().selectBuiltInRuleProfiles(dbSession).stream()
-      // prefer "Sonar way" over any derived variant (e.g. "Sonar way essentials"/"Sonar way balanced"), which must never become the default profile
+      // prefer "Sonar way" over any derived variant (e.g. "Sonar way core"/"Sonar way extended"), which must never become the default profile
       .sorted(Comparator.comparingInt(rp -> DEFAULT_PROFILE_NAME.equals(rp.getName()) ? 0 : 1))
       .collect(toMap(RulesProfileDto::getLanguage, Function.identity(), (oldValue, newValue) -> oldValue));
     List<QProfileDto> defaultProfileWithNoRules = dbClient.qualityProfileDao().selectDefaultProfilesWithoutActiveRules(dbSession, activeLanguages, false);
@@ -209,7 +209,7 @@ public class RegisterQualityProfiles implements Startable {
    */
   private void ensureBuiltInDefaultQPContainsRules(DbSession dbSession) {
     Map<String, RulesProfileDto> rulesProfilesByLanguage = dbClient.qualityProfileDao().selectBuiltInRuleProfilesWithActiveRules(dbSession).stream()
-      // prefer "Sonar way" over any derived variant (e.g. "Sonar way essentials"/"Sonar way balanced"), which must never become the default profile
+      // prefer "Sonar way" over any derived variant (e.g. "Sonar way core"/"Sonar way extended"), which must never become the default profile
       .sorted(Comparator.comparingInt(rp -> DEFAULT_PROFILE_NAME.equals(rp.getName()) ? 0 : 1))
       .collect(toMap(RulesProfileDto::getLanguage, Function.identity(), (oldValue, newValue) -> oldValue));
 

@@ -26,37 +26,36 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 
 /**
- * Content of the "Sonar way balanced" variant, derived from "Sonar way" by
+ * Content of the "Sonar way core" variant, derived from "Sonar way" by
  * {@code org.sonar.server.qualityprofile.builtin.SonarWayVariants}. This class holds only the selection criteria
  * (data); the derivation mechanism itself lives in that class.
  */
-public final class SonarWayBalancedProfileDefinition {
-  public static final String NAME = "Sonar way balanced";
+public final class SonarWayCoreProfileDefinition {
+  public static final String NAME = "Sonar way core";
 
   /**
-   * Minimum impact severity, per software quality, for a rule to be kept in "Sonar way balanced". A rule is kept
+   * Minimum impact severity, per software quality, for a rule to be kept in "Sonar way core". A rule is kept
    * if any one of its impacts meets its quality's threshold; rules with no recorded impact are dropped.
-   * Security is already maximally inclusive in {@link SonarWayEssentialsProfileDefinition#MIN_IMPACT_SEVERITY} (it
-   * keeps every Security impact), so it can't be loosened further; Reliability and Maintainability are looser than
-   * Essentials here, by design, to sit roughly between Essentials and full "Sonar way" in issue volume.
+   * Security has no real floor ({@link Severity#INFO}, the lowest severity) since every Security impact is kept
+   * regardless of severity.
    */
   public static final Map<SoftwareQuality, Severity> MIN_IMPACT_SEVERITY = Map.of(
     SoftwareQuality.SECURITY, Severity.INFO,
-    SoftwareQuality.RELIABILITY, Severity.LOW,
-    SoftwareQuality.MAINTAINABILITY, Severity.HIGH);
+    SoftwareQuality.RELIABILITY, Severity.MEDIUM,
+    SoftwareQuality.MAINTAINABILITY, Severity.BLOCKER);
 
   /**
-   * Rule keys forced into "Sonar way balanced" regardless of {@link #MIN_IMPACT_SEVERITY}. A key only has an
+   * Rule keys forced into "Sonar way core" regardless of {@link #MIN_IMPACT_SEVERITY}. A key only has an
    * effect if the rule is already active in "Sonar way" for that language.
    */
   public static final Set<RuleKey> FORCE_INCLUDED_RULE_KEYS = Set.of();
 
   /**
-   * Rule keys always dropped from "Sonar way balanced", even if they meet {@link #MIN_IMPACT_SEVERITY}.
+   * Rule keys always dropped from "Sonar way core", even if they meet {@link #MIN_IMPACT_SEVERITY}.
    */
   public static final Set<RuleKey> FORCE_EXCLUDED_RULE_KEYS = Set.of();
 
-  private SonarWayBalancedProfileDefinition() {
+  private SonarWayCoreProfileDefinition() {
     // constants only
   }
 }
