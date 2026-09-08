@@ -20,13 +20,19 @@
 package org.sonar.server.platform.web;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.IntStream;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,10 +46,12 @@ import org.sonar.api.testfixtures.log.LogTester;
 
 import static java.util.stream.Collectors.joining;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -53,6 +61,7 @@ import static org.mockito.Mockito.when;
 public class RootFilterTest {
 
   private static final String PAYLOAD = "payload";
+  private static final String LB_INPUT_BUFFER = "LB_INPUT_BUFFER";
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -68,6 +77,44 @@ public class RootFilterTest {
     when(filterConfig.getServletContext()).thenReturn(context);
     underTest = new RootFilter();
     underTest.init(filterConfig);
+  }
+
+  @Test
+  public void doFilter_whenAccessLogPatternContainsRequestContent_populatesLbInputBuffer() throws Exception {
+    RootFilter filter = new RootFilter();
+    filter.init(filterConfigWithAccessLog(null, "\"%r\" %s \"%requestContent\""));
+    byte[] payload = "{\"key\":\"value\"}".getBytes(StandardCharsets.UTF_8);
+    HttpServletRequest request = mockRequestWithInputStream("POST", "application/json", payload);
+
+    filter.doFilter(request, mock(HttpServletResponse.class), teeingChain());
+
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    verify(request).setAttribute(eq(LB_INPUT_BUFFER), captor.capture());
+    assertThat(captor.getValue()).isEqualTo(payload);
+  }
+
+  @Test
+  public void doFilter_whenAccessLogPatternHasNoRequestContent_doesNotPopulateLbInputBuffer() throws Exception {
+    RootFilter filter = new RootFilter();
+    filter.init(filterConfigWithAccessLog(null, "\"%r\" %s"));
+    byte[] payload = "{\"key\":\"value\"}".getBytes(StandardCharsets.UTF_8);
+    HttpServletRequest request = mockRequestWithInputStream("POST", "application/json", payload);
+
+    filter.doFilter(request, mock(HttpServletResponse.class), teeingChain());
+
+    verify(request, never()).setAttribute(eq(LB_INPUT_BUFFER), any());
+  }
+
+  @Test
+  public void doFilter_whenAccessLogDisabled_doesNotPopulateLbInputBufferEvenWithRequestContentInPattern() throws Exception {
+    RootFilter filter = new RootFilter();
+    filter.init(filterConfigWithAccessLog("false", "\"%r\" %s \"%requestContent\""));
+    byte[] payload = "{\"key\":\"value\"}".getBytes(StandardCharsets.UTF_8);
+    HttpServletRequest request = mockRequestWithInputStream("POST", "application/json", payload);
+
+    filter.doFilter(request, mock(HttpServletResponse.class), teeingChain());
+
+    verify(request, never()).setAttribute(eq(LB_INPUT_BUFFER), any());
   }
 
   @Test
@@ -160,7 +207,7 @@ public class RootFilterTest {
   @Test
   public void body_can_be_read_several_times() {
     HttpServletRequest request = mockRequestWithBody();
-    RootFilter.ServletRequestWrapper servletRequestWrapper = new RootFilter.ServletRequestWrapper(request);
+    RootFilter.ServletRequestWrapper servletRequestWrapper = new RootFilter.ServletRequestWrapper(request, true);
 
     IntStream.range(0,3).forEach(i -> assertThat(readBody(servletRequestWrapper)).isEqualTo(PAYLOAD));
   }
@@ -171,11 +218,218 @@ public class RootFilterTest {
     IOException ioException = new IOException();
     when(request.getReader()).thenThrow(ioException);
 
-    RootFilter.ServletRequestWrapper servletRequestWrapper = new RootFilter.ServletRequestWrapper(request);
+    RootFilter.ServletRequestWrapper servletRequestWrapper = new RootFilter.ServletRequestWrapper(request, true);
 
     assertThatExceptionOfType(RuntimeException.class)
       .isThrownBy(() -> readBody(servletRequestWrapper))
       .withCause(ioException);
+  }
+
+  @Test
+  public void getInputStream_whenJsonPost_populatesLbInputBufferWithBody() throws IOException {
+    byte[] payload = "{\"key\":\"value\"}".getBytes(StandardCharsets.UTF_8);
+    HttpServletRequest request = mockRequestWithInputStream("POST", "application/json", payload);
+    RootFilter.ServletRequestWrapper wrapper = new RootFilter.ServletRequestWrapper(request, true);
+
+    readInputStreamFully(wrapper);
+
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    verify(request).setAttribute(eq(LB_INPUT_BUFFER), captor.capture());
+    assertThat(captor.getValue()).isEqualTo(payload);
+  }
+
+  @Test
+  public void getInputStream_returnsBodyUnchanged() throws IOException {
+    byte[] payload = "{\"key\":\"value\"}".getBytes(StandardCharsets.UTF_8);
+    HttpServletRequest request = mockRequestWithInputStream("POST", "application/json", payload);
+    RootFilter.ServletRequestWrapper wrapper = new RootFilter.ServletRequestWrapper(request, true);
+
+    assertThat(readInputStreamFully(wrapper)).isEqualTo(payload);
+  }
+
+  @Test
+  public void getInputStream_whenBodyIsNotTeeableJson_doesNotPopulateLbInputBuffer() throws IOException {
+    // multipart uploads, form-urlencoded (V1) bodies and bodyless methods must never be captured
+    assertDoesNotPopulateLbInputBuffer("POST", "multipart/form-data; boundary=xyz");
+    assertDoesNotPopulateLbInputBuffer("POST", "application/x-www-form-urlencoded");
+    assertDoesNotPopulateLbInputBuffer("GET", "application/json");
+  }
+
+  private static void assertDoesNotPopulateLbInputBuffer(String method, String contentType) throws IOException {
+    HttpServletRequest request = mockRequestWithInputStream(method, contentType, PAYLOAD.getBytes(StandardCharsets.UTF_8));
+    RootFilter.ServletRequestWrapper wrapper = new RootFilter.ServletRequestWrapper(request, true);
+
+    readInputStreamFully(wrapper);
+
+    verify(request, never()).setAttribute(eq(LB_INPUT_BUFFER), any());
+  }
+
+  @Test
+  public void getInputStream_whenRequestContentNotLogged_doesNotPopulateLbInputBufferButBodyStaysReadable() throws IOException {
+    byte[] payload = "{\"key\":\"value\"}".getBytes(StandardCharsets.UTF_8);
+    HttpServletRequest request = mockRequestWithInputStream("POST", "application/json", payload);
+    RootFilter.ServletRequestWrapper wrapper = new RootFilter.ServletRequestWrapper(request, false);
+
+    assertThat(readInputStreamFully(wrapper)).isEqualTo(payload);
+    verify(request, never()).setAttribute(eq(LB_INPUT_BUFFER), any());
+  }
+
+  @Test
+  public void getInputStream_whenBodyExceedsCap_doesNotPopulateLbInputBufferButBodyStaysReadable() throws IOException {
+    byte[] payload = new byte[100_001];
+    HttpServletRequest request = mockRequestWithInputStream("POST", "application/json", payload);
+    RootFilter.ServletRequestWrapper wrapper = new RootFilter.ServletRequestWrapper(request, true);
+
+    assertThat(readInputStreamFully(wrapper)).isEqualTo(payload);
+    verify(request, never()).setAttribute(eq(LB_INPUT_BUFFER), any());
+  }
+
+  @Test
+  public void getInputStream_whenSingleLargeReadExceedsCap_doesNotBufferAndBodyStaysReadable() throws IOException {
+    byte[] payload = new byte[100_001];
+    HttpServletRequest request = mockRequestWithInputStream("POST", "application/json", payload);
+    RootFilter.ServletRequestWrapper wrapper = new RootFilter.ServletRequestWrapper(request, true);
+
+    // read the whole oversized body in one call: the cap must be enforced before the chunk is buffered
+    ServletInputStream inputStream = wrapper.getInputStream();
+    byte[] read = new byte[payload.length];
+    int total = 0;
+    int n;
+    while (total < read.length && (n = inputStream.read(read, total, read.length - total)) != -1) {
+      total += n;
+    }
+
+    assertThat(total).isEqualTo(payload.length);
+    assertThat(read).isEqualTo(payload);
+    verify(request, never()).setAttribute(eq(LB_INPUT_BUFFER), any());
+  }
+
+  @Test
+  public void getInputStream_whenBodyExactlyAtCap_populatesLbInputBuffer() throws IOException {
+    byte[] payload = new byte[100_000];
+    HttpServletRequest request = mockRequestWithInputStream("POST", "application/json", payload);
+    RootFilter.ServletRequestWrapper wrapper = new RootFilter.ServletRequestWrapper(request, true);
+
+    assertThat(readInputStreamFully(wrapper)).isEqualTo(payload);
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    verify(request).setAttribute(eq(LB_INPUT_BUFFER), captor.capture());
+    assertThat(captor.getValue()).isEqualTo(payload);
+  }
+
+  @Test
+  public void getInputStream_whenClosedBeforeEof_populatesLbInputBufferWithBytesRead() throws IOException {
+    byte[] payload = "{\"key\":\"value\"}".getBytes(StandardCharsets.UTF_8);
+    HttpServletRequest request = mockRequestWithInputStream("POST", "application/json", payload);
+    RootFilter.ServletRequestWrapper wrapper = new RootFilter.ServletRequestWrapper(request, true);
+
+    ServletInputStream inputStream = wrapper.getInputStream();
+    // read exactly the body then close without reaching EOF, as Jackson does with AUTO_CLOSE_SOURCE
+    byte[] read = inputStream.readNBytes(payload.length);
+    inputStream.close();
+
+    assertThat(read).isEqualTo(payload);
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    verify(request).setAttribute(eq(LB_INPUT_BUFFER), captor.capture());
+    assertThat(captor.getValue()).isEqualTo(payload);
+  }
+
+  @Test
+  public void getInputStream_whenReadByteByByte_populatesLbInputBufferWithBody() throws IOException {
+    byte[] payload = "{\"key\":\"value\"}".getBytes(StandardCharsets.UTF_8);
+    HttpServletRequest request = mockRequestWithInputStream("POST", "application/json", payload);
+    RootFilter.ServletRequestWrapper wrapper = new RootFilter.ServletRequestWrapper(request, true);
+
+    ServletInputStream inputStream = wrapper.getInputStream();
+    ByteArrayOutputStream readBack = new ByteArrayOutputStream();
+    int b;
+    while ((b = inputStream.read()) != -1) {
+      readBack.write(b);
+    }
+
+    assertThat(readBack.toByteArray()).isEqualTo(payload);
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    verify(request).setAttribute(eq(LB_INPUT_BUFFER), captor.capture());
+    assertThat(captor.getValue()).isEqualTo(payload);
+  }
+
+  @Test
+  public void getInputStream_delegatesAvailableReadyFinishedAndReadListener() throws IOException {
+    ServletInputStream delegate = mock(ServletInputStream.class);
+    when(delegate.isReady()).thenReturn(true);
+    when(delegate.isFinished()).thenReturn(false);
+    when(delegate.available()).thenReturn(42);
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getMethod()).thenReturn("POST");
+    when(request.getContentType()).thenReturn("application/json");
+    when(request.getInputStream()).thenReturn(delegate);
+
+    ServletInputStream inputStream = new RootFilter.ServletRequestWrapper(request, true).getInputStream();
+    ReadListener readListener = mock(ReadListener.class);
+    inputStream.setReadListener(readListener);
+
+    assertThat(inputStream.isReady()).isTrue();
+    assertThat(inputStream.isFinished()).isFalse();
+    assertThat(inputStream.available()).isEqualTo(42);
+    verify(delegate).setReadListener(readListener);
+  }
+
+  private static FilterConfig filterConfigWithAccessLog(String enable, String pattern) {
+    FilterConfig filterConfig = mock(FilterConfig.class);
+    ServletContext context = mock(ServletContext.class);
+    when(context.getInitParameter("sonar.web.accessLogs.enable")).thenReturn(enable);
+    when(context.getInitParameter("sonar.web.accessLogs.pattern")).thenReturn(pattern);
+    when(filterConfig.getServletContext()).thenReturn(context);
+    return filterConfig;
+  }
+
+  private static FilterChain teeingChain() {
+    return (req, resp) -> ((HttpServletRequest) req).getInputStream().readAllBytes();
+  }
+
+  private static HttpServletRequest mockRequestWithInputStream(String method, String contentType, byte[] payload) {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getMethod()).thenReturn(method);
+    when(request.getContentType()).thenReturn(contentType);
+    assertThatCode(() -> when(request.getInputStream()).thenReturn(new TestServletInputStream(payload)))
+      .doesNotThrowAnyException();
+    return request;
+  }
+
+  private static byte[] readInputStreamFully(HttpServletRequest request) throws IOException {
+    return request.getInputStream().readAllBytes();
+  }
+
+  private static class TestServletInputStream extends ServletInputStream {
+    private final InputStream delegate;
+
+    private TestServletInputStream(byte[] payload) {
+      this.delegate = new ByteArrayInputStream(payload);
+    }
+
+    @Override
+    public int read() throws IOException {
+      return delegate.read();
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+      return delegate.read(b, off, len);
+    }
+
+    @Override
+    public boolean isFinished() {
+      return false;
+    }
+
+    @Override
+    public boolean isReady() {
+      return true;
+    }
+
+    @Override
+    public void setReadListener(ReadListener readListener) {
+      // no-op for tests
+    }
   }
 
   private static HttpServletRequest mockRequestWithBody() {
