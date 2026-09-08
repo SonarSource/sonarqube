@@ -127,7 +127,7 @@ class EmailConfigurationServiceIT {
     );
 
     assertThatThrownBy(() -> underTest.createConfiguration(config))
-      .isInstanceOf(IllegalArgumentException.class)
+      .isInstanceOf(BadRequestException.class)
       .hasMessage(errorMessage);
   }
 

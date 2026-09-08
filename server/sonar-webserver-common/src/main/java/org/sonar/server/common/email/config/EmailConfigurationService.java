@@ -109,12 +109,18 @@ public class EmailConfigurationService {
 
   private static void throwIfParamsConstraintsAreNotMetForCreation(EmailConfiguration configuration) {
     if (configuration.authMethod().equals(EmailConfigurationAuthMethod.OAUTH)) {
-      checkArgument(StringUtils.isNotEmpty(configuration.oauthAuthenticationHost()), "OAuth authentication host is required.");
-      checkArgument(StringUtils.isNotEmpty(configuration.oauthClientId()), "OAuth client id is required.");
-      checkArgument(StringUtils.isNotEmpty(configuration.oauthClientSecret()), "OAuth client secret is required.");
-      checkArgument(StringUtils.isNotEmpty(configuration.oauthTenant()), "OAuth tenant is required.");
+      throwIfEmpty(configuration.oauthAuthenticationHost(), "OAuth authentication host is required.");
+      throwIfEmpty(configuration.oauthClientId(), "OAuth client id is required.");
+      throwIfEmpty(configuration.oauthClientSecret(), "OAuth client secret is required.");
+      throwIfEmpty(configuration.oauthTenant(), "OAuth tenant is required.");
     } else if (configuration.authMethod().equals(EmailConfigurationAuthMethod.BASIC)) {
-      checkArgument(StringUtils.isNotEmpty(configuration.basicPassword()), "Password is required.");
+      throwIfEmpty(configuration.basicPassword(), "Password is required.");
+    }
+  }
+
+  private static void throwIfEmpty(@Nullable String value, String message) {
+    if (StringUtils.isEmpty(value)) {
+      throw BadRequestException.create(message);
     }
   }
 
