@@ -130,7 +130,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     return profilesByLanguageAndName;
   }
 
-  private List<BuiltInQProfile> toFlatList(Map<String, Map<String, BuiltInQualityProfile>> rulesProfilesByLanguage, Map<RuleKey, RuleDto> rulesByRuleKey) {
+  private static List<BuiltInQProfile> toFlatList(Map<String, Map<String, BuiltInQualityProfile>> rulesProfilesByLanguage, Map<RuleKey, RuleDto> rulesByRuleKey) {
     if (rulesProfilesByLanguage.isEmpty()) {
       return Collections.emptyList();
     }
