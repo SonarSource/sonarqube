@@ -27,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -65,6 +66,7 @@ import static org.sonar.server.qualityprofile.ActiveRuleInheritance.NONE;
 public class RegisterQualityProfiles implements Startable {
 
   private static final Logger LOGGER = Loggers.get(RegisterQualityProfiles.class);
+  private static final String DEFAULT_PROFILE_NAME = "Sonar way";
 
   private final BuiltInQProfileRepository builtInQProfileRepository;
   private final DbClient dbClient;
@@ -182,6 +184,8 @@ public class RegisterQualityProfiles implements Startable {
   private void ensureBuiltInAreDefaultQPWhenNoRules(DbSession dbSession) {
     Set<String> activeLanguages = Arrays.stream(languages.all()).map(Language::getKey).collect(toSet());
     Map<String, RulesProfileDto> builtInQProfileByLanguage = dbClient.qualityProfileDao().selectBuiltInRuleProfiles(dbSession).stream()
+      // prefer "Sonar way" over any derived variant (e.g. "Sonar way essentials"/"Sonar way balanced"), which must never become the default profile
+      .sorted(Comparator.comparingInt(rp -> DEFAULT_PROFILE_NAME.equals(rp.getName()) ? 0 : 1))
       .collect(toMap(RulesProfileDto::getLanguage, Function.identity(), (oldValue, newValue) -> oldValue));
     List<QProfileDto> defaultProfileWithNoRules = dbClient.qualityProfileDao().selectDefaultProfilesWithoutActiveRules(dbSession, activeLanguages, false);
 
@@ -205,6 +209,8 @@ public class RegisterQualityProfiles implements Startable {
    */
   private void ensureBuiltInDefaultQPContainsRules(DbSession dbSession) {
     Map<String, RulesProfileDto> rulesProfilesByLanguage = dbClient.qualityProfileDao().selectBuiltInRuleProfilesWithActiveRules(dbSession).stream()
+      // prefer "Sonar way" over any derived variant (e.g. "Sonar way essentials"/"Sonar way balanced"), which must never become the default profile
+      .sorted(Comparator.comparingInt(rp -> DEFAULT_PROFILE_NAME.equals(rp.getName()) ? 0 : 1))
       .collect(toMap(RulesProfileDto::getLanguage, Function.identity(), (oldValue, newValue) -> oldValue));
 
     dbClient.qualityProfileDao().selectDefaultProfilesWithoutActiveRules(dbSession, rulesProfilesByLanguage.keySet(), true)

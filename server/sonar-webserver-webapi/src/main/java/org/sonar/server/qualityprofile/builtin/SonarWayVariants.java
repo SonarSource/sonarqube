@@ -29,6 +29,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.RulesProfileDto;
@@ -180,6 +181,11 @@ final class SonarWayVariants {
     }
     if (ruleDto == null) {
       return false;
+    }
+    // Security Hotspots are persisted with no default impact at all (see NewRuleCreator), so they would
+    // otherwise always be dropped even when a variant is meant to keep every Security impact
+    if (ruleDto.getEnumType() == RuleType.SECURITY_HOTSPOT) {
+      return spec.minImpactSeverity().containsKey(SoftwareQuality.SECURITY);
     }
     Map<SoftwareQuality, Severity> impacts = ruleDto.getDefaultImpactsMap();
     if (impacts.isEmpty()) {
