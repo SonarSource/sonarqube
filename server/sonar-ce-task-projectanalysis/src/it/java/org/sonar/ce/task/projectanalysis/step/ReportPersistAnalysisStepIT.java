@@ -24,6 +24,8 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -52,6 +54,7 @@ public class ReportPersistAnalysisStepIT extends BaseStepTest {
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String ANALYSIS_UUID = "U1";
   private static final String REVISION_ID = "5f6432a1";
+  private static final String RELATIVE_PATH_FROM_SCM_ROOT = "services/billing";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -61,6 +64,8 @@ public class ReportPersistAnalysisStepIT extends BaseStepTest {
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
   @Rule
   public PeriodHolderRule periodsHolder = new PeriodHolderRule();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private System2 system2 = mock(System2.class);
   private DbClient dbClient = dbTester.getDbClient();
@@ -110,6 +115,7 @@ public class ReportPersistAnalysisStepIT extends BaseStepTest {
       .setProjectVersion(projectVersion)
       .setBuildString(buildString)
       .setScmRevisionId(REVISION_ID)
+      .setRelativePathFromScmRoot(RELATIVE_PATH_FROM_SCM_ROOT)
       .addChildren(directory)
       .build();
     treeRootHolder.setRoot(project);
@@ -128,6 +134,41 @@ public class ReportPersistAnalysisStepIT extends BaseStepTest {
     assertThat(projectSnapshot.getCreatedAt()).isEqualTo(analysisDate);
     assertThat(projectSnapshot.getAnalysisDate()).isEqualTo(now);
     assertThat(projectSnapshot.getRevision()).isEqualTo(REVISION_ID);
+    assertThat(projectSnapshot.getRelativePathFromScmRoot()).isEqualTo(RELATIVE_PATH_FROM_SCM_ROOT);
+  }
+
+  @Test
+  public void persist_no_relative_path_from_scm_root_when_project_has_none() {
+    ComponentDto projectDto = ComponentTesting.newPrivateProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
+    dbTester.components().insertComponent(projectDto);
+    dbTester.getSession().commit();
+
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(getUnprocessedSnapshot(projectDto.uuid()).getRelativePathFromScmRoot()).isNull();
+  }
+
+  @Test
+  public void skip_relative_path_from_scm_root_exceeding_maximum_length_without_failing_the_analysis() {
+    String tooLongPath = secure().nextAlphabetic(SnapshotDto.MAX_RELATIVE_PATH_FROM_SCM_ROOT_LENGTH + 1);
+    ComponentDto projectDto = ComponentTesting.newPrivateProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
+    dbTester.components().insertComponent(projectDto);
+    dbTester.getSession().commit();
+
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1)
+      .setUuid("ABCD")
+      .setKey(PROJECT_KEY)
+      .setRelativePathFromScmRoot(tooLongPath)
+      .build());
+
+    underTest.execute(new TestComputationStepContext());
+
+    assertThat(getUnprocessedSnapshot(projectDto.uuid()).getRelativePathFromScmRoot()).isNull();
+    assertThat(logTester.logs(Level.WARN))
+      .contains("Path relative to the SCM root of project 'PROJECT_KEY' is not recorded: its length ("
+        + tooLongPath.length() + ") exceeds the maximum authorized (" + SnapshotDto.MAX_RELATIVE_PATH_FROM_SCM_ROOT_LENGTH + ")");
   }
 
   @Test

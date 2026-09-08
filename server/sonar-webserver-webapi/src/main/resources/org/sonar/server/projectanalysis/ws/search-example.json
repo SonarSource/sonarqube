@@ -11,6 +11,7 @@
       "projectVersion": "1.2.1",
       "buildString": "1.2.1.423",
       "revision": "be6c75b85da526349c44e3978374c95e0b80a96d",
+      "relativePathFromScmRoot": "services/billing",
       "manualNewCodePeriodBaseline": false,
       "events": [
         {

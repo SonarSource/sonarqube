@@ -73,6 +73,21 @@ class SnapshotDtoTest {
   }
 
   @Test
+  void fail_if_relativePathFromScmRoot_is_longer_than_2000_characters() {
+    SnapshotDto snapshotDto = new SnapshotDto();
+    snapshotDto.setRelativePathFromScmRoot(null);
+    snapshotDto.setRelativePathFromScmRoot("services/billing");
+    snapshotDto.setRelativePathFromScmRoot(repeat("a", 2000));
+    String tooLongPath = repeat("a", 2001);
+
+    assertThatThrownBy(() -> snapshotDto.setRelativePathFromScmRoot(tooLongPath))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("relativePathFromScmRoot" +
+        " length (2001) is longer than the maximum authorized (2000). " +
+        "'" + tooLongPath + "' was provided.");
+  }
+
+  @Test
   void equals_whenSameObject_shouldReturnTrue() {
     SnapshotDto snapshotDto = create();
     assertThat(snapshotDto.equals(snapshotDto)).isTrue();

@@ -47,6 +47,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.ce.CeActivityDto.Status.CANCELED;
@@ -417,6 +418,19 @@ class SnapshotDaoIT {
     assertThat(dto.getAnalysisDate()).isEqualTo(1500000000006L);
     assertThat(dto.getCreatedAt()).isEqualTo(1403042400000L);
     assertThat(dto.getProjectVersion()).isEqualTo("2.1-SNAPSHOT");
+  }
+
+  @ParameterizedTest
+  @MethodSource("nullAndEmptyNonEmptyStrings")
+  void insert_and_select_relativePathFromScmRoot(@Nullable String relativePathFromScmRoot) {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+
+    SnapshotDto inserted = underTest.insert(db.getSession(),
+      newAnalysis(project).setRelativePathFromScmRoot(relativePathFromScmRoot));
+    db.getSession().commit();
+
+    assertThat(underTest.selectByUuid(db.getSession(), inserted.getUuid()).get().getRelativePathFromScmRoot())
+      .isEqualTo(trimToNull(relativePathFromScmRoot));
   }
 
   @ParameterizedTest

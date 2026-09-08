@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -58,9 +58,7 @@ class ComponentTreeBuilderTest {
   private static final UnaryOperator<String> UUID_SUPPLIER = (componentKey) -> componentKey + "_uuid";
   private static final EnumSet<ScannerReport.Component.ComponentType> REPORT_TYPES = EnumSet.of(PROJECT, FILE);
   private static final String NO_SCM_BASE_PATH = "";
-  // both no project as "" or null should be supported
-  private static final ProjectAttributes SOME_PROJECT_ATTRIBUTES = new ProjectAttributes(
-    secure().nextAlphabetic(20), new Random().nextBoolean() ? null : secure().nextAlphabetic(12), "1def5123");
+  private static final ProjectAttributes SOME_PROJECT_ATTRIBUTES = new ProjectAttributes("1.0", null, "1def5123", null);
 
   @RegisterExtension
   private final ScannerComponentProvider scannerComponentProvider = new ScannerComponentProvider();
@@ -124,7 +122,7 @@ class ComponentTreeBuilderTest {
       .setRef(42)
       .setName(nameInReport)
       .setDescription(descriptionInReport)
-      .build(), NO_SCM_BASE_PATH, new ProjectAttributes("6.5", buildString, "4124af4"));
+      .build(), NO_SCM_BASE_PATH, new ProjectAttributes("6.5", buildString, "4124af4", null));
 
     assertThat(root.getUuid()).isEqualTo("generated_K1_uuid");
     assertThat(root.getKey()).isEqualTo("generated_K1");
@@ -268,6 +266,21 @@ class ComponentTreeBuilderTest {
     Component file = directory.getChildren().iterator().next();
     assertThat(file.getReportAttributes().getScmPath())
       .contains(scmBasePath + "/src/js/Foo.js");
+  }
+
+  @Test
+  void scmPaths_are_project_relative_if_scmBasePath_is_null() {
+    ScannerReport.Component project = createProject();
+
+    Component root = call(project, null, SOME_PROJECT_ATTRIBUTES);
+
+    assertThat(root.getReportAttributes().getScmPath()).isEmpty();
+    Component directory = root.getChildren().iterator().next();
+    assertThat(directory.getReportAttributes().getScmPath())
+      .contains("src/js");
+    Component file = directory.getChildren().iterator().next();
+    assertThat(file.getReportAttributes().getScmPath())
+      .contains("src/js/Foo.js");
   }
 
   private ScannerReport.Component createProject() {
@@ -802,7 +815,7 @@ class ComponentTreeBuilderTest {
     return call(project, NO_SCM_BASE_PATH, SOME_PROJECT_ATTRIBUTES);
   }
 
-  private Component call(ScannerReport.Component project, String scmBasePath, ProjectAttributes projectAttributes) {
+  private Component call(ScannerReport.Component project, @Nullable String scmBasePath, ProjectAttributes projectAttributes) {
     return newUnderTest(projectAttributes, true).buildProject(project, scmBasePath);
   }
 

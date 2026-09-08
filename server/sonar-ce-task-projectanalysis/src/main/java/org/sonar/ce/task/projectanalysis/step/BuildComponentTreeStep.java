@@ -80,15 +80,15 @@ public class BuildComponentTreeStep implements ComputationStep {
       String rootUuid = componentUuidFactory.getOrCreateForKey(rootKey);
       Optional<SnapshotDto> baseAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, rootUuid);
 
+      ProjectAttributes projectAttributes = createProjectAttributes(metadata, baseAnalysis.orElse(null));
       ComponentTreeBuilder builder = new ComponentTreeBuilder(keyGenerator,
         componentUuidFactory::getOrCreateForKey,
         reportReader::readComponent,
         analysisMetadataHolder.getProject(),
         analysisMetadataHolder.getBranch(),
-        createProjectAttributes(metadata, baseAnalysis.orElse(null)));
-      String relativePathFromScmRoot = metadata.getRelativePathFromScmRoot();
+        projectAttributes);
 
-      Component reportTreeRoot = builder.buildProject(reportProject, relativePathFromScmRoot);
+      Component reportTreeRoot = builder.buildProject(reportProject, projectAttributes.getRelativePathFromScmRoot().orElse(null));
 
       if (analysisMetadataHolder.isPullRequest()) {
         Component changedComponentTreeRoot = builder.buildChangedComponentTreeRoot(reportTreeRoot);
@@ -107,7 +107,8 @@ public class BuildComponentTreeStep implements ComputationStep {
     String projectVersion = computeProjectVersion(trimToNull(metadata.getProjectVersion()), baseAnalysis);
     String buildString = trimToNull(metadata.getBuildString());
     String scmRevisionId = trimToNull(metadata.getScmRevisionId());
-    return new ProjectAttributes(projectVersion, buildString, scmRevisionId);
+    String relativePathFromScmRoot = trimToNull(metadata.getRelativePathFromScmRoot());
+    return new ProjectAttributes(projectVersion, buildString, scmRevisionId, relativePathFromScmRoot);
   }
 
   private static String computeProjectVersion(@Nullable String projectVersion, @Nullable SnapshotDto baseAnalysis) {

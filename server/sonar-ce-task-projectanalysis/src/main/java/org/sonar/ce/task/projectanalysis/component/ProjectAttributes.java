@@ -33,16 +33,26 @@ public class ProjectAttributes {
   @Nullable
   private final String scmRevisionId;
 
-  public ProjectAttributes(String projectVersion, @Nullable String buildString, @Nullable String scmRevisionId) {
+  /**
+   * Path of the analysed project relative to the root of its SCM repository, as reported by the scanner.
+   * Null when the project is analysed from the repository root, or when the SCM root cannot be determined.
+   */
+  @Nullable
+  private final String relativePathFromScmRoot;
+
+  public ProjectAttributes(String projectVersion, @Nullable String buildString, @Nullable String scmRevisionId,
+    @Nullable String relativePathFromScmRoot) {
     this.projectVersion = requireNonNull(projectVersion, "project version can't be null");
     this.buildString = buildString;
     this.scmRevisionId = scmRevisionId;
+    this.relativePathFromScmRoot = relativePathFromScmRoot;
   }
 
   public ProjectAttributes(ProjectAttributes projectAttributes) {
     this.projectVersion = projectAttributes.projectVersion;
     this.buildString = projectAttributes.buildString;
     this.scmRevisionId = projectAttributes.scmRevisionId;
+    this.relativePathFromScmRoot = projectAttributes.relativePathFromScmRoot;
   }
 
   public String getProjectVersion() {
@@ -57,12 +67,17 @@ public class ProjectAttributes {
     return Optional.ofNullable(scmRevisionId);
   }
 
+  public Optional<String> getRelativePathFromScmRoot() {
+    return Optional.ofNullable(relativePathFromScmRoot);
+  }
+
   @Override
   public String toString() {
     return "ProjectAttributes{" +
       "projectVersion='" + projectVersion + '\'' +
       "buildString='" + buildString + '\'' +
       "scmRevisionId='" + scmRevisionId + '\'' +
+      "relativePathFromScmRoot='" + relativePathFromScmRoot + '\'' +
       '}';
   }
 }

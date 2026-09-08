@@ -240,7 +240,7 @@ public class ComponentImplTest {
       .setReportAttributes(ReportAttributes.newBuilder(dbKey.hashCode()).build());
     if (type == PROJECT) {
       String buildString = secure().nextAlphabetic(15);
-      builder.setProjectAttributes(new ProjectAttributes("version_1", buildString, "453def"));
+      builder.setProjectAttributes(new ProjectAttributes("version_1", buildString, "453def", "services/billing"));
     }
     return builder;
   }

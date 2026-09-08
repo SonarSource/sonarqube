@@ -83,7 +83,7 @@ public class ComponentTreeBuilder {
     this.projectAttributes = requireNonNull(projectAttributes, "projectAttributes can't be null");
   }
 
-  public Component buildProject(ScannerReport.Component project, String scmBasePath) {
+  public Component buildProject(ScannerReport.Component project, @Nullable String scmBasePath) {
     this.rootComponent = project;
     this.scmBasePath = trimToNull(scmBasePath);
 

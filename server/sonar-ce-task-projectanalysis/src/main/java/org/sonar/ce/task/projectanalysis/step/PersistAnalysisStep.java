@@ -19,11 +19,14 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
+import org.sonar.ce.task.projectanalysis.component.ProjectAttributes;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.period.Period;
@@ -34,11 +37,14 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
 
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT;
+import static org.sonar.db.component.SnapshotDto.MAX_RELATIVE_PATH_FROM_SCM_ROOT_LENGTH;
 
 /**
  * Persist analysis
  */
 public class PersistAnalysisStep implements ComputationStep {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PersistAnalysisStep.class);
 
   private final System2 system2;
   private final DbClient dbClient;
@@ -114,10 +120,25 @@ public class PersistAnalysisStep implements ComputationStep {
         .setAnalysisDate(system2.now());
 
       if (component.getType() == PROJECT) {
-        component.getProjectAttributes().getScmRevisionId().ifPresent(dto::setRevision);
+        ProjectAttributes projectAttributes = component.getProjectAttributes();
+        projectAttributes.getScmRevisionId().ifPresent(dto::setRevision);
+        projectAttributes.getRelativePathFromScmRoot().ifPresent(path -> setRelativePathFromScmRoot(dto, component, path));
       }
 
       return dto;
+    }
+
+    /**
+     * The path is optional and unbounded upstream, so an over-long one is skipped rather than failing the whole
+     * analysis. It stays on the component tree either way, since that is what places pull request annotations.
+     */
+    private void setRelativePathFromScmRoot(SnapshotDto dto, Component component, String relativePathFromScmRoot) {
+      if (relativePathFromScmRoot.length() > MAX_RELATIVE_PATH_FROM_SCM_ROOT_LENGTH) {
+        LOGGER.warn("Path relative to the SCM root of project '{}' is not recorded: its length ({}) exceeds the maximum authorized ({})",
+          component.getKey(), relativePathFromScmRoot.length(), MAX_RELATIVE_PATH_FROM_SCM_ROOT_LENGTH);
+        return;
+      }
+      dto.setRelativePathFromScmRoot(relativePathFromScmRoot);
     }
 
     private void persist(SnapshotDto snapshotDto, DbSession dbSession) {

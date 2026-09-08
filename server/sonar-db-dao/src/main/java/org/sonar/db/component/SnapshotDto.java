@@ -36,6 +36,7 @@ public final class SnapshotDto {
   public static final String STATUS_LIVE_MEASURE_COMPUTED = "L";
   public static final int MAX_VERSION_LENGTH = 100;
   public static final int MAX_BUILD_STRING_LENGTH = 100;
+  public static final int MAX_RELATIVE_PATH_FROM_SCM_ROOT_LENGTH = 2000;
 
   private String uuid;
   private String rootComponentUuid;
@@ -55,6 +56,19 @@ public final class SnapshotDto {
    */
   @Nullable
   private String revision;
+
+  /**
+   * Path of the analysed project relative to the root of its SCM repository. Provided by the scanner and
+   * optional: null when the project is analysed from the repository root, when the SCM root cannot be
+   * determined, and for analyses created before this was recorded. Component paths are relative to the
+   * project root, so this is the prefix that maps them onto repository paths.
+   */
+  @Nullable
+  private String relativePathFromScmRoot;
+
+  public SnapshotDto() {
+    // nothing to do
+  }
 
   public SnapshotDto setUuid(String s) {
     this.uuid = s;
@@ -194,6 +208,17 @@ public final class SnapshotDto {
   public SnapshotDto setRevision(@Nullable String revision) {
     checkLength(100, revision, "revision");
     this.revision = revision;
+    return this;
+  }
+
+  @Nullable
+  public String getRelativePathFromScmRoot() {
+    return relativePathFromScmRoot;
+  }
+
+  public SnapshotDto setRelativePathFromScmRoot(@Nullable String relativePathFromScmRoot) {
+    checkLength(MAX_RELATIVE_PATH_FROM_SCM_ROOT_LENGTH, relativePathFromScmRoot, "relativePathFromScmRoot");
+    this.relativePathFromScmRoot = trimToNull(relativePathFromScmRoot);
     return this;
   }
 

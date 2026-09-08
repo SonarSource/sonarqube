@@ -335,6 +335,46 @@ public class BuildComponentTreeStepIT {
   }
 
   @Test
+  public void set_relativePathFromScmRoot_and_prefix_scm_paths_with_it() {
+    setAnalysisMetadataHolder();
+    setRelativePathFromScmRootInReport("services/billing");
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, FILE_1_REF));
+    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_PATH_1));
+
+    underTest.execute(new TestComputationStepContext());
+
+    Component reportTreeRoot = treeRootHolder.getReportTreeRoot();
+    assertThat(reportTreeRoot.getProjectAttributes().getRelativePathFromScmRoot()).hasValue("services/billing");
+
+    Map<Integer, Component> componentsByRef = indexAllComponentsInTreeByRef(reportTreeRoot);
+    assertThat(componentsByRef.get(ROOT_REF).getReportAttributes().getScmPath()).hasValue("services/billing");
+    assertThat(componentsByRef.get(FILE_1_REF).getReportAttributes().getScmPath())
+      .hasValue("services/billing/" + REPORT_FILE_PATH_1);
+  }
+
+  @Test
+  @UseDataProvider("blankRelativePathsFromScmRoot")
+  public void set_no_relativePathFromScmRoot_when_report_has_none(String reportedRelativePath) {
+    setAnalysisMetadataHolder();
+    setRelativePathFromScmRootInReport(reportedRelativePath);
+    reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
+
+    underTest.execute(new TestComputationStepContext());
+
+    Component reportTreeRoot = treeRootHolder.getReportTreeRoot();
+    assertThat(reportTreeRoot.getProjectAttributes().getRelativePathFromScmRoot()).isEmpty();
+    assertThat(reportTreeRoot.getReportAttributes().getScmPath()).isEmpty();
+  }
+
+  @DataProvider
+  public static Object[][] blankRelativePathsFromScmRoot() {
+    return new Object[][]{
+      {""},
+      {"   "},
+    };
+  }
+
+  @Test
   public void set_no_base_project_snapshot_when_no_snapshot() {
     setAnalysisMetadataHolder();
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY));
@@ -549,6 +589,12 @@ public class BuildComponentTreeStepIT {
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshot);
     dbTester.getSession().commit();
     return snapshot;
+  }
+
+  private void setRelativePathFromScmRootInReport(String relativePathFromScmRoot) {
+    reportReader.setMetadata(reportReader.readMetadata().toBuilder()
+      .setRelativePathFromScmRoot(relativePathFromScmRoot)
+      .build());
   }
 
   private void setAnalysisMetadataHolder() {

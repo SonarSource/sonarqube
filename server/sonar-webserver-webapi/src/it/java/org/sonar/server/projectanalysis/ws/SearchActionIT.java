@@ -132,7 +132,8 @@ public class SearchActionIT {
       .setCreatedAt(parseDateTime("2016-12-12T17:12:45+0100").getTime())
       .setProjectVersion("1.2.1")
       .setBuildString("1.2.1.423")
-      .setRevision("be6c75b85da526349c44e3978374c95e0b80a96d"));
+      .setRevision("be6c75b85da526349c44e3978374c95e0b80a96d")
+      .setRelativePathFromScmRoot("services/billing"));
     SnapshotDto a3 = db.components().insertSnapshot(newAnalysis(mainBranch)
       .setUuid("P1")
       .setCreatedAt(parseDateTime("2015-11-11T10:00:00+0100").getTime())
@@ -206,6 +207,30 @@ public class SearchActionIT {
       tuple("A3", 3_000_000L),
       tuple("A2", 2_000_000L),
       tuple("A1", 1_000_000L));
+  }
+
+  @Test
+  public void return_relative_path_from_scm_root() {
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A1").setRelativePathFromScmRoot("services/billing"));
+
+    List<Analysis> result = call(mainBranch.getKey()).getAnalysesList();
+
+    assertThat(result).extracting(Analysis::getRelativePathFromScmRoot).containsExactly("services/billing");
+  }
+
+  @Test
+  public void return_no_relative_path_from_scm_root_when_not_set() {
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    addProjectPermission(projectData);
+    db.components().insertSnapshot(newAnalysis(mainBranch).setUuid("A1").setRelativePathFromScmRoot(null));
+
+    List<Analysis> result = call(mainBranch.getKey()).getAnalysesList();
+
+    assertThat(result).extracting(Analysis::hasRelativePathFromScmRoot).containsExactly(false);
   }
 
   @Test

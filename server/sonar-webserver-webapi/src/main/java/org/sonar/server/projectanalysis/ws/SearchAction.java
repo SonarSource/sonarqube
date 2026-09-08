@@ -83,6 +83,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
       .setSince("6.3")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setChangelog(
+        new Change("2026.5", "Add response field 'relativePathFromScmRoot'"),
         new Change("10.3", "Add response field 'qualityProfile' for events related to quality profile changes"),
         new Change("9.0", "Add response field 'detectedCI'"),
         new Change("7.5", "Add QualityGate information on Applications"))

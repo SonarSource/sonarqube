@@ -90,6 +90,7 @@ class SearchResponseBuilder {
     ofNullable(dbAnalysis.getProjectVersion()).ifPresent(builder::setProjectVersion);
     ofNullable(dbAnalysis.getBuildString()).ifPresent(builder::setBuildString);
     ofNullable(dbAnalysis.getRevision()).ifPresent(builder::setRevision);
+    ofNullable(dbAnalysis.getRelativePathFromScmRoot()).ifPresent(builder::setRelativePathFromScmRoot);
     ofNullable(searchData.detectedCIs.get(dbAnalysis.getUuid())).ifPresent(builder::setDetectedCI);
 
     return builder;

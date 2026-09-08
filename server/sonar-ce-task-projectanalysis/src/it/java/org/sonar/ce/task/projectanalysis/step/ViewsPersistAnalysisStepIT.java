@@ -112,6 +112,8 @@ public class ViewsPersistAnalysisStepIT extends BaseStepTest {
     assertThat(viewSnapshot.getStatus()).isEqualTo("U");
     assertThat(viewSnapshot.getCreatedAt()).isEqualTo(analysisDate);
     assertThat(viewSnapshot.getAnalysisDate()).isEqualTo(now);
+    // portfolios are not analysed by a scanner, so they have no path relative to an SCM root
+    assertThat(viewSnapshot.getRelativePathFromScmRoot()).isNull();
   }
 
   @Test
