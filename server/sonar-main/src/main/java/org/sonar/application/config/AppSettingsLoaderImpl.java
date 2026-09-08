@@ -52,6 +52,15 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
 
   private static final Logger LOG = LoggerFactory.getLogger(AppSettingsLoaderImpl.class);
 
+  /**
+   * Keys that are not in ProcessProperties.Property (to avoid breaking the settings API via SettingsWsSupport.validateKey)
+   * but are still valid in sonar.properties and should not trigger a warning.
+   */
+  private static final Set<String> ADDITIONAL_SYSTEM_KEYS = Set.of(
+    "sonar.secretKeyPath",
+    "sonar.notifications.delay",
+    "sonar.authenticator.downcase");
+
   private final System2 system;
   private final File homeDir;
   private final String[] cliArguments;
@@ -141,6 +150,7 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
     Set<String> systemKeys = stream(ProcessProperties.Property.values())
       .map(ProcessProperties.Property::getKey)
       .collect(Collectors.toSet());
+    systemKeys.addAll(ADDITIONAL_SYSTEM_KEYS);
 
     fileProperties.stringPropertyNames().stream()
       .filter(key -> !systemKeys.contains(key))

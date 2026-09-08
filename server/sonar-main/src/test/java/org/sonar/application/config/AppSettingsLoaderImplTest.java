@@ -246,10 +246,13 @@ public class AppSettingsLoaderImplTest {
     File homeDir = temp.newFolder();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     FileUtils.write(propsFile,
-      "sonar.secretKeyPath=/etc/sonar/secret.key\n" +
-        "sonar.deprecationLogs.loginEnabled=true\n" +
-        "sonar.log.level.web.sql=TRACE\n" +
-        "sonar.log.level.ce.mybatis=DEBUG",
+      """
+        sonar.secretKeyPath=/etc/sonar/secret.key
+        sonar.deprecationLogs.loginEnabled=true
+        sonar.notifications.delay=60
+        sonar.authenticator.downcase=true
+        sonar.log.level.web.sql=TRACE
+        sonar.log.level.ce.mybatis=DEBUG""",
       UTF_8);
 
     AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
