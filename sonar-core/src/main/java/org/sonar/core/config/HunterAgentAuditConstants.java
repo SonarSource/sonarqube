@@ -29,7 +29,7 @@ public final class HunterAgentAuditConstants {
    * rather than holding its own literal, so a rename cannot silently drop the key out of
    * {@code AuditPersisterImpl#TRACKED_PROPERTIES}.
    */
-  public static final String HUNTER_AGENT_ENABLED_PROPERTY = "sonar.ai.hunterAgent.enabled";
+  public static final String HUNTER_AGENT_ENABLED_PROPERTY = "sonar.hunteragent.enabled";
 
   private HunterAgentAuditConstants() {
   }
