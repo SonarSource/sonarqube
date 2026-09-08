@@ -101,7 +101,7 @@ public class ScannerProperties {
         .category(CoreProperties.CATEGORY_GENERAL)
         .type(BOOLEAN)
         .defaultValue("false")
-        .onConfigScopes(ConfigScope.PROJECT)
+        .onlyOnConfigScopes(ConfigScope.PROJECT)
         .build(),
       PropertyDefinition.builder(PLUGIN_LOADING_OPTIMIZATION_KEY)
         .name("Analyzers loading optimization")
