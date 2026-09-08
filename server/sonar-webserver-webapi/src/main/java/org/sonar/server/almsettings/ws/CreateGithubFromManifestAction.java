@@ -22,8 +22,12 @@ package org.sonar.server.almsettings.ws;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -34,6 +38,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toCollection;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.sonar.db.alm.setting.ALM.GITHUB;
 
@@ -46,6 +51,7 @@ public class CreateGithubFromManifestAction implements AlmSettingsWsAction {
 
   private static final String PARAM_KEY = "key";
   private static final String PARAM_ORGANIZATION = "organization";
+  private static final String PARAM_ALLOWED_ORGANIZATIONS = "allowedOrganizations";
   private static final String PARAM_NAME = "name";
   private static final String PARAM_DEVOPS = "devops";
   private static final String PARAM_AUTH = "auth";
@@ -87,6 +93,14 @@ public class CreateGithubFromManifestAction implements AlmSettingsWsAction {
       .setRequired(false)
       .setMaximumLength(200)
       .setDescription("GitHub organization the App should be created under. Leave empty to create it under the user's personal account.");
+    action.createParam(PARAM_ALLOWED_ORGANIZATIONS)
+      .setRequired(false)
+      .setMaximumLength(4000)
+      .setDescription("Comma-separated list of GitHub organizations whose members are allowed to sign in. "
+        + "Only used when '" + PARAM_AUTH + "' is true, and ignored otherwise. "
+        + "When omitted, the value of '" + PARAM_ORGANIZATION + "' is used as the allow list. "
+        + "An empty allow list lets any GitHub account sign in.")
+      .setExampleValue("my-org,my-other-org");
     action.createParam(PARAM_NAME)
       .setRequired(false)
       .setMaximumLength(200)
@@ -116,6 +130,9 @@ public class CreateGithubFromManifestAction implements AlmSettingsWsAction {
     String key = request.param(PARAM_KEY);
     String organization = request.param(PARAM_ORGANIZATION);
     String appName = requireNonNull(request.getParam(PARAM_NAME).emptyAsNull().or(() -> DEFAULT_APP_NAME));
+    // Only the authentication configuration has an organization allow list, so nothing is carried over
+    // for DevOps-only flows.
+    Set<String> allowedOrganizations = setupAuth ? resolveAllowedOrganizations(request, organization) : Set.of();
 
     if (setupDevops) {
       if (isBlank(key)) {
@@ -137,13 +154,35 @@ public class CreateGithubFromManifestAction implements AlmSettingsWsAction {
     String setupPath = setupDevops ? GithubAppManifestGenerator.SETTINGS_PATH : GithubAppManifestGenerator.AUTH_SETTINGS_PATH;
     String manifest = manifestGenerator.generateManifest(appName, setupPath);
     String githubAppUrl = manifestGenerator.githubAppCreationUrl(organization);
-    String state = stateStore.create(key, organization, requireNonNull(userSession.getUuid()), setupDevops, setupAuth);
+    String state = stateStore.create(key, organization, allowedOrganizations, requireNonNull(userSession.getUuid()), setupDevops, setupAuth);
 
     Map<String, String> body = new LinkedHashMap<>();
     body.put("githubAppUrl", githubAppUrl);
     body.put("manifest", manifest);
     body.put("state", state);
     writeJson(response, GSON.toJson(body));
+  }
+
+  /**
+   * The raw value is read with {@code param}, which enforces the declared maximum length, and split here:
+   * {@code paramAsStrings} would split for us but skips the length validation. Both return {@code null}
+   * only when the parameter is absent. A {@link LinkedHashSet} de-duplicates while keeping the order the
+   * administrator entered, so the persisted property value is deterministic.
+   * <p>
+   * The distinction between an absent parameter and an explicitly empty one matters: an empty allow list
+   * is a deliberate "let any GitHub account sign in", whereas an absent one falls back to the
+   * organization the App is created under, the behaviour callers had before the allow list became
+   * configurable.
+   */
+  private static Set<String> resolveAllowedOrganizations(Request request, @Nullable String organization) {
+    String rawValue = request.param(PARAM_ALLOWED_ORGANIZATIONS);
+    if (rawValue != null) {
+      return Arrays.stream(rawValue.split(","))
+        .map(String::trim)
+        .filter(value -> !value.isEmpty())
+        .collect(toCollection(LinkedHashSet::new));
+    }
+    return isBlank(organization) ? Set.of() : Set.of(organization);
   }
 
   private static void writeJson(Response response, String json) {

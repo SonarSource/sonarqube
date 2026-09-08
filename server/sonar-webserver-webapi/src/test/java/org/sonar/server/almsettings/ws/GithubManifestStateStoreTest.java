@@ -20,6 +20,7 @@
 package org.sonar.server.almsettings.ws;
 
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.server.almsettings.ws.GithubManifestStateStore.PendingManifest;
@@ -33,7 +34,7 @@ public class GithubManifestStateStoreTest {
 
   @Test
   public void create_then_consume_returns_pending_manifest() {
-    String state = underTest.create("my-key", "my-org", "user-uuid", true, false);
+    String state = underTest.create("my-key", "my-org", Set.of("allowed-org", "other-allowed-org"), "user-uuid", true, false);
 
     Optional<PendingManifest> consumed = underTest.consume(state);
 
@@ -41,6 +42,7 @@ public class GithubManifestStateStoreTest {
     PendingManifest pending = consumed.get();
     assertThat(pending.settingKey()).isEqualTo("my-key");
     assertThat(pending.organization()).isEqualTo("my-org");
+    assertThat(pending.allowedOrganizations()).containsExactlyInAnyOrder("allowed-org", "other-allowed-org");
     assertThat(pending.userUuid()).isEqualTo("user-uuid");
     assertThat(pending.setupDevops()).isTrue();
     assertThat(pending.setupAuth()).isFalse();
@@ -48,7 +50,7 @@ public class GithubManifestStateStoreTest {
 
   @Test
   public void consume_is_single_use() {
-    String state = underTest.create("my-key", null, "user-uuid", true, false);
+    String state = underTest.create("my-key", null, Set.of(), "user-uuid", true, false);
 
     assertThat(underTest.consume(state)).isPresent();
     assertThat(underTest.consume(state)).isEmpty();
@@ -61,7 +63,7 @@ public class GithubManifestStateStoreTest {
 
   @Test
   public void consume_expiredState_returnsEmpty() {
-    String state = underTest.create("my-key", null, "user-uuid", true, false);
+    String state = underTest.create("my-key", null, Set.of(), "user-uuid", true, false);
 
     system2.setNow(system2.now() + GithubManifestStateStore.TTL_MS + 1);
 

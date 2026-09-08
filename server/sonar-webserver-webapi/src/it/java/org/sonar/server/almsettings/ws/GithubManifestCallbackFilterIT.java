@@ -19,6 +19,9 @@
  */
 package org.sonar.server.almsettings.ws;
 
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -148,7 +151,7 @@ public class GithubManifestCallbackFilterIT {
   public void doFilter_devopsHappyPath_persistsSettingAndRedirectsToInstall() throws Exception {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    String state = stateStore.create("my-key", null, user.getUuid(), true, false);
+    String state = stateStore.create("my-key", null, Set.of(), user.getUuid(), true, false);
     GithubAppCredentials credentials = new GithubAppCredentials(12345L, "sonarqube", "client-id", "client-secret",
       "webhook-secret", "the-pem", "https://github.com/apps/sonarqube");
     when(githubApplicationClient.convertAppManifest("https://api.github.com", "the-code")).thenReturn(credentials);
@@ -169,7 +172,7 @@ public class GithubManifestCallbackFilterIT {
   public void doFilter_whenAuthAndDevopsSucceed_persistsBoth() throws Exception {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    String state = stateStore.create("my-key", "my-org", user.getUuid(), true, true);
+    String state = stateStore.create("my-key", "my-org", Set.of("my-org"), user.getUuid(), true, true);
     GithubAppCredentials credentials = new GithubAppCredentials(12345L, "sonarqube", "client-id", "client-secret",
       "webhook-secret", "the-pem", "https://github.com/apps/sonarqube");
     when(githubApplicationClient.convertAppManifest("https://api.github.com", "the-code")).thenReturn(credentials);
@@ -197,7 +200,7 @@ public class GithubManifestCallbackFilterIT {
     // Pre-existing setting with the same key makes the DevOps binding fail, after the auth config has
     // already been written in the same transaction.
     db.almSettings().insertGitHubAlmSetting(s -> s.setKey("my-key"));
-    String state = stateStore.create("my-key", "my-org", user.getUuid(), true, true);
+    String state = stateStore.create("my-key", "my-org", Set.of(), user.getUuid(), true, true);
     GithubAppCredentials credentials = new GithubAppCredentials(12345L, "sonarqube", "client-id", "client-secret",
       "webhook-secret", "the-pem", "https://github.com/apps/sonarqube");
     when(githubApplicationClient.convertAppManifest("https://api.github.com", "the-code")).thenReturn(credentials);
@@ -217,7 +220,7 @@ public class GithubManifestCallbackFilterIT {
     userSession.logIn(user).setSystemAdministrator();
     // Pre-existing GitHub auth config makes createConfiguration throw BadRequestException.
     db.properties().insertProperty(GITHUB_ENABLED, "true", null);
-    String state = stateStore.create("my-key", "my-org", user.getUuid(), true, true);
+    String state = stateStore.create("my-key", "my-org", Set.of(), user.getUuid(), true, true);
     GithubAppCredentials credentials = new GithubAppCredentials(12345L, "sonarqube", "client-id", "client-secret",
       "webhook-secret", "the-pem", "https://github.com/apps/sonarqube");
     when(githubApplicationClient.convertAppManifest("https://api.github.com", "the-code")).thenReturn(credentials);
@@ -240,7 +243,7 @@ public class GithubManifestCallbackFilterIT {
   public void doFilter_whenAuthOnlyFlowFails_redirectsErrorToAuthenticationSettings() throws Exception {
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
-    String state = stateStore.create(null, null, user.getUuid(), false, true);
+    String state = stateStore.create(null, null, Set.of(), user.getUuid(), false, true);
     when(githubApplicationClient.convertAppManifest("https://api.github.com", "the-code"))
       .thenThrow(new IllegalStateException("boom"));
     when(request.getParameter("code")).thenReturn("the-code");
@@ -252,6 +255,45 @@ public class GithubManifestCallbackFilterIT {
       .contains("category=authentication")
       .contains("almManifestResult=error")
       .doesNotContain("category=almintegration");
+  }
+
+  @Test
+  public void doFilter_whenAllowedOrganizationsAreGiven_persistsThemAsAllowList() throws Exception {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
+    String state = stateStore.create(null, "host-org", new LinkedHashSet<>(List.of("allowed-org", "other-allowed-org")),
+      user.getUuid(), false, true);
+    mockAppManifestConversion();
+    when(request.getParameter("code")).thenReturn("the-code");
+    when(request.getParameter("state")).thenReturn(state);
+
+    underTest.doFilter(request, response, chain);
+
+    // The allow list is applied as-is, in order, and independently of the organization hosting the App.
+    assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), GITHUB_ORGANIZATIONS).getValue())
+      .isEqualTo("allowed-org,other-allowed-org");
+  }
+
+  // An empty allow list is persisted as empty even when an organization hosts the App: resolving the
+  // fallback is CreateGithubFromManifestAction's job, not the callback's.
+  @Test
+  public void doFilter_whenAllowedOrganizationsIsEmpty_persistsEmptyAllowList() throws Exception {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).setSystemAdministrator();
+    String state = stateStore.create(null, "host-org", Set.of(), user.getUuid(), false, true);
+    mockAppManifestConversion();
+    when(request.getParameter("code")).thenReturn("the-code");
+    when(request.getParameter("state")).thenReturn(state);
+
+    underTest.doFilter(request, response, chain);
+
+    assertThat(db.getDbClient().propertiesDao().selectGlobalProperty(db.getSession(), GITHUB_ORGANIZATIONS).getValue()).isEmpty();
+  }
+
+  private void mockAppManifestConversion() {
+    GithubAppCredentials credentials = new GithubAppCredentials(12345L, "sonarqube", "client-id", "client-secret",
+      "webhook-secret", "the-pem", "https://github.com/apps/sonarqube");
+    when(githubApplicationClient.convertAppManifest("https://api.github.com", "the-code")).thenReturn(credentials);
   }
 
   private String captureRedirect() throws Exception {

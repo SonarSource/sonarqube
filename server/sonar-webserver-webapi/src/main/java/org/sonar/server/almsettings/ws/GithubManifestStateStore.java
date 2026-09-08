@@ -24,6 +24,7 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
@@ -52,10 +53,12 @@ public class GithubManifestStateStore {
     this.system2 = system2;
   }
 
-  public String create(@Nullable String settingKey, @Nullable String organization, String userUuid, boolean setupDevops, boolean setupAuth) {
+  public String create(@Nullable String settingKey, @Nullable String organization, Set<String> allowedOrganizations, String userUuid,
+    boolean setupDevops, boolean setupAuth) {
     purgeExpired();
     String state = new BigInteger(160, secureRandom).toString(32);
-    pendingByState.put(state, new PendingManifest(settingKey, organization, userUuid, setupDevops, setupAuth, system2.now() + TTL_MS));
+    pendingByState.put(state,
+      new PendingManifest(settingKey, organization, allowedOrganizations, userUuid, setupDevops, setupAuth, system2.now() + TTL_MS));
     return state;
   }
 
@@ -77,7 +80,14 @@ public class GithubManifestStateStore {
     pendingByState.entrySet().removeIf(entry -> entry.getValue().expiresAtMs() < now);
   }
 
-  public record PendingManifest(@Nullable String settingKey, @Nullable String organization, String userUuid,
-    boolean setupDevops, boolean setupAuth, long expiresAtMs) {
+  /**
+   * @param organization         the GitHub account the App is created under, used to build the App creation URL
+   * @param allowedOrganizations the resolved list of GitHub organizations allowed to sign in, applied as-is to
+   *                             the authentication configuration created by the callback. Empty when the flow
+   *                             does not set up authentication, or when the administrator deliberately left the
+   *                             allow list empty to let any GitHub account sign in.
+   */
+  public record PendingManifest(@Nullable String settingKey, @Nullable String organization, Set<String> allowedOrganizations,
+    String userUuid, boolean setupDevops, boolean setupAuth, long expiresAtMs) {
   }
 }

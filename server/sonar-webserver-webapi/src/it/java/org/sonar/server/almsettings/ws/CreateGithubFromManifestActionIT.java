@@ -77,7 +77,7 @@ public class CreateGithubFromManifestActionIT {
     assertThat(def.isPost()).isTrue();
     assertThat(def.isInternal()).isTrue();
     assertThat(def.params()).extracting(WebService.Param::key)
-      .containsExactlyInAnyOrder("key", "organization", "name", "devops", "auth");
+      .containsExactlyInAnyOrder("key", "organization", "allowedOrganizations", "name", "devops", "auth");
   }
 
   @Test
@@ -164,5 +164,94 @@ public class CreateGithubFromManifestActionIT {
     JsonObject manifest = JsonParser.parseString(json.get("manifest").getAsString()).getAsJsonObject();
     assertThat(manifest.get("setup_url").getAsString()).endsWith("/admin/settings?category=authentication&tab=github");
     assertThat(json.get("state").getAsString()).isNotBlank();
+  }
+
+  @Test
+  public void handle_whenAuth_storesAllowedOrganizations() {
+    String state = executeAndGetState(ws.newRequest()
+      .setParam("devops", "false")
+      .setParam("auth", "true")
+      .setParam("organization", "host-org")
+      .setParam("allowedOrganizations", "my-org,my-other-org"));
+
+    // The explicit allow list wins over the organization the App is created under.
+    assertThat(consume(state).allowedOrganizations()).containsExactly("my-org", "my-other-org");
+  }
+
+  @Test
+  public void handle_whenAllowedOrganizationsHasBlanksAndDuplicates_storesNormalizedValues() {
+    String state = executeAndGetState(ws.newRequest()
+      .setParam("devops", "false")
+      .setParam("auth", "true")
+      .setParam("allowedOrganizations", " my-org , ,my-other-org,my-org, "));
+
+    assertThat(consume(state).allowedOrganizations()).containsExactly("my-org", "my-other-org");
+  }
+
+  // Backward compatibility: callers that predate the allow list only send 'organization'.
+  @Test
+  public void handle_whenAllowedOrganizationsIsAbsent_fallsBackToOrganization() {
+    String state = executeAndGetState(ws.newRequest()
+      .setParam("devops", "false")
+      .setParam("auth", "true")
+      .setParam("organization", "my-org"));
+
+    assertThat(consume(state).allowedOrganizations()).containsExactly("my-org");
+  }
+
+  // An empty allow list is a deliberate "any GitHub account may sign in", so it must not fall back to
+  // the organization the App is created under.
+  @Test
+  public void handle_whenAllowedOrganizationsIsEmpty_storesEmptyAllowList() {
+    String state = executeAndGetState(ws.newRequest()
+      .setParam("devops", "false")
+      .setParam("auth", "true")
+      .setParam("organization", "my-org")
+      .setParam("allowedOrganizations", ""));
+
+    assertThat(consume(state).allowedOrganizations()).isEmpty();
+  }
+
+  @Test
+  public void handle_whenAllowedOrganizationsExceedsMaximumLength_throws() {
+    TestRequest request = ws.newRequest()
+      .setParam("devops", "false")
+      .setParam("auth", "true")
+      .setParam("allowedOrganizations", "o".repeat(4001));
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("'allowedOrganizations' length (4001) is longer than the maximum authorized (4000)");
+  }
+
+  @Test
+  public void handle_whenNeitherAllowedOrganizationsNorOrganization_storesEmptyAllowList() {
+    String state = executeAndGetState(ws.newRequest()
+      .setParam("devops", "false")
+      .setParam("auth", "true"));
+
+    assertThat(consume(state).allowedOrganizations()).isEmpty();
+  }
+
+  @Test
+  public void handle_whenDevopsOnly_ignoresAllowedOrganizations() {
+    String state = executeAndGetState(ws.newRequest()
+      .setParam("devops", "true")
+      .setParam("auth", "false")
+      .setParam("key", "my-key")
+      .setParam("allowedOrganizations", "my-org"));
+
+    assertThat(consume(state).allowedOrganizations()).isEmpty();
+  }
+
+  private static String executeAndGetState(TestRequest request) {
+    String response = request.execute().getInput();
+    return JsonParser.parseString(response).getAsJsonObject().get("state").getAsString();
+  }
+
+  private PendingManifest consume(String state) {
+    Optional<PendingManifest> pending = stateStore.consume(state);
+    assertThat(pending).isPresent();
+    return pending.get();
   }
 }

@@ -25,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.server.http.HttpRequest;
@@ -148,7 +147,7 @@ public class GithubManifestCallbackFilter extends HttpFilter {
     boolean devopsConfigured = false;
     try (DbSession dbSession = almSettingsSupport.getDbClient().openSession(false)) {
       if (pending.setupAuth()) {
-        authConfigured = setupAuthentication(dbSession, credentials, pending.organization());
+        authConfigured = setupAuthentication(dbSession, credentials, pending.allowedOrganizations());
       }
       if (pending.setupDevops()) {
         persistDevopsBinding(dbSession, pending.settingKey(), credentials);
@@ -186,8 +185,7 @@ public class GithubManifestCallbackFilter extends HttpFilter {
       credentials.getAppId(), credentials.pem(), credentials.clientId(), credentials.clientSecret(), credentials.webhookSecret()));
   }
 
-  private boolean setupAuthentication(DbSession dbSession, GithubAppCredentials credentials, @Nullable String organization) {
-    Set<String> allowedOrganizations = isBlank(organization) ? Set.of() : Set.of(organization);
+  private boolean setupAuthentication(DbSession dbSession, GithubAppCredentials credentials, Set<String> allowedOrganizations) {
     GithubConfiguration configuration = new GithubConfiguration(
       GithubConfigurationService.UNIQUE_GITHUB_CONFIGURATION_ID,
       true,
