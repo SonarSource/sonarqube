@@ -31,6 +31,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.core.extension.ServiceLoaderWrapper;
@@ -48,6 +49,8 @@ import static org.sonar.process.ProcessProperties.Property.MULTI_SERVER_LDAP_SET
 import static org.sonar.process.ProcessProperties.Property.PATH_HOME;
 
 public class AppSettingsLoaderImpl implements AppSettingsLoader {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AppSettingsLoaderImpl.class);
 
   private final System2 system;
   private final File homeDir;
@@ -76,6 +79,7 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
   @Override
   public AppSettings load() {
     Properties p = loadPropertiesFile(homeDir);
+    warnOnNonSystemProperties(p);
     Set<String> keysOverridableFromEnv = stream(ProcessProperties.Property.values()).map(ProcessProperties.Property::getKey)
       .collect(Collectors.toSet());
     keysOverridableFromEnv.addAll(p.stringPropertyNames());
@@ -133,6 +137,21 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
     }
   }
 
+  private static void warnOnNonSystemProperties(Properties fileProperties) {
+    Set<String> systemKeys = stream(ProcessProperties.Property.values())
+      .map(ProcessProperties.Property::getKey)
+      .collect(Collectors.toSet());
+
+    fileProperties.stringPropertyNames().stream()
+      .filter(key -> !systemKeys.contains(key))
+      .filter(key -> !key.startsWith("sonar.log.level."))
+      .filter(key -> MULTI_SERVER_LDAP_SETTINGS.stream().noneMatch(pattern -> key.matches(pattern.replace(".", "\\.").replace("*", "[^.]+"))))
+      .sorted()
+      .forEach(key -> LOG.warn(
+        "Property '{}' is not a recognized system property. It cannot be managed from the UI or API when set here, and it may have no effect. Please check the documentation.",
+        key));
+  }
+
   /**
    * Loads the configuration file ${homeDir}/conf/sonar.properties.
    * An empty {@link Properties} is returned if the file does not exist.
@@ -147,7 +166,7 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
         throw new IllegalStateException("Cannot open file " + propsFile, e);
       }
     } else {
-      LoggerFactory.getLogger(AppSettingsLoaderImpl.class).warn("Configuration file not found: {}", propsFile);
+      LOG.warn("Configuration file not found: {}", propsFile);
     }
     return p;
   }

@@ -194,7 +194,10 @@ public class ProcessProperties {
      */
     ENABLE_STOP_COMMAND("sonar.enableStopCommand"),
 
-    AUTO_DATABASE_UPGRADE("sonar.autoDatabaseUpgrade", DEFAULT_FALSE);
+    AUTO_DATABASE_UPGRADE("sonar.autoDatabaseUpgrade", DEFAULT_FALSE),
+
+    ENCRYPTION_SECRET_KEY_PATH("sonar.secretKeyPath"),
+    DEPRECATION_LOGS_LOGIN_ENABLED("sonar.deprecationLogs.loginEnabled", DEFAULT_FALSE);
 
     /**
      * Properties that are defined for each LDAP server from the `ldap.servers` property

@@ -19,16 +19,19 @@
  */
 package org.sonar.application.config;
 
+import ch.qos.logback.classic.Level;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
+import org.sonar.application.logging.ListAppender;
 import org.sonar.core.extension.ServiceLoaderWrapper;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -45,10 +48,17 @@ public class AppSettingsLoaderImplTest {
 
   private ServiceLoaderWrapper serviceLoaderWrapper = mock(ServiceLoaderWrapper.class);
   private System2 system = mock(System2.class);
+  private ListAppender listAppender;
 
   @Before
   public void setup() {
     when(serviceLoaderWrapper.load()).thenReturn(ImmutableSet.of());
+    listAppender = ListAppender.attachMemoryAppenderToLoggerOf(AppSettingsLoaderImpl.class);
+  }
+
+  @After
+  public void tearDown() {
+    ListAppender.detachMemoryAppenderToLoggerOf(AppSettingsLoaderImpl.class, listAppender);
   }
 
   @Test
@@ -184,5 +194,70 @@ public class AppSettingsLoaderImplTest {
   @Test
   public void detectHomeDir_returns_existing_dir() {
     assertThat(new AppSettingsLoaderImpl(system, new String[0], serviceLoaderWrapper).getHomeDir()).exists().isDirectory();
+  }
+
+  @Test
+  public void warns_when_sonar_properties_contains_non_system_property() throws IOException {
+    File homeDir = temp.newFolder();
+    File propsFile = new File(homeDir, "conf/sonar.properties");
+    FileUtils.write(propsFile, "sonar.issues.defaultAssigneeLogin=admin", UTF_8);
+
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
+    underTest.load();
+
+    assertThat(listAppender.getLogs())
+      .filteredOn(e -> e.getLevel() == Level.WARN)
+      .extracting(e -> e.getFormattedMessage())
+      .contains("Property 'sonar.issues.defaultAssigneeLogin' is not a recognized system property. It cannot be managed from the UI or API when set here, and it may have no effect. Please check the documentation.");
+  }
+
+  @Test
+  public void does_not_warn_when_sonar_properties_contains_only_system_properties() throws IOException {
+    File homeDir = temp.newFolder();
+    File propsFile = new File(homeDir, "conf/sonar.properties");
+    FileUtils.write(propsFile, "sonar.jdbc.url=jdbc:postgresql://localhost/sonar\nsonar.web.port=9000", UTF_8);
+
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
+    underTest.load();
+
+    assertThat(listAppender.getLogs())
+      .filteredOn(e -> e.getLevel() == Level.WARN)
+      .extracting(e -> e.getFormattedMessage())
+      .noneMatch(msg -> msg.contains("is not a recognized system property"));
+  }
+
+  @Test
+  public void does_not_warn_for_multi_server_ldap_properties() throws IOException {
+    File homeDir = temp.newFolder();
+    File propsFile = new File(homeDir, "conf/sonar.properties");
+    FileUtils.write(propsFile, "ldap.servers=foo,bar\nldap.foo.url=ldap://foo\nldap.bar.url=ldap://bar", UTF_8);
+
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
+    underTest.load();
+
+    assertThat(listAppender.getLogs())
+      .filteredOn(e -> e.getLevel() == Level.WARN)
+      .extracting(e -> e.getFormattedMessage())
+      .noneMatch(msg -> msg.contains("is not a recognized system property"));
+  }
+
+  @Test
+  public void does_not_warn_for_system_properties_not_previously_in_enum() throws IOException {
+    File homeDir = temp.newFolder();
+    File propsFile = new File(homeDir, "conf/sonar.properties");
+    FileUtils.write(propsFile,
+      "sonar.secretKeyPath=/etc/sonar/secret.key\n" +
+        "sonar.deprecationLogs.loginEnabled=true\n" +
+        "sonar.log.level.web.sql=TRACE\n" +
+        "sonar.log.level.ce.mybatis=DEBUG",
+      UTF_8);
+
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
+    underTest.load();
+
+    assertThat(listAppender.getLogs())
+      .filteredOn(e -> e.getLevel() == Level.WARN)
+      .extracting(e -> e.getFormattedMessage())
+      .noneMatch(msg -> msg.contains("is not a recognized system property"));
   }
 }
