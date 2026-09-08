@@ -161,6 +161,20 @@ public class SearchActionIT {
   }
 
   @Test
+  public void return_profiles_with_sonar_way_family_pinned_first_in_fixed_order_then_alphabetical() {
+    db.qualityProfiles().insert(p -> p.setName("Sonar way extended").setLanguage(XOO1.getKey()));
+    db.qualityProfiles().insert(p -> p.setName("Zebra Custom Profile").setLanguage(XOO1.getKey()));
+    db.qualityProfiles().insert(p -> p.setName("Sonar way").setLanguage(XOO1.getKey()));
+    db.qualityProfiles().insert(p -> p.setName("Another Custom Profile").setLanguage(XOO1.getKey()));
+    db.qualityProfiles().insert(p -> p.setName("Sonar way core").setLanguage(XOO1.getKey()));
+
+    SearchWsResponse result = call(ws.newRequest());
+
+    assertThat(result.getProfilesList()).extracting(QualityProfile::getName)
+      .containsExactly("Sonar way core", "Sonar way extended", "Sonar way deep", "Another Custom Profile", "Zebra Custom Profile");
+  }
+
+  @Test
   public void filter_on_defaults_and_name() {
     QProfileDto sonarWayOnXoo1 = db.qualityProfiles().insert(p -> p.setName("Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto sonarWayOnXoo2 = db.qualityProfiles().insert(p -> p.setName("Sonar way").setLanguage(XOO2.getKey()));

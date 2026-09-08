@@ -24,8 +24,10 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 
 /**
- * Maps the internal, DB-stored name of a "Sonar way" built-in quality profile (as declared by analyzers, or derived
- * by {@code SonarWayVariants}) to the brand name shown to users, and back.
+ * Maps the internal, DB-stored name of the base "Sonar way" built-in quality profile — the one declared directly by
+ * analyzer plugins, which can't be renamed at the source — to the brand name shown to users, and back. The derived
+ * variants ({@code SonarWayCoreProfileDefinition}, {@code SonarWayExtendedProfileDefinition}) don't need an entry
+ * here: since they aren't declared by analyzers, they were renamed directly at the source instead.
  * <p>
  * Storage, plugin registration and default-profile selection ({@code RegisterQualityProfiles},
  * {@code BuiltInQProfileRepositoryImpl}) keep matching on the internal name — nothing there is aware this mapping
@@ -35,9 +37,7 @@ import javax.annotation.CheckForNull;
 public final class QualityProfileDisplayNames {
 
   private static final Map<String, String> DISPLAY_NAME_BY_INTERNAL_NAME = Map.of(
-    "Sonar way", "Deep",
-    "Sonar way essentials", "Core",
-    "Sonar way balanced", "Extended");
+    "Sonar way", "Sonar way deep");
 
   private static final Map<String, String> INTERNAL_NAME_BY_DISPLAY_NAME = DISPLAY_NAME_BY_INTERNAL_NAME.entrySet().stream()
     .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));

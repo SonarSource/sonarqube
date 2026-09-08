@@ -68,8 +68,15 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class SearchAction implements QProfileWsAction {
+  /**
+   * Fixed display order for the "Sonar way" family, shown before any other profile for a given language.
+   * Everything else falls back to alphabetical order by display name (see {@link #Q_PROFILE_COMPARATOR}).
+   */
+  private static final List<String> PINNED_DISPLAY_NAME_ORDER = List.of("Sonar way core", "Sonar way extended", "Sonar way deep");
+
   private static final Comparator<QProfileDto> Q_PROFILE_COMPARATOR = Comparator
     .comparing(QProfileDto::getLanguage)
+    .thenComparing(SearchAction::pinnedDisplayNameRank)
     .thenComparing(p -> QualityProfileDisplayNames.toDisplayName(p.getName()));
 
   private final UserSession userSession;
@@ -196,6 +203,11 @@ public class SearchAction implements QProfileWsAction {
 
   private Predicate<QProfileDto> hasLanguagePlugin() {
     return p -> languages.get(p.getLanguage()) != null;
+  }
+
+  private static int pinnedDisplayNameRank(QProfileDto profile) {
+    int index = PINNED_DISPLAY_NAME_ORDER.indexOf(QualityProfileDisplayNames.toDisplayName(profile.getName()));
+    return index == -1 ? PINNED_DISPLAY_NAME_ORDER.size() : index;
   }
 
   private static Predicate<QProfileDto> byName(SearchRequest request) {

@@ -27,14 +27,15 @@ class QualityProfileDisplayNamesTest {
 
   @Test
   void toDisplayName_whenInternalNameIsMapped_shouldReturnDisplayName() {
-    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way")).isEqualTo("Deep");
-    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way essentials")).isEqualTo("Core");
-    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way balanced")).isEqualTo("Extended");
+    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way")).isEqualTo("Sonar way deep");
   }
 
   @Test
   void toDisplayName_whenInternalNameIsNotMapped_shouldReturnItUnchanged() {
     assertThat(QualityProfileDisplayNames.toDisplayName("My Company Profile")).isEqualTo("My Company Profile");
+    // the derived variants are renamed at the source, not through this mapping
+    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way core")).isEqualTo("Sonar way core");
+    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way extended")).isEqualTo("Sonar way extended");
   }
 
   @Test
@@ -44,9 +45,7 @@ class QualityProfileDisplayNamesTest {
 
   @Test
   void toInternalName_whenDisplayNameIsMapped_shouldReturnInternalName() {
-    assertThat(QualityProfileDisplayNames.toInternalName("Deep")).isEqualTo("Sonar way");
-    assertThat(QualityProfileDisplayNames.toInternalName("Core")).isEqualTo("Sonar way essentials");
-    assertThat(QualityProfileDisplayNames.toInternalName("Extended")).isEqualTo("Sonar way balanced");
+    assertThat(QualityProfileDisplayNames.toInternalName("Sonar way deep")).isEqualTo("Sonar way");
   }
 
   @Test
@@ -61,8 +60,6 @@ class QualityProfileDisplayNamesTest {
 
   @Test
   void toDisplayName_and_toInternalName_shouldRoundTrip() {
-    for (String internalName : new String[] {"Sonar way", "Sonar way essentials", "Sonar way balanced"}) {
-      assertThat(QualityProfileDisplayNames.toInternalName(QualityProfileDisplayNames.toDisplayName(internalName))).isEqualTo(internalName);
-    }
+    assertThat(QualityProfileDisplayNames.toInternalName(QualityProfileDisplayNames.toDisplayName("Sonar way"))).isEqualTo("Sonar way");
   }
 }
