@@ -98,6 +98,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_067, "Create table 'arch_boundaries'", CreateArchBoundariesTable.class)
       .add(2026_05_068, "Remove default value on 'devops_perms_mapping.devops_platform'", RemoveDevopsPermsMappingDevopsPlatformDefaultValue.class)
       .add(2026_05_069, "Drop index 'components_uuid'", DropComponentsUuidIndex.class)
-      .add(2026_05_070, "Add primary key on 'components.uuid'", AddComponentsUuidPrimaryKey.class);
+      .add(2026_05_070, "Add primary key on 'components.uuid'", AddComponentsUuidPrimaryKey.class)
+      .add(2026_05_071, "Add the previous job pointer to 'hunter_agent_jobs'", AddPreviousJobToHunterAgentJobsTable.class);
   }
 }
