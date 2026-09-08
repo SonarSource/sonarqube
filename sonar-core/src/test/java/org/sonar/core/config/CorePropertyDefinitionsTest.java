@@ -55,7 +55,7 @@ public class CorePropertyDefinitionsTest {
     assertThat(definition.defaultValue()).isEqualTo("false");
     assertThat(definition.global()).isFalse();
     assertThat(definition.configScopes()).containsExactly(ConfigScope.PROJECT);
-    assertThat(definition.hidden()).isFalse();
+    assertThat(definition.hidden()).isTrue();
   }
 
   @Test
