@@ -46,6 +46,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.language.LanguageParamUtils;
+import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
@@ -69,7 +70,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class SearchAction implements QProfileWsAction {
   private static final Comparator<QProfileDto> Q_PROFILE_COMPARATOR = Comparator
     .comparing(QProfileDto::getLanguage)
-    .thenComparing(QProfileDto::getName);
+    .thenComparing(p -> QualityProfileDisplayNames.toDisplayName(p.getName()));
 
   private final UserSession userSession;
   private final Languages languages;
@@ -198,7 +199,8 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private static Predicate<QProfileDto> byName(SearchRequest request) {
-    return p -> request.getQualityProfile() == null || Objects.equals(p.getName(), request.getQualityProfile());
+    String internalName = QualityProfileDisplayNames.toInternalName(request.getQualityProfile());
+    return p -> internalName == null || Objects.equals(p.getName(), internalName);
   }
 
   private static Predicate<QProfileDto> byLanguage(SearchRequest request) {
@@ -240,7 +242,7 @@ public class SearchAction implements QProfileWsAction {
 
       String profileKey = profile.getKee();
       profileBuilder.setKey(profileKey);
-      ofNullable(profile.getName()).ifPresent(profileBuilder::setName);
+      ofNullable(QualityProfileDisplayNames.toDisplayName(profile.getName())).ifPresent(profileBuilder::setName);
       ofNullable(profile.getRulesUpdatedAt()).ifPresent(profileBuilder::setRulesUpdatedAt);
       ofNullable(profile.getLastUsed()).ifPresent(last -> profileBuilder.setLastUsed(formatDateTime(last)));
       ofNullable(profile.getUserUpdatedAt()).ifPresent(userUpdatedAt -> profileBuilder.setUserUpdatedAt(formatDateTime(userUpdatedAt)));

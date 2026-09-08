@@ -141,7 +141,7 @@ public class RegisterQualityProfiles implements Startable {
   }
 
   private void create(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn) {
-    LOGGER.info("Register profile {}", builtIn.getQProfileName());
+    LOGGER.info("Register profile {}", toDisplayName(builtIn.getQProfileName()));
 
     renameOutdatedProfiles(dbSession, builtIn);
 
@@ -149,9 +149,17 @@ public class RegisterQualityProfiles implements Startable {
   }
 
   private List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile definition, RulesProfileDto dbProfile) {
-    LOGGER.info("Update profile {}", definition.getQProfileName());
+    LOGGER.info("Update profile {}", toDisplayName(definition.getQProfileName()));
 
     return builtInQProfileUpdate.update(dbSession, definition, dbProfile);
+  }
+
+  /**
+   * Renders a {@link QProfileName} the way an admin reading startup logs should see it, i.e. using the same
+   * brand name as the UI and the WS API, without changing the internal name used for matching above.
+   */
+  private static String toDisplayName(QProfileName name) {
+    return format("%s/%s", name.getLanguage(), QualityProfileDisplayNames.toDisplayName(name.getName()));
   }
 
   /**

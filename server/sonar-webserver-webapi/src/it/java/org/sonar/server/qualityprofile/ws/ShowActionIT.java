@@ -36,6 +36,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -171,7 +172,7 @@ public class ShowActionIT {
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
-      .containsExactly(sonarWayProfile.getKee(), sonarWayProfile.getName(), 2L);
+      .containsExactly(sonarWayProfile.getKee(), QualityProfileDisplayNames.toDisplayName(sonarWayProfile.getName()), 2L);
   }
 
   @Test
@@ -189,7 +190,7 @@ public class ShowActionIT {
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
-      .containsExactly(sonarWayProfile.getKee(), sonarWayProfile.getName(), 0L);
+      .containsExactly(sonarWayProfile.getKee(), QualityProfileDisplayNames.toDisplayName(sonarWayProfile.getName()), 0L);
   }
 
   @DataProvider
@@ -247,7 +248,7 @@ public class ShowActionIT {
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
-      .containsExactly(sonarWayProfile.getKee(), sonarWayProfile.getName());
+      .containsExactly(sonarWayProfile.getKee(), QualityProfileDisplayNames.toDisplayName(sonarWayProfile.getName()));
   }
 
   @Test

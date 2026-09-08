@@ -2,7 +2,7 @@
   "profiles": [
     {
       "key": "AU-TpxcA-iU5OvuD2FL3",
-      "name": "Sonar way",
+      "name": "Deep",
       "language": "cs",
       "languageName": "C#",
       "isInherited": false,
@@ -66,7 +66,7 @@
     },
     {
       "key": "AU-TpxcB-iU5OvuD2FL7",
-      "name": "Sonar way",
+      "name": "Deep",
       "language": "py",
       "languageName": "Python",
       "isInherited": false,

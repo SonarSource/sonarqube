@@ -34,6 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleCountQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse.CompareToSonarWay;
@@ -136,7 +137,7 @@ public class ShowAction implements QProfileWsAction {
 
     return CompareToSonarWay.newBuilder()
       .setProfile(sonarWay.getKee())
-      .setProfileName(sonarWay.getName())
+      .setProfileName(QualityProfileDisplayNames.toDisplayName(sonarWay.getName()))
       .setMissingRuleCount(missingRuleCount)
       .build();
   }
@@ -146,7 +147,7 @@ public class ShowAction implements QProfileWsAction {
     ShowResponse.Builder showResponseBuilder = Qualityprofiles.ShowResponse.newBuilder();
     QualityProfile.Builder profileBuilder = QualityProfile.newBuilder()
       .setKey(profile.getKee())
-      .setName(profile.getName())
+      .setName(QualityProfileDisplayNames.toDisplayName(profile.getName()))
       .setLanguage(profile.getLanguage())
       .setLanguageName(language.getName())
       .setIsBuiltIn(profile.isBuiltIn())

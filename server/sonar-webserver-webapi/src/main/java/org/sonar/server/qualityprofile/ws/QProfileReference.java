@@ -27,6 +27,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
@@ -120,7 +121,7 @@ public class QProfileReference {
 
   public static QProfileReference fromName(Request request) {
     String lang = request.mandatoryParam(PARAM_LANGUAGE);
-    String name = request.mandatoryParam(PARAM_QUALITY_PROFILE);
+    String name = QualityProfileDisplayNames.toInternalName(request.mandatoryParam(PARAM_QUALITY_PROFILE));
     return fromName(lang, name);
   }
 
