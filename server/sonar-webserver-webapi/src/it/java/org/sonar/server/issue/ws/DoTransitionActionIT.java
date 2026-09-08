@@ -29,12 +29,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
@@ -129,9 +131,11 @@ class DoTransitionActionIT {
     mock(NotificationManager.class), issueChangePostProcessor, issuesChangesSerializer);
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
   private IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDaoImpl = new IssueStatsByRuleKeyDaoImpl(dbClient);
+  private IssueEventsPublisher issueEventsPublisher = mock(IssueEventsPublisher.class);
 
   private WsAction underTest = new DoTransitionAction(dbClient, userSession, issueChangeEventService,
-    new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2, new IssueIngestionService(issueStatsByRuleKeyDaoImpl));
+    new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2,
+    new IssueIngestionService(issueStatsByRuleKeyDaoImpl), issueEventsPublisher);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -150,6 +154,34 @@ class DoTransitionActionIT {
     IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issue.getKey()).get();
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CONFIRMED);
     assertThat(issueChangePostProcessor.calledComponents()).containsExactlyInAnyOrder(file);
+  }
+
+  @Test
+  void do_transition_publishes_status_updated_event_for_hunter_agent_issue() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, file,
+      i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL).setIssueProducer(IssueProducer.HUNTER_AGENT));
+    userSession.logIn(db.users().insertUser()).addProjectPermission(USER, project, file);
+
+    call(issue.getKey(), "confirm");
+
+    verify(issueEventsPublisher).publishStatusUpdated(issue.getKey(), IssueStatus.CONFIRMED);
+  }
+
+  @Test
+  void do_transition_does_not_publish_status_updated_event_for_scanner_issue() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, file,
+      i -> i.setStatus(STATUS_OPEN).setResolution(null).setType(CODE_SMELL).setIssueProducer(IssueProducer.SCANNER));
+    userSession.logIn(db.users().insertUser()).addProjectPermission(USER, project, file);
+
+    call(issue.getKey(), "confirm");
+
+    verifyNoInteractions(issueEventsPublisher);
   }
 
   @ParameterizedTest

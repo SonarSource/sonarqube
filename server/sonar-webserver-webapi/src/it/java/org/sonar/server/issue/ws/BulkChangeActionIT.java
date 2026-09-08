@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -32,6 +33,7 @@ import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
@@ -142,9 +144,10 @@ public class BulkChangeActionIT {
   private IssuesChangesNotificationSerializer issuesChangesSerializer = new IssuesChangesNotificationSerializer();
   private ArgumentCaptor<IssuesChangesNotification> issueChangeNotificationCaptor = ArgumentCaptor.forClass(IssuesChangesNotification.class);
   private List<Action> actions = new ArrayList<>();
+  private IssueEventsPublisher issueEventsPublisher = mock(IssueEventsPublisher.class);
 
   private WsActionTester tester = new WsActionTester(new BulkChangeAction(system2, userSession, dbClient, issueStorage, notificationManager, actions,
-    issueChangePostProcessor, issuesChangesSerializer, issueChangeEventService));
+    issueChangePostProcessor, issuesChangesSerializer, issueChangeEventService, issueEventsPublisher));
 
   @Before
   public void setUp() {
@@ -344,6 +347,92 @@ public class BulkChangeActionIT {
 
     verifyPostProcessorCalled(file);
     verify(issueChangeEventService).distributeIssueChangeEvent(any(), any(), any());
+  }
+
+  @Test
+  public void bulk_change_publishes_status_updated_event_for_hunter_agent_issue() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
+    RuleDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
+      .setStatus(STATUS_OPEN).setResolution(null).setIssueProducer(IssueProducer.HUNTER_AGENT));
+
+    BulkChangeWsResponse response = call(builder()
+      .setIssues(singletonList(issue.getKey()))
+      .setDoTransition("confirm")
+      .build());
+
+    checkResponse(response, 1, 1, 0, 0);
+    verify(issueEventsPublisher).publishStatusUpdated(Map.of(issue.getKey(), IssueStatus.CONFIRMED));
+  }
+
+  @Test
+  public void bulk_change_does_not_publish_status_updated_event_for_scanner_issue() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
+    RuleDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
+      .setStatus(STATUS_OPEN).setResolution(null).setIssueProducer(IssueProducer.SCANNER));
+
+    BulkChangeWsResponse response = call(builder()
+      .setIssues(singletonList(issue.getKey()))
+      .setDoTransition("confirm")
+      .build());
+
+    checkResponse(response, 1, 1, 0, 0);
+    verifyNoInteractions(issueEventsPublisher);
+  }
+
+  @Test
+  public void bulk_change_publishes_status_updated_event_only_for_hunter_agent_issues_in_mixed_batch() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
+    RuleDto rule = db.rules().insertIssueRule();
+    IssueDto hunterAgentIssue = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
+      .setStatus(STATUS_OPEN).setResolution(null).setIssueProducer(IssueProducer.HUNTER_AGENT));
+    IssueDto scannerIssue = db.issues().insertIssue(rule, project, file, i -> i.setType(BUG)
+      .setStatus(STATUS_OPEN).setResolution(null).setIssueProducer(IssueProducer.SCANNER));
+
+    BulkChangeWsResponse response = call(builder()
+      .setIssues(asList(hunterAgentIssue.getKey(), scannerIssue.getKey()))
+      .setDoTransition("confirm")
+      .build());
+
+    checkResponse(response, 2, 2, 0, 0);
+    verify(issueEventsPublisher).publishStatusUpdated(Map.of(hunterAgentIssue.getKey(), IssueStatus.CONFIRMED));
+  }
+
+  @Test
+  public void bulk_change_does_not_publish_status_updated_event_on_severity_only_change() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    addUserProjectPermissions(user, projectData, USER, ISSUE_ADMIN);
+    RuleDto rule = db.rules().insertIssueRule();
+    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setSeverity(MAJOR).setType(CODE_SMELL)
+      .setStatus(STATUS_OPEN).setResolution(null).setIssueProducer(IssueProducer.HUNTER_AGENT));
+
+    BulkChangeWsResponse response = call(builder()
+      .setIssues(singletonList(issue.getKey()))
+      .setSetSeverity(MINOR)
+      .build());
+
+    checkResponse(response, 1, 1, 0, 0);
+    verifyNoInteractions(issueEventsPublisher);
   }
 
   @Test

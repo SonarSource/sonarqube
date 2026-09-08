@@ -78,6 +78,7 @@ public class IssueWsModule extends Module {
       EditCommentAction.class,
       DeleteCommentAction.class,
       AssignAction.class,
+      IssueEventsPublisher.class,
       DoTransitionAction.class,
       SearchAction.class,
       ListAction.class,

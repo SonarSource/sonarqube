@@ -35,6 +35,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Change;
@@ -44,6 +45,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -131,11 +133,12 @@ public class BulkChangeAction implements IssuesWsAction {
   private final IssueChangePostProcessor issueChangePostProcessor;
   private final IssuesChangesNotificationSerializer notificationSerializer;
   private final IssueChangeEventService issueChangeEventService;
+  private final IssueEventsPublisher issueEventsPublisher;
 
   public BulkChangeAction(System2 system2, UserSession userSession, DbClient dbClient, WebIssueStorage issueStorage,
     NotificationManager notificationService, List<Action> actions,
     IssueChangePostProcessor issueChangePostProcessor, IssuesChangesNotificationSerializer notificationSerializer,
-    IssueChangeEventService issueChangeEventService) {
+    IssueChangeEventService issueChangeEventService, IssueEventsPublisher issueEventsPublisher) {
     this.system2 = system2;
     this.userSession = userSession;
     this.dbClient = dbClient;
@@ -145,6 +148,7 @@ public class BulkChangeAction implements IssuesWsAction {
     this.issueChangePostProcessor = issueChangePostProcessor;
     this.notificationSerializer = notificationSerializer;
     this.issueChangeEventService = issueChangeEventService;
+    this.issueEventsPublisher = issueEventsPublisher;
   }
 
   @Override
@@ -229,6 +233,7 @@ public class BulkChangeAction implements IssuesWsAction {
       .filter(bulkChange(issueChangeContext, bulkChangeData, result))
       .toList();
     issueStorage.save(dbSession, items);
+    publishStatusUpdatedEvents(items, bulkChangeData);
 
     refreshLiveMeasures(dbSession, bulkChangeData, result);
 
@@ -241,6 +246,23 @@ public class BulkChangeAction implements IssuesWsAction {
     distributeEvents(items, bulkChangeData);
 
     return result;
+  }
+
+  private void publishStatusUpdatedEvents(Collection<DefaultIssue> items, BulkChangeData bulkChangeData) {
+    Map<String, IssueStatus> statusByIssueKey = new HashMap<>();
+    for (DefaultIssue issue : items) {
+      IssueDto originalIssueDto = bulkChangeData.originalIssueByKey.get(issue.key());
+      if (originalIssueDto == null || originalIssueDto.getIssueProducer() != IssueProducer.HUNTER_AGENT) {
+        continue;
+      }
+      IssueStatus newIssueStatus = IssueStatus.of(issue.status(), issue.resolution());
+      if (newIssueStatus != null && newIssueStatus != originalIssueDto.getIssueStatus()) {
+        statusByIssueKey.put(issue.key(), newIssueStatus);
+      }
+    }
+    if (!statusByIssueKey.isEmpty()) {
+      issueEventsPublisher.publishStatusUpdated(statusByIssueKey);
+    }
   }
 
   private void refreshLiveMeasures(DbSession dbSession, BulkChangeData data, BulkChangeResult result) {

@@ -452,6 +452,7 @@ subprojects {
       dependency "org.sonarsource.sonarqube:sonar-feature-flags-api:$unifiedCoreVersion"
       dependency "org.sonarsource.sonarqube:sonar-events-api:$unifiedCoreVersion"
       dependency "org.sonarsource.sonarqube:sonar-events-server:$unifiedCoreVersion"
+      dependency "org.sonarsource.sonarqube:issue-workflow-events:$issueWorkflowEventsVersion"
 
       // please keep this list alphabetically ordered
       dependencySet(group: 'ch.qos.logback', version: '1.6.3') {

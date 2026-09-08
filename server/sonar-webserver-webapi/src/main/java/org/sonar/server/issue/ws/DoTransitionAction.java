@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
@@ -35,6 +36,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -82,10 +84,12 @@ public class DoTransitionAction implements IssuesWsAction {
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
   private final IssueIngestionService issueIngestionService;
+  private final IssueEventsPublisher issueEventsPublisher;
 
   public DoTransitionAction(DbClient dbClient, UserSession userSession, IssueChangeEventService issueChangeEventService,
     IssueFinder issueFinder, IssueUpdater issueUpdater, TransitionService transitionService,
-    OperationResponseWriter responseWriter, System2 system2,IssueIngestionService issueIngestionService) {
+    OperationResponseWriter responseWriter, System2 system2, IssueIngestionService issueIngestionService,
+    IssueEventsPublisher issueEventsPublisher) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueChangeEventService = issueChangeEventService;
@@ -95,6 +99,7 @@ public class DoTransitionAction implements IssuesWsAction {
     this.responseWriter = responseWriter;
     this.system2 = system2;
     this.issueIngestionService = issueIngestionService;
+    this.issueEventsPublisher = issueEventsPublisher;
   }
 
   @Override
@@ -161,6 +166,8 @@ public class DoTransitionAction implements IssuesWsAction {
   }
 
   private SearchResponseData doTransition(DbSession session, IssueDto issueDto, String transitionKey) {
+    IssueProducer issueProducer = issueDto.getIssueProducer();
+    IssueStatus originalIssueStatus = issueDto.getIssueStatus();
     DefaultIssue defaultIssue = issueDto.toDefaultIssue();
     IssueChangeContext context =
       issueChangeContextByUserBuilder(new Date(system2.now()), userSession.getUuid()).withRefreshMeasures().build();
@@ -177,9 +184,20 @@ public class DoTransitionAction implements IssuesWsAction {
         issueChangeEventService.distributeIssueChangeEvent(defaultIssue, null, Map.of(), null, transitionKey, branch,
           response.getComponentByUuid(defaultIssue.projectUuid()).getKey());
       }
+      publishStatusUpdatedIfNeeded(issueProducer, originalIssueStatus, defaultIssue);
       return response;
     }
     return new SearchResponseData(issueDto);
+  }
+
+  private void publishStatusUpdatedIfNeeded(IssueProducer issueProducer, IssueStatus originalIssueStatus, DefaultIssue defaultIssue) {
+    if (issueProducer != IssueProducer.HUNTER_AGENT) {
+      return;
+    }
+    IssueStatus newIssueStatus = IssueStatus.of(defaultIssue.status(), defaultIssue.resolution());
+    if (newIssueStatus != null && newIssueStatus != originalIssueStatus) {
+      issueEventsPublisher.publishStatusUpdated(defaultIssue.key(), newIssueStatus);
+    }
   }
 
   private void updateIssueStatsByRuleKey(BranchDto branchDto, RuleKey ruleKey, DefaultIssue issue, String transitionKey) {

@@ -134,10 +134,13 @@ useLocalUnificationModule('useLocalEvents', 'unified-core', ['sonar-events-api',
     'sonar-events-server': ':sonar-events:sonar-events-server',
   ]
 ])
-useLocalUnificationModule('useLocalIssueProcessingEvents', 'workflow-and-standards/issue-processing', ['detection-agent-events'], [
+useLocalUnificationModule('useLocalIssueProcessingEvents', 'workflow-and-standards/issue-processing',
+  ['detection-agent-events', 'issue-workflow-events'], [
   group: 'com.sonarsource.sonarqube',
+  groups: ['issue-workflow-events': 'org.sonarsource.sonarqube'],
   projectPaths: [
     'detection-agent-events': ':private:detection-agent-events',
+    'issue-workflow-events' : ':issue-workflow-events',
   ]
 ])
 useLocalUnificationModule('useLocalArchitecture', 'architecture',
