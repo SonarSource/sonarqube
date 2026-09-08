@@ -201,7 +201,7 @@ class EmailConfigurationServiceIT {
 
     if (shouldThrow) {
       assertThatThrownBy(() -> underTest.updateConfiguration(updateRequest))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(BadRequestException.class)
         .hasMessage(errorMessage);
     } else {
       EmailConfiguration updatedConfig = underTest.updateConfiguration(updateRequest);
