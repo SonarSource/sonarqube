@@ -37,6 +37,9 @@ import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
 abstract class AesCipher implements Cipher {
   static final int KEY_SIZE_IN_BITS = 256;
 
+  static final String DECRYPTION_FAILURE_MESSAGE = "Failed to decrypt value. This can happen if the secret key has changed since the value was encrypted, "
+    + "or if the value is corrupted.";
+
   private static final String CRYPTO_KEY = "AES";
 
   private String pathToSecretKey;

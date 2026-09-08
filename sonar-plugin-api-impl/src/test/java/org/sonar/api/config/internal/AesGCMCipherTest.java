@@ -21,8 +21,9 @@ package org.sonar.api.config.internal;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.BufferUnderflowException;
 import java.security.InvalidKeyException;
-import javax.crypto.BadPaddingException;
+import javax.crypto.AEADBadTagException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
@@ -80,7 +81,17 @@ public class AesGCMCipherTest {
     AesGCMCipher cipher = new AesGCMCipher(new File(resource.toURI()).getCanonicalPath());
 
     assertThatThrownBy(() -> cipher.decrypt(originalCipher.encrypt("this is a secret")))
-      .hasCauseInstanceOf(BadPaddingException.class);
+      .hasMessage(AesCipher.DECRYPTION_FAILURE_MESSAGE)
+      .hasCauseInstanceOf(AEADBadTagException.class);
+  }
+
+  @Test
+  public void decrypt_truncated_ciphertext() throws Exception {
+    AesGCMCipher cipher = new AesGCMCipher(pathToSecretKey());
+
+    assertThatThrownBy(() -> cipher.decrypt("AA=="))
+      .hasMessage(AesCipher.DECRYPTION_FAILURE_MESSAGE)
+      .hasCauseInstanceOf(BufferUnderflowException.class);
   }
 
   private String pathToSecretKey() throws Exception {

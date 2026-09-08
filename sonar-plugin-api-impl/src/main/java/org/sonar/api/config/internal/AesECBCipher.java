@@ -21,6 +21,8 @@ package org.sonar.api.config.internal;
 
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 
@@ -57,6 +59,8 @@ final class AesECBCipher extends AesCipher {
       cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile());
       byte[] cipherData = cipher.doFinal(Base64.decodeBase64(StringUtils.trim(encryptedText)));
       return new String(cipherData, StandardCharsets.UTF_8);
+    } catch (BadPaddingException | IllegalBlockSizeException e) {
+      throw new IllegalStateException(DECRYPTION_FAILURE_MESSAGE, e);
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {

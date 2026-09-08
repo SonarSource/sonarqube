@@ -24,6 +24,7 @@ import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
@@ -89,8 +90,17 @@ public class AesECBCipherTest {
     AesECBCipher cipher = new AesECBCipher(new File(resource.toURI()).getCanonicalPath());
 
     assertThatThrownBy(() -> cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY="))
-      .isInstanceOf(RuntimeException.class)
+      .hasMessage(AesCipher.DECRYPTION_FAILURE_MESSAGE)
       .hasCauseInstanceOf(BadPaddingException.class);
+  }
+
+  @Test
+  public void decrypt_truncated_ciphertext() throws Exception {
+    AesECBCipher cipher = new AesECBCipher(pathToSecretKey());
+
+    assertThatThrownBy(() -> cipher.decrypt("AA=="))
+      .hasMessage(AesCipher.DECRYPTION_FAILURE_MESSAGE)
+      .hasCauseInstanceOf(IllegalBlockSizeException.class);
   }
 
   @Test

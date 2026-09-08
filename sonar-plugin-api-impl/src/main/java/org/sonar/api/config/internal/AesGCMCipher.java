@@ -19,10 +19,13 @@
  */
 package org.sonar.api.config.internal;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import javax.annotation.Nullable;
+import javax.crypto.AEADBadTagException;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.GCMParameterSpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -70,6 +73,8 @@ final class AesGCMCipher extends AesCipher {
       cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile(), new GCMParameterSpec(GCM_TAG_LENGTH_IN_BITS, iv));
       byte[] cipherData = cipher.doFinal(cipherText);
       return new String(cipherData, StandardCharsets.UTF_8);
+    } catch (AEADBadTagException | IllegalBlockSizeException | BufferUnderflowException e) {
+      throw new IllegalStateException(DECRYPTION_FAILURE_MESSAGE, e);
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {
