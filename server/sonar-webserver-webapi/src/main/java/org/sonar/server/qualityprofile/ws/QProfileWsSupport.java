@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Objects;
 import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
@@ -74,7 +75,7 @@ public class QProfileWsSupport {
   }
 
   public QProfileDto getProfile(DbSession dbSession, String name, String language) {
-    String internalName = QualityProfileDisplayNames.toInternalName(name);
+    String internalName = Objects.requireNonNull(QualityProfileDisplayNames.toInternalName(name));
     QProfileDto profile = dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, internalName, language);
     checkFound(profile, "Quality Profile for language '%s' and name '%s' does not exist", language, name);
     return profile;
