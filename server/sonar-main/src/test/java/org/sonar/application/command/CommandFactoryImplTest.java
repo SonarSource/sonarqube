@@ -211,7 +211,7 @@ public class CommandFactoryImplTest {
       .isNotEmpty();
     assertThat(command.getArguments())
       // default settings
-      .contains(entry("sonar.web.javaOpts", "-Xmx2G -Xms128m -XX:+HeapDumpOnOutOfMemoryError"))
+      .contains(entry("sonar.ce.javaOpts", "-Xmx4G -Xms128m -XX:+HeapDumpOnOutOfMemoryError"))
       .contains(entry("sonar.cluster.enabled", "false"));
 
     assertThat(command.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS");

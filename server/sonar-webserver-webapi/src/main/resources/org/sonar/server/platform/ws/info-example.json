@@ -46,11 +46,11 @@
   },
   "Plugins": {},
   "Web JVM State": {
-    "Max Memory (MB)": 1024,
+    "Max Memory (MB)": 2048,
     "Free Memory (MB)": 212,
     "Heap Committed (MB)": 379,
     "Heap Init (MB)": 128,
-    "Heap Max (MB)": 1024,
+    "Heap Max (MB)": 2048,
     "Heap Used (MB)": 166,
     "Non Heap Committed (MB)": 167,
     "Non Heap Init (MB)": 7,
@@ -152,11 +152,11 @@
     "Workers Paused": false
   },
   "Compute Engine JVM State": {
-    "Max Memory (MB)": 2048,
+    "Max Memory (MB)": 4096,
     "Free Memory (MB)": 43,
     "Heap Committed (MB)": 213,
     "Heap Init (MB)": 128,
-    "Heap Max (MB)": 2048,
+    "Heap Max (MB)": 4096,
     "Heap Used (MB)": 168,
     "Non Heap Committed (MB)": 114,
     "Non Heap Init (MB)": 7,
