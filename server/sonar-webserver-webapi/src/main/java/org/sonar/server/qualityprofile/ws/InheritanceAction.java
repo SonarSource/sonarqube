@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Change;
@@ -133,7 +134,7 @@ public class InheritanceAction implements QProfileWsAction {
     String key = qualityProfile.getKee();
     QualityProfile.Builder builder = QualityProfile.newBuilder()
       .setKey(key)
-      .setName(QualityProfileDisplayNames.toDisplayName(qualityProfile.getName(), qualityProfile.isBuiltIn()))
+      .setName(Objects.requireNonNull(QualityProfileDisplayNames.toDisplayName(qualityProfile.getName(), qualityProfile.isBuiltIn())))
       .setActiveRuleCount(statistics.countRulesByProfileKey.getOrDefault(key, 0L))
       .setOverridingRuleCount(statistics.countOverridingRulesByProfileKey.getOrDefault(key, 0L))
       .setInactiveRuleCount(statistics.countInactiveRuleByProfileKey.get(key))

@@ -312,7 +312,7 @@ public class SearchAction implements QProfileWsAction {
     profileBuilder.setParentKey(parentKey);
     QProfileDto parent = profilesByKey.get(parentKey);
     if (parent != null && parent.getName() != null) {
-      profileBuilder.setParentName(QualityProfileDisplayNames.toDisplayName(parent.getName(), parent.isBuiltIn()));
+      profileBuilder.setParentName(Objects.requireNonNull(QualityProfileDisplayNames.toDisplayName(parent.getName(), parent.isBuiltIn())));
     }
   }
 
