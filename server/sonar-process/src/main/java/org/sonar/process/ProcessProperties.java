@@ -93,7 +93,7 @@ public class ProcessProperties {
     SONAR_ES_BOOTSTRAP_CHECKS_DISABLE("sonar.es.bootstrap.checks.disable"),
 
     WEB_HOST("sonar.web.host"),
-    WEB_JAVA_OPTS("sonar.web.javaOpts", "-Xmx2G -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),
+    WEB_JAVA_OPTS("sonar.web.javaOpts", "-Xmx1G -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),
     WEB_JAVA_ADDITIONAL_OPTS("sonar.web.javaAdditionalOpts", ""),
     WEB_CONTEXT("sonar.web.context"),
     WEB_PORT("sonar.web.port"),
@@ -112,7 +112,7 @@ public class ProcessProperties {
 
     PERFORMANCE_MONITORING_ENABLED("sonar.performanceMonitoring.enabled", Boolean.FALSE.toString()),
 
-    CE_JAVA_OPTS("sonar.ce.javaOpts", "-Xmx4G -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),
+    CE_JAVA_OPTS("sonar.ce.javaOpts", "-Xmx1536m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"),
     CE_JAVA_ADDITIONAL_OPTS("sonar.ce.javaAdditionalOpts", ""),
     CE_GRACEFUL_STOP_TIMEOUT("sonar.ce.gracefulStopTimeOutInMs", "" + 6 * 60 * 60 * 1_000L),
 

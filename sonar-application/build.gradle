@@ -383,10 +383,10 @@ task zip(type: ParallelZip, dependsOn: [configurations.compileClasspath]) {
     filter(ReplaceTokens, tokens: [
             'searchDefaultHeapSize': '512MB',
             'searchJavaOpts'       : '-Xmx512m -Xms512m -XX:MaxDirectMemorySize=256m -XX:+HeapDumpOnOutOfMemoryError',
-            'ceDefaultHeapSize'    : '4GB',
-            'ceJavaOpts'           : '-Xmx4G -Xms128m -XX:+HeapDumpOnOutOfMemoryError',
-            'webDefaultHeapSize'   : '2GB',
-            'webJavaOpts'          : '-Xmx2G -Xms128m -XX:+HeapDumpOnOutOfMemoryError'
+            'ceDefaultHeapSize'    : '1.5GB',
+            'ceJavaOpts'           : '-Xmx1536m -Xms128m -XX:+HeapDumpOnOutOfMemoryError',
+            'webDefaultHeapSize'   : '1GB',
+            'webJavaOpts'          : '-Xmx1G -Xms128m -XX:+HeapDumpOnOutOfMemoryError'
     ])
   }
 
