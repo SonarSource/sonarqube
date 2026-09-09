@@ -160,6 +160,27 @@ class ChangeParentActionIT {
   }
 
   @Test
+  void change_parent_resolves_a_built_in_parent_referenced_by_its_display_name() {
+    QProfileDto parent = QualityProfileTesting.newQualityProfileDto()
+      .setName("Sonar way")
+      .setLanguage(language.getKey())
+      .setIsBuiltIn(true);
+    dbClient.qualityProfileDao().insert(dbSession, parent);
+    dbSession.commit();
+    QProfileDto child = createProfile();
+
+    ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_LANGUAGE, child.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, child.getName())
+      .setParam(PARAM_PARENT_QUALITY_PROFILE, "Sonar way comprehensive")
+      .execute();
+
+    QProfileDto reloaded = dbClient.qualityProfileDao().selectByUuid(dbSession, child.getKee());
+    assertThat(reloaded.getParentKee()).isEqualTo(parent.getKee());
+  }
+
+  @Test
   void replace_existing_parent() {
     QProfileDto parent1 = createProfile();
     QProfileDto parent2 = createProfile();
