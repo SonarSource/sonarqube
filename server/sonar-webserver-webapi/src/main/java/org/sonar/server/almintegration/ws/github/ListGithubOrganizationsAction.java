@@ -20,7 +20,6 @@
 package org.sonar.server.almintegration.ws.github;
 
 import java.util.List;
-import java.util.Optional;
 import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.GithubApplicationClient.Organization;
 import org.sonar.alm.client.github.GithubApplicationClientImpl;
@@ -125,18 +124,11 @@ public class ListGithubOrganizationsAction implements AlmIntegrationsWsAction {
           throw BadRequestException.create("Unable to authenticate with GitHub. "
             + "Check the GitHub App client ID and client secret configured in the Global Settings and try again.");
         }
-        Optional<AlmPatDto> almPatDto = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto);
-        if (almPatDto.isPresent()) {
-          AlmPatDto almPat = almPatDto.get();
-          almPat.setPersonalAccessToken(accessToken.getValue());
-          dbClient.almPatDao().update(dbSession, almPat, userSession.getLogin(), almSettingDto.getKey());
-        } else {
-          AlmPatDto almPat = new AlmPatDto()
-            .setPersonalAccessToken(accessToken.getValue())
-            .setAlmSettingUuid(almSettingDto.getUuid())
-            .setUserUuid(userUuid);
-          dbClient.almPatDao().insert(dbSession, almPat, userSession.getLogin(), almSettingDto.getKey());
-        }
+        AlmPatDto almPat = new AlmPatDto()
+          .setPersonalAccessToken(accessToken.getValue())
+          .setAlmSettingUuid(almSettingDto.getUuid())
+          .setUserUuid(userUuid);
+        dbClient.almPatDao().save(dbSession, almPat, userSession.getLogin(), almSettingDto.getKey());
         dbSession.commit();
       } else {
         accessToken = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto)
