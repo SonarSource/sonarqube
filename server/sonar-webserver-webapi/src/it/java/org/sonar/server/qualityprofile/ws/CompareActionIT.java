@@ -140,6 +140,24 @@ class CompareActionIT {
   }
 
   @Test
+  void compare_whenLeftProfileIsBuiltInSonarWay_shouldReturnItsDisplayName() {
+    createRepository("blah", "xoo", "Blah");
+    RuleDto rule1 = createRule("xoo", "rule1");
+
+    QProfileDto sonarWay = db.qualityProfiles().insert(p -> p.setKee("xoo-sonar-way-01234").setName("Sonar way").setLanguage("xoo").setIsBuiltIn(true));
+    createActiveRule(rule1, sonarWay);
+    QProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
+    session.commit();
+
+    String response = ws.newRequest()
+      .setParam("leftKey", sonarWay.getKee())
+      .setParam("rightKey", profile2.getKee())
+      .execute().getInput();
+
+    assertThat(response).contains("\"name\":\"Sonar way comprehensive\"");
+  }
+
+  @Test
   void compare_param_on_left() {
     RuleDto rule1 = createRuleWithParam("xoo", "rule1");
     createRepository("blah", "xoo", "Blah");

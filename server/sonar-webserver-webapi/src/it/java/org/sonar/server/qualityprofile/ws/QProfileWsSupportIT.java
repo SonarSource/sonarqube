@@ -83,6 +83,15 @@ public class QProfileWsSupportIT {
   }
 
   @Test
+  public void getProfile_whenCalledWithNameAndLanguage_andNameIsTheDisplayNameOfABuiltInProfile_resolvesItByInternalName() {
+    QProfileDto sonarWay = db.qualityProfiles().insert(p -> p.setName("Sonar way").setLanguage("xoo").setIsBuiltIn(true));
+
+    QProfileDto loaded = underTest.getProfile(db.getSession(), "Sonar way comprehensive", "xoo");
+
+    assertThat(loaded.getKee()).isEqualTo(sonarWay.getKee());
+  }
+
+  @Test
   public void getRule_throws_BadRequest_if_rule_is_external() {
     RuleDto rule = db.rules().insert(r -> r.setIsExternal(true));
 

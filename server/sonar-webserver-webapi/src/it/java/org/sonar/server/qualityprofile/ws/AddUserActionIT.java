@@ -84,6 +84,23 @@ public class AddUserActionIT {
   }
 
   @Test
+  public void add_user_on_built_in_profile_referenced_by_its_display_name_resolves_it_and_fails_as_built_in() {
+    // the profile must resolve correctly by its display name and be rejected because it's built-in,
+    // not because the display name fails to resolve to any profile at all
+    db.qualityProfiles().insert(p -> p.setName("Sonar way").setLanguage(XOO).setIsBuiltIn(true));
+    UserDto user = db.users().insertUser();
+    userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
+
+    assertThatThrownBy(() -> ws.newRequest()
+      .setParam(PARAM_QUALITY_PROFILE, "Sonar way comprehensive")
+      .setParam(PARAM_LANGUAGE, XOO)
+      .setParam(PARAM_LOGIN, user.getLogin())
+      .execute())
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Operation forbidden for built-in Quality Profile 'Sonar way' with language 'xoo'");
+  }
+
+  @Test
   public void does_nothing_when_user_can_already_edit_profile() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user = db.users().insertUser();

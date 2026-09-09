@@ -29,6 +29,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -73,7 +74,8 @@ public class QProfileWsSupport {
   }
 
   public QProfileDto getProfile(DbSession dbSession, String name, String language) {
-    QProfileDto profile = dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, name, language);
+    String internalName = QualityProfileDisplayNames.toInternalName(name);
+    QProfileDto profile = dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, internalName, language);
     checkFound(profile, "Quality Profile for language '%s' and name '%s' does not exist", language, name);
     return profile;
   }

@@ -211,7 +211,11 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private static int pinnedDisplayNameRank(QProfileDto profile) {
-    int index = PINNED_DISPLAY_NAME_ORDER.indexOf(QualityProfileDisplayNames.toDisplayName(profile.getName(), profile.isBuiltIn()));
+    if (!profile.isBuiltIn()) {
+      // a custom profile must never be pinned, even if it happens to be named e.g. "Sonar way core"
+      return PINNED_DISPLAY_NAME_ORDER.size();
+    }
+    int index = PINNED_DISPLAY_NAME_ORDER.indexOf(QualityProfileDisplayNames.toDisplayName(profile.getName(), true));
     return index == -1 ? PINNED_DISPLAY_NAME_ORDER.size() : index;
   }
 
@@ -308,7 +312,7 @@ public class SearchAction implements QProfileWsAction {
     profileBuilder.setParentKey(parentKey);
     QProfileDto parent = profilesByKey.get(parentKey);
     if (parent != null && parent.getName() != null) {
-      profileBuilder.setParentName(parent.getName());
+      profileBuilder.setParentName(QualityProfileDisplayNames.toDisplayName(parent.getName(), parent.isBuiltIn()));
     }
   }
 

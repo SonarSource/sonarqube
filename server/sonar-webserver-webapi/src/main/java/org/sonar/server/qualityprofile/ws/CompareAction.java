@@ -49,6 +49,7 @@ import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
 import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
+import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -164,7 +165,7 @@ public class CompareAction implements QProfileWsAction {
 
   private static void writeProfile(JsonWriter json, QProfileDto profile) {
     json.prop(ATTRIBUTE_KEY, profile.getKee())
-      .prop(ATTRIBUTE_NAME, profile.getName());
+      .prop(ATTRIBUTE_NAME, QualityProfileDisplayNames.toDisplayName(profile.getName(), profile.isBuiltIn()));
   }
 
   private void writeRules(JsonWriter json, Map<RuleKey, ActiveRuleDto> activeRules, Map<RuleKey, RuleDto> rulesByKey,

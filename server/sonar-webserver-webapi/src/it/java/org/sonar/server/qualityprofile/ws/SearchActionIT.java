@@ -175,6 +175,34 @@ public class SearchActionIT {
   }
 
   @Test
+  public void custom_profile_named_like_a_pinned_display_name_is_not_pinned() {
+    db.qualityProfiles().insert(p -> p.setName("Sonar way core").setLanguage(XOO1.getKey()).setIsBuiltIn(true));
+    db.qualityProfiles().insert(p -> p.setName("Sonar way core").setLanguage(XOO1.getKey()).setIsBuiltIn(false));
+    db.qualityProfiles().insert(p -> p.setName("Another Custom Profile").setLanguage(XOO1.getKey()));
+
+    SearchWsResponse result = call(ws.newRequest());
+
+    assertThat(result.getProfilesList()).extracting(QualityProfile::getName, QualityProfile::getIsBuiltIn)
+      .containsExactly(
+        tuple("Sonar way core", true),
+        tuple("Another Custom Profile", false),
+        tuple("Sonar way core", false));
+  }
+
+  @Test
+  public void inherited_profile_from_built_in_sonar_way_shows_its_display_name_as_parent() {
+    QProfileDto sonarWay = db.qualityProfiles().insert(p -> p.setName("Sonar way").setLanguage(XOO1.getKey()).setIsBuiltIn(true));
+    QProfileDto child = db.qualityProfiles().insert(p -> p.setName("My Child Profile").setLanguage(XOO1.getKey()).setParentKee(sonarWay.getKee()));
+
+    SearchWsResponse result = call(ws.newRequest());
+
+    assertThat(result.getProfilesList())
+      .filteredOn(p -> p.getKey().equals(child.getKee()))
+      .extracting(QualityProfile::getParentName)
+      .containsExactly("Sonar way comprehensive");
+  }
+
+  @Test
   public void filter_on_defaults_and_name() {
     QProfileDto sonarWayOnXoo1 = db.qualityProfiles().insert(p -> p.setName("Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto sonarWayOnXoo2 = db.qualityProfiles().insert(p -> p.setName("Sonar way").setLanguage(XOO2.getKey()));
