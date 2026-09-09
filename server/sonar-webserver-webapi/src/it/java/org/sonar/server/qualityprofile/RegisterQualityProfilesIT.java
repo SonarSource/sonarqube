@@ -94,7 +94,7 @@ public class RegisterQualityProfilesIT {
 
     assertThat(insert.callLogs).containsExactly(builtInQProfile);
     assertThat(update.callLogs).isEmpty();
-    assertThat(logTester.logs(Level.INFO)).contains("Register profile foo/Sonar way deep");
+    assertThat(logTester.logs(Level.INFO)).contains("Register profile foo/Sonar way comprehensive");
   }
 
   @Test
@@ -138,7 +138,7 @@ public class RegisterQualityProfilesIT {
 
     assertThat(insert.callLogs).isEmpty();
     assertThat(update.callLogs).containsExactly(builtIn);
-    assertThat(logTester.logs(Level.INFO)).contains("Update profile foo/Sonar way deep");
+    assertThat(logTester.logs(Level.INFO)).contains("Update profile foo/Sonar way comprehensive");
   }
 
   @Test

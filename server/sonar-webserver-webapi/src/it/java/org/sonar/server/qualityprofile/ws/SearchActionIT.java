@@ -171,7 +171,7 @@ public class SearchActionIT {
     SearchWsResponse result = call(ws.newRequest());
 
     assertThat(result.getProfilesList()).extracting(QualityProfile::getName)
-      .containsExactly("Sonar way core", "Sonar way extended", "Sonar way deep", "Another Custom Profile", "Zebra Custom Profile");
+      .containsExactly("Sonar way core", "Sonar way extended", "Sonar way comprehensive", "Another Custom Profile", "Zebra Custom Profile");
   }
 
   @Test

@@ -72,7 +72,7 @@ public class SearchAction implements QProfileWsAction {
    * Fixed display order for the "Sonar way" family, shown before any other profile for a given language.
    * Everything else falls back to alphabetical order by display name (see {@link #Q_PROFILE_COMPARATOR}).
    */
-  private static final List<String> PINNED_DISPLAY_NAME_ORDER = List.of("Sonar way core", "Sonar way extended", "Sonar way deep");
+  private static final List<String> PINNED_DISPLAY_NAME_ORDER = List.of("Sonar way core", "Sonar way extended", "Sonar way comprehensive");
 
   private static final Comparator<QProfileDto> Q_PROFILE_COMPARATOR = Comparator
     .comparing(QProfileDto::getLanguage)

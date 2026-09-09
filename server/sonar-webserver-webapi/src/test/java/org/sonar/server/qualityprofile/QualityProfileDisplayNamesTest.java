@@ -27,7 +27,7 @@ class QualityProfileDisplayNamesTest {
 
   @Test
   void toDisplayName_whenInternalNameIsMapped_shouldReturnDisplayName() {
-    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way")).isEqualTo("Sonar way deep");
+    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way")).isEqualTo("Sonar way comprehensive");
   }
 
   @Test
@@ -45,7 +45,7 @@ class QualityProfileDisplayNamesTest {
 
   @Test
   void toInternalName_whenDisplayNameIsMapped_shouldReturnInternalName() {
-    assertThat(QualityProfileDisplayNames.toInternalName("Sonar way deep")).isEqualTo("Sonar way");
+    assertThat(QualityProfileDisplayNames.toInternalName("Sonar way comprehensive")).isEqualTo("Sonar way");
   }
 
   @Test

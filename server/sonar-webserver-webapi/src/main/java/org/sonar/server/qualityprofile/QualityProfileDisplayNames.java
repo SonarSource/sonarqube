@@ -37,7 +37,7 @@ import javax.annotation.CheckForNull;
 public final class QualityProfileDisplayNames {
 
   private static final Map<String, String> DISPLAY_NAME_BY_INTERNAL_NAME = Map.of(
-    "Sonar way", "Sonar way deep");
+    "Sonar way", "Sonar way comprehensive");
 
   private static final Map<String, String> INTERNAL_NAME_BY_DISPLAY_NAME = DISPLAY_NAME_BY_INTERNAL_NAME.entrySet().stream()
     .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
