@@ -17,25 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.issue.index;
+package org.sonar.server.issue.index;
 
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.server.issue.index.AsyncIssueIndexing;
+import org.sonar.api.platform.Server;
+import org.sonar.api.platform.ServerStartHandler;
 
-@ComputeEngineSide
-public class NoAsyncIssueIndexing implements AsyncIssueIndexing {
-  @Override
-  public void triggerOnIndexCreation() {
-    throw new IllegalStateException("Async issue indexing should not be triggered in Compute Engine");
+/**
+ * On every startup, re-queues branches that have need_issue_sync=true but no pending BRANCH_ISSUE_SYNC
+ * task in the CE queue. This covers branches left stranded when a task was cancelled during shutdown.
+ */
+public class IssueSyncOrphanedBranchesStartupHandler implements ServerStartHandler {
+
+  private final AsyncIssueIndexing asyncIssueIndexing;
+
+  public IssueSyncOrphanedBranchesStartupHandler(AsyncIssueIndexing asyncIssueIndexing) {
+    this.asyncIssueIndexing = asyncIssueIndexing;
   }
 
   @Override
-  public void triggerForProject(String projectUuid) {
-    throw new IllegalStateException("Async issue indexing should not be triggered in Compute Engine");
-  }
-
-  @Override
-  public void triggerForOrphanedBranches() {
-    throw new IllegalStateException("Async issue indexing should not be triggered in Compute Engine");
+  public void onServerStart(Server server) {
+    asyncIssueIndexing.triggerForOrphanedBranches();
   }
 }

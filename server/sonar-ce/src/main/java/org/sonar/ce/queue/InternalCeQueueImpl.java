@@ -52,6 +52,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.db.ce.CeTaskTypes.BRANCH_ISSUE_SYNC;
 
 @ComputeEngineSide
 public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue {
@@ -182,6 +183,10 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         activityDto.setStatus(CeActivityDto.Status.CANCELED);
         updateExecutionFields(activityDto);
         remove(dbSession, queueDto, activityDto);
+        if (BRANCH_ISSUE_SYNC.equals(queueDto.getTaskType()) && queueDto.getComponentUuid() != null) {
+          dbClient.branchDao().updateNeedIssueSync(dbSession, queueDto.getComponentUuid(), false);
+          dbSession.commit();
+        }
       });
     }
   }

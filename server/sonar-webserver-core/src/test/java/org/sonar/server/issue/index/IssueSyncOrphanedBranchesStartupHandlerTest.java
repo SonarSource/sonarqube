@@ -17,25 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.issue.index;
+package org.sonar.server.issue.index;
 
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.server.issue.index.AsyncIssueIndexing;
+import org.junit.Test;
+import org.sonar.api.platform.Server;
 
-@ComputeEngineSide
-public class NoAsyncIssueIndexing implements AsyncIssueIndexing {
-  @Override
-  public void triggerOnIndexCreation() {
-    throw new IllegalStateException("Async issue indexing should not be triggered in Compute Engine");
-  }
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-  @Override
-  public void triggerForProject(String projectUuid) {
-    throw new IllegalStateException("Async issue indexing should not be triggered in Compute Engine");
-  }
+public class IssueSyncOrphanedBranchesStartupHandlerTest {
 
-  @Override
-  public void triggerForOrphanedBranches() {
-    throw new IllegalStateException("Async issue indexing should not be triggered in Compute Engine");
+  private final AsyncIssueIndexing asyncIssueIndexing = mock(AsyncIssueIndexing.class);
+  private final IssueSyncOrphanedBranchesStartupHandler underTest = new IssueSyncOrphanedBranchesStartupHandler(asyncIssueIndexing);
+
+  @Test
+  public void onServerStart_triggers_orphaned_branch_requeue() {
+    underTest.onServerStart(mock(Server.class));
+
+    verify(asyncIssueIndexing).triggerForOrphanedBranches();
   }
 }

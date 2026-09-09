@@ -353,6 +353,56 @@ public class AsyncIssueIndexingImplTest {
     return snapshot;
   }
 
+  @Test
+  public void triggerForOrphanedBranches_requeues_branches_with_no_pending_task() {
+    BranchDto orphanedBranch = new BranchDto()
+      .setBranchType(BRANCH)
+      .setKey("orphaned")
+      .setUuid("orphaned_uuid")
+      .setProjectUuid("project_uuid")
+      .setNeedIssueSync(true)
+      .setIsMain(false);
+    dbClient.branchDao().insert(dbTester.getSession(), orphanedBranch);
+    dbTester.commit();
+
+    underTest.triggerForOrphanedBranches();
+
+    verify(ceQueue, times(1)).prepareSubmit();
+    verify(ceQueue, times(1)).massSubmit(anyCollection());
+    assertThat(logTester.logs(Level.INFO))
+      .contains("1 branch(es) with orphaned issue sync flag found, re-queuing.");
+  }
+
+  @Test
+  public void triggerForOrphanedBranches_skips_branches_with_pending_task() {
+    BranchDto branchWithTask = new BranchDto()
+      .setBranchType(BRANCH)
+      .setKey("with_task")
+      .setUuid("with_task_uuid")
+      .setProjectUuid("project_uuid")
+      .setNeedIssueSync(true)
+      .setIsMain(false);
+    dbClient.branchDao().insert(dbTester.getSession(), branchWithTask);
+
+    CeQueueDto pendingTask = new CeQueueDto()
+      .setUuid("pending_task_uuid")
+      .setTaskType(BRANCH_ISSUE_SYNC)
+      .setComponentUuid("with_task_uuid");
+    dbClient.ceQueueDao().insert(dbTester.getSession(), pendingTask);
+    dbTester.commit();
+
+    underTest.triggerForOrphanedBranches();
+
+    verifyNoInteractions(ceQueue);
+  }
+
+  @Test
+  public void triggerForOrphanedBranches_does_nothing_when_no_branches_need_sync() {
+    underTest.triggerForOrphanedBranches();
+
+    verifyNoInteractions(ceQueue);
+  }
+
   private String persistReportTasks() {
     CeQueueDto reportTask = new CeQueueDto();
     reportTask.setUuid("uuid_1");

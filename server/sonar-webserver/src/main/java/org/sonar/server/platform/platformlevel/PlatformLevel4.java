@@ -168,6 +168,7 @@ import org.sonar.server.issue.index.AsyncIssueIndexingImpl;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexMonitoringScheduler;
 import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.issue.index.IssueSyncOrphanedBranchesStartupHandler;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssuesChangesNotificationModule;
 import org.sonar.server.issue.notification.MyNewIssuesEmailTemplate;
@@ -760,6 +761,7 @@ public class PlatformLevel4 extends PlatformLevel {
       HistoryPurgeExecutorServiceImpl.class,
       HistoryPurgeInitializer.class,
       HistoryPurgePropertyChangeHandler.class,
+      IssueSyncOrphanedBranchesStartupHandler.class,
       ProjectExportTaskProcessor.class,
 
       // SonarSource editions

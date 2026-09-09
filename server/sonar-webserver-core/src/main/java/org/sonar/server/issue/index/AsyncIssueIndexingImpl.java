@@ -102,6 +102,34 @@ public class AsyncIssueIndexingImpl implements AsyncIssueIndexing {
   }
 
   @Override
+  public void triggerForOrphanedBranches() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      List<BranchDto> branchesNeedingSync = dbClient.branchDao().selectBranchNeedingIssueSync(dbSession);
+      if (branchesNeedingSync.isEmpty()) {
+        return;
+      }
+
+      Set<String> alreadyQueued = dbClient.ceQueueDao().selectAllInAscOrder(dbSession).stream()
+        .filter(q -> BRANCH_ISSUE_SYNC.equals(q.getTaskType()) && q.getComponentUuid() != null)
+        .map(CeQueueDto::getComponentUuid)
+        .collect(Collectors.toSet());
+
+      List<BranchDto> orphaned = branchesNeedingSync.stream()
+        .filter(b -> !alreadyQueued.contains(b.getUuid()))
+        .collect(toCollection(ArrayList<BranchDto>::new));
+
+      if (orphaned.isEmpty()) {
+        return;
+      }
+
+      LOG.info("{} branch(es) with orphaned issue sync flag found, re-queuing.", orphaned.size());
+      List<CeTaskSubmit> tasks = orphaned.stream().map(this::buildTaskSubmit).collect(toCollection(ArrayList<CeTaskSubmit>::new));
+      ceQueue.massSubmit(tasks);
+      dbSession.commit();
+    }
+  }
+
+  @Override
   public void triggerForProject(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
