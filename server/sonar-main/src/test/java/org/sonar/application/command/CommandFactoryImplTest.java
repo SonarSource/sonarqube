@@ -181,13 +181,13 @@ public class CommandFactoryImplTest {
       .contains("-Djava.awt.headless=true", "-Dfile.encoding=UTF-8")
       // default settings
       .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath(), "-Dfile.encoding=UTF-8")
-      .contains("-Xmx512m", "-Xms128m", "-XX:+HeapDumpOnOutOfMemoryError");
+      .contains("-Xmx2G", "-Xms128m", "-XX:+HeapDumpOnOutOfMemoryError");
     assertThat(command.getProcessId()).isEqualTo(ProcessId.WEB_SERVER);
     assertThat(command.getEnvVariables())
       .isNotEmpty();
     assertThat(command.getArguments())
       // default settings
-      .contains(entry("sonar.web.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"))
+      .contains(entry("sonar.web.javaOpts", "-Xmx2G -Xms128m -XX:+HeapDumpOnOutOfMemoryError"))
       .contains(entry("sonar.cluster.enabled", "false"));
 
     assertThat(command.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS");
@@ -205,13 +205,13 @@ public class CommandFactoryImplTest {
       .contains("-Djava.awt.headless=true", "-Dfile.encoding=UTF-8")
       // default settings
       .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath(), "-Dfile.encoding=UTF-8")
-      .contains("-Xmx512m", "-Xms128m", "-XX:+HeapDumpOnOutOfMemoryError");
+      .contains("-Xmx4G", "-Xms128m", "-XX:+HeapDumpOnOutOfMemoryError");
     assertThat(command.getProcessId()).isEqualTo(ProcessId.COMPUTE_ENGINE);
     assertThat(command.getEnvVariables())
       .isNotEmpty();
     assertThat(command.getArguments())
       // default settings
-      .contains(entry("sonar.web.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"))
+      .contains(entry("sonar.web.javaOpts", "-Xmx2G -Xms128m -XX:+HeapDumpOnOutOfMemoryError"))
       .contains(entry("sonar.cluster.enabled", "false"));
 
     assertThat(command.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS");
