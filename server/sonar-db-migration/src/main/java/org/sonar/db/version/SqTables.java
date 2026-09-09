@@ -84,6 +84,7 @@ public final class SqTables {
     "migration_logs",
     "new_code_periods",
     "new_code_reference_issues",
+    "notif_group_subscriptions",
     "notifications",
     "org_qprofiles",
     "permission_templates",

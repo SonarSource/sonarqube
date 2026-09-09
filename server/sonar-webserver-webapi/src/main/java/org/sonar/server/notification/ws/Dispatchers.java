@@ -26,6 +26,8 @@ public interface Dispatchers {
 
   List<String> getGlobalDispatchers();
 
+  List<String> getGroupSubscriptionDispatchers();
+
   List<String> getProjectDispatchers();
 
   List<String> getEnabledByDefaultDispatchers();

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.notification.NotificationGroupSubscriptionMapper">
+
+  <resultMap id="notifGroupSubMap" type="NotificationGroupSubscription">
+    <result property="uuid" column="uuid"/>
+    <result property="groupUuid" column="group_uuid"/>
+    <result property="notificationType" column="notification_type"/>
+    <result property="channelKey" column="channel_key"/>
+    <result property="createdAt" column="created_at"/>
+  </resultMap>
+
+  <insert id="insert" parameterType="NotificationGroupSubscription" useGeneratedKeys="false">
+    INSERT INTO notif_group_subscriptions (uuid, group_uuid, notification_type, channel_key, created_at)
+    VALUES (#{uuid}, #{groupUuid}, #{notificationType}, #{channelKey}, #{createdAt})
+  </insert>
+
+  <delete id="deleteByGroupAndTypeAndChannel">
+    DELETE FROM notif_group_subscriptions
+    WHERE group_uuid = #{groupUuid}
+      AND notification_type = #{notificationType}
+      AND channel_key = #{channelKey}
+  </delete>
+
+  <delete id="deleteByGroupUuid">
+    DELETE FROM notif_group_subscriptions
+    WHERE group_uuid = #{groupUuid}
+  </delete>
+
+  <sql id="selectFromNotifGroupSubscriptions">
+    SELECT uuid, group_uuid, notification_type, channel_key, created_at
+    FROM notif_group_subscriptions
+  </sql>
+
+  <select id="selectByTypeAndChannel" resultMap="notifGroupSubMap">
+    <include refid="selectFromNotifGroupSubscriptions"/>
+    WHERE notification_type = #{notificationType}
+      AND channel_key = #{channelKey}
+  </select>
+
+  <select id="selectAll" resultMap="notifGroupSubMap">
+    <include refid="selectFromNotifGroupSubscriptions"/>
+    ORDER BY created_at ASC
+  </select>
+
+</mapper>

@@ -47,6 +47,7 @@ import org.sonar.db.provisioning.GithubOrganizationGroupDao;
 import org.sonar.db.qualitygate.QualityGateGroupPermissionsDao;
 import org.sonar.db.qualityprofile.QProfileEditGroupsDao;
 import org.sonar.db.scim.ScimGroupDao;
+import org.sonar.db.notification.NotificationGroupSubscriptionsDao;
 import org.sonar.db.user.ExternalGroupDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
@@ -115,6 +116,8 @@ public class GroupServiceTest {
     when(dbClient.externalGroupDao()).thenReturn(mock(ExternalGroupDao.class));
     when(dbClient.groupDao()).thenReturn(mock(GroupDao.class));
     when(dbClient.githubOrganizationGroupDao()).thenReturn(mock(GithubOrganizationGroupDao.class));
+    NotificationGroupSubscriptionsDao notificationGroupSubscriptionsDao = mock(NotificationGroupSubscriptionsDao.class);
+    when(dbClient.notificationGroupSubscriptionsDao()).thenReturn(notificationGroupSubscriptionsDao);
   }
 
   @Test

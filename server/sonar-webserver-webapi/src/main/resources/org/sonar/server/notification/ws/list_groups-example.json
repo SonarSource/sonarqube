@@ -1,0 +1,10 @@
+{
+  "subscriptions": [
+    {
+      "groupUuid": "AU-TpxcA-iU5OvuD2FL7",
+      "groupName": "sonar-administrators",
+      "notificationType": "SecurityAlertBanner",
+      "channelKey": "SecurityAlertBannerChannel"
+    }
+  ]
+}

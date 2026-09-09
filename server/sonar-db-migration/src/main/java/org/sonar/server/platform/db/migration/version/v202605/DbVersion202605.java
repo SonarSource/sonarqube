@@ -102,6 +102,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_071, "Add the previous job pointer to 'hunter_agent_jobs'", AddPreviousJobToHunterAgentJobsTable.class)
       .add(2026_05_072, "Add 'deferral_date' column to 'issues' table", AddDeferralDateColumnToIssuesTable.class)
       .add(2026_05_073, "Create index 'issues_deferral_date' on 'issues'", CreateIndexOnIssuesDeferralDate.class)
-      .add(2026_05_074, "Add 'relative_path_from_scm_root' to 'snapshots'", AddRelativePathFromScmRootToSnapshots.class);
+      .add(2026_05_074, "Add 'relative_path_from_scm_root' to 'snapshots'", AddRelativePathFromScmRootToSnapshots.class)
+      .add(2026_05_075, "Create 'notif_group_subscriptions' table", CreateNotificationGroupSubscriptionsTable.class);
   }
 }

@@ -39,6 +39,7 @@ public final class NotificationDispatcherMetadata {
   public static final String PER_PROJECT_NOTIFICATION = "perProjectNotification";
   public static final String ENABLED_BY_DEFAULT_NOTIFICATION = "enabledByDefaultNotification";
   public static final String PERMISSION_RESTRICTION = "permissionRestriction";
+  public static final String GROUP_SUBSCRIPTION_NOTIFICATION = "groupSubscription";
 
   private String dispatcherKey;
   private Map<String, String> properties;

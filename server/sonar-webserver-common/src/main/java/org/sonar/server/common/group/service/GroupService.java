@@ -130,6 +130,7 @@ public class GroupService {
     removeGroupScimLink(dbSession, group);
     removeExternalGroupMapping(dbSession, group);
     removeGithubOrganizationGroup(dbSession, group);
+    removeGroupNotificationSubscriptions(dbSession, group);
 
     removeGroup(dbSession, group);
   }
@@ -241,6 +242,10 @@ public class GroupService {
 
   private void removeGithubOrganizationGroup(DbSession dbSession, GroupDto group) {
     dbClient.githubOrganizationGroupDao().deleteByGroupUuid(dbSession, group.getUuid());
+  }
+
+  private void removeGroupNotificationSubscriptions(DbSession dbSession, GroupDto group) {
+    dbClient.notificationGroupSubscriptionsDao().deleteByGroupUuid(dbSession, group.getUuid());
   }
 
   private void removeGroup(DbSession dbSession, GroupDto group) {

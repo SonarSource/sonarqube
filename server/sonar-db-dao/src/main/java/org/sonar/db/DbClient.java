@@ -60,6 +60,7 @@ import org.sonar.db.measure.ProjectMeasureDao;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.migrationlog.MigrationLogDao;
 import org.sonar.db.newcodeperiod.NewCodePeriodDao;
+import org.sonar.db.notification.NotificationGroupSubscriptionsDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.permission.AuthorizationDao;
 import org.sonar.db.permission.GroupPermissionDao;
@@ -171,6 +172,7 @@ public class DbClient extends AbstractDbClient {
   private final QualityGateUserPermissionsDao qualityGateUserPermissionsDao;
   private final ProjectQgateAssociationDao projectQgateAssociationDao;
   private final DuplicationDao duplicationDao;
+  private final NotificationGroupSubscriptionsDao notificationGroupSubscriptionsDao;
   private final NotificationQueueDao notificationQueueDao;
   private final MetricDao metricDao;
   private final MigrationLogDao migrationLogDao;
@@ -270,6 +272,7 @@ public class DbClient extends AbstractDbClient {
     projectQgateAssociationDao = getDao(ProjectQgateAssociationDao.class);
     duplicationDao = getDao(DuplicationDao.class);
     regulatoryReportDao = getDao(RegulatoryReportDao.class);
+    notificationGroupSubscriptionsDao = getDao(NotificationGroupSubscriptionsDao.class);
     notificationQueueDao = getDao(NotificationQueueDao.class);
     metricDao = getDao(MetricDao.class);
     migrationLogDao = getDao(MigrationLogDao.class);
@@ -549,6 +552,10 @@ public class DbClient extends AbstractDbClient {
 
   public DuplicationDao duplicationDao() {
     return duplicationDao;
+  }
+
+  public NotificationGroupSubscriptionsDao notificationGroupSubscriptionsDao() {
+    return notificationGroupSubscriptionsDao;
   }
 
   public NotificationQueueDao notificationQueueDao() {

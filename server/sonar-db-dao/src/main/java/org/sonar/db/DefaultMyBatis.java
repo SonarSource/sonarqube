@@ -88,6 +88,8 @@ import org.sonar.db.measure.ProjectMeasureMapper;
 import org.sonar.db.metric.MetricMapper;
 import org.sonar.db.migrationlog.MigrationLogMapper;
 import org.sonar.db.newcodeperiod.NewCodePeriodMapper;
+import org.sonar.db.notification.NotificationGroupSubscriptionDto;
+import org.sonar.db.notification.NotificationGroupSubscriptionMapper;
 import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.notification.NotificationQueueMapper;
 import org.sonar.db.permission.AuthorizationMapper;
@@ -241,6 +243,7 @@ public class DefaultMyBatis extends AbstractMyBatis {
     MetricMapper.class,
     MigrationLogMapper.class,
     NewCodePeriodMapper.class,
+    NotificationGroupSubscriptionMapper.class,
     NotificationQueueMapper.class,
     PermissionTemplateCharacteristicMapper.class,
     PermissionTemplateMapper.class,
@@ -330,6 +333,7 @@ public class DefaultMyBatis extends AbstractMyBatis {
     confBuilder.loadAlias("NewCodeReferenceIssue", NewCodeReferenceIssueDto.class);
     confBuilder.loadAlias("ProjectMeasure", ProjectMeasureDto.class);
     confBuilder.loadAlias("LargestBranchNclocDto", LargestBranchNclocDto.class);
+    confBuilder.loadAlias("NotificationGroupSubscription", NotificationGroupSubscriptionDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
     confBuilder.loadAlias("PermissionTemplateCharacteristic", PermissionTemplateCharacteristicDto.class);
     confBuilder.loadAlias("PermissionTemplateGroup", PermissionTemplateGroupDto.class);

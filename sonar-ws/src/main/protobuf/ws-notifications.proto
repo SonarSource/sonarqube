@@ -24,6 +24,18 @@ option java_package = "org.sonarqube.ws";
 option java_outer_classname = "Notifications";
 option optimize_for = SPEED;
 
+// WS api/notifications/list_groups
+message ListGroupsResponse {
+  repeated GroupSubscription subscriptions = 1;
+}
+
+message GroupSubscription {
+  optional string groupUuid = 1;
+  optional string groupName = 2;
+  optional string notificationType = 3;
+  optional string channelKey = 4;
+}
+
 // WS api/notifications/list
 message ListResponse {
   repeated Notification notifications = 1;

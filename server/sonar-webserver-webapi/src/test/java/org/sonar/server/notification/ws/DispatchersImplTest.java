@@ -32,6 +32,7 @@ import org.sonar.server.qualitygate.notification.QGChangeNotificationHandler;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.ENABLED_BY_DEFAULT_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
+import static org.sonar.server.notification.NotificationDispatcherMetadata.GROUP_SUBSCRIPTION_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PERMISSION_RESTRICTION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 
@@ -51,7 +52,9 @@ class DispatchersImplTest {
       NotificationDispatcherMetadata.create(FPOrAcceptedNotificationHandler.KEY)
         .setProperty(GLOBAL_NOTIFICATION, "false")
         .setProperty(PER_PROJECT_NOTIFICATION, "true")
-        .setProperty(ENABLED_BY_DEFAULT_NOTIFICATION, "true")
+        .setProperty(ENABLED_BY_DEFAULT_NOTIFICATION, "true"),
+      NotificationDispatcherMetadata.create("GroupSubscriptionDispatcher")
+        .setProperty(GROUP_SUBSCRIPTION_NOTIFICATION, "true")
     },
     new NotificationChannel[] {});
 
@@ -87,6 +90,13 @@ class DispatchersImplTest {
 
     assertThat(underTest.getPermissionRestrictedDispatchers())
       .containsExactlyEntriesOf(Map.of(QGChangeNotificationHandler.KEY, GlobalPermission.ADMINISTER_QUALITY_GATES.getKey()));
+  }
+
+  @Test
+  void get_group_subscription_dispatchers() {
+    underTest.start();
+
+    assertThat(underTest.getGroupSubscriptionDispatchers()).containsExactly("GroupSubscriptionDispatcher");
   }
 
 }

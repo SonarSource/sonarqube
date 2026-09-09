@@ -17,18 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notification.ws;
+package org.sonar.db.notification;
 
-import org.junit.Test;
-import org.sonar.core.platform.ListContainer;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface NotificationGroupSubscriptionMapper {
 
-public class NotificationWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ListContainer container = new ListContainer();
-    new NotificationWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(10);
-  }
+  void insert(NotificationGroupSubscriptionDto dto);
+
+  int deleteByGroupAndTypeAndChannel(
+    @Param("groupUuid") String groupUuid,
+    @Param("notificationType") String notificationType,
+    @Param("channelKey") String channelKey);
+
+  int deleteByGroupUuid(@Param("groupUuid") String groupUuid);
+
+  List<NotificationGroupSubscriptionDto> selectByTypeAndChannel(
+    @Param("notificationType") String notificationType,
+    @Param("channelKey") String channelKey);
+
+  List<NotificationGroupSubscriptionDto> selectAll();
 }

@@ -59,6 +59,8 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class ListAction implements NotificationsWsAction {
 
   private static final Splitter PROPERTY_KEY_SPLITTER = Splitter.on(".");
+  private static final String FILTER_GROUP_SUBSCRIPTION = "groupSubscription";
+  private static final String FILTER_USER = "user";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -88,6 +90,12 @@ public class ListAction implements NotificationsWsAction {
     action.createParam(PARAM_LOGIN)
       .setDescription("User login")
       .setSince("6.4");
+
+    action.createParam("filter")
+      .setDescription("Category of notification types to return.")
+      .setPossibleValues(FILTER_USER, FILTER_GROUP_SUBSCRIPTION, "all")
+      .setDefaultValue("all")
+      .setSince("2026.5");
   }
 
   @Override
@@ -102,10 +110,11 @@ public class ListAction implements NotificationsWsAction {
       checkPermissions(request);
       UserDto user = getUser(dbSession, request);
       Set<String> globalPermissions = getGlobalPermissions(dbSession, user);
+      String filter = request.param("filter");
       return Optional
         .of(ListResponse.newBuilder())
         .map(r -> r.addAllChannels(channels))
-        .map(r -> r.addAllGlobalTypes(getAllowedGlobalDispatchers(globalPermissions)))
+        .map(r -> r.addAllGlobalTypes(getFilteredGlobalDispatchers(filter, globalPermissions)))
         .map(r -> r.addAllPerProjectTypes(getAllowedProjectDispatchers(globalPermissions)))
         .map(addNotifications(dbSession, user, globalPermissions))
         .map(ListResponse.Builder::build)
@@ -115,6 +124,24 @@ public class ListAction implements NotificationsWsAction {
 
   private Set<String> getGlobalPermissions(DbSession dbSession, UserDto userDto) {
     return dbClient.authorizationDao().selectGlobalPermissions(dbSession, userDto.getUuid());
+  }
+
+  private List<String> getFilteredGlobalDispatchers(@Nullable String filter, Set<String> globalPermissions) {
+    List<String> groupDispatchers = dispatchers.getGroupSubscriptionDispatchers()
+      .stream()
+      .filter(d -> hasUserPermission(globalPermissions, d))
+      .toList();
+    if (FILTER_GROUP_SUBSCRIPTION.equals(filter)) {
+      return groupDispatchers;
+    }
+    List<String> userDispatchers = getAllowedGlobalDispatchers(globalPermissions);
+    if (FILTER_USER.equals(filter)) {
+      return userDispatchers;
+    }
+    if (groupDispatchers.isEmpty()) {
+      return userDispatchers;
+    }
+    return Stream.concat(userDispatchers.stream(), groupDispatchers.stream()).distinct().sorted().toList();
   }
 
   private List<String> getAllowedGlobalDispatchers(Set<String> globalPermissions) {

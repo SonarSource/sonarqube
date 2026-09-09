@@ -32,6 +32,9 @@ public class NotificationWsModule extends Module {
       NotificationsWs.class,
       AddAction.class,
       RemoveAction.class,
-      ListAction.class);
+      ListAction.class,
+      AddGroupAction.class,
+      RemoveGroupAction.class,
+      ListGroupsAction.class);
   }
 }

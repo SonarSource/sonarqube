@@ -25,6 +25,7 @@ import org.sonar.api.Startable;
 
 import static org.sonar.server.notification.NotificationDispatcherMetadata.ENABLED_BY_DEFAULT_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
+import static org.sonar.server.notification.NotificationDispatcherMetadata.GROUP_SUBSCRIPTION_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PERMISSION_RESTRICTION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 
@@ -34,6 +35,7 @@ public class DispatchersImpl implements Dispatchers, Startable {
 
   private List<String> projectDispatchers;
   private List<String> globalDispatchers;
+  private List<String> groupSubscriptionDispatchers;
   private List<String> enabledByDefaultDispatchers;
   private Map<String, String> permissionRestrictedDispatchers;
 
@@ -44,6 +46,11 @@ public class DispatchersImpl implements Dispatchers, Startable {
   @Override
   public List<String> getGlobalDispatchers() {
     return globalDispatchers;
+  }
+
+  @Override
+  public List<String> getGroupSubscriptionDispatchers() {
+    return groupSubscriptionDispatchers;
   }
 
   @Override
@@ -64,6 +71,10 @@ public class DispatchersImpl implements Dispatchers, Startable {
   @Override
   public void start() {
     this.globalDispatchers = notificationCenter.getDispatcherKeysForProperty(GLOBAL_NOTIFICATION, "true")
+      .stream()
+      .sorted()
+      .toList();
+    this.groupSubscriptionDispatchers = notificationCenter.getDispatcherKeysForProperty(GROUP_SUBSCRIPTION_NOTIFICATION, "true")
       .stream()
       .sorted()
       .toList();
