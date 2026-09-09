@@ -19,6 +19,8 @@
  */
 package org.sonar.server.issue.index;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
 
@@ -28,6 +30,8 @@ import org.sonar.api.platform.ServerStartHandler;
  */
 public class IssueSyncOrphanedBranchesStartupHandler implements ServerStartHandler {
 
+  private static final Logger LOG = LoggerFactory.getLogger(IssueSyncOrphanedBranchesStartupHandler.class);
+
   private final AsyncIssueIndexing asyncIssueIndexing;
 
   public IssueSyncOrphanedBranchesStartupHandler(AsyncIssueIndexing asyncIssueIndexing) {
@@ -36,6 +40,10 @@ public class IssueSyncOrphanedBranchesStartupHandler implements ServerStartHandl
 
   @Override
   public void onServerStart(Server server) {
-    asyncIssueIndexing.triggerForOrphanedBranches();
+    try {
+      asyncIssueIndexing.triggerForOrphanedBranches();
+    } catch (RuntimeException e) {
+      LOG.warn("Failed to re-queue branches with orphaned issue sync flag", e);
+    }
   }
 }

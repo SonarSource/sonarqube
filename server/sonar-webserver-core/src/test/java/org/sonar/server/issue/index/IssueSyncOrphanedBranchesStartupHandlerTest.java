@@ -22,6 +22,7 @@ package org.sonar.server.issue.index;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -35,5 +36,13 @@ public class IssueSyncOrphanedBranchesStartupHandlerTest {
     underTest.onServerStart(mock(Server.class));
 
     verify(asyncIssueIndexing).triggerForOrphanedBranches();
+  }
+
+  @Test
+  public void onServerStart_does_not_throw_when_requeue_fails() {
+    doThrow(new RuntimeException("DB error")).when(asyncIssueIndexing).triggerForOrphanedBranches();
+
+    // should not propagate — startup must continue
+    underTest.onServerStart(mock(Server.class));
   }
 }

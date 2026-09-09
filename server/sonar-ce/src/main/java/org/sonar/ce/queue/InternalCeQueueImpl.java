@@ -183,7 +183,8 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
         activityDto.setStatus(CeActivityDto.Status.CANCELED);
         updateExecutionFields(activityDto);
         remove(dbSession, queueDto, activityDto);
-        if (BRANCH_ISSUE_SYNC.equals(queueDto.getTaskType()) && queueDto.getComponentUuid() != null) {
+        boolean actuallyCancelled = dbClient.ceQueueDao().selectByUuid(dbSession, queueDto.getUuid()).isEmpty();
+        if (actuallyCancelled && BRANCH_ISSUE_SYNC.equals(queueDto.getTaskType()) && queueDto.getComponentUuid() != null) {
           dbClient.branchDao().updateNeedIssueSync(dbSession, queueDto.getComponentUuid(), false);
           dbSession.commit();
         }
