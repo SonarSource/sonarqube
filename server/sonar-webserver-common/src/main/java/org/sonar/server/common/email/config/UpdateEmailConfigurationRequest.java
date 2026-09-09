@@ -35,7 +35,8 @@ public record UpdateEmailConfigurationRequest(
   NonNullUpdatedValue<String> oauthAuthenticationHost,
   NonNullUpdatedValue<String> oauthClientId,
   NonNullUpdatedValue<String> oauthClientSecret,
-  NonNullUpdatedValue<String> oauthTenant
+  NonNullUpdatedValue<String> oauthTenant,
+  NonNullUpdatedValue<String> oauthScope
 ) {
 
   public static Builder builder() {
@@ -57,6 +58,7 @@ public record UpdateEmailConfigurationRequest(
     private NonNullUpdatedValue<String> oauthClientId;
     private NonNullUpdatedValue<String> oauthClientSecret;
     private NonNullUpdatedValue<String> oauthTenant;
+    private NonNullUpdatedValue<String> oauthScope;
 
     private Builder() {
     }
@@ -131,9 +133,14 @@ public record UpdateEmailConfigurationRequest(
       return this;
     }
 
+    public Builder oauthScope(NonNullUpdatedValue<String> oauthScope) {
+      this.oauthScope = oauthScope;
+      return this;
+    }
+
     public UpdateEmailConfigurationRequest build() {
       return new UpdateEmailConfigurationRequest(emailConfigurationId, host, port, securityProtocol, fromAddress, fromName, subjectPrefix, authMethod, username,
-        basicPassword, oauthAuthenticationHost, oauthClientId, oauthClientSecret, oauthTenant);
+        basicPassword, oauthAuthenticationHost, oauthClientId, oauthClientSecret, oauthTenant, oauthScope);
     }
   }
 }

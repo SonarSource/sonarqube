@@ -98,7 +98,8 @@ public class EmailConfigurationService {
       setInternalProperty(dbSession, EMAIL_CONFIG_SMTP_OAUTH_CLIENTID, configuration.oauthClientId());
       setInternalProperty(dbSession, EMAIL_CONFIG_SMTP_OAUTH_CLIENTSECRET, configuration.oauthClientSecret());
       setInternalProperty(dbSession, EMAIL_CONFIG_SMTP_OAUTH_TENANT, configuration.oauthTenant());
-      setInternalProperty(dbSession, EMAIL_CONFIG_SMTP_OAUTH_SCOPE, EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT);
+      setInternalProperty(dbSession, EMAIL_CONFIG_SMTP_OAUTH_SCOPE,
+        StringUtils.isNotEmpty(configuration.oauthScope()) ? configuration.oauthScope() : EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT);
       setInternalProperty(dbSession, EMAIL_CONFIG_SMTP_OAUTH_GRANT, EMAIL_CONFIG_SMTP_OAUTH_GRANT_DEFAULT);
 
       EmailConfiguration createdConfiguration = getConfiguration(UNIQUE_EMAIL_CONFIGURATION_ID, dbSession);
@@ -199,6 +200,8 @@ public class EmailConfigurationService {
       setInternalIfDefined(dbSession, EMAIL_CONFIG_SMTP_OAUTH_CLIENTID, updateRequest.oauthClientId());
       setInternalIfDefined(dbSession, EMAIL_CONFIG_SMTP_OAUTH_CLIENTSECRET, updateRequest.oauthClientSecret());
       setInternalIfDefined(dbSession, EMAIL_CONFIG_SMTP_OAUTH_TENANT, updateRequest.oauthTenant());
+      setInternalIfDefined(dbSession, EMAIL_CONFIG_SMTP_OAUTH_SCOPE,
+        updateRequest.oauthScope().map(scope -> StringUtils.isNotEmpty(scope) ? scope : EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT));
 
       dbSession.commit();
 

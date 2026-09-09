@@ -40,6 +40,7 @@ public class EmailConfigurationUpdateRestRequest {
   private UpdateField<String> oauthClientId = UpdateField.undefined();
   private UpdateField<String> oauthClientSecret = UpdateField.undefined();
   private UpdateField<String> oauthTenant = UpdateField.undefined();
+  private UpdateField<String> oauthScope = UpdateField.undefined();
 
   @Schema(implementation = String.class, description = "URL of your SMTP server")
   public UpdateField<String> getHost() {
@@ -157,6 +158,15 @@ public class EmailConfigurationUpdateRestRequest {
 
   public void setOauthTenant(String oauthTenant) {
     this.oauthTenant = UpdateField.withValue(oauthTenant);
+  }
+
+  @Schema(implementation = String.class, description = "For OAuth authentication: scope for the OAuth token request")
+  public UpdateField<String> getOauthScope() {
+    return oauthScope;
+  }
+
+  public void setOauthScope(String oauthScope) {
+    this.oauthScope = UpdateField.withValue(oauthScope);
   }
 
 }

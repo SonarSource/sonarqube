@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.sonar.server.common.NonNullUpdatedValue;
 import org.sonar.server.common.email.config.EmailConfiguration;
 import org.sonar.server.common.email.config.EmailConfigurationAuthMethod;
@@ -77,6 +78,8 @@ class DefaultEmailConfigurationControllerTest {
     null,
     null,
     null,
+    null,
+    null,
     null
   );
 
@@ -94,7 +97,28 @@ class DefaultEmailConfigurationControllerTest {
     "oauthAuthenticationHost",
     "oauthClientId",
     "oauthClientSecret",
-    "oauthTenant"
+    "oauthTenant",
+    null,
+    null
+  );
+
+  private static final EmailConfiguration EMAIL_OAUTH_CONFIGURATION_WITH_CUSTOM_SCOPE = new EmailConfiguration(
+    UNIQUE_EMAIL_CONFIGURATION_ID,
+    "host",
+    "port",
+    EmailConfigurationSecurityProtocol.STARTTLS,
+    "fromAddress",
+    "fromName",
+    "subjectPrefix",
+    EmailConfigurationAuthMethod.OAUTH,
+    "username",
+    null,
+    "oauthAuthenticationHost",
+    "oauthClientId",
+    "oauthClientSecret",
+    "oauthTenant",
+    "https://outlook.office365.us/.default",
+    null
   );
 
   private static final String EXPECTED_BASIC_CONFIGURATION = """
@@ -126,6 +150,25 @@ class DefaultEmailConfigurationControllerTest {
       "isOauthClientIdSet": true,
       "isOauthClientSecretSet": true,
       "oauthTenant": "oauthTenant"
+    }
+    """;
+
+  private static final String EXPECTED_OAUTH_CONFIGURATION_WITH_CUSTOM_SCOPE = """
+    {
+      "host": "host",
+      "port": "port",
+      "securityProtocol": "STARTTLS",
+      "fromAddress": "fromAddress",
+      "fromName": "fromName",
+      "subjectPrefix": "subjectPrefix",
+      "authMethod": "OAUTH",
+      "username": "username",
+      "isBasicPasswordSet": false,
+      "oauthAuthenticationHost": "oauthAuthenticationHost",
+      "isOauthClientIdSet": true,
+      "isOauthClientSecretSet": true,
+      "oauthTenant": "oauthTenant",
+      "oauthScope": "https://outlook.office365.us/.default"
     }
     """;
 
@@ -419,7 +462,8 @@ class DefaultEmailConfigurationControllerTest {
       emailConfiguration.oauthAuthenticationHost(),
       emailConfiguration.oauthClientId() != null,
       emailConfiguration.oauthClientSecret() != null,
-      emailConfiguration.oauthTenant()
+      emailConfiguration.oauthTenant(),
+      emailConfiguration.oauthScope()
     );
   }
 
@@ -520,7 +564,8 @@ class DefaultEmailConfigurationControllerTest {
       NonNullUpdatedValue.withValueOrThrow("oauthAuthenticationHost"),
       NonNullUpdatedValue.withValueOrThrow("oauthClientId"),
       NonNullUpdatedValue.withValueOrThrow("oauthClientSecret"),
-      NonNullUpdatedValue.withValueOrThrow("oauthTenant")
+      NonNullUpdatedValue.withValueOrThrow("oauthTenant"),
+      NonNullUpdatedValue.undefined()
     ));
   }
 
@@ -555,7 +600,77 @@ class DefaultEmailConfigurationControllerTest {
       NonNullUpdatedValue.undefined(),
       NonNullUpdatedValue.undefined(),
       NonNullUpdatedValue.undefined(),
-      NonNullUpdatedValue.withValueOrThrow("oauthTenant")
+      NonNullUpdatedValue.withValueOrThrow("oauthTenant"),
+      NonNullUpdatedValue.undefined()
+    ));
+  }
+
+  @Test
+  void create_whenOauthConfigCreatedWithCustomScope_passesItToService() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    when(emailConfigurationService.createConfiguration(any())).thenReturn(EMAIL_OAUTH_CONFIGURATION_WITH_CUSTOM_SCOPE);
+
+    mockMvc.perform(
+        post(EMAIL_CONFIGURATION_ENDPOINT)
+          .contentType(MediaType.APPLICATION_JSON_VALUE)
+          .content("""
+         {
+           "host": "host",
+           "port": "port",
+           "securityProtocol": "STARTTLS",
+           "fromAddress": "fromAddress",
+           "fromName": "fromName",
+           "subjectPrefix": "subjectPrefix",
+           "authMethod": "OAUTH",
+           "username": "username",
+           "oauthAuthenticationHost": "oauthAuthenticationHost",
+           "oauthClientId": "oauthClientId",
+           "oauthClientSecret": "oauthClientSecret",
+           "oauthTenant": "oauthTenant",
+           "oauthScope": "https://outlook.office365.us/.default"
+         }
+        """))
+      .andExpectAll(
+        status().isOk(),
+        content().json(EXPECTED_OAUTH_CONFIGURATION_WITH_CUSTOM_SCOPE));
+
+    ArgumentCaptor<EmailConfiguration> captor = ArgumentCaptor.forClass(EmailConfiguration.class);
+    verify(emailConfigurationService).createConfiguration(captor.capture());
+    assertThat(captor.getValue().oauthScope()).isEqualTo("https://outlook.office365.us/.default");
+  }
+
+  @Test
+  void updateConfiguration_whenScopeUpdated_passesItToService() throws Exception {
+    userSession.logIn().setSystemAdministrator();
+    when(emailConfigurationService.updateConfiguration(any())).thenReturn(EMAIL_OAUTH_CONFIGURATION_WITH_CUSTOM_SCOPE);
+
+    mockMvc.perform(patch(EMAIL_CONFIGURATION_ENDPOINT + "/" + UNIQUE_EMAIL_CONFIGURATION_ID)
+        .contentType(JSON_MERGE_PATCH_CONTENT_TYPE)
+        .content("""
+          {
+            "oauthScope": "https://outlook.office365.us/.default"
+          }
+          """))
+      .andExpectAll(
+        status().isOk(),
+        content().json(EXPECTED_OAUTH_CONFIGURATION_WITH_CUSTOM_SCOPE));
+
+    verify(emailConfigurationService).updateConfiguration(new UpdateEmailConfigurationRequest(
+      UNIQUE_EMAIL_CONFIGURATION_ID,
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.undefined(),
+      NonNullUpdatedValue.withValueOrThrow("https://outlook.office365.us/.default")
     ));
   }
 

@@ -41,6 +41,8 @@ import static org.sonar.server.common.NonNullUpdatedValue.withValueOrThrow;
 import static org.sonar.server.common.email.config.EmailConfigurationService.UNIQUE_EMAIL_CONFIGURATION_ID;
 import static org.sonar.server.common.email.config.UpdateEmailConfigurationRequest.builder;
 import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_HOST;
+import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_OAUTH_SCOPE;
+import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT;
 import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_OAUTH_CLIENTID;
 import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_OAUTH_CLIENTSECRET;
 import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_OAUTH_HOST;
@@ -67,7 +69,8 @@ class EmailConfigurationServiceIT {
     .oauthAuthenticationHost("oauthAuthenticationHost")
     .oauthClientId("oauthClientId")
     .oauthClientSecret("oauthClientSecret")
-    .oauthTenant("oauthTenant");
+    .oauthTenant("oauthTenant")
+    .oauthScope(EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT);
 
   private static final EmailConfigurationBuilder EMAIL_OAUTH_CONFIG_BUILDER = EmailConfigurationBuilder.builder()
     .id(UNIQUE_EMAIL_CONFIGURATION_ID)
@@ -83,7 +86,8 @@ class EmailConfigurationServiceIT {
     .oauthAuthenticationHost("oauthAuthenticationHostOAuth")
     .oauthClientId("oauthClientIdOAuth")
     .oauthClientSecret("oauthClientSecretOAuth")
-    .oauthTenant("oauthTenantOAuth");
+    .oauthTenant("oauthTenantOAuth")
+    .oauthScope(EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT);
 
   @RegisterExtension
   public DbTester dbTester = DbTester.create();
@@ -123,7 +127,9 @@ class EmailConfigurationServiceIT {
       "oauthAuthenticationHost".equals(missingField) ? null : "oauthAuthenticationHost",
       "oauthClientId".equals(missingField) ? null : "oauthClientId",
       "oauthClientSecret".equals(missingField) ? null : "oauthClientSecret",
-      "oauthTenant".equals(missingField) ? null : "oauthTenant"
+      "oauthTenant".equals(missingField) ? null : "oauthTenant",
+      null,
+      null
     );
 
     assertThatThrownBy(() -> underTest.createConfiguration(config))
@@ -282,6 +288,7 @@ class EmailConfigurationServiceIT {
       .oauthClientId(withValueOrThrow(updatedConfig.oauthClientId()))
       .oauthClientSecret(withValueOrThrow(updatedConfig.oauthClientSecret()))
       .oauthTenant(withValueOrThrow(updatedConfig.oauthTenant()))
+      .oauthScope(withValueOrThrow(updatedConfig.oauthScope()))
       .build();
   }
 
@@ -302,6 +309,86 @@ class EmailConfigurationServiceIT {
     assertThat(actualConfig.oauthTenant()).isEqualTo(expectedConfig.oauthTenant());
     assertThat(actualConfig.oauthScope()).isEqualTo(expectedConfig.oauthScope());
     assertThat(actualConfig.oauthGrant()).isEqualTo(expectedConfig.oauthGrant());
+  }
+
+  @Test
+  void createConfiguration_whenOauthScopeProvided_shouldPersistIt() {
+    EmailConfiguration configuration = new EmailConfiguration(
+      UNIQUE_EMAIL_CONFIGURATION_ID, "host", "port", EmailConfigurationSecurityProtocol.SSLTLS,
+      "fromAddress", "fromName", "subjectPrefix", EmailConfigurationAuthMethod.OAUTH, "username",
+      null, "oauthAuthenticationHost", "oauthClientId", "oauthClientSecret", "oauthTenant",
+      "https://outlook.office365.us/.default", null);
+    EmailConfiguration created = underTest.createConfiguration(configuration);
+
+    assertThat(created.oauthScope()).isEqualTo("https://outlook.office365.us/.default");
+  }
+
+  @Test
+  void createConfiguration_whenNoOauthScopeProvided_shouldUseDefault() {
+    EmailConfiguration configuration = EMAIL_OAUTH_CONFIG_BUILDER.build();
+    EmailConfiguration created = underTest.createConfiguration(configuration);
+
+    assertThat(created.oauthScope()).isEqualTo(EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT);
+  }
+
+  @Test
+  void updateConfiguration_whenOauthScopeUpdated_shouldPersistNewValue() {
+    underTest.createConfiguration(EMAIL_OAUTH_CONFIG_BUILDER.build());
+
+    UpdateEmailConfigurationRequest updateRequest = getOriginalBuilder()
+      .authMethod(withValueOrThrow(EmailConfigurationAuthMethod.OAUTH))
+      .oauthScope(withValueOrThrow("https://outlook.office365.us/.default"))
+      .build();
+    EmailConfiguration updated = underTest.updateConfiguration(updateRequest);
+
+    assertThat(updated.oauthScope()).isEqualTo("https://outlook.office365.us/.default");
+  }
+
+  @Test
+  void updateConfiguration_whenOauthScopeNotInRequest_shouldPreserveExistingValue() {
+    underTest.createConfiguration(new EmailConfiguration(
+      UNIQUE_EMAIL_CONFIGURATION_ID, "host", "port", EmailConfigurationSecurityProtocol.SSLTLS,
+      "fromAddress", "fromName", "subjectPrefix", EmailConfigurationAuthMethod.OAUTH, "username",
+      null, "oauthAuthenticationHost", "oauthClientId", "oauthClientSecret", "oauthTenant",
+      "https://outlook.office365.us/.default", null));
+
+    UpdateEmailConfigurationRequest updateRequest = getOriginalBuilder()
+      .authMethod(withValueOrThrow(EmailConfigurationAuthMethod.OAUTH))
+      .build();
+    EmailConfiguration updated = underTest.updateConfiguration(updateRequest);
+
+    assertThat(updated.oauthScope()).isEqualTo("https://outlook.office365.us/.default");
+  }
+
+  @Test
+  void updateConfiguration_whenOauthScopeSetToEmpty_shouldPersistDefault() {
+    underTest.createConfiguration(new EmailConfiguration(
+      UNIQUE_EMAIL_CONFIGURATION_ID, "host", "port", EmailConfigurationSecurityProtocol.SSLTLS,
+      "fromAddress", "fromName", "subjectPrefix", EmailConfigurationAuthMethod.OAUTH, "username",
+      null, "oauthAuthenticationHost", "oauthClientId", "oauthClientSecret", "oauthTenant",
+      "https://outlook.office365.us/.default", null));
+
+    UpdateEmailConfigurationRequest updateRequest = getOriginalBuilder()
+      .authMethod(withValueOrThrow(EmailConfigurationAuthMethod.OAUTH))
+      .oauthScope(withValueOrThrow(""))
+      .build();
+    EmailConfiguration updated = underTest.updateConfiguration(updateRequest);
+
+    assertThat(updated.oauthScope()).isEqualTo(EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT);
+  }
+
+  @Test
+  void deleteConfiguration_whenConfigExists_shouldClearOauthScopeFromDb() {
+    underTest.createConfiguration(new EmailConfiguration(
+      UNIQUE_EMAIL_CONFIGURATION_ID, "host", "port", EmailConfigurationSecurityProtocol.SSLTLS,
+      "fromAddress", "fromName", "subjectPrefix", EmailConfigurationAuthMethod.OAUTH, "username",
+      null, "oauthAuthenticationHost", "oauthClientId", "oauthClientSecret", "oauthTenant",
+      "https://outlook.office365.us/.default", null));
+    underTest.deleteConfiguration(UNIQUE_EMAIL_CONFIGURATION_ID);
+
+    assertThat(dbTester.getDbClient().internalPropertiesDao()
+      .selectByKey(dbTester.getSession(), EMAIL_CONFIG_SMTP_OAUTH_SCOPE))
+      .isEmpty();
   }
 
   @Test
@@ -421,7 +508,8 @@ class EmailConfigurationServiceIT {
       .oauthAuthenticationHost(undefined())
       .oauthClientId(undefined())
       .oauthClientSecret(undefined())
-      .oauthTenant(undefined());
+      .oauthTenant(undefined())
+      .oauthScope(undefined());
   }
 
   private void assertUpdatesMadeFromParams(ConfigTypeAndOrigin configTypeAndOrigin, List<Param> params, EmailConfiguration updatedConfig) {

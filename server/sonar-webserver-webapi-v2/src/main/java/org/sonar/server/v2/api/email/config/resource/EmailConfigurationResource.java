@@ -67,7 +67,11 @@ public record EmailConfigurationResource(
 
   @Nullable
   @Schema(description = "For OAuth authentication: Microsoft tenant")
-  String oauthTenant
+  String oauthTenant,
+
+  @Nullable
+  @Schema(description = "For OAuth authentication: scope for the OAuth token request")
+  String oauthScope
 
 ) {
 }

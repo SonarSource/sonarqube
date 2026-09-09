@@ -67,7 +67,9 @@ public class DefaultEmailConfigurationController implements EmailConfigurationCo
       createRestRequest.oauthAuthenticationHost(),
       createRestRequest.oauthClientId(),
       createRestRequest.oauthClientSecret(),
-      createRestRequest.oauthTenant()
+      createRestRequest.oauthTenant(),
+      createRestRequest.oauthScope(),
+      null
     );
   }
 
@@ -118,6 +120,7 @@ public class DefaultEmailConfigurationController implements EmailConfigurationCo
       .oauthClientId(updateRequest.getOauthClientId().toNonNullUpdatedValue())
       .oauthClientSecret(updateRequest.getOauthClientSecret().toNonNullUpdatedValue())
       .oauthTenant(updateRequest.getOauthTenant().toNonNullUpdatedValue())
+      .oauthScope(updateRequest.getOauthScope().toNonNullUpdatedValue())
       .build();
   }
 
@@ -136,7 +139,8 @@ public class DefaultEmailConfigurationController implements EmailConfigurationCo
       configuration.oauthAuthenticationHost(),
       StringUtils.isNotEmpty(configuration.oauthClientId()),
       StringUtils.isNotEmpty(configuration.oauthClientSecret()),
-      configuration.oauthTenant()
+      configuration.oauthTenant(),
+      configuration.oauthScope()
     );
   }
 

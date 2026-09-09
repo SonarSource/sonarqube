@@ -21,9 +21,6 @@ package org.sonar.server.common.email.config;
 
 import javax.annotation.Nullable;
 
-import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_OAUTH_GRANT_DEFAULT;
-import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT;
-
 public record EmailConfiguration(
   String id,
   String host,
@@ -42,11 +39,4 @@ public record EmailConfiguration(
   @Nullable String oauthScope,
   @Nullable String oauthGrant
 ) {
-
-  public EmailConfiguration(String id, String host, String port, EmailConfigurationSecurityProtocol securityProtocol, String fromAddress, String fromName, String subjectPrefix,
-    EmailConfigurationAuthMethod authMethod, String username, @Nullable String basicPassword, @Nullable String oauthAuthenticationHost,
-    @Nullable String oauthClientId, @Nullable String oauthClientSecret, @Nullable String oauthTenant) {
-    this(id, host, port, securityProtocol, fromAddress, fromName, subjectPrefix, authMethod, username, basicPassword, oauthAuthenticationHost, oauthClientId,
-      oauthClientSecret, oauthTenant, EMAIL_CONFIG_SMTP_OAUTH_SCOPE_DEFAULT, EMAIL_CONFIG_SMTP_OAUTH_GRANT_DEFAULT);
-  }
 }

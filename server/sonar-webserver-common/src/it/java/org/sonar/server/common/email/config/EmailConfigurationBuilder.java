@@ -19,6 +19,8 @@
  */
 package org.sonar.server.common.email.config;
 
+import static org.sonar.server.email.EmailSmtpConfiguration.EMAIL_CONFIG_SMTP_OAUTH_GRANT_DEFAULT;
+
 public final class EmailConfigurationBuilder {
   private String id;
   private String host;
@@ -34,6 +36,7 @@ public final class EmailConfigurationBuilder {
   private String oauthClientId;
   private String oauthClientSecret;
   private String oauthTenant;
+  private String oauthScope;
 
   public static EmailConfigurationBuilder builder() {
     return new EmailConfigurationBuilder();
@@ -112,8 +115,13 @@ public final class EmailConfigurationBuilder {
     return this;
   }
 
+  public EmailConfigurationBuilder oauthScope(String oauthScope) {
+    this.oauthScope = oauthScope;
+    return this;
+  }
+
   public EmailConfiguration build() {
     return new EmailConfiguration(id, host, port, securityProtocol, fromAddress, fromName, subjectPrefix, authMethod, username, basicPassword, oauthAuthenticationHost,
-      oauthClientId, oauthClientSecret, oauthTenant);
+      oauthClientId, oauthClientSecret, oauthTenant, oauthScope, EMAIL_CONFIG_SMTP_OAUTH_GRANT_DEFAULT);
   }
 }
