@@ -48,8 +48,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * The compare-and-set raise primitives: {@link InternalPropertiesDao#raiseTextIfGreater} and
- * {@link InternalPropertiesDao#raiseStampedMax}. Split out of {@code InternalPropertiesDaoIT}, which covers the
+ * The compare-and-set primitives: {@link InternalPropertiesDao#raiseTextIfGreater},
+ * {@link InternalPropertiesDao#raiseStampedMax} and {@link InternalPropertiesDao#replaceTextIfEqual}.
+ * Split out of {@code InternalPropertiesDaoIT}, which covers the
  * plain read and write surface and was outgrowing a single file.
  */
 class InternalPropertiesDaoRaiseIT {
@@ -65,6 +66,47 @@ class InternalPropertiesDaoRaiseIT {
   private final DbSession dbSession = dbTester.getSession();
   private final AuditPersister auditPersister = mock(AuditPersister.class);
   private final InternalPropertiesDao underTest = new InternalPropertiesDao(system2, auditPersister);
+
+  @Test
+  void replaceTextIfEqual_replaces_when_expected_value_matches() {
+    underTest.save(dbSession, A_KEY, "3000000000");
+    dbSession.commit();
+
+    assertThat(underTest.replaceTextIfEqual(dbSession, A_KEY, 3_000_000_000L, 500L)).isTrue();
+    dbSession.commit();
+
+    assertThat(underTest.selectByKey(dbSession, A_KEY)).contains("500");
+  }
+
+  @Test
+  void replaceTextIfEqual_leaves_row_unchanged_when_expected_value_differs() {
+    underTest.save(dbSession, A_KEY, "1200");
+    dbSession.commit();
+
+    assertThat(underTest.replaceTextIfEqual(dbSession, A_KEY, 900L, 100L)).isFalse();
+    dbSession.commit();
+
+    assertThat(underTest.selectByKey(dbSession, A_KEY)).contains("1200");
+  }
+
+  @Test
+  void replaceTextIfEqual_does_not_insert_when_absent() {
+    assertThat(underTest.replaceTextIfEqual(dbSession, A_KEY, 900L, 100L)).isFalse();
+    dbSession.commit();
+
+    assertThat(underTest.selectByKey(dbSession, A_KEY)).isEmpty();
+  }
+
+  @Test
+  void replaceTextIfEqual_leaves_non_numeric_value_unchanged() {
+    underTest.save(dbSession, A_KEY, "not-a-number");
+    dbSession.commit();
+
+    assertThat(underTest.replaceTextIfEqual(dbSession, A_KEY, 900L, 100L)).isFalse();
+    dbSession.commit();
+
+    assertThat(underTest.selectByKey(dbSession, A_KEY)).contains("not-a-number");
+  }
 
   @Test
   void raiseTextIfGreater_throws_IAE_if_key_is_null() {

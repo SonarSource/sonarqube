@@ -213,6 +213,15 @@ public class InternalPropertiesDao implements Dao {
   }
 
   /**
+   * Replace a decimal-long text property only if it still equals {@code expected}. Does not insert an absent row.
+   * Both values fit in {@code text_value}, where the mapper's compare-and-set operates.
+   */
+  public boolean replaceTextIfEqual(DbSession dbSession, String key, long expected, long value) {
+    checkKey(key);
+    return getMapper(dbSession).replaceValue(key, Long.toString(expected), Long.toString(value)) == 1;
+  }
+
+  /**
    * Raise a decimal-long text property to {@code value} if it is absent or strictly smaller.
    * Returns the resulting stored value. Concurrent callers observe the maximum, using the same
    * insert-or-{@link InternalPropertiesMapper#replaceValue} compare-and-set as {@link #tryLock}.
