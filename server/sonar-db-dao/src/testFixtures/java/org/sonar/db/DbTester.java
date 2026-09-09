@@ -31,6 +31,8 @@ import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -213,12 +215,24 @@ public class DbTester extends AbstractDbTester<TestDbImpl> implements TestRule {
     ioc.add(myBatis);
     ioc.add(system2);
     ioc.add(uuidFactory);
+    ioc.add(settingsWithoutSecretKey());
     for (Class<?> daoClass : DaoModule.classes()) {
       ioc.add(daoClass);
     }
     ioc.start();
     List<Dao> daos = ioc.getComponentsByType(Dao.class);
     client = new DbClient(myBatis, new TestDBSessions(myBatis), daos.toArray(new Dao[daos.size()]));
+  }
+
+  /**
+   * An unset secret key path falls back to ~/.sonar/sonar-secret.txt (AesCipher.getPathToSecretKey()), so
+   * hasSecretKey() would flip to true on any machine that happens to have a key there. Point at a path that
+   * cannot exist instead, so that DAOs encrypting sensitive columns behave the same way on every machine.
+   */
+  private static Settings settingsWithoutSecretKey() {
+    MapSettings settings = new MapSettings();
+    settings.getEncryption().setPathToSecretKey("target/no-such-sonar-secret.txt");
+    return settings;
   }
 
   @Override

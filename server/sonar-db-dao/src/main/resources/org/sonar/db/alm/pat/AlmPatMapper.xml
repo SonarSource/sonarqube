@@ -42,7 +42,7 @@
     )
     VALUES (
       #{dto.uuid, jdbcType=VARCHAR},
-      #{dto.personalAccessToken, jdbcType=VARCHAR},
+      #{pat, jdbcType=VARCHAR},
       #{dto.userUuid, jdbcType=VARCHAR},
       #{dto.almSettingUuid, jdbcType=VARCHAR},
       #{dto.createdAt, jdbcType=BIGINT},
@@ -53,7 +53,7 @@
   <update id="update" parameterType="Map">
     UPDATE alm_pats
     <set>
-      pat = #{dto.personalAccessToken, jdbcType=VARCHAR},
+      pat = #{pat, jdbcType=VARCHAR},
       updated_at = #{dto.updatedAt, jdbcType=BIGINT}
     </set>
     <where>

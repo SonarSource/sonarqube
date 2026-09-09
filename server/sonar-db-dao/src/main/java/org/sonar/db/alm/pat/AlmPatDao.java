@@ -21,6 +21,8 @@ package org.sonar.db.alm.pat;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.config.internal.Encryption;
+import org.sonar.api.config.internal.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
@@ -30,16 +32,23 @@ import org.sonar.db.audit.AuditPersister;
 import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
 import org.sonar.db.user.UserDto;
 
+/**
+ * Personal access tokens are stored encrypted whenever an encryption secret key is configured, and decrypted on read.
+ * Tokens written by an instance without a secret key, or before encryption was introduced, are stored as clear text
+ * and read back unchanged.
+ */
 public class AlmPatDao implements Dao {
 
   private final System2 system2;
   private final UuidFactory uuidFactory;
   private final AuditPersister auditPersister;
+  private final Encryption encryption;
 
-  public AlmPatDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister) {
+  public AlmPatDao(System2 system2, UuidFactory uuidFactory, AuditPersister auditPersister, Settings settings) {
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.auditPersister = auditPersister;
+    this.encryption = settings.getEncryption();
   }
 
   private static AlmPatMapper getMapper(DbSession dbSession) {
@@ -47,11 +56,12 @@ public class AlmPatDao implements Dao {
   }
 
   public Optional<AlmPatDto> selectByUuid(DbSession dbSession, String uuid) {
-    return Optional.ofNullable(getMapper(dbSession).selectByUuid(uuid));
+    return Optional.ofNullable(getMapper(dbSession).selectByUuid(uuid)).map(this::decryptPersonalAccessToken);
   }
 
   public Optional<AlmPatDto> selectByUserAndAlmSetting(DbSession dbSession, String userUuid, AlmSettingDto almSettingDto) {
-    return Optional.ofNullable(getMapper(dbSession).selectByUserAndAlmSetting(userUuid, almSettingDto.getUuid()));
+    return Optional.ofNullable(getMapper(dbSession).selectByUserAndAlmSetting(userUuid, almSettingDto.getUuid()))
+      .map(this::decryptPersonalAccessToken);
   }
 
   public void insert(DbSession dbSession, AlmPatDto almPatDto, @Nullable String userLogin, @Nullable String almSettingKey) {
@@ -60,7 +70,7 @@ public class AlmPatDao implements Dao {
     almPatDto.setUuid(uuid);
     almPatDto.setCreatedAt(now);
     almPatDto.setUpdatedAt(now);
-    getMapper(dbSession).insert(almPatDto);
+    getMapper(dbSession).insert(almPatDto, toStoredPersonalAccessToken(almPatDto));
 
     auditPersister.addPersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almPatDto, userLogin, almSettingKey));
   }
@@ -68,7 +78,7 @@ public class AlmPatDao implements Dao {
   public void update(DbSession dbSession, AlmPatDto almPatDto, @Nullable String userLogin, @Nullable String almSettingKey) {
     long now = system2.now();
     almPatDto.setUpdatedAt(now);
-    getMapper(dbSession).update(almPatDto);
+    getMapper(dbSession).update(almPatDto, toStoredPersonalAccessToken(almPatDto));
     auditPersister.updatePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almPatDto, userLogin, almSettingKey));
   }
 
@@ -91,5 +101,21 @@ public class AlmPatDao implements Dao {
     if (deletedRows > 0) {
       auditPersister.deletePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almSetting));
     }
+  }
+
+  /**
+   * Returned separately from the DTO so that the caller keeps holding the clear text token.
+   */
+  private String toStoredPersonalAccessToken(AlmPatDto almPatDto) {
+    String personalAccessToken = almPatDto.getPersonalAccessToken();
+    return encryption.hasSecretKey() ? encryption.encrypt(personalAccessToken) : personalAccessToken;
+  }
+
+  private AlmPatDto decryptPersonalAccessToken(AlmPatDto almPatDto) {
+    String storedPersonalAccessToken = almPatDto.getPersonalAccessToken();
+    if (encryption.isEncrypted(storedPersonalAccessToken)) {
+      almPatDto.setPersonalAccessToken(encryption.decrypt(storedPersonalAccessToken));
+    }
+    return almPatDto;
   }
 }
