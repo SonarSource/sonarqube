@@ -133,7 +133,7 @@ public class InheritanceAction implements QProfileWsAction {
     String key = qualityProfile.getKee();
     QualityProfile.Builder builder = QualityProfile.newBuilder()
       .setKey(key)
-      .setName(QualityProfileDisplayNames.toDisplayName(qualityProfile.getName()))
+      .setName(QualityProfileDisplayNames.toDisplayName(qualityProfile.getName(), qualityProfile.isBuiltIn()))
       .setActiveRuleCount(statistics.countRulesByProfileKey.getOrDefault(key, 0L))
       .setOverridingRuleCount(statistics.countOverridingRulesByProfileKey.getOrDefault(key, 0L))
       .setInactiveRuleCount(statistics.countInactiveRuleByProfileKey.get(key))

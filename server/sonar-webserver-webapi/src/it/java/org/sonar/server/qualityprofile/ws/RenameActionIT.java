@@ -103,6 +103,16 @@ public class RenameActionIT {
   }
 
   @Test
+  public void fail_renaming_if_name_is_reserved() {
+    logInAsQProfileAdministrator();
+    String qualityProfileKey = createNewValidQualityProfileKey();
+
+    assertThatThrownBy(() -> call(qualityProfileKey, "Sonar way comprehensive"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Name 'Sonar way comprehensive' is reserved");
+  }
+
+  @Test
   public void as_qprofile_editor() {
     QProfileDto qualityProfile = db.qualityProfiles().insert();
     UserDto user = db.users().insertUser();

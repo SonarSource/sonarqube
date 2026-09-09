@@ -137,7 +137,7 @@ public class ShowAction implements QProfileWsAction {
 
     return CompareToSonarWay.newBuilder()
       .setProfile(sonarWay.getKee())
-      .setProfileName(QualityProfileDisplayNames.toDisplayName(sonarWay.getName()))
+      .setProfileName(QualityProfileDisplayNames.toDisplayName(sonarWay.getName(), sonarWay.isBuiltIn()))
       .setMissingRuleCount(missingRuleCount)
       .build();
   }
@@ -147,7 +147,7 @@ public class ShowAction implements QProfileWsAction {
     ShowResponse.Builder showResponseBuilder = Qualityprofiles.ShowResponse.newBuilder();
     QualityProfile.Builder profileBuilder = QualityProfile.newBuilder()
       .setKey(profile.getKee())
-      .setName(QualityProfileDisplayNames.toDisplayName(profile.getName()))
+      .setName(QualityProfileDisplayNames.toDisplayName(profile.getName(), profile.isBuiltIn()))
       .setLanguage(profile.getLanguage())
       .setLanguageName(language.getName())
       .setIsBuiltIn(profile.isBuiltIn())

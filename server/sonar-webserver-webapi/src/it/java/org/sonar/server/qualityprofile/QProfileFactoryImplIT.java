@@ -118,6 +118,20 @@ public class QProfileFactoryImplIT {
   }
 
   @Test
+  public void checkAndCreateCustom_throws_BadRequestException_if_name_is_reserved_internal_name() {
+    QProfileName name = new QProfileName("xoo", "Sonar way");
+
+    expectBadRequestException(() -> underTest.checkAndCreateCustom(dbSession, name), "Name 'Sonar way' is reserved");
+  }
+
+  @Test
+  public void checkAndCreateCustom_throws_BadRequestException_if_name_is_reserved_display_name() {
+    QProfileName name = new QProfileName("xoo", "Sonar way comprehensive");
+
+    expectBadRequestException(() -> underTest.checkAndCreateCustom(dbSession, name), "Name 'Sonar way comprehensive' is reserved");
+  }
+
+  @Test
   public void delete_custom_profiles() {
     QProfileDto profile1 = createCustomProfile();
     QProfileDto profile2 = createCustomProfile();

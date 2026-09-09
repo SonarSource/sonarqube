@@ -27,6 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -87,6 +88,7 @@ public class RenameAction implements QProfileWsAction {
 
   private void doHandle(String newName, String profileKey) {
     checkRequest(newName.length() <= MAXIMUM_NAME_LENGTH, "Name is too long (>%d characters)", MAXIMUM_NAME_LENGTH);
+    checkRequest(!QualityProfileDisplayNames.isReservedName(newName), "Name '%s' is reserved", newName);
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {

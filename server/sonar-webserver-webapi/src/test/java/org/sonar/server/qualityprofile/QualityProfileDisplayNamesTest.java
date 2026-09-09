@@ -26,21 +26,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 class QualityProfileDisplayNamesTest {
 
   @Test
-  void toDisplayName_whenInternalNameIsMapped_shouldReturnDisplayName() {
-    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way")).isEqualTo("Sonar way comprehensive");
+  void toDisplayName_whenInternalNameIsMappedAndBuiltIn_shouldReturnDisplayName() {
+    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way", true)).isEqualTo("Sonar way comprehensive");
+  }
+
+  @Test
+  void toDisplayName_whenInternalNameIsMappedButNotBuiltIn_shouldReturnItUnchanged() {
+    // a custom profile could happen to be named exactly "Sonar way": it must not inherit the built-in's display name
+    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way", false)).isEqualTo("Sonar way");
   }
 
   @Test
   void toDisplayName_whenInternalNameIsNotMapped_shouldReturnItUnchanged() {
-    assertThat(QualityProfileDisplayNames.toDisplayName("My Company Profile")).isEqualTo("My Company Profile");
+    assertThat(QualityProfileDisplayNames.toDisplayName("My Company Profile", true)).isEqualTo("My Company Profile");
     // the derived variants are renamed at the source, not through this mapping
-    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way core")).isEqualTo("Sonar way core");
-    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way extended")).isEqualTo("Sonar way extended");
+    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way core", true)).isEqualTo("Sonar way core");
+    assertThat(QualityProfileDisplayNames.toDisplayName("Sonar way extended", true)).isEqualTo("Sonar way extended");
   }
 
   @Test
   void toDisplayName_whenNull_shouldReturnNull() {
-    assertThat(QualityProfileDisplayNames.toDisplayName(null)).isNull();
+    assertThat(QualityProfileDisplayNames.toDisplayName(null, true)).isNull();
   }
 
   @Test
@@ -60,6 +66,13 @@ class QualityProfileDisplayNamesTest {
 
   @Test
   void toDisplayName_and_toInternalName_shouldRoundTrip() {
-    assertThat(QualityProfileDisplayNames.toInternalName(QualityProfileDisplayNames.toDisplayName("Sonar way"))).isEqualTo("Sonar way");
+    assertThat(QualityProfileDisplayNames.toInternalName(QualityProfileDisplayNames.toDisplayName("Sonar way", true))).isEqualTo("Sonar way");
+  }
+
+  @Test
+  void isReservedName_shouldMatchBothInternalAndDisplayForms() {
+    assertThat(QualityProfileDisplayNames.isReservedName("Sonar way")).isTrue();
+    assertThat(QualityProfileDisplayNames.isReservedName("Sonar way comprehensive")).isTrue();
+    assertThat(QualityProfileDisplayNames.isReservedName("My Company Profile")).isFalse();
   }
 }

@@ -82,6 +82,7 @@ public class QProfileFactoryImpl implements QProfileFactory {
     if (StringUtils.isEmpty(name.getName())) {
       throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
+    checkRequest(!QualityProfileDisplayNames.isReservedName(name.getName()), "Name '%s' is reserved", name.getName());
     Date now = new Date(system2.now());
     QProfileDto dto = new QProfileDto()
       .setKee(uuidFactory.create())

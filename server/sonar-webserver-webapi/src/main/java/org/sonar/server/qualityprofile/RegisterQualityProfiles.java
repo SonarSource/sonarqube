@@ -66,7 +66,7 @@ import static org.sonar.server.qualityprofile.ActiveRuleInheritance.NONE;
 public class RegisterQualityProfiles implements Startable {
 
   private static final Logger LOGGER = Loggers.get(RegisterQualityProfiles.class);
-  private static final String DEFAULT_PROFILE_NAME = "Sonar way";
+  private static final String DEFAULT_PROFILE_NAME = QualityProfileDisplayNames.SONAR_WAY_INTERNAL_NAME;
 
   private final BuiltInQProfileRepository builtInQProfileRepository;
   private final DbClient dbClient;
@@ -156,10 +156,11 @@ public class RegisterQualityProfiles implements Startable {
 
   /**
    * Renders a {@link QProfileName} the way an admin reading startup logs should see it, i.e. using the same
-   * brand name as the UI and the WS API, without changing the internal name used for matching above.
+   * brand name as the UI and the WS API, without changing the internal name used for matching above. Every
+   * {@link BuiltInQProfile} registered here is by definition built-in, hence the literal {@code true}.
    */
   private static String toDisplayName(QProfileName name) {
-    return format("%s/%s", name.getLanguage(), QualityProfileDisplayNames.toDisplayName(name.getName()));
+    return format("%s/%s", name.getLanguage(), QualityProfileDisplayNames.toDisplayName(name.getName(), true));
   }
 
   /**
