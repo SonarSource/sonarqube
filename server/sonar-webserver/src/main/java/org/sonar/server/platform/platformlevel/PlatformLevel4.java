@@ -396,7 +396,8 @@ public class PlatformLevel4 extends PlatformLevel {
       IndexCreator.class,
       MetadataIndexDefinition.class,
       MetadataIndexImpl.class,
-      EsDbCompatibilityImpl.class);
+      EsDbCompatibilityImpl.class,
+      IssueSyncOrphanedBranchesStartupHandler.class);
 
     addIfCluster(new NodeHealthModule(),
       DistributedServerLogging.class);
@@ -761,7 +762,6 @@ public class PlatformLevel4 extends PlatformLevel {
       HistoryPurgeExecutorServiceImpl.class,
       HistoryPurgeInitializer.class,
       HistoryPurgePropertyChangeHandler.class,
-      IssueSyncOrphanedBranchesStartupHandler.class,
       ProjectExportTaskProcessor.class,
 
       // SonarSource editions
