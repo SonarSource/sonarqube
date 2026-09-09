@@ -132,6 +132,12 @@ public class QProfileFactoryImplIT {
   }
 
   @Test
+  public void checkAndCreateCustom_throws_BadRequestException_if_name_is_a_reserved_variant_name() {
+    expectBadRequestException(() -> underTest.checkAndCreateCustom(dbSession, new QProfileName("xoo", "Sonar way core")), "Name 'Sonar way core' is reserved");
+    expectBadRequestException(() -> underTest.checkAndCreateCustom(dbSession, new QProfileName("xoo", "Sonar way extended")), "Name 'Sonar way extended' is reserved");
+  }
+
+  @Test
   public void delete_custom_profiles() {
     QProfileDto profile1 = createCustomProfile();
     QProfileDto profile2 = createCustomProfile();

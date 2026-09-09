@@ -21,15 +21,19 @@ package org.sonar.server.qualityprofile;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
+import org.sonar.server.qualityprofile.builtin.sonarwayvariants.SonarWayCoreProfileDefinition;
+import org.sonar.server.qualityprofile.builtin.sonarwayvariants.SonarWayExtendedProfileDefinition;
 
 /**
  * Maps the internal, DB-stored name of the base "Sonar way" built-in quality profile — the one declared directly by
  * analyzer plugins, which can't be renamed at the source — to the brand name shown to users, and back. The derived
- * variants ({@code SonarWayCoreProfileDefinition}, {@code SonarWayExtendedProfileDefinition}) don't need an entry
- * here: since they aren't declared by analyzers, they were renamed directly at the source instead.
+ * variants ({@code SonarWayCoreProfileDefinition}, {@code SonarWayExtendedProfileDefinition}) don't need a mapping
+ * entry: since they aren't declared by analyzers, they were renamed directly at the source instead. They're still
+ * covered by {@link #isReservedName(String)}, though — see {@link #RESERVED_NAMES}.
  * <p>
  * Storage, plugin registration and default-profile selection ({@code RegisterQualityProfiles},
  * {@code BuiltInQProfileRepositoryImpl}) keep matching on the internal name — nothing there is aware this mapping
@@ -58,9 +62,18 @@ public final class QualityProfileDisplayNames {
   private static final Map<String, String> INTERNAL_NAME_BY_DISPLAY_NAME = DISPLAY_NAME_BY_INTERNAL_NAME.entrySet().stream()
     .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
 
-  private static final Set<String> RESERVED_NAMES = Stream.concat(
+  /**
+   * Names a custom profile must never take: the base profile's internal/display names, plus the two variants'
+   * names. The variants aren't in {@link #DISPLAY_NAME_BY_INTERNAL_NAME} (they need no translation, since they're
+   * already stored under their user-facing name), but they're just as real a built-in name as "Sonar way" is, so a
+   * custom profile colliding with either — for a language that doesn't have that built-in variant yet, but might
+   * once an analyzer adds it — is reserved here too.
+   */
+  private static final Set<String> RESERVED_NAMES = Stream.of(
+    Stream.of(SonarWayCoreProfileDefinition.NAME, SonarWayExtendedProfileDefinition.NAME),
     DISPLAY_NAME_BY_INTERNAL_NAME.keySet().stream(),
     DISPLAY_NAME_BY_INTERNAL_NAME.values().stream())
+    .flatMap(Function.identity())
     .collect(Collectors.toUnmodifiableSet());
 
   private QualityProfileDisplayNames() {

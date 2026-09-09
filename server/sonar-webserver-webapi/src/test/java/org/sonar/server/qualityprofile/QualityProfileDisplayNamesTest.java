@@ -75,4 +75,10 @@ class QualityProfileDisplayNamesTest {
     assertThat(QualityProfileDisplayNames.isReservedName("Sonar way comprehensive")).isTrue();
     assertThat(QualityProfileDisplayNames.isReservedName("My Company Profile")).isFalse();
   }
+
+  @Test
+  void isReservedName_shouldAlsoMatchTheVariantNames() {
+    assertThat(QualityProfileDisplayNames.isReservedName("Sonar way core")).isTrue();
+    assertThat(QualityProfileDisplayNames.isReservedName("Sonar way extended")).isTrue();
+  }
 }
