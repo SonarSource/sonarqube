@@ -105,6 +105,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_074, "Add 'relative_path_from_scm_root' to 'snapshots'", AddRelativePathFromScmRootToSnapshots.class)
       .add(2026_05_075, "Create 'notif_group_subscriptions' table", CreateNotificationGroupSubscriptionsTable.class)
       .add(2026_05_076, "Create 'cag_purge_tasks' table", CreateCagPurgeTasksTable.class)
-      .add(2026_05_077, "Increase 'alm_pats.pat' column size", IncreaseAlmPatsPatColumnSize.class);
+      .add(2026_05_077, "Increase 'alm_pats.pat' column size", IncreaseAlmPatsPatColumnSize.class)
+      .add(2026_05_078, "Add architectureadmin permission to the 'sonar-administrators' group", AddArchitectureAdminPermissionToAdminsGroup.class);
   }
 }

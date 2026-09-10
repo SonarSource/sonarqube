@@ -22,6 +22,7 @@ package org.sonar.server.permission;
 import com.google.common.annotations.VisibleForTesting;
 import jakarta.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -65,26 +66,27 @@ public class PermissionServiceImpl implements PermissionService {
 
   /**
    * IoC constructor — used by Spring in production.
-   * architectureadmin is available in Developer edition and above.
+   * architectureadmin (project) is available in Developer edition and above.
+   * architectureadmin (global) is available in Enterprise edition and above.
    */
   @Inject
   public PermissionServiceImpl(ComponentTypes componentTypes, PlatformEditionProvider platformEditionProvider, DbClient dbClient) {
-    this(componentTypes, platformEditionProvider.get().map(e -> e == Edition.COMMUNITY).orElse(true), dbClient);
+    this(componentTypes, platformEditionProvider.get(), dbClient);
   }
 
   @VisibleForTesting
   public PermissionServiceImpl(ComponentTypes componentTypes, DbClient dbClient) {
-    this(componentTypes, true, dbClient);
+    this(componentTypes, Optional.empty(), dbClient);
   }
 
   /**
    * Backward-compatible constructor for tests that do not exercise {@link #findGroupPermissions} or
-   * {@link #findUserPermissions}. Defaults to Community Build behavior (architectureadmin excluded).
+   * {@link #findUserPermissions}. Defaults to Community Build behavior (architectureadmin excluded at both scopes).
    * Calling the DB-touching methods on an instance created with this constructor throws {@link NullPointerException}.
    */
   @VisibleForTesting
   public PermissionServiceImpl(ComponentTypes componentTypes) {
-    this(componentTypes, true, null);
+    this(componentTypes, Optional.empty(), null);
   }
 
   /**
@@ -92,13 +94,16 @@ public class PermissionServiceImpl implements PermissionService {
    */
   @VisibleForTesting
   public PermissionServiceImpl(ComponentTypes componentTypes, PlatformEditionProvider platformEditionProvider) {
-    this(componentTypes, platformEditionProvider.get().map(e -> e == Edition.COMMUNITY).orElse(true), null);
+    this(componentTypes, platformEditionProvider.get(), null);
   }
 
-  private PermissionServiceImpl(ComponentTypes componentTypes, boolean isCommunityBuild, @Nullable DbClient dbClient) {
+  private PermissionServiceImpl(ComponentTypes componentTypes, Optional<Edition> edition, @Nullable DbClient dbClient) {
+    boolean isCommunityBuild = edition.map(e -> e == Edition.COMMUNITY).orElse(true);
+    boolean isEnterpriseOrAbove = edition.map(e -> e == Edition.ENTERPRISE || e == Edition.DATACENTER).orElse(false);
     globalPermissions = List.copyOf(ALL_GLOBAL_PERMISSIONS.stream()
       .filter(s -> !s.equals(GlobalPermission.APPLICATION_CREATOR) || componentTypes.isQualifierPresent(ComponentQualifiers.APP))
       .filter(s -> !s.equals(GlobalPermission.PORTFOLIO_CREATOR) || componentTypes.isQualifierPresent(ComponentQualifiers.VIEW))
+      .filter(s -> !s.equals(GlobalPermission.ADMINISTER_ARCHITECTURE) || isEnterpriseOrAbove)
       .toList());
     projectPermissions = List.copyOf(ALL_PROJECT_PERMISSIONS.stream()
       .filter(p -> p != ProjectPermission.ARCHITECTURE_ADMIN || !isCommunityBuild)

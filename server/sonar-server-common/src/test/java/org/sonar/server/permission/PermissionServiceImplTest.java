@@ -21,11 +21,16 @@ package org.sonar.server.permission;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sonar.core.platform.EditionProvider;
+import org.sonar.core.platform.EditionProvider.Edition;
 import org.sonar.core.platform.PlatformEditionProvider;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -64,27 +69,49 @@ class PermissionServiceImplTest {
       .containsExactlyInAnyOrder("admin", "gateadmin", "profileadmin", "provisioning", "scan", "applicationcreator", "portfoliocreator");
   }
 
-  @Test
-  void projectPermissions_in_community_build_do_not_include_architectureadmin() {
-    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
+  @ParameterizedTest
+  @MethodSource("editionsAndExpectedGlobalPermissionKeys")
+  void globalPermissions_depend_on_edition(Edition edition, Set<String> expectedKeys) {
+    when(editionProvider.get()).thenReturn(Optional.of(edition));
     PermissionServiceImpl underTest = new PermissionServiceImpl(resourceTypesRule, editionProvider, dbClient);
-    assertThat(underTest.getAllProjectPermissions())
-      .extracting(ProjectPermission::getKey)
-      .containsExactlyInAnyOrder("admin", "codeviewer", "issueadmin", "securityhotspotadmin", "scan", "user");
+    assertThat(underTest.getGlobalPermissions())
+      .extracting(GlobalPermission::getKey)
+      .containsExactlyInAnyOrderElementsOf(expectedKeys);
   }
 
-  @Test
-  void projectPermissions_in_developer_edition_include_architectureadmin() {
-    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
+  private static Stream<Arguments> editionsAndExpectedGlobalPermissionKeys() {
+    Set<String> withoutArchitectureAdmin = Set.of("admin", "gateadmin", "profileadmin", "provisioning", "scan", "applicationcreator", "portfoliocreator");
+    Set<String> withArchitectureAdmin = Set.of("admin", "gateadmin", "profileadmin", "architectureadmin", "provisioning", "scan", "applicationcreator", "portfoliocreator");
+    return Stream.of(
+      Arguments.of(Edition.COMMUNITY, withoutArchitectureAdmin),
+      Arguments.of(Edition.DEVELOPER, withoutArchitectureAdmin),
+      Arguments.of(Edition.ENTERPRISE, withArchitectureAdmin),
+      Arguments.of(Edition.DATACENTER, withArchitectureAdmin));
+  }
+
+  @ParameterizedTest
+  @MethodSource("editionsAndExpectedProjectPermissionKeys")
+  void projectPermissions_depend_on_edition(Edition edition, Set<String> expectedKeys) {
+    when(editionProvider.get()).thenReturn(Optional.of(edition));
     PermissionServiceImpl underTest = new PermissionServiceImpl(resourceTypesRule, editionProvider, dbClient);
     assertThat(underTest.getAllProjectPermissions())
       .extracting(ProjectPermission::getKey)
-      .containsExactlyInAnyOrder("admin", "codeviewer", "issueadmin", "securityhotspotadmin", "architectureadmin", "scan", "user");
+      .containsExactlyInAnyOrderElementsOf(expectedKeys);
+  }
+
+  private static Stream<Arguments> editionsAndExpectedProjectPermissionKeys() {
+    Set<String> withoutArchitectureAdmin = Set.of("admin", "codeviewer", "issueadmin", "securityhotspotadmin", "scan", "user");
+    Set<String> withArchitectureAdmin = Set.of("admin", "codeviewer", "issueadmin", "securityhotspotadmin", "architectureadmin", "scan", "user");
+    return Stream.of(
+      Arguments.of(Edition.COMMUNITY, withoutArchitectureAdmin),
+      Arguments.of(Edition.DEVELOPER, withArchitectureAdmin),
+      Arguments.of(Edition.ENTERPRISE, withArchitectureAdmin),
+      Arguments.of(Edition.DATACENTER, withArchitectureAdmin));
   }
 
   @Test
   void findGroupPermissions_filters_out_disabled_permissions_in_community_build() {
-    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
+    when(editionProvider.get()).thenReturn(Optional.of(Edition.COMMUNITY));
     GroupPermissionDao groupPermissionDao = mock(GroupPermissionDao.class);
     when(dbClient.groupPermissionDao()).thenReturn(groupPermissionDao);
     GroupDto group = new GroupDto().setUuid("group-uuid").setName("group");
@@ -101,7 +128,7 @@ class PermissionServiceImplTest {
 
   @Test
   void findUserPermissions_filters_out_disabled_permissions_in_community_build() {
-    when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
+    when(editionProvider.get()).thenReturn(Optional.of(Edition.COMMUNITY));
     UserPermissionDao userPermissionDao = mock(UserPermissionDao.class);
     when(dbClient.userPermissionDao()).thenReturn(userPermissionDao);
     UserDto user = new UserDto().setUuid("user-uuid").setLogin("user");
