@@ -156,6 +156,17 @@ public class AlmPatDao implements Dao {
   }
 
   /**
+   * How many tokens are stored as clear text, which is every one of them when no secret key is configured.
+   * <p>
+   * Unlike the sweeps above, this is answered in SQL rather than by reading every row, because an administrator can
+   * ask for it as often as they like. The predicate of {@link AlmPatMapper#countNotEncrypted} is the exact
+   * translation of {@link #needsSecretKeyToBeRead}, which is the only reason a SQL predicate is acceptable here.
+   */
+  public int countNotEncryptedPersonalAccessTokens(DbSession dbSession) {
+    return getMapper(dbSession).countNotEncrypted();
+  }
+
+  /**
    * Rewrites every encrypted token with the current secret key, and returns how many were rewritten. Only does
    * anything while a key is being replaced, since otherwise every token already uses the current key. A token that
    * neither key can decrypt is skipped rather than failing the rewrite: it is already lost, and the user has to enter

@@ -575,6 +575,36 @@ class AlmPatDaoIT {
   }
 
   @Test
+  void countNotEncryptedPersonalAccessTokens_shouldOnlyCountTokensStoredAsClearText() throws IOException {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    underTest.insert(dbSession, newAlmPatDto(), null, null);
+
+    assertThat(underTest.countNotEncryptedPersonalAccessTokens(dbSession)).isOne();
+
+    newAlmPatDaoWithSecretKey().encryptNotEncryptedPersonalAccessTokens(dbSession);
+
+    assertThat(underTest.countNotEncryptedPersonalAccessTokens(dbSession)).isZero();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {A_TOKEN_THAT_ONLY_LOOKS_ENCRYPTED, A_TOKEN_THAT_LOOKS_BASE64_ENCODED, "{abcdef", "{", "{}", "{}a}b"})
+  void countNotEncryptedPersonalAccessTokens_whenClearTextTokenStartsWithABrace_shouldStillCountIt(String clearTextToken) {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    underTest.insert(dbSession, newAlmPatDto().setPersonalAccessToken(clearTextToken), null, null);
+
+    assertThat(underTest.countNotEncryptedPersonalAccessTokens(dbSession)).isOne();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"{aes-gcm}Zm9vYmFy", "{AES-GCM}Zm9vYmFy", "{aes}Zm9vYmFy", "{AES}Zm9vYmFy"})
+  void countNotEncryptedPersonalAccessTokens_whenStoredTokenNeedsTheSecretKeyToBeRead_shouldNotCountIt(String storedToken) {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    underTest.insert(dbSession, newAlmPatDto().setPersonalAccessToken(storedToken), null, null);
+
+    assertThat(underTest.countNotEncryptedPersonalAccessTokens(dbSession)).isZero();
+  }
+
+  @Test
   void reEncryptPersonalAccessTokens_whenNoSecretKeyIsBeingReplaced_shouldDoNothing() throws IOException {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmPatDao daoWithSecretKey = newAlmPatDaoWithSecretKey();

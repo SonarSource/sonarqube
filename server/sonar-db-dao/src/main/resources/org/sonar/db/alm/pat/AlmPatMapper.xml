@@ -36,6 +36,20 @@
       alm_pats a
   </select>
 
+  <!--
+    The two prefixes are the exact ones AlmPatDao#needsSecretKeyToBeRead tests for, lowercased the same way, so this
+    counts neither more nor less than the read path treats as clear text. '{' is not a LIKE wildcard and pat is not
+    null, so neither escaping nor null handling is needed.
+  -->
+  <select id="countNotEncrypted" resultType="int">
+    select count(1)
+    from
+      alm_pats a
+    where
+      lower(a.pat) not like '{aes-gcm}%'
+      and lower(a.pat) not like '{aes}%'
+  </select>
+
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
     INSERT INTO alm_pats
     (

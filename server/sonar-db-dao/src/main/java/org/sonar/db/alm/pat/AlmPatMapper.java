@@ -33,6 +33,14 @@ public interface AlmPatMapper {
 
   List<AlmPatDto> selectAll();
 
+  /**
+   * Counts the tokens that are stored as clear text, without reading any of them. Both cipher prefixes are tested
+   * because {@code {aes-gcm}} does not start with {@code {aes}}, and neither is widened to an opening brace on its
+   * own: that would take a clear text token which merely starts with one for an encrypted token, and never report
+   * it. See {@link AlmPatDao#countNotEncryptedPersonalAccessTokens}.
+   */
+  int countNotEncrypted();
+
   void insert(@Param("dto") AlmPatDto almPatDto, @Param("pat") String pat);
 
   void update(@Param("dto") AlmPatDto almPatDto, @Param("pat") String pat);

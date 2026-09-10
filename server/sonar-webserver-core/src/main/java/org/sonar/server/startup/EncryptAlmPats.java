@@ -26,10 +26,14 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
+import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
+
 /**
- * Encrypts the user-scoped personal access tokens that are still stored as clear text, and rewrites the encrypted
- * ones with the current secret key while a key is being replaced. Tokens are encrypted when they are written, so the
- * first only concerns tokens written before a secret key was configured, or before encryption existed.
+ * Encrypts the user-scoped personal access tokens that are still stored as clear text, rewrites the encrypted ones
+ * with the current secret key while a key is being replaced, and warns about the tokens that are still in clear text
+ * afterwards. Tokens are encrypted when they are written, so the first only concerns tokens written before a secret
+ * key was configured, or before encryption existed. The warning only reports anything on an instance with no secret
+ * key configured, which is the one case where encrypting them is not possible.
  * <p>
  * This runs on every startup rather than as a database migration on purpose. An administrator who configures a secret
  * key after upgrading is the common case, and a migration would already have run by then and would never run again.
@@ -47,23 +51,55 @@ public class EncryptAlmPats implements Startable {
 
   @Override
   public void start() {
-    try {
-      rewriteTokens();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      // the rotation runs first so that it only sees the tokens that were already encrypted when the node started:
+      // the pass after it writes with the current key, so a token it rewrote never needs rotating, and rotating it
+      // anyway would cost a second update and report a rotation that did not happen
+      runQuietly(dbSession, () -> reEncryptTokensWithCurrentSecretKey(dbSession),
+        "Failed to re-encrypt the DevOps platform personal access tokens with the current secret key. The tokens "
+          + "re-encrypted before the failure are kept, and the remaining ones are attempted again at the next restart.");
+      runQuietly(dbSession, () -> encryptClearTextTokens(dbSession),
+        "Failed to encrypt the DevOps platform personal access tokens that are stored as clear text. The tokens "
+          + "encrypted before the failure are kept, and the remaining ones are attempted again at the next restart.");
+      runQuietly(dbSession, () -> warnAboutRemainingClearTextTokens(dbSession),
+        "Failed to count the DevOps platform personal access tokens that are stored as clear text, so this startup "
+          + "reports nothing about them. This is attempted again at the next restart.");
     } catch (RuntimeException e) {
-      LOG.warn("Failed to rewrite the DevOps platform personal access tokens. The tokens rewritten before the failure "
-        + "are kept, and the remaining ones are attempted again at the next restart.", e);
+      LOG.warn("Failed to open a database session to rewrite the DevOps platform personal access tokens. They are "
+        + "left unchanged, and this is attempted again at the next restart.", e);
     }
   }
 
   /**
-   * The rotation pass runs first so that it only sees the tokens that were already encrypted when the node started.
-   * Encrypting a clear text token uses the current key, so a token written by the other pass never needs rotating,
-   * and rewriting it again would cost a second update and report a rotation that did not happen.
+   * Each pass is wrapped on its own, rather than all three together, so that one failing neither takes credit for
+   * what another one did nor cancels the ones after it. Wrapped together, a transient failure of either rewrite
+   * would silently take the clear text warning with it.
    */
-  private void rewriteTokens() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      reEncryptTokensWithCurrentSecretKey(dbSession);
-      encryptClearTextTokens(dbSession);
+  private static void runQuietly(DbSession dbSession, Runnable pass, String failureMessage) {
+    try {
+      pass.run();
+    } catch (RuntimeException e) {
+      // what the failed pass left in the session must not be committed by the next one, and a rollback failing too,
+      // on a connection that is already gone, must not cancel that next pass either
+      try {
+        dbSession.rollback();
+      } catch (RuntimeException rollbackFailure) {
+        e.addSuppressed(rollbackFailure);
+      }
+      LOG.warn(failureMessage, e);
+    }
+  }
+
+  /**
+   * Anything still in clear text at this point means no secret key is configured, because the pass above would
+   * otherwise have encrypted it. Without this the exposure is silent, and an administrator has no way to notice it.
+   */
+  private void warnAboutRemainingClearTextTokens(DbSession dbSession) {
+    int clearTextCount = dbClient.almPatDao().countNotEncryptedPersonalAccessTokens(dbSession);
+    if (clearTextCount > 0) {
+      LOG.warn("{} DevOps platform personal access token(s) are stored as clear text, because no secret key is configured. "
+        + "Set the '{}' property, or the SONAR_SECRET_KEY environment variable, to have them encrypted on the next restart.",
+        clearTextCount, ENCRYPTION_SECRET_KEY_PATH);
     }
   }
 

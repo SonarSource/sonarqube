@@ -31,6 +31,7 @@ import org.sonar.db.alm.pat.AlmPatDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -51,6 +52,29 @@ class EncryptAlmPatsTest {
   void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.almPatDao()).thenReturn(almPatDao);
+  }
+
+  @Test
+  void start_whenTokensRemainInClearText_shouldWarnThatNoSecretKeyIsConfigured() {
+    when(almPatDao.encryptNotEncryptedPersonalAccessTokens(dbSession)).thenReturn(0);
+    when(almPatDao.reEncryptPersonalAccessTokens(dbSession)).thenReturn(0);
+    when(almPatDao.countNotEncryptedPersonalAccessTokens(dbSession)).thenReturn(4);
+
+    underTest.start();
+
+    assertThat(logTester.logs(Level.WARN))
+      .anyMatch(log -> log.contains("4 DevOps platform personal access token(s) are stored as clear text"));
+  }
+
+  @Test
+  void start_whenNoTokenRemainsInClearText_shouldNotWarn() {
+    when(almPatDao.encryptNotEncryptedPersonalAccessTokens(dbSession)).thenReturn(0);
+    when(almPatDao.reEncryptPersonalAccessTokens(dbSession)).thenReturn(0);
+    when(almPatDao.countNotEncryptedPersonalAccessTokens(dbSession)).thenReturn(0);
+
+    underTest.start();
+
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
   }
 
   @Test
@@ -82,7 +106,69 @@ class EncryptAlmPatsTest {
     assertThatNoException().isThrownBy(underTest::start);
 
     assertThat(logTester.logs(Level.WARN))
-      .anyMatch(log -> log.contains("Failed to rewrite the DevOps platform personal access tokens"));
+      .anyMatch(log -> log.contains("Failed to encrypt the DevOps platform personal access tokens that are stored as clear text"));
+  }
+
+  @Test
+  void start_whenReEncryptingFails_shouldStillEncryptTheClearTextTokens() {
+    when(almPatDao.reEncryptPersonalAccessTokens(dbSession)).thenThrow(new IllegalStateException("connection is closed"));
+    when(almPatDao.encryptNotEncryptedPersonalAccessTokens(dbSession)).thenReturn(2);
+
+    assertThatNoException().isThrownBy(underTest::start);
+
+    assertThat(logTester.logs(Level.INFO))
+      .anyMatch(log -> log.contains("Encrypted 2 DevOps platform personal access token(s)"));
+    assertThat(logTester.logs(Level.WARN))
+      .anyMatch(log -> log.contains("Failed to re-encrypt the DevOps platform personal access tokens"))
+      .noneMatch(log -> log.contains("Failed to encrypt the DevOps platform personal access tokens"));
+  }
+
+  @Test
+  void start_whenCountingClearTextTokensFails_shouldWarnRatherThanPreventStartup() {
+    when(almPatDao.encryptNotEncryptedPersonalAccessTokens(dbSession)).thenReturn(2);
+    when(almPatDao.countNotEncryptedPersonalAccessTokens(dbSession)).thenThrow(new IllegalStateException("connection is closed"));
+
+    assertThatNoException().isThrownBy(underTest::start);
+
+    assertThat(logTester.logs(Level.WARN))
+      .anyMatch(log -> log.contains("Failed to count the DevOps platform personal access tokens"));
+    assertThat(logTester.logs(Level.INFO))
+      .anyMatch(log -> log.contains("Encrypted 2 DevOps platform personal access token(s)"));
+  }
+
+  @Test
+  void start_whenAnEarlierPassFails_shouldStillWarnAboutTheTokensLeftInClearText() {
+    // the warning is the only thing that reports the exposure, so no other pass may take it down with it
+    when(almPatDao.reEncryptPersonalAccessTokens(dbSession)).thenThrow(new IllegalStateException("connection is closed"));
+    when(almPatDao.encryptNotEncryptedPersonalAccessTokens(dbSession)).thenThrow(new IllegalStateException("connection is closed"));
+    when(almPatDao.countNotEncryptedPersonalAccessTokens(dbSession)).thenReturn(4);
+
+    assertThatNoException().isThrownBy(underTest::start);
+
+    assertThat(logTester.logs(Level.WARN))
+      .anyMatch(log -> log.contains("4 DevOps platform personal access token(s) are stored as clear text"));
+  }
+
+  @Test
+  void start_whenAPassFails_shouldRollBackWhatItLeftInTheSession() {
+    when(almPatDao.encryptNotEncryptedPersonalAccessTokens(dbSession)).thenThrow(new IllegalStateException("connection is closed"));
+
+    underTest.start();
+
+    // the rows the failed pass had already updated must not be committed by the pass after it
+    verify(dbSession).rollback();
+  }
+
+  @Test
+  void start_whenRollingBackAFailedPassFails_shouldStillRunThePassesLeft() {
+    when(almPatDao.reEncryptPersonalAccessTokens(dbSession)).thenThrow(new IllegalStateException("connection is closed"));
+    doThrow(new IllegalStateException("connection is closed")).when(dbSession).rollback();
+    when(almPatDao.countNotEncryptedPersonalAccessTokens(dbSession)).thenReturn(4);
+
+    assertThatNoException().isThrownBy(underTest::start);
+
+    assertThat(logTester.logs(Level.WARN))
+      .anyMatch(log -> log.contains("4 DevOps platform personal access token(s) are stored as clear text"));
   }
 
   @Test
@@ -117,10 +203,12 @@ class EncryptAlmPatsTest {
 
     inOrder.verify(almPatDao).reEncryptPersonalAccessTokens(dbSession);
     inOrder.verify(almPatDao).encryptNotEncryptedPersonalAccessTokens(dbSession);
+    // and the count runs last, so that a token it reports as clear text is one neither pass above could encrypt
+    inOrder.verify(almPatDao).countNotEncryptedPersonalAccessTokens(dbSession);
   }
 
   @Test
-  void start_whenAPassFailsAfterAnotherRewroteTokens_shouldNotReportEveryTokenAsUnchanged() {
+  void start_whenAPassFailsAfterAnotherRewroteTokens_shouldOnlyReportTheOneThatFailed() {
     when(almPatDao.reEncryptPersonalAccessTokens(dbSession)).thenReturn(3);
     when(almPatDao.encryptNotEncryptedPersonalAccessTokens(dbSession))
       .thenThrow(new IllegalStateException("connection is closed"));
@@ -131,6 +219,7 @@ class EncryptAlmPatsTest {
     assertThat(logTester.logs(Level.INFO))
       .anyMatch(log -> log.contains("Re-encrypted 3 DevOps platform personal access token(s)"));
     assertThat(logTester.logs(Level.WARN))
-      .anyMatch(log -> log.contains("The tokens rewritten before the failure are kept"));
+      .anyMatch(log -> log.contains("Failed to encrypt the DevOps platform personal access tokens that are stored as clear text"))
+      .noneMatch(log -> log.contains("Failed to re-encrypt"));
   }
 }
