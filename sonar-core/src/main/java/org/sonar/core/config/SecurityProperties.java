@@ -32,13 +32,15 @@ import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
 
-class SecurityProperties {
+public final class SecurityProperties {
+
+  public static final String SECRET_SOURCE_REDACTION_ENABLED = "sonar.security.secretSourceRedaction.enabled";
 
   private SecurityProperties() {
     // only static stuff
   }
 
-  static List<PropertyDefinition> all() {
+  public static List<PropertyDefinition> all() {
     return asList(
       PropertyDefinition.builder(CORE_FORCE_AUTHENTICATION_PROPERTY)
         .defaultValue(Boolean.toString(CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE))
@@ -65,6 +67,14 @@ class SecurityProperties {
         .description(
           "Forcing local webhooks validation prevents the creation and triggering of local webhooks"
             + "<br><strong>Disabling this setting can expose the instance to security risks.</strong>")
+        .type(PropertyType.BOOLEAN)
+        .category(CATEGORY_SECURITY)
+        .build(),
+      PropertyDefinition.builder(SECRET_SOURCE_REDACTION_ENABLED)
+        .defaultValue(Boolean.toString(false))
+        .name("Mask detected secret values in source code")
+        .description("When enabled, detected secret values are masked in source-code views and Web API responses that return source code. "
+          + "For findings where a safe location cannot be determined, the entire source of the affected file is masked.")
         .type(PropertyType.BOOLEAN)
         .category(CATEGORY_SECURITY)
         .build()

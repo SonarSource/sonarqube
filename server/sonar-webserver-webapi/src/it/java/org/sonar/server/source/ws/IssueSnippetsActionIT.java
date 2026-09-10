@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -86,7 +87,7 @@ public class IssueSnippetsActionIT {
       .then((Answer<String>) invocationOnMock -> "<p>" + invocationOnMock.getArguments()[0] + "</p>");
     LinesJsonWriter linesJsonWriter = new LinesJsonWriter(htmlSourceDecorator);
     ComponentViewerJsonWriter componentViewerJsonWriter = new ComponentViewerJsonWriter(dbClient);
-    SourceService sourceService = new SourceService(dbClient, htmlSourceDecorator);
+    SourceService sourceService = new SourceService(dbClient, htmlSourceDecorator, new MapSettings().asConfig());
     actionTester = new WsActionTester(new IssueSnippetsAction(dbClient, userSession, sourceService, linesJsonWriter, componentViewerJsonWriter));
   }
 

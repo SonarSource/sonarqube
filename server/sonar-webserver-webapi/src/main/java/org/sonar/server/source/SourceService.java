@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import org.sonar.api.config.Configuration;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
@@ -32,16 +33,19 @@ import org.sonar.server.issue.SecretIssueRedactor;
 import org.sonar.server.issue.SecretIssueRedactionRules;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.core.config.SecurityProperties.SECRET_SOURCE_REDACTION_ENABLED;
 
 public class SourceService {
 
   private final DbClient dbClient;
   private final HtmlSourceDecorator htmlDecorator;
+  private final Configuration configuration;
   private final Function<DbFileSources.Line, String> lineToHtml;
 
-  public SourceService(DbClient dbClient, HtmlSourceDecorator htmlDecorator) {
+  public SourceService(DbClient dbClient, HtmlSourceDecorator htmlDecorator, Configuration configuration) {
     this.dbClient = dbClient;
     this.htmlDecorator = htmlDecorator;
+    this.configuration = configuration;
     this.lineToHtml = lineToHtml();
   }
 
@@ -109,7 +113,7 @@ public class SourceService {
   }
 
   private List<DbFileSources.Line> redactIfNecessary(DbSession dbSession, String fileUuid, List<DbFileSources.Line> sourceLines, boolean redactSource) {
-    if (!redactSource) {
+    if (!redactSource || !configuration.getBoolean(SECRET_SOURCE_REDACTION_ENABLED).orElse(false)) {
       return sourceLines;
     }
     List<IssueDto> issues = dbClient.issueDao().selectSourceRedactionIssues(

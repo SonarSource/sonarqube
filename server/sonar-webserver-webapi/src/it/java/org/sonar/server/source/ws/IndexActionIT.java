@@ -21,6 +21,7 @@ package org.sonar.server.source.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
@@ -50,7 +51,8 @@ public class IndexActionIT {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   WsActionTester tester = new WsActionTester(
-    new IndexAction(db.getDbClient(), new SourceService(db.getDbClient(), new HtmlSourceDecorator()), userSession, TestComponentFinder.from(db)));
+    new IndexAction(db.getDbClient(), new SourceService(db.getDbClient(), new HtmlSourceDecorator(), new MapSettings().asConfig()), userSession,
+      TestComponentFinder.from(db)));
 
   @Test
   public void get_json() throws Exception {

@@ -21,6 +21,7 @@ package org.sonar.server.source.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.permission.ProjectPermission;
@@ -44,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.protobuf.DbFileSources.Data;
 import static org.sonar.db.protobuf.DbFileSources.Line;
+import static org.sonar.core.config.SecurityProperties.SECRET_SOURCE_REDACTION_ENABLED;
 
 public class RawActionIT {
 
@@ -55,7 +57,8 @@ public class RawActionIT {
   private ComponentTypesRule resourceTypes = new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT);
 
   private WsActionTester ws = new WsActionTester(new RawAction(db.getDbClient(),
-    new SourceService(db.getDbClient(), null), userSession,
+    new SourceService(db.getDbClient(), null,
+      new MapSettings().setProperty(SECRET_SOURCE_REDACTION_ENABLED, true).asConfig()), userSession,
     new ComponentFinder(db.getDbClient(), resourceTypes)));
 
   @Test

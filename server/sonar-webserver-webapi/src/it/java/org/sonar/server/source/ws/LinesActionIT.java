@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
@@ -68,7 +69,7 @@ public class LinesActionIT {
   private final ComponentDao componentDao = new ComponentDao(new NoOpAuditPersister());
   private final SnapshotDao snapshotDao = new SnapshotDao();
   private final HtmlSourceDecorator htmlSourceDecorator = mock(HtmlSourceDecorator.class);
-  private final SourceService sourceService = new SourceService(db.getDbClient(), htmlSourceDecorator);
+  private final SourceService sourceService = new SourceService(db.getDbClient(), htmlSourceDecorator, new MapSettings().asConfig());
   private final LinesJsonWriter linesJsonWriter = new LinesJsonWriter(htmlSourceDecorator);
   private final LinesAction underTest = new LinesAction(TestComponentFinder.from(db), db.getDbClient(), sourceService, linesJsonWriter,
     userSession);

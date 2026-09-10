@@ -23,6 +23,7 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.permission.ProjectPermission;
@@ -57,7 +58,7 @@ public class ScmActionIT {
 
   private final DbClient dbClient = dbTester.getDbClient();
   private final DbSession dbSession = dbTester.getSession();
-  private final ScmAction underTest = new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator()),
+  private final ScmAction underTest = new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator(), new MapSettings().asConfig()),
     userSessionRule, TestComponentFinder.from(dbTester));
   private final WsActionTester tester = new WsActionTester(underTest);
   private ProjectData project;

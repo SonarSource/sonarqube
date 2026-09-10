@@ -39,4 +39,16 @@ public class SecurityPropertiesTest {
       .isEqualTo("true");
   }
 
+  @Test
+  public void creates_secret_source_redaction_property_disabled_by_default() {
+    Optional<PropertyDefinition> propertyDefinition = SecurityProperties.all().stream()
+      .filter(d -> d.key().equals(SecurityProperties.SECRET_SOURCE_REDACTION_ENABLED)).findFirst();
+
+    assertThat(propertyDefinition)
+      .isNotEmpty()
+      .get()
+      .extracting(PropertyDefinition::defaultValue)
+      .isEqualTo("false");
+  }
+
 }

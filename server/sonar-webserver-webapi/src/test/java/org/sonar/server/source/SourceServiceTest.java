@@ -20,7 +20,9 @@
 package org.sonar.server.source;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.config.Configuration;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDao;
@@ -34,16 +36,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.config.SecurityProperties.SECRET_SOURCE_REDACTION_ENABLED;
 
 class SourceServiceTest {
   private final DbClient dbClient = mock(DbClient.class);
   private final DbSession dbSession = mock(DbSession.class);
   private final FileSourceDao fileSourceDao = mock(FileSourceDao.class);
   private final IssueDao issueDao = mock(IssueDao.class);
-  private final SourceService underTest = new SourceService(dbClient, mock(HtmlSourceDecorator.class));
+  private final Configuration configuration = mock(Configuration.class);
+  private final SourceService underTest = new SourceService(dbClient, mock(HtmlSourceDecorator.class), configuration);
 
   @Test
   void getLines_whenSourceIsRequested_shouldLoadComponentSecretIssues() {
+    when(configuration.getBoolean(SECRET_SOURCE_REDACTION_ENABLED)).thenReturn(Optional.of(true));
     when(dbClient.fileSourceDao()).thenReturn(fileSourceDao);
     when(dbClient.issueDao()).thenReturn(issueDao);
     when(fileSourceDao.selectByFileUuid(dbSession, "file-uuid")).thenReturn(fileSource("project-uuid", "secret-value"));
@@ -53,6 +58,18 @@ class SourceServiceTest {
 
     assertThat(lines).extracting(DbFileSources.Line::getSource).containsExactly("secret-value");
     verify(issueDao).selectSourceRedactionIssues(dbSession, "file-uuid", SecretIssueRedactionRules.sourceRedactionRuleKeys());
+  }
+
+  @Test
+  void getLines_whenSecretSourceRedactionIsDisabled_shouldNotLoadComponentSecretIssues() {
+    when(configuration.getBoolean(SECRET_SOURCE_REDACTION_ENABLED)).thenReturn(Optional.of(false));
+    when(dbClient.fileSourceDao()).thenReturn(fileSourceDao);
+    when(fileSourceDao.selectByFileUuid(dbSession, "file-uuid")).thenReturn(fileSource("project-uuid", "secret-value"));
+
+    Iterable<DbFileSources.Line> lines = underTest.getLines(dbSession, "file-uuid", 1, 1).orElseThrow();
+
+    assertThat(lines).extracting(DbFileSources.Line::getSource).containsExactly("secret-value");
+    verify(dbClient, never()).issueDao();
   }
 
   @Test

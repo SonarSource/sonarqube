@@ -28,6 +28,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
@@ -42,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.core.config.SecurityProperties.SECRET_SOURCE_REDACTION_ENABLED;
 
 public class SourceServiceIT {
 
@@ -53,7 +55,8 @@ public class SourceServiceIT {
 
   HtmlSourceDecorator htmlDecorator = mock(HtmlSourceDecorator.class);
 
-  SourceService underTest = new SourceService(dbTester.getDbClient(), htmlDecorator);
+  SourceService underTest = new SourceService(dbTester.getDbClient(), htmlDecorator,
+    new MapSettings().setProperty(SECRET_SOURCE_REDACTION_ENABLED, true).asConfig());
 
   @Before
   public void injectFakeLines() {
