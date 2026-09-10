@@ -21,8 +21,11 @@ package org.sonar.api.config.internal;
 
 import java.io.File;
 import java.net.URL;
-import java.security.InvalidKeyException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.Key;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import org.apache.commons.codec.binary.Base64;
@@ -57,11 +60,12 @@ public class AesECBCipherTest {
   @Test
   public void encrypt_bad_key() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/bad_secret_key.txt");
-    AesECBCipher cipher = new AesECBCipher(new File(resource.toURI()).getCanonicalPath());
+    String path = new File(resource.toURI()).getCanonicalPath();
+    AesECBCipher cipher = new AesECBCipher(path);
 
     assertThatThrownBy(() -> cipher.encrypt("this is a secret"))
-      .isInstanceOf(RuntimeException.class)
-      .hasCauseInstanceOf(InvalidKeyException.class);
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The secret key provided by the file " + path + " is not a base64 encoded AES key of 128, 192 or 256 bits");
   }
 
   @Test
@@ -77,11 +81,12 @@ public class AesECBCipherTest {
   @Test
   public void decrypt_bad_key() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/bad_secret_key.txt");
-    AesECBCipher cipher = new AesECBCipher(new File(resource.toURI()).getCanonicalPath());
+    String path = new File(resource.toURI()).getCanonicalPath();
+    AesECBCipher cipher = new AesECBCipher(path);
 
     assertThatThrownBy(() -> cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY="))
-      .isInstanceOf(RuntimeException.class)
-      .hasCauseInstanceOf(InvalidKeyException.class);
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The secret key provided by the file " + path + " is not a base64 encoded AES key of 128, 192 or 256 bits");
   }
 
   @Test
@@ -164,13 +169,39 @@ public class AesECBCipherTest {
 
   @Test
   public void doesNotHaveSecretKey() {
-    AesECBCipher cipher = new AesECBCipher("/my/twitter/id/is/SimonBrandhof");
+    // a source holding no key, so that the result does not depend on the environment the test runs in
+    AesECBCipher cipher = new AesECBCipher("/my/twitter/id/is/SimonBrandhof", secretKeySource(null));
 
     assertThat(cipher.hasSecretKey()).isFalse();
+  }
+
+  @Test
+  public void decrypt_whenKeyComesFromAnotherSource_shouldStillReadValuesEncryptedWithThatKeyAsAFile() throws Exception {
+    // the upgrade path of an instance that moves its key to another source: the values this deprecated cipher
+    // wrote while the key was a file have to stay readable
+    AesECBCipher cipher = new AesECBCipher(null, secretKeySource(StringUtils.trim(Files.readString(Path.of(pathToSecretKey())))));
+
+    String clearText = cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY=");
+
+    assertThat(clearText).isEqualTo("this is a secret");
   }
 
   private String pathToSecretKey() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/aes_secret_key.txt");
     return new File(resource.toURI()).getCanonicalPath();
+  }
+
+  private static SecretKeySource secretKeySource(@Nullable String base64Key) {
+    return new SecretKeySource() {
+      @Override
+      public Optional<String> loadBase64Key() {
+        return Optional.ofNullable(base64Key);
+      }
+
+      @Override
+      public String describe() {
+        return "a source used by tests";
+      }
+    };
   }
 }

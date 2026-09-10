@@ -35,6 +35,7 @@ import static org.sonar.api.PropertyType.INTEGER;
 import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
 import static org.sonar.api.PropertyType.STRING;
 import static org.sonar.api.PropertyType.TEXT;
+import static org.sonar.api.config.internal.EnvironmentVariableSecretKeySource.ENVIRONMENT_VARIABLE;
 import static org.sonar.core.extension.PluginRiskConsent.NOT_ACCEPTED;
 
 public class CorePropertyDefinitions {
@@ -104,7 +105,9 @@ public class CorePropertyDefinitions {
         .build(),
       PropertyDefinition.builder(CoreProperties.ENCRYPTION_SECRET_KEY_PATH)
         .name("Encryption secret key path")
-        .description("Path to a file that contains encryption secret key that is used to encrypting other settings.")
+        .description("Path to a file that contains encryption secret key that is used to encrypting other settings. "
+          + "When no file is found at that path, the key is read from the " + ENVIRONMENT_VARIABLE
+          + " environment variable, then from the sonar-secret.txt file in the .sonar directory of the home directory.")
         .type(STRING)
         .hidden()
         .build(),

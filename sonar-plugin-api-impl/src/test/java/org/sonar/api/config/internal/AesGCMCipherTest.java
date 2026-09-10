@@ -22,7 +22,10 @@ package org.sonar.api.config.internal;
 import java.io.File;
 import java.net.URL;
 import java.nio.BufferUnderflowException;
-import java.security.InvalidKeyException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.crypto.AEADBadTagException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
@@ -31,6 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AesGCMCipherTest {
+
+  private static final String A_PATH_TO_NO_FILE = "/no/such/sonar-secret.txt";
 
   @Test
   public void encrypt_should_generate_different_value_everytime() throws Exception {
@@ -47,10 +52,12 @@ public class AesGCMCipherTest {
   @Test
   public void encrypt_bad_key() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/bad_secret_key.txt");
-    AesGCMCipher cipher = new AesGCMCipher(new File(resource.toURI()).getCanonicalPath());
+    String path = new File(resource.toURI()).getCanonicalPath();
+    AesGCMCipher cipher = new AesGCMCipher(path);
 
     assertThatThrownBy(() -> cipher.encrypt("this is a secret"))
-      .hasCauseInstanceOf(InvalidKeyException.class);
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The secret key provided by the file " + path + " is not a base64 encoded AES key of 128, 192 or 256 bits");
   }
 
   @Test
@@ -68,10 +75,12 @@ public class AesGCMCipherTest {
   @Test
   public void decrypt_bad_key() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/bad_secret_key.txt");
-    AesGCMCipher cipher = new AesGCMCipher(new File(resource.toURI()).getCanonicalPath());
+    String path = new File(resource.toURI()).getCanonicalPath();
+    AesGCMCipher cipher = new AesGCMCipher(path);
 
     assertThatThrownBy(() -> cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY="))
-      .hasCauseInstanceOf(InvalidKeyException.class);
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The secret key provided by the file " + path + " is not a base64 encoded AES key of 128, 192 or 256 bits");
   }
 
   @Test
@@ -94,8 +103,96 @@ public class AesGCMCipherTest {
       .hasCauseInstanceOf(BufferUnderflowException.class);
   }
 
+  @Test
+  public void hasSecretKey_whenKeyComesFromAnotherSource_shouldBeTrue() {
+    AesGCMCipher cipher = new AesGCMCipher(null, secretKeySource(new Encryption(null).generateRandomSecretKey()));
+
+    assertThat(cipher.hasSecretKey()).isTrue();
+  }
+
+  @Test
+  public void decrypt_whenKeyComesFromAnotherSource_shouldUseThatKey() {
+    AesGCMCipher cipher = new AesGCMCipher(null, secretKeySource(new Encryption(null).generateRandomSecretKey()));
+
+    assertThat(cipher.decrypt(cipher.encrypt("this is a secret"))).isEqualTo("this is a secret");
+  }
+
+  @Test
+  public void encrypt_whenSecretKeyPathIsSet_shouldPreferItOverOtherSources() throws Exception {
+    AesGCMCipher cipherWithBoth = new AesGCMCipher(pathToSecretKey(), secretKeySource(new Encryption(null).generateRandomSecretKey()));
+
+    String encryptedText = cipherWithBoth.encrypt("this is a secret");
+
+    // readable by a cipher that only knows the file, which it would not be had the other source won
+    assertThat(new AesGCMCipher(pathToSecretKey()).decrypt(encryptedText)).isEqualTo("this is a secret");
+  }
+
+  @Test
+  public void hasSecretKey_whenSecretKeyPathPointsAtNoFileAndKeyComesFromAnotherSource_shouldBeTrue() {
+    AesGCMCipher cipher = new AesGCMCipher(A_PATH_TO_NO_FILE, secretKeySource(new Encryption(null).generateRandomSecretKey()));
+
+    assertThat(cipher.hasSecretKey()).isTrue();
+  }
+
+  @Test
+  public void encrypt_whenSecretKeyPathPointsAtNoFileAndKeyComesFromAnotherSource_shouldUseThatSource() {
+    AesGCMCipher cipher = new AesGCMCipher(A_PATH_TO_NO_FILE, secretKeySource(new Encryption(null).generateRandomSecretKey()));
+
+    assertThat(cipher.decrypt(cipher.encrypt("this is a secret"))).isEqualTo("this is a secret");
+  }
+
+  @Test
+  public void encrypt_whenSecretKeyPathPointsAtNoFileAndNoSourceHoldsAKey_shouldStillReportThatPath() {
+    AesGCMCipher cipher = new AesGCMCipher(A_PATH_TO_NO_FILE, secretKeySource(null));
+
+    assertThatThrownBy(() -> cipher.encrypt("this is a secret"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining(A_PATH_TO_NO_FILE);
+  }
+
+  @Test
+  public void encrypt_whenTheKeyOfAnotherSourceIsNotAUsableAesKey_shouldNameThatSource() {
+    AesGCMCipher cipherWithNoKeyBytes = new AesGCMCipher(null, secretKeySource("@@@"));
+    AesGCMCipher cipherWithTooFewKeyBytes = new AesGCMCipher(null, secretKeySource("changeme"));
+
+    assertThatThrownBy(() -> cipherWithNoKeyBytes.encrypt("this is a secret"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("a source used by tests")
+      .hasMessageContaining("128, 192 or 256 bits");
+    assertThatThrownBy(() -> cipherWithTooFewKeyBytes.encrypt("this is a secret"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("a source used by tests");
+  }
+
+  @Test
+  public void encrypt_whenTheKeyOfAnotherSourceIs128Bits_shouldAcceptIt() throws Exception {
+    // the key files an instance may already use are not all 256 bits, and moving such a key to another
+    // source must not stop it from working
+    AesGCMCipher cipher = new AesGCMCipher(null, secretKeySource(secretKeyFileContent()));
+
+    assertThat(cipher.decrypt(cipher.encrypt("this is a secret"))).isEqualTo("this is a secret");
+  }
+
   private String pathToSecretKey() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/aes_secret_key.txt");
     return new File(resource.toURI()).getCanonicalPath();
+  }
+
+  private String secretKeyFileContent() throws Exception {
+    return StringUtils.trim(Files.readString(Path.of(pathToSecretKey())));
+  }
+
+  private static SecretKeySource secretKeySource(@Nullable String base64Key) {
+    return new SecretKeySource() {
+      @Override
+      public Optional<String> loadBase64Key() {
+        return Optional.ofNullable(base64Key);
+      }
+
+      @Override
+      public String describe() {
+        return "a source used by tests";
+      }
+    };
   }
 }

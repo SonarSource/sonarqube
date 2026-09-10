@@ -38,6 +38,10 @@ final class AesECBCipher extends AesCipher {
     super(pathToSecretKey);
   }
 
+  AesECBCipher(@Nullable String pathToSecretKey, SecretKeySource secretKeySource) {
+    super(pathToSecretKey, secretKeySource);
+  }
+
   @Override
   public String encrypt(String clearText) {
     try {

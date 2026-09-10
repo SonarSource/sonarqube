@@ -41,6 +41,10 @@ final class AesGCMCipher extends AesCipher {
     super(pathToSecretKey);
   }
 
+  AesGCMCipher(@Nullable String pathToSecretKey, SecretKeySource secretKeySource) {
+    super(pathToSecretKey, secretKeySource);
+  }
+
   @Override
   public String encrypt(String clearText) {
     try {
