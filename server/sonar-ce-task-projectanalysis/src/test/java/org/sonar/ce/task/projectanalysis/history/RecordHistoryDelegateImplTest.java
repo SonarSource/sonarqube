@@ -24,9 +24,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueCountDimensionDto;
@@ -98,6 +102,21 @@ class RecordHistoryDelegateImplTest {
     assertThat(key.securityRating()).isEqualTo((short) 4);
     assertThat(key.reliabilityRating()).isEqualTo((short) 3);
     assertThat(entry.getValue()).isEqualTo(3);
+  }
+
+  @ParameterizedTest
+  @MethodSource("historyEntityTypes")
+  void recordHistory_shouldSkipSecurityHotspotsAndKeepRegularIssues(EntityType entityType) {
+    IssueCountDimensionDto regularIssue = defaultDimensionRow().withIssueCount(1);
+    IssueCountDimensionDto hotspot = new IssueCountDimensionDto(
+      RuleType.SECURITY_HOTSPOT.getDbConstant(), "MAJOR", null, "REVIEWED", "FIXED", "MAIN", "java:S9999", null, null, null, 1);
+    givenDimensionRows(ENTITY_UUID, regularIssue, hotspot);
+
+    underTest.recordHistory(ENTITY_UUID, entityType, List.of(ENTITY_UUID));
+
+    Map<IssueCountDimensionKey, Integer> counts = capturedIssueCounts(entityType);
+    assertThat(counts).hasSize(1);
+    assertThat(counts.keySet()).extracting(IssueCountDimensionKey::issueType).containsExactly(1);
   }
 
   @Test
@@ -253,6 +272,10 @@ class RecordHistoryDelegateImplTest {
     verify(issueHistoryService).recordIssueHistory(
       eq(ENTITY_UUID), eq(entityType), issueCountsCaptor.capture(), any(LocalDate.class));
     return issueCountsCaptor.getValue();
+  }
+
+  private static Stream<EntityType> historyEntityTypes() {
+    return Stream.of(EntityType.PROJECT_BRANCH, EntityType.APPLICATION, EntityType.PORTFOLIO);
   }
 
   private List<Measure> capturedMeasures() {

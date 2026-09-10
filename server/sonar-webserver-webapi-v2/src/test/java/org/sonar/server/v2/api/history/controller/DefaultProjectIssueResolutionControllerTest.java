@@ -176,4 +176,14 @@ public class DefaultProjectIssueResolutionControllerTest {
 
     verifyNoInteractions(contextLoader, projectIssueResolutionService);
   }
+
+  @Test
+  public void getProjectIssueResolution_whenSecurityHotspotIssueTypeIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/project-issue-resolution")
+        .queryParam("portfolioId", PORTFOLIO_ID)
+      .queryParam("statistic", "MTTR")
+      .queryParam("issueTypes", "SECURITY_HOTSPOT"))
+      .andExpect(status().isBadRequest());
+    verifyNoInteractions(dbClient, contextLoader, projectIssueResolutionService);
+  }
 }

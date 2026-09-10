@@ -117,6 +117,17 @@ public class DefaultIssueDensityHistoryControllerTest {
   }
 
   @Test
+  public void getIssueDensityHistory_whenSecurityHotspotIssueTypeIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/issue-density-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PORTFOLIO")
+      .queryParam("startDate", "2026-07-07T00:00:00Z")
+      .queryParam("issueTypes", "SECURITY_HOTSPOT"))
+      .andExpect(status().isBadRequest());
+    verifyNoInteractions(dbClient, issueHistoryService);
+  }
+
+  @Test
   public void getIssueDensityHistory_whenEndDateIsInFuture_shouldClampToNow() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-09T00:00:00Z");

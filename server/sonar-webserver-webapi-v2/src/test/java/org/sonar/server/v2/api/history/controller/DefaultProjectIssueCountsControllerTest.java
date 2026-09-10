@@ -237,4 +237,13 @@ public class DefaultProjectIssueCountsControllerTest {
       .queryParam("referenceDate", "2026-07-07T00:00:00Z"))
       .andExpect(status().isBadRequest());
   }
+
+  @Test
+  public void getProjectIssueCounts_whenSecurityHotspotIssueTypeIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/project-issue-counts")
+      .queryParam("portfolioId", PORTFOLIO_ID)
+      .queryParam("issueTypes", "SECURITY_HOTSPOT"))
+      .andExpect(status().isBadRequest());
+    verifyNoInteractions(dbClient, contextLoader, projectIssueCountsService);
+  }
 }

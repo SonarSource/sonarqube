@@ -179,6 +179,17 @@ public class DefaultIssueCountHistoryControllerTest {
   }
 
   @Test
+  public void getIssueCountHistory_whenSecurityHotspotIssueTypeIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/issue-count-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PORTFOLIO")
+      .queryParam("startDate", "2026-07-07T00:00:00Z")
+      .queryParam("issueTypes", "SECURITY_HOTSPOT"))
+      .andExpect(status().isBadRequest());
+    verifyNoInteractions(dbClient, issueHistoryService);
+  }
+
+  @Test
   public void getIssueCountHistory_whenStartDateIsInFuture_shouldReturnBadRequest() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T23:30:00-02:00");
 

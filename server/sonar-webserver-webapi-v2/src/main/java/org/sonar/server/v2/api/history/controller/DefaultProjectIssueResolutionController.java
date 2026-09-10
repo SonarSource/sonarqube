@@ -55,7 +55,6 @@ public class DefaultProjectIssueResolutionController implements ProjectIssueReso
   private final ProjectCollectionContextLoader contextLoader;
   private final ProjectIssueResolutionService projectIssueResolutionService;
   private final Clock clock;
-
   DefaultProjectIssueResolutionController(
     DbClient dbClient,
     ProjectCollectionContextLoader contextLoader,

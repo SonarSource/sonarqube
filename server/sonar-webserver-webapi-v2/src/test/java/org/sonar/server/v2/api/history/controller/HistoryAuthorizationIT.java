@@ -141,7 +141,7 @@ class HistoryAuthorizationIT {
         IssueResolutionStatistic.MTTR, START_DATE, null, null, null, null, null)
       .getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(new DefaultMeasuresHistoryController(
-      anonymousUserSession, db.getDbClient(), measuresHistoryService, clock)
+      anonymousUserSession, db.getDbClient(), measuresHistoryService, clock, new HistoryRequestValidator())
       .getMeasuresHistory(HistoryEntityType.PORTFOLIO, publicPortfolio.uuid(), List.of(METRIC_KEY), START_DATE, null)
       .getStatusCode()).isEqualTo(HttpStatus.OK);
   }
@@ -177,7 +177,7 @@ class HistoryAuthorizationIT {
         1, 50, ISSUE_COUNTS_SORT, false)
       .getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(new DefaultProjectMeasuresController(
-      db.getDbClient(), contextLoader, measuresService, clock)
+      db.getDbClient(), contextLoader, measuresService, clock, new HistoryRequestValidator())
       .getProjectMeasures(METRIC_KEY, null, null, 1, 50, publicPortfolio.uuid(), null, null,
         START_DATE, MEASURES_SORT, false)
       .getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -216,7 +216,7 @@ class HistoryAuthorizationIT {
         .queryParam("statistic", "MTTR")
         .queryParam("startDate", START_DATE.toString()));
     assertForbidden(
-      new DefaultMeasuresHistoryController(anonymousUserSession, db.getDbClient(), measuresHistoryService, clock),
+      new DefaultMeasuresHistoryController(anonymousUserSession, db.getDbClient(), measuresHistoryService, clock, new HistoryRequestValidator()),
       get("/history/measures-history")
         .queryParam("entityType", "PORTFOLIO")
         .queryParam("entityId", privatePortfolio.uuid())
@@ -228,7 +228,7 @@ class HistoryAuthorizationIT {
       get("/history/project-issue-counts")
         .queryParam("portfolioId", privatePortfolio.uuid()));
     assertForbidden(
-      new DefaultProjectMeasuresController(db.getDbClient(), contextLoader, mock(), clock),
+      new DefaultProjectMeasuresController(db.getDbClient(), contextLoader, mock(), clock, new HistoryRequestValidator()),
       get("/history/project-measures")
         .queryParam("metricKey", METRIC_KEY)
         .queryParam("portfolioId", privatePortfolio.uuid()));

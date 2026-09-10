@@ -71,7 +71,7 @@ public class DefaultProjectMeasuresControllerTest {
   private final ProjectCollectionContextLoader contextLoader = mock();
   private final ProjectMeasuresService projectMeasuresService = mock();
   private final DefaultProjectMeasuresController underTest = new DefaultProjectMeasuresController(
-    dbClient, contextLoader, projectMeasuresService, Clock.fixed(NOW, ZoneOffset.UTC));
+    dbClient, contextLoader, projectMeasuresService, Clock.fixed(NOW, ZoneOffset.UTC), new HistoryRequestValidator());
   private final MockMvc mockMvc = ControllerTester.getMockMvc(underTest);
 
   @Before
@@ -165,6 +165,56 @@ public class DefaultProjectMeasuresControllerTest {
 
     verifyNoInteractions(contextLoader, projectMeasuresService);
     verify(dbSession).close();
+  }
+
+  @Test
+  public void getProjectMeasures_whenSecurityHotspotMetricIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", "new_security_hotspots")
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Security Hotspot metric 'new_security_hotspots' is not supported by this endpoint\"}"));
+    verifyNoInteractions(dbClient, metricDao, contextLoader, projectMeasuresService);
+  }
+
+  @Test
+  public void getProjectMeasures_whenSecurityHotspotReviewedMetricIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", "security_hotspots_reviewed")
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Security Hotspot metric 'security_hotspots_reviewed' is not supported by this endpoint\"}"));
+    verifyNoInteractions(dbClient, metricDao, contextLoader, projectMeasuresService);
+  }
+
+  @Test
+  public void getProjectMeasures_whenNewSecurityHotspotReviewedMetricIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", "new_security_hotspots_reviewed")
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Security Hotspot metric 'new_security_hotspots_reviewed' is not supported by this endpoint\"}"));
+    verifyNoInteractions(dbClient, metricDao, contextLoader, projectMeasuresService);
+  }
+
+  @Test
+  public void getProjectMeasures_whenSecurityReviewRatingMetricIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", "security_review_rating")
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Security Hotspot metric 'security_review_rating' is not supported by this endpoint\"}"));
+    verifyNoInteractions(dbClient, metricDao, contextLoader, projectMeasuresService);
+  }
+
+  @Test
+  public void getProjectMeasures_whenNewSecurityReviewRatingMetricIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", "new_security_review_rating")
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Security Hotspot metric 'new_security_review_rating' is not supported by this endpoint\"}"));
+    verifyNoInteractions(dbClient, metricDao, contextLoader, projectMeasuresService);
   }
 
   @Test

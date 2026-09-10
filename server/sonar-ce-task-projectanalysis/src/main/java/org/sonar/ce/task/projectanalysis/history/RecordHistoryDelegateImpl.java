@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueCountDimensionDto;
@@ -108,6 +109,9 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
     Map<IssueCountDimensionKey, Integer> issueCounts = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
       for (IssueCountDimensionDto row : dbClient.issueDao().selectIssueCountDimensionsForBranches(dbSession, issueSourceBranchUuids)) {
+        if (row.issueType() == RuleType.SECURITY_HOTSPOT.getDbConstant()) {
+          continue;
+        }
         issueCounts.merge(toIssueCountDimensionKey(row), row.issueCount(), Integer::sum);
       }
     }

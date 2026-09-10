@@ -59,7 +59,6 @@ public class DefaultIssueResolutionHistoryController implements IssueResolutionH
   private final DbClient dbClient;
   private final IssueTtrHistoryService issueTtrHistoryService;
   private final Clock clock;
-
   DefaultIssueResolutionHistoryController(
     UserSession userSession,
     DbClient dbClient,

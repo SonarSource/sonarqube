@@ -79,7 +79,7 @@ public class DefaultMeasuresHistoryControllerTest {
   private final MetricDao metricDao = mock();
   private final ProjectDao projectDao = mock();
   private final DefaultMeasuresHistoryController underTest = new DefaultMeasuresHistoryController(
-    userSession, dbClient, measuresHistoryService, Clock.fixed(NOW, ZoneOffset.UTC));
+    userSession, dbClient, measuresHistoryService, Clock.fixed(NOW, ZoneOffset.UTC), new HistoryRequestValidator());
   private final MockMvc mockMvc = ControllerTester.getMockMvc(underTest);
 
   @Before
@@ -104,6 +104,66 @@ public class DefaultMeasuresHistoryControllerTest {
       .andExpect(status().isBadRequest())
       .andExpect(content().json("{\"message\":\"metricKeys must not be empty\"}"));
     verifyNoInteractions(measuresHistoryService);
+  }
+
+  @Test
+  public void getMeasuresHistory_whenSecurityHotspotMetricIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("metricKeys", "security_hotspots")
+        .queryParam("startDate", "2026-07-07T00:00:00Z"))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Security Hotspot metric 'security_hotspots' is not supported by this endpoint\"}"));
+    verifyNoInteractions(dbClient, measuresHistoryService);
+  }
+
+  @Test
+  public void getMeasuresHistory_whenSecurityHotspotReviewedMetricIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("metricKeys", "security_hotspots_reviewed")
+        .queryParam("startDate", "2026-07-07T00:00:00Z"))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Security Hotspot metric 'security_hotspots_reviewed' is not supported by this endpoint\"}"));
+    verifyNoInteractions(dbClient, measuresHistoryService);
+  }
+
+  @Test
+  public void getMeasuresHistory_whenNewSecurityHotspotReviewedMetricIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("metricKeys", "new_security_hotspots_reviewed")
+        .queryParam("startDate", "2026-07-07T00:00:00Z"))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Security Hotspot metric 'new_security_hotspots_reviewed' is not supported by this endpoint\"}"));
+    verifyNoInteractions(dbClient, measuresHistoryService);
+  }
+
+  @Test
+  public void getMeasuresHistory_whenSecurityReviewRatingMetricIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("metricKeys", "security_review_rating")
+        .queryParam("startDate", "2026-07-07T00:00:00Z"))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Security Hotspot metric 'security_review_rating' is not supported by this endpoint\"}"));
+    verifyNoInteractions(dbClient, measuresHistoryService);
+  }
+
+  @Test
+  public void getMeasuresHistory_whenNewSecurityReviewRatingMetricIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/measures-history")
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("metricKeys", "new_security_review_rating")
+        .queryParam("startDate", "2026-07-07T00:00:00Z"))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Security Hotspot metric 'new_security_review_rating' is not supported by this endpoint\"}"));
+    verifyNoInteractions(dbClient, measuresHistoryService);
   }
 
   @Test

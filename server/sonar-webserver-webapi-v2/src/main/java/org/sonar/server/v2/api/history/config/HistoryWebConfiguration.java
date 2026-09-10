@@ -26,6 +26,7 @@ import org.sonar.server.v2.api.history.controller.DefaultMeasuresHistoryControll
 import org.sonar.server.v2.api.history.controller.DefaultProjectIssueCountsController;
 import org.sonar.server.v2.api.history.controller.DefaultProjectIssueResolutionController;
 import org.sonar.server.v2.api.history.controller.DefaultProjectMeasuresController;
+import org.sonar.server.v2.api.history.controller.HistoryRequestValidator;
 import org.sonar.server.v2.api.history.controller.ProjectCollectionContextLoader;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -40,6 +41,7 @@ import org.springframework.context.annotation.Import;
   DefaultProjectIssueCountsController.class,
   DefaultProjectIssueResolutionController.class,
   DefaultProjectMeasuresController.class,
+  HistoryRequestValidator.class,
   ProjectCollectionContextLoader.class
 })
 public class HistoryWebConfiguration {

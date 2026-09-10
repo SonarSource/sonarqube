@@ -48,16 +48,19 @@ public class DefaultProjectMeasuresController implements ProjectMeasuresApi {
   private final ProjectCollectionContextLoader contextLoader;
   private final ProjectMeasuresService projectMeasuresService;
   private final Clock clock;
+  private final HistoryRequestValidator historyRequestValidator;
 
   DefaultProjectMeasuresController(
     DbClient dbClient,
     ProjectCollectionContextLoader contextLoader,
     ProjectMeasuresService projectMeasuresService,
-    Clock clock) {
+    Clock clock,
+    HistoryRequestValidator historyRequestValidator) {
     this.dbClient = dbClient;
     this.contextLoader = contextLoader;
     this.projectMeasuresService = projectMeasuresService;
     this.clock = clock;
+    this.historyRequestValidator = historyRequestValidator;
   }
 
   @Override
@@ -73,6 +76,7 @@ public class DefaultProjectMeasuresController implements ProjectMeasuresApi {
     @Nullable OffsetDateTime referenceDate,
     List<String> sort,
     Boolean requireValue) {
+    historyRequestValidator.validateMetricKeys(List.of(metricKey));
     ProjectBreakdownRequestValidator.validateReferenceDate(clock, referenceDate);
     ProjectBreakdownRequestValidator.validateSelector(portfolioId, entityType, entityId);
     ProjectCollectionContext context;

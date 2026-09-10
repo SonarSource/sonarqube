@@ -51,7 +51,6 @@ public class DefaultProjectIssueCountsController implements ProjectIssueCountsAp
   private final ProjectCollectionContextLoader contextLoader;
   private final ProjectIssueCountsService projectIssueCountsService;
   private final Clock clock;
-
   DefaultProjectIssueCountsController(
     DbClient dbClient,
     ProjectCollectionContextLoader contextLoader,

@@ -56,7 +56,6 @@ public class DefaultIssueCountHistoryController implements IssueCountHistoryApi 
   private final DbClient dbClient;
   private final IssueCountHistoryService issueHistoryService;
   private final Clock clock;
-
   DefaultIssueCountHistoryController(UserSession userSession, DbClient dbClient, IssueCountHistoryService issueHistoryService, Clock clock) {
     this.userSession = userSession;
     this.dbClient = dbClient;

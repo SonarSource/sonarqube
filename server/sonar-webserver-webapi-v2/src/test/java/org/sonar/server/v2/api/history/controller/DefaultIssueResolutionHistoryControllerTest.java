@@ -149,6 +149,18 @@ public class DefaultIssueResolutionHistoryControllerTest {
       .andExpect(content().json("{\"message\":\"Unsupported resolution filter\"}"));
   }
 
+  @Test
+  public void getIssueResolutionHistory_whenSecurityHotspotIssueTypeIsRequested_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("statistic", "MTTR")
+      .queryParam("startDate", START.toString())
+      .queryParam("issueTypes", "SECURITY_HOTSPOT"))
+      .andExpect(status().isBadRequest());
+    verifyNoInteractions(dbClient, issueTtrHistoryService);
+  }
+
   private static ComponentDto portfolio() {
     return new ComponentDto()
       .setUuid(ENTITY_ID)

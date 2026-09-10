@@ -52,12 +52,15 @@ public class DefaultMeasuresHistoryController implements MeasuresHistoryApi {
   private final DbClient dbClient;
   private final MeasuresHistoryService measuresHistoryService;
   private final Clock clock;
+  private final HistoryRequestValidator historyRequestValidator;
 
-  DefaultMeasuresHistoryController(UserSession userSession, DbClient dbClient, MeasuresHistoryService measuresHistoryService, Clock clock) {
+  DefaultMeasuresHistoryController(UserSession userSession, DbClient dbClient, MeasuresHistoryService measuresHistoryService, Clock clock,
+                                   HistoryRequestValidator historyRequestValidator) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.measuresHistoryService = measuresHistoryService;
     this.clock = clock;
+    this.historyRequestValidator = historyRequestValidator;
   }
 
   /** Validates the request, checks access, and returns measure history. */
@@ -68,6 +71,7 @@ public class DefaultMeasuresHistoryController implements MeasuresHistoryApi {
     List<String> metricKeys,
     OffsetDateTime startDate,
     @Nullable OffsetDateTime endDate) {
+    historyRequestValidator.validateMetricKeys(metricKeys);
     if (metricKeys.isEmpty()) {
       throw new IllegalArgumentException("metricKeys must not be empty");
     }

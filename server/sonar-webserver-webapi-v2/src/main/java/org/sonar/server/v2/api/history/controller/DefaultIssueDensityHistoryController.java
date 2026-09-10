@@ -57,7 +57,6 @@ public class DefaultIssueDensityHistoryController implements IssueDensityHistory
   private final DbClient dbClient;
   private final IssueCountHistoryService issueHistoryService;
   private final Clock clock;
-
   DefaultIssueDensityHistoryController(UserSession userSession, DbClient dbClient,
                                        IssueCountHistoryService issueHistoryService, Clock clock) {
     this.userSession = userSession;
@@ -77,8 +76,8 @@ public class DefaultIssueDensityHistoryController implements IssueDensityHistory
       @Nullable List<IssueType> issueTypes,
       @Nullable List<String> ruleKeys,
       @Nullable List<IssueSeverity> severities,
-      @Nullable IssueCountDistributionType sliceBy,
-      @Nullable List<IssueCountStatus> statuses) {
+    @Nullable IssueCountDistributionType sliceBy,
+    @Nullable List<IssueCountStatus> statuses) {
     LOG.debug("getIssueDensityHistory invoked: entityId={}, entityType={}, startDate={}, endDate={}, filters=[{}]",
       entityId, entityType, startDate, endDate, Arrays.asList(sliceBy, impacts, issueTypes, ruleKeys, severities, statuses));
 
