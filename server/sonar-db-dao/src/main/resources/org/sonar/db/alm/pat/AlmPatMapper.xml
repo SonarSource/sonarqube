@@ -30,6 +30,12 @@
       a.user_uuid = #{userUuid, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectAll" resultType="org.sonar.db.alm.pat.AlmPatDto">
+    select <include refid="sqlColumns"/>
+    from
+      alm_pats a
+  </select>
+
   <insert id="insert" parameterType="Map" useGeneratedKeys="false">
     INSERT INTO alm_pats
     (
@@ -58,6 +64,17 @@
     </set>
     <where>
       uuid = #{dto.uuid, jdbcType=VARCHAR}
+    </where>
+  </update>
+
+  <update id="updatePat" parameterType="Map">
+    UPDATE alm_pats
+    <set>
+      pat = #{pat, jdbcType=VARCHAR}
+    </set>
+    <where>
+      uuid = #{uuid, jdbcType=VARCHAR}
+      and pat = #{expectedPat, jdbcType=VARCHAR}
     </where>
   </update>
 

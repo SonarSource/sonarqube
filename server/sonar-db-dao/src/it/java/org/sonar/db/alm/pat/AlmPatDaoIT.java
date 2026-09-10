@@ -25,6 +25,8 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.event.Level;
 import org.sonar.api.config.internal.Encryption;
 import org.sonar.api.config.internal.MapSettings;
@@ -51,6 +53,7 @@ class AlmPatDaoIT {
 
   private static final long NOW = 1000000L;
   private static final String A_UUID = "SOME_UUID";
+  private static final String ANOTHER_UUID = "SOME_OTHER_UUID";
   private static final String A_NEW_PAT = "a new pat";
   private static final String AES_GCM_PREFIX = "{aes-gcm}";
   // passes Encryption.isEncrypted, which only tests the shape of the value, but needs no secret key to be read
@@ -400,6 +403,126 @@ class AlmPatDaoIT {
     assertThat(storedPersonalAccessToken()).isEqualTo(encryptedToken).startsWith(AES_GCM_PREFIX);
   }
 
+  @Test
+  void encryptNotEncryptedPersonalAccessTokens_whenNoSecretKeyIsConfigured_shouldDoNothing() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    AlmPatDto almPatDto = newAlmPatDto();
+    underTest.insert(dbSession, almPatDto, null, null);
+
+    assertThat(underTest.encryptNotEncryptedPersonalAccessTokens(dbSession)).isZero();
+
+    assertThat(storedPersonalAccessToken()).isEqualTo(almPatDto.getPersonalAccessToken());
+  }
+
+  @Test
+  void encryptNotEncryptedPersonalAccessTokens_whenSecretKeyIsConfigured_shouldEncryptClearTextTokens() throws IOException {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    AlmPatDto almPatDto = newAlmPatDto();
+    underTest.insert(dbSession, almPatDto, null, null);
+    String clearTextToken = almPatDto.getPersonalAccessToken();
+    AlmPatDao daoWithSecretKey = newAlmPatDaoWithSecretKey();
+
+    assertThat(daoWithSecretKey.encryptNotEncryptedPersonalAccessTokens(dbSession)).isOne();
+
+    assertThat(storedPersonalAccessToken()).startsWith(AES_GCM_PREFIX).doesNotContain(clearTextToken);
+    assertThat(daoWithSecretKey.selectByUuid(dbSession, A_UUID))
+      .get().extracting(AlmPatDto::getPersonalAccessToken).isEqualTo(clearTextToken);
+  }
+
+  @Test
+  void encryptNotEncryptedPersonalAccessTokens_whenCalledAgain_shouldLeaveAlreadyEncryptedTokensAlone() throws IOException {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    underTest.insert(dbSession, newAlmPatDto(), null, null);
+    AlmPatDao daoWithSecretKey = newAlmPatDaoWithSecretKey();
+    daoWithSecretKey.encryptNotEncryptedPersonalAccessTokens(dbSession);
+    String encryptedToken = storedPersonalAccessToken();
+
+    assertThat(daoWithSecretKey.encryptNotEncryptedPersonalAccessTokens(dbSession)).isZero();
+
+    assertThat(storedPersonalAccessToken()).isEqualTo(encryptedToken);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"{abcdef", "{", "{}", "{}abcdef", "{}a}b", "{a}b", "{b64}Zm9v"})
+  void encryptNotEncryptedPersonalAccessTokens_whenClearTextTokenStartsWithABrace_shouldStillEncryptIt(String clearTextToken)
+    throws IOException {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    underTest.insert(dbSession, newAlmPatDto().setPersonalAccessToken(clearTextToken), null, null);
+    AlmPatDao daoWithSecretKey = newAlmPatDaoWithSecretKey();
+
+    assertThat(daoWithSecretKey.encryptNotEncryptedPersonalAccessTokens(dbSession)).isOne();
+
+    assertThat(storedPersonalAccessToken()).startsWith(AES_GCM_PREFIX);
+    assertThat(daoWithSecretKey.selectByUuid(dbSession, A_UUID))
+      .get().extracting(AlmPatDto::getPersonalAccessToken).isEqualTo(clearTextToken);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"{aes-gcm}Zm9vYmFy", "{AES-GCM}Zm9vYmFy", "{aes}Zm9vYmFy"})
+  void encryptNotEncryptedPersonalAccessTokens_whenStoredTokenNeedsTheSecretKeyToBeRead_shouldLeaveItAlone(String storedToken)
+    throws IOException {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    underTest.insert(dbSession, newAlmPatDto().setPersonalAccessToken(storedToken), null, null);
+
+    assertThat(newAlmPatDaoWithSecretKey().encryptNotEncryptedPersonalAccessTokens(dbSession)).isZero();
+
+    assertThat(storedPersonalAccessToken()).isEqualTo(storedToken);
+  }
+
+  @Test
+  void encryptNotEncryptedPersonalAccessTokens_whenOneTokenCannotBeStored_shouldStillEncryptTheOthers() throws IOException {
+    when(uuidFactory.create()).thenReturn(ANOTHER_UUID, A_UUID);
+    // encrypting inflates this one past the size of the column, so the database refuses to store it
+    String tooLongClearTextToken = secure().nextAlphanumeric(3500);
+    underTest.insert(dbSession, newAlmPatDto().setPersonalAccessToken(tooLongClearTextToken), null, null);
+    AlmPatDto almPatDto = newAlmPatDto();
+    underTest.insert(dbSession, almPatDto, null, null);
+    dbSession.commit();
+    AlmPatDao daoWithSecretKey = newAlmPatDaoWithSecretKey();
+
+    int encryptedCount = daoWithSecretKey.encryptNotEncryptedPersonalAccessTokens(dbSession);
+    // whatever the sweep did not commit is dropped here, so what is read back is what it made durable
+    dbSession.rollback();
+
+    assertThat(encryptedCount).isOne();
+    assertThat(storedPersonalAccessToken(A_UUID)).startsWith(AES_GCM_PREFIX);
+    assertThat(daoWithSecretKey.selectByUuid(dbSession, A_UUID))
+      .get().extracting(AlmPatDto::getPersonalAccessToken).isEqualTo(almPatDto.getPersonalAccessToken());
+    assertThat(storedPersonalAccessToken(ANOTHER_UUID)).isEqualTo(tooLongClearTextToken);
+    assertThat(logTester.logs(Level.WARN))
+      .anyMatch(log -> log.contains(ANOTHER_UUID) && log.contains("is left as clear text"));
+  }
+
+  @Test
+  void updatePat_whenTheStoredTokenIsStillTheOneThatWasRead_shouldRewriteIt() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    AlmPatDto almPatDto = newAlmPatDto();
+    underTest.insert(dbSession, almPatDto, null, null);
+
+    int updatedRows = almPatMapper().updatePat(A_UUID, A_NEW_PAT, almPatDto.getPersonalAccessToken());
+
+    assertThat(updatedRows).isOne();
+    assertThat(storedPersonalAccessToken()).isEqualTo(A_NEW_PAT);
+  }
+
+  @Test
+  void updatePat_whenAnotherNodeStoredATokenSinceItWasRead_shouldLeaveThatTokenAlone() {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    AlmPatDto almPatDto = newAlmPatDto();
+    underTest.insert(dbSession, almPatDto, null, null);
+    String tokenOfTheOtherNode = "a token entered on another node while the sweep was running";
+    almPatMapper().updatePat(A_UUID, tokenOfTheOtherNode, almPatDto.getPersonalAccessToken());
+
+    int updatedRows = almPatMapper().updatePat(A_UUID, A_NEW_PAT, almPatDto.getPersonalAccessToken());
+
+    assertThat(updatedRows).isZero();
+    assertThat(storedPersonalAccessToken()).isEqualTo(tokenOfTheOtherNode);
+  }
+
+  private AlmPatMapper almPatMapper() {
+    return dbSession.getMapper(AlmPatMapper.class);
+  }
+
   private AlmSettingDto insertGithubAlmSetting() {
     AlmSettingDto almSetting = newGithubAlmSettingDto();
     almSettingDao.insert(dbSession, almSetting);
@@ -443,6 +566,10 @@ class AlmPatDaoIT {
 
   private String storedPersonalAccessToken() {
     return (String) db.selectFirst(dbSession, "select pat as \"pat\" from alm_pats").get("pat");
+  }
+
+  private String storedPersonalAccessToken(String uuid) {
+    return (String) db.selectFirst(dbSession, "select pat as \"pat\" from alm_pats where uuid = '" + uuid + "'").get("pat");
   }
 
 }

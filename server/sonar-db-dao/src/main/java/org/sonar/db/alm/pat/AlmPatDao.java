@@ -19,6 +19,7 @@
  */
 package org.sonar.db.alm.pat;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -113,6 +114,54 @@ public class AlmPatDao implements Dao {
     almPatDto.setUpdatedAt(now);
     getMapper(dbSession).update(almPatDto, toStoredPersonalAccessToken(almPatDto));
     auditPersister.updatePersonalAccessToken(dbSession, new PersonalAccessTokenNewValue(almPatDto, userLogin, almSettingKey));
+  }
+
+  /**
+   * Encrypts every token that is still stored as clear text, and returns how many of them were rewritten. Does
+   * nothing when no secret key is configured, as there would be nothing to encrypt them with. Calling this repeatedly
+   * is safe, because a token that is already encrypted is left untouched.
+   * <p>
+   * A token that changed between being read and being rewritten is left alone, since this runs on one node of a
+   * cluster while the others still serve requests, and a user entering a token there must not have it reverted.
+   * <p>
+   * Each token is committed on its own, so that one the database refuses to store costs only itself. Sharing a
+   * transaction, a single token whose encrypted form no longer fits the column would leave every other one in clear
+   * text as well, at that startup and at every one after it, since the same token fails again each time. The session
+   * is therefore committed and rolled back as the sweep goes, and must not be handed one holding work of its own.
+   */
+  public int encryptNotEncryptedPersonalAccessTokens(DbSession dbSession) {
+    if (!encryption.hasSecretKey()) {
+      return 0;
+    }
+    int encryptedCount = 0;
+    // the tokens are held in a list rather than read from an open cursor, so committing while iterating them is safe
+    for (AlmPatDto almPatDto : selectNotEncrypted(dbSession)) {
+      String storedPersonalAccessToken = almPatDto.getPersonalAccessToken();
+      try {
+        int updatedRows = getMapper(dbSession).updatePat(almPatDto.getUuid(),
+          encryption.encrypt(storedPersonalAccessToken), storedPersonalAccessToken);
+        dbSession.commit();
+        encryptedCount += updatedRows;
+      } catch (RuntimeException e) {
+        // a failed statement leaves the transaction unusable on some databases, so this rollback is what lets the
+        // tokens after this one be encrypted at all, rather than merely discarding the write that failed
+        dbSession.rollback();
+        LOG.warn("The personal access token of alm_pats entry '{}' cannot be encrypted and is left as clear text. "
+          + "Encrypting it is attempted again at the next restart.", almPatDto.getUuid(), e);
+      }
+    }
+    return encryptedCount;
+  }
+
+  /**
+   * Which tokens count as clear text is decided by {@link #needsSecretKeyToBeRead}, the very test the read path
+   * applies, rather than by a SQL predicate that would have to be kept equivalent to it. A token merely shaped like an
+   * encrypted one is therefore swept too, instead of being mistaken for one and left as clear text forever.
+   */
+  private static List<AlmPatDto> selectNotEncrypted(DbSession dbSession) {
+    return getMapper(dbSession).selectAll().stream()
+      .filter(almPatDto -> !needsSecretKeyToBeRead(almPatDto.getPersonalAccessToken()))
+      .toList();
   }
 
   public void delete(DbSession dbSession, AlmPatDto almPatDto, @Nullable String userLogin, @Nullable String almSettingKey) {

@@ -48,6 +48,7 @@ import org.sonar.server.rule.registration.RulesKeyVerifier;
 import org.sonar.server.rule.registration.RulesRegistrant;
 import org.sonar.server.rule.registration.StartupRuleUpdater;
 import org.sonar.server.rule.registration.ActiveRulesImpactInitializer;
+import org.sonar.server.startup.EncryptAlmPats;
 import org.sonar.server.startup.IssueFlagResetSetupTask;
 import org.sonar.server.startup.RegisterMeasureKeyMappings;
 import org.sonar.server.startup.RegisterMetrics;
@@ -100,7 +101,8 @@ public class PlatformLevelStartup extends PlatformLevel {
       CeQueueCleaner.class,
       UpgradeSuggestionsCleaner.class,
       IssueFlagResetSetupTask.class,
-      PluginConsentVerifier.class);
+      PluginConsentVerifier.class,
+      EncryptAlmPats.class);
     add(RegisterPlugins.class,
       // RegisterServletFilters makes the WebService engine of Level4 served by the MasterServletFilter, therefore it
       // must be started after all the other startup tasks
