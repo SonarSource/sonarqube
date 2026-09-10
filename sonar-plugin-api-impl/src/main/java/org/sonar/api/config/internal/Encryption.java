@@ -30,6 +30,13 @@ import javax.annotation.Nullable;
  * @since 3.0
  */
 public final class Encryption {
+
+  /**
+   * Points at the key being replaced while the secret key is rotated. Counterpart of
+   * {@link org.sonar.api.CoreProperties#ENCRYPTION_SECRET_KEY_PATH}.
+   */
+  public static final String PREVIOUS_SECRET_KEY_PATH = "sonar.previousSecretKeyPath";
+
   private static final Pattern ENCRYPTED_PATTERN = Pattern.compile("^\\{([^{^}]*)}(.*)$");
 
   private static final String BASE64_ALGORITHM = "b64";
@@ -42,8 +49,18 @@ public final class Encryption {
   private final Map<String, Cipher> ciphers;
 
   public Encryption(@Nullable String pathToSecretKey) {
+    this(pathToSecretKey, null);
+  }
+
+  /**
+   * @param pathToPreviousSecretKey the key being replaced, which every component holding its own instance has to pass
+   *                                for {@link #PREVIOUS_SECRET_KEY_PATH} to work the same way the environment variable
+   *                                already does
+   */
+  public Encryption(@Nullable String pathToSecretKey, @Nullable String pathToPreviousSecretKey) {
     aesECBCipher = new AesECBCipher(pathToSecretKey);
     aesGCMCipher = new AesGCMCipher(pathToSecretKey);
+    setPathToPreviousSecretKey(pathToPreviousSecretKey);
     ciphers = new HashMap<>();
     ciphers.put(BASE64_ALGORITHM, new Base64Cipher());
     ciphers.put(AES_ECB_ALGORITHM, aesECBCipher);
@@ -56,10 +73,28 @@ public final class Encryption {
   }
 
   /**
+   * Points at the key being replaced while the secret key is rotated. Decryption falls back to it, so values written
+   * with it stay readable until they have been rewritten with the new key.
+   */
+  public void setPathToPreviousSecretKey(@Nullable String pathToPreviousSecretKey) {
+    aesECBCipher.setPathToPreviousSecretKey(pathToPreviousSecretKey);
+    aesGCMCipher.setPathToPreviousSecretKey(pathToPreviousSecretKey);
+  }
+
+  /**
    * Checks the availability of the secret key, that is required to encrypt and decrypt.
    */
   public boolean hasSecretKey() {
     return aesGCMCipher.hasSecretKey();
+  }
+
+  /**
+   * Whether the configured secret key can be loaded, as opposed to {@link #hasSecretKey()} which reports that one is
+   * configured at all. Reporting a decryption failure uses this to tell a key that cannot be read from a value that
+   * was encrypted with a different one, since the two need opposite things to be done about them.
+   */
+  public boolean canLoadSecretKey() {
+    return aesGCMCipher.canLoadSecretKey();
   }
 
   public boolean isEncrypted(String value) {

@@ -27,8 +27,12 @@ import java.nio.file.Path;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.crypto.AEADBadTagException;
+import javax.crypto.BadPaddingException;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,6 +40,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class AesGCMCipherTest {
 
   private static final String A_PATH_TO_NO_FILE = "/no/such/sonar-secret.txt";
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void encrypt_should_generate_different_value_everytime() throws Exception {
@@ -111,6 +118,40 @@ public class AesGCMCipherTest {
   }
 
   @Test
+  public void canLoadSecretKey_whenTheConfiguredFileHoldsAValidKey_shouldBeTrue() throws Exception {
+    AesGCMCipher cipher = new AesGCMCipher(pathToSecretKey());
+
+    assertThat(cipher.canLoadSecretKey()).isTrue();
+  }
+
+  @Test
+  public void canLoadSecretKey_whenTheConfiguredFileHoldsAnUnusableKey_shouldBeFalseWhileTheKeyStaysConfigured() throws Exception {
+    URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/bad_secret_key.txt");
+    AesGCMCipher cipher = new AesGCMCipher(new File(resource.toURI()).getCanonicalPath());
+
+    // writing stores clear text wherever no key is configured, so an unusable key must keep counting as configured
+    // and keep failing the write, rather than passing for an absent one
+    assertThat(cipher.hasSecretKey()).isTrue();
+    assertThat(cipher.canLoadSecretKey()).isFalse();
+  }
+
+  @Test
+  public void canLoadSecretKey_whenNoKeyIsConfiguredAnywhere_shouldBeFalse() {
+    AesGCMCipher cipher = new AesGCMCipher(A_PATH_TO_NO_FILE, secretKeySource(null), secretKeySource(null));
+
+    assertThat(cipher.canLoadSecretKey()).isFalse();
+  }
+
+  @Test
+  public void canLoadSecretKey_whenTheKeyOfAnotherSourceHasAnInvalidLength_shouldBeFalse() {
+    String aTruncatedKey = new Encryption(null).generateRandomSecretKey().substring(0, 8);
+    AesGCMCipher cipher = new AesGCMCipher(null, secretKeySource(aTruncatedKey), secretKeySource(null));
+
+    assertThat(cipher.hasSecretKey()).isTrue();
+    assertThat(cipher.canLoadSecretKey()).isFalse();
+  }
+
+  @Test
   public void decrypt_whenKeyComesFromAnotherSource_shouldUseThatKey() {
     AesGCMCipher cipher = new AesGCMCipher(null, secretKeySource(new Encryption(null).generateRandomSecretKey()));
 
@@ -136,7 +177,8 @@ public class AesGCMCipherTest {
 
   @Test
   public void encrypt_whenSecretKeyPathPointsAtNoFileAndKeyComesFromAnotherSource_shouldUseThatSource() {
-    AesGCMCipher cipher = new AesGCMCipher(A_PATH_TO_NO_FILE, secretKeySource(new Encryption(null).generateRandomSecretKey()));
+    AesGCMCipher cipher = new AesGCMCipher(A_PATH_TO_NO_FILE,
+      secretKeySource(new Encryption(null).generateRandomSecretKey()), secretKeySource(null));
 
     assertThat(cipher.decrypt(cipher.encrypt("this is a secret"))).isEqualTo("this is a secret");
   }
@@ -168,9 +210,122 @@ public class AesGCMCipherTest {
   public void encrypt_whenTheKeyOfAnotherSourceIs128Bits_shouldAcceptIt() throws Exception {
     // the key files an instance may already use are not all 256 bits, and moving such a key to another
     // source must not stop it from working
-    AesGCMCipher cipher = new AesGCMCipher(null, secretKeySource(secretKeyFileContent()));
+    AesGCMCipher cipher = new AesGCMCipher(null, secretKeySource(secretKeyFileContent()), secretKeySource(null));
 
     assertThat(cipher.decrypt(cipher.encrypt("this is a secret"))).isEqualTo("this is a secret");
+  }
+
+  @Test
+  public void decrypt_whenValueWasWrittenWithThePreviousKey_shouldStillReadIt() throws Exception {
+    String previousBase64Key = new Encryption(null).generateRandomSecretKey();
+    AesGCMCipher previousCipher = new AesGCMCipher(null, secretKeySource(previousBase64Key));
+    String encryptedWithPreviousKey = previousCipher.encrypt("this is a secret");
+
+    AesGCMCipher rotatedCipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(previousBase64Key), secretKeySource(previousBase64Key));
+
+    assertThat(rotatedCipher.decrypt(encryptedWithPreviousKey)).isEqualTo("this is a secret");
+  }
+
+  @Test
+  public void decrypt_whenPreviousKeyIsConfigured_shouldStillReadValuesWrittenWithTheCurrentKey() throws Exception {
+    AesGCMCipher rotatedCipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(new Encryption(null).generateRandomSecretKey()),
+      secretKeySource(new Encryption(null).generateRandomSecretKey()));
+
+    assertThat(rotatedCipher.decrypt(rotatedCipher.encrypt("this is a secret"))).isEqualTo("this is a secret");
+  }
+
+  @Test
+  public void decrypt_whenNeitherKeyWorks_shouldFailAsADecryptionFailure() throws Exception {
+    AesGCMCipher originalCipher = new AesGCMCipher(null, secretKeySource(new Encryption(null).generateRandomSecretKey()));
+    AesGCMCipher rotatedCipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(new Encryption(null).generateRandomSecretKey()),
+      secretKeySource(new Encryption(null).generateRandomSecretKey()));
+    String encryptedWithAnotherKey = originalCipher.encrypt("this is a secret");
+
+    // which of the two failures is reported cannot be told apart from here: this algorithm rejects every wrong key the
+    // same way, and a key that would fail differently is reported as absent rather than failing the decryption
+    assertThatThrownBy(() -> rotatedCipher.decrypt(encryptedWithAnotherKey))
+      .hasMessage(AesCipher.DECRYPTION_FAILURE_MESSAGE)
+      .hasCauseInstanceOf(BadPaddingException.class);
+  }
+
+  @Test
+  public void decrypt_whenThePreviousKeyFileIsGone_shouldStillReadValuesWrittenWithTheCurrentKey() throws Exception {
+    // the state an instance is left in when a rotation is finished and the old key file is deleted while the property
+    // pointing at it is still set: the fallback is unusable, but the current key is not
+    AesGCMCipher cipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(null), secretKeySource(null));
+    cipher.setPathToPreviousSecretKey(A_PATH_TO_NO_FILE);
+    String encryptedWithTheCurrentKey = cipher.encrypt("this is a secret");
+
+    assertThat(cipher.decrypt(encryptedWithTheCurrentKey)).isEqualTo("this is a secret");
+  }
+
+  @Test
+  public void decrypt_whenThePreviousKeyPathHoldsNoFileAndASourceHasTheKey_shouldStillReadValuesWrittenWithIt() throws Exception {
+    // the current key already resolves this way: a path holding no file is how the key is taken from elsewhere, so a
+    // volume that is not mounted yet must not strand the values written with the key being replaced
+    String previousBase64Key = new Encryption(null).generateRandomSecretKey();
+    AesGCMCipher previousCipher = new AesGCMCipher(null, secretKeySource(previousBase64Key));
+    String encryptedWithPreviousKey = previousCipher.encrypt("this is a secret");
+
+    AesGCMCipher rotatedCipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(null), secretKeySource(previousBase64Key));
+    rotatedCipher.setPathToPreviousSecretKey(A_PATH_TO_NO_FILE);
+
+    assertThat(rotatedCipher.decrypt(encryptedWithPreviousKey)).isEqualTo("this is a secret");
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
+  }
+
+  @Test
+  public void decrypt_whenThePreviousKeyFileIsGone_shouldWarnOnceAndNameThatProperty() throws Exception {
+    AesGCMCipher cipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(null), secretKeySource(null));
+    cipher.setPathToPreviousSecretKey(A_PATH_TO_NO_FILE);
+    String encryptedWithTheCurrentKey = cipher.encrypt("this is a secret");
+
+    cipher.decrypt(encryptedWithTheCurrentKey);
+    cipher.decrypt(encryptedWithTheCurrentKey);
+
+    // decryption runs on every settings read, so the condition is reported once rather than per call
+    assertThat(logTester.logs(Level.WARN)).hasSize(1);
+    assertThat(logTester.logs(Level.WARN).get(0)).contains("secret key being replaced cannot be loaded");
+    assertThat(logTester.getLogs(Level.WARN).get(0).getThrowable())
+      .hasMessageContaining(Encryption.PREVIOUS_SECRET_KEY_PATH)
+      .hasMessageContaining(A_PATH_TO_NO_FILE);
+  }
+
+  @Test
+  public void encrypt_whenTheConfiguredPathHoldsNoFileAndASourceHasTheKey_shouldWarnOnceAboutTheSubstitution() {
+    AesGCMCipher cipher = new AesGCMCipher(A_PATH_TO_NO_FILE,
+      secretKeySource(new Encryption(null).generateRandomSecretKey()), secretKeySource(null));
+
+    cipher.encrypt("this is a secret");
+    cipher.encrypt("this is another secret");
+
+    assertThat(logTester.logs(Level.WARN)).hasSize(1);
+    assertThat(logTester.logs(Level.WARN).get(0))
+      .contains(A_PATH_TO_NO_FILE)
+      .contains("a source used by tests");
+  }
+
+  @Test
+  public void encrypt_whenNoPathIsConfiguredAndASourceHasTheKey_shouldNotWarnAboutASubstitution() {
+    AesGCMCipher cipher = new AesGCMCipher(null,
+      secretKeySource(new Encryption(null).generateRandomSecretKey()), secretKeySource(null));
+
+    cipher.encrypt("this is a secret");
+
+    // nothing was bypassed: supplying the key elsewhere is how an instance without that property is meant to work
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
+  }
+
+  @Test
+  public void encrypt_whenPreviousKeyIsConfigured_shouldUseTheCurrentKey() throws Exception {
+    String previousBase64Key = new Encryption(null).generateRandomSecretKey();
+    AesGCMCipher rotatedCipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(previousBase64Key), secretKeySource(previousBase64Key));
+
+    String encryptedText = rotatedCipher.encrypt("this is a secret");
+
+    // readable by a cipher that only knows the current key, so the previous one was not used to write
+    assertThat(new AesGCMCipher(pathToSecretKey(), secretKeySource(null), secretKeySource(null)).decrypt(encryptedText))
+      .isEqualTo("this is a secret");
   }
 
   private String pathToSecretKey() throws Exception {

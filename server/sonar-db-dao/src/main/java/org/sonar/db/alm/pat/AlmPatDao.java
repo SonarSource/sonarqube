@@ -37,6 +37,7 @@ import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
 import org.sonar.db.user.UserDto;
 
 import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
+import static org.sonar.api.config.internal.EnvironmentVariableSecretKeySource.ENVIRONMENT_VARIABLE;
 
 /**
  * Personal access tokens are stored encrypted whenever an encryption secret key is configured, and decrypted on read.
@@ -233,10 +234,24 @@ public class AlmPatDao implements Dao {
       almPatDto.setPersonalAccessToken(encryption.decrypt(storedPersonalAccessToken));
       return Optional.of(almPatDto);
     } catch (RuntimeException e) {
-      LOG.warn("The personal access token of alm_pats entry '{}' cannot be decrypted and is ignored. Check that the "
-        + "secret key configured in '{}' can be read and is the one the token was encrypted with. Entering the token "
-        + "again only replaces it once that key works.", almPatDto.getUuid(), ENCRYPTION_SECRET_KEY_PATH, e);
+      warnAboutTheTokenBeingUnreadable(almPatDto, e);
       return Optional.empty();
+    }
+  }
+
+  /**
+   * A key that cannot be read and a key that is simply not the right one both fail the same way here, and they need
+   * opposite things to be done about them: entering the token again stores it with the configured key, but only once
+   * that key can be loaded at all, so advising it while the key is broken sends the user into a failing write.
+   */
+  private void warnAboutTheTokenBeingUnreadable(AlmPatDto almPatDto, RuntimeException cause) {
+    if (encryption.canLoadSecretKey()) {
+      LOG.warn("The personal access token of alm_pats entry '{}' cannot be decrypted with the configured secret key "
+        + "and is ignored. The token has to be entered again to be stored with that key.", almPatDto.getUuid(), cause);
+    } else {
+      LOG.warn("The personal access token of alm_pats entry '{}' is ignored because the secret key supplied through "
+        + "'{}' or the {} environment variable cannot be read. Entering the token again fails as well until that key "
+        + "is readable.", almPatDto.getUuid(), ENCRYPTION_SECRET_KEY_PATH, ENVIRONMENT_VARIABLE, cause);
     }
   }
 }

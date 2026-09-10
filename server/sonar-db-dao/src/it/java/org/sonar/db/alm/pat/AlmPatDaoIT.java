@@ -46,6 +46,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
+import static org.sonar.api.config.internal.EnvironmentVariableSecretKeySource.ENVIRONMENT_VARIABLE;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
 
@@ -241,8 +243,9 @@ class AlmPatDaoIT {
 
     // this key is readable, it is simply not the one the token was encrypted with, so entering it again does replace it
     assertThat(logTester.logs(Level.WARN))
-      .anyMatch(log -> log.contains("cannot be decrypted and is ignored")
-        && log.contains("Entering the token again only replaces it once that key works"));
+      .anyMatch(log -> log.contains("cannot be decrypted with the configured secret key")
+        && log.contains("has to be entered again to be stored with that key"))
+      .noneMatch(log -> log.contains("cannot be read"));
   }
 
   @Test
@@ -401,6 +404,25 @@ class AlmPatDaoIT {
       .hasMessageContaining("No secret key in the file");
 
     assertThat(storedPersonalAccessToken()).isEqualTo(encryptedToken).startsWith(AES_GCM_PREFIX);
+    // the read above must not have sent the user into the write that just failed
+    assertThat(logTester.logs(Level.WARN))
+      // both ways the key can be supplied are named, since either of them is what canLoadSecretKey() just refused
+      .anyMatch(log -> log.contains(ENCRYPTION_SECRET_KEY_PATH) && log.contains(ENVIRONMENT_VARIABLE) && log.contains("cannot be read"))
+      .noneMatch(log -> log.contains("has to be entered again to be stored with that key"));
+  }
+
+  @Test
+  void selectByUuid_whenTheSecretKeyFileHoldsAnUnusableKey_shouldReportTheKeyRatherThanAskForTheTokenAgain() throws IOException {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    newAlmPatDaoWithSecretKey().insert(dbSession, newAlmPatDto(), null, null);
+
+    // unlike a blank file, this one loads and only fails once a cipher uses it, so the length is what gives it away
+    assertThat(newAlmPatDaoWithUnusableSecretKey().selectByUuid(dbSession, A_UUID)).isEmpty();
+
+    assertThat(logTester.logs(Level.WARN))
+      // both ways the key can be supplied are named, since either of them is what canLoadSecretKey() just refused
+      .anyMatch(log -> log.contains(ENCRYPTION_SECRET_KEY_PATH) && log.contains(ENVIRONMENT_VARIABLE) && log.contains("cannot be read"))
+      .noneMatch(log -> log.contains("has to be entered again to be stored with that key"));
   }
 
   @Test
@@ -555,6 +577,12 @@ class AlmPatDaoIT {
   private AlmPatDao newAlmPatDaoWithBlankSecretKey() throws IOException {
     Path secretKeyFile = tempDir.resolve("blank-secret.txt");
     Files.writeString(secretKeyFile, "");
+    return newAlmPatDao(secretKeyFile.toString());
+  }
+
+  private AlmPatDao newAlmPatDaoWithUnusableSecretKey() throws IOException {
+    Path secretKeyFile = tempDir.resolve("unusable-secret.txt");
+    Files.writeString(secretKeyFile, new Encryption(null).generateRandomSecretKey().substring(0, 8));
     return newAlmPatDao(secretKeyFile.toString());
   }
 

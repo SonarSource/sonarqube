@@ -20,13 +20,15 @@
 package org.sonar.api.config.internal;
 
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import javax.annotation.Nullable;
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 
 /**
+ * Reads the values written before this algorithm was replaced. A key rotation has to keep them readable, so this falls
+ * back to the key being replaced the same way the current algorithm does.
+ *
  * @deprecated since 8.7.0
  */
 @Deprecated
@@ -42,34 +44,28 @@ final class AesECBCipher extends AesCipher {
     super(pathToSecretKey, secretKeySource);
   }
 
+  AesECBCipher(@Nullable String pathToSecretKey, SecretKeySource secretKeySource, SecretKeySource previousSecretKeySource) {
+    super(pathToSecretKey, secretKeySource, previousSecretKeySource);
+  }
+
   @Override
   public String encrypt(String clearText) {
-    try {
+    return failingAsIllegalState(() -> {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_ALGO);
       cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFile());
       byte[] cipherData = cipher.doFinal(clearText.getBytes(StandardCharsets.UTF_8.name()));
       return Base64.encodeBase64String(cipherData);
-    } catch (RuntimeException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
+    });
   }
 
   @Override
-  public String decrypt(String encryptedText) {
-    try {
+  protected String decrypt(String encryptedText, Key secretKey) {
+    return failingAsDecryptionFailure(() -> {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_ALGO);
-      cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile());
+      cipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKey);
       byte[] cipherData = cipher.doFinal(Base64.decodeBase64(StringUtils.trim(encryptedText)));
       return new String(cipherData, StandardCharsets.UTF_8);
-    } catch (BadPaddingException | IllegalBlockSizeException e) {
-      throw new IllegalStateException(DECRYPTION_FAILURE_MESSAGE, e);
-    } catch (RuntimeException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
+    });
   }
 
 }

@@ -31,19 +31,30 @@ public class EnvironmentVariableSecretKeySource implements SecretKeySource {
 
   public static final String ENVIRONMENT_VARIABLE = "SONAR_SECRET_KEY";
 
+  /**
+   * Holds the key being replaced while the secret key is rotated, so values written with it can still be read.
+   */
+  public static final String PREVIOUS_KEY_ENVIRONMENT_VARIABLE = "SONAR_PREVIOUS_SECRET_KEY";
+
   private final System2 system2;
+  private final String environmentVariable;
 
   public EnvironmentVariableSecretKeySource(System2 system2) {
+    this(system2, ENVIRONMENT_VARIABLE);
+  }
+
+  public EnvironmentVariableSecretKeySource(System2 system2, String environmentVariable) {
     this.system2 = system2;
+    this.environmentVariable = environmentVariable;
   }
 
   @Override
   public Optional<String> loadBase64Key() {
-    return Optional.ofNullable(system2.envVariable(ENVIRONMENT_VARIABLE)).map(StringUtils::trimToNull);
+    return Optional.ofNullable(system2.envVariable(environmentVariable)).map(StringUtils::trimToNull);
   }
 
   @Override
   public String describe() {
-    return "the " + ENVIRONMENT_VARIABLE + " environment variable";
+    return "the " + environmentVariable + " environment variable";
   }
 }

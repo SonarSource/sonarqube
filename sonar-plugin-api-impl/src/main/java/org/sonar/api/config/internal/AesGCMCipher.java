@@ -19,13 +19,11 @@
  */
 package org.sonar.api.config.internal;
 
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.security.SecureRandom;
 import javax.annotation.Nullable;
-import javax.crypto.AEADBadTagException;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.GCMParameterSpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -45,9 +43,13 @@ final class AesGCMCipher extends AesCipher {
     super(pathToSecretKey, secretKeySource);
   }
 
+  AesGCMCipher(@Nullable String pathToSecretKey, SecretKeySource secretKeySource, SecretKeySource previousSecretKeySource) {
+    super(pathToSecretKey, secretKeySource, previousSecretKeySource);
+  }
+
   @Override
   public String encrypt(String clearText) {
-    try {
+    return failingAsIllegalState(() -> {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_ALGO);
       byte[] iv = new byte[GCM_IV_LENGTH_IN_BYTES];
       SECURE_RANDOM.nextBytes(iv);
@@ -58,31 +60,21 @@ final class AesGCMCipher extends AesCipher {
           .put(iv)
           .put(encryptedText)
           .array());
-    } catch (RuntimeException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
+    });
   }
 
   @Override
-  public String decrypt(String encryptedText) {
-    try {
+  protected String decrypt(String encryptedText, Key secretKey) {
+    return failingAsDecryptionFailure(() -> {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_ALGO);
       ByteBuffer byteBuffer = ByteBuffer.wrap(Base64.decodeBase64(StringUtils.trim(encryptedText)));
       byte[] iv = new byte[GCM_IV_LENGTH_IN_BYTES];
       byteBuffer.get(iv);
       byte[] cipherText = new byte[byteBuffer.remaining()];
       byteBuffer.get(cipherText);
-      cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile(), new GCMParameterSpec(GCM_TAG_LENGTH_IN_BITS, iv));
+      cipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(GCM_TAG_LENGTH_IN_BITS, iv));
       byte[] cipherData = cipher.doFinal(cipherText);
       return new String(cipherData, StandardCharsets.UTF_8);
-    } catch (AEADBadTagException | IllegalBlockSizeException | BufferUnderflowException e) {
-      throw new IllegalStateException(DECRYPTION_FAILURE_MESSAGE, e);
-    } catch (RuntimeException e) {
-      throw e;
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
+    });
   }
 }

@@ -21,12 +21,20 @@ package org.sonar.api.config.internal;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Files;
+import javax.crypto.BadPaddingException;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class EncryptionTest {
+
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Test
   public void isEncrypted() {
@@ -99,6 +107,49 @@ public class EncryptionTest {
     assertThat(encryption.decrypt("}rrrRg6")).isEqualTo("}rrrRg6");
     assertThat(encryption.decrypt("{closedjdk")).isEqualTo("{closedjdk");
 
+  }
+
+  @Test
+  public void decrypt_whenThePreviousKeyPathIsGivenToTheConstructor_shouldReadValuesWrittenWithThatKey() throws Exception {
+    // every component holding its own instance builds it this way, so the path has to be honoured here and not only
+    // through the setter, which is called by the server settings alone
+    File previousSecretKeyFile = temporaryFolder.newFile();
+    Encryption keyBeingReplaced = new Encryption(previousSecretKeyFile.getCanonicalPath());
+    Files.writeString(previousSecretKeyFile.toPath(), keyBeingReplaced.generateRandomSecretKey());
+    String encryptedWithTheKeyBeingReplaced = keyBeingReplaced.encrypt("this is a secret");
+
+    Encryption rotated = new Encryption(pathToSecretKey(), previousSecretKeyFile.getCanonicalPath());
+
+    assertThat(rotated.decrypt(encryptedWithTheKeyBeingReplaced)).isEqualTo("this is a secret");
+  }
+
+  @Test
+  public void decrypt_whenNoPreviousKeyPathIsGivenToTheConstructor_shouldOnlyUseTheCurrentKey() throws Exception {
+    File previousSecretKeyFile = temporaryFolder.newFile();
+    Encryption keyBeingReplaced = new Encryption(previousSecretKeyFile.getCanonicalPath());
+    Files.writeString(previousSecretKeyFile.toPath(), keyBeingReplaced.generateRandomSecretKey());
+    String encryptedWithTheKeyBeingReplaced = keyBeingReplaced.encrypt("this is a secret");
+
+    Encryption notRotated = new Encryption(pathToSecretKey());
+
+    assertThatThrownBy(() -> notRotated.decrypt(encryptedWithTheKeyBeingReplaced))
+      .hasCauseInstanceOf(BadPaddingException.class);
+  }
+
+  @Test
+  public void canLoadSecretKey_whenTheKeyFileIsBlank_shouldBeFalseWhileTheKeyStaysConfigured() throws Exception {
+    File blankSecretKeyFile = temporaryFolder.newFile();
+    Encryption encryption = new Encryption(blankSecretKeyFile.getCanonicalPath());
+
+    assertThat(encryption.hasSecretKey()).isTrue();
+    assertThat(encryption.canLoadSecretKey()).isFalse();
+  }
+
+  @Test
+  public void canLoadSecretKey_whenTheKeyFileHoldsAKey_shouldBeTrue() throws Exception {
+    Encryption encryption = new Encryption(pathToSecretKey());
+
+    assertThat(encryption.canLoadSecretKey()).isTrue();
   }
 
   private String pathToSecretKey() throws Exception {

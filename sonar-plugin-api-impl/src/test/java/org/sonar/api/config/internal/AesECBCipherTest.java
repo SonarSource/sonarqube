@@ -127,8 +127,7 @@ public class AesECBCipherTest {
 
   @Test
   public void loadSecretKeyFromFile() throws Exception {
-    AesECBCipher cipher = new AesECBCipher(null);
-    Key secretKey = cipher.loadSecretFileFromFile(pathToSecretKey());
+    Key secretKey = AesCipher.loadSecretFileFromFile(pathToSecretKey());
     assertThat(secretKey.getAlgorithm()).isEqualTo("AES");
     assertThat(secretKey.getEncoded()).hasSizeGreaterThan(10);
   }
@@ -137,9 +136,8 @@ public class AesECBCipherTest {
   public void loadSecretKeyFromFile_trim_content() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/non_trimmed_secret_key.txt");
     String path = new File(resource.toURI()).getCanonicalPath();
-    AesECBCipher cipher = new AesECBCipher(null);
 
-    Key secretKey = cipher.loadSecretFileFromFile(path);
+    Key secretKey = AesCipher.loadSecretFileFromFile(path);
 
     assertThat(secretKey.getAlgorithm()).isEqualTo("AES");
     assertThat(secretKey.getEncoded()).hasSizeGreaterThan(10);
@@ -147,16 +145,13 @@ public class AesECBCipherTest {
 
   @Test
   public void loadSecretKeyFromFile_file_does_not_exist() throws Exception {
-    AesECBCipher cipher = new AesECBCipher(null);
-
-    assertThatThrownBy(() -> cipher.loadSecretFileFromFile("/file/does/not/exist"))
+    assertThatThrownBy(() -> AesCipher.loadSecretFileFromFile("/file/does/not/exist"))
       .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   public void loadSecretKeyFromFile_no_property() throws Exception {
-    AesECBCipher cipher = new AesECBCipher(null);
-    assertThatThrownBy(() -> cipher.loadSecretFileFromFile(null))
+    assertThatThrownBy(() -> AesCipher.loadSecretFileFromFile(null))
       .isInstanceOf(IllegalStateException.class);
   }
 
@@ -178,12 +173,25 @@ public class AesECBCipherTest {
   @Test
   public void decrypt_whenKeyComesFromAnotherSource_shouldStillReadValuesEncryptedWithThatKeyAsAFile() throws Exception {
     // the upgrade path of an instance that moves its key to another source: the values this deprecated cipher
-    // wrote while the key was a file have to stay readable
-    AesECBCipher cipher = new AesECBCipher(null, secretKeySource(StringUtils.trim(Files.readString(Path.of(pathToSecretKey())))));
+    // wrote while the key was a file have to stay readable. Decrypting also looks for a key being replaced, so an
+    // empty source is passed for it rather than the environment of the machine the test runs on.
+    AesECBCipher cipher = new AesECBCipher(null,
+      secretKeySource(StringUtils.trim(Files.readString(Path.of(pathToSecretKey())))), secretKeySource(null));
 
     String clearText = cipher.decrypt("9mx5Zq4JVyjeChTcVjEide4kWCwusFl7P2dSVXtg9IY=");
 
     assertThat(clearText).isEqualTo("this is a secret");
+  }
+
+  @Test
+  public void decrypt_whenValueWasWrittenWithThePreviousKey_shouldStillReadIt() throws Exception {
+    String previousBase64Key = new Encryption(null).generateRandomSecretKey();
+    AesECBCipher previousCipher = new AesECBCipher(null, secretKeySource(previousBase64Key), secretKeySource(previousBase64Key));
+    String encryptedWithPreviousKey = previousCipher.encrypt("this is a secret");
+
+    AesECBCipher rotatedCipher = new AesECBCipher(pathToSecretKey(), secretKeySource(previousBase64Key), secretKeySource(previousBase64Key));
+
+    assertThat(rotatedCipher.decrypt(encryptedWithPreviousKey)).isEqualTo("this is a secret");
   }
 
   private String pathToSecretKey() throws Exception {

@@ -37,6 +37,7 @@ import org.sonar.api.server.ServerSide;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.config.internal.Encryption.PREVIOUS_SECRET_KEY_PATH;
 
 /**
  * Merge of system settings (including conf/sonar.properties) and the global properties stored
@@ -74,6 +75,7 @@ public class ThreadLocalSettings extends Settings {
 
     // TODO something wrong about lifecycle here. It could be improved
     getEncryption().setPathToSecretKey(get(CoreProperties.ENCRYPTION_SECRET_KEY_PATH).orElse(null));
+    getEncryption().setPathToPreviousSecretKey(get(PREVIOUS_SECRET_KEY_PATH).orElse(null));
   }
 
   @VisibleForTesting

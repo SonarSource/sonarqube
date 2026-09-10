@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.config.internal.Encryption;
 
 import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
+import static org.sonar.api.config.internal.Encryption.PREVIOUS_SECRET_KEY_PATH;
 
 public class Props {
 
@@ -36,7 +37,7 @@ public class Props {
   public Props(Properties props) {
     this.properties = new Properties();
     props.forEach((k, v) -> this.properties.put(k.toString().trim(), v == null ? null : v.toString().trim()));
-    this.encryption = new Encryption(props.getProperty(ENCRYPTION_SECRET_KEY_PATH));
+    this.encryption = new Encryption(props.getProperty(ENCRYPTION_SECRET_KEY_PATH), props.getProperty(PREVIOUS_SECRET_KEY_PATH));
   }
 
   public boolean contains(String key) {

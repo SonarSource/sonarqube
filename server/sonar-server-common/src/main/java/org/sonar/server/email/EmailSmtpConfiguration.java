@@ -27,6 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
 import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
+import static org.sonar.api.config.internal.Encryption.PREVIOUS_SECRET_KEY_PATH;
 
 @ServerSide
 @ComputeEngineSide
@@ -70,7 +71,8 @@ public class EmailSmtpConfiguration {
 
   public EmailSmtpConfiguration(DbClient dbClient, Settings settings) {
     this.dbClient = dbClient;
-    this.encryption = new Encryption(settings.getRawString(ENCRYPTION_SECRET_KEY_PATH).orElse(null));
+    this.encryption = new Encryption(settings.getRawString(ENCRYPTION_SECRET_KEY_PATH).orElse(null),
+      settings.getRawString(PREVIOUS_SECRET_KEY_PATH).orElse(null));
   }
 
   public String getSmtpHost() {
