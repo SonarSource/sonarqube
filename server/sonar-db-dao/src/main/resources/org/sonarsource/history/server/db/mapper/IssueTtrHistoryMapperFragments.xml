@@ -34,102 +34,39 @@
     GROUP BY history.dimension_id, history.recorded_at_epoch
 -->
 
-  <sql id="aggregationPortfolioExplicitProjectBranches">
-    SELECT ppb.branch_uuid
-    FROM portfolio_projects pp
-    JOIN portfolio_proj_branches ppb ON ppb.portfolio_project_uuid = pp.uuid
-    JOIN portfolios portfolio ON portfolio.uuid = pp.portfolio_uuid
-    WHERE portfolio.root_uuid = #{entityId}
-  </sql>
-
-  <sql id="aggregationPortfolioMainProjectBranches">
-    SELECT project_branch.uuid
-    FROM portfolio_projects pp
-    JOIN portfolios portfolio ON portfolio.uuid = pp.portfolio_uuid
-    JOIN project_branches project_branch
-      ON project_branch.project_uuid = pp.project_uuid
-     AND project_branch.is_main = ${_true}
-    WHERE portfolio.root_uuid = #{entityId}
-      AND NOT EXISTS (
-        SELECT 1
-        FROM portfolio_proj_branches ppb
-        WHERE ppb.portfolio_project_uuid = pp.uuid
-      )
-  </sql>
-
-  <sql id="aggregationPortfolioExplicitApplicationBranches">
-    SELECT abp.project_branch_uuid
-    FROM portfolio_references pr
-    JOIN portfolios portfolio ON portfolio.uuid = pr.portfolio_uuid
-    JOIN app_branch_project_branch abp
-      ON abp.application_uuid = pr.reference_uuid
-     AND abp.application_branch_uuid = pr.branch_uuid
-    WHERE portfolio.root_uuid = #{entityId}
-  </sql>
-
-  <sql id="aggregationPortfolioMainApplicationBranches">
-    SELECT project_branch.uuid
-    FROM portfolio_references pr
-    JOIN portfolios portfolio ON portfolio.uuid = pr.portfolio_uuid
-    JOIN app_projects app_project ON app_project.application_uuid = pr.reference_uuid
-    JOIN project_branches application_branch
-      ON application_branch.uuid = pr.branch_uuid
-     AND application_branch.is_main = ${_true}
-    JOIN project_branches project_branch
-      ON project_branch.project_uuid = app_project.project_uuid
-     AND project_branch.is_main = ${_true}
-    WHERE portfolio.root_uuid = #{entityId}
-  </sql>
-
-  <!--
-  The fragment references in this need to be fully qualified,
-  because this fragment is referenced from a namespace that doesn't contain its children
-  -->
   <sql id="aggregationBranchesFrom">
-    <if test="entityType.name() == 'PORTFOLIO'">
-      (
-        <include refid="org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments.aggregationPortfolioExplicitProjectBranches"/>
-        UNION
-        <include refid="org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments.aggregationPortfolioMainProjectBranches"/>
-        UNION
-        <include refid="org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments.aggregationPortfolioExplicitApplicationBranches"/>
-        UNION
-        <include refid="org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments.aggregationPortfolioMainApplicationBranches"/>
-      ) portfolio_branches
-    </if>
-    <if test="entityType.name() == 'APPLICATION'">
-      (
-        SELECT application_branch_uuid, project_branch_uuid
-        FROM app_branch_project_branch
-        UNION
-        SELECT application_branch.uuid, project_branch.uuid
-        FROM app_projects
-        JOIN project_branches application_branch
-          ON application_branch.project_uuid = app_projects.application_uuid
-         AND application_branch.is_main = ${_true}
-        JOIN project_branches project_branch
-          ON project_branch.project_uuid = app_projects.project_uuid
-         AND project_branch.is_main = ${_true}
-      ) ab
-    </if>
+    (
+      <if test="entityType.name() == 'PORTFOLIO'">
+        <bind name="portfolioUuidPath" value="'%.'.concat(entityId).concat('.%')"/>
+        SELECT DISTINCT portfolio_branches.copy_component_uuid AS child_entity_id
+        FROM portfolios aggregation_portfolio
+        JOIN components portfolio_branches
+          ON portfolio_branches.branch_uuid = aggregation_portfolio.root_uuid
+        WHERE aggregation_portfolio.uuid = #{entityId}
+          AND portfolio_branches.uuid_path LIKE #{portfolioUuidPath}
+          AND portfolio_branches.qualifier = 'TRK'
+          AND portfolio_branches.copy_component_uuid IS NOT NULL
+      </if>
+      <if test="entityType.name() == 'APPLICATION'">
+        SELECT DISTINCT copy_component_uuid AS child_entity_id
+        FROM components
+        WHERE branch_uuid = #{entityId}
+          AND qualifier = 'TRK'
+          AND copy_component_uuid IS NOT NULL
+      </if>
+    ) aggregation_branches
   </sql>
 
   <sql id="aggregationChildEntityIdColumn">
-    <if test="entityType.name() == 'PORTFOLIO'">
-      portfolio_branches.branch_uuid
-    </if>
-    <if test="entityType.name() == 'APPLICATION'">
-      ab.project_branch_uuid
-    </if>
+    aggregation_branches.child_entity_id
   </sql>
 
   <sql id="aggregationIdClause">
-    <if test="entityType.name() == 'PORTFOLIO'">
-      1 = 1
-    </if>
-    <if test="entityType.name() == 'APPLICATION'">
-      ab.application_branch_uuid = #{entityId}
-    </if>
+    <!--
+      Entity scoping is applied by aggregationBranchesFrom.
+      This fragment is retained for compatibility with the history library's WHERE clause.
+    -->
+    1 = 1
   </sql>
 
 </mapper>

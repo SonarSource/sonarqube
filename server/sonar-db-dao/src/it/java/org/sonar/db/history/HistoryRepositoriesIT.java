@@ -23,9 +23,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
+import org.sonar.db.BaseMyBatisConfExtension;
 import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DbTester;
 import org.sonarsource.history.model.EntityType;
@@ -51,6 +53,7 @@ import org.sonarsource.history.model.ProjectMeasureValue;
 import org.sonarsource.history.server.db.HistoryDbClient;
 import org.sonarsource.history.server.db.HistoryMyBatisConfExtension;
 import org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments;
+import org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragmentsTestMapper;
 import org.sonarsource.history.server.db.repository.IssueCountDimensionsRepository;
 import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
 import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
@@ -61,6 +64,8 @@ import org.sonarsource.history.server.service.MeasuresHistoryService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
+import static org.sonar.db.component.ComponentTesting.newSubPortfolio;
 
 /**
  * Exercises the SQL used by the dashboard history and project-breakdown endpoints against the SQS schema.
@@ -75,9 +80,11 @@ class HistoryRepositoriesIT {
   private static final String ENTITY_ID = "branch-uuid";
 
   @RegisterExtension
-  private final DbTester db = DbTester.createWithConfExtension(
+  private final DbTester db = DbTester.createWithConfExtensions(
     System2.INSTANCE,
-    new HistoryMyBatisConfExtension(IssueTtrHistoryMapperFragments.class));
+    List.of(
+      new HistoryMyBatisConfExtension(IssueTtrHistoryMapperFragments.class),
+      new AggregationBranchesMyBatisConfExtension()));
 
   private final IssueCountDimensionsRepository dimensions = new IssueCountDimensionsRepository();
   private final IssueCountHistoryRepository issueCountHistory = new IssueCountHistoryRepository();
@@ -296,6 +303,9 @@ class HistoryRepositoriesIT {
     var mainProject = db.components().insertPrivateProject("main-project-history");
     db.components().addPortfolioProject(portfolio, explicitProject.getProjectDto(), mainProject.getProjectDto());
     db.components().addPortfolioProjectBranch(portfolio, explicitProject.getProjectDto(), explicitProjectBranch.getUuid());
+    var portfolioComponent = db.getDbClient().componentDao().selectByUuid(db.getSession(), portfolio.getUuid()).orElseThrow();
+    db.components().insertComponent(newProjectCopy(db.components().getComponentDto(explicitProjectBranch), portfolioComponent));
+    db.components().insertComponent(newProjectCopy(mainProject.getMainBranchComponent(), portfolioComponent));
 
     upsertTtr(explicitProjectBranch.getUuid(), EntityType.PROJECT_BRANCH, FIRST_DAY, dimension, 10, 1, 0, 0);
     upsertTtr(mainProject.mainBranchUuid(), EntityType.PROJECT_BRANCH, FIRST_DAY, dimension, 20, 2, 0, 0);
@@ -309,6 +319,153 @@ class HistoryRepositoriesIT {
         .build()))
       .extracting(IssueResolutionHistoryQueryRow::value)
       .containsExactly(3);
+  }
+
+  @Test
+  void issueResolutionAggregation_shouldOnlyIncludeProjectBranchesFromSubportfolioTree() {
+    IssueCountDimension dimension = insertDimension("java:S650", IssueType.BUG, (short) 2, (short) 3, (short) 4);
+    var portfolio = db.components().insertPrivatePortfolioDto("portfolio-subtree-history");
+    var portfolioComponent = db.getDbClient().componentDao().selectByUuid(db.getSession(), portfolio.getUuid()).orElseThrow();
+    var subportfolioComponent = db.components().insertSubportfolio(portfolioComponent);
+    var parentProject = db.components().insertPrivateProject("parent-project-history");
+    var subportfolioProject = db.components().insertPrivateProject("subportfolio-project-history");
+    db.components().insertComponent(newProjectCopy(parentProject.getMainBranchComponent(), portfolioComponent));
+    db.components().insertComponent(newProjectCopy(subportfolioProject.getMainBranchComponent(), subportfolioComponent));
+
+    upsertTtr(parentProject.mainBranchUuid(), EntityType.PROJECT_BRANCH, FIRST_DAY, dimension, 999, 99, 0, 0);
+    upsertTtr(subportfolioProject.mainBranchUuid(), EntityType.PROJECT_BRANCH, FIRST_DAY, dimension, 20, 2, 0, 0);
+
+    issueTtrHistory.recordIssueTtrHistoryForAggregation(
+      db.getSession(), subportfolioComponent.uuid(), EntityType.PORTFOLIO, FIRST_DAY);
+
+    assertThat(issueTtrHistory.queryResolvedIssues(
+      db.getSession(), IssueResolutionHistoryQuery.builder(subportfolioComponent.uuid(), EntityType.PORTFOLIO, FIRST_DAY)
+        .endDate(FIRST_DAY)
+        .build()))
+      .extracting(IssueResolutionHistoryQueryRow::value)
+      .containsExactly(2);
+  }
+
+  @Test
+  void issueResolutionAggregation_shouldNotCountTheSamePortfolioProjectBranchMoreThanOnce() {
+    IssueCountDimension dimension = insertDimension("java:S675", IssueType.BUG, (short) 2, (short) 3, (short) 4);
+    var portfolio = db.components().insertPrivatePortfolioDto("portfolio-duplicate-history");
+    var portfolioComponent = db.getDbClient().componentDao().selectByUuid(db.getSession(), portfolio.getUuid()).orElseThrow();
+    var subportfolioComponent = db.components().insertSubportfolio(portfolioComponent);
+    var project = db.components().insertPrivateProject("duplicated-portfolio-project-history");
+    db.components().insertComponent(newProjectCopy(project.getMainBranchComponent(), portfolioComponent));
+    db.components().insertComponent(newProjectCopy(project.getMainBranchComponent(), subportfolioComponent));
+
+    upsertTtr(project.mainBranchUuid(), EntityType.PROJECT_BRANCH, FIRST_DAY, dimension, 20, 2, 0, 0);
+
+    issueTtrHistory.recordIssueTtrHistoryForAggregation(
+      db.getSession(), portfolio.getUuid(), EntityType.PORTFOLIO, FIRST_DAY);
+
+    assertThat(issueTtrHistory.queryResolvedIssues(
+      db.getSession(), IssueResolutionHistoryQuery.builder(portfolio.getUuid(), EntityType.PORTFOLIO, FIRST_DAY)
+        .endDate(FIRST_DAY)
+        .build()))
+      .extracting(IssueResolutionHistoryQueryRow::value)
+      .containsExactly(2);
+  }
+
+  @Test
+  void issueResolutionAggregation_shouldNotCountTheSameApplicationProjectBranchMoreThanOnce() {
+    IssueCountDimension dimension = insertDimension("java:S680", IssueType.BUG, (short) 2, (short) 3, (short) 4);
+    var application = db.components().insertPrivateApplication("application-duplicate-history");
+    var project = db.components().insertPrivateProject("duplicated-application-project-history");
+    db.components().insertComponent(newProjectCopy(project.getMainBranchComponent(), application.getMainBranchComponent()));
+    db.components().insertComponent(newProjectCopy(project.getMainBranchComponent(), application.getMainBranchComponent())
+      .setKey("second-application-project-copy"));
+
+    upsertTtr(project.mainBranchUuid(), EntityType.PROJECT_BRANCH, FIRST_DAY, dimension, 20, 2, 0, 0);
+
+    issueTtrHistory.recordIssueTtrHistoryForAggregation(
+      db.getSession(), application.mainBranchUuid(), EntityType.APPLICATION, FIRST_DAY);
+
+    assertThat(issueTtrHistory.queryResolvedIssues(
+      db.getSession(), IssueResolutionHistoryQuery.builder(application.mainBranchUuid(), EntityType.APPLICATION, FIRST_DAY)
+        .endDate(FIRST_DAY)
+        .build()))
+      .extracting(IssueResolutionHistoryQueryRow::value)
+      .containsExactly(2);
+  }
+
+  /**
+   * The outer portfolio must roll up project-branch rows only, not the aggregate rows of nested entities:
+   *
+   * <pre>
+   * outer portfolio
+   * |-- application reference (copy_component_uuid = application branch)
+   * |   `-- application project branch (copy_component_uuid = project branch)
+   * `-- referenced portfolio (copy_component_uuid = referenced portfolio)
+   *     `-- referenced portfolio project branch (copy_component_uuid = project branch)
+   *
+   * Existing history rows: application aggregate + application project branch,
+   *                       referenced portfolio aggregate + referenced project branch
+   * Expected outer portfolio: project branches only = 100 minutes / 5 issues
+   * </pre>
+   */
+  @Test
+  void issueResolutionAggregation_shouldNotIncludeNestedApplicationOrPortfolioAggregates() {
+    IssueCountDimension dimension = insertDimension("java:S690", IssueType.BUG, (short) 2, (short) 3, (short) 4);
+    var portfolio = db.components().insertPrivatePortfolioDto("portfolio-nested-aggregate-history");
+    var portfolioComponent = db.getDbClient().componentDao().selectByUuid(db.getSession(), portfolio.getUuid()).orElseThrow();
+
+    var application = db.components().insertPrivateApplication("nested-application-history");
+    var applicationProject = db.components().insertPrivateProject("nested-application-project-history");
+    db.components().addApplicationProject(application.getProjectDto(), applicationProject.getProjectDto());
+    db.components().addPortfolioApplicationBranch(portfolio.getUuid(), application.projectUuid(), application.mainBranchUuid());
+    var applicationReference = db.components().insertComponent(
+      newSubPortfolio(portfolioComponent, "application-reference-uuid", "application-reference")
+        .setCopyComponentUuid(application.mainBranchUuid()));
+    db.components().insertComponent(newProjectCopy(applicationProject.getMainBranchComponent(), applicationReference));
+
+    var referencedPortfolio = db.components().insertPrivatePortfolioDto("referenced-portfolio-history");
+    var referencedPortfolioProject = db.components().insertPrivateProject("referenced-portfolio-project-history");
+    db.components().addPortfolioReference(portfolio, referencedPortfolio);
+    db.components().addPortfolioProject(referencedPortfolio, referencedPortfolioProject.getProjectDto());
+    var portfolioReference = db.components().insertComponent(
+      newSubPortfolio(portfolioComponent, "portfolio-reference-uuid", "portfolio-reference")
+        .setCopyComponentUuid(referencedPortfolio.getUuid()));
+    db.components().insertComponent(newProjectCopy(referencedPortfolioProject.getMainBranchComponent(), portfolioReference));
+
+    // These aggregate rows are already present because the application and referenced portfolio are refreshed independently.
+    upsertTtr(application.mainBranchUuid(), EntityType.APPLICATION, FIRST_DAY, dimension, 30, 2, 20, 1);
+    upsertTtr(applicationProject.mainBranchUuid(), EntityType.PROJECT_BRANCH, FIRST_DAY, dimension, 30, 2, 20, 1);
+    upsertTtr(referencedPortfolio.getUuid(), EntityType.PORTFOLIO, FIRST_DAY, dimension, 70, 3, 40, 2);
+    upsertTtr(referencedPortfolioProject.mainBranchUuid(), EntityType.PROJECT_BRANCH, FIRST_DAY, dimension, 70, 3, 40, 2);
+
+    issueTtrHistory.recordIssueTtrHistoryForAggregation(
+      db.getSession(), portfolio.getUuid(), EntityType.PORTFOLIO, FIRST_DAY);
+
+    Map<String, Object> aggregatedRow = db.selectFirst(db.getSession(),
+      "select total_minutes_to_resolution as \"totalMinutes\", issues_resolved as \"issuesResolved\", " +
+        "total_minutes_to_resolution_recent as \"recentTotalMinutes\", issues_resolved_recent as \"recentIssuesResolved\" " +
+        "from issue_ttr_history where entity_id = '" + portfolio.getUuid() + "' and entity_type = '" + EntityType.PORTFOLIO.name() +
+        "' and dimension_id = " + dimension.id() + " and recorded_at_epoch = " + FIRST_DAY.toEpochMilli());
+
+    assertThat(((Number) aggregatedRow.get("totalMinutes")).longValue()).isEqualTo(100L);
+    assertThat(((Number) aggregatedRow.get("issuesResolved")).intValue()).isEqualTo(5);
+    assertThat(((Number) aggregatedRow.get("recentTotalMinutes")).longValue()).isEqualTo(60L);
+    assertThat(((Number) aggregatedRow.get("recentIssuesResolved")).intValue()).isEqualTo(3);
+  }
+
+  @Test
+  void issueResolutionAggregation_shouldOnlyResolveProjectCopyComponentsAsBranches() {
+    var portfolio = db.components().insertPrivatePortfolioDto("portfolio-tree-history");
+    var portfolioComponent = db.getDbClient().componentDao().selectByUuid(db.getSession(), portfolio.getUuid()).orElseThrow();
+    var subportfolioComponent = db.components().insertSubportfolio(portfolioComponent);
+    var portfolioProject = db.components().insertPrivateProject("portfolio-tree-project-history");
+    db.components().insertComponent(newProjectCopy(portfolioProject.getMainBranchComponent(), subportfolioComponent));
+
+    var application = db.components().insertPrivateApplication("application-tree-history");
+    var applicationProject = db.components().insertPrivateProject("application-tree-project-history");
+    db.components().insertComponent(newProjectCopy(applicationProject.getMainBranchComponent(), application.getMainBranchComponent()));
+
+    var mapper = db.getSession().getMapper(IssueTtrHistoryMapperFragmentsTestMapper.class);
+    assertThat(mapper.countAggregationBranches(portfolio.getUuid(), EntityType.PORTFOLIO)).isOne();
+    assertThat(mapper.countAggregationBranches(application.mainBranchUuid(), EntityType.APPLICATION)).isOne();
   }
 
   @Test
@@ -330,6 +487,9 @@ class HistoryRepositoriesIT {
     db.components().addApplicationProject(mainApplication.getProjectDto(), mainProject.getProjectDto());
     db.components().addPortfolioApplicationBranch(
       portfolio.getUuid(), mainApplication.projectUuid(), mainApplication.mainBranchUuid());
+    var portfolioComponent = db.getDbClient().componentDao().selectByUuid(db.getSession(), portfolio.getUuid()).orElseThrow();
+    db.components().insertComponent(newProjectCopy(db.components().getComponentDto(explicitProjectBranch), portfolioComponent));
+    db.components().insertComponent(newProjectCopy(mainProject.getMainBranchComponent(), portfolioComponent));
 
     upsertTtr(explicitProjectBranch.getUuid(), EntityType.PROJECT_BRANCH, FIRST_DAY, dimension, 10, 1, 0, 0);
     upsertTtr(mainProject.mainBranchUuid(), EntityType.PROJECT_BRANCH, FIRST_DAY, dimension, 20, 2, 0, 0);
@@ -392,5 +552,12 @@ class HistoryRepositoriesIT {
       .endDate(SECOND_DAY)
       .sliceBy(sliceBy)
       .build();
+  }
+
+  private static class AggregationBranchesMyBatisConfExtension implements BaseMyBatisConfExtension {
+    @Override
+    public Stream<Class<?>> getMapperClasses() {
+      return Stream.of(IssueTtrHistoryMapperFragmentsTestMapper.class);
+    }
   }
 }
