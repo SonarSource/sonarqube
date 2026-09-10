@@ -27,8 +27,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
 /**
- * Encrypts the user-scoped personal access tokens that are still stored as clear text. Tokens are encrypted when they
- * are written, so this only concerns tokens written before a secret key was configured, or before encryption existed.
+ * Encrypts the user-scoped personal access tokens that are still stored as clear text, and rewrites the encrypted
+ * ones with the current secret key while a key is being replaced. Tokens are encrypted when they are written, so the
+ * first only concerns tokens written before a secret key was configured, or before encryption existed.
  * <p>
  * This runs on every startup rather than as a database migration on purpose. An administrator who configures a secret
  * key after upgrading is the common case, and a migration would already have run by then and would never run again.
@@ -47,20 +48,41 @@ public class EncryptAlmPats implements Startable {
   @Override
   public void start() {
     try {
-      encryptClearTextTokens();
+      rewriteTokens();
     } catch (RuntimeException e) {
-      LOG.warn("Failed to encrypt the DevOps platform personal access tokens that are stored as clear text. They are "
-        + "left unchanged, and encrypting them is attempted again at the next restart.", e);
+      LOG.warn("Failed to rewrite the DevOps platform personal access tokens. The tokens rewritten before the failure "
+        + "are kept, and the remaining ones are attempted again at the next restart.", e);
     }
   }
 
-  private void encryptClearTextTokens() {
+  /**
+   * The rotation pass runs first so that it only sees the tokens that were already encrypted when the node started.
+   * Encrypting a clear text token uses the current key, so a token written by the other pass never needs rotating,
+   * and rewriting it again would cost a second update and report a rotation that did not happen.
+   */
+  private void rewriteTokens() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      int encryptedCount = dbClient.almPatDao().encryptNotEncryptedPersonalAccessTokens(dbSession);
-      if (encryptedCount > 0) {
-        dbSession.commit();
-        LOG.info("Encrypted {} DevOps platform personal access token(s) that were stored as clear text", encryptedCount);
-      }
+      reEncryptTokensWithCurrentSecretKey(dbSession);
+      encryptClearTextTokens(dbSession);
+    }
+  }
+
+  private void encryptClearTextTokens(DbSession dbSession) {
+    int encryptedCount = dbClient.almPatDao().encryptNotEncryptedPersonalAccessTokens(dbSession);
+    if (encryptedCount > 0) {
+      LOG.info("Encrypted {} DevOps platform personal access token(s) that were stored as clear text", encryptedCount);
+    }
+  }
+
+  /**
+   * Only does anything while a secret key is being replaced. Once every token has been rewritten with the new key, the
+   * previous one can be removed from the configuration, and this stops running.
+   */
+  private void reEncryptTokensWithCurrentSecretKey(DbSession dbSession) {
+    int reEncryptedCount = dbClient.almPatDao().reEncryptPersonalAccessTokens(dbSession);
+    if (reEncryptedCount > 0) {
+      LOG.info("Re-encrypted {} DevOps platform personal access token(s) with the current secret key. The previous "
+        + "secret key can be removed from the configuration once every other encrypted setting has been rewritten too.", reEncryptedCount);
     }
   }
 

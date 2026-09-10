@@ -37,6 +37,7 @@ import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
 import org.sonar.db.user.UserDto;
 
 import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
+import static org.sonar.api.config.internal.Encryption.PREVIOUS_SECRET_KEY_PATH;
 import static org.sonar.api.config.internal.EnvironmentVariableSecretKeySource.ENVIRONMENT_VARIABLE;
 
 /**
@@ -155,6 +156,45 @@ public class AlmPatDao implements Dao {
   }
 
   /**
+   * Rewrites every encrypted token with the current secret key, and returns how many were rewritten. Only does
+   * anything while a key is being replaced, since otherwise every token already uses the current key. A token that
+   * neither key can decrypt is skipped rather than failing the rewrite: it is already lost, and the user has to enter
+   * it again either way.
+   * <p>
+   * Each token is committed on its own, as in the sweep above, so that one the database refuses to rewrite costs only
+   * itself rather than the whole rotation. What that guards against here is a transient failure part way through,
+   * which would otherwise leave the rotation to start over from nothing at the next restart. The session is therefore
+   * committed and rolled back as the rotation goes, and must not be handed one holding work of its own.
+   */
+  public int reEncryptPersonalAccessTokens(DbSession dbSession) {
+    if (!encryption.hasSecretKey() || !encryption.hasPreviousSecretKey()) {
+      return 0;
+    }
+    int reEncryptedCount = 0;
+    for (AlmPatDto almPatDto : selectEncrypted(dbSession)) {
+      // decrypting replaces the token held by the DTO, so the value to guard the rewrite with is read first
+      String storedPersonalAccessToken = almPatDto.getPersonalAccessToken();
+      Optional<AlmPatDto> decryptedAlmPatDto = decryptPersonalAccessToken(almPatDto);
+      if (decryptedAlmPatDto.isEmpty()) {
+        continue;
+      }
+      try {
+        int updatedRows = getMapper(dbSession).updatePat(almPatDto.getUuid(),
+          encryption.encrypt(decryptedAlmPatDto.get().getPersonalAccessToken()), storedPersonalAccessToken);
+        dbSession.commit();
+        reEncryptedCount += updatedRows;
+      } catch (RuntimeException e) {
+        // as above, the rollback is what leaves the session usable for the tokens after this one
+        dbSession.rollback();
+        LOG.warn("The personal access token of alm_pats entry '{}' cannot be re-encrypted with the current secret key "
+          + "and still uses the one it was written with. Re-encrypting it is attempted again at the next restart.",
+          almPatDto.getUuid(), e);
+      }
+    }
+    return reEncryptedCount;
+  }
+
+  /**
    * Which tokens count as clear text is decided by {@link #needsSecretKeyToBeRead}, the very test the read path
    * applies, rather than by a SQL predicate that would have to be kept equivalent to it. A token merely shaped like an
    * encrypted one is therefore swept too, instead of being mistaken for one and left as clear text forever.
@@ -162,6 +202,16 @@ public class AlmPatDao implements Dao {
   private static List<AlmPatDto> selectNotEncrypted(DbSession dbSession) {
     return getMapper(dbSession).selectAll().stream()
       .filter(almPatDto -> !needsSecretKeyToBeRead(almPatDto.getPersonalAccessToken()))
+      .toList();
+  }
+
+  /**
+   * The exact complement of {@link #selectNotEncrypted}, so that every token is either rotated or encrypted, and none
+   * is both.
+   */
+  private static List<AlmPatDto> selectEncrypted(DbSession dbSession) {
+    return getMapper(dbSession).selectAll().stream()
+      .filter(almPatDto -> needsSecretKeyToBeRead(almPatDto.getPersonalAccessToken()))
       .toList();
   }
 
@@ -240,18 +290,26 @@ public class AlmPatDao implements Dao {
   }
 
   /**
-   * A key that cannot be read and a key that is simply not the right one both fail the same way here, and they need
-   * opposite things to be done about them: entering the token again stores it with the configured key, but only once
-   * that key can be loaded at all, so advising it while the key is broken sends the user into a failing write.
+   * A key that cannot be read, a key that is being replaced and a key that is simply not the right one all fail the
+   * same way here, and they need opposite things to be done about them: entering the token again stores it with the
+   * configured key, but only once that key can be loaded at all, so advising it while the key is broken sends the user
+   * into a failing write, and advising it in the middle of a rotation discards a token that declaring the key being
+   * replaced would have recovered.
    */
   private void warnAboutTheTokenBeingUnreadable(AlmPatDto almPatDto, RuntimeException cause) {
-    if (encryption.canLoadSecretKey()) {
-      LOG.warn("The personal access token of alm_pats entry '{}' cannot be decrypted with the configured secret key "
-        + "and is ignored. The token has to be entered again to be stored with that key.", almPatDto.getUuid(), cause);
-    } else {
+    if (!encryption.canLoadSecretKey()) {
       LOG.warn("The personal access token of alm_pats entry '{}' is ignored because the secret key supplied through "
         + "'{}' or the {} environment variable cannot be read. Entering the token again fails as well until that key "
         + "is readable.", almPatDto.getUuid(), ENCRYPTION_SECRET_KEY_PATH, ENVIRONMENT_VARIABLE, cause);
+    } else if (!encryption.hasPreviousSecretKey()) {
+      LOG.warn("The personal access token of alm_pats entry '{}' cannot be decrypted with the configured secret key "
+        + "and is ignored. If it was encrypted with a key that is being replaced, set '{}' to that key to make it "
+        + "readable again. Otherwise the token has to be entered again to be stored with that key.",
+        almPatDto.getUuid(), PREVIOUS_SECRET_KEY_PATH, cause);
+    } else {
+      LOG.warn("The personal access token of alm_pats entry '{}' cannot be decrypted with the configured secret key, "
+        + "nor with the one configured in '{}', and is ignored. The token has to be entered again to be stored with "
+        + "that key.", almPatDto.getUuid(), PREVIOUS_SECRET_KEY_PATH, cause);
     }
   }
 }

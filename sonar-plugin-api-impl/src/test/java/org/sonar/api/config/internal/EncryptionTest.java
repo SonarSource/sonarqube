@@ -152,6 +152,24 @@ public class EncryptionTest {
     assertThat(encryption.canLoadSecretKey()).isTrue();
   }
 
+  @Test
+  public void hasPreviousSecretKey_whenThePathGivenToTheConstructorHoldsAFile_shouldBeTrue() throws Exception {
+    File previousSecretKeyFile = temporaryFolder.newFile();
+    // the file has to hold a usable key, since that is what a rotation is reported by loading
+    Files.writeString(previousSecretKeyFile.toPath(), new Encryption(null).generateRandomSecretKey());
+
+    Encryption rotated = new Encryption(pathToSecretKey(), previousSecretKeyFile.getCanonicalPath());
+
+    assertThat(rotated.hasPreviousSecretKey()).isTrue();
+  }
+
+  @Test
+  public void hasPreviousSecretKey_whenThePathGivenToTheConstructorHoldsNoFile_shouldBeFalse() throws Exception {
+    Encryption notRotated = new Encryption(pathToSecretKey(), "/no/such/sonar-secret.txt");
+
+    assertThat(notRotated.hasPreviousSecretKey()).isFalse();
+  }
+
   private String pathToSecretKey() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/aes_secret_key.txt");
     return new File(resource.toURI()).getCanonicalPath();

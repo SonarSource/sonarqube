@@ -254,7 +254,8 @@ abstract class AesCipher implements Cipher {
   }
 
   private void warnAboutTheKeyBeingReplaced(Exception cause) {
-    if (previousSecretKeyFailureWarned.compareAndSet(false, true)) {
+    // the level is checked before the flag is consumed, for the reason given in warnAboutTheConfiguredPathBeingBypassed
+    if (LOG.isWarnEnabled() && previousSecretKeyFailureWarned.compareAndSet(false, true)) {
       LOG.warn("The secret key being replaced cannot be loaded, so decryption is only attempted with the current "
         + "secret key. Values that were written with the key being replaced stay unreadable until it is configured "
         + "again.", cause);
@@ -264,6 +265,15 @@ abstract class AesCipher implements Cipher {
   public void setPathToPreviousSecretKey(@Nullable String pathToPreviousSecretKey) {
     this.pathToPreviousSecretKey = pathToPreviousSecretKey;
     previousSecretKeyFailureWarned.set(false);
+  }
+
+  /**
+   * Whether a key being replaced is configured, which is what tells a rotation is under way. It is answered by loading
+   * that key, so presence and loadability cannot disagree: a key that is configured but unusable reports no rotation,
+   * rather than starting one that has no key to rewrite values with and can only fail on every one of them.
+   */
+  boolean hasPreviousSecretKey() {
+    return loadPreviousSecretKey().isPresent();
   }
 
   private static boolean isExistingFile(String path) {

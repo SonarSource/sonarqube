@@ -22,6 +22,11 @@ package org.sonar.db.alm.pat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.GeneralSecurityException;
+import javax.annotation.Nullable;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -41,12 +46,14 @@ import org.sonar.db.alm.setting.AlmSettingDto;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.user.UserDto;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.ENCRYPTION_SECRET_KEY_PATH;
+import static org.sonar.api.config.internal.Encryption.PREVIOUS_SECRET_KEY_PATH;
 import static org.sonar.api.config.internal.EnvironmentVariableSecretKeySource.ENVIRONMENT_VARIABLE;
 import static org.sonar.db.alm.integration.pat.AlmPatsTesting.newAlmPatDto;
 import static org.sonar.db.almsettings.AlmSettingsTesting.newGithubAlmSettingDto;
@@ -58,6 +65,14 @@ class AlmPatDaoIT {
   private static final String ANOTHER_UUID = "SOME_OTHER_UUID";
   private static final String A_NEW_PAT = "a new pat";
   private static final String AES_GCM_PREFIX = "{aes-gcm}";
+  private static final String AES_ECB_PREFIX = "{aes}";
+  // AES-GCM prepends a 12 byte initialisation vector and appends a 16 byte tag, and its prefix is four characters
+  // longer, so a clear text of this length is stored as AES-ECB just under the size of the column and no longer fits
+  // it once rewritten as AES-GCM
+  private static final int A_LENGTH_THAT_ONLY_FITS_THE_COLUMN_AS_AES_ECB = 2975;
+  // an unset path falls back to ~/.sonar/sonar-secret.txt, which would make these tests non-deterministic on machines
+  // that happen to have a key there
+  private static final String NO_SECRET_KEY_PATH = "target/no-such-sonar-secret.txt";
   // passes Encryption.isEncrypted, which only tests the shape of the value, but needs no secret key to be read
   private static final String A_TOKEN_THAT_ONLY_LOOKS_ENCRYPTED = "{a}b";
   // passes it too, and would be Base64 decoded to "token" rather than left alone
@@ -244,8 +259,26 @@ class AlmPatDaoIT {
     // this key is readable, it is simply not the one the token was encrypted with, so entering it again does replace it
     assertThat(logTester.logs(Level.WARN))
       .anyMatch(log -> log.contains("cannot be decrypted with the configured secret key")
-        && log.contains("has to be entered again to be stored with that key"))
+        && log.contains("has to be entered again to be stored with that key")
+        // no key being replaced is configured, and declaring the one this token was encrypted with would recover it
+        && log.contains(PREVIOUS_SECRET_KEY_PATH))
       .noneMatch(log -> log.contains("cannot be read"));
+  }
+
+  @Test
+  void selectByUuid_whenNeitherTheCurrentNorTheReplacedKeyDecryptsTheToken_shouldNotAdviseConfiguringThatKey() throws IOException {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    newAlmPatDaoWithSecretKey("original-secret.txt").insert(dbSession, newAlmPatDto(), null, null);
+    // a rotation is under way, but between two keys that have nothing to do with the one this token was encrypted with
+    AlmPatDao daoRotatingBetweenOtherKeys = newAlmPatDao(newSecretKeyFile("current-secret.txt"), newSecretKeyFile("replaced-secret.txt"));
+
+    assertThat(daoRotatingBetweenOtherKeys.selectByUuid(dbSession, A_UUID)).isEmpty();
+
+    assertThat(logTester.logs(Level.WARN))
+      .anyMatch(log -> log.contains("nor with the one configured in '" + PREVIOUS_SECRET_KEY_PATH + "'")
+        && log.contains("has to be entered again to be stored with that key"))
+      // the key being replaced was tried and did not work either, so advising to declare it sends the user nowhere
+      .noneMatch(log -> log.contains("set '" + PREVIOUS_SECRET_KEY_PATH + "' to that key"));
   }
 
   @Test
@@ -541,6 +574,124 @@ class AlmPatDaoIT {
     assertThat(storedPersonalAccessToken()).isEqualTo(tokenOfTheOtherNode);
   }
 
+  @Test
+  void reEncryptPersonalAccessTokens_whenNoSecretKeyIsBeingReplaced_shouldDoNothing() throws IOException {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    AlmPatDao daoWithSecretKey = newAlmPatDaoWithSecretKey();
+    daoWithSecretKey.insert(dbSession, newAlmPatDto(), null, null);
+    String encryptedToken = storedPersonalAccessToken();
+
+    assertThat(daoWithSecretKey.reEncryptPersonalAccessTokens(dbSession)).isZero();
+
+    assertThat(storedPersonalAccessToken()).isEqualTo(encryptedToken);
+  }
+
+  @Test
+  void reEncryptPersonalAccessTokens_whenNoSecretKeyIsConfigured_shouldDoNothing() throws IOException {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    newAlmPatDaoWithSecretKey().insert(dbSession, newAlmPatDto(), null, null);
+    String encryptedToken = storedPersonalAccessToken();
+    // only the key being replaced is left, so a missing current key is what has to stop the pass
+    AlmPatDao daoWithOnlyAPreviousSecretKey = newAlmPatDaoWithOnlyAPreviousSecretKey("previous-secret.txt");
+
+    assertThat(daoWithOnlyAPreviousSecretKey.reEncryptPersonalAccessTokens(dbSession)).isZero();
+
+    assertThat(storedPersonalAccessToken()).isEqualTo(encryptedToken);
+    // without a key every token would be reported unreadable and logged as such, so this must not get that far
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
+  }
+
+  @Test
+  void reEncryptPersonalAccessTokens_whenSecretKeyIsBeingReplaced_shouldRewriteTokensWithTheCurrentKey() throws IOException {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    String pathToPreviousSecretKey = newSecretKeyFile("previous-secret.txt");
+    String pathToSecretKey = newSecretKeyFile("current-secret.txt");
+    AlmPatDto almPatDto = newAlmPatDto();
+    String clearTextToken = almPatDto.getPersonalAccessToken();
+    newAlmPatDao(pathToPreviousSecretKey).insert(dbSession, almPatDto, null, null);
+    String tokenEncryptedWithPreviousKey = storedPersonalAccessToken();
+
+    assertThat(newAlmPatDao(pathToSecretKey, pathToPreviousSecretKey).reEncryptPersonalAccessTokens(dbSession)).isOne();
+
+    assertThat(storedPersonalAccessToken()).startsWith(AES_GCM_PREFIX).isNotEqualTo(tokenEncryptedWithPreviousKey);
+    // readable with the current key on its own, which is what lets the previous key be dropped
+    assertThat(newAlmPatDao(pathToSecretKey).selectByUuid(dbSession, A_UUID))
+      .get().extracting(AlmPatDto::getPersonalAccessToken).isEqualTo(clearTextToken);
+  }
+
+  @Test
+  void reEncryptPersonalAccessTokens_whenATokenCannotBeDecrypted_shouldSkipItRatherThanFail() throws IOException {
+    when(uuidFactory.create()).thenReturn(A_UUID);
+    newAlmPatDao(newSecretKeyFile("unrelated-secret.txt")).insert(dbSession, newAlmPatDto(), null, null);
+    String unreadableToken = storedPersonalAccessToken();
+    AlmPatDao rotatingDao = newAlmPatDao(newSecretKeyFile("current-secret.txt"), newSecretKeyFile("previous-secret.txt"));
+
+    assertThat(rotatingDao.reEncryptPersonalAccessTokens(dbSession)).isZero();
+
+    assertThat(storedPersonalAccessToken()).isEqualTo(unreadableToken);
+  }
+
+  @Test
+  void reEncryptPersonalAccessTokens_whenATokenCannotBeDecrypted_shouldStillRewriteTheOthers() throws IOException {
+    when(uuidFactory.create()).thenReturn(ANOTHER_UUID, A_UUID);
+    newAlmPatDao(newSecretKeyFile("unrelated-secret.txt")).insert(dbSession, newAlmPatDto(), null, null);
+    String unreadableToken = storedPersonalAccessToken(ANOTHER_UUID);
+    String pathToPreviousSecretKey = newSecretKeyFile("previous-secret.txt");
+    AlmPatDto almPatDto = newAlmPatDto();
+    String clearTextToken = almPatDto.getPersonalAccessToken();
+    newAlmPatDao(pathToPreviousSecretKey).insert(dbSession, almPatDto, null, null);
+    dbSession.commit();
+    String pathToSecretKey = newSecretKeyFile("current-secret.txt");
+
+    int reEncryptedCount = newAlmPatDao(pathToSecretKey, pathToPreviousSecretKey).reEncryptPersonalAccessTokens(dbSession);
+    // whatever the rotation did not commit is dropped here, so what is read back is what it made durable
+    dbSession.rollback();
+
+    assertThat(reEncryptedCount).isOne();
+    assertThat(storedPersonalAccessToken(ANOTHER_UUID)).isEqualTo(unreadableToken);
+    assertThat(newAlmPatDao(pathToSecretKey).selectByUuid(dbSession, A_UUID))
+      .get().extracting(AlmPatDto::getPersonalAccessToken).isEqualTo(clearTextToken);
+  }
+
+  @Test
+  void reEncryptPersonalAccessTokens_whenOneTokenCannotBeStored_shouldStillRewriteTheOthers()
+    throws GeneralSecurityException, IOException {
+    when(uuidFactory.create()).thenReturn(ANOTHER_UUID, A_UUID);
+    String pathToSecretKey = newSecretKeyFile("current-secret.txt");
+    String pathToPreviousSecretKey = newSecretKeyFile("previous-secret.txt");
+    // rewriting this one with the current algorithm inflates it past the size of the column, so the database refuses
+    // to store it
+    String tooLongTokenWrittenWithTheDeprecatedAlgorithm = encryptWithAesEcb(
+      secure().nextAlphanumeric(A_LENGTH_THAT_ONLY_FITS_THE_COLUMN_AS_AES_ECB), pathToSecretKey);
+    underTest.insert(dbSession, newAlmPatDto().setPersonalAccessToken(tooLongTokenWrittenWithTheDeprecatedAlgorithm), null, null);
+    AlmPatDto almPatDto = newAlmPatDto();
+    String clearTextToken = almPatDto.getPersonalAccessToken();
+    newAlmPatDao(pathToPreviousSecretKey).insert(dbSession, almPatDto, null, null);
+    dbSession.commit();
+
+    int reEncryptedCount = newAlmPatDao(pathToSecretKey, pathToPreviousSecretKey).reEncryptPersonalAccessTokens(dbSession);
+    // whatever the rotation did not commit is dropped here, so what is read back is what it made durable
+    dbSession.rollback();
+
+    assertThat(reEncryptedCount).isOne();
+    assertThat(storedPersonalAccessToken(A_UUID)).startsWith(AES_GCM_PREFIX);
+    assertThat(newAlmPatDao(pathToSecretKey).selectByUuid(dbSession, A_UUID))
+      .get().extracting(AlmPatDto::getPersonalAccessToken).isEqualTo(clearTextToken);
+    assertThat(storedPersonalAccessToken(ANOTHER_UUID)).isEqualTo(tooLongTokenWrittenWithTheDeprecatedAlgorithm);
+    assertThat(logTester.logs(Level.WARN))
+      .anyMatch(log -> log.contains(ANOTHER_UUID) && log.contains("still uses the one it was written with"));
+  }
+
+  /**
+   * The shape a token written before AES-GCM replaced AES-ECB still has. {@link Encryption#encrypt} only ever writes
+   * the current algorithm, so the deprecated one is applied here the way that version applied it.
+   */
+  private static String encryptWithAesEcb(String clearText, String pathToSecretKey) throws GeneralSecurityException, IOException {
+    Cipher cipher = Cipher.getInstance("AES");
+    cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(Base64.decodeBase64(Files.readString(Path.of(pathToSecretKey))), "AES"));
+    return AES_ECB_PREFIX + Base64.encodeBase64String(cipher.doFinal(clearText.getBytes(UTF_8)));
+  }
+
   private AlmPatMapper almPatMapper() {
     return dbSession.getMapper(AlmPatMapper.class);
   }
@@ -559,9 +710,11 @@ class AlmPatDaoIT {
   }
 
   private AlmPatDao newAlmPatDaoWithoutSecretKey() {
-    // an unset path falls back to ~/.sonar/sonar-secret.txt, which would make this
-    // non-deterministic on machines that happen to have a key there
-    return newAlmPatDao("target/no-such-sonar-secret.txt");
+    return newAlmPatDao(NO_SECRET_KEY_PATH);
+  }
+
+  private AlmPatDao newAlmPatDaoWithOnlyAPreviousSecretKey(String previousSecretKeyFileName) throws IOException {
+    return newAlmPatDao(NO_SECRET_KEY_PATH, newSecretKeyFile(previousSecretKeyFileName));
   }
 
   private AlmPatDao newAlmPatDaoWithSecretKey() throws IOException {
@@ -569,9 +722,7 @@ class AlmPatDaoIT {
   }
 
   private AlmPatDao newAlmPatDaoWithSecretKey(String secretKeyFileName) throws IOException {
-    Path secretKeyFile = tempDir.resolve(secretKeyFileName);
-    Files.writeString(secretKeyFile, new Encryption(null).generateRandomSecretKey());
-    return newAlmPatDao(secretKeyFile.toString());
+    return newAlmPatDao(newSecretKeyFile(secretKeyFileName), null);
   }
 
   private AlmPatDao newAlmPatDaoWithBlankSecretKey() throws IOException {
@@ -587,9 +738,20 @@ class AlmPatDaoIT {
   }
 
   private AlmPatDao newAlmPatDao(String pathToSecretKey) {
+    return newAlmPatDao(pathToSecretKey, null);
+  }
+
+  private AlmPatDao newAlmPatDao(String pathToSecretKey, @Nullable String pathToPreviousSecretKey) {
     Settings settings = new MapSettings();
     settings.getEncryption().setPathToSecretKey(pathToSecretKey);
+    settings.getEncryption().setPathToPreviousSecretKey(pathToPreviousSecretKey);
     return new AlmPatDao(system2, uuidFactory, new NoOpAuditPersister(), settings);
+  }
+
+  private String newSecretKeyFile(String secretKeyFileName) throws IOException {
+    Path secretKeyFile = tempDir.resolve(secretKeyFileName);
+    Files.writeString(secretKeyFile, new Encryption(null).generateRandomSecretKey());
+    return secretKeyFile.toString();
   }
 
   private String storedPersonalAccessToken() {

@@ -97,6 +97,15 @@ public final class Encryption {
     return aesGCMCipher.canLoadSecretKey();
   }
 
+  /**
+   * Whether a key being replaced is configured, which is what tells a rotation is under way. It is answered by loading
+   * that key, so a key that is configured but unusable reports no rotation rather than starting one that cannot
+   * rewrite anything.
+   */
+  public boolean hasPreviousSecretKey() {
+    return aesGCMCipher.hasPreviousSecretKey();
+  }
+
   public boolean isEncrypted(String value) {
     return value.indexOf('{') == 0 && value.indexOf('}') > 1;
   }

@@ -31,18 +31,27 @@ import javax.crypto.BadPaddingException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.config.internal.EnvironmentVariableSecretKeySource.PREVIOUS_KEY_ENVIRONMENT_VARIABLE;
 
 public class AesGCMCipherTest {
 
   private static final String A_PATH_TO_NO_FILE = "/no/such/sonar-secret.txt";
+  private static final String A_BASE64_VALUE_THAT_IS_NOT_AN_AES_KEY = "bm90IGFuIEFFUyBrZXk=";
 
   @Rule
   public LogTester logTester = new LogTester();
+
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Test
   public void encrypt_should_generate_different_value_everytime() throws Exception {
@@ -216,6 +225,79 @@ public class AesGCMCipherTest {
   }
 
   @Test
+  public void hasPreviousSecretKey_whenTheConfiguredPathHoldsAFile_shouldBeTrue() throws Exception {
+    AesGCMCipher cipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(null), secretKeySource(null));
+    cipher.setPathToPreviousSecretKey(pathToAnotherSecretKey());
+
+    assertThat(cipher.hasPreviousSecretKey()).isTrue();
+  }
+
+  @Test
+  public void hasPreviousSecretKey_whenTheConfiguredPathHoldsNoFileAndNoSourceHasTheKey_shouldBeFalse() throws Exception {
+    // this reports what the key loading can deliver, so a rotation is not reported while the key it would need is
+    // unreadable everywhere
+    AesGCMCipher cipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(null), secretKeySource(null));
+    cipher.setPathToPreviousSecretKey(A_PATH_TO_NO_FILE);
+
+    assertThat(cipher.hasPreviousSecretKey()).isFalse();
+  }
+
+  @Test
+  public void hasPreviousSecretKey_whenTheConfiguredPathHoldsNoFileAndASourceHasTheKey_shouldBeTrue() throws Exception {
+    // the key loading falls back to the source here, as it does for the current key, so the rotation has to run rather
+    // than stall until a volume that is not mounted yet comes back
+    AesGCMCipher cipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(null),
+      secretKeySource(new Encryption(null).generateRandomSecretKey()));
+    cipher.setPathToPreviousSecretKey(A_PATH_TO_NO_FILE);
+
+    assertThat(cipher.hasPreviousSecretKey()).isTrue();
+  }
+
+  @Test
+  public void hasPreviousSecretKey_whenNoPathIsConfiguredAndASourceHasTheKey_shouldBeTrue() throws Exception {
+    AesGCMCipher cipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(null),
+      secretKeySource(new Encryption(null).generateRandomSecretKey()));
+
+    assertThat(cipher.hasPreviousSecretKey()).isTrue();
+  }
+
+  @Test
+  public void hasPreviousSecretKey_whenNoPathIsConfiguredAndNoSourceHasTheKey_shouldBeFalse() throws Exception {
+    AesGCMCipher cipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(null), secretKeySource(null));
+
+    assertThat(cipher.hasPreviousSecretKey()).isFalse();
+  }
+
+  @Test
+  public void hasPreviousSecretKey_whenTheConfiguredPathHoldsABlankFile_shouldBeFalse() throws Exception {
+    AesGCMCipher cipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(null), secretKeySource(null));
+    File blankPreviousSecretKeyFile = temporaryFolder.newFile();
+    cipher.setPathToPreviousSecretKey(blankPreviousSecretKeyFile.getCanonicalPath());
+
+    assertThat(cipher.hasPreviousSecretKey()).isFalse();
+
+    // the misconfiguration is what the operator is told about, once, instead of every value it would fail to rewrite
+    assertThat(logTester.logs(Level.WARN)).hasSize(1);
+    assertThat(logTester.logs(Level.WARN).get(0)).contains("secret key being replaced cannot be loaded");
+    assertThat(logTester.getLogs(Level.WARN).get(0).getThrowable())
+      .hasMessageContaining(blankPreviousSecretKeyFile.getCanonicalPath());
+  }
+
+  @Test
+  public void hasPreviousSecretKey_whenTheEnvironmentVariableHoldsNoUsableKey_shouldBeFalse() throws Exception {
+    System2 system2 = mock(System2.class);
+    when(system2.envVariable(PREVIOUS_KEY_ENVIRONMENT_VARIABLE)).thenReturn(A_BASE64_VALUE_THAT_IS_NOT_AN_AES_KEY);
+    AesGCMCipher cipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(null),
+      new EnvironmentVariableSecretKeySource(system2, PREVIOUS_KEY_ENVIRONMENT_VARIABLE));
+
+    assertThat(cipher.hasPreviousSecretKey()).isFalse();
+
+    assertThat(logTester.logs(Level.WARN)).hasSize(1);
+    assertThat(logTester.getLogs(Level.WARN).get(0).getThrowable())
+      .hasMessageContaining(PREVIOUS_KEY_ENVIRONMENT_VARIABLE);
+  }
+
+  @Test
   public void decrypt_whenValueWasWrittenWithThePreviousKey_shouldStillReadIt() throws Exception {
     String previousBase64Key = new Encryption(null).generateRandomSecretKey();
     AesGCMCipher previousCipher = new AesGCMCipher(null, secretKeySource(previousBase64Key));
@@ -292,6 +374,23 @@ public class AesGCMCipherTest {
   }
 
   @Test
+  public void decrypt_whenThePreviousKeyFileIsGoneAndWarningsAreSuppressed_shouldStillWarnOnceTheyAreEnabledAgain() throws Exception {
+    AesGCMCipher cipher = new AesGCMCipher(pathToSecretKey(), secretKeySource(null), secretKeySource(null));
+    cipher.setPathToPreviousSecretKey(A_PATH_TO_NO_FILE);
+    String encryptedWithTheCurrentKey = cipher.encrypt("this is a secret");
+    logTester.setLevel(Level.ERROR);
+
+    cipher.decrypt(encryptedWithTheCurrentKey);
+    logTester.setLevel(Level.WARN);
+    cipher.decrypt(encryptedWithTheCurrentKey);
+
+    // the warn-once flag is not spent while the level drops the message, so the operator still gets told about the
+    // misconfiguration once the level lets them
+    assertThat(logTester.logs(Level.WARN)).hasSize(1);
+    assertThat(logTester.logs(Level.WARN).get(0)).contains("secret key being replaced cannot be loaded");
+  }
+
+  @Test
   public void encrypt_whenTheConfiguredPathHoldsNoFileAndASourceHasTheKey_shouldWarnOnceAboutTheSubstitution() {
     AesGCMCipher cipher = new AesGCMCipher(A_PATH_TO_NO_FILE,
       secretKeySource(new Encryption(null).generateRandomSecretKey()), secretKeySource(null));
@@ -330,6 +429,11 @@ public class AesGCMCipherTest {
 
   private String pathToSecretKey() throws Exception {
     URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/aes_secret_key.txt");
+    return new File(resource.toURI()).getCanonicalPath();
+  }
+
+  private String pathToAnotherSecretKey() throws Exception {
+    URL resource = getClass().getResource("/org/sonar/api/config/internal/AesCipherTest/other_secret_key.txt");
     return new File(resource.toURI()).getCanonicalPath();
   }
 
