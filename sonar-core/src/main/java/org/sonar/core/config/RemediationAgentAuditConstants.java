@@ -21,6 +21,8 @@ package org.sonar.core.config;
 
 public final class RemediationAgentAuditConstants {
   public static final String MANUAL_WORKFLOW_ENABLED_PROPERTY = "sonar.ai.remediationAgent.manual.enabled";
+  public static final String SCHEDULED_WORKFLOW_ENABLED_PROPERTY = "sonar.ai.remediationAgent.scheduled.enabled";
+  public static final String PR_WORKFLOW_ENABLED_PROPERTY = "sonar.ai.remediationAgent.pr.enabled";
 
   private RemediationAgentAuditConstants() {
   }
