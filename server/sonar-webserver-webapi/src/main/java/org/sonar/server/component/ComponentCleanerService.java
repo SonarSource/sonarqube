@@ -74,7 +74,10 @@ public class ComponentCleanerService {
     if (branch.isMain()) {
       throw new IllegalArgumentException("Only non-main branches can be deleted");
     }
-    deleteHistoryForEntity(dbSession, branch.getUuid(), EntityType.PROJECT_BRANCH);
+    EntityType entityType = dbClient.entityDao().selectByUuid(dbSession, branch.getProjectUuid())
+      .map(entity -> getEntityTypeForQualifier(entity.getQualifier()))
+      .orElse(EntityType.PROJECT_BRANCH);
+    deleteHistoryForEntity(dbSession, branch.getUuid(), entityType);
     dbClient.purgeDao().deleteBranch(dbSession, branch.getUuid());
     updateProjectNcloc(dbSession, branch.getProjectUuid());
     indexers.commitAndIndexBranches(dbSession, singletonList(branch), BranchEvent.DELETION);
