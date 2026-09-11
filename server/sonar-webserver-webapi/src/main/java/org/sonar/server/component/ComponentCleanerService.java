@@ -20,6 +20,7 @@
 package org.sonar.server.component;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -32,6 +33,7 @@ import org.sonar.server.es.Indexers.BranchEvent;
 import org.sonar.server.es.Indexers.EntityEvent;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
+import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -40,20 +42,30 @@ import static java.util.Collections.singletonList;
 @ServerSide
 public class ComponentCleanerService {
 
+  private static final ScaTtrHistoryCleaner NO_OP_SCA_TTR_HISTORY_CLEANER = (dbSession, entityId, entityType) -> {
+    // SCA history is available only when the private SCA extension provides a cleaner.
+  };
+
   private final DbClient dbClient;
   private final Indexers indexers;
   private final IssueCountHistoryRepository issueCountHistoryRepository;
   private final MeasureHistoryRepository measureHistoryRepository;
+  private final IssueTtrHistoryRepository issueTtrHistoryRepository;
+  private final ScaTtrHistoryCleaner scaTtrHistoryCleaner;
 
   public ComponentCleanerService(
     DbClient dbClient,
     Indexers indexers,
     IssueCountHistoryRepository issueCountHistoryRepository,
-    MeasureHistoryRepository measureHistoryRepository) {
+    MeasureHistoryRepository measureHistoryRepository,
+    IssueTtrHistoryRepository issueTtrHistoryRepository,
+    @Nullable ScaTtrHistoryCleaner scaTtrHistoryCleaner) {
     this.dbClient = dbClient;
     this.indexers = indexers;
     this.issueCountHistoryRepository = issueCountHistoryRepository;
     this.measureHistoryRepository = measureHistoryRepository;
+    this.issueTtrHistoryRepository = issueTtrHistoryRepository;
+    this.scaTtrHistoryCleaner = scaTtrHistoryCleaner == null ? NO_OP_SCA_TTR_HISTORY_CLEANER : scaTtrHistoryCleaner;
   }
 
   public void delete(DbSession dbSession, List<ProjectDto> projects) {
@@ -102,6 +114,8 @@ public class ComponentCleanerService {
   private void deleteHistoryForEntity(DbSession dbSession, String entityId, EntityType entityType) {
     issueCountHistoryRepository.deleteHistoryForEntity(dbSession, entityId, entityType);
     measureHistoryRepository.deleteHistoryForEntity(dbSession, entityId, entityType);
+    issueTtrHistoryRepository.deleteForEntity(dbSession, entityId, entityType);
+    scaTtrHistoryCleaner.deleteForEntity(dbSession, entityId, entityType);
   }
 
   private static EntityType getEntityTypeForQualifier(String qualifier) {

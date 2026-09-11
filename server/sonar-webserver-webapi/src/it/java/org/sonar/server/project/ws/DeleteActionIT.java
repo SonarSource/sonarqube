@@ -50,8 +50,12 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.model.IssueCountHistoryRow;
+import org.sonarsource.history.model.IssueTtrHistory;
 import org.sonarsource.history.model.MeasureHistoryRow;
+import org.sonarsource.history.server.db.HistoryMyBatisConfExtension;
+import org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments;
 import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
+import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 
 import static java.util.Collections.singleton;
@@ -68,7 +72,7 @@ public class DeleteActionIT {
   private final System2 system2 = System2.INSTANCE;
 
   @Rule
-  public final DbTester db = DbTester.create(system2);
+  public final DbTester db = DbTester.createWithConfExtensions(system2, List.of(new HistoryMyBatisConfExtension(IssueTtrHistoryMapperFragments.class)));
   @Rule
   public final UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -79,6 +83,7 @@ public class DeleteActionIT {
   private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
   private final IssueCountHistoryRepository issueCountHistoryRepository = new IssueCountHistoryRepository();
   private final MeasureHistoryRepository measureHistoryRepository = new MeasureHistoryRepository();
+  private final IssueTtrHistoryRepository issueTtrHistoryRepository = new IssueTtrHistoryRepository();
 
   private final DeleteAction underTest = new DeleteAction(
     componentCleanerService,
@@ -122,7 +127,7 @@ public class DeleteActionIT {
     db.commit();
     userSessionRule.logIn().addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
     DeleteAction underTestLocal = new DeleteAction(
-      new ComponentCleanerService(dbClient, new TestIndexers(), issueCountHistoryRepository, measureHistoryRepository),
+      new ComponentCleanerService(dbClient, new TestIndexers(), issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, null),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
     new WsActionTester(underTestLocal)
@@ -132,6 +137,7 @@ public class DeleteActionIT {
 
     assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "measure_history")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isZero();
   }
 
   @Test
@@ -143,7 +149,7 @@ public class DeleteActionIT {
     dbSession.commit();
     userSessionRule.logIn().addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
     DeleteAction underTestLocal = new DeleteAction(
-      new ComponentCleanerService(dbClient, new TestIndexers(), issueCountHistoryRepository, measureHistoryRepository),
+      new ComponentCleanerService(dbClient, new TestIndexers(), issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, null),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
     new WsActionTester(underTestLocal)
@@ -166,7 +172,7 @@ public class DeleteActionIT {
 
     userSessionRule.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
     DeleteAction underTestLocal = new DeleteAction(
-      new ComponentCleanerService(dbClient, new TestIndexers(), issueCountHistoryRepository, measureHistoryRepository),
+      new ComponentCleanerService(dbClient, new TestIndexers(), issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, null),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
     new WsActionTester(underTestLocal)
@@ -218,5 +224,6 @@ public class DeleteActionIT {
     Instant recordedAt = Instant.now();
     issueCountHistoryRepository.upsert(dbSession, new IssueCountHistoryRow(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1));
     measureHistoryRepository.upsert(dbSession, new MeasureHistoryRow(1, branch.getUuid(), EntityType.PROJECT_BRANCH, recordedAt, "1"));
+    issueTtrHistoryRepository.upsert(dbSession, new IssueTtrHistory(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1L, 1));
   }
 }

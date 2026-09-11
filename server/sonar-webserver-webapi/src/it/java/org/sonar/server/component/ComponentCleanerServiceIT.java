@@ -42,12 +42,17 @@ import org.sonar.server.es.Indexers;
 import org.sonar.server.es.Indexers.BranchEvent;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.model.IssueCountHistoryRow;
+import org.sonarsource.history.model.IssueTtrHistory;
 import org.sonarsource.history.model.MeasureHistoryRow;
+import org.sonarsource.history.server.db.HistoryMyBatisConfExtension;
+import org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments;
 import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
+import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -62,14 +67,17 @@ public class ComponentCleanerServiceIT {
   private final System2 system2 = System2.INSTANCE;
 
   @Rule
-  public final DbTester db = DbTester.create(system2);
+  public final DbTester db = DbTester.createWithConfExtensions(system2, List.of(new HistoryMyBatisConfExtension(IssueTtrHistoryMapperFragments.class)));
 
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private final Indexers indexers = mock(Indexers.class);
   private final IssueCountHistoryRepository issueCountHistoryRepository = new IssueCountHistoryRepository();
   private final MeasureHistoryRepository measureHistoryRepository = new MeasureHistoryRepository();
-  private final ComponentCleanerService underTest = new ComponentCleanerService(dbClient, indexers, issueCountHistoryRepository, measureHistoryRepository);
+  private final IssueTtrHistoryRepository issueTtrHistoryRepository = new IssueTtrHistoryRepository();
+  private final ScaTtrHistoryCleaner scaTtrHistoryCleaner = mock(ScaTtrHistoryCleaner.class);
+  private final ComponentCleanerService underTest = new ComponentCleanerService(
+    dbClient, indexers, issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, scaTtrHistoryCleaner);
 
   @Test
   public void delete_project_from_db_and_index() {
@@ -96,6 +104,19 @@ public class ComponentCleanerServiceIT {
 
     assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "measure_history")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isZero();
+    verify(scaTtrHistoryCleaner).deleteForEntity(dbSession, data.mainBranch.getUuid(), EntityType.PROJECT_BRANCH);
+    verify(scaTtrHistoryCleaner).deleteForEntity(dbSession, branch.getUuid(), EntityType.PROJECT_BRANCH);
+  }
+
+  @Test
+  public void delete_entity_whenScaTtrHistoryCleanerIsMissing_shouldNotFail() {
+    ComponentCleanerService serviceWithoutScaTtrHistoryCleaner = new ComponentCleanerService(
+      dbClient, indexers, issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, null);
+    DbData data = insertProjectData();
+
+    assertThatCode(() -> serviceWithoutScaTtrHistoryCleaner.deleteEntity(dbSession, data.project))
+      .doesNotThrowAnyException();
   }
 
   @Test
@@ -298,6 +319,7 @@ public class ComponentCleanerServiceIT {
     Instant recordedAt = Instant.now();
     issueCountHistoryRepository.upsert(dbSession, new IssueCountHistoryRow(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1));
     measureHistoryRepository.upsert(dbSession, new MeasureHistoryRow(1, branch.getUuid(), EntityType.PROJECT_BRANCH, recordedAt, "1"));
+    issueTtrHistoryRepository.upsert(dbSession, new IssueTtrHistory(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1L, 1));
   }
 
   private static class DbData {

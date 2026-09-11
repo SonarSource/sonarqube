@@ -62,8 +62,12 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.model.IssueCountHistoryRow;
+import org.sonarsource.history.model.IssueTtrHistory;
 import org.sonarsource.history.model.MeasureHistoryRow;
+import org.sonarsource.history.server.db.HistoryMyBatisConfExtension;
+import org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments;
 import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
+import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -85,7 +89,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFI
 public class BulkDeleteActionIT {
 
   @Rule
-  public final DbTester db = DbTester.create(System2.INSTANCE);
+  public final DbTester db = DbTester.createWithConfExtensions(System2.INSTANCE, List.of(new HistoryMyBatisConfExtension(IssueTtrHistoryMapperFragments.class)));
 
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone().logIn();
@@ -94,6 +98,7 @@ public class BulkDeleteActionIT {
   private final DbClient dbClient = db.getDbClient();
   private final IssueCountHistoryRepository issueCountHistoryRepository = new IssueCountHistoryRepository();
   private final MeasureHistoryRepository measureHistoryRepository = new MeasureHistoryRepository();
+  private final IssueTtrHistoryRepository issueTtrHistoryRepository = new IssueTtrHistoryRepository();
   private final ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
   private final Random random = new SecureRandom();
 
@@ -129,7 +134,7 @@ public class BulkDeleteActionIT {
     db.commit();
 
     ComponentCleanerService componentCleaner = new ComponentCleanerService(dbClient, new TestIndexers(),
-      issueCountHistoryRepository, measureHistoryRepository);
+      issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, null);
     WsActionTester bulkDeleteWs = new WsActionTester(new BulkDeleteAction(componentCleaner, dbClient, userSession, projectLifeCycleListeners));
 
     bulkDeleteWs.newRequest()
@@ -138,6 +143,7 @@ public class BulkDeleteActionIT {
 
     assertThat(db.countRowsOfTable(db.getSession(), "issue_count_history")).isZero();
     assertThat(db.countRowsOfTable(db.getSession(), "measure_history")).isZero();
+    assertThat(db.countRowsOfTable(db.getSession(), "issue_ttr_history")).isZero();
   }
 
   @Test
@@ -389,5 +395,6 @@ public class BulkDeleteActionIT {
     Instant recordedAt = Instant.now();
     issueCountHistoryRepository.upsert(db.getSession(), new IssueCountHistoryRow(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1));
     measureHistoryRepository.upsert(db.getSession(), new MeasureHistoryRow(1, branch.getUuid(), EntityType.PROJECT_BRANCH, recordedAt, "1"));
+    issueTtrHistoryRepository.upsert(db.getSession(), new IssueTtrHistory(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1L, 1));
   }
 }
