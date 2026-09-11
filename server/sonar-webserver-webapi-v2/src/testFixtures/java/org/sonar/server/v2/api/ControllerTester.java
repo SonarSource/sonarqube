@@ -26,10 +26,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Validation;
 import jakarta.validation.ValidatorFactory;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.jspecify.annotations.NonNull;
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
+import org.sonar.server.v2.common.ServerRestResponseEntityExceptionHandler;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
@@ -39,23 +41,40 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 public class ControllerTester {
+  private ControllerTester() {
+  }
+
   public static MockMvc getMockMvc(Object... controllers) {
     return getMockMvcWithHandlerInterceptors(null, controllers);
   }
 
   public static MockMvc getMockMvcWithHandlerInterceptors(List<HandlerInterceptor> handlerInterceptors, Object... controllers) {
+    return buildMockMvc(handlerInterceptors, List.of(), controllers);
+  }
+
+  public static MockMvc getMockMvcWithControllerAdvice(List<Object> controllerAdvice, Object... controllers) {
+    return buildMockMvc(null, controllerAdvice, controllers);
+  }
+
+  private static MockMvc buildMockMvc(
+    List<HandlerInterceptor> handlerInterceptors, List<Object> additionalControllerAdvice, Object... controllers) {
     ValidatorFactory validatorFactory = Validation.byDefaultProvider()
       .configure()
       .messageInterpolator(new ParameterMessageInterpolator())
       .buildValidatorFactory();
+    List<Object> controllerAdvice = new ArrayList<>(List.of(
+      new ServerRestResponseEntityExceptionHandler(),
+      new RestResponseEntityExceptionHandler()));
+    controllerAdvice.addAll(additionalControllerAdvice);
     return MockMvcBuilders
       .standaloneSetup(controllers)
       .setValidator(new SpringValidatorAdapter(validatorFactory.getValidator()))
       .setCustomHandlerMapping(() -> resolveRequestMappingHandlerMapping(handlerInterceptors))
-      .setControllerAdvice(new RestResponseEntityExceptionHandler())
+      .setControllerAdvice(controllerAdvice.toArray())
       .addFilter(new TrailingSlashHandlerFilter())
       .build();
   }
+
 
   private static RequestMappingHandlerMapping resolveRequestMappingHandlerMapping(List<HandlerInterceptor> handlerInterceptors) {
     RequestMappingHandlerMapping handlerMapping = new RequestMappingHandlerMapping();

@@ -22,16 +22,20 @@ package org.sonar.server.v2.api.history.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.ServerUserSession;
 import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.model.ProjectBranch;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 
 class ProjectCollectionContextLoaderIT {
@@ -128,6 +132,50 @@ class ProjectCollectionContextLoaderIT {
   }
 
   @Test
+  void loadPortfolio_whenPortfolioIsUnauthorized_shouldReturnForbidden() {
+    UserDto user = db.users().insertUser();
+    ProjectCollectionContextLoader loader = newLoader(user);
+    DbSession session = db.getSession();
+    String portfolioId = rootPortfolio.uuid();
+
+    assertThatThrownBy(() -> loader.load(session, portfolioId))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+  }
+
+  @Test
+  void loadApplication_whenApplicationIsUnauthorized_shouldReturnForbidden() {
+    UserDto user = db.users().insertUser();
+    ProjectCollectionContextLoader loader = newLoader(user);
+    DbSession session = db.getSession();
+    String applicationBranchId = nestedApplication.getMainBranchDto().getUuid();
+
+    assertThatThrownBy(() -> loader.load(session, ProjectCollectionHistoryEntityType.APPLICATION, applicationBranchId))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+  }
+
+  @Test
+  void loadApplication_whenApplicationBranchIsMissing_shouldReturnNotFound() {
+    String missingBranchId = "missing-application-branch";
+    DbSession session = db.getSession();
+
+    assertThatThrownBy(() -> underTest.load(session, ProjectCollectionHistoryEntityType.APPLICATION, missingBranchId))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Portfolio or application branch '%s' not found", missingBranchId);
+  }
+
+  @Test
+  void loadApplication_whenBranchBelongsToProject_shouldReturnNotFound() {
+    String projectBranchId = rootProject.getMainBranchDto().getUuid();
+    DbSession session = db.getSession();
+
+    assertThatThrownBy(() -> underTest.load(session, ProjectCollectionHistoryEntityType.APPLICATION, projectBranchId))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Portfolio or application branch '%s' not found", projectBranchId);
+  }
+
+  @Test
   void loadSelectedSubportfolioReturnsOnlyProjectsWithinItsNestedHierarchy() {
     ProjectCollectionContext childContext = underTest.load(db.getSession(), ProjectCollectionHistoryEntityType.PORTFOLIO, childWithProject.uuid());
     ProjectCollectionContext grandchildContext = underTest.load(db.getSession(), ProjectCollectionHistoryEntityType.PORTFOLIO, grandchildWithoutDirectProjects.uuid());
@@ -153,6 +201,10 @@ class ProjectCollectionContextLoaderIT {
 
     assertThat(emptyChildContext.branches()).isEmpty();
     assertThat(emptyGrandchildContext.branches()).isEmpty();
+  }
+
+  private ProjectCollectionContextLoader newLoader(UserDto user) {
+    return new ProjectCollectionContextLoader(new ServerUserSession(db.getDbClient(), user, false), db.getDbClient());
   }
 
   private ComponentDto insertSubportfolio(ComponentDto parent) {

@@ -29,6 +29,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonarsource.history.api.mapper.HistoryModelConverter;
 import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
@@ -45,6 +47,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.mockito.InOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.inOrder;
@@ -146,6 +154,50 @@ public class DefaultProjectIssueCountsControllerTest {
   }
 
   @Test
+  public void getProjectIssueCountsReturnsForbiddenWhenCollectionAccessIsDenied() throws Exception {
+    when(contextLoader.load(dbSession, PORTFOLIO_ID))
+      .thenThrow(new ForbiddenException("Insufficient privileges"));
+
+    mockMvc.perform(get("/history/project-issue-counts")
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(projectIssueCountsService);
+    verify(dbSession).close();
+  }
+
+  @Test
+  public void getProjectIssueCountsReturnsNotFoundWhenCollectionIsMissing() throws Exception {
+    when(contextLoader.load(dbSession, PORTFOLIO_ID))
+      .thenThrow(new NotFoundException("Portfolio or application branch 'portfolio-uuid' not found"));
+
+    mockMvc.perform(get("/history/project-issue-counts")
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Portfolio or application branch 'portfolio-uuid' not found\"}"));
+
+    verifyNoInteractions(projectIssueCountsService);
+    verify(dbSession).close();
+  }
+
+  @Test
+  public void getProjectIssueCountsReturnsBadRequestWhenServiceRejectsRequest() throws Exception {
+    when(contextLoader.load(dbSession, PORTFOLIO_ID)).thenReturn(CONTEXT);
+    doThrow(new IllegalArgumentException("Unsupported issue-count request"))
+      .when(projectIssueCountsService)
+      .getProjectIssueCounts(any(), any(), any(), any(), any(), anyInt(), anyInt(), any(), anyBoolean());
+
+    mockMvc.perform(get("/history/project-issue-counts")
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"Unsupported issue-count request\"}"));
+  }
+
+  @Test
   public void getProjectIssueCountsAcceptsNullReferenceDateAndForwardsNull() {
     var filters = IssueCountHistoryService.buildFilters(null, null, null, null, null);
     var serviceResponse = new ProjectIssueCountsResponse(0, List.of(), new Pagination(1, 50, 0));
@@ -235,7 +287,28 @@ public class DefaultProjectIssueCountsControllerTest {
       .queryParam("entityType", "PORTFOLIO")
       .queryParam("entityId", PORTFOLIO_ID)
       .queryParam("referenceDate", "2026-07-07T00:00:00Z"))
-      .andExpect(status().isBadRequest());
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"portfolioId cannot be combined with entityType or entityId\"}"));
+  }
+
+  @Test
+  public void getProjectIssueCountsRejectsPageSizeAboveMaximum() throws Exception {
+    when(contextLoader.load(dbSession, PORTFOLIO_ID)).thenReturn(CONTEXT);
+    when(projectIssueCountsService.getProjectIssueCounts(
+      eq(CONTEXT.branches()), eq(CONTEXT.visibleBranchIds()), any(), isNull(), isNull(),
+      eq(1), eq(5001), eq(SORT), eq(false)))
+      .thenReturn(new ProjectIssueCountsResponse(0, List.of(), new Pagination(1, 5001, 0)));
+
+    mockMvc.perform(get("/history/project-issue-counts")
+        .queryParam("portfolioId", PORTFOLIO_ID)
+        .queryParam("pageSize", "5001"))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"pageSize: must be less than or equal to 5000\"}"));
+
+    verify(dbClient, never()).openSession(false);
+    verifyNoInteractions(contextLoader, projectIssueCountsService);
   }
 
   @Test

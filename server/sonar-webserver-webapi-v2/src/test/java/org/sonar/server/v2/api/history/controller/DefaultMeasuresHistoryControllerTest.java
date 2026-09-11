@@ -31,12 +31,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDao;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.permission.ProjectPermission;
+import org.sonar.db.portfolio.PortfolioDao;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDao;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -75,7 +75,7 @@ public class DefaultMeasuresHistoryControllerTest {
   private final DbClient dbClient = mock();
   private final DbSession dbSession = mock();
   private final BranchDao branchDao = mock();
-  private final ComponentDao componentDao = mock();
+  private final PortfolioDao portfolioDao = mock();
   private final MetricDao metricDao = mock();
   private final ProjectDao projectDao = mock();
   private final DefaultMeasuresHistoryController underTest = new DefaultMeasuresHistoryController(
@@ -86,7 +86,7 @@ public class DefaultMeasuresHistoryControllerTest {
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.branchDao()).thenReturn(branchDao);
-    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.portfolioDao()).thenReturn(portfolioDao);
     when(dbClient.metricDao()).thenReturn(metricDao);
     when(dbClient.projectDao()).thenReturn(projectDao);
     when(metricDao.selectByKeys(dbSession, METRIC_KEYS)).thenReturn(List.of(new MetricDto().setKey("ncloc")));
@@ -187,8 +187,8 @@ public class DefaultMeasuresHistoryControllerTest {
   @Test
   public void getMeasuresHistory_whenMetricKeyIsInvalid_shouldReturnBadRequest() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    ComponentDto portfolio = portfolio();
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    PortfolioDto portfolio = portfolio();
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(metricDao.selectByKeys(dbSession, List.of("teehee"))).thenReturn(List.of());
 
     mockMvc.perform(get("/history/measures-history")
@@ -204,7 +204,7 @@ public class DefaultMeasuresHistoryControllerTest {
   @Test
   public void getMeasuresHistory_whenPortfolioIsMissing_shouldReturnNotFoundToClient() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.empty());
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.empty());
     mockMvc.perform(get("/history/measures-history")
         .queryParam("entityType", "PORTFOLIO")
         .queryParam("entityId", ENTITY_ID)
@@ -217,10 +217,10 @@ public class DefaultMeasuresHistoryControllerTest {
   @Test
   public void getMeasuresHistory_whenPortfolioIsUnauthorized_shouldReturnForbiddenToClient() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    ComponentDto portfolio = portfolio();
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    PortfolioDto portfolio = portfolio();
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     doThrow(new ForbiddenException("Access forbidden"))
-      .when(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
+      .when(userSession).checkEntityPermission(ProjectPermission.USER, portfolio);
     mockMvc.perform(get("/history/measures-history")
         .queryParam("entityType", "PORTFOLIO")
         .queryParam("entityId", ENTITY_ID)
@@ -233,8 +233,8 @@ public class DefaultMeasuresHistoryControllerTest {
   @Test
   public void getMeasuresHistory_whenServiceFailsUnexpectedly_shouldReturnInternalServerErrorToClient() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    ComponentDto portfolio = portfolio();
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    PortfolioDto portfolio = portfolio();
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(measuresHistoryService.queryMeasuresHistory(
       ENTITY_ID, EntityType.PORTFOLIO, METRIC_KEYS, startDate.toInstant(), UTC_MIDNIGHT))
       .thenThrow(new IllegalStateException("History service unavailable"));
@@ -250,8 +250,8 @@ public class DefaultMeasuresHistoryControllerTest {
   @Test
   public void getMeasuresHistory_whenPortfolioIsAuthorized_shouldQueryHistory() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    ComponentDto portfolio = portfolio();
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    PortfolioDto portfolio = portfolio();
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(measuresHistoryService.queryMeasuresHistory(
       ENTITY_ID, EntityType.PORTFOLIO, METRIC_KEYS, startDate.toInstant(), UTC_MIDNIGHT))
       .thenReturn(new org.sonarsource.history.model.MeasuresHistoryResponse(List.of()));
@@ -259,8 +259,8 @@ public class DefaultMeasuresHistoryControllerTest {
     ResponseEntity<MeasuresHistoryResponse> result = underTest.getMeasuresHistory(ENTITY_TYPE, ENTITY_ID, METRIC_KEYS, startDate, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
-    verify(componentDao).selectByUuid(dbSession, ENTITY_ID);
-    verify(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
+    verify(portfolioDao).selectByUuid(dbSession, ENTITY_ID);
+    verify(userSession).checkEntityPermission(ProjectPermission.USER, portfolio);
     verify(measuresHistoryService).queryMeasuresHistory(
       ENTITY_ID, EntityType.PORTFOLIO, METRIC_KEYS, startDate.toInstant(), UTC_MIDNIGHT);
   }
@@ -482,10 +482,9 @@ public class DefaultMeasuresHistoryControllerTest {
       .setQualifier(qualifier);
   }
 
-  private static ComponentDto portfolio() {
-    return new ComponentDto()
+  private static PortfolioDto portfolio() {
+    return new PortfolioDto()
       .setUuid(ENTITY_ID)
-      .setBranchUuid(ENTITY_ID)
-      .setQualifier(ComponentQualifiers.VIEW);
+      .setRootUuid(ENTITY_ID);
   }
 }

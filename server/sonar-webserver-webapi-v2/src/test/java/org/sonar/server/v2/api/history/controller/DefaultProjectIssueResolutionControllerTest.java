@@ -29,6 +29,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
@@ -43,7 +45,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -146,6 +151,53 @@ public class DefaultProjectIssueResolutionControllerTest {
       50);
 
     verify(contextLoader).load(dbSession, ProjectCollectionHistoryEntityType.APPLICATION, "application-branch-uuid");
+  }
+
+  @Test
+  public void getProjectIssueResolutionReturnsForbiddenWhenCollectionAccessIsDenied() throws Exception {
+    when(contextLoader.load(dbSession, PORTFOLIO_ID))
+      .thenThrow(new ForbiddenException("Insufficient privileges"));
+
+    mockMvc.perform(get("/history/project-issue-resolution")
+        .queryParam("statistic", "MTTR")
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(projectIssueResolutionService);
+    verify(dbSession).close();
+  }
+
+  @Test
+  public void getProjectIssueResolutionReturnsNotFoundWhenCollectionIsMissing() throws Exception {
+    when(contextLoader.load(dbSession, PORTFOLIO_ID))
+      .thenThrow(new NotFoundException("Portfolio or application branch 'portfolio-uuid' not found"));
+
+    mockMvc.perform(get("/history/project-issue-resolution")
+        .queryParam("statistic", "MTTR")
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Portfolio or application branch 'portfolio-uuid' not found\"}"));
+
+    verifyNoInteractions(projectIssueResolutionService);
+    verify(dbSession).close();
+  }
+
+  @Test
+  public void getProjectIssueResolutionReturnsBadRequestWhenServiceRejectsRequest() throws Exception {
+    when(contextLoader.load(dbSession, PORTFOLIO_ID)).thenReturn(CONTEXT);
+    doThrow(new IllegalArgumentException("Unsupported project-resolution request"))
+      .when(projectIssueResolutionService)
+      .getProjectIssueResolution(any(), any(), any(), any(), any(), any(), any(), anyInt(), anyInt());
+
+    mockMvc.perform(get("/history/project-issue-resolution")
+        .queryParam("statistic", "MTTR")
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"Unsupported project-resolution request\"}"));
   }
 
   @Test

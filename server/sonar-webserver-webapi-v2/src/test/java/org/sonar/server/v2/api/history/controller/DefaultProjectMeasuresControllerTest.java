@@ -31,6 +31,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.model.Pagination;
@@ -43,6 +45,12 @@ import org.mockito.InOrder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.inOrder;
@@ -130,6 +138,56 @@ public class DefaultProjectMeasuresControllerTest {
 
     assertThat(response.getStatusCode()).isEqualTo(OK);
     verify(contextLoader).load(dbSession, ProjectCollectionHistoryEntityType.APPLICATION, "application-branch-uuid");
+  }
+
+  @Test
+  public void getProjectMeasuresReturnsForbiddenWhenCollectionAccessIsDenied() throws Exception {
+    when(metricDao.selectByKey(dbSession, METRIC_KEY)).thenReturn(new MetricDto().setKey(METRIC_KEY).setValueType("PERCENT"));
+    when(contextLoader.load(dbSession, PORTFOLIO_ID))
+      .thenThrow(new ForbiddenException("Insufficient privileges"));
+
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", METRIC_KEY)
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(projectMeasuresService);
+    verify(dbSession).close();
+  }
+
+  @Test
+  public void getProjectMeasuresReturnsNotFoundWhenCollectionIsMissing() throws Exception {
+    when(metricDao.selectByKey(dbSession, METRIC_KEY)).thenReturn(new MetricDto().setKey(METRIC_KEY).setValueType("PERCENT"));
+    when(contextLoader.load(dbSession, PORTFOLIO_ID))
+      .thenThrow(new NotFoundException("Portfolio or application branch 'portfolio-uuid' not found"));
+
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", METRIC_KEY)
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Portfolio or application branch 'portfolio-uuid' not found\"}"));
+
+    verifyNoInteractions(projectMeasuresService);
+    verify(dbSession).close();
+  }
+
+  @Test
+  public void getProjectMeasuresReturnsBadRequestWhenServiceRejectsRequest() throws Exception {
+    when(metricDao.selectByKey(dbSession, METRIC_KEY)).thenReturn(new MetricDto().setKey(METRIC_KEY).setValueType("PERCENT"));
+    when(contextLoader.load(dbSession, PORTFOLIO_ID)).thenReturn(CONTEXT);
+    doThrow(new IllegalArgumentException("Unsupported project-measures request"))
+      .when(projectMeasuresService)
+      .queryProjectMeasures(any(), any(), any(), any(), any(), any(), anyInt(), anyInt(), any(), any(), anyBoolean());
+
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", METRIC_KEY)
+        .queryParam("portfolioId", PORTFOLIO_ID))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"Unsupported project-measures request\"}"));
   }
 
   @Test
@@ -291,6 +349,29 @@ public class DefaultProjectMeasuresControllerTest {
       .queryParam("entityType", "PORTFOLIO")
       .queryParam("entityId", PORTFOLIO_ID)
       .queryParam("referenceDate", "2026-07-07T00:00:00Z"))
-      .andExpect(status().isBadRequest());
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"portfolioId cannot be combined with entityType or entityId\"}"));
+  }
+
+  @Test
+  public void getProjectMeasuresRejectsPageSizeAboveMaximum() throws Exception {
+    when(metricDao.selectByKey(dbSession, METRIC_KEY)).thenReturn(new MetricDto().setKey(METRIC_KEY).setValueType("INT"));
+    when(contextLoader.load(dbSession, PORTFOLIO_ID)).thenReturn(CONTEXT);
+    when(projectMeasuresService.queryProjectMeasures(
+      eq(CONTEXT.branches()), eq(CONTEXT.visibleBranchIds()), eq(METRIC_KEY), eq("INT"), isNull(), isNull(),
+      eq(1), eq(5001), isNull(), eq(SORT), eq(false)))
+      .thenReturn(new ProjectMeasuresResponse(0, new Pagination(1, 5001, 0), List.of()));
+
+    mockMvc.perform(get("/history/project-measures")
+        .queryParam("metricKey", METRIC_KEY)
+        .queryParam("portfolioId", PORTFOLIO_ID)
+        .queryParam("pageSize", "5001"))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"pageSize: must be less than or equal to 5000\"}"));
+
+    verify(dbClient, never()).openSession(false);
+    verifyNoInteractions(contextLoader, projectMeasuresService);
   }
 }

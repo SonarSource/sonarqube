@@ -22,9 +22,9 @@ package org.sonar.server.v2.api.history.controller;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.ProjectPermission;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.user.UserSession;
 import org.sonarsource.history.model.EntityType;
@@ -51,10 +51,10 @@ public final class HistoryAuthUtils {
           userSession.checkChildProjectsPermission(ProjectPermission.USER, project);
         }
       } else if (EntityType.PORTFOLIO.equals(entityType)) {
-        ComponentDto portfolio = checkFoundWithOptional(
-          dbClient.componentDao().selectByUuid(dbSession, entityId),
+        PortfolioDto portfolio = checkFoundWithOptional(
+          dbClient.portfolioDao().selectByUuid(dbSession, entityId),
           "Portfolio with uuid '%s' not found", entityId);
-        userSession.checkComponentPermission(ProjectPermission.USER, portfolio);
+        userSession.checkEntityPermission(ProjectPermission.USER, portfolio);
       } else if (EntityType.APPLICATION.equals(entityType)) {
         BranchDto applicationBranch = checkFoundWithOptional(
           dbClient.branchDao().selectByUuid(dbSession, entityId),

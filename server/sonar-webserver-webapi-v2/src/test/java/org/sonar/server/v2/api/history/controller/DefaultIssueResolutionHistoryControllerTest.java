@@ -29,10 +29,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDao;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.BranchDao;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.ProjectPermission;
+import org.sonar.db.portfolio.PortfolioDao;
+import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.project.ProjectDao;
+import org.sonar.db.project.ProjectDto;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.user.UserSession;
 import org.sonarsource.history.api.model.HistoryEntityType;
@@ -53,6 +58,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -65,6 +71,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class DefaultIssueResolutionHistoryControllerTest {
 
   private static final String ENTITY_ID = "123e4567-e89b-12d3-a456-426614174000";
+  private static final String PROJECT_BRANCH_ID = "branch-1";
+  private static final String PROJECT_UUID = "123e4567-e89b-12d3-a456-426614174002";
+  private static final String APPLICATION_BRANCH_ID = "application-branch-uuid";
+  private static final String APPLICATION_UUID = "application-uuid";
   private static final Instant NOW = Instant.parse("2026-07-08T01:00:00Z");
   private static final OffsetDateTime START = OffsetDateTime.parse("2020-07-07T12:00:00Z");
   private static final OffsetDateTime END = OffsetDateTime.parse("2020-07-08T12:00:00Z");
@@ -73,7 +83,9 @@ public class DefaultIssueResolutionHistoryControllerTest {
   private final UserSession userSession = mock();
   private final DbClient dbClient = mock();
   private final DbSession dbSession = mock();
-  private final ComponentDao componentDao = mock();
+  private final BranchDao branchDao = mock();
+  private final PortfolioDao portfolioDao = mock();
+  private final ProjectDao projectDao = mock();
   private final DefaultIssueResolutionHistoryController underTest = new DefaultIssueResolutionHistoryController(
     userSession, dbClient, issueTtrHistoryService, Clock.fixed(NOW, ZoneOffset.UTC));
   private final MockMvc mockMvc = ControllerTester.getMockMvc(underTest);
@@ -81,16 +93,17 @@ public class DefaultIssueResolutionHistoryControllerTest {
   @Before
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
-    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.branchDao()).thenReturn(branchDao);
+    when(dbClient.portfolioDao()).thenReturn(portfolioDao);
+    when(dbClient.projectDao()).thenReturn(projectDao);
   }
 
   @Test
   public void getIssueResolutionHistoryUsesAuthorizationAndPreservesDatesOlderThanOneYear() {
-    ComponentDto portfolio = new ComponentDto()
+    PortfolioDto portfolio = new PortfolioDto()
       .setUuid(ENTITY_ID)
-      .setBranchUuid(ENTITY_ID)
-      .setQualifier(ComponentQualifiers.VIEW);
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+      .setRootUuid(ENTITY_ID);
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(issueTtrHistoryService.query(
       eq(org.sonarsource.history.model.IssueResolutionStatistic.MTTR),
       argThat(query -> query.entityId().equals(ENTITY_ID)
@@ -115,7 +128,7 @@ public class DefaultIssueResolutionHistoryControllerTest {
     assertThat(response.getStatusCode()).isEqualTo(OK);
     assertThat(response.getBody().getStatistic()).isEqualTo(IssueResolutionStatistic.MTTR);
     assertThat(response.getBody().getIssueResolutionHistory()).hasSize(1);
-    verify(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
+    verify(userSession).checkEntityPermission(ProjectPermission.USER, portfolio);
   }
 
   @Test
@@ -134,9 +147,41 @@ public class DefaultIssueResolutionHistoryControllerTest {
   }
 
   @Test
+  public void getIssueResolutionHistory_whenStatisticIsInvalid_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("statistic", "INVALID")
+        .queryParam("startDate", START.toString()))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"Invalid parameter type.\"}"));
+
+    verifyNoInteractions(issueTtrHistoryService);
+  }
+
+  @Test
+  public void getIssueResolutionHistory_whenEndInstantIsBeforeStartInstant_shouldReturnBadRequest() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
+    OffsetDateTime endDate = OffsetDateTime.parse("2026-07-07T23:59:59Z");
+
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("statistic", "MTTR")
+        .queryParam("startDate", startDate.toString())
+        .queryParam("endDate", endDate.toString()))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"End date [2026-07-07T23:59:59Z] must be greater than or equal to start date [2026-07-08T00:00Z].\"}"));
+
+    verifyNoInteractions(issueTtrHistoryService);
+  }
+
+  @Test
   public void getIssueResolutionHistory_whenServiceRejects_shouldReturnBadRequestToClient() throws Exception {
-    ComponentDto portfolio = portfolio();
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    PortfolioDto portfolio = portfolio();
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(issueTtrHistoryService.query(
       eq(org.sonarsource.history.model.IssueResolutionStatistic.MTTR), any(IssueResolutionHistoryQuery.class)))
       .thenThrow(new IllegalArgumentException("Unsupported resolution filter"));
@@ -155,16 +200,249 @@ public class DefaultIssueResolutionHistoryControllerTest {
         .queryParam("entityId", ENTITY_ID)
         .queryParam("entityType", "PORTFOLIO")
         .queryParam("statistic", "MTTR")
-      .queryParam("startDate", START.toString())
-      .queryParam("issueTypes", "SECURITY_HOTSPOT"))
+        .queryParam("startDate", START.toString())
+        .queryParam("issueTypes", "SECURITY_HOTSPOT"))
       .andExpect(status().isBadRequest());
     verifyNoInteractions(dbClient, issueTtrHistoryService);
   }
 
-  private static ComponentDto portfolio() {
-    return new ComponentDto()
+  @Test
+  public void getIssueResolutionHistory_whenProjectBranchIsAuthorized_shouldQueryHistory() {
+    ProjectDto project = project(PROJECT_UUID, ComponentQualifiers.PROJECT);
+    stubProjectBranch(project);
+    when(issueTtrHistoryService.query(
+      eq(org.sonarsource.history.model.IssueResolutionStatistic.MTTR), any(IssueResolutionHistoryQuery.class)))
+      .thenReturn(List.of());
+
+    ResponseEntity<IssueResolutionHistoryResponse> response = underTest.getIssueResolutionHistory(
+      PROJECT_BRANCH_ID,
+      HistoryEntityType.PROJECT_BRANCH,
+      IssueResolutionStatistic.MTTR,
+      START,
+      END,
+      null,
+      null,
+      null,
+      null);
+
+    assertThat(response.getStatusCode()).isEqualTo(OK);
+    assertThat(response.getBody()).isNotNull();
+    verify(branchDao).selectByUuid(dbSession, PROJECT_BRANCH_ID);
+    verify(projectDao).selectByUuid(dbSession, PROJECT_UUID);
+    verify(userSession).checkEntityPermission(ProjectPermission.USER, project);
+    verify(issueTtrHistoryService).query(
+      eq(org.sonarsource.history.model.IssueResolutionStatistic.MTTR), any(IssueResolutionHistoryQuery.class));
+  }
+
+  @Test
+  public void getIssueResolutionHistory_whenApplicationIsAuthorized_shouldQueryHistory() {
+    ProjectDto application = project(APPLICATION_UUID, ComponentQualifiers.APP);
+    stubApplicationBranch(application);
+    when(issueTtrHistoryService.query(
+      eq(org.sonarsource.history.model.IssueResolutionStatistic.MTTR), any(IssueResolutionHistoryQuery.class)))
+      .thenReturn(List.of());
+
+    ResponseEntity<IssueResolutionHistoryResponse> response = underTest.getIssueResolutionHistory(
+      APPLICATION_BRANCH_ID,
+      HistoryEntityType.APPLICATION,
+      IssueResolutionStatistic.MTTR,
+      START,
+      END,
+      null,
+      null,
+      null,
+      null);
+
+    assertThat(response.getStatusCode()).isEqualTo(OK);
+    assertThat(response.getBody()).isNotNull();
+    verify(userSession).checkEntityPermission(ProjectPermission.USER, application);
+    verify(userSession).checkChildProjectsPermission(ProjectPermission.USER, application);
+    verify(issueTtrHistoryService).query(
+      eq(org.sonarsource.history.model.IssueResolutionStatistic.MTTR), any(IssueResolutionHistoryQuery.class));
+  }
+
+  @Test
+  public void getIssueResolutionHistory_whenProjectBranchBelongsToApplicationAndChildProjectsAreUnauthorized_shouldReturnForbidden() throws Exception {
+    ProjectDto application = project(APPLICATION_UUID, ComponentQualifiers.APP);
+    stubProjectBranch(application);
+    doThrow(new ForbiddenException("Insufficient privileges"))
+      .when(userSession).checkChildProjectsPermission(ProjectPermission.USER, application);
+
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("statistic", "MTTR")
+        .queryParam("startDate", START.toString()))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(issueTtrHistoryService);
+  }
+
+  @Test
+  public void getIssueResolutionHistory_whenProjectIsUnauthorized_shouldReturnForbidden() throws Exception {
+    ProjectDto project = project(PROJECT_UUID, ComponentQualifiers.PROJECT);
+    stubProjectBranch(project);
+    doThrow(new ForbiddenException("Insufficient privileges"))
+      .when(userSession).checkEntityPermission(ProjectPermission.USER, project);
+
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("statistic", "MTTR")
+        .queryParam("startDate", START.toString()))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(issueTtrHistoryService);
+  }
+
+  @Test
+  public void getIssueResolutionHistory_whenApplicationIsUnauthorized_shouldReturnForbidden() throws Exception {
+    ProjectDto application = project(APPLICATION_UUID, ComponentQualifiers.APP);
+    stubApplicationBranch(application);
+    doThrow(new ForbiddenException("Insufficient privileges"))
+      .when(userSession).checkEntityPermission(ProjectPermission.USER, application);
+
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", APPLICATION_BRANCH_ID)
+        .queryParam("entityType", "APPLICATION")
+        .queryParam("statistic", "MTTR")
+        .queryParam("startDate", START.toString()))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(issueTtrHistoryService);
+  }
+
+  @Test
+  public void getIssueResolutionHistory_whenApplicationChildProjectsAreUnauthorized_shouldReturnForbidden() throws Exception {
+    ProjectDto application = project(APPLICATION_UUID, ComponentQualifiers.APP);
+    stubApplicationBranch(application);
+    doThrow(new ForbiddenException("Insufficient privileges"))
+      .when(userSession).checkChildProjectsPermission(ProjectPermission.USER, application);
+
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", APPLICATION_BRANCH_ID)
+        .queryParam("entityType", "APPLICATION")
+        .queryParam("statistic", "MTTR")
+        .queryParam("startDate", START.toString()))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(issueTtrHistoryService);
+  }
+
+  @Test
+  public void getIssueResolutionHistory_whenPortfolioIsUnauthorized_shouldReturnForbidden() throws Exception {
+    PortfolioDto portfolio = portfolio();
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    doThrow(new ForbiddenException("Insufficient privileges"))
+      .when(userSession).checkEntityPermission(ProjectPermission.USER, portfolio);
+
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("statistic", "MTTR")
+        .queryParam("startDate", START.toString()))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(issueTtrHistoryService);
+  }
+
+  @Test
+  public void getIssueResolutionHistory_whenPortfolioIsMissing_shouldReturnNotFound() throws Exception {
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.empty());
+
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("statistic", "MTTR")
+        .queryParam("startDate", START.toString()))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Portfolio with uuid '123e4567-e89b-12d3-a456-426614174000' not found\"}"));
+
+    verifyNoInteractions(issueTtrHistoryService);
+  }
+
+  @Test
+  public void getIssueResolutionHistory_whenProjectBranchIsMissing_shouldReturnNotFound() throws Exception {
+    when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID)).thenReturn(Optional.empty());
+
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("statistic", "MTTR")
+        .queryParam("startDate", START.toString()))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Project branch with uuid 'branch-1' not found\"}"));
+
+    verifyNoInteractions(issueTtrHistoryService);
+  }
+
+  @Test
+  public void getIssueResolutionHistory_whenProjectIsMissing_shouldReturnNotFound() throws Exception {
+    when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID))
+      .thenReturn(Optional.of(new BranchDto().setUuid(PROJECT_BRANCH_ID).setProjectUuid(PROJECT_UUID)));
+    when(projectDao.selectByUuid(dbSession, PROJECT_UUID)).thenReturn(Optional.empty());
+
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("statistic", "MTTR")
+        .queryParam("startDate", START.toString()))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Project with uuid '123e4567-e89b-12d3-a456-426614174002' not found\"}"));
+
+    verifyNoInteractions(issueTtrHistoryService);
+  }
+
+  @Test
+  public void getIssueResolutionHistory_whenApplicationBranchIsMissing_shouldReturnNotFound() throws Exception {
+    when(branchDao.selectByUuid(dbSession, APPLICATION_BRANCH_ID)).thenReturn(Optional.empty());
+
+    mockMvc.perform(get("/history/issue-resolution-history")
+        .queryParam("entityId", APPLICATION_BRANCH_ID)
+        .queryParam("entityType", "APPLICATION")
+        .queryParam("statistic", "MTTR")
+        .queryParam("startDate", START.toString()))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Portfolio or application branch 'application-branch-uuid' not found\"}"));
+
+    verifyNoInteractions(issueTtrHistoryService);
+  }
+
+  private static PortfolioDto portfolio() {
+    return new PortfolioDto()
       .setUuid(ENTITY_ID)
-      .setBranchUuid(ENTITY_ID)
-      .setQualifier(ComponentQualifiers.VIEW);
+      .setRootUuid(ENTITY_ID);
+  }
+
+  private void stubProjectBranch(ProjectDto project) {
+    when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID))
+      .thenReturn(Optional.of(new BranchDto().setUuid(PROJECT_BRANCH_ID).setProjectUuid(project.getUuid())));
+    when(projectDao.selectByUuid(dbSession, project.getUuid())).thenReturn(Optional.of(project));
+  }
+
+  private void stubApplicationBranch(ProjectDto application) {
+    when(branchDao.selectByUuid(dbSession, APPLICATION_BRANCH_ID))
+      .thenReturn(Optional.of(new BranchDto().setUuid(APPLICATION_BRANCH_ID).setProjectUuid(application.getUuid())));
+    when(projectDao.selectByUuid(dbSession, application.getUuid())).thenReturn(Optional.of(application));
+  }
+
+  private static ProjectDto project(String uuid, String qualifier) {
+    return new ProjectDto()
+      .setUuid(uuid)
+      .setQualifier(qualifier);
   }
 }

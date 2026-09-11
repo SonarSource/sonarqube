@@ -36,6 +36,7 @@ import org.sonar.db.portfolio.PortfolioDao;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDao;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
@@ -45,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -128,6 +130,16 @@ public class ProjectCollectionContextLoaderTest {
   }
 
   @Test
+  public void loadPortfolio_whenPortfolioIsUnauthorized_shouldReturnForbidden() {
+    PortfolioDto portfolio = new PortfolioDto().setUuid(PORTFOLIO_ID);
+    when(portfolioDao.selectByUuid(dbSession, PORTFOLIO_ID)).thenReturn(Optional.of(portfolio));
+    doThrow(new ForbiddenException("Access forbidden")).when(userSession).checkEntityPermission(USER, portfolio);
+
+    assertThatThrownBy(() -> underTest.load(dbSession, PORTFOLIO_ID))
+      .isInstanceOf(ForbiddenException.class);
+  }
+
+  @Test
   public void loadApplicationReturnsProjectsForSelectedMainBranch() {
     BranchDto applicationBranch = branch(APPLICATION_BRANCH_ID, APPLICATION_ID, "main").setIsMain(true);
     ProjectDto application = project(APPLICATION_ID, "application", "Application").setQualifier(APP);
@@ -162,6 +174,59 @@ public class ProjectCollectionContextLoaderTest {
 
     assertThat(context.branches()).singleElement().satisfies(result -> assertThat(result.branchId()).isEqualTo(BRANCH_ID));
     verify(applicationProjectsDao).selectProjectBranchesFromAppBranchUuid(dbSession, APPLICATION_BRANCH_ID);
+  }
+
+  @Test
+  public void loadApplicationMarksOnlyAuthorizedProjectBranchesAsVisible() {
+    String hiddenBranchId = "hidden-branch-uuid";
+    String hiddenProjectId = "hidden-project-uuid";
+    BranchDto applicationBranch = branch(APPLICATION_BRANCH_ID, APPLICATION_ID, "main").setIsMain(true);
+    BranchDto visibleBranch = branch(BRANCH_ID, PROJECT_ID, "main");
+    BranchDto hiddenBranch = branch(hiddenBranchId, hiddenProjectId, "main");
+    ProjectDto application = project(APPLICATION_ID, "application", "Application").setQualifier(APP);
+    ProjectDto visibleProject = project(PROJECT_ID, "visible-project", "Visible project");
+    ProjectDto hiddenProject = project(hiddenProjectId, "hidden-project", "Hidden project");
+    when(branchDao.selectByUuid(dbSession, APPLICATION_BRANCH_ID)).thenReturn(Optional.of(applicationBranch));
+    when(projectDao.selectByUuid(dbSession, APPLICATION_ID)).thenReturn(Optional.of(application));
+    when(applicationProjectsDao.selectProjectsMainBranchesOfApplication(dbSession, APPLICATION_ID))
+      .thenReturn(List.of(visibleBranch, hiddenBranch));
+    when(projectDao.selectByUuids(dbSession, Set.of(PROJECT_ID, hiddenProjectId)))
+      .thenReturn(List.of(visibleProject, hiddenProject));
+    when(userSession.keepAuthorizedEntities(USER, List.of(visibleProject, hiddenProject)))
+      .thenReturn(List.of(visibleProject));
+
+    ProjectCollectionContext context = underTest.load(
+      dbSession, ProjectCollectionHistoryEntityType.APPLICATION, APPLICATION_BRANCH_ID);
+
+    assertThat(context.branches()).extracting(ProjectBranch::branchId)
+      .containsExactly(BRANCH_ID, hiddenBranchId);
+    assertThat(context.visibleBranchIds()).containsExactly(BRANCH_ID);
+  }
+
+  @Test
+  public void loadApplication_whenApplicationIsUnauthorized_shouldReturnForbidden() {
+    BranchDto applicationBranch = branch(APPLICATION_BRANCH_ID, APPLICATION_ID, "main");
+    ProjectDto application = project(APPLICATION_ID, "application", "Application").setQualifier(APP);
+    when(branchDao.selectByUuid(dbSession, APPLICATION_BRANCH_ID)).thenReturn(Optional.of(applicationBranch));
+    when(projectDao.selectByUuid(dbSession, APPLICATION_ID)).thenReturn(Optional.of(application));
+    doThrow(new ForbiddenException("Access forbidden")).when(userSession).checkEntityPermission(USER, application);
+
+    assertThatThrownBy(() -> underTest.load(
+      dbSession, ProjectCollectionHistoryEntityType.APPLICATION, APPLICATION_BRANCH_ID))
+      .isInstanceOf(ForbiddenException.class);
+  }
+
+  @Test
+  public void loadApplication_whenChildProjectsAreUnauthorized_shouldReturnForbidden() {
+    BranchDto applicationBranch = branch(APPLICATION_BRANCH_ID, APPLICATION_ID, "main");
+    ProjectDto application = project(APPLICATION_ID, "application", "Application").setQualifier(APP);
+    when(branchDao.selectByUuid(dbSession, APPLICATION_BRANCH_ID)).thenReturn(Optional.of(applicationBranch));
+    when(projectDao.selectByUuid(dbSession, APPLICATION_ID)).thenReturn(Optional.of(application));
+    doThrow(new ForbiddenException("Access forbidden")).when(userSession).checkChildProjectsPermission(USER, application);
+
+    assertThatThrownBy(() -> underTest.load(
+      dbSession, ProjectCollectionHistoryEntityType.APPLICATION, APPLICATION_BRANCH_ID))
+      .isInstanceOf(ForbiddenException.class);
   }
 
   @Test

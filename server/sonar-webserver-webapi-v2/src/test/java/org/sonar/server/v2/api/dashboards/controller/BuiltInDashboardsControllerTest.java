@@ -37,6 +37,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -131,6 +132,67 @@ class BuiltInDashboardsControllerTest {
 
     assertThat(response.getDashboards()).isEmpty();
     assertThat(response.getPage().getTotal()).isOne();
+  }
+
+  @Test
+  void listBuiltInDashboards_inCommunity_rejectsPageIndexZero() throws Exception {
+    when(editionProvider.get()).thenReturn(Optional.of(Edition.COMMUNITY));
+
+    mockMvc.perform(get("/dashboards/built-ins")
+        .param("pageIndex", "0")
+        .param("pageSize", "50"))
+      .andExpectAll(
+        status().isBadRequest(),
+        result -> assertThat(result.getResponse().getContentAsString())
+          .isEqualTo("{\"message\":\"pageIndex: must be greater than or equal to 1\"}"));
+
+    verify(builtInDashboardService, never()).findByKey(any());
+  }
+
+  @Test
+  void listBuiltInDashboards_inCommunity_rejectsNegativePageSize() throws Exception {
+    when(editionProvider.get()).thenReturn(Optional.of(Edition.COMMUNITY));
+
+    mockMvc.perform(get("/dashboards/built-ins")
+        .param("pageIndex", "1")
+        .param("pageSize", "-1"))
+      .andExpectAll(
+        status().isBadRequest(),
+        result -> assertThat(result.getResponse().getContentAsString())
+          .isEqualTo("{\"message\":\"pageSize: must be greater than or equal to 0\"}"));
+
+    verify(builtInDashboardService, never()).findByKey(any());
+  }
+
+  @Test
+  void listBuiltInDashboards_inCommunity_rejectsPageSizeAboveMaximum() throws Exception {
+    when(editionProvider.get()).thenReturn(Optional.of(Edition.COMMUNITY));
+
+    mockMvc.perform(get("/dashboards/built-ins")
+        .param("pageIndex", "1")
+        .param("pageSize", "5001"))
+      .andExpectAll(
+        status().isBadRequest(),
+        result -> assertThat(result.getResponse().getContentAsString())
+          .isEqualTo("{\"message\":\"pageSize: must be less than or equal to 5000\"}"));
+
+    verify(builtInDashboardService, never()).findByKey(any());
+  }
+
+  @Test
+  void listBuiltInDashboards_inEnterprise_rejectsPageSizeAboveMaximumBeforeServiceCall() throws Exception {
+    when(editionProvider.get()).thenReturn(Optional.of(Edition.ENTERPRISE));
+
+    mockMvc.perform(get("/dashboards/built-ins")
+        .param("pageIndex", "1")
+        .param("pageSize", "5001"))
+      .andExpectAll(
+        status().isBadRequest(),
+        result -> assertThat(result.getResponse().getContentAsString())
+          .isEqualTo("{\"message\":\"pageSize: must be less than or equal to 5000\"}"));
+
+    verify(builtInDashboardService, never()).list(any(), any(), eq(1), eq(5001));
+    verify(builtInDashboardService, never()).count(any(), any());
   }
 
   @Test

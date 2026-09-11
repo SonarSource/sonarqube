@@ -31,12 +31,13 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDao;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.ProjectPermission;
+import org.sonar.db.portfolio.PortfolioDao;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDao;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonar.server.user.UserSession;
 import org.sonarsource.history.api.model.HistoryEntityType;
@@ -53,6 +54,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -65,14 +67,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class DefaultIssueDensityHistoryControllerTest {
 
   private static final String ENTITY_ID = "123e4567-e89b-12d3-a456-426614174000";
+  private static final String PROJECT_BRANCH_ID = "branch-1";
+  private static final String PROJECT_UUID = "123e4567-e89b-12d3-a456-426614174002";
+  private static final String APPLICATION_BRANCH_ID = "application-branch-uuid";
+  private static final String APPLICATION_UUID = "application-uuid";
   private static final Instant NOW = Instant.parse("2026-07-08T01:00:00Z");
+  private static final Instant UTC_MIDNIGHT = Instant.parse("2026-07-08T00:00:00Z");
 
   private final IssueCountHistoryService issueHistoryService = mock();
   private final UserSession userSession = mock();
   private final DbClient dbClient = mock();
   private final DbSession dbSession = mock();
   private final BranchDao branchDao = mock();
-  private final ComponentDao componentDao = mock();
+  private final PortfolioDao portfolioDao = mock();
   private final ProjectDao projectDao = mock();
   private final DefaultIssueDensityHistoryController underTest = new DefaultIssueDensityHistoryController(
     userSession, dbClient, issueHistoryService, Clock.fixed(NOW, ZoneOffset.UTC));
@@ -82,7 +89,7 @@ public class DefaultIssueDensityHistoryControllerTest {
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.branchDao()).thenReturn(branchDao);
-    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.portfolioDao()).thenReturn(portfolioDao);
     when(dbClient.projectDao()).thenReturn(projectDao);
   }
 
@@ -100,10 +107,26 @@ public class DefaultIssueDensityHistoryControllerTest {
   }
 
   @Test
+  public void getIssueDensityHistory_whenSliceByIsInvalid_shouldReturnBadRequest() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+
+    mockMvc.perform(get("/history/issue-density-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("startDate", startDate.toString())
+        .queryParam("sliceBy", "INVALID"))
+      .andExpectAll(
+        status().isBadRequest(),
+        content().json("{\"message\":\"Invalid parameter type.\"}"));
+
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
   public void getIssueDensityHistory_whenServiceRejects_shouldReturnBadRequestToClient() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    ComponentDto portfolio = portfolio();
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    PortfolioDto portfolio = portfolio();
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(issueHistoryService.queryIssueDensityHistory(
       ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), NOW.minusSeconds(3600),
       null, null, null, null, null, null))
@@ -168,11 +191,10 @@ public class DefaultIssueDensityHistoryControllerTest {
   public void getIssueDensityHistory_whenPortfolioIsAuthorized_shouldQueryIssueCountService() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
-    ComponentDto portfolio = new ComponentDto()
+    PortfolioDto portfolio = new PortfolioDto()
       .setUuid(ENTITY_ID)
-      .setBranchUuid(ENTITY_ID)
-      .setQualifier(ComponentQualifiers.VIEW);
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+      .setRootUuid(ENTITY_ID);
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(issueHistoryService.queryIssueDensityHistory(
       ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), endDate.toInstant(),
       null, null, null, null, null, IssueCountDistribution.STATUS))
@@ -188,10 +210,33 @@ public class DefaultIssueDensityHistoryControllerTest {
     assertThat(result.getBody().getIssueDensityHistory()).singleElement()
       .satisfies(item -> assertThat(item.getDistribution()).singleElement()
         .satisfies(distribution -> assertThat(distribution.getValue()).isNull()));
-    verify(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
+    verify(userSession).checkEntityPermission(ProjectPermission.USER, portfolio);
     verify(issueHistoryService).queryIssueDensityHistory(
       ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), endDate.toInstant(),
       null, null, null, null, null, IssueCountDistribution.STATUS);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenProjectBranchIsAuthorized_shouldQueryHistory() {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ProjectDto project = project(PROJECT_UUID, ComponentQualifiers.PROJECT);
+    stubProjectBranch(project);
+    when(issueHistoryService.queryIssueDensityHistory(
+      eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      .thenReturn(new org.sonarsource.history.model.IssueDensityHistoryResponse(List.of()));
+
+    ResponseEntity<IssueDensityHistoryResponse> result = underTest.getIssueDensityHistory(
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null);
+
+    assertThat(result.getStatusCode()).isEqualTo(OK);
+    assertThat(result.getBody()).isNotNull();
+    verify(branchDao).selectByUuid(dbSession, PROJECT_BRANCH_ID);
+    verify(projectDao).selectByUuid(dbSession, PROJECT_UUID);
+    verify(userSession).checkEntityPermission(ProjectPermission.USER, project);
+    verify(issueHistoryService).queryIssueDensityHistory(
+      eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test
@@ -219,11 +264,189 @@ public class DefaultIssueDensityHistoryControllerTest {
       null, null, null, null, null, IssueCountDistribution.STATUS);
   }
 
-  private static ComponentDto portfolio() {
-    return new ComponentDto()
+  @Test
+  public void getIssueDensityHistory_whenProjectBranchBelongsToApplicationAndChildProjectsAreUnauthorized_shouldReturnForbidden() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ProjectDto application = project(APPLICATION_UUID, ComponentQualifiers.APP);
+    stubProjectBranch(application);
+    doThrow(new ForbiddenException("Insufficient privileges"))
+      .when(userSession).checkChildProjectsPermission(ProjectPermission.USER, application);
+
+    mockMvc.perform(get("/history/issue-density-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("startDate", startDate.toString()))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenProjectIsUnauthorized_shouldReturnForbidden() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ProjectDto project = project(PROJECT_UUID, ComponentQualifiers.PROJECT);
+    stubProjectBranch(project);
+    doThrow(new ForbiddenException("Insufficient privileges"))
+      .when(userSession).checkEntityPermission(ProjectPermission.USER, project);
+
+    mockMvc.perform(get("/history/issue-density-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("startDate", startDate.toString()))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenApplicationIsUnauthorized_shouldReturnForbidden() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ProjectDto application = project(APPLICATION_UUID, ComponentQualifiers.APP);
+    stubApplicationBranch(application);
+    doThrow(new ForbiddenException("Insufficient privileges"))
+      .when(userSession).checkEntityPermission(ProjectPermission.USER, application);
+
+    mockMvc.perform(get("/history/issue-density-history")
+        .queryParam("entityId", APPLICATION_BRANCH_ID)
+        .queryParam("entityType", "APPLICATION")
+        .queryParam("startDate", startDate.toString()))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenApplicationChildProjectsAreUnauthorized_shouldReturnForbidden() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    ProjectDto application = project(APPLICATION_UUID, ComponentQualifiers.APP);
+    stubApplicationBranch(application);
+    doThrow(new ForbiddenException("Insufficient privileges"))
+      .when(userSession).checkChildProjectsPermission(ProjectPermission.USER, application);
+
+    mockMvc.perform(get("/history/issue-density-history")
+        .queryParam("entityId", APPLICATION_BRANCH_ID)
+        .queryParam("entityType", "APPLICATION")
+        .queryParam("startDate", startDate.toString()))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenPortfolioIsUnauthorized_shouldReturnForbidden() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    PortfolioDto portfolio = portfolio();
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    doThrow(new ForbiddenException("Insufficient privileges"))
+      .when(userSession).checkEntityPermission(ProjectPermission.USER, portfolio);
+
+    mockMvc.perform(get("/history/issue-density-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("startDate", startDate.toString()))
+      .andExpectAll(
+        status().isForbidden(),
+        content().json("{\"message\":\"Insufficient privileges\"}"));
+
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenPortfolioIsMissing_shouldReturnNotFound() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.empty());
+
+    mockMvc.perform(get("/history/issue-density-history")
+        .queryParam("entityId", ENTITY_ID)
+        .queryParam("entityType", "PORTFOLIO")
+        .queryParam("startDate", startDate.toString()))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Portfolio with uuid '123e4567-e89b-12d3-a456-426614174000' not found\"}"));
+
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenProjectBranchIsMissing_shouldReturnNotFound() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID)).thenReturn(Optional.empty());
+
+    mockMvc.perform(get("/history/issue-density-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("startDate", startDate.toString()))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Project branch with uuid 'branch-1' not found\"}"));
+
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenProjectIsMissing_shouldReturnNotFound() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID))
+      .thenReturn(Optional.of(new BranchDto().setUuid(PROJECT_BRANCH_ID).setProjectUuid(PROJECT_UUID)));
+    when(projectDao.selectByUuid(dbSession, PROJECT_UUID)).thenReturn(Optional.empty());
+
+    mockMvc.perform(get("/history/issue-density-history")
+        .queryParam("entityId", PROJECT_BRANCH_ID)
+        .queryParam("entityType", "PROJECT_BRANCH")
+        .queryParam("startDate", startDate.toString()))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Project with uuid '123e4567-e89b-12d3-a456-426614174002' not found\"}"));
+
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  @Test
+  public void getIssueDensityHistory_whenApplicationBranchIsMissing_shouldReturnNotFound() throws Exception {
+    OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
+    when(branchDao.selectByUuid(dbSession, APPLICATION_BRANCH_ID)).thenReturn(Optional.empty());
+
+    mockMvc.perform(get("/history/issue-density-history")
+        .queryParam("entityId", APPLICATION_BRANCH_ID)
+        .queryParam("entityType", "APPLICATION")
+        .queryParam("startDate", startDate.toString()))
+      .andExpectAll(
+        status().isNotFound(),
+        content().json("{\"message\":\"Portfolio or application branch 'application-branch-uuid' not found\"}"));
+
+    verifyNoInteractions(issueHistoryService);
+  }
+
+  private static PortfolioDto portfolio() {
+    return new PortfolioDto()
       .setUuid(ENTITY_ID)
-      .setBranchUuid(ENTITY_ID)
-      .setQualifier(ComponentQualifiers.VIEW);
+      .setRootUuid(ENTITY_ID);
+  }
+
+  private void stubProjectBranch(ProjectDto project) {
+    when(branchDao.selectByUuid(dbSession, PROJECT_BRANCH_ID))
+      .thenReturn(Optional.of(new BranchDto().setUuid(PROJECT_BRANCH_ID).setProjectUuid(project.getUuid())));
+    when(projectDao.selectByUuid(dbSession, project.getUuid())).thenReturn(Optional.of(project));
+  }
+
+  private void stubApplicationBranch(ProjectDto application) {
+    when(branchDao.selectByUuid(dbSession, APPLICATION_BRANCH_ID))
+      .thenReturn(Optional.of(new BranchDto().setUuid(APPLICATION_BRANCH_ID).setProjectUuid(application.getUuid())));
+    when(projectDao.selectByUuid(dbSession, application.getUuid())).thenReturn(Optional.of(application));
+  }
+
+  private static ProjectDto project(String uuid, String qualifier) {
+    return new ProjectDto()
+      .setUuid(uuid)
+      .setQualifier(qualifier);
   }
 
 }

@@ -44,6 +44,7 @@ import org.sonar.server.exceptions.TemplateMatchingKeyException;
 import org.sonar.server.exceptions.TooManyRequestsException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.v2.api.model.RestError;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.TypeDescriptor;
@@ -54,12 +55,15 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -222,6 +226,124 @@ class RestResponseEntityExceptionHandlerTest {
 
     // Verify logging
     assertThat(logs.logs(Level.INFO)).anyMatch(log -> log.startsWith(ErrorMessages.BIND_ERROR.getMessage()));
+  }
+
+  @Test
+  void handleHandlerMethodValidationException_shouldFormatValidationErrors() {
+    var methodParameter = mock(MethodParameter.class);
+    var requestParam = mock(RequestParam.class);
+    when(methodParameter.getParameterAnnotation(RequestParam.class)).thenReturn(requestParam);
+    when(requestParam.name()).thenReturn("requestParamName");
+    when(requestParam.value()).thenReturn("");
+
+    var fieldError = new FieldError("target", "field", "Field error");
+    var parameterError = mock(MessageSourceResolvable.class);
+    when(parameterError.getDefaultMessage()).thenReturn("Parameter error");
+    var parameterErrorWithoutMessage = mock(MessageSourceResolvable.class);
+    when(parameterErrorWithoutMessage.getDefaultMessage()).thenReturn(null);
+    var parameterValidationResult = parameterValidationResult(methodParameter, fieldError, parameterError, parameterErrorWithoutMessage);
+
+    var crossParameterError = mock(MessageSourceResolvable.class);
+    when(crossParameterError.getDefaultMessage()).thenReturn("Cross-parameter error");
+    var crossParameterErrorWithoutMessage = mock(MessageSourceResolvable.class);
+    when(crossParameterErrorWithoutMessage.getDefaultMessage()).thenReturn(null);
+
+    var exception = mock(HandlerMethodValidationException.class);
+    when(exception.getParameterValidationResults()).thenReturn(List.of(parameterValidationResult));
+    when(exception.getCrossParameterValidationResults()).thenReturn(List.of(crossParameterError, crossParameterErrorWithoutMessage));
+
+    ResponseEntity<RestError> response = new ServerRestResponseEntityExceptionHandler()
+        .handleHandlerMethodValidationException(exception);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().message())
+        .isEqualTo("Cross-parameter error, requestParamName.field: Field error, requestParamName: Parameter error");
+  }
+
+  @Test
+  void handleHandlerMethodValidationException_shouldUseRequestParamValueWhenNameIsEmpty() {
+    var methodParameter = mock(MethodParameter.class);
+    var requestParam = mock(RequestParam.class);
+    when(methodParameter.getParameterAnnotation(RequestParam.class)).thenReturn(requestParam);
+    when(requestParam.name()).thenReturn("");
+    when(requestParam.value()).thenReturn("requestParamValue");
+    var parameterError = mock(MessageSourceResolvable.class);
+    when(parameterError.getDefaultMessage()).thenReturn("Parameter error");
+    var parameterValidationResult = parameterValidationResult(methodParameter, parameterError);
+
+    var exception = mock(HandlerMethodValidationException.class);
+    when(exception.getParameterValidationResults()).thenReturn(List.of(parameterValidationResult));
+    when(exception.getCrossParameterValidationResults()).thenReturn(List.of());
+
+    ResponseEntity<RestError> response = new ServerRestResponseEntityExceptionHandler()
+        .handleHandlerMethodValidationException(exception);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().message()).isEqualTo("requestParamValue: Parameter error");
+  }
+
+  @Test
+  void handleHandlerMethodValidationException_shouldFallBackToMethodParameterNameOrIndex() {
+    var namedMethodParameter = mock(MethodParameter.class);
+    var emptyRequestParam = mock(RequestParam.class);
+    when(namedMethodParameter.getParameterAnnotation(RequestParam.class)).thenReturn(emptyRequestParam);
+    when(emptyRequestParam.name()).thenReturn("");
+    when(emptyRequestParam.value()).thenReturn("");
+    when(namedMethodParameter.getParameterName()).thenReturn("methodParameterName");
+    var namedParameterError = mock(MessageSourceResolvable.class);
+    when(namedParameterError.getDefaultMessage()).thenReturn("Named parameter error");
+
+    var indexedMethodParameter = mock(MethodParameter.class);
+    when(indexedMethodParameter.getParameterAnnotation(RequestParam.class)).thenReturn(null);
+    when(indexedMethodParameter.getParameterName()).thenReturn(null);
+    when(indexedMethodParameter.getParameterIndex()).thenReturn(1);
+    var indexedParameterError = mock(MessageSourceResolvable.class);
+    when(indexedParameterError.getDefaultMessage()).thenReturn("Indexed parameter error");
+    var namedParameterValidationResult = parameterValidationResult(namedMethodParameter, namedParameterError);
+    var indexedParameterValidationResult = parameterValidationResult(indexedMethodParameter, indexedParameterError);
+
+    var exception = mock(HandlerMethodValidationException.class);
+    when(exception.getParameterValidationResults()).thenReturn(List.of(
+        namedParameterValidationResult,
+        indexedParameterValidationResult));
+    when(exception.getCrossParameterValidationResults()).thenReturn(List.of());
+
+    ResponseEntity<RestError> response = new ServerRestResponseEntityExceptionHandler()
+        .handleHandlerMethodValidationException(exception);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().message())
+        .isEqualTo("methodParameterName: Named parameter error, parameter 1: Indexed parameter error");
+  }
+
+  @Test
+  void handleHandlerMethodValidationException_shouldUseFallbackMessageAndLogWhenMessagesAreMissing() {
+    var methodParameter = mock(MethodParameter.class);
+    var parameterErrorWithoutMessage = mock(MessageSourceResolvable.class);
+    when(parameterErrorWithoutMessage.getDefaultMessage()).thenReturn(null);
+    var parameterValidationResult = parameterValidationResult(methodParameter, parameterErrorWithoutMessage);
+
+    var exception = mock(HandlerMethodValidationException.class);
+    when(exception.getParameterValidationResults()).thenReturn(List.of(parameterValidationResult));
+    when(exception.getCrossParameterValidationResults()).thenReturn(List.of());
+
+    ResponseEntity<RestError> response = new ServerRestResponseEntityExceptionHandler()
+        .handleHandlerMethodValidationException(exception);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().message()).isEqualTo(ErrorMessages.VALIDATION_ERROR.getMessage());
+    assertThat(logs.logs(Level.INFO)).anyMatch(log -> log.startsWith(ErrorMessages.VALIDATION_ERROR.getMessage()));
+  }
+
+  private static ParameterValidationResult parameterValidationResult(MethodParameter methodParameter, MessageSourceResolvable... errors) {
+    var result = mock(ParameterValidationResult.class);
+    when(result.getMethodParameter()).thenReturn(methodParameter);
+    when(result.getResolvableErrors()).thenReturn(List.of(errors));
+    return result;
   }
 
   @ParameterizedTest

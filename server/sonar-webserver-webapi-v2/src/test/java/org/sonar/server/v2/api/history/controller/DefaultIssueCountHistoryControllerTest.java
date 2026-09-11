@@ -30,10 +30,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDao;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.ProjectPermission;
+import org.sonar.db.portfolio.PortfolioDao;
+import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDao;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -75,7 +75,7 @@ public class DefaultIssueCountHistoryControllerTest {
   private final DbClient dbClient = mock();
   private final DbSession dbSession = mock();
   private final BranchDao branchDao = mock();
-  private final ComponentDao componentDao = mock();
+  private final PortfolioDao portfolioDao = mock();
   private final ProjectDao projectDao = mock();
   private final DefaultIssueCountHistoryController underTest = new DefaultIssueCountHistoryController(
     userSession, dbClient, issueHistoryService, Clock.fixed(NOW, ZoneOffset.UTC));
@@ -85,7 +85,7 @@ public class DefaultIssueCountHistoryControllerTest {
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.branchDao()).thenReturn(branchDao);
-    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.portfolioDao()).thenReturn(portfolioDao);
     when(dbClient.projectDao()).thenReturn(projectDao);
   }
 
@@ -93,8 +93,8 @@ public class DefaultIssueCountHistoryControllerTest {
   public void getIssueCountHistory_whenPortfolioIsAuthorized_shouldQueryHistory() {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
     OffsetDateTime endDate = OffsetDateTime.parse("2026-07-08T00:00:00Z");
-    ComponentDto portfolio = portfolio();
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    PortfolioDto portfolio = portfolio();
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(issueHistoryService.queryIssueCountHistory(
       ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), endDate.toInstant(),
       null, null, null, null, null, IssueCountDistribution.STATUS))
@@ -104,8 +104,8 @@ public class DefaultIssueCountHistoryControllerTest {
       ENTITY_ID, ENTITY_TYPE, startDate, endDate, null, null, null, null, IssueCountDistributionType.STATUS, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
-    verify(componentDao).selectByUuid(dbSession, ENTITY_ID);
-    verify(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
+    verify(portfolioDao).selectByUuid(dbSession, ENTITY_ID);
+    verify(userSession).checkEntityPermission(ProjectPermission.USER, portfolio);
     verify(issueHistoryService).queryIssueCountHistory(
       ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), endDate.toInstant(),
       null, null, null, null, null, IssueCountDistribution.STATUS);
@@ -114,7 +114,7 @@ public class DefaultIssueCountHistoryControllerTest {
   @Test
   public void getIssueCountHistory_whenPortfolioIsMissing_shouldReturnNotFound() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.empty());
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.empty());
 
     mockMvc.perform(get("/history/issue-count-history")
         .queryParam("entityId", ENTITY_ID)
@@ -128,10 +128,10 @@ public class DefaultIssueCountHistoryControllerTest {
   @Test
   public void getIssueCountHistory_whenPortfolioIsUnauthorized_shouldReturnForbidden() throws Exception {
     OffsetDateTime startDate = OffsetDateTime.parse("2026-07-07T00:00:00Z");
-    ComponentDto portfolio = portfolio();
-    when(componentDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
+    PortfolioDto portfolio = portfolio();
+    when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     doThrow(new ForbiddenException("Access forbidden"))
-      .when(userSession).checkComponentPermission(ProjectPermission.USER, portfolio);
+      .when(userSession).checkEntityPermission(ProjectPermission.USER, portfolio);
 
     mockMvc.perform(get("/history/issue-count-history")
         .queryParam("entityId", ENTITY_ID)
@@ -379,11 +379,10 @@ public class DefaultIssueCountHistoryControllerTest {
       .setQualifier(qualifier);
   }
 
-  private static ComponentDto portfolio() {
-    return new ComponentDto()
+  private static PortfolioDto portfolio() {
+    return new PortfolioDto()
       .setUuid(ENTITY_ID)
-      .setBranchUuid(ENTITY_ID)
-      .setQualifier(ComponentQualifiers.VIEW);
+      .setRootUuid(ENTITY_ID);
   }
 
 }
