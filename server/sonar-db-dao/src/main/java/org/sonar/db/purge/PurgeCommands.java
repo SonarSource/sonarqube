@@ -101,6 +101,7 @@ class PurgeCommands {
     List<List<String>> analysisUuidsPartitions = Lists.partition(analysisIdUuids, MAX_SNAPSHOTS_PER_QUERY);
 
     deleteAnalysisDuplications(analysisUuidsPartitions);
+    deleteArchDataOfAnalyses(analysisUuidsPartitions);
 
     profiler.start("deleteAnalyses (event_component_changes)");
     analysisUuidsPartitions.forEach(purgeMapper::deleteAnalysisEventComponentChanges);
@@ -172,6 +173,21 @@ class PurgeCommands {
   private void deleteAnalysisDuplications(List<List<String>> snapshotUuidsPartitions) {
     profiler.start("deleteAnalysisDuplications (duplications_index)");
     snapshotUuidsPartitions.forEach(purgeMapper::deleteAnalysisDuplications);
+    session.commit();
+    profiler.stop();
+  }
+
+  private void deleteArchDataOfAnalyses(List<List<String>> analysisUuidsPartitions) {
+    profiler.start("deleteAnalyses (arch_scanner_data, arch_graph_blobs, arch_graph_metadata)");
+    analysisUuidsPartitions.forEach(analysisUuids -> {
+      List<String> ceActivityUuids = purgeMapper.selectCeActivityUuidsByAnalysisUuids(analysisUuids);
+      if (ceActivityUuids.isEmpty()) {
+        return;
+      }
+      purgeMapper.deleteArchScannerDataOfCeActivityByUuids(ceActivityUuids);
+      purgeMapper.deleteArchGraphBlobsOfCeActivityByUuids(ceActivityUuids);
+      purgeMapper.deleteArchGraphMetadataOfCeActivityByUuids(ceActivityUuids);
+    });
     session.commit();
     profiler.stop();
   }

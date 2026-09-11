@@ -405,6 +405,39 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
   }
 
   @Test
+  void deleteAnalyses_deletesArchScannerDataAndGraphDataOfDeletedAnalyses() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    SnapshotDto purgedAnalysis = db.components().insertSnapshot(project, s -> s.setLast(false));
+    SnapshotDto keptAnalysis = db.components().insertSnapshot(project, s -> s.setLast(false));
+    String purgedCeTaskUuid = insertCeActivityForAnalysis(purgedAnalysis.getUuid());
+    String keptCeTaskUuid = insertCeActivityForAnalysis(keptAnalysis.getUuid());
+    String purgedGraphUuid = insertArchGraphAndScannerData(purgedCeTaskUuid, project.uuid(), project.uuid());
+    String keptGraphUuid = insertArchGraphAndScannerData(keptCeTaskUuid, project.uuid(), project.uuid());
+
+    underTest.deleteAnalyses(dbSession, new PurgeProfiler(), singletonList(purgedAnalysis.getUuid()));
+
+    assertThat(archGraphMetadataExists(purgedCeTaskUuid)).isFalse();
+    assertThat(archGraphBlobExists(purgedGraphUuid)).isFalse();
+    assertThat(archScannerDataExists(purgedCeTaskUuid)).isFalse();
+
+    assertThat(archGraphMetadataExists(keptCeTaskUuid)).isTrue();
+    assertThat(archGraphBlobExists(keptGraphUuid)).isTrue();
+    assertThat(archScannerDataExists(keptCeTaskUuid)).isTrue();
+  }
+
+  private String insertCeActivityForAnalysis(String analysisUuid) {
+    CeQueueDto queueDto = new CeQueueDto();
+    queueDto.setUuid(Uuids.create());
+    queueDto.setTaskType(CeTaskTypes.REPORT);
+    CeActivityDto activityDto = new CeActivityDto(queueDto);
+    activityDto.setStatus(CeActivityDto.Status.SUCCESS);
+    activityDto.setAnalysisUuid(analysisUuid);
+    db.getDbClient().ceActivityDao().insert(db.getSession(), activityDto);
+    db.getSession().commit();
+    return queueDto.getUuid();
+  }
+
+  @Test
   void purge_should_log_profiling_in_debug() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 

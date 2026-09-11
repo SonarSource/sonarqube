@@ -146,6 +146,8 @@ public interface PurgeMapper {
 
   void deleteCeTaskMessageOfCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);
 
+  List<String> selectCeActivityUuidsByAnalysisUuids(@Param("analysisUuids") List<String> analysisUuids);
+
   void deleteArchScannerDataOfCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);
 
   void deleteArchGraphBlobsOfCeActivityByUuids(@Param("ceActivityUuids") List<String> ceActivityUuids);

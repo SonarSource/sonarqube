@@ -524,6 +524,14 @@
     </foreach>
   </delete>
 
+  <select id="selectCeActivityUuidsByAnalysisUuids" parameterType="map" resultType="String">
+    select uuid from ce_activity
+    where analysis_uuid in
+    <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+      #{analysisUuid,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
   <delete id="deleteArchScannerDataOfCeActivityByUuids">
     delete from arch_scanner_data
     where name in
