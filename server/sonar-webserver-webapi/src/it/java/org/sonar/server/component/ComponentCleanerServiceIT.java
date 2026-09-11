@@ -76,8 +76,10 @@ public class ComponentCleanerServiceIT {
   private final MeasureHistoryRepository measureHistoryRepository = new MeasureHistoryRepository();
   private final IssueTtrHistoryRepository issueTtrHistoryRepository = new IssueTtrHistoryRepository();
   private final EntityCleaner entityCleaner = mock(EntityCleaner.class);
+  private final EntityCleaner anotherEntityCleaner = mock(EntityCleaner.class);
   private final ComponentCleanerService underTest = new ComponentCleanerService(
-    dbClient, indexers, issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, entityCleaner);
+    dbClient, indexers, issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository,
+    new EntityCleaner[] {entityCleaner, anotherEntityCleaner});
 
   @Test
   public void delete_project_from_db_and_index() {
@@ -107,6 +109,8 @@ public class ComponentCleanerServiceIT {
     assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isZero();
     verify(entityCleaner).deleteForEntity(dbSession, data.mainBranch.getUuid(), EntityType.PROJECT_BRANCH);
     verify(entityCleaner).deleteForEntity(dbSession, branch.getUuid(), EntityType.PROJECT_BRANCH);
+    verify(anotherEntityCleaner).deleteForEntity(dbSession, data.mainBranch.getUuid(), EntityType.PROJECT_BRANCH);
+    verify(anotherEntityCleaner).deleteForEntity(dbSession, branch.getUuid(), EntityType.PROJECT_BRANCH);
   }
 
   @Test

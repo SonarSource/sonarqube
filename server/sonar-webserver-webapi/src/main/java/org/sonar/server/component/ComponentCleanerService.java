@@ -42,16 +42,12 @@ import static java.util.Collections.singletonList;
 @ServerSide
 public class ComponentCleanerService {
 
-  private static final EntityCleaner NO_OP_ENTITY_CLEANER = (dbSession, entityId, entityType) -> {
-    // SCA history is available only when the private SCA extension provides a cleaner.
-  };
-
   private final DbClient dbClient;
   private final Indexers indexers;
   private final IssueCountHistoryRepository issueCountHistoryRepository;
   private final MeasureHistoryRepository measureHistoryRepository;
   private final IssueTtrHistoryRepository issueTtrHistoryRepository;
-  private final EntityCleaner entityCleaner;
+  private final EntityCleaner[] entityCleaners;
 
   public ComponentCleanerService(
     DbClient dbClient,
@@ -59,13 +55,13 @@ public class ComponentCleanerService {
     IssueCountHistoryRepository issueCountHistoryRepository,
     MeasureHistoryRepository measureHistoryRepository,
     IssueTtrHistoryRepository issueTtrHistoryRepository,
-    @Nullable EntityCleaner entityCleaner) {
+    @Nullable EntityCleaner[] entityCleaners) {
     this.dbClient = dbClient;
     this.indexers = indexers;
     this.issueCountHistoryRepository = issueCountHistoryRepository;
     this.measureHistoryRepository = measureHistoryRepository;
     this.issueTtrHistoryRepository = issueTtrHistoryRepository;
-    this.entityCleaner = entityCleaner == null ? NO_OP_ENTITY_CLEANER : entityCleaner;
+    this.entityCleaners = entityCleaners == null ? new EntityCleaner[0] : entityCleaners;
   }
 
   public void delete(DbSession dbSession, List<ProjectDto> projects) {
@@ -115,7 +111,9 @@ public class ComponentCleanerService {
     issueCountHistoryRepository.deleteHistoryForEntity(dbSession, entityId, entityType);
     measureHistoryRepository.deleteHistoryForEntity(dbSession, entityId, entityType);
     issueTtrHistoryRepository.deleteForEntity(dbSession, entityId, entityType);
-    entityCleaner.deleteForEntity(dbSession, entityId, entityType);
+    for (EntityCleaner entityCleaner : entityCleaners) {
+      entityCleaner.deleteForEntity(dbSession, entityId, entityType);
+    }
   }
 
   private static EntityType getEntityTypeForQualifier(String qualifier) {
