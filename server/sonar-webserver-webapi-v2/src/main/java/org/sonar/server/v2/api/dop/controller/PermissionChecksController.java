@@ -43,14 +43,32 @@ public interface PermissionChecksController {
   @GetMapping(produces = APPLICATION_JSON_VALUE)
   @Operation(operationId = "checkDopPermissions", summary = "Check DevOps Platform permissions for the Remediation Agent", description = """
     Validates whether the configured DevOps Platforms (GitHub, GitLab, Azure DevOps) grant the write permissions the
-    SonarQube Remediation Agent needs to clone a repository, push a branch and open a pull/merge request. Without a
-    'project' parameter it checks every configuration and requires the 'Administer System' permission or trusted
-    privileged-service authentication. With a 'project' parameter it checks the platform bound to that project and
-    requires 'Browse' permission on the project. Results are cached for a short time. Internal endpoint used by the
-    Remediation Agent UI.
+    SonarQube Remediation Agent needs to clone a repository, push a branch and open a pull/merge request. Results are
+    cached for a short time. Internal endpoint used by the Remediation Agent UI.
+
+    Without 'project' it checks configurations instance-wide and requires the 'Administer System' permission or
+    trusted privileged-service authentication; 'configuration' narrows that to a single configuration. With 'project'
+    it checks the platform bound to that project and requires 'Browse' permission on the project; a GitHub project is
+    checked against the installation covering its own repository, so two projects sharing one configuration can get
+    different results. 'project' and 'configuration' cannot be combined.
+
+    For GitHub, the response also reports permissions the app itself is not configured to request, and — for
+    administrator requests — every installation that has not approved the permissions it does request, whether an
+    organization or a personal account owns it. The counts and list are valid only when 'installationCheckStatus' is
+    COMPLETE. If the scan cannot finish, 'installationCheckStatus' is FAILED and 'status' is CHECK_FAILED. The
+    response does not include the counts or list.
     """,
     extensions = @Extension(properties = {@ExtensionProperty(name = INTERNAL, value = "true")}))
   PermissionChecksRestResponse checkPermissions(
-    @RequestParam(value = "project", required = false) @Parameter(description = "Key of the project whose bound DevOps Platform should be checked") @Nullable String projectKey);
+    @RequestParam(value = "project", required = false) @Parameter(description = "Key of the project whose bound DevOps Platform should be checked") @Nullable String projectKey,
+
+    @RequestParam(value = "configuration", required = false) @Parameter(description = """
+      Key of a single DevOps Platform configuration to check, instead of all of them. Cannot be combined with 'project'.
+      """) @Nullable String configurationKey,
+
+    @RequestParam(value = "refresh", required = false, defaultValue = "false") @Parameter(description = """
+      Bypass the cache and run a live check, then store its result. Requires 'configuration' and the
+      'Administer System' permission.
+      """) boolean refresh);
 
 }

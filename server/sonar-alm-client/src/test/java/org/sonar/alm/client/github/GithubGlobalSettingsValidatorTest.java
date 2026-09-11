@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -78,6 +79,40 @@ public class GithubGlobalSettingsValidatorTest {
     underTest.validate(almSettingDto, GithubAppPermissions.TOKEN_MINTING_PERMISSIONS);
 
     verify(appClient).checkAppPermissions(any(), eq(GithubAppPermissions.TOKEN_MINTING_PERMISSIONS));
+  }
+
+  @Test
+  public void validateApiEndpoint_checksTheEndpointButNoPermission() {
+    // The remediation check runs its own, narrower permission comparison against this configuration, so the app-level
+    // check must not also run here.
+    AlmSettingDto almSettingDto = createNewGithubDto("clientId", "clientSecret", EXAMPLE_APP_ID, EXAMPLE_PRIVATE_KEY);
+    when(encryption.isEncrypted(any())).thenReturn(false);
+
+    GithubAppConfiguration configuration = underTest.validateApiEndpoint(almSettingDto);
+
+    assertThat(configuration.getId()).isEqualTo(123L);
+    assertThat(configuration.getPrivateKey()).isEqualTo(EXAMPLE_PRIVATE_KEY);
+    verify(appClient).checkApiEndpoint(any());
+    verify(appClient, never()).checkAppPermissions(any(), any());
+  }
+
+  @Test
+  public void validateApiEndpoint_decryptsThePrivateKey() {
+    String encryptedKey = "encrypted-key";
+    AlmSettingDto almSettingDto = createNewGithubDto("clientId", "clientSecret", EXAMPLE_APP_ID, encryptedKey);
+    when(encryption.isEncrypted(encryptedKey)).thenReturn(true);
+    when(encryption.decrypt(encryptedKey)).thenReturn("decrypted-key");
+
+    assertThat(underTest.validateApiEndpoint(almSettingDto).getPrivateKey()).isEqualTo("decrypted-key");
+  }
+
+  @Test
+  public void validateApiEndpoint_whenConfigurationIsIncomplete_throws() {
+    AlmSettingDto almSettingDto = createNewGithubDto(null, "clientSecret", EXAMPLE_APP_ID, EXAMPLE_PRIVATE_KEY);
+
+    assertThatThrownBy(() -> underTest.validateApiEndpoint(almSettingDto))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Missing Client Id");
   }
 
   @Test

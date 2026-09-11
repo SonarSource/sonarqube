@@ -50,6 +50,7 @@ import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubAppCredentials;
 import org.sonar.auth.github.GithubAppInstallation;
+import org.sonar.auth.github.GithubAppInstallationDetails;
 import org.sonar.auth.github.GithubAppPermissions;
 import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.GithubBinding;
@@ -87,6 +88,8 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   private static final TypeToken<List<GsonRepositoryCollaborator>> REPOSITORY_COLLABORATORS_LIST_TYPE = new TypeToken<>() {
   };
   private static final TypeToken<List<GithubBinding.GsonInstallation>> ORGANIZATION_LIST_TYPE = new TypeToken<>() {
+  };
+  private static final TypeToken<List<GithubBinding.GsonInstallationDetails>> INSTALLATION_DETAILS_LIST_TYPE = new TypeToken<>() {
   };
   private final Clock clock;
   protected final GithubApplicationHttpClient githubApplicationHttpClient;
@@ -212,7 +215,8 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     return computeMissingPermissions(permissions, getAppPermissions(githubAppConfiguration));
   }
 
-  private Map<String, String> getAppPermissions(GithubAppConfiguration githubAppConfiguration) {
+  @Override
+  public Map<String, String> getAppPermissions(GithubAppConfiguration githubAppConfiguration) {
     AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
 
     String endPoint = "/app";
@@ -312,6 +316,47 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     String endpoint = "/app/installations";
 
     return executePaginatedQuery(githubAppConfiguration.getApiEndpoint(), appToken, endpoint, resp -> GSON.fromJson(resp, ORGANIZATION_LIST_TYPE));
+  }
+
+  @Override
+  public List<GithubAppInstallationDetails> getAllAppInstallations(GithubAppConfiguration githubAppConfiguration) {
+    AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
+    List<GithubBinding.GsonInstallationDetails> installations = executeStrictPaginatedQuery(githubAppConfiguration.getApiEndpoint(), appToken, "/app/installations",
+      resp -> GSON.fromJson(resp, INSTALLATION_DETAILS_LIST_TYPE));
+    return installations.stream()
+      .map(GithubApplicationClientImpl::toInstallationDetails)
+      .toList();
+  }
+
+  @Override
+  public GithubAppInstallationDetails getRepositoryInstallation(GithubAppConfiguration githubAppConfiguration, String repositorySlug) {
+    AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
+    String endpoint = format("/repos/%s/installation", repositorySlug);
+    return toInstallationDetails(getOrThrowIfNotHttpOk(githubAppConfiguration.getApiEndpoint(), appToken, endpoint, GithubBinding.GsonInstallationDetails.class));
+  }
+
+  /**
+   * Anything the remediation permission comparison depends on being present is required here: a payload missing an id,
+   * an account or its permission map cannot be judged, and silently treating it as "no permissions granted" would
+   * invent deficits, while skipping it would hide real ones. Both are worse than reporting the check as failed.
+   */
+  private static GithubAppInstallationDetails toInstallationDetails(@Nullable GithubBinding.GsonInstallationDetails installation) {
+    if (installation == null || installation.id() == 0L || installation.account() == null
+      || StringUtils.isBlank(installation.account().getLogin()) || installation.permissions() == null) {
+      throw new IllegalStateException("GitHub returned an installation without a usable id, account or permission set");
+    }
+    if (!GithubAppInstallationDetails.isKnownAccountType(installation.account().getType())) {
+      // Not a detail to shrug off: an unrecognised type would be read as a personal account, and the Remediation Agent
+      // would then send an organization's owner to a personal settings page where they can approve nothing.
+      throw new IllegalStateException("GitHub returned an installation whose account type is missing or not recognised");
+    }
+    return new GithubAppInstallationDetails(
+      installation.id(),
+      installation.account().getLogin(),
+      installation.account().getType(),
+      installation.htmlUrl(),
+      StringUtils.isNotEmpty(installation.suspendedAt()),
+      installation.permissions());
   }
 
   protected <T> Optional<T> get(String baseUrl, AccessToken token, String endPoint, Class<T> gsonClass) {
@@ -474,6 +519,14 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
 
   protected <E> List<E> executePaginatedQuery(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer) {
     return githubPaginatedHttpClient.get(appUrl, token, query, responseDeserializer);
+  }
+
+  /**
+   * Counterpart to {@link #executePaginatedQuery} that fails on an incomplete listing instead of returning the pages it
+   * managed to read (SONAR-32166).
+   */
+  protected <E> List<E> executeStrictPaginatedQuery(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer) {
+    return githubPaginatedHttpClient.getStrict(appUrl, token, query, responseDeserializer);
   }
 
   /**

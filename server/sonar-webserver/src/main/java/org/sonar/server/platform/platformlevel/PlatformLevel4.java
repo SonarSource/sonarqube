@@ -103,6 +103,7 @@ import org.sonar.server.common.almsettings.gitlab.GitlabDevOpsProjectCreationCon
 import org.sonar.server.common.almsettings.gitlab.GitlabProjectCreatorFactory;
 import org.sonar.server.common.almsettings.gitlab.GitlabScmAccessTokenProvider;
 import org.sonar.server.common.almsettings.permission.DopPermissionValidationService;
+import org.sonar.server.common.almsettings.permission.GithubRemediationPermissionChecker;
 import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetry;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.github.config.GithubConfigurationService;
@@ -718,6 +719,7 @@ public class PlatformLevel4 extends PlatformLevel {
       AzureDevOpsValidator.class,
 
       // DevOps Platform permission validation for the Remediation Agent (SONAR-31626)
+      GithubRemediationPermissionChecker.class,
       DopPermissionValidationService.class,
 
       // SCM access token brokering (SONAR-31165)

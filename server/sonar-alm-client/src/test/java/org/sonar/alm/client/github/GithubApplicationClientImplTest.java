@@ -52,6 +52,7 @@ import org.sonar.auth.github.GitHubSettings;
 import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubAppCredentials;
 import org.sonar.auth.github.GithubAppInstallation;
+import org.sonar.auth.github.GithubAppInstallationDetails;
 import org.sonar.auth.github.GithubAppPermissions;
 import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.auth.github.GithubBinding;
@@ -71,12 +72,14 @@ import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.alm.client.ApplicationHttpClient.GetResponse;
@@ -749,6 +752,211 @@ public class GithubApplicationClientImplTest {
     assertThatThrownBy(() -> underTest.getWhitelistedGithubAppInstallations(githubAppConfiguration))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("exception");
+  }
+
+  @Test
+  public void getAppPermissions_returnsEveryGrantedPermission() throws IOException {
+    AppToken appToken = mockAppToken();
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/app")).thenReturn(new OkGetResponse("""
+      {
+        "permissions": {
+          "checks": "write",
+          "metadata": "read",
+          "pull_requests": "write",
+          "contents": "read"
+        }
+      }
+      """));
+
+    assertThat(underTest.getAppPermissions(githubAppConfiguration))
+      .containsOnly(entry("checks", "write"), entry("metadata", "read"), entry("pull_requests", "write"), entry("contents", "read"));
+  }
+
+  @Test
+  public void getAllAppInstallations_returnsOrganizationAndUserInstallations_withTheirFullPermissionMap() {
+    List<GithubAppInstallationDetails> installations = getAllAppInstallationsFromGithubResponse("""
+      [
+        {
+          "id": 1,
+          "account": {"login": "org1", "type": "Organization"},
+          "html_url": "https://github.com/organizations/org1/settings/installations/1",
+          "suspended_at": "2023-05-30T08:40:55Z",
+          "permissions": {"contents": "read", "pull_requests": "write", "checks": "write", "metadata": "read"}
+        },
+        {
+          "id": 2,
+          "account": {"login": "user1", "type": "User"},
+          "html_url": "https://github.com/settings/installations/2",
+          "permissions": {"contents": "write"}
+        }
+      ]""");
+
+    assertThat(installations)
+      .extracting(GithubAppInstallationDetails::installationId, GithubAppInstallationDetails::accountLogin, GithubAppInstallationDetails::accountType,
+        GithubAppInstallationDetails::htmlUrl, GithubAppInstallationDetails::suspended, GithubAppInstallationDetails::isOrganization)
+      .containsExactly(
+        tuple(1L, "org1", "Organization", "https://github.com/organizations/org1/settings/installations/1", true, true),
+        tuple(2L, "user1", "User", "https://github.com/settings/installations/2", false, false));
+    // pull_requests is kept, unlike the legacy installation model this endpoint is otherwise deserialized into.
+    assertThat(installations.get(0).permissions())
+      .containsOnly(entry("contents", "read"), entry("pull_requests", "write"), entry("checks", "write"), entry("metadata", "read"));
+  }
+
+  @Test
+  public void getAllAppInstallations_appliesNoOrganizationAllowlist() {
+    // The allowlist restricts who may authenticate; an organization outside it still has to approve permissions.
+    List<GithubAppInstallationDetails> installations = getAllAppInstallationsFromGithubResponse("""
+      [
+        {"id": 1, "account": {"login": "org1", "type": "Organization"}, "permissions": {"metadata": "read"}},
+        {"id": 2, "account": {"login": "org2", "type": "Organization"}, "permissions": {"metadata": "read"}}
+      ]""");
+
+    assertThat(installations).extracting(GithubAppInstallationDetails::accountLogin).containsExactly("org1", "org2");
+    verify(gitHubSettings, never()).getOrganizations();
+  }
+
+  @Test
+  public void getAllAppInstallations_whenNoInstallation_returnsEmptyList() {
+    assertThat(getAllAppInstallationsFromGithubResponse("[]")).isEmpty();
+  }
+
+  @Test
+  @UseDataProvider("unusableInstallationPayloads")
+  public void getAllAppInstallations_whenPayloadCannotBeJudged_throws(String payload) {
+    assertThatIllegalStateException()
+      .isThrownBy(() -> getAllAppInstallationsFromGithubResponse(payload))
+      .withMessageContaining("without a usable id, account or permission set");
+  }
+
+  @DataProvider
+  public static Object[][] unusableInstallationPayloads() {
+    return new Object[][] {
+      {"[{\"account\": {\"login\": \"org1\"}, \"permissions\": {\"metadata\": \"read\"}}]"},
+      {"[{\"id\": 1, \"permissions\": {\"metadata\": \"read\"}}]"},
+      {"[{\"id\": 1, \"account\": {\"type\": \"Organization\"}, \"permissions\": {\"metadata\": \"read\"}}]"},
+      {"[{\"id\": 1, \"account\": {\"login\": \"org1\"}}]"},
+    };
+  }
+
+  @Test
+  @UseDataProvider("unrecognisedAccountTypes")
+  public void getAllAppInstallations_whenTheAccountTypeIsNotRecognised_throws(String accountTypeField) {
+    // Falling through to "not an organization" would build a personal-account settings link for an installation an
+    // organization may well own, so an unjudgeable type fails the verification instead.
+    String payload = format("[{\"id\": 1, \"account\": {\"login\": \"org1\"%s}, \"permissions\": {\"metadata\": \"read\"}}]", accountTypeField);
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> getAllAppInstallationsFromGithubResponse(payload))
+      .withMessageContaining("account type is missing or not recognised");
+  }
+
+  @Test
+  @UseDataProvider("unrecognisedAccountTypes")
+  public void getRepositoryInstallation_whenTheAccountTypeIsNotRecognised_throws(String accountTypeField) throws IOException {
+    AppToken appToken = mockAppToken();
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/repos/torvalds/linux/installation")).thenReturn(new OkGetResponse(
+      format("{\"id\": 7, \"account\": {\"login\": \"torvalds\"%s}, \"permissions\": {\"metadata\": \"read\"}}", accountTypeField)));
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.getRepositoryInstallation(githubAppConfiguration, "torvalds/linux"))
+      .withMessageContaining("account type is missing or not recognised");
+  }
+
+  @DataProvider
+  public static Object[][] unrecognisedAccountTypes() {
+    return new Object[][] {
+      // absent
+      {""},
+      {", \"type\": null"},
+      // a type GitHub does not document for an installation account
+      {", \"type\": \"Bot\""},
+      {", \"type\": \"Enterprise\""},
+      // right word, wrong case: accepted silently, "organization" would have become a personal account
+      {", \"type\": \"organization\""},
+      {", \"type\": \"USER\""},
+    };
+  }
+
+  @Test
+  @UseDataProvider("recognisedAccountTypes")
+  public void getAllAppInstallations_acceptsTheTwoDocumentedAccountTypes(String accountType, boolean expectedOrganization) {
+    String payload = format("[{\"id\": 1, \"account\": {\"login\": \"owner1\", \"type\": \"%s\"}, \"permissions\": {\"metadata\": \"read\"}}]", accountType);
+
+    assertThat(getAllAppInstallationsFromGithubResponse(payload))
+      .extracting(GithubAppInstallationDetails::accountType, GithubAppInstallationDetails::isOrganization)
+      .containsExactly(tuple(accountType, expectedOrganization));
+  }
+
+  @DataProvider
+  public static Object[][] recognisedAccountTypes() {
+    return new Object[][] {
+      {"Organization", true},
+      {"User", false},
+    };
+  }
+
+  @Test
+  public void getAllAppInstallations_whenAPageCannotBeRead_reThrows() {
+    AppToken appToken = mockAppToken();
+    when(githubPaginatedHttpClient.getStrict(eq(appUrl), eq(appToken), eq("/app/installations"), any()))
+      .thenThrow(new IllegalStateException("page 2 came back without a body"));
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.getAllAppInstallations(githubAppConfiguration))
+      .withMessage("page 2 came back without a body");
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<GithubAppInstallationDetails> getAllAppInstallationsFromGithubResponse(String content) {
+    AppToken appToken = mockAppToken();
+    when(githubPaginatedHttpClient.getStrict(eq(appUrl), eq(appToken), eq("/app/installations"), any()))
+      .thenAnswer(invocation -> {
+        Function<String, List<GithubBinding.GsonInstallationDetails>> deserializingFunction = invocation.getArgument(3, Function.class);
+        return deserializingFunction.apply(content);
+      });
+    return underTest.getAllAppInstallations(githubAppConfiguration);
+  }
+
+  @Test
+  public void getRepositoryInstallation_returnsTheInstallationCoveringThatRepository() throws IOException {
+    AppToken appToken = mockAppToken();
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/repos/torvalds/linux/installation")).thenReturn(new OkGetResponse("""
+      {
+        "id": 7,
+        "account": {"login": "torvalds", "type": "User"},
+        "html_url": "https://github.com/settings/installations/7",
+        "permissions": {"contents": "write", "metadata": "read"}
+      }"""));
+
+    GithubAppInstallationDetails installation = underTest.getRepositoryInstallation(githubAppConfiguration, "torvalds/linux");
+
+    assertThat(installation.installationId()).isEqualTo(7L);
+    assertThat(installation.accountLogin()).isEqualTo("torvalds");
+    assertThat(installation.isOrganization()).isFalse();
+    assertThat(installation.permissions()).containsOnly(entry("contents", "write"), entry("metadata", "read"));
+  }
+
+  @Test
+  public void getRepositoryInstallation_whenAppNotInstalledOnRepository_throwsWithTheStatusCode() throws IOException {
+    // Unlike getInstallationId, which collapses this into Optional.empty(): a 404 means "install the app here", any
+    // other failure means "the check could not be made", and the remediation UI has to tell those apart.
+    AppToken appToken = mockAppToken();
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/repos/torvalds/linux/installation")).thenReturn(new ErrorGetResponse(HTTP_NOT_FOUND, null));
+
+    assertThatThrownBy(() -> underTest.getRepositoryInstallation(githubAppConfiguration, "torvalds/linux"))
+      .isInstanceOf(HttpException.class)
+      .extracting(e -> ((HttpException) e).code()).isEqualTo(HTTP_NOT_FOUND);
+  }
+
+  @Test
+  public void getRepositoryInstallation_whenPayloadCannotBeJudged_throws() throws IOException {
+    AppToken appToken = mockAppToken();
+    when(githubApplicationHttpClient.get(appUrl, appToken, "/repos/torvalds/linux/installation"))
+      .thenReturn(new OkGetResponse("{\"id\": 7, \"account\": {\"login\": \"torvalds\"}}"));
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.getRepositoryInstallation(githubAppConfiguration, "torvalds/linux"))
+      .withMessageContaining("without a usable id, account or permission set");
   }
 
   @Test

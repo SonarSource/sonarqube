@@ -87,6 +87,21 @@ public class GithubGlobalSettingsValidator {
     return githubApplicationClient.findMissingAppPermissions(configuration, requiredPermissions);
   }
 
+  /**
+   * Builds the (decrypted) app configuration and validates the shape of its API endpoint URL, without validating any
+   * permission — for callers that then run their own, narrower permission inspection against that configuration rather
+   * than the app-level check {@link #validate(AlmSettingDto, Map)} performs (SONAR-32166). Nothing here contacts
+   * GitHub, so a well-formed URL for an unreachable host passes.
+   *
+   * @throws IllegalArgumentException if the configuration is incomplete or the URL is not a valid GitHub API endpoint
+   */
+  public GithubAppConfiguration validateApiEndpoint(AlmSettingDto almSettingDto) {
+    GithubAppConfiguration configuration = buildConfiguration(almSettingDto.getAppId(), almSettingDto.getClientId(),
+      almSettingDto.getClientSecret(), almSettingDto.getPrivateKey(), almSettingDto.getUrl());
+    githubApplicationClient.checkApiEndpoint(configuration);
+    return configuration;
+  }
+
   private GithubAppConfiguration buildConfiguration(@Nullable String applicationId, @Nullable String clientId, String clientSecret, String privateKey,
     @Nullable String url) {
     long appId;

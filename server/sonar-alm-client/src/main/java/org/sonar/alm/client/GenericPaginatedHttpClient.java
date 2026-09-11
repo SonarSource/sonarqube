@@ -21,6 +21,7 @@ package org.sonar.alm.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.kohsuke.github.GHRateLimit;
@@ -44,6 +45,25 @@ public abstract class GenericPaginatedHttpClient implements PaginatedHttpClient 
 
   @Override
   public <E> List<E> get(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer) {
+    return get(appUrl, token, query, responseDeserializer, false);
+  }
+
+  /**
+   * Same as {@link #get(String, AccessToken, String, Function)}, but fails instead of silently skipping a page whose
+   * body is absent (SONAR-32166).
+   *
+   * <p>Callers that only aggregate what they can read are fine with the tolerant behavior; a caller that has to state
+   * "these are all the installations, so anything not listed here is fine" is not — for it, a dropped page and an
+   * empty page are the same short list with opposite meanings. Opt-in, so the existing callers of
+   * {@link #get(String, AccessToken, String, Function)} keep their behavior unchanged.
+   *
+   * @throws IllegalStateException if any page could not be retrieved, or came back without a body
+   */
+  public <E> List<E> getStrict(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer) {
+    return get(appUrl, token, query, responseDeserializer, true);
+  }
+
+  private <E> List<E> get(String appUrl, AccessToken token, String query, Function<String, List<E>> responseDeserializer, boolean failOnMissingBody) {
     List<E> results = new ArrayList<>();
     String nextEndpoint = query + "?per_page=100";
     if (query.contains("?")) {
@@ -53,8 +73,13 @@ public abstract class GenericPaginatedHttpClient implements PaginatedHttpClient 
     while (nextEndpoint != null) {
       checkRateLimit(rateLimit);
       GetResponse response = executeCall(appUrl, token, nextEndpoint);
-      response.getContent()
-        .ifPresent(content -> results.addAll(responseDeserializer.apply(content)));
+      Optional<String> content = response.getContent();
+      if (content.isPresent()) {
+        results.addAll(responseDeserializer.apply(content.get()));
+      } else if (failOnMissingBody) {
+        throw new IllegalStateException(
+          format("SonarQube was not able to retrieve a complete list from external system. Page %s of %s came back without a body.", nextEndpoint, appUrl));
+      }
       nextEndpoint = response.getNextEndPoint().orElse(null);
       rateLimit = response.getRateLimit();
     }

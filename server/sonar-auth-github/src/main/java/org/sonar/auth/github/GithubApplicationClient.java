@@ -129,6 +129,43 @@ public interface GithubApplicationClient {
   List<String> findMissingAppPermissions(GithubAppConfiguration githubAppConfiguration, Map<String, String> requiredPermissions);
 
   /**
+   * Permissions currently granted to the app itself, as configured on its GitHub App settings page, keyed by GitHub
+   * permission name. This is what {@link #checkAppPermissions(GithubAppConfiguration, Map)} and
+   * {@link #findMissingAppPermissions(GithubAppConfiguration, Map)} compare against; exposed directly for callers that
+   * also need the granted level, not just the name of what is missing (SONAR-32166).
+   *
+   * @throws IllegalArgumentException on authentication or connectivity failures
+   */
+  Map<String, String> getAppPermissions(GithubAppConfiguration githubAppConfiguration);
+
+  /**
+   * Every installation of the app, with the permissions each one actually granted.
+   *
+   * <p>Unlike {@link #getWhitelistedGithubAppInstallations(GithubAppConfiguration)}, this applies no organization
+   * allowlist and keeps installations owned by personal accounts: the Remediation Agent has to report on every
+   * installation that has not yet approved a permission change, whoever owns it and whether or not that owner is
+   * allowed to authenticate against this instance (SONAR-32166). All pages are followed, and a page that cannot be
+   * read completely fails the call rather than returning a short list that would read as "nothing to approve".
+   *
+   * @throws IllegalArgumentException if one of the arguments is invalid (for example, wrong private key)
+   * @throws IllegalStateException if any page could not be retrieved or parsed
+   */
+  List<GithubAppInstallationDetails> getAllAppInstallations(GithubAppConfiguration githubAppConfiguration);
+
+  /**
+   * The single installation covering {@code repositorySlug}, with the permissions it actually granted.
+   *
+   * <p>Reads the same endpoint as {@link #getInstallationId(GithubAppConfiguration, String)} but throws instead of
+   * collapsing every failure into {@code Optional.empty()}, so that "the app is not installed on this repository"
+   * (HTTP 404) stays distinguishable from an authentication or connectivity failure (SONAR-32166), and returns the
+   * permission map the response already carries rather than only the id.
+   *
+   * @param repositorySlug {@code owner/repository}
+   * @throws RuntimeException if GitHub answered with a non-OK status, or the response carried no usable installation
+   */
+  GithubAppInstallationDetails getRepositoryInstallation(GithubAppConfiguration githubAppConfiguration, String repositorySlug);
+
+  /**
    * Returns the repository identified by the repositoryKey owned by the provided organization.
    */
   Optional<Repository> getRepository(String appUrl, AccessToken accessToken, String repositoryKey);

@@ -105,6 +105,53 @@ public class GenericPaginatedHttpClientImplTest {
     assertThat(urlCaptor.getValue()).isEqualTo(ENDPOINT + "?alreadyExistingArg=2&per_page=100");
   }
 
+  @Test
+  public void getStrict_whenAllPagesHaveContent_returnsResponseFromAllPages() throws IOException {
+    GetResponse firstPage = mockResponseWithPagination("[\"result1\"]", "/next-endpoint");
+    GetResponse lastPage = mockResponseWithoutPagination("[\"result2\"]");
+    when(appHttpClient.get(APP_URL, accessToken, ENDPOINT + "?per_page=100")).thenReturn(firstPage);
+    when(appHttpClient.get(APP_URL, accessToken, "/next-endpoint")).thenReturn(lastPage);
+
+    List<String> results = underTest.getStrict(APP_URL, accessToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+
+    assertThat(results).containsExactly("result1", "result2");
+  }
+
+  @Test
+  public void getStrict_whenALaterPageHasNoContent_throwsInsteadOfReturningAShortList() throws IOException {
+    GetResponse firstPage = mockResponseWithPagination("[\"result1\"]", "/next-endpoint");
+    GetResponse bodilessPage = mock(GetResponse.class);
+    when(bodilessPage.getCode()).thenReturn(200);
+    when(bodilessPage.getContent()).thenReturn(Optional.empty());
+    when(appHttpClient.get(APP_URL, accessToken, ENDPOINT + "?per_page=100")).thenReturn(firstPage);
+    when(appHttpClient.get(APP_URL, accessToken, "/next-endpoint")).thenReturn(bodilessPage);
+
+    assertThatIllegalStateException()
+      .isThrownBy(() -> underTest.getStrict(APP_URL, accessToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE)))
+      .withMessageContaining("came back without a body");
+  }
+
+  @Test
+  public void get_whenAPageHasNoContent_stillSkipsIt() throws IOException {
+    // The tolerant behavior getStrict() opts out of: unchanged for every existing caller.
+    GetResponse firstPage = mockResponseWithPagination("[\"result1\"]", "/next-endpoint");
+    GetResponse bodilessPage = mock(GetResponse.class);
+    when(bodilessPage.getCode()).thenReturn(200);
+    when(bodilessPage.getContent()).thenReturn(Optional.empty());
+    when(appHttpClient.get(APP_URL, accessToken, ENDPOINT + "?per_page=100")).thenReturn(firstPage);
+    when(appHttpClient.get(APP_URL, accessToken, "/next-endpoint")).thenReturn(bodilessPage);
+
+    List<String> results = underTest.get(APP_URL, accessToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+
+    assertThat(results).containsExactly("result1");
+  }
+
+  private static GetResponse mockResponseWithPagination(String content, String nextEndpoint) {
+    GetResponse response = mockResponseWithoutPagination(content);
+    when(response.getNextEndPoint()).thenReturn(Optional.of(nextEndpoint));
+    return response;
+  }
+
   private static GetResponse mockResponseWithoutPagination(String content) {
     GetResponse response = mock(GetResponse.class);
     when(response.getCode()).thenReturn(200);
