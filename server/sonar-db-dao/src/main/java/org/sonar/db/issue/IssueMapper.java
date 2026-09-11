@@ -99,6 +99,8 @@ public interface IssueMapper {
 
   int countHotspotsForMigration(@Nullable @Param("projectUuids") Collection<String> projectUuids);
 
+  int countNotConvertedHotspotsForMigration(@Nullable @Param("projectUuids") Collection<String> projectUuids);
+
   Cursor<IssueStatsDto> scrollIssuesForIssueStats(@Param("branchUuid") String branchUuid);
 
   List<IssueCountDimensionDto> selectIssueCountDimensionsForBranches(@Param("branchUuids") List<String> branchUuids);

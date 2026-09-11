@@ -108,6 +108,48 @@ public class MigrationStatusActionIT {
       .hasMessageContaining("does-not-exist");
   }
 
+  @Test
+  public void handle_whenRuleIsStillAHotspot_shouldNotCountItAsRemaining() {
+    logInAdmin();
+    RuleDto stillHotspotRule = db.rules().insertHotspotRule();
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    insertHotspot(stillHotspotRule, branch, db.components().insertComponent(newFileDto(branch)));
+    db.commit();
+
+    TestResponse response = tester.newRequest().execute();
+
+    // Regression guard for SONAR-32194. A finding whose rule is still a Security Hotspot has no target type, so the
+    // migrator skips it. Counting it here held the total above zero forever, which made the documented "re-run
+    // until it reaches zero" procedure an endless loop of full-table scans.
+    //
+    // It is reported as notConvertedHotspots instead, so a zero remaining count cannot be read as "every hotspot
+    // has been migrated" when the real state is "nothing is migratable yet".
+    assertThat(response.getInput())
+      .contains("\"remainingHotspots\":0", "\"notConvertedHotspots\":1", "\"complete\":true");
+  }
+
+  @Test
+  public void handle_whenBranchRowIsGone_shouldNotCountFindingAsRemaining() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert();
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    insertHotspot(rule, branch, db.components().insertComponent(newFileDto(branch)));
+    db.commit();
+    // Such rows exist on real instances and can never be migrated, so counting them would also stop the total
+    // from reaching zero.
+    db.executeUpdateSql("update issues set project_uuid = 'missing-branch-uuid'");
+
+    TestResponse response = tester.newRequest().execute();
+
+    // Deliberately counted by neither field: the project_branches predicate is shared by every migration query.
+    // Unlike the not-converted class these really are permanently unmigratable, and they are a rounding error in
+    // practice, so they are not surfaced.
+    assertThat(response.getInput())
+      .contains("\"remainingHotspots\":0", "\"notConvertedHotspots\":0", "\"complete\":true");
+  }
+
   private void insertHotspot(RuleDto rule, ComponentDto branch, ComponentDto file) {
     db.issues().insert(rule, branch, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
   }

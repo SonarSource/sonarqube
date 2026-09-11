@@ -33,6 +33,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -125,13 +126,21 @@ public class IssueDao implements Dao {
    * re-queries per page instead of holding a cursor, migrating (and committing) findings mid-run never truncates
    * the remaining ones (SONAR-31061).
    *
-   * @param projectUuids   optional project (entity) uuids to scope the migration; null or empty scans all projects.
+   * <p>Only findings whose rule has already been converted are returned: one whose rule is still
+   * {@code SECURITY_HOTSPOT} has no target type, so the migrator cannot migrate it yet and it is filtered out in
+   * SQL rather than fetched and discarded. It becomes eligible as soon as its rule is converted.
+   * {@link #countNotConvertedHotspotsForMigration} reports how many those are.</p>
+   *
+   * @param projectUuids   optional project (entity) uuids to scope the migration; null scans all projects. Must not
+   *                       be empty - an empty scope is a caller bug, and treating it as "all projects" would
+   *                       silently migrate the whole instance.
    * @param lastBranchUuid branch uuid of the last row of the previous page, or null for the first page.
    * @param lastKee        issue key of the last row of the previous page, or null for the first page.
    * @param pageSize       maximum number of findings to return.
    */
   public List<HotspotMigrationKeyDto> selectHotspotKeysForMigration(DbSession dbSession, @Nullable Collection<String> projectUuids,
     @Nullable String lastBranchUuid, @Nullable String lastKee, int pageSize) {
+    checkMigrationScope(projectUuids);
     return mapper(dbSession).selectHotspotKeysForMigration(projectUuids, lastBranchUuid, lastKee, Pagination.forPage(1).andSize(pageSize));
   }
 
@@ -144,11 +153,33 @@ public class IssueDao implements Dao {
   }
 
   /**
-   * Counts Security Hotspot findings (issue_type = 4) still to migrate, optionally scoped to the given project
-   * (entity) uuids; {@code null}/empty counts all projects. Used by the migration status/verification view.
+   * Counts Security Hotspot findings (issue_type = 4) a run would still migrate, optionally scoped to the given
+   * project (entity) uuids; {@code null} counts all projects. Shares its predicate with
+   * {@link #selectHotspotKeysForMigration}, so it counts exactly what the migrator would pick up - reaching zero
+   * therefore means the scope really is fully migrated. Used by the migration status/verification view.
    */
   public int countHotspotsForMigration(DbSession dbSession, @Nullable Collection<String> projectUuids) {
+    checkMigrationScope(projectUuids);
     return mapper(dbSession).countHotspotsForMigration(projectUuids);
+  }
+
+  /**
+   * Counts Security Hotspot findings not migratable <em>yet</em> because their rule is still
+   * {@code SECURITY_HOTSPOT} - the exact complement of {@link #countHotspotsForMigration} over the same scope.
+   * They are excluded from the remaining count on purpose, since otherwise it could never reach zero; converting
+   * the rule moves them back into it.
+   *
+   * <p>Does not cover findings excluded by the shared {@code project_branches} predicate: those are counted by
+   * neither method. See the {@code countNotConvertedHotspotsForMigration} comment in {@code IssueMapper.xml}.</p>
+   */
+  public int countNotConvertedHotspotsForMigration(DbSession dbSession, @Nullable Collection<String> projectUuids) {
+    checkMigrationScope(projectUuids);
+    return mapper(dbSession).countNotConvertedHotspotsForMigration(projectUuids);
+  }
+
+  private static void checkMigrationScope(@Nullable Collection<String> projectUuids) {
+    checkArgument(projectUuids == null || !projectUuids.isEmpty(),
+      "Project uuids for the hotspots migration must be null (all projects) or non-empty");
   }
 
   public Cursor<IssueStatsDto> scrollIssuesForIssueStats(DbSession dbSession, @Param("branchUuid") String branchUuid) {

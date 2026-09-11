@@ -522,21 +522,24 @@ class IssueDaoIT {
     RuleDto codeSmellRule = db.rules().insert(r -> r.setType(RuleType.CODE_SMELL));
     RuleDto stillHotspotRule = db.rules().insertHotspotRule();
 
-    // Hotspot-typed findings (issue_type = SECURITY_HOTSPOT) — the migration input, whatever the rule became.
+    // Hotspot-typed findings (issue_type = SECURITY_HOTSPOT) — the migration input.
     IssueDto onVuln = db.issues().insert(vulnerabilityRule, branchA, fileA, i -> i.setType(RuleType.SECURITY_HOTSPOT));
     IssueDto onCodeSmell = db.issues().insert(codeSmellRule, branchA, fileA, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+    // Rule still a hotspot -> no target type -> never migratable, so not returned.
     IssueDto onStillHotspot = db.issues().insert(stillHotspotRule, branchB, fileB, i -> i.setType(RuleType.SECURITY_HOTSPOT));
     // Not a hotspot finding -> excluded.
     db.issues().insert(vulnerabilityRule, branchA, fileA, i -> i.setType(RuleType.VULNERABILITY));
 
-    // All projects: keys of the 3 hotspot findings.
+    // All projects: only the findings whose rule was already converted.
     List<HotspotMigrationKeyDto> allKeys = underTest.selectHotspotKeysForMigration(db.getSession(), null, null, null, 100);
     assertThat(allKeys).extracting(HotspotMigrationKeyDto::getKee)
-      .containsExactlyInAnyOrder(onVuln.getKey(), onCodeSmell.getKey(), onStillHotspot.getKey());
+      .containsExactlyInAnyOrder(onVuln.getKey(), onCodeSmell.getKey())
+      .doesNotContain(onStillHotspot.getKey());
 
-    // Loading by keys carries each finding's rule current (target) type.
+    // Loading by keys is unchanged and still carries each finding's rule current type, including a still-hotspot
+    // rule, so the migrator's guard can act on a rule that changed type after the key query ran.
     List<HotspotToMigrateDto> loaded = underTest.selectHotspotsForMigrationByKeys(db.getSession(),
-      allKeys.stream().map(HotspotMigrationKeyDto::getKee).toList());
+      List.of(onVuln.getKey(), onCodeSmell.getKey(), onStillHotspot.getKey()));
     assertThat(loaded).extracting(HotspotToMigrateDto::getKey, HotspotToMigrateDto::getRuleTypeEnum)
       .containsExactlyInAnyOrder(
         tuple(onVuln.getKey(), RuleType.VULNERABILITY),
@@ -548,6 +551,69 @@ class IssueDaoIT {
       Set.of(projectA.getProjectDto().getUuid()), null, null, 100);
     assertThat(scoped).extracting(HotspotMigrationKeyDto::getKee)
       .containsExactlyInAnyOrder(onVuln.getKey(), onCodeSmell.getKey());
+
+    // Scoping projectB, whose only hotspot finding is not migratable, yields nothing rather than falling back to
+    // "all projects".
+    assertThat(underTest.selectHotspotKeysForMigration(db.getSession(),
+      Set.of(projectB.getProjectDto().getUuid()), null, null, 100)).isEmpty();
+  }
+
+  @Test
+  void hotspotsForMigration_countsAgreeWithTheKeysThatWillBeMigrated() {
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    RuleDto vulnerabilityRule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    RuleDto stillHotspotRule = db.rules().insertHotspotRule();
+
+    db.issues().insert(vulnerabilityRule, branch, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+    db.issues().insert(vulnerabilityRule, branch, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+    db.issues().insert(stillHotspotRule, branch, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+
+    // The remaining count must match what the key query returns, otherwise migration_status could never reach zero.
+    assertThat(underTest.countHotspotsForMigration(db.getSession(), null)).isEqualTo(2);
+    assertThat(underTest.selectHotspotKeysForMigration(db.getSession(), null, null, null, 100)).hasSize(2);
+    // The excluded findings stay visible through the dedicated count.
+    assertThat(underTest.countNotConvertedHotspotsForMigration(db.getSession(), null)).isEqualTo(1);
+
+    Set<String> scope = Set.of(project.getProjectDto().getUuid());
+    assertThat(underTest.countHotspotsForMigration(db.getSession(), scope)).isEqualTo(2);
+    assertThat(underTest.countNotConvertedHotspotsForMigration(db.getSession(), scope)).isEqualTo(1);
+  }
+
+  @Test
+  void hotspotsForMigration_excludeFindingsWhoseBranchRowIsGone() {
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    RuleDto vulnerabilityRule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    IssueDto kept = db.issues().insert(vulnerabilityRule, branch, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+    IssueDto orphan = db.issues().insert(vulnerabilityRule, branch, file, i -> i.setType(RuleType.SECURITY_HOTSPOT));
+
+    // Point one finding at a branch uuid that has no project_branches row. Such rows exist on real instances and
+    // cannot be migrated (the by-keys load inner-joins components on project_uuid), so they must not be returned
+    // or counted - otherwise the remaining count would never reach zero.
+    db.executeUpdateSql("update issues set project_uuid = 'missing-branch-uuid' where kee = '" + orphan.getKey() + "'");
+
+    assertThat(underTest.selectHotspotKeysForMigration(db.getSession(), null, null, null, 100))
+      .extracting(HotspotMigrationKeyDto::getKee)
+      .containsExactly(kept.getKey());
+    assertThat(underTest.countHotspotsForMigration(db.getSession(), null)).isEqualTo(1);
+    assertThat(underTest.countNotConvertedHotspotsForMigration(db.getSession(), null)).isZero();
+  }
+
+  @Test
+  void hotspotsForMigration_rejectAnEmptyScopeInsteadOfScanningEverything() {
+    Set<String> emptyScope = Set.of();
+    DbSession session = db.getSession();
+
+    assertThatThrownBy(() -> underTest.selectHotspotKeysForMigration(session, emptyScope, null, null, 100))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("must be null (all projects) or non-empty");
+    assertThatThrownBy(() -> underTest.countHotspotsForMigration(session, emptyScope))
+      .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> underTest.countNotConvertedHotspotsForMigration(session, emptyScope))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

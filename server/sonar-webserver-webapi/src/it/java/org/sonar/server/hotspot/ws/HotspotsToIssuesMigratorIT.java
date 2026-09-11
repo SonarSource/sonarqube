@@ -35,6 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -51,7 +52,10 @@ import org.sonar.server.tester.UserSessionRule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 
@@ -101,8 +105,9 @@ public class HotspotsToIssuesMigratorIT {
     MigrationResult result = underTest.migrate(null, false);
 
     assertThat(result.dryRun()).isFalse();
-    assertThat(result.projects()).extracting(ProjectMigrationResult::projectKey, ProjectMigrationResult::migrated, ProjectMigrationResult::skipped)
-      .containsExactly(tuple(project.getProjectDto().getKey(), 2, 0));
+    assertThat(result.skipped()).isZero();
+    assertThat(result.projects()).extracting(ProjectMigrationResult::projectKey, ProjectMigrationResult::migrated)
+      .containsExactly(tuple(project.getProjectDto().getKey(), 2));
     assertThat(reload(onVuln).getType()).isEqualTo(RuleType.VULNERABILITY.getDbConstant());
     assertThat(reload(onCodeSmell).getType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
     assertThat(reload(onVuln).getTags()).containsExactly(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
@@ -168,8 +173,8 @@ public class HotspotsToIssuesMigratorIT {
     // later branches were silently left un-migrated. Keyset paging re-queries per page and is immune.
     MigrationResult result = underTest.migrate(project.getProjectDto().getKey(), false);
 
-    assertThat(result.projects()).extracting(ProjectMigrationResult::migrated, ProjectMigrationResult::skipped)
-      .containsExactly(tuple(4, 0));
+    assertThat(result.projects()).extracting(ProjectMigrationResult::migrated).containsExactly(4);
+    assertThat(result.skipped()).isZero();
     assertThat(List.of(mainHotspot1, mainHotspot2, featureHotspot1, featureHotspot2))
       .allSatisfy(hotspot -> assertThat(reload(hotspot).getType()).isEqualTo(RuleType.VULNERABILITY.getDbConstant()));
   }
@@ -191,8 +196,8 @@ public class HotspotsToIssuesMigratorIT {
 
     MigrationResult result = underTest.migrate(project.getProjectDto().getKey(), false);
 
-    assertThat(result.projects()).extracting(ProjectMigrationResult::migrated, ProjectMigrationResult::skipped)
-      .containsExactly(tuple(5, 0));
+    assertThat(result.projects()).extracting(ProjectMigrationResult::migrated).containsExactly(5);
+    assertThat(result.skipped()).isZero();
     assertThat(hotspots)
       .allSatisfy(hotspot -> assertThat(reload(hotspot).getType()).isEqualTo(RuleType.VULNERABILITY.getDbConstant()));
   }
@@ -246,8 +251,8 @@ public class HotspotsToIssuesMigratorIT {
     MigrationResult result = underTest.migrate(null, false);
 
     // Counted as migrated (type + tag applied) but status/resolution left untouched — CLOSED needs no remap.
-    assertThat(result.projects()).extracting(ProjectMigrationResult::migrated, ProjectMigrationResult::skipped)
-      .containsExactly(tuple(1, 0));
+    assertThat(result.projects()).extracting(ProjectMigrationResult::migrated).containsExactly(1);
+    assertThat(result.skipped()).isZero();
     IssueDto migrated = reload(closedHotspot);
     assertThat(migrated.getType()).isEqualTo(RuleType.VULNERABILITY.getDbConstant());
     assertThat(migrated.getStatus()).isEqualTo(Issue.STATUS_CLOSED);
@@ -258,7 +263,7 @@ public class HotspotsToIssuesMigratorIT {
   }
 
   @Test
-  public void migrate_shouldSkipAndCountHotspotsWhoseRuleIsStillHotspot() {
+  public void migrate_shouldCountButNotLoadHotspotsWhoseRuleIsStillHotspot() {
     logInAdmin();
     RuleDto stillHotspotRule = db.rules().insertHotspotRule();
     ProjectData project = db.components().insertPrivateProject();
@@ -267,9 +272,61 @@ public class HotspotsToIssuesMigratorIT {
 
     MigrationResult result = underTest.migrate(null, false);
 
-    assertThat(result.projects()).extracting(ProjectMigrationResult::migrated, ProjectMigrationResult::skipped)
-      .containsExactly(tuple(0, 1));
+    // Filtered out in SQL, so the run never loads it and cannot attribute it to a project - it is reported as a
+    // scope-wide skipped count instead, and the project contributes no result at all.
+    assertThat(result.skipped()).isEqualTo(1);
+    assertThat(result.projects()).isEmpty();
     assertThat(reload(hotspot).getType()).isEqualTo(RuleType.SECURITY_HOTSPOT.getDbConstant());
+  }
+
+  @Test
+  public void migrate_whenRuleBecomesHotspotBetweenKeyQueryAndLoad_shouldSkipItWithWarning() {
+    logInAdmin();
+    logTester.setLevel(Level.WARN);
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    IssueDto hotspot = insertHotspot(rule, branch, db.components().insertComponent(newFileDto(branch)), i -> {});
+
+    // The key query and the by-keys load run in separate sessions, so a rule can change type between them - which
+    // the SQL filter cannot catch. That is the only path left to the guard in MigrationRun.accept, and without it a
+    // finding would be given SECURITY_HOTSPOT as its "target" type. Reproduce the race by flipping the rule back to
+    // a hotspot exactly as the load runs.
+    IssueDao realDao = dbClient.issueDao();
+    IssueDao racingDao = spy(realDao);
+    doAnswer(invocation -> {
+      db.executeUpdateSql("update rules set rule_type = 4 where uuid = '" + rule.getUuid() + "'");
+      return realDao.selectHotspotsForMigrationByKeys(invocation.getArgument(0), invocation.getArgument(1));
+    }).when(racingDao).selectHotspotsForMigrationByKeys(any(), any());
+    DbClient racingClient = spy(dbClient);
+    when(racingClient.issueDao()).thenReturn(racingDao);
+
+    MigrationResult result = new HotspotsToIssuesMigrator(racingClient, issueFieldsSetter, batchWriter, system2,
+      userSession).migrate(null, false);
+
+    assertThat(result.projects()).isEmpty();
+    assertThat(result.skipped()).isEqualTo(1);
+    assertThat(reload(hotspot).getType()).isEqualTo(RuleType.SECURITY_HOTSPOT.getDbConstant());
+    assertThat(logTester.logs(Level.WARN)).anyMatch(l -> l.contains("must have changed type mid-run"));
+  }
+
+  @Test
+  public void migrate_shouldLeaveNothingRemainingWhenSomeRulesAreNotConverted() {
+    logInAdmin();
+    RuleDto vulnerabilityRule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    RuleDto stillHotspotRule = db.rules().insertHotspotRule();
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    insertHotspot(vulnerabilityRule, branch, file, i -> {});
+    insertHotspot(stillHotspotRule, branch, file, i -> {});
+
+    MigrationResult result = underTest.migrate(null, false);
+
+    // Regression guard for SONAR-32194: the remaining count used to include findings the migrator permanently
+    // skips, so it never reached zero and "re-run until it reaches zero" looped forever.
+    assertThat(result.skipped()).isEqualTo(1);
+    assertThat(db.getDbClient().issueDao().countHotspotsForMigration(db.getSession(), null)).isZero();
   }
 
   @Test

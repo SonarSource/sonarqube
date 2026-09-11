@@ -89,15 +89,20 @@ public class HotspotsToIssuesMigrator {
     this.pageSize = pageSize;
   }
 
-  public record ProjectMigrationResult(String projectKey, int migrated, int skipped) {
+  public record ProjectMigrationResult(String projectKey, int migrated) {
   }
 
-  public record MigrationResult(boolean dryRun, List<ProjectMigrationResult> projects) {
+  /**
+   * @param skipped findings in scope that cannot migrate because their rule is still {@code SECURITY_HOTSPOT}.
+   *                Scope-wide rather than per project: they are excluded in SQL, so a run never loads them and
+   *                cannot attribute them to a project.
+   */
+  public record MigrationResult(boolean dryRun, List<ProjectMigrationResult> projects, int skipped) {
   }
 
   /**
    * @param projectKey optional project key to scope the migration; {@code null} migrates all projects.
-   * @param dryRun     when true, only counts what would migrate/skip — no writes, no reindex, no recompute.
+   * @param dryRun     when true, only counts what would migrate — no writes, no reindex, no recompute.
    */
   public MigrationResult migrate(@Nullable String projectKey, boolean dryRun) {
     Set<String> scopeProjectUuids = resolveScope(projectKey);
@@ -130,14 +135,25 @@ public class HotspotsToIssuesMigrator {
     run.flushRemaining();
 
     List<ProjectMigrationResult> projects = run.toProjectResults();
+    int skipped = countNotConverted(scopeProjectUuids);
     if (dryRun) {
       LOG.info("Hotspots-to-issues migration dry run finished (scope={}): {} project(s), {} to migrate, {} to skip",
-        scope, projects.size(), run.totalMigrated(), run.totalSkipped());
+        scope, projects.size(), run.totalMigrated(), skipped);
     } else {
       LOG.info("Hotspots-to-issues migration finished (scope={}): {} project(s), {} migrated, {} skipped, took {} ms",
-        scope, projects.size(), run.totalMigrated(), run.totalSkipped(), system2.now() - startedAt);
+        scope, projects.size(), run.totalMigrated(), skipped, system2.now() - startedAt);
     }
-    return new MigrationResult(dryRun, projects);
+    return new MigrationResult(dryRun, projects, skipped);
+  }
+
+  /**
+   * Findings the key query filtered out because their rule is still {@code SECURITY_HOTSPOT}. Counted once at the
+   * end of the run rather than tallied while scanning, since those rows are never fetched.
+   */
+  private int countNotConverted(@Nullable Set<String> scopeProjectUuids) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.issueDao().countNotConvertedHotspotsForMigration(dbSession, scopeProjectUuids);
+    }
   }
 
   private List<HotspotMigrationKeyDto> selectKeyPage(@Nullable Set<String> scopeProjectUuids, @Nullable String lastBranchUuid,
@@ -173,8 +189,8 @@ public class HotspotsToIssuesMigrator {
   private final class MigrationRun {
     private final boolean dryRun;
     private final IssueChangeContext context;
-    // value = {migrated, skipped}, keyed by project key (components.kee is the project key for every branch).
-    private final Map<String, int[]> countsByProjectKey = new LinkedHashMap<>();
+    // migrated count keyed by project key (components.kee is the project key for every branch).
+    private final Map<String, Integer> migratedByProjectKey = new LinkedHashMap<>();
     private List<DefaultIssue> batch = new ArrayList<>();
     private String currentBranchUuid;
     private int committedHotspots;
@@ -188,15 +204,15 @@ public class HotspotsToIssuesMigrator {
       flushIfBranchBoundaryOrFull(hotspot.getProjectUuid());
       currentBranchUuid = hotspot.getProjectUuid();
 
-      int[] counts = countsByProjectKey.computeIfAbsent(hotspot.getProjectKey(), k -> new int[2]);
       RuleType targetType = hotspot.getRuleTypeEnum();
-      // Guard: rule not converted yet (still a hotspot) — skip, do not force a type.
+      // Belt-and-braces: the key query already excludes findings whose rule is still a hotspot, so reaching this
+      // means the rule's type changed between that query and this load. Never force a type in that case.
       if (targetType == RuleType.SECURITY_HOTSPOT) {
-        LOG.debug("Skipping hotspot {}: rule {} not converted to another type yet", hotspot.getKey(), hotspot.getRuleUuid());
-        counts[1]++;
+        LOG.warn("Skipping hotspot {}: rule {} is still a Security Hotspot, it must have changed type mid-run",
+          hotspot.getKey(), hotspot.getRuleUuid());
         return;
       }
-      counts[0]++;
+      migratedByProjectKey.merge(hotspot.getProjectKey(), 1, Integer::sum);
       if (!dryRun) {
         batch.add(toMigratedIssue(hotspot, targetType));
       }
@@ -218,17 +234,13 @@ public class HotspotsToIssuesMigrator {
     }
 
     private List<ProjectMigrationResult> toProjectResults() {
-      return countsByProjectKey.entrySet().stream()
-        .map(e -> new ProjectMigrationResult(e.getKey(), e.getValue()[0], e.getValue()[1]))
+      return migratedByProjectKey.entrySet().stream()
+        .map(e -> new ProjectMigrationResult(e.getKey(), e.getValue()))
         .toList();
     }
 
     private int totalMigrated() {
-      return countsByProjectKey.values().stream().mapToInt(c -> c[0]).sum();
-    }
-
-    private int totalSkipped() {
-      return countsByProjectKey.values().stream().mapToInt(c -> c[1]).sum();
+      return migratedByProjectKey.values().stream().mapToInt(Integer::intValue).sum();
     }
 
     private DefaultIssue toMigratedIssue(HotspotToMigrateDto hotspot, RuleType targetType) {

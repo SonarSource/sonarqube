@@ -21,6 +21,7 @@ package org.sonar.server.hotspot.ws;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -37,6 +38,7 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.issue.IssueChangePostProcessor;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
@@ -108,6 +110,24 @@ public class MigrationBatchWriterIT {
     var inOrder = inOrder(issueIndexer);
     inOrder.verify(issueIndexer).enqueueForIndexing(any(), any());
     inOrder.verify(issueIndexer).index(any(), eq(esItems));
+  }
+
+  @Test
+  public void write_shouldFlushPendingWritesBeforeThePostProcessorReadsThem() {
+    when(issueIndexer.enqueueForIndexing(any(), any())).thenReturn(List.of());
+    Fixture f = newChangedHotspot();
+    AtomicInteger typeSeenByPostProcessor = new AtomicInteger();
+    IssueChangePostProcessor readingPostProcessor = (dbSession, changedIssues, components, fromAlm) -> typeSeenByPostProcessor
+      .set(dbClient.issueDao().selectOrFailByKey(dbSession, f.original().getKey()).getType());
+    MigrationBatchWriter writer = new MigrationBatchWriter(dbClient, issueStorage, readingPostProcessor,
+      issueIndexer, uuidFactory, system2);
+
+    writer.write(List.of(f.issue));
+
+    // The session is in batch mode, so the update is still pending when the post-processor runs on that same
+    // session. MyBatis' BatchExecutor has to flush it before serving a query, otherwise measures and the Quality
+    // Gate would be recomputed from the pre-migration type.
+    assertThat(typeSeenByPostProcessor.get()).isEqualTo(RuleType.VULNERABILITY.getDbConstant());
   }
 
   private Fixture newChangedHotspot() {

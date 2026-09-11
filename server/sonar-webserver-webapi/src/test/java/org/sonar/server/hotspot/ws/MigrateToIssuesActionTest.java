@@ -81,12 +81,24 @@ public class MigrateToIssuesActionTest {
   @Test
   public void handle_whenSystemAdmin_callsMigratorAndReturnsJson() {
     userSession.logIn().setSystemAdministrator();
-    when(migrator.migrate(null, false)).thenReturn(new HotspotsToIssuesMigrator.MigrationResult(false, List.of()));
+    when(migrator.migrate(null, false)).thenReturn(new HotspotsToIssuesMigrator.MigrationResult(false, List.of(), 0));
 
     String result = actionTester.newRequest().execute().getInput();
 
     verify(migrator).migrate(null, false);
-    JsonAssert.assertJson(result).isSimilarTo("{\"dryRun\":false,\"projects\":[]}");
+    JsonAssert.assertJson(result).isSimilarTo("{\"dryRun\":false,\"skipped\":0,\"projects\":[]}");
+  }
+
+  @Test
+  public void handle_reportsSkippedAtTopLevelAndMigratedPerProject() {
+    userSession.logIn().setSystemAdministrator();
+    when(migrator.migrate(null, false)).thenReturn(new HotspotsToIssuesMigrator.MigrationResult(false,
+      List.of(new HotspotsToIssuesMigrator.ProjectMigrationResult("my-project", 3)), 7));
+
+    String result = actionTester.newRequest().execute().getInput();
+
+    JsonAssert.assertJson(result)
+      .isSimilarTo("{\"dryRun\":false,\"skipped\":7,\"projects\":[{\"projectKey\":\"my-project\",\"migrated\":3}]}");
   }
 
   @Test
@@ -94,7 +106,7 @@ public class MigrateToIssuesActionTest {
     userSession.logIn().setSystemAdministrator();
     when(migrator.migrate("my-project", false))
       .thenReturn(new HotspotsToIssuesMigrator.MigrationResult(false,
-        List.of(new HotspotsToIssuesMigrator.ProjectMigrationResult("my-project", 0, 0))));
+        List.of(new HotspotsToIssuesMigrator.ProjectMigrationResult("my-project", 0)), 0));
 
     actionTester.newRequest().setParam("project", "my-project").execute();
 
@@ -104,7 +116,7 @@ public class MigrateToIssuesActionTest {
   @Test
   public void handle_whenDryRunTrue_passesThroughToMigrator() {
     userSession.logIn().setSystemAdministrator();
-    when(migrator.migrate(null, true)).thenReturn(new HotspotsToIssuesMigrator.MigrationResult(true, List.of()));
+    when(migrator.migrate(null, true)).thenReturn(new HotspotsToIssuesMigrator.MigrationResult(true, List.of(), 0));
 
     actionTester.newRequest().setParam("dryRun", "true").execute();
 

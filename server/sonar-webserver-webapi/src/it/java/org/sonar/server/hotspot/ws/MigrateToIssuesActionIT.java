@@ -176,7 +176,9 @@ public class MigrateToIssuesActionIT {
 
     TestResponse response = tester.newRequest().execute();
 
-    assertThat(response.getInput()).contains("\"migrated\":0", "\"skipped\":1");
+    // Reported as a scope-wide 'skipped', with no per-project entry: the finding is filtered out in SQL, so the
+    // run never loads it and cannot attribute it to a project.
+    assertThat(response.getInput()).contains("\"skipped\":1", "\"projects\":[]");
     assertThat(reloadType(hotspot)).isEqualTo(RuleType.SECURITY_HOTSPOT.getDbConstant());
   }
 

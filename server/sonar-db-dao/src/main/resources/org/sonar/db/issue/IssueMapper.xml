@@ -399,13 +399,56 @@
   </select>
 
   <!--
-    Streams Security Hotspot findings (issue_type = 4) for the Hotspots-to-Issues migration (MMF-5734).
+    Security Hotspot findings (issue_type = 4) loaded for the Hotspots-to-Issues migration (MMF-5734).
     Ordered by branch (i.project_uuid) so the migrator can flush/commit one branch per transaction
-    without buffering the whole result set. Optional project scoping via project_branches.project_uuid.
+    without buffering the whole result set.
   -->
   <resultMap id="hotspotToMigrateResultMap" type="org.sonar.db.issue.HotspotToMigrateDto" extends="issueResultMap" autoMapping="true">
     <result property="ruleType" column="ruleType"/>
   </resultMap>
+
+  <!--
+    Scope of the Hotspots-to-Issues migration (MMF-5734, SONAR-32194). Included by every migration query so the set
+    of findings they see cannot drift apart.
+
+    issue_type = 4 is the Security Hotspot finding type, and it is matched by the issues_hotspot_migration index on
+    every dialect - as a partial predicate on PostgreSQL and SQL Server, (project_uuid, kee) INCLUDE (rule_uuid)
+    WHERE issue_type = 4, and as a leading equality key column on Oracle and H2, (issue_type, project_uuid, kee,
+    rule_uuid). Either way project_uuid then kee provide the ORDER BY of the key query, so filter, keyset seek and
+    ordering are all served by one scan. Every issues column the queries below reference is in that index,
+    including the rule_uuid read by the rules semi-join, so the scan stays index-only; adding a predicate on any
+    other issues column would break that.
+
+    The project_branches predicate excludes findings whose project_uuid has no branch row - but as a semi-join,
+    so the planner applies it to the rows the index already narrowed to instead of driving a nested loop over the whole
+    hotspot set.
+    A null/absent projectUuids means "every project"; the DAO rejects an explicitly empty
+    collection so it can never be silently read as "every project".
+  -->
+  <sql id="hotspotsForMigrationScope">
+    i.issue_type = 4
+    and exists (
+      select 1 from project_branches pb
+      where pb.uuid = i.project_uuid
+      <if test="projectUuids != null and projectUuids.size() > 0">
+        and pb.project_uuid in
+        <foreach collection="projectUuids" item="projectUuid" open="(" separator="," close=")">
+          #{projectUuid,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+    )
+  </sql>
+
+  <!--
+    Restricts to findings whose rule has already been converted to another type. A finding whose rule is still
+    SECURITY_HOTSPOT (rule_type = 4) has no target type, so the migrator can never migrate it: returning it would
+    reload it through the by-keys query on every run, and counting it as remaining would keep
+    api/hotspots/migration_status below 'complete' forever. Both the key query and the remaining-count use this, so
+    "what the migrator will do" and "what the status reports" stay the same set.
+  -->
+  <sql id="hotspotRuleAlreadyConverted">
+    and exists (select 1 from rules r where r.uuid = i.rule_uuid and r.rule_type &lt;&gt; 4)
+  </sql>
 
   <!--
     Keyset-paginated page of (branch uuid, issue key) for Security Hotspot findings (issue_type = 4), ordered by
@@ -419,20 +462,13 @@
       i.project_uuid as branchUuid,
       i.kee as kee
     from issues i
-      inner join project_branches pb on pb.uuid = i.project_uuid
-    <where>
-      i.issue_type = 4
-      <if test="projectUuids != null and projectUuids.size() > 0">
-        and pb.project_uuid in
-        <foreach collection="projectUuids" item="projectUuid" open="(" separator="," close=")">
-          #{projectUuid,jdbcType=VARCHAR}
-        </foreach>
-      </if>
+    where
+      <include refid="hotspotsForMigrationScope"/>
+      <include refid="hotspotRuleAlreadyConverted"/>
       <if test="lastKee != null">
         and (i.project_uuid &gt; #{lastBranchUuid,jdbcType=VARCHAR}
           or (i.project_uuid = #{lastBranchUuid,jdbcType=VARCHAR} and i.kee &gt; #{lastKee,jdbcType=VARCHAR}))
       </if>
-    </where>
     order by i.project_uuid, i.kee
     <include refid="org.sonar.db.common.Common.pagination"/>
   </select>
@@ -467,22 +503,37 @@
   </select>
 
   <!--
-  Counts remaining Security Hotspot findings (issue_type = 4) still to migrate, optionally scoped by project.
-  Used by the migration status/verification view to report progress and convergence.
--->
+    Counts Security Hotspot findings (issue_type = 4) a run would still migrate, optionally scoped by branch. Used by
+    api/hotspots/migration_status to report progress and convergence, so it deliberately shares its predicate with
+    selectHotspotKeysForMigration: it must count exactly what the migrator would pick up, and nothing it will not.
+  -->
   <select id="countHotspotsForMigration" parameterType="map" resultType="int">
     select count(1)
     from issues i
-      inner join project_branches pb on pb.uuid = i.project_uuid
-    <where>
-      i.issue_type = 4
-      <if test="projectUuids != null and projectUuids.size() > 0">
-        and pb.project_uuid in
-        <foreach collection="projectUuids" item="projectUuid" open="(" separator="," close=")">
-          #{projectUuid,jdbcType=VARCHAR}
-        </foreach>
-      </if>
-    </where>
+    where
+      <include refid="hotspotsForMigrationScope"/>
+      <include refid="hotspotRuleAlreadyConverted"/>
+  </select>
+
+  <!--
+    Counts Security Hotspot findings not migratable YET because their rule is still SECURITY_HOTSPOT - the exact
+    complement of hotspotRuleAlreadyConverted over the same scope. They are excluded from
+    countHotspotsForMigration so it can reach zero, and reported separately by both api/hotspots/migrate_to_issues
+    ('skipped') and api/hotspots/migration_status ('notConvertedHotspots') so a zero remaining count is not
+    mistaken for "everything is migrated". Converting the rule moves a finding from this count back into
+    countHotspotsForMigration.
+
+    Note this does NOT cover findings excluded by the project_branches predicate in hotspotsForMigrationScope:
+    that predicate is shared by every migration query, so those findings are counted nowhere. They cannot be
+    migrated at all (the by-keys load inner-joins components on project_uuid), and they are a rounding error in
+    practice - around 90 rows on a 175M-row reference instance.
+  -->
+  <select id="countNotConvertedHotspotsForMigration" parameterType="map" resultType="int">
+    select count(1)
+    from issues i
+    where
+      <include refid="hotspotsForMigrationScope"/>
+      and exists (select 1 from rules r where r.uuid = i.rule_uuid and r.rule_type = 4)
   </select>
 
 

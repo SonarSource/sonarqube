@@ -47,7 +47,10 @@ public class MigrateToIssuesAction implements HotspotsWsAction {
       .setPost(true)
       .setInternal(true)
       .setSince("2026.4")
-      .setDescription("Migrate Security Hotspots to Issues. Requires 'Administer System' permission.");
+      .setDescription("""
+        Migrate Security Hotspots to Issues. Requires 'Administer System' permission. \
+        Reports 'migrated' per project, plus a scope-wide 'skipped' count of findings that cannot migrate because \
+        their rule is still a Security Hotspot.""");
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key. If not provided, all projects are migrated.")
@@ -72,13 +75,15 @@ public class MigrateToIssuesAction implements HotspotsWsAction {
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
       json.prop(PARAM_DRY_RUN, result.dryRun());
+      // Scope-wide, not per project: findings whose rule is still a Security Hotspot are excluded in SQL, so a run
+      // never loads them and cannot attribute them to a project.
+      json.prop("skipped", result.skipped());
       json.name("projects");
       json.beginArray();
       for (HotspotsToIssuesMigrator.ProjectMigrationResult project : result.projects()) {
         json.beginObject();
         json.prop("projectKey", project.projectKey());
         json.prop("migrated", project.migrated());
-        json.prop("skipped", project.skipped());
         json.endObject();
       }
       json.endArray();
