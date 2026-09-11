@@ -20,7 +20,6 @@
 package org.sonar.server.common.almsettings.gitlab;
 
 import java.util.Optional;
-import org.sonar.alm.client.gitlab.GitLabBranch;
 import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.GitlabServerException;
 import org.sonar.alm.client.gitlab.Project;
@@ -56,7 +55,6 @@ public class GitlabDevOpsProjectCreationContextService implements DevOpsProjectC
     Long gitlabProjectId = getGitlabProjectId(devOpsProjectDescriptor);
     String pat = findPersonalAccessTokenOrThrow(almSettingDto);
     Project gitlabProject = fetchGitlabProject(url, pat, gitlabProjectId);
-    String defaultBranchName = getDefaultBranchOnGitlab(url, pat, gitlabProjectId).orElse(null);
 
     return DevOpsProjectCreationContext.builder()
       .name(gitlabProject.getName())
@@ -65,7 +63,7 @@ public class GitlabDevOpsProjectCreationContextService implements DevOpsProjectC
       .url(gitlabProject.getWebUrl())
       .repoId(String.valueOf(gitlabProject.getId()))
       .isPublic(gitlabProject.getVisibility().equals("public"))
-      .defaultBranchName(defaultBranchName)
+      .defaultBranchName(gitlabProject.getDefaultBranch())
       .almSettingDto(almSettingDto)
       .userSession(userSession)
       .build();
@@ -98,11 +96,6 @@ public class GitlabDevOpsProjectCreationContextService implements DevOpsProjectC
     } catch (GitlabServerException e) {
       throw new IllegalStateException(format("Failed to fetch GitLab project with ID '%s' from '%s'", gitlabProjectId, gitlabUrl), e);
     }
-  }
-
-  private Optional<String> getDefaultBranchOnGitlab(String gitlabUrl, String pat, long gitlabProjectId) {
-    Optional<GitLabBranch> almMainBranch = gitlabApplicationClient.getBranches(gitlabUrl, pat, gitlabProjectId).stream().filter(GitLabBranch::isDefault).findFirst();
-    return almMainBranch.map(GitLabBranch::getName);
   }
 
 }

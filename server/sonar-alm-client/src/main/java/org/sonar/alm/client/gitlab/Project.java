@@ -24,6 +24,7 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import java.util.LinkedList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 
 public class Project {
   // https://docs.gitlab.com/ee/api/projects.html#get-single-project
@@ -48,6 +49,10 @@ public class Project {
 
   @SerializedName("web_url")
   private String webUrl;
+
+  // null when the project has no repository yet
+  @SerializedName("default_branch")
+  private String defaultBranch;
 
   public Project(String name, String pathWithNamespace) {
     this.name = name;
@@ -107,5 +112,10 @@ public class Project {
 
   public String getWebUrl() {
     return webUrl;
+  }
+
+  @CheckForNull
+  public String getDefaultBranch() {
+    return defaultBranch;
   }
 }

@@ -146,14 +146,31 @@ public class GitlabApplicationClientTest {
             "path": "sonarqube-example-1",
             "path_with_namespace": "sonarsource/sonarqube/sonarqube-example-1",
             "visibility": "visibilityFromGitLab",
-            "web_url": "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1"
+            "web_url": "https://example.gitlab.com/sonarsource/sonarqube/sonarqube-example-1",
+            "default_branch": "main"
           }
         """);
     server.enqueue(response);
 
     assertThat(underTest.getProject(gitlabUrl, "pat", 12345L))
-      .extracting(Project::getId, Project::getName, Project::getVisibility)
-      .containsExactly(12345L, "SonarQube example 1", "visibilityFromGitLab");
+      .extracting(Project::getId, Project::getName, Project::getVisibility, Project::getDefaultBranch)
+      .containsExactly(12345L, "SonarQube example 1", "visibilityFromGitLab", "main");
+  }
+
+  @Test
+  public void get_project_whenNoDefaultBranch_returnsNull() {
+    MockResponse response = new MockResponse()
+      .setResponseCode(200)
+      .setBody("""
+        {
+            "id": 12345,
+            "name": "SonarQube example 1",
+            "visibility": "visibilityFromGitLab"
+          }
+        """);
+    server.enqueue(response);
+
+    assertThat(underTest.getProject(gitlabUrl, "pat", 12345L).getDefaultBranch()).isNull();
   }
 
   @Test
@@ -166,50 +183,6 @@ public class GitlabApplicationClientTest {
     assertThatThrownBy(() -> underTest.getProject(gitlabUrl, "pat", 12345L))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Could not parse GitLab answer to retrieve a project. Got a non-json payload as result.");
-  }
-
-  @Test
-  public void get_branches() {
-    MockResponse response = new MockResponse()
-      .setResponseCode(200)
-      .setBody("""
-        [{
-            "name": "main",
-            "default": true
-        },{
-            "name": "other",
-            "default": false
-        }]""");
-    server.enqueue(response);
-
-    assertThat(underTest.getBranches(gitlabUrl, "pat", 12345L))
-      .extracting(GitLabBranch::getName, GitLabBranch::isDefault)
-      .containsExactly(
-        tuple("main", true),
-        tuple("other", false));
-  }
-
-  @Test
-  public void get_branches_fail_if_non_json_payload() {
-    MockResponse response = new MockResponse()
-      .setResponseCode(200)
-      .setBody("non json payload");
-    server.enqueue(response);
-
-    String instanceUrl = gitlabUrl;
-    assertThatThrownBy(() -> underTest.getBranches(instanceUrl, "pat", 12345L))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Could not parse GitLab answer to retrieve project branches. Got a non-json payload as result.");
-  }
-
-  @Test
-  public void get_branches_fail_if_exception() throws IOException {
-    server.shutdown();
-
-    String instanceUrl = gitlabUrl;
-    assertThatThrownBy(() -> underTest.getBranches(instanceUrl, "pat", 12345L))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Failed to connect to");
   }
 
   @Test
@@ -687,20 +660,6 @@ public class GitlabApplicationClientTest {
       .hasMessageContaining("Failed to connect to");
     assertThat(logTester.logs(Level.INFO).get(0))
       .contains("Gitlab API call to [" + server.url("/projects/0") + "] " +
-        "failed with error message : [Failed to connect to ")
-      .contains(server.getHostName());
-  }
-
-  @Test
-  public void fail_get_branches_with_unexpected_io_exception_with_detailed_log() throws IOException {
-    server.shutdown();
-
-    assertThatThrownBy(() -> underTest.getBranches(gitlabUrl, "token", 0L))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Failed to connect to ")
-      .hasMessageContaining(server.getHostName());
-    assertThat(logTester.logs(Level.INFO).get(0))
-      .contains("Gitlab API call to [" + server.url("/projects/0/repository/branches") + "] " +
         "failed with error message : [Failed to connect to ")
       .contains(server.getHostName());
   }

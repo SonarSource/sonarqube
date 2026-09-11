@@ -19,9 +19,9 @@
  */
 package org.sonar.server.common.almsettings.gitlab;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +32,6 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sonar.alm.client.gitlab.GitLabBranch;
 import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.Project;
 import org.sonar.db.DbClient;
@@ -130,7 +129,7 @@ class GitlabDevOpsProjectCreationContextServiceTest {
   void create_whenProjectFoundOnGitLab_createCorrectDevOpsProject(String gitlabVisibility, boolean isPublic) {
     AlmPatDto almPatDto = mockPatExistence();
 
-    Project project = mockGitlabProjectAndBranches(gitlabVisibility, almPatDto);
+    Project project = mockGitlabProject(gitlabVisibility, almPatDto, DEFAULT_BRANCH_NAME);
 
     DevOpsProjectCreationContext devOpsProjectCreationContext = gitlabDevOpsProjectService.create(ALM_SETTING_DTO, DEV_OPS_PROJECT_DESCRIPTOR);
     assertThat(devOpsProjectCreationContext.name()).isEqualTo(project.getName());
@@ -142,6 +141,16 @@ class GitlabDevOpsProjectCreationContextServiceTest {
     assertThat(devOpsProjectCreationContext.defaultBranchName()).isEqualTo(DEFAULT_BRANCH_NAME);
   }
 
+  @Test
+  void create_whenGitlabProjectHasNoDefaultBranch_leavesDefaultBranchNameNull() {
+    AlmPatDto almPatDto = mockPatExistence();
+    mockGitlabProject("private", almPatDto, null);
+
+    DevOpsProjectCreationContext devOpsProjectCreationContext = gitlabDevOpsProjectService.create(ALM_SETTING_DTO, DEV_OPS_PROJECT_DESCRIPTOR);
+
+    assertThat(devOpsProjectCreationContext.defaultBranchName()).isNull();
+  }
+
   private AlmPatDto mockPatExistence() {
     when(userSession.getUuid()).thenReturn("user-uuid");
 
@@ -151,19 +160,14 @@ class GitlabDevOpsProjectCreationContextServiceTest {
     return almPatDto;
   }
 
-  private Project mockGitlabProjectAndBranches(String gitlabVisibility, AlmPatDto almPatDto) {
+  private Project mockGitlabProject(String gitlabVisibility, AlmPatDto almPatDto, @Nullable String defaultBranchName) {
     Project project = mock(Project.class);
     when(project.getId()).thenReturn(FETCHED_PROJECT_ID);
     when(project.getName()).thenReturn("project-name");
     when(project.getPathWithNamespace()).thenReturn("project-path");
     when(project.getVisibility()).thenReturn(gitlabVisibility);
+    when(project.getDefaultBranch()).thenReturn(defaultBranchName);
     when(gitlabApplicationClient.getProject(GITLAB_COM, almPatDto.getPersonalAccessToken(), GITLAB_PROJECT_ID)).thenReturn(project);
-
-    GitLabBranch gitLabBranch = mock();
-    GitLabBranch defaultGitlabBranch = mock();
-    when(defaultGitlabBranch.getName()).thenReturn(DEFAULT_BRANCH_NAME);
-    when(defaultGitlabBranch.isDefault()).thenReturn(true);
-    when(gitlabApplicationClient.getBranches(GITLAB_COM, almPatDto.getPersonalAccessToken(), GITLAB_PROJECT_ID)).thenReturn(List.of(gitLabBranch, defaultGitlabBranch));
     return project;
   }
 

@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -349,28 +348,6 @@ public class GitlabApplicationClient {
       }
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException("Could not parse GitLab answer to retrieve a project. Got a non-json payload as result.");
-    } catch (IOException e) {
-      logException(url, e);
-      throw new IllegalStateException(e.getMessage(), e);
-    }
-  }
-
-  public List<GitLabBranch> getBranches(String gitlabUrl, String pat, Long gitlabProjectId) {
-    String url = format("%s/projects/%s/repository/branches", gitlabUrl, gitlabProjectId);
-    LOG.debug("get branches : [{}]", url);
-    Request request = new Request.Builder()
-      .addHeader(PRIVATE_TOKEN, pat)
-      .get()
-      .url(url)
-      .build();
-
-    try (Response response = client.newCall(request).execute()) {
-      checkResponseIsSuccessful(response);
-      String body = response.body().string();
-      LOG.trace("loading branches payload result : [{}]", body);
-      return Arrays.asList(new GsonBuilder().create().fromJson(body, GitLabBranch[].class));
-    } catch (JsonSyntaxException e) {
-      throw new IllegalArgumentException("Could not parse GitLab answer to retrieve project branches. Got a non-json payload as result.");
     } catch (IOException e) {
       logException(url, e);
       throw new IllegalStateException(e.getMessage(), e);

@@ -19,14 +19,13 @@
  */
 package org.sonar.server.almintegration.ws.gitlab;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.alm.client.gitlab.GitLabBranch;
 import org.sonar.alm.client.gitlab.GitlabApplicationClient;
 import org.sonar.alm.client.gitlab.Project;
 import org.sonar.db.component.ComponentQualifiers;
@@ -77,8 +76,6 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Projects;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -171,7 +168,7 @@ public class ImportGitLabProjectActionIT {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.DEVELOPER));
 
     AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
-    Project project = mockGitlabProject(singletonList(new GitLabBranch("master", true)));
+    Project project = mockGitlabProject("master");
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -205,7 +202,7 @@ public class ImportGitLabProjectActionIT {
     when(editionProvider.get()).thenReturn(Optional.of(EditionProvider.Edition.COMMUNITY));
 
     AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
-    mockGitlabProject(singletonList(new GitLabBranch("master", true)));
+    mockGitlabProject("master");
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -230,7 +227,7 @@ public class ImportGitLabProjectActionIT {
   @Test
   public void import_project_with_specific_different_default_branch() {
     AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
-    Project project = mockGitlabProject(singletonList(new GitLabBranch("main", true)));
+    Project project = mockGitlabProject("main");
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -238,7 +235,6 @@ public class ImportGitLabProjectActionIT {
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     verify(gitlabApplicationClient).getProject(almSetting.getUrl(), "PAT", 12345L);
-    verify(gitlabApplicationClient).getBranches(almSetting.getUrl(), "PAT", 12345L);
 
     Projects.CreateWsResponse.Project result = response.getProject();
     assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
@@ -256,7 +252,7 @@ public class ImportGitLabProjectActionIT {
   @Test
   public void import_project_no_gitlab_default_branch() {
     AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
-    Project project = mockGitlabProject(emptyList());
+    Project project = mockGitlabProject(null);
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -264,7 +260,6 @@ public class ImportGitLabProjectActionIT {
       .executeProtobuf(Projects.CreateWsResponse.class);
 
     verify(gitlabApplicationClient).getProject(almSetting.getUrl(), "PAT", 12345L);
-    verify(gitlabApplicationClient).getBranches(almSetting.getUrl(), "PAT", 12345L);
 
     Projects.CreateWsResponse.Project result = response.getProject();
     assertThat(result.getKey()).isEqualTo(PROJECT_KEY_NAME);
@@ -282,7 +277,7 @@ public class ImportGitLabProjectActionIT {
   @Test
   public void import_project_without_NCD() {
     AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
-    Project project = mockGitlabProject(singletonList(new GitLabBranch("master", true)));
+    Project project = mockGitlabProject("master");
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -303,7 +298,7 @@ public class ImportGitLabProjectActionIT {
   @Test
   public void importProject_whenNonBrowserCall_setsCreationMethodToApi() {
     AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
-    mockGitlabProject(singletonList(new GitLabBranch("master", true)));
+    mockGitlabProject("master");
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -318,7 +313,7 @@ public class ImportGitLabProjectActionIT {
   public void importProject_whenBrowserCall_setsCreationMethodToBrowser() {
     AlmSettingDto almSetting = configureUserAndPatAndAlmSettings();
     userSession.flagSessionAsGui();
-    mockGitlabProject(singletonList(new GitLabBranch("master", true)));
+    mockGitlabProject("master");
 
     Projects.CreateWsResponse response = ws.newRequest()
       .setParam("almSetting", almSetting.getKey())
@@ -375,7 +370,7 @@ public class ImportGitLabProjectActionIT {
   @Test
   public void importProject_whenNoAlmSettingKeyAndOnlyOneConfig_shouldImport() {
     configureUserAndPatAndAlmSettings();
-    mockGitlabProject(emptyList());
+    mockGitlabProject(null);
 
     TestRequest request = ws.newRequest()
       .setParam("gitlabProjectId", "12345");
@@ -399,15 +394,15 @@ public class ImportGitLabProjectActionIT {
     return almSetting;
   }
 
-  private Project mockGitlabProject(List<GitLabBranch> master) {
+  private Project mockGitlabProject(@Nullable String defaultBranch) {
     Project project = mock();
     when(project.getName()).thenReturn("projectName");
     when(project.getPath()).thenReturn("project/with/path/projectName");
     when(project.getVisibility()).thenReturn("public");
     when(project.getWebUrl()).thenReturn("https://gitlab.example.com/project/with/path/projectName");
     when(project.getId()).thenReturn(FETCHED_GITLAB_PROJECT_ID);
+    when(project.getDefaultBranch()).thenReturn(defaultBranch);
     when(gitlabApplicationClient.getProject(any(), any(), any())).thenReturn(project);
-    when(gitlabApplicationClient.getBranches(any(), any(), any())).thenReturn(master);
     when(projectKeyGenerator.generateUniqueProjectKey(project.getPathWithNamespace())).thenReturn(PROJECT_KEY_NAME);
     return project;
   }
