@@ -117,7 +117,8 @@ public class ImportAzureProjectAction implements AlmIntegrationsWsAction {
 
   private static ImportProjectRequest toServiceRequest(AlmSettingDto almSettingDto, String projectIdentifier, String repositoryIdentifier, @Nullable String newCodeDefinitionType,
     @Nullable String newCodeDefinitionValue) {
-    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), repositoryIdentifier, projectIdentifier, newCodeDefinitionType, newCodeDefinitionValue, false, false);
+    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), repositoryIdentifier, projectIdentifier,
+      newCodeDefinitionType, newCodeDefinitionValue, false, false, null, null);
   }
 
 }

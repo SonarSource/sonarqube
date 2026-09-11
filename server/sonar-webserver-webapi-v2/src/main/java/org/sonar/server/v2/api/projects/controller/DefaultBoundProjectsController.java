@@ -63,7 +63,9 @@ public class DefaultBoundProjectsController implements BoundProjectsController {
       request.newCodeDefinitionType(),
       request.newCodeDefinitionValue(),
       request.monorepo(),
-      allowExisting);
+      allowExisting,
+      request.summaryCommentEnabled(),
+      request.inlineAnnotationsEnabled());
   }
 
   private static BoundProjectCreateRestResponse toRestResponse(ImportedProject importedProject) {

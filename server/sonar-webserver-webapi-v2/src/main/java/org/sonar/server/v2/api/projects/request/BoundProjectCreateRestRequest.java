@@ -78,6 +78,16 @@ public record BoundProjectCreateRestRequest(
 
   @NotNull
   @Schema(description = "True if project is part of a mono repo.")
-  Boolean monorepo
+  Boolean monorepo,
+
+  @Nullable
+  @Schema(description = "For GitHub bindings only: enable/disable posting the analysis summary as a Pull Request comment. "
+    + "When rebinding an existing project, omit to preserve the current value. Defaults to true on new bindings.")
+  Boolean summaryCommentEnabled,
+
+  @Nullable
+  @Schema(description = "For Azure DevOps bindings only: enable/disable inline annotations during Pull Request decoration. "
+    + "When rebinding an existing project, omit to preserve the current value. Defaults to true on new bindings.")
+  Boolean inlineAnnotationsEnabled
 ) {
 }

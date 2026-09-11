@@ -72,7 +72,7 @@ public class BitbucketServerProjectCreator implements DevOpsProjectCreator {
 
   @Override
   public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
-    @Nullable String projectName, boolean allowExisting) {
+    @Nullable String projectName, boolean allowExisting, @Nullable Boolean summaryCommentEnabled, @Nullable Boolean inlineAnnotationsEnabled) {
 
     String pat = findPersonalAccessTokenOrThrow(dbSession);
     String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");

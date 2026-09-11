@@ -77,7 +77,7 @@ public class DefaultDevOpsProjectCreator implements DevOpsProjectCreator {
 
   @Override
   public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
-    @Nullable String projectName, boolean allowExisting) {
+    @Nullable String projectName, boolean allowExisting, @Nullable Boolean summaryCommentEnabled, @Nullable Boolean inlineAnnotationsEnabled) {
     String key = Optional.ofNullable(projectKey).orElse(generateUniqueProjectKey());
     boolean isManaged = devOpsPlatformSettings.isProvisioningEnabled();
     Boolean shouldProjectBePrivate = shouldProjectBePrivate(devOpsProjectCreationContext.isPublic());
@@ -94,7 +94,7 @@ public class DefaultDevOpsProjectCreator implements DevOpsProjectCreator {
     ComponentCreationData componentCreationData = projectCreator.getOrCreateProject(dbSession, request);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
 
-    createProjectAlmSettingDto(dbSession, projectDto, devOpsProjectCreationContext.almSettingDto(), monorepo);
+    createProjectAlmSettingDto(dbSession, projectDto, devOpsProjectCreationContext.almSettingDto(), monorepo, summaryCommentEnabled);
     addScanPermissionToCurrentUser(dbSession, projectDto);
 
     BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
@@ -122,7 +122,8 @@ public class DefaultDevOpsProjectCreator implements DevOpsProjectCreator {
     return projectKeyGenerator.generateUniqueProjectKey(devOpsProjectCreationContext.fullName());
   }
 
-  private void createProjectAlmSettingDto(DbSession dbSession, ProjectDto projectDto, AlmSettingDto almSettingDto, Boolean monorepo) {
+  private void createProjectAlmSettingDto(DbSession dbSession, ProjectDto projectDto, AlmSettingDto almSettingDto, Boolean monorepo,
+    @Nullable Boolean summaryCommentEnabled) {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
       .setAlmRepo(devOpsProjectCreationContext.devOpsPlatformIdentifier())
@@ -130,7 +131,7 @@ public class DefaultDevOpsProjectCreator implements DevOpsProjectCreator {
       .setUrl(devOpsProjectCreationContext.url())
       .setRepoId(devOpsProjectCreationContext.repoId())
       .setProjectUuid(projectDto.getUuid())
-      .setSummaryCommentEnabled(true)
+      .setSummaryCommentEnabled(summaryCommentEnabled)
       .setMonorepo(monorepo);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), projectDto.getName(), projectDto.getKey());
   }

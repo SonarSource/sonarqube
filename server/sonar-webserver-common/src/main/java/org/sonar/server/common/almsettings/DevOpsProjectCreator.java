@@ -47,6 +47,6 @@ public interface DevOpsProjectCreator {
   }
 
   ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
-    @Nullable String projectName, boolean allowExisting);
+    @Nullable String projectName, boolean allowExisting, @Nullable Boolean summaryCommentEnabled, @Nullable Boolean inlineAnnotationsEnabled);
 
 }

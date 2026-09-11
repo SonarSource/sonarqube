@@ -102,7 +102,7 @@ class BitbucketServerProjectCreatorTest {
   void createProjectAndBindToDevOpsPlatform_whenPatIsMissing_shouldThrow() {
     mockValidUserSession();
     mockValidAlmSettingsDto();
-    assertThatThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null, false))
+    assertThatThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null, false, null, null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("personal access token for 'bitbucketserver_config_1' is missing");
   }
@@ -113,7 +113,7 @@ class BitbucketServerProjectCreatorTest {
     mockValidAlmSettingsDto();
     mockValidPatForUser();
 
-    assertThatThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, "projectKey", null, false))
+    assertThatThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, "projectKey", null, false, null, null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The BitBucket project, in which the repository null is located, is mandatory");
   }
@@ -126,7 +126,7 @@ class BitbucketServerProjectCreatorTest {
     mockValidProjectDescriptor();
     when(bitbucketServerRestClient.getRepo(URL, USER_PAT, DOP_PROJECT_ID, DOP_REPOSITORY_ID)).thenThrow(new IllegalArgumentException("Problem"));
 
-    assertThatThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, "projectKey", null, false))
+    assertThatThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, "projectKey", null, false, null, null))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Problem");
   }
@@ -142,7 +142,7 @@ class BitbucketServerProjectCreatorTest {
     ArgumentCaptor<ProjectCreationRequest> projectCreationRequestCaptor = ArgumentCaptor.forClass(ProjectCreationRequest.class);
     mockProjectCreation("projectKey", "projectName", projectCreationRequestCaptor);
 
-    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, "projectKey", "projectName", false);
+    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, "projectKey", "projectName", false, null, null);
 
     ProjectCreationRequest capturedRequest = projectCreationRequestCaptor.getValue();
     assertThat(capturedRequest.projectKey()).isEqualTo("projectKey");
@@ -175,7 +175,7 @@ class BitbucketServerProjectCreatorTest {
     when(projectKeyGenerator.generateUniqueProjectKey(repository.getProject().getKey(), repository.getSlug())).thenReturn(generatedProjectKey);
     mockProjectCreation(generatedProjectKey, repository.getName());
 
-    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, null, null, false);
+    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, null, null, false, null, null);
 
     ArgumentCaptor<ProjectAlmSettingDto> projectAlmSettingCaptor = ArgumentCaptor.forClass(ProjectAlmSettingDto.class);
     verify(dbClient.projectAlmSettingDao()).insertOrUpdate(any(), projectAlmSettingCaptor.capture(), eq(ALM_SETTING_KEY), eq(repository.getName()), eq(generatedProjectKey));

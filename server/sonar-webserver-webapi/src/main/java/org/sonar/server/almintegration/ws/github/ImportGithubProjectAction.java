@@ -109,6 +109,7 @@ public class ImportGithubProjectAction implements AlmIntegrationsWsAction {
 
   private static ImportProjectRequest toServiceRequest(AlmSettingDto almSettingDto, String githubRepositoryKey, @Nullable String newCodeDefinitionType,
     @Nullable String newCodeDefinitionValue) {
-    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), githubRepositoryKey, null, newCodeDefinitionType, newCodeDefinitionValue, false, false);
+    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), githubRepositoryKey, null,
+      newCodeDefinitionType, newCodeDefinitionValue, false, false, null, null);
   }
 }

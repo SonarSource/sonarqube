@@ -35,6 +35,10 @@ public record ImportProjectRequest(
   @Nullable
   String newCodeDefinitionValue,
   Boolean monorepo,
-  boolean allowExisting) {
+  boolean allowExisting,
+  @Nullable
+  Boolean summaryCommentEnabled,
+  @Nullable
+  Boolean inlineAnnotationsEnabled) {
 
 }

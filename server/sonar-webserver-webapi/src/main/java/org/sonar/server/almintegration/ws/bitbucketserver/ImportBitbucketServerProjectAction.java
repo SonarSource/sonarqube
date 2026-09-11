@@ -118,7 +118,8 @@ public class ImportBitbucketServerProjectAction implements AlmIntegrationsWsActi
 
   private static ImportProjectRequest toServiceRequest(AlmSettingDto almSettingDto, String slug, String project, @Nullable String newCodeDefinitionType,
     @Nullable String newCodeDefinitionValue) {
-    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), slug, project, newCodeDefinitionType, newCodeDefinitionValue, false, false);
+    return new ImportProjectRequest(null, null, almSettingDto.getUuid(), slug, project,
+      newCodeDefinitionType, newCodeDefinitionValue, false, false, null, null);
   }
 
 }

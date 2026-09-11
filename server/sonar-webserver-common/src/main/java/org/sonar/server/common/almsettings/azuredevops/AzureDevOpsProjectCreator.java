@@ -71,7 +71,7 @@ public class AzureDevOpsProjectCreator implements DevOpsProjectCreator {
 
   @Override
   public ComponentCreationData createProjectAndBindToDevOpsPlatform(DbSession dbSession, CreationMethod creationMethod, Boolean monorepo, @Nullable String projectKey,
-    @Nullable String projectName, boolean allowExisting) {
+    @Nullable String projectName, boolean allowExisting, @Nullable Boolean summaryCommentEnabled, @Nullable Boolean inlineAnnotationsEnabled) {
     String pat = findPersonalAccessTokenOrThrow(dbSession, almSettingDto);
     String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
     checkArgument(devOpsProjectDescriptor.projectIdentifier() != null, "DevOps Project Identifier cannot be null for Azure DevOps");
@@ -88,7 +88,7 @@ public class AzureDevOpsProjectCreator implements DevOpsProjectCreator {
 
     ComponentCreationData componentCreationData = projectCreator.getOrCreateProject(dbSession, request);
     ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
-    createProjectAlmSettingDto(dbSession, repo, projectDto, almSettingDto, monorepo);
+    createProjectAlmSettingDto(dbSession, repo, projectDto, almSettingDto, monorepo, inlineAnnotationsEnabled);
     return componentCreationData;
   }
 
@@ -116,7 +116,8 @@ public class AzureDevOpsProjectCreator implements DevOpsProjectCreator {
     return Optional.ofNullable(projectName).orElse(repository.getName());
   }
 
-  private void createProjectAlmSettingDto(DbSession dbSession, GsonAzureRepo repository, ProjectDto projectDto, AlmSettingDto almSettingDto, Boolean monorepo) {
+  private void createProjectAlmSettingDto(DbSession dbSession, GsonAzureRepo repository, ProjectDto projectDto, AlmSettingDto almSettingDto, Boolean monorepo,
+    @Nullable Boolean inlineAnnotationsEnabled) {
     ProjectAlmSettingDto projectAlmSettingDto = new ProjectAlmSettingDto()
       .setAlmSettingUuid(almSettingDto.getUuid())
       .setAlmRepo(repository.getName())
@@ -124,7 +125,7 @@ public class AzureDevOpsProjectCreator implements DevOpsProjectCreator {
       .setUrl(repository.getWebUrl())
       .setRepoId(repository.getId())
       .setProjectUuid(projectDto.getUuid())
-      .setInlineAnnotationsEnabled(true)
+      .setInlineAnnotationsEnabled(inlineAnnotationsEnabled)
       .setMonorepo(monorepo);
     dbClient.projectAlmSettingDao().insertOrUpdate(dbSession, projectAlmSettingDto, almSettingDto.getKey(), projectDto.getName(), projectDto.getKey());
   }

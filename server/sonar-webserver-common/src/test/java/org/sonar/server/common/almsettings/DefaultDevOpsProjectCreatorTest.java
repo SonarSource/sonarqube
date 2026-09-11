@@ -162,7 +162,7 @@ class DefaultDevOpsProjectCreatorTest {
 
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
-      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null, false);
+      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null, false, true, null);
 
     // then
     assertThat(actualComponentCreationData.projectDto()).isEqualTo(componentCreationData.projectDto());
@@ -193,7 +193,7 @@ class DefaultDevOpsProjectCreatorTest {
 
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
-      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null, false);
+      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null, false, null, null);
 
     // then
     assertThat(actualComponentCreationData.projectDto()).isEqualTo(componentCreationData.projectDto());
@@ -217,7 +217,7 @@ class DefaultDevOpsProjectCreatorTest {
 
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true),
-      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null, false);
+      SCANNER_API_DEVOPS_AUTO_CONFIG, false, null, null, false, null, null);
 
     // then
     assertThat(actualComponentCreationData.projectDto()).isEqualTo(componentCreationData.projectDto());
@@ -242,7 +242,7 @@ class DefaultDevOpsProjectCreatorTest {
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, false,
       projectKey,
-      null, false);
+      null, false, true, null);
 
     // then
     assertThat(actualComponentCreationData.projectDto()).isEqualTo(componentCreationData.projectDto());
@@ -276,7 +276,7 @@ class DefaultDevOpsProjectCreatorTest {
     // when
     ComponentCreationData actualComponentCreationData = defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, false,
       projectKey,
-      null, false);
+      null, false, true, null);
 
     // then
     assertThat(actualComponentCreationData.projectDto()).isEqualTo(componentCreationData.projectDto());
@@ -309,7 +309,7 @@ class DefaultDevOpsProjectCreatorTest {
 
     // when / then
     assertThatException()
-      .isThrownBy(() -> defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, ALM_IMPORT_API, false, projectKey, null, true))
+      .isThrownBy(() -> defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, ALM_IMPORT_API, false, projectKey, null, true, null, null))
       .isInstanceOf(ResourceForbiddenException.class);
 
     verify(dbClient.projectAlmSettingDao(), never()).insertOrUpdate(any(), any(), any(), any(), any());
@@ -371,6 +371,11 @@ class DefaultDevOpsProjectCreatorTest {
   }
 
   private static void assertAlmSettingsDtoContainsCorrectInformation(AlmSettingDto almSettingDto, ProjectDto projectDto, ProjectAlmSettingDto projectAlmSettingDto) {
+    assertAlmSettingsDtoContainsCorrectInformation(almSettingDto, projectDto, projectAlmSettingDto, true);
+  }
+
+  private static void assertAlmSettingsDtoContainsCorrectInformation(AlmSettingDto almSettingDto, ProjectDto projectDto, ProjectAlmSettingDto projectAlmSettingDto,
+    Boolean expectedSummaryCommentEnabled) {
     assertThat(projectAlmSettingDto.getAlmRepo()).isEqualTo(DEVOPS_PROJECT_DESCRIPTOR.repositoryIdentifier());
     assertThat(projectAlmSettingDto.getAlmSlug()).isEqualTo(ORGANIZATION_NAME + "/" + REPOSITORY_NAME);
     assertThat(projectAlmSettingDto.getUrl()).isEqualTo(REPOSITORY_URL);
@@ -378,7 +383,24 @@ class DefaultDevOpsProjectCreatorTest {
     assertThat(projectAlmSettingDto.getAlmSettingUuid()).isEqualTo(almSettingDto.getUuid());
     assertThat(projectAlmSettingDto.getProjectUuid()).isEqualTo(projectDto.getUuid());
     assertThat(projectAlmSettingDto.getMonorepo()).isFalse();
-    assertThat(projectAlmSettingDto.getSummaryCommentEnabled()).isTrue();
+    assertThat(projectAlmSettingDto.getSummaryCommentEnabled()).isEqualTo(expectedSummaryCommentEnabled);
+  }
+
+  @Test
+  void createProjectAndBindToDevOpsPlatform_whenSummaryCommentEnabledFalse_persistsFalse() {
+    String projectKey = "customProjectKey";
+    mockGeneratedProjectKey();
+
+    ComponentCreationData componentCreationData = mockProjectCreation(projectKey);
+    ProjectAlmSettingDao projectAlmSettingDao = mock();
+    when(dbClient.projectAlmSettingDao()).thenReturn(projectAlmSettingDao);
+    when(projectDefaultVisibility.get(any())).thenReturn(Visibility.PRIVATE);
+
+    defaultDevOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbClient.openSession(true), ALM_IMPORT_API, false, projectKey, null, false, false, null);
+
+    verify(projectAlmSettingDao).insertOrUpdate(any(), projectAlmSettingDtoCaptor.capture(), eq(ALM_SETTING_KEY), eq(REPOSITORY_NAME), eq(projectKey));
+    ProjectAlmSettingDto projectAlmSettingDto = projectAlmSettingDtoCaptor.getValue();
+    assertAlmSettingsDtoContainsCorrectInformation(almSettingDto, requireNonNull(componentCreationData.projectDto()), projectAlmSettingDto, false);
   }
 
 }

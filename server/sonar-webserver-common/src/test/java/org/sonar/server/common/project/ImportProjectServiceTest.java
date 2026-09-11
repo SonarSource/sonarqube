@@ -81,12 +81,57 @@ class ImportProjectServiceTest {
     DbSession dbSession = mockDbSession();
     when(dbClient.almSettingDao().selectByUuid(dbSession, ALM_SETTING_ID)).thenReturn(Optional.empty());
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true, false);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true, false, null, null);
 
     assertThatThrownBy(() -> importProjectService.importProject(request))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("devOpsPlatformSettingId value not found, must be the ID of the DevOps Platform configuration");
 
+  }
+
+  @Test
+  void importProject_whenSummaryCommentEnabledSetForAzure_throws() {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+    DbSession dbSession = mockDbSession();
+    AlmSettingDto almSetting = mock(AlmSettingDto.class);
+    when(almSetting.getAlm()).thenReturn(ALM.AZURE_DEVOPS);
+    when(almSetting.getUrl()).thenReturn(API_URL);
+    when(dbClient.almSettingDao().selectByUuid(dbSession, ALM_SETTING_ID)).thenReturn(Optional.of(almSetting));
+
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, false, false, false, null);
+
+    assertThatThrownBy(() -> importProjectService.importProject(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'summaryCommentEnabled' is not supported for platform AZURE_DEVOPS");
+  }
+
+  @Test
+  void importProject_whenSummaryCommentEnabledSetForGitLab_throws() {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+    DbSession dbSession = mockDbSession();
+    AlmSettingDto almSetting = mock(AlmSettingDto.class);
+    when(almSetting.getAlm()).thenReturn(ALM.GITLAB);
+    when(almSetting.getUrl()).thenReturn(API_URL);
+    when(dbClient.almSettingDao().selectByUuid(dbSession, ALM_SETTING_ID)).thenReturn(Optional.of(almSetting));
+
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, false, false, false, null);
+
+    assertThatThrownBy(() -> importProjectService.importProject(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'summaryCommentEnabled' is not supported for platform GITLAB");
+  }
+
+  @Test
+  void importProject_whenInlineAnnotationsEnabledSetForGithub_throws() {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+    DbSession dbSession = mockDbSession();
+    mockAlmSetting(dbSession);
+
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, false, false, null, false);
+
+    assertThatThrownBy(() -> importProjectService.importProject(request))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("'inlineAnnotationsEnabled' is not supported for platform GITHUB");
   }
 
   @Test
@@ -99,7 +144,7 @@ class ImportProjectServiceTest {
     when(devOpsProjectCreatorFactory.getDevOpsProjectCreator(eq(almSetting), any()))
       .thenReturn(Optional.empty());
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true, false);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true, false, null, null);
 
     assertThatThrownBy(() -> importProjectService.importProject(request))
       .isInstanceOf(IllegalArgumentException.class)
@@ -117,11 +162,12 @@ class ImportProjectServiceTest {
     ComponentCreationData componentCreationData = mockProjectCreation(devOpsProjectCreator, ALM_IMPORT_MONOREPO_API, true, dbSession);
 
     ProjectDto projectDto = mockProjectDto(componentCreationData);
-    when(componentCreationData.mainBranchDto()).thenReturn(mock(BranchDto.class));
+    BranchDto mainBranchDto = mock(BranchDto.class);
+    when(componentCreationData.mainBranchDto()).thenReturn(mainBranchDto);
 
     ProjectAlmSettingDto projectAlmSettingDto = mockProjectAlmSetting(dbSession, projectDto);
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true, false);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, true, false, null, null);
 
     ImportedProject importedProject = importProjectService.importProject(request);
 
@@ -146,7 +192,7 @@ class ImportProjectServiceTest {
 
     ProjectAlmSettingDto projectAlmSettingDto = mockProjectAlmSetting(dbSession, projectDto);
 
-    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, "NUMBER_OF_DAYS", "10", false, false);
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, "NUMBER_OF_DAYS", "10", false, false, null, null);
 
     ImportedProject importedProject = importProjectService.importProject(request);
 
@@ -161,6 +207,119 @@ class ImportProjectServiceTest {
       "NUMBER_OF_DAYS",
       "10");
     verify(componentUpdater).commitAndIndex(dbSession, componentCreationData);
+  }
+
+  @Test
+  void importProject_whenNullFlagsAndNoExistingBinding_defaultsToTrue() {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+    DbSession dbSession = mockDbSession();
+    AlmSettingDto almSetting = mockAlmSetting(dbSession);
+    DevOpsProjectCreator devOpsProjectCreator = mockDevOpsProjectCreator(almSetting);
+    ComponentCreationData componentCreationData = mock(ComponentCreationData.class);
+    when(devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(eq(dbSession), any(), eq(false), eq(PROJECT_KEY), eq(PROJECT_NAME), eq(false), eq(true), eq(true)))
+      .thenReturn(componentCreationData);
+    ProjectDto projectDto = mockProjectDto(componentCreationData);
+    BranchDto mainBranchDto = mock(BranchDto.class);
+    when(componentCreationData.mainBranchDto()).thenReturn(mainBranchDto);
+    mockProjectAlmSetting(dbSession, projectDto);
+
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, false, false, null, null);
+    importProjectService.importProject(request);
+
+    verify(devOpsProjectCreator).createProjectAndBindToDevOpsPlatform(eq(dbSession), any(), eq(false), eq(PROJECT_KEY), eq(PROJECT_NAME), eq(false), eq(true), eq(true));
+  }
+
+  @Test
+  void importProject_whenNullFlagsOnRebindWithExistingValues_preservesExistingValues() {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+    DbSession dbSession = mockDbSession();
+    AlmSettingDto almSetting = mockAlmSetting(dbSession);
+    DevOpsProjectCreator devOpsProjectCreator = mockDevOpsProjectCreator(almSetting);
+
+    ProjectDto existingProject = mock(ProjectDto.class);
+    when(dbClient.projectDao().selectProjectByKey(dbSession, PROJECT_KEY)).thenReturn(Optional.of(existingProject));
+    ProjectAlmSettingDto existingBinding = mock(ProjectAlmSettingDto.class);
+    when(existingBinding.getSummaryCommentEnabled()).thenReturn(false);
+    when(existingBinding.getInlineAnnotationsEnabled()).thenReturn(false);
+    when(dbClient.projectAlmSettingDao().selectByProject(dbSession, existingProject)).thenReturn(Optional.of(existingBinding));
+
+    ComponentCreationData componentCreationData = mock(ComponentCreationData.class);
+    when(devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(eq(dbSession), any(), eq(false), eq(PROJECT_KEY), eq(PROJECT_NAME), eq(true), eq(false), eq(false)))
+      .thenReturn(componentCreationData);
+    ProjectDto projectDto = mockProjectDto(componentCreationData);
+    BranchDto mainBranchDto = mock(BranchDto.class);
+    when(componentCreationData.mainBranchDto()).thenReturn(mainBranchDto);
+    when(dbClient.projectAlmSettingDao().selectByProject(dbSession, projectDto)).thenReturn(Optional.of(mock(ProjectAlmSettingDto.class)));
+
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, false, true, null, null);
+    importProjectService.importProject(request);
+
+    verify(devOpsProjectCreator).createProjectAndBindToDevOpsPlatform(eq(dbSession), any(), eq(false), eq(PROJECT_KEY), eq(PROJECT_NAME), eq(true), eq(false), eq(false));
+  }
+
+  @Test
+  void importProject_whenExplicitSummaryCommentOnRebind_overwritesExistingValue() {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+    DbSession dbSession = mockDbSession();
+    AlmSettingDto almSetting = mockAlmSetting(dbSession);
+    DevOpsProjectCreator devOpsProjectCreator = mockDevOpsProjectCreator(almSetting);
+
+    ProjectDto existingProject = mock(ProjectDto.class);
+    when(dbClient.projectDao().selectProjectByKey(dbSession, PROJECT_KEY)).thenReturn(Optional.of(existingProject));
+    ProjectAlmSettingDto existingBinding = mock(ProjectAlmSettingDto.class);
+    when(existingBinding.getSummaryCommentEnabled()).thenReturn(false);
+    when(existingBinding.getInlineAnnotationsEnabled()).thenReturn(false);
+    when(dbClient.projectAlmSettingDao().selectByProject(dbSession, existingProject)).thenReturn(Optional.of(existingBinding));
+
+    ComponentCreationData componentCreationData = mock(ComponentCreationData.class);
+    // GitHub supports summaryCommentEnabled (explicit true overrides existing false) but not inlineAnnotationsEnabled (null → preserves existing false)
+    when(devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(eq(dbSession), any(), eq(false), eq(PROJECT_KEY), eq(PROJECT_NAME), eq(true), eq(true), eq(false)))
+      .thenReturn(componentCreationData);
+    ProjectDto projectDto = mockProjectDto(componentCreationData);
+    BranchDto mainBranchDto = mock(BranchDto.class);
+    when(componentCreationData.mainBranchDto()).thenReturn(mainBranchDto);
+    when(dbClient.projectAlmSettingDao().selectByProject(dbSession, projectDto)).thenReturn(Optional.of(mock(ProjectAlmSettingDto.class)));
+
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, false, true, true, null);
+    importProjectService.importProject(request);
+
+    verify(devOpsProjectCreator).createProjectAndBindToDevOpsPlatform(eq(dbSession), any(), eq(false), eq(PROJECT_KEY), eq(PROJECT_NAME), eq(true), eq(true), eq(false));
+  }
+
+  @Test
+  void importProject_whenExplicitInlineAnnotationsOnAzureRebind_overwritesExistingValue() {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+    DbSession dbSession = mockDbSession();
+
+    AlmSettingDto almSetting = mock(AlmSettingDto.class);
+    when(almSetting.getAlm()).thenReturn(ALM.AZURE_DEVOPS);
+    when(almSetting.getUrl()).thenReturn(API_URL);
+    when(dbClient.almSettingDao().selectByUuid(dbSession, ALM_SETTING_ID)).thenReturn(Optional.of(almSetting));
+
+    DevOpsProjectCreator devOpsProjectCreator = mock(DevOpsProjectCreator.class);
+    DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(ALM.AZURE_DEVOPS, API_URL, DOP_REPOSITORY_ID, DOP_PROJECT_ID);
+    when(devOpsProjectCreatorFactory.getDevOpsProjectCreator(almSetting, projectDescriptor)).thenReturn(Optional.of(devOpsProjectCreator));
+
+    ProjectDto existingProject = mock(ProjectDto.class);
+    when(dbClient.projectDao().selectProjectByKey(dbSession, PROJECT_KEY)).thenReturn(Optional.of(existingProject));
+    ProjectAlmSettingDto existingBinding = mock(ProjectAlmSettingDto.class);
+    when(existingBinding.getSummaryCommentEnabled()).thenReturn(null);
+    when(existingBinding.getInlineAnnotationsEnabled()).thenReturn(false);
+    when(dbClient.projectAlmSettingDao().selectByProject(dbSession, existingProject)).thenReturn(Optional.of(existingBinding));
+
+    ComponentCreationData componentCreationData = mock(ComponentCreationData.class);
+    // inlineAnnotationsEnabled=true (explicit) overrides existing false; summaryCommentEnabled=null, existing null → default true
+    when(devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(eq(dbSession), any(), eq(false), eq(PROJECT_KEY), eq(PROJECT_NAME), eq(true), eq(true), eq(true)))
+      .thenReturn(componentCreationData);
+    ProjectDto projectDto = mockProjectDto(componentCreationData);
+    BranchDto mainBranchDto = mock(BranchDto.class);
+    when(componentCreationData.mainBranchDto()).thenReturn(mainBranchDto);
+    when(dbClient.projectAlmSettingDao().selectByProject(dbSession, projectDto)).thenReturn(Optional.of(mock(ProjectAlmSettingDto.class)));
+
+    ImportProjectRequest request = new ImportProjectRequest(PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, DOP_PROJECT_ID, null, null, false, true, null, true);
+    importProjectService.importProject(request);
+
+    verify(devOpsProjectCreator).createProjectAndBindToDevOpsPlatform(eq(dbSession), any(), eq(false), eq(PROJECT_KEY), eq(PROJECT_NAME), eq(true), eq(true), eq(true));
   }
 
   private DbSession mockDbSession() {
@@ -187,7 +346,7 @@ class ImportProjectServiceTest {
 
   private static ComponentCreationData mockProjectCreation(DevOpsProjectCreator devOpsProjectCreator, CreationMethod creationMethod, boolean monorepo, DbSession dbSession) {
     ComponentCreationData componentCreationData = mock(ComponentCreationData.class);
-    when(devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(dbSession, creationMethod, monorepo, PROJECT_KEY, PROJECT_NAME, false))
+    when(devOpsProjectCreator.createProjectAndBindToDevOpsPlatform(eq(dbSession), eq(creationMethod), eq(monorepo), eq(PROJECT_KEY), eq(PROJECT_NAME), eq(false), any(), any()))
       .thenReturn(componentCreationData);
     return componentCreationData;
   }

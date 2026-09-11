@@ -114,7 +114,7 @@ class AzureDevOpsProjectCreatorTest {
   @Test
   void createProjectAndBindToDevOpsPlatform_whenPatIsMissing_shouldThrow() {
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null, false))
+      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null, false, null, null))
       .withMessage("personal access token for 'azuredevops_config_1' is missing");
   }
 
@@ -124,7 +124,7 @@ class AzureDevOpsProjectCreatorTest {
     when(azureDevOpsHttpClient.getRepo(AZURE_DEVOPS_URL, USER_PAT, DEVOPS_PROJECT_ID, REPOSITORY_NAME))
       .thenThrow(new AzureDevopsServerException(404, "Problem fetching repository from AzureDevOps"));
     assertThatExceptionOfType(IllegalStateException.class)
-      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null, false))
+      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null, false, null, null))
       .withMessage("Failed to fetch AzureDevOps repository 'repositoryName' from project 'project-identifier' from 'http://api.com'");
   }
 
@@ -134,7 +134,7 @@ class AzureDevOpsProjectCreatorTest {
     lenient().when(devOpsProjectDescriptor.projectIdentifier()).thenReturn(null);
 
     assertThatExceptionOfType(IllegalArgumentException.class)
-      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null, false))
+      .isThrownBy(() -> underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, false, null, null, false, null, null))
       .withMessage("DevOps Project Identifier cannot be null for Azure DevOps");
   }
 
@@ -146,7 +146,7 @@ class AzureDevOpsProjectCreatorTest {
     ArgumentCaptor<ProjectCreationRequest> projectCreationRequestCaptor = ArgumentCaptor.forClass(ProjectCreationRequest.class);
     mockProjectCreation("projectKey", "projectName", projectCreationRequestCaptor);
 
-    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, "projectKey", "projectName", false);
+    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, "projectKey", "projectName", false, null, true);
 
     ProjectCreationRequest capturedRequest = projectCreationRequestCaptor.getValue();
     assertThat(capturedRequest.projectKey()).isEqualTo("projectKey");
@@ -168,7 +168,22 @@ class AzureDevOpsProjectCreatorTest {
     assertThat(createdProjectAlmSettingDto.getRepoId()).isEqualTo(REPOSITORY_ID);
     assertThat(createdProjectAlmSettingDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(createdProjectAlmSettingDto.getMonorepo()).isTrue();
-    assertThat(createdProjectAlmSettingDto.getInlineAnnotationsEnabled()).isTrue();
+    assertThat(createdProjectAlmSettingDto.getInlineAnnotationsEnabled()).isTrue(); // explicit true was passed
+  }
+
+  @Test
+  void createProjectAndBindToDevOpsPlatform_whenInlineAnnotationsEnabledFalse_persistsFalse() {
+    mockPatForUser();
+    mockAzureDevOpsProject();
+
+    ArgumentCaptor<ProjectCreationRequest> projectCreationRequestCaptor = ArgumentCaptor.forClass(ProjectCreationRequest.class);
+    mockProjectCreation("projectKey", "projectName", projectCreationRequestCaptor);
+
+    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, "projectKey", "projectName", false, null, false);
+
+    ArgumentCaptor<ProjectAlmSettingDto> projectAlmSettingCaptor = ArgumentCaptor.forClass(ProjectAlmSettingDto.class);
+    verify(dbClient.projectAlmSettingDao()).insertOrUpdate(any(), projectAlmSettingCaptor.capture(), eq(ALM_SETTING_KEY), eq("projectName"), eq("projectKey"));
+    assertThat(projectAlmSettingCaptor.getValue().getInlineAnnotationsEnabled()).isFalse();
   }
 
   @Test
@@ -182,7 +197,7 @@ class AzureDevOpsProjectCreatorTest {
 
     mockProjectCreation(generatedProjectKey, REPOSITORY_NAME);
 
-    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, null, null, false);
+    underTest.createProjectAndBindToDevOpsPlatform(mock(DbSession.class), CreationMethod.ALM_IMPORT_API, true, null, null, false, null, null);
 
     ArgumentCaptor<ProjectAlmSettingDto> projectAlmSettingCaptor = ArgumentCaptor.forClass(ProjectAlmSettingDto.class);
 

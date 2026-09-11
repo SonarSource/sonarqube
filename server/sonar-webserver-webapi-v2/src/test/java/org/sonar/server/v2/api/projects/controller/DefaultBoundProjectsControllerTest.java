@@ -124,7 +124,9 @@ class DefaultBoundProjectsControllerTest {
       "NUMBER_OF_DAYS",
       "10",
       true,
-      false)))
+      false,
+      null,
+      null)))
       .thenReturn(new ImportedProject(
         projectDto,
         projectAlmSettingDto,
@@ -153,6 +155,64 @@ class DefaultBoundProjectsControllerTest {
             "bindingId": "project-alm-setting-uuid"
           }
           """));
+  }
+
+  @Test
+  void createBoundProject_whenSummaryCommentEnabledFalse_isForwardedToService() throws Exception {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+
+    ProjectDto projectDto = mock(ProjectDto.class);
+    when(projectDto.getUuid()).thenReturn(PROJECT_UUID);
+    ProjectAlmSettingDto projectAlmSettingDto = mock(ProjectAlmSettingDto.class);
+    when(projectAlmSettingDto.getUuid()).thenReturn(PROJECT_ALM_SETTING_UUID);
+
+    when(importProjectService.importProject(new ImportProjectRequest(
+      PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, null, null, null, false, false, false, null)))
+      .thenReturn(new ImportedProject(projectDto, projectAlmSettingDto, true));
+
+    mockMvc.perform(
+        post(BOUND_PROJECTS_ENDPOINT)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("""
+                  {
+                    "projectKey": "project-key",
+                    "projectName": "project-name",
+                    "devOpsPlatformSettingId": "alm-setting-id",
+                    "repositoryIdentifier": "dop-repository-id",
+                    "monorepo": false,
+                    "summaryCommentEnabled": false
+                  }
+            """))
+      .andExpect(status().isCreated());
+  }
+
+  @Test
+  void createBoundProject_whenInlineAnnotationsEnabledFalse_isForwardedToService() throws Exception {
+    userSession.logIn().addPermission(PROVISION_PROJECTS);
+
+    ProjectDto projectDto = mock(ProjectDto.class);
+    when(projectDto.getUuid()).thenReturn(PROJECT_UUID);
+    ProjectAlmSettingDto projectAlmSettingDto = mock(ProjectAlmSettingDto.class);
+    when(projectAlmSettingDto.getUuid()).thenReturn(PROJECT_ALM_SETTING_UUID);
+
+    when(importProjectService.importProject(new ImportProjectRequest(
+      PROJECT_KEY, PROJECT_NAME, ALM_SETTING_ID, DOP_REPOSITORY_ID, null, null, null, false, false, null, false)))
+      .thenReturn(new ImportedProject(projectDto, projectAlmSettingDto, true));
+
+    mockMvc.perform(
+        post(BOUND_PROJECTS_ENDPOINT)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("""
+                  {
+                    "projectKey": "project-key",
+                    "projectName": "project-name",
+                    "devOpsPlatformSettingId": "alm-setting-id",
+                    "repositoryIdentifier": "dop-repository-id",
+                    "monorepo": false,
+                    "inlineAnnotationsEnabled": false
+                  }
+            """))
+      .andExpect(status().isCreated());
   }
 
   @Test
@@ -194,7 +254,9 @@ class DefaultBoundProjectsControllerTest {
       "NUMBER_OF_DAYS",
       "10",
       true,
-      true)))
+      true,
+      null,
+      null)))
       .thenReturn(new ImportedProject(
         projectDto,
         projectAlmSettingDto,

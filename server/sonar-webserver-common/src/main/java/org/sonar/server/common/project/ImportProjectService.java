@@ -20,6 +20,7 @@
 package org.sonar.server.common.project;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.server.ServerSide;
@@ -39,6 +40,8 @@ import org.sonar.server.component.ComponentCreationData;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static org.sonar.db.alm.setting.ALM.AZURE_DEVOPS;
+import static org.sonar.db.alm.setting.ALM.GITHUB;
 import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT;
 import static org.sonar.db.project.CreationMethod.Category.ALM_IMPORT_MONOREPO;
 import static org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver.checkNewCodeDefinitionParam;
@@ -66,13 +69,15 @@ public class ImportProjectService {
       checkNewCodeDefinitionParam(request.newCodeDefinitionType(), request.newCodeDefinitionValue());
       AlmSettingDto almSetting = dbClient.almSettingDao().selectByUuid(dbSession, request.almSettingId()).orElseThrow(() ->
         new IllegalArgumentException("devOpsPlatformSettingId value not found, must be the ID of the DevOps Platform configuration"));
+      validatePrDecorationOptionsForAlm(almSetting, request);
+
       DevOpsProjectDescriptor projectDescriptor = new DevOpsProjectDescriptor(almSetting.getAlm(), almSetting.getUrl(), request.repositoryIdentifier(),
         request.projectIdentifier());
 
       DevOpsProjectCreator projectCreator = devOpsProjectCreatorFactory.getDevOpsProjectCreator(almSetting, projectDescriptor)
         .orElseThrow(() -> new IllegalArgumentException(format("Platform %s not supported", almSetting.getAlm().name())));
 
-      // Capture old binding before updating, for logging purposes
+      // Capture old binding before updating: used for rebind logging and to preserve existing PR-decoration flags
       Optional<ProjectAlmSettingDto> oldBinding = Optional.empty();
       if (request.projectKey() != null) {
         Optional<ProjectDto> existingProject = dbClient.projectDao().selectProjectByKey(dbSession, request.projectKey());
@@ -81,6 +86,11 @@ public class ImportProjectService {
         }
       }
 
+      Boolean effectiveSummaryCommentEnabled = resolvePrDecorationOption(request.summaryCommentEnabled(),
+        oldBinding.map(ProjectAlmSettingDto::getSummaryCommentEnabled).orElse(null));
+      Boolean effectiveInlineAnnotationsEnabled = resolvePrDecorationOption(request.inlineAnnotationsEnabled(),
+        oldBinding.map(ProjectAlmSettingDto::getInlineAnnotationsEnabled).orElse(null));
+
       CreationMethod creationMethod = getCreationMethod(request.monorepo());
       ComponentCreationData componentCreationData = projectCreator.createProjectAndBindToDevOpsPlatform(
         dbSession,
@@ -88,7 +98,9 @@ public class ImportProjectService {
         request.monorepo(),
         request.projectKey(),
         request.projectName(),
-        request.allowExisting());
+        request.allowExisting(),
+        effectiveSummaryCommentEnabled,
+        effectiveInlineAnnotationsEnabled);
 
       ProjectDto projectDto = Optional.ofNullable(componentCreationData.projectDto()).orElseThrow();
       BranchDto mainBranchDto = Optional.ofNullable(componentCreationData.mainBranchDto()).orElseThrow();
@@ -120,6 +132,28 @@ public class ImportProjectService {
       dbSession.commit();
       return new ImportedProject(projectDto, projectAlmSettingDto, componentCreationData.newProjectCreated());
     }
+  }
+
+  private static void validatePrDecorationOptionsForAlm(AlmSettingDto almSetting, ImportProjectRequest request) {
+    if (request.summaryCommentEnabled() != null && almSetting.getAlm() != GITHUB) {
+      throw new IllegalArgumentException(format("'summaryCommentEnabled' is not supported for platform %s", almSetting.getAlm().name()));
+    }
+    if (request.inlineAnnotationsEnabled() != null && almSetting.getAlm() != AZURE_DEVOPS) {
+      throw new IllegalArgumentException(format("'inlineAnnotationsEnabled' is not supported for platform %s", almSetting.getAlm().name()));
+    }
+  }
+
+  /**
+   * Tri-state resolution: explicit request value > preserve existing DB value on rebind > default true on create.
+   */
+  private static Boolean resolvePrDecorationOption(@Nullable Boolean requested, @Nullable Boolean existing) {
+    if (requested != null) {
+      return requested;
+    }
+    if (existing != null) {
+      return existing;
+    }
+    return true;
   }
 
   private CreationMethod getCreationMethod(Boolean monorepo) {
