@@ -1,10 +1,11 @@
 pluginManagement {
   repositories {
     def artifactoryPassword = System.env.'ARTIFACTORY_ACCESS_TOKEN'
+    def artifactoryUrl = System.env.'ARTIFACTORY_URL' ?: 'https://repox.jfrog.io/repox'
 
     maven {
       if (artifactoryPassword) {
-        url 'https://repox.jfrog.io/repox/plugins.gradle.org/'
+        url "${artifactoryUrl}/plugins.gradle.org/"
         authentication {
           header(HttpHeaderAuthentication)
         }
