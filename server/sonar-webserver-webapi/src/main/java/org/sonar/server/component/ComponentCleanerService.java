@@ -42,7 +42,7 @@ import static java.util.Collections.singletonList;
 @ServerSide
 public class ComponentCleanerService {
 
-  private static final ScaTtrHistoryCleaner NO_OP_SCA_TTR_HISTORY_CLEANER = (dbSession, entityId, entityType) -> {
+  private static final EntityCleaner NO_OP_ENTITY_CLEANER = (dbSession, entityId, entityType) -> {
     // SCA history is available only when the private SCA extension provides a cleaner.
   };
 
@@ -51,7 +51,7 @@ public class ComponentCleanerService {
   private final IssueCountHistoryRepository issueCountHistoryRepository;
   private final MeasureHistoryRepository measureHistoryRepository;
   private final IssueTtrHistoryRepository issueTtrHistoryRepository;
-  private final ScaTtrHistoryCleaner scaTtrHistoryCleaner;
+  private final EntityCleaner entityCleaner;
 
   public ComponentCleanerService(
     DbClient dbClient,
@@ -59,13 +59,13 @@ public class ComponentCleanerService {
     IssueCountHistoryRepository issueCountHistoryRepository,
     MeasureHistoryRepository measureHistoryRepository,
     IssueTtrHistoryRepository issueTtrHistoryRepository,
-    @Nullable ScaTtrHistoryCleaner scaTtrHistoryCleaner) {
+    @Nullable EntityCleaner entityCleaner) {
     this.dbClient = dbClient;
     this.indexers = indexers;
     this.issueCountHistoryRepository = issueCountHistoryRepository;
     this.measureHistoryRepository = measureHistoryRepository;
     this.issueTtrHistoryRepository = issueTtrHistoryRepository;
-    this.scaTtrHistoryCleaner = scaTtrHistoryCleaner == null ? NO_OP_SCA_TTR_HISTORY_CLEANER : scaTtrHistoryCleaner;
+    this.entityCleaner = entityCleaner == null ? NO_OP_ENTITY_CLEANER : entityCleaner;
   }
 
   public void delete(DbSession dbSession, List<ProjectDto> projects) {
@@ -115,7 +115,7 @@ public class ComponentCleanerService {
     issueCountHistoryRepository.deleteHistoryForEntity(dbSession, entityId, entityType);
     measureHistoryRepository.deleteHistoryForEntity(dbSession, entityId, entityType);
     issueTtrHistoryRepository.deleteForEntity(dbSession, entityId, entityType);
-    scaTtrHistoryCleaner.deleteForEntity(dbSession, entityId, entityType);
+    entityCleaner.deleteForEntity(dbSession, entityId, entityType);
   }
 
   private static EntityType getEntityTypeForQualifier(String qualifier) {

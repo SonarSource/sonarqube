@@ -23,12 +23,12 @@ import org.sonar.db.DbSession;
 import org.sonarsource.history.model.EntityType;
 
 /**
- * Abstraction for deleting Software Composition Analysis TTR history.
+ * Extension point for deleting additional entity-scoped data owned by an optional module when an entity is deleted.
  */
-public interface ScaTtrHistoryCleaner {
+public interface EntityCleaner {
 
   /**
-   * Deletes SCA TTR history for the given entity.
+   * Deletes the data owned by this cleaner for the given entity.
    */
   void deleteForEntity(DbSession dbSession, String entityId, EntityType entityType);
 }

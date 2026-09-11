@@ -75,9 +75,9 @@ public class ComponentCleanerServiceIT {
   private final IssueCountHistoryRepository issueCountHistoryRepository = new IssueCountHistoryRepository();
   private final MeasureHistoryRepository measureHistoryRepository = new MeasureHistoryRepository();
   private final IssueTtrHistoryRepository issueTtrHistoryRepository = new IssueTtrHistoryRepository();
-  private final ScaTtrHistoryCleaner scaTtrHistoryCleaner = mock(ScaTtrHistoryCleaner.class);
+  private final EntityCleaner entityCleaner = mock(EntityCleaner.class);
   private final ComponentCleanerService underTest = new ComponentCleanerService(
-    dbClient, indexers, issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, scaTtrHistoryCleaner);
+    dbClient, indexers, issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, entityCleaner);
 
   @Test
   public void delete_project_from_db_and_index() {
@@ -105,17 +105,17 @@ public class ComponentCleanerServiceIT {
     assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "measure_history")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isZero();
-    verify(scaTtrHistoryCleaner).deleteForEntity(dbSession, data.mainBranch.getUuid(), EntityType.PROJECT_BRANCH);
-    verify(scaTtrHistoryCleaner).deleteForEntity(dbSession, branch.getUuid(), EntityType.PROJECT_BRANCH);
+    verify(entityCleaner).deleteForEntity(dbSession, data.mainBranch.getUuid(), EntityType.PROJECT_BRANCH);
+    verify(entityCleaner).deleteForEntity(dbSession, branch.getUuid(), EntityType.PROJECT_BRANCH);
   }
 
   @Test
-  public void delete_entity_whenScaTtrHistoryCleanerIsMissing_shouldNotFail() {
-    ComponentCleanerService serviceWithoutScaTtrHistoryCleaner = new ComponentCleanerService(
+  public void delete_entity_whenEntityCleanerIsMissing_shouldNotFail() {
+    ComponentCleanerService serviceWithoutEntityCleaner = new ComponentCleanerService(
       dbClient, indexers, issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, null);
     DbData data = insertProjectData();
 
-    assertThatCode(() -> serviceWithoutScaTtrHistoryCleaner.deleteEntity(dbSession, data.project))
+    assertThatCode(() -> serviceWithoutEntityCleaner.deleteEntity(dbSession, data.project))
       .doesNotThrowAnyException();
   }
 
