@@ -320,6 +320,29 @@ class IssueFieldsSetterTest {
   }
 
   @Test
+  void unset_deferral_date() {
+    issue.setDeferralDate(1_704_067_200_000L + 90L * 24 * 60 * 60 * 1000);
+
+    underTest.unsetDeferralDate(issue, context);
+
+    assertThat(issue.deferralDate()).isNull();
+    assertThat(issue.isChanged()).isTrue();
+    assertThat(issue.updateDate()).isEqualTo(context.date());
+    assertThat(issue.currentChange()).isNull();
+  }
+
+  @Test
+  void unset_deferral_date_has_no_effect_if_already_null() {
+    issue.setDeferralDate(null);
+
+    underTest.unsetDeferralDate(issue, context);
+
+    assertThat(issue.deferralDate()).isNull();
+    assertThat(issue.isChanged()).isFalse();
+    assertThat(issue.currentChange()).isNull();
+  }
+
+  @Test
   void set_past_line() {
     issue.setLine(42);
 

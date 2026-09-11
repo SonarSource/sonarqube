@@ -502,6 +502,14 @@ public class IssueFieldsSetter {
     }
   }
 
+  public void unsetDeferralDate(DefaultIssue issue, IssueChangeContext context) {
+    if (issue.deferralDate() != null) {
+      issue.setDeferralDate(null);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+    }
+  }
+
   public void setCreationDate(DefaultIssue issue, Date d, IssueChangeContext context) {
     if (relevantDateDifference(d, issue.creationDate())) {
       issue.setCreationDate(d);

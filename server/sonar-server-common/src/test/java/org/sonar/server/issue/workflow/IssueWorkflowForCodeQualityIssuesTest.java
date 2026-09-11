@@ -422,6 +422,9 @@ class IssueWorkflowForCodeQualityIssuesTest {
 
     // should remove assignee
     assertThat(issue.assignee()).isNull();
+
+    // transition between two non-sandbox statuses leaves an already-null deferralDate alone
+    assertThat(issue.deferralDate()).isNull();
   }
 
   @Test
@@ -542,15 +545,17 @@ class IssueWorkflowForCodeQualityIssuesTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
-      .setResolution(null);
+      .setResolution(null)
+      .setDeferralDate(NOW);
     Date now = new Date(NOW);
-    
+
     boolean result = underTest.doManualTransition(issue, "reopen", issueChangeContextByScanBuilder(now).build());
-    
+
     assertThat(result).isTrue();
     assertThat(issue.status()).isEqualTo(STATUS_OPEN);
     assertThat(issue.resolution()).isNull();
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.OPEN);
+    assertThat(issue.deferralDate()).isNull();
   }
 
   @Test
@@ -558,15 +563,17 @@ class IssueWorkflowForCodeQualityIssuesTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
-      .setResolution(null);
+      .setResolution(null)
+      .setDeferralDate(NOW);
     Date now = new Date(NOW);
-    
+
     boolean result = underTest.doManualTransition(issue, "confirm", issueChangeContextByScanBuilder(now).build());
-    
+
     assertThat(result).isTrue();
     assertThat(issue.status()).isEqualTo(STATUS_CONFIRMED);
     assertThat(issue.resolution()).isNull();
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.CONFIRMED);
+    assertThat(issue.deferralDate()).isNull();
   }
 
   @Test
@@ -574,15 +581,17 @@ class IssueWorkflowForCodeQualityIssuesTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
-      .setResolution(null);
+      .setResolution(null)
+      .setDeferralDate(NOW);
     Date now = new Date(NOW);
-    
+
     boolean result = underTest.doManualTransition(issue, "resolve", issueChangeContextByScanBuilder(now).build());
-    
+
     assertThat(result).isTrue();
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FIXED);
+    assertThat(issue.deferralDate()).isNull();
   }
 
   @Test
@@ -590,15 +599,17 @@ class IssueWorkflowForCodeQualityIssuesTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
-      .setResolution(null);
+      .setResolution(null)
+      .setDeferralDate(NOW);
     Date now = new Date(NOW);
-    
+
     boolean result = underTest.doManualTransition(issue, "falsepositive", issueChangeContextByScanBuilder(now).build());
-    
+
     assertThat(result).isTrue();
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE);
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.FALSE_POSITIVE);
+    assertThat(issue.deferralDate()).isNull();
   }
 
   @Test
@@ -606,15 +617,17 @@ class IssueWorkflowForCodeQualityIssuesTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
-      .setResolution(null);
+      .setResolution(null)
+      .setDeferralDate(NOW);
     Date now = new Date(NOW);
-    
+
     boolean result = underTest.doManualTransition(issue, "accept", issueChangeContextByScanBuilder(now).build());
-    
+
     assertThat(result).isTrue();
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.ACCEPTED);
+    assertThat(issue.deferralDate()).isNull();
   }
 
   @Test
@@ -622,14 +635,34 @@ class IssueWorkflowForCodeQualityIssuesTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ISSUE-1")
       .setStatus(STATUS_IN_SANDBOX)
-      .setResolution(null);
+      .setResolution(null)
+      .setDeferralDate(NOW);
     Date now = new Date(NOW);
-    
+
     boolean result = underTest.doManualTransition(issue, "wontfix", issueChangeContextByScanBuilder(now).build());
-    
+
     assertThat(result).isTrue();
     assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
     assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.ACCEPTED);
+    assertThat(issue.deferralDate()).isNull();
+  }
+
+  @Test
+  void doAutomaticTransition_whenInSandboxIssueBeingClosed_shouldCloseIssueAndClearDeferralDate() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ISSUE-1")
+      .setRuleKey(RuleKey.of("java", "S001"))
+      .setStatus(STATUS_IN_SANDBOX)
+      .setNew(false)
+      .setBeingClosed(true)
+      .setDeferralDate(NOW);
+    Date now = new Date(NOW);
+
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(now).build());
+
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
+    assertThat(issue.closeDate()).isNotNull();
+    assertThat(issue.deferralDate()).isNull();
   }
 }

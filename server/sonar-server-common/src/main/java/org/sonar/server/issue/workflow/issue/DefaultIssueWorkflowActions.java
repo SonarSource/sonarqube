@@ -144,5 +144,8 @@ public class DefaultIssueWorkflowActions implements CodeQualityIssueWorkflowActi
   public void setStatus(@Nullable IssueStatus previousIssueStatus, String newStatus) {
     updater.setStatus(issue, newStatus, changeContext);
     updater.setIssueStatus(issue, previousIssueStatus, issue.issueStatus(), changeContext);
+    if (!Issue.STATUS_IN_SANDBOX.equals(newStatus)) {
+      updater.unsetDeferralDate(issue, changeContext);
+    }
   }
 }
