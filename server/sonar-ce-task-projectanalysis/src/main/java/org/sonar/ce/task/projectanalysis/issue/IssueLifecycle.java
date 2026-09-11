@@ -263,5 +263,6 @@ public class IssueLifecycle {
     toIssue.setIsNewCodeReferenceIssue(fromIssue.isNewCodeReferenceIssue());
     toIssue.setPrioritizedRule(fromIssue.isPrioritizedRule());
     toIssue.setFromSonarQubeUpdate(fromIssue.isFromSonarQubeUpdate());
+    toIssue.setDeferralDate(fromIssue.deferralDate());
   }
 }

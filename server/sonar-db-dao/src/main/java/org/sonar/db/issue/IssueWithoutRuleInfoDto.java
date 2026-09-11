@@ -83,6 +83,7 @@ public class IssueWithoutRuleInfoDto implements Serializable {
   protected boolean fromSonarQubeUpdate;
   protected String linkedTicketStatus = LinkedTicketStatus.NOT_LINKED;
   protected Integer producerDbConstant;
+  protected Long deferralDate;
 
   // functional dates stored as Long
   protected Long issueCreationDate;
@@ -712,6 +713,15 @@ public class IssueWithoutRuleInfoDto implements Serializable {
 
   public IssueWithoutRuleInfoDto setFromSonarQubeUpdate(boolean fromSonarQubeUpdate) {
     this.fromSonarQubeUpdate = fromSonarQubeUpdate;
+    return this;
+  }
+
+  public Long getDeferralDate() {
+    return deferralDate;
+  }
+
+  public IssueWithoutRuleInfoDto setDeferralDate(@Nullable Long deferralDate) {
+    this.deferralDate = deferralDate;
     return this;
   }
 

@@ -1990,6 +1990,114 @@ class IssueDaoIT {
   }
 
   @Test
+  void insert_shouldPersistDeferralDate() {
+    underTest.insert(db.getSession(), createIssueWithKey(ISSUE_KEY1).setStatus(STATUS_IN_SANDBOX).setDeferralDate(1_500_000_000_000L));
+    db.getSession().commit();
+
+    Optional<IssueDto> issueDto = underTest.selectByKey(db.getSession(), ISSUE_KEY1);
+
+    assertThat(issueDto).isPresent().get().extracting(IssueDto::getDeferralDate).isEqualTo(1_500_000_000_000L);
+  }
+
+  @Test
+  void update_shouldPersistDeferralDate() {
+    IssueDto issue = createIssueWithKey(ISSUE_KEY1).setStatus(STATUS_IN_SANDBOX).setDeferralDate(1_500_000_000_000L);
+    underTest.insert(db.getSession(), issue);
+
+    issue.setDeferralDate(1_600_000_000_000L);
+    underTest.update(db.getSession(), issue);
+
+    Optional<IssueDto> issueDto = underTest.selectByKey(db.getSession(), ISSUE_KEY1);
+    assertThat(issueDto).isPresent().get().extracting(IssueDto::getDeferralDate).isEqualTo(1_600_000_000_000L);
+  }
+
+  @Test
+  void selectBranchUuidsWithDeferredIssues_shouldReturnOnlyBranchesWithDueSandboxedIssues() {
+    long now = 2_000_000L;
+
+    ProjectData projectData1 = db.components().insertPrivateProject();
+    ProjectData projectData2 = db.components().insertPrivateProject();
+    ProjectData projectData3 = db.components().insertPrivateProject();
+    ComponentDto project1 = projectData1.getMainBranchComponent();
+    ComponentDto project2 = projectData2.getMainBranchComponent();
+    ComponentDto project3 = projectData3.getMainBranchComponent();
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project1));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project2));
+    ComponentDto file3 = db.components().insertComponent(newFileDto(project3));
+
+    // project1: due sandboxed issue
+    underTest.insert(db.getSession(), createIssueWithKey("due1", project1.uuid(), file1.uuid())
+      .setStatus(STATUS_IN_SANDBOX).setDeferralDate(now - 1000));
+    // project2: due sandboxed issue exactly at now
+    underTest.insert(db.getSession(), createIssueWithKey("due2", project2.uuid(), file2.uuid())
+      .setStatus(STATUS_IN_SANDBOX).setDeferralDate(now));
+    // project3: not-yet-due sandboxed issue
+    underTest.insert(db.getSession(), createIssueWithKey("notdue", project3.uuid(), file3.uuid())
+      .setStatus(STATUS_IN_SANDBOX).setDeferralDate(now + 1000));
+    // project3: non-sandboxed issue with a past deferral date (should never happen, but must not surface)
+    underTest.insert(db.getSession(), createIssueWithKey("open-with-date", project3.uuid(), file3.uuid())
+      .setStatus(STATUS_OPEN).setDeferralDate(now - 1000));
+    // project3: sandboxed issue with no deferral date at all
+    underTest.insert(db.getSession(), createIssueWithKey("nulldate", project3.uuid(), file3.uuid())
+      .setStatus(STATUS_IN_SANDBOX).setDeferralDate(null));
+
+    db.getSession().commit();
+
+    List<String> result = underTest.selectBranchUuidsWithDeferredIssues(db.getSession(), now);
+
+    assertThat(result).containsExactlyInAnyOrder(project1.uuid(), project2.uuid());
+  }
+
+  @Test
+  void selectDeferredIssueKeys_shouldReturnOnlyDueSandboxedIssuesForRequestedBranch() {
+    long now = 2_000_000L;
+
+    ProjectData otherProjectData = db.components().insertPrivateProject();
+    ComponentDto otherProject = otherProjectData.getMainBranchComponent();
+    ComponentDto otherFile = db.components().insertComponent(newFileDto(otherProject));
+
+    // due, in sandbox, on the requested branch -> returned
+    underTest.insert(db.getSession(), createIssueWithKey("due1", projectDto.uuid(), FILE_UUID)
+      .setStatus(STATUS_IN_SANDBOX).setDeferralDate(now - 1000));
+    // not yet due, in sandbox, on the requested branch -> excluded
+    underTest.insert(db.getSession(), createIssueWithKey("notdue", projectDto.uuid(), FILE_UUID)
+      .setStatus(STATUS_IN_SANDBOX).setDeferralDate(now + 1000));
+    // due, but not in sandbox anymore, on the requested branch -> excluded
+    underTest.insert(db.getSession(), createIssueWithKey("resolved", projectDto.uuid(), FILE_UUID)
+      .setStatus(STATUS_OPEN).setDeferralDate(now - 1000));
+    // due, in sandbox, but null deferral date -> excluded
+    underTest.insert(db.getSession(), createIssueWithKey("nulldate", projectDto.uuid(), FILE_UUID)
+      .setStatus(STATUS_IN_SANDBOX).setDeferralDate(null));
+    // due, in sandbox, but on a different branch -> excluded
+    underTest.insert(db.getSession(), createIssueWithKey("otherbranch", otherProject.uuid(), otherFile.uuid())
+      .setStatus(STATUS_IN_SANDBOX).setDeferralDate(now - 1000));
+
+    db.getSession().commit();
+
+    List<String> result = underTest.selectDeferredIssueKeys(db.getSession(), projectDto.uuid(), now, 100);
+
+    assertThat(result).containsExactly("due1");
+  }
+
+  @Test
+  void selectDeferredIssueKeys_shouldCapAtLimitAndDrainOldestFirst() {
+    long now = 2_000_000L;
+
+    underTest.insert(db.getSession(), createIssueWithKey("due-old", projectDto.uuid(), FILE_UUID)
+      .setStatus(STATUS_IN_SANDBOX).setDeferralDate(now - 2000));
+    underTest.insert(db.getSession(), createIssueWithKey("due-mid", projectDto.uuid(), FILE_UUID)
+      .setStatus(STATUS_IN_SANDBOX).setDeferralDate(now - 1000));
+    underTest.insert(db.getSession(), createIssueWithKey("due-new", projectDto.uuid(), FILE_UUID)
+      .setStatus(STATUS_IN_SANDBOX).setDeferralDate(now));
+
+    db.getSession().commit();
+
+    List<String> result = underTest.selectDeferredIssueKeys(db.getSession(), projectDto.uuid(), now, 2);
+
+    assertThat(result).containsExactly("due-old", "due-mid");
+  }
+
+  @Test
   void countIssuesByStatusOnMainBranches() {
     ProjectData projectData1 = db.components().insertPrivateProject();
     ProjectData projectData2 = db.components().insertPrivateProject();

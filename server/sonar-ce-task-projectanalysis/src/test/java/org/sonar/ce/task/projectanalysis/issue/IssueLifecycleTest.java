@@ -375,6 +375,27 @@ public class IssueLifecycleTest {
   }
 
   @Test
+  public void copyExistingOpenIssueFromBranch_preserves_deferral_date() {
+    DefaultIssue raw = new DefaultIssue()
+      .setNew(true)
+      .setKey("RAW_KEY");
+    DefaultIssue base = new DefaultIssue()
+      .setKey("BASE_KEY")
+      .setStatus(STATUS_OPEN)
+      .setDeferralDate(1_000_000L);
+
+    when(debtCalculator.calculate(raw)).thenReturn(DEFAULT_DURATION);
+
+    Branch branch = mock(Branch.class);
+    when(branch.getName()).thenReturn("release-2.x");
+    analysisMetadataHolder.setBranch(branch);
+
+    underTest.copyExistingOpenIssueFromBranch(raw, base, "master");
+
+    assertThat(raw.deferralDate()).isEqualTo(base.deferralDate());
+  }
+
+  @Test
   public void doAutomaticTransition() {
     DefaultIssue issue = new DefaultIssue();
 
@@ -586,6 +607,22 @@ public class IssueLifecycleTest {
     underTest.mergeExistingOpenIssue(raw, base);
 
     assertThat(raw.isFromSonarQubeUpdate()).isTrue();
+  }
+
+  @Test
+  public void mergeExistingOpenIssue_preserves_deferral_date() {
+    DefaultIssue raw = new DefaultIssue()
+      .setNew(true)
+      .setKey("RAW_KEY")
+      .setRuleKey(XOO_X1);
+    DefaultIssue base = new DefaultIssue()
+      .setKey("BASE_KEY")
+      .setStatus(STATUS_OPEN)
+      .setDeferralDate(1_000_000L);
+
+    underTest.mergeExistingOpenIssue(raw, base);
+
+    assertThat(raw.deferralDate()).isEqualTo(base.deferralDate());
   }
 
   @Test

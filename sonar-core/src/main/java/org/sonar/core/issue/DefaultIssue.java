@@ -87,6 +87,7 @@ public class DefaultIssue implements Issue, Trackable {
   private Set<String> codeVariants = null;
   private boolean prioritizedRule = false;
   private boolean fromSonarQubeUpdate = false;
+  private Long deferralDate = null;
   // temporarily an Object as long as DefaultIssue is used by sonar-batch
   private Object locations = null;
 
@@ -795,6 +796,16 @@ public class DefaultIssue implements Issue, Trackable {
 
   public DefaultIssue setFromSonarQubeUpdate(boolean fromSonarQubeUpdate) {
     this.fromSonarQubeUpdate = fromSonarQubeUpdate;
+    return this;
+  }
+
+  @CheckForNull
+  public Long deferralDate() {
+    return deferralDate;
+  }
+
+  public DefaultIssue setDeferralDate(@Nullable Long deferralDate) {
+    this.deferralDate = deferralDate;
     return this;
   }
 

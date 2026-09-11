@@ -238,6 +238,7 @@ public class SearchResponseFormat {
     issueBuilder.setPrioritizedRule(dto.isPrioritizedRule());
     issueBuilder.setLinkedTicketStatus(dto.getLinkedTicketStatus());
     issueBuilder.setFromSonarQubeUpdate(dto.isFromSonarQubeUpdate());
+    ofNullable(dto.getDeferralDate()).map(DateUtils::formatDateTime).ifPresent(issueBuilder::setDeferralDate);
   }
 
   private static void addAdditionalFieldsToIssueBuilder(Collection<SearchAdditionalField> fields, SearchResponseData data, IssueDto dto,

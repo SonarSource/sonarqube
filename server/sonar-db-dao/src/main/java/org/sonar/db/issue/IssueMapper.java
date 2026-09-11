@@ -56,6 +56,10 @@ public interface IssueMapper {
 
   List<IssueCount> countSandboxIssuesPerProject();
 
+  List<String> selectBranchUuidsWithDeferredIssues(@Param("now") long now);
+
+  List<String> selectDeferredIssueKeys(@Param("branchUuid") String branchUuid, @Param("now") long now, @Param("pagination") Pagination pagination);
+
   List<IssueCountByStatusAndResolution> countIssuesByStatusOnMainBranches();
 
   List<PrIssueDto> selectOpenScannerIssuesByComponentUuids(List<String> componentUuids);

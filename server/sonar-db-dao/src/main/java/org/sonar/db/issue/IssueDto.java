@@ -102,6 +102,7 @@ public class IssueDto extends IssueWithoutRuleInfoDto {
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       .setPrioritizedRule(issue.isPrioritizedRule())
       .setFromSonarQubeUpdate(issue.isFromSonarQubeUpdate())
+      .setDeferralDate(issue.deferralDate())
       // technical dates
       .setCreatedAt(now)
       .setUpdatedAt(now);
@@ -156,6 +157,7 @@ public class IssueDto extends IssueWithoutRuleInfoDto {
       .setCleanCodeAttribute(issue.getCleanCodeAttribute())
       .setPrioritizedRule(issue.isPrioritizedRule())
       .setFromSonarQubeUpdate(issue.isFromSonarQubeUpdate())
+      .setDeferralDate(issue.deferralDate())
       // technical date
       .setUpdatedAt(now);
 
@@ -584,6 +586,12 @@ public class IssueDto extends IssueWithoutRuleInfoDto {
     return this;
   }
 
+  @Override
+  public IssueDto setDeferralDate(@Nullable Long deferralDate) {
+    super.setDeferralDate(deferralDate);
+    return this;
+  }
+
   public DefaultIssue toDefaultIssue() {
     DefaultIssue issue = new DefaultIssue();
     issue.setKey(kee);
@@ -601,6 +609,7 @@ public class IssueDto extends IssueWithoutRuleInfoDto {
     issue.setOverriddenImpacts(convertImpactSetToMap(impacts));
     issue.setPrioritizedRule(prioritizedRule);
     issue.setFromSonarQubeUpdate(fromSonarQubeUpdate);
+    issue.setDeferralDate(deferralDate);
     issue.setAssigneeUuid(assigneeUuid);
     issue.setAssigneeLogin(assigneeLogin);
     issue.setComponentKey(componentKey);

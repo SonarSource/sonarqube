@@ -319,6 +319,25 @@ class SearchResponseFormatFormatOperationTest {
       .isEqualTo(linkedTicketStatus);
   }
 
+  @Test
+  void formatOperation_should_add_deferralDate_to_response_when_set() {
+    issueDto.setDeferralDate(1_704_067_200_000L);
+
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
+
+    assertThat(result.getIssue().hasDeferralDate()).isTrue();
+    assertThat(result.getIssue().getDeferralDate()).isEqualTo(formatDateTime(1_704_067_200_000L));
+  }
+
+  @Test
+  void formatOperation_should_not_set_deferralDate_when_absent() {
+    issueDto.setDeferralDate(null);
+
+    Operation result = searchResponseFormat.formatOperation(searchResponseData, true);
+
+    assertThat(result.getIssue().hasDeferralDate()).isFalse();
+  }
+
   private SearchResponseData newSearchResponseDataMainBranch() {
     ComponentDto projectDto = db.components().insertPublicProject().getMainBranchComponent();
     BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), projectDto.uuid()).get();

@@ -90,6 +90,7 @@ message Issue {
   optional bool is_from_sonarqube_update = 52;
   optional string internal_tags = 53;
   optional int64 detection_date = 54;
+  optional int64 deferral_date = 55;
 }
 
 message Comment {
