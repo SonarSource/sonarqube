@@ -277,12 +277,12 @@ public class IssueDao implements Dao {
     return mapper(dbSession).countSandboxIssuesPerProject();
   }
 
-  public List<String> selectBranchUuidsWithDeferredIssues(DbSession dbSession, long now) {
-    return mapper(dbSession).selectBranchUuidsWithDeferredIssues(now);
+  public List<String> selectBranchUuidsWithSandboxDeferredIssues(DbSession dbSession, long now) {
+    return mapper(dbSession).selectBranchUuidsWithSandboxDeferredIssues(now);
   }
 
-  public List<String> selectDeferredIssueKeys(DbSession dbSession, String branchUuid, long now, int limit) {
-    return mapper(dbSession).selectDeferredIssueKeys(branchUuid, now, Pagination.forPage(1).andSize(limit));
+  public List<String> selectSandboxDeferredIssueKeys(DbSession dbSession, String branchUuid, long now, int limit) {
+    return mapper(dbSession).selectSandboxDeferredIssueKeys(branchUuid, now, Pagination.forPage(1).andSize(limit));
   }
 
   public List<IssueCountByStatusAndResolution> countIssuesByStatusOnMainBranches(DbSession dbSession) {

@@ -976,14 +976,14 @@
     group by p.uuid
   </select>
 
-  <select id="selectBranchUuidsWithDeferredIssues" parameterType="map" resultType="String">
+  <select id="selectBranchUuidsWithSandboxDeferredIssues" parameterType="map" resultType="String">
     select distinct i.project_uuid
     from issues i
     where i.status = 'IN_SANDBOX'
       and i.deferral_date &lt;= #{now,jdbcType=BIGINT}
   </select>
 
-  <select id="selectDeferredIssueKeys" parameterType="map" resultType="String">
+  <select id="selectSandboxDeferredIssueKeys" parameterType="map" resultType="String">
     select i.kee
     from issues i
     where i.status = 'IN_SANDBOX'

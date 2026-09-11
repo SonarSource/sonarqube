@@ -2012,7 +2012,7 @@ class IssueDaoIT {
   }
 
   @Test
-  void selectBranchUuidsWithDeferredIssues_shouldReturnOnlyBranchesWithDueSandboxedIssues() {
+  void selectBranchUuidsWithSandboxDeferredIssues_shouldReturnOnlyBranchesWithDueSandboxedIssues() {
     long now = 2_000_000L;
 
     ProjectData projectData1 = db.components().insertPrivateProject();
@@ -2043,13 +2043,13 @@ class IssueDaoIT {
 
     db.getSession().commit();
 
-    List<String> result = underTest.selectBranchUuidsWithDeferredIssues(db.getSession(), now);
+    List<String> result = underTest.selectBranchUuidsWithSandboxDeferredIssues(db.getSession(), now);
 
     assertThat(result).containsExactlyInAnyOrder(project1.uuid(), project2.uuid());
   }
 
   @Test
-  void selectDeferredIssueKeys_shouldReturnOnlyDueSandboxedIssuesForRequestedBranch() {
+  void selectSandboxDeferredIssueKeys_shouldReturnOnlyDueSandboxedIssuesForRequestedBranch() {
     long now = 2_000_000L;
 
     ProjectData otherProjectData = db.components().insertPrivateProject();
@@ -2074,13 +2074,13 @@ class IssueDaoIT {
 
     db.getSession().commit();
 
-    List<String> result = underTest.selectDeferredIssueKeys(db.getSession(), projectDto.uuid(), now, 100);
+    List<String> result = underTest.selectSandboxDeferredIssueKeys(db.getSession(), projectDto.uuid(), now, 100);
 
     assertThat(result).containsExactly("due1");
   }
 
   @Test
-  void selectDeferredIssueKeys_shouldCapAtLimitAndDrainOldestFirst() {
+  void selectSandboxDeferredIssueKeys_shouldCapAtLimitAndDrainOldestFirst() {
     long now = 2_000_000L;
 
     underTest.insert(db.getSession(), createIssueWithKey("due-old", projectDto.uuid(), FILE_UUID)
@@ -2092,7 +2092,7 @@ class IssueDaoIT {
 
     db.getSession().commit();
 
-    List<String> result = underTest.selectDeferredIssueKeys(db.getSession(), projectDto.uuid(), now, 2);
+    List<String> result = underTest.selectSandboxDeferredIssueKeys(db.getSession(), projectDto.uuid(), now, 2);
 
     assertThat(result).containsExactly("due-old", "due-mid");
   }
