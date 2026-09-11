@@ -79,6 +79,7 @@ public class HistoryPurgeTaskProcessorTest {
 
     HistoryPurgeTaskProcessor.newContainerPopulator(task, componentProvider).populateContainer(container);
 
+    verify(container).add(Object.class);
     verify(container, times(5)).add(any());
   }
 
