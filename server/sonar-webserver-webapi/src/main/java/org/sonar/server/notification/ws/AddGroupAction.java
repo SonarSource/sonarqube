@@ -19,8 +19,6 @@
  */
 package org.sonar.server.notification.ws;
 
-import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,16 +30,8 @@ import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
 public class AddGroupAction extends AbstractGroupNotificationAction {
 
-  @Autowired
-  public AddGroupAction(DbClient dbClient, UserSession userSession) {
-    this(dbClient, userSession, CHANNEL_BY_TYPE);
-  }
-
-  AddGroupAction(
-    DbClient dbClient,
-    UserSession userSession,
-    Map<String, String> channelByType) {
-    super(dbClient, userSession, channelByType);
+  public AddGroupAction(DbClient dbClient, UserSession userSession, Dispatchers dispatchers) {
+    super(dbClient, userSession, dispatchers);
   }
 
   @Override

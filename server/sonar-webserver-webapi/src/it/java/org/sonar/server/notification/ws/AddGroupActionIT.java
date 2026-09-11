@@ -19,7 +19,7 @@
  */
 package org.sonar.server.notification.ws;
 
-import java.util.Map;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.server.ws.WebService;
@@ -27,20 +27,25 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.notification.NotificationGroupSubscriptionDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.server.notification.ws.AbstractGroupNotificationAction.CHANNEL_KEY;
 import static org.sonar.server.notification.ws.AbstractGroupNotificationAction.PARAM_GROUP_UUID;
 import static org.sonar.server.notification.ws.AbstractGroupNotificationAction.PARAM_TYPE;
 
 class AddGroupActionIT {
 
-  private static final Map<String, String> TEST_CHANNEL_BY_TYPE = Map.of("TestType", "TestChannel");
-  private static final String TYPE = TEST_CHANNEL_BY_TYPE.keySet().iterator().next();
+  private static final String TYPE = "TestType";
 
   @RegisterExtension
   public final UserSessionRule userSession = UserSessionRule.standalone();
@@ -50,7 +55,13 @@ class AddGroupActionIT {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
 
-  private final WsActionTester ws = new WsActionTester(new AddGroupAction(dbClient, userSession, TEST_CHANNEL_BY_TYPE));
+  private final WsActionTester ws = newWs(List.of(TYPE));
+
+  private WsActionTester newWs(List<String> groupSubscriptionDispatchers) {
+    Dispatchers dispatchers = mock(Dispatchers.class);
+    when(dispatchers.getGroupSubscriptionDispatchers()).thenReturn(groupSubscriptionDispatchers);
+    return new WsActionTester(new AddGroupAction(dbClient, userSession, dispatchers));
+  }
 
   @Test
   void definition() {
@@ -89,7 +100,30 @@ class AddGroupActionIT {
       .setParam(PARAM_TYPE, TYPE)
       .execute();
 
-    assertThat(dbClient.notificationGroupSubscriptionsDao().selectAll(dbSession)).hasSize(1);
+    assertThat(dbClient.notificationGroupSubscriptionsDao().selectAll(dbSession))
+      .extracting(NotificationGroupSubscriptionDto::getNotificationType, NotificationGroupSubscriptionDto::getChannelKey)
+      .containsExactly(tuple(TYPE, CHANNEL_KEY));
+  }
+
+  /**
+   * On an edition where no dispatcher declares itself group-subscribable (e.g. Community Build,
+   * which does not ship core-extension-security-alerts), no type may be subscribed: a subscription
+   * to an unregistered dispatcher could never be delivered.
+   */
+  @Test
+  void fails_when_no_dispatcher_supports_group_subscription() {
+    userSession.logIn().setSystemAdministrator();
+    GroupDto group = db.users().insertGroup("my-group");
+    WsActionTester wsWithoutDispatchers = newWs(List.of());
+
+    var request = wsWithoutDispatchers.newRequest()
+      .setParam(PARAM_GROUP_UUID, group.getUuid())
+      .setParam(PARAM_TYPE, TYPE);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Value of parameter 'type' (TestType) must be one of: []");
+    assertThat(dbClient.notificationGroupSubscriptionsDao().selectAll(dbSession)).isEmpty();
   }
 
   @Test

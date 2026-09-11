@@ -19,7 +19,7 @@
  */
 package org.sonar.server.notification.ws;
 
-import java.util.Map;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.server.ws.WebService;
@@ -28,20 +28,22 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.server.notification.ws.AbstractGroupNotificationAction.CHANNEL_KEY;
 import static org.sonar.server.notification.ws.AbstractGroupNotificationAction.PARAM_GROUP_UUID;
 import static org.sonar.server.notification.ws.AbstractGroupNotificationAction.PARAM_TYPE;
 
 class RemoveGroupActionIT {
 
-  private static final Map<String, String> TEST_CHANNEL_BY_TYPE = Map.of("TestType", "TestChannel");
-  private static final String TYPE = TEST_CHANNEL_BY_TYPE.keySet().iterator().next();
-  private static final String CHANNEL = TEST_CHANNEL_BY_TYPE.get(TYPE);
+  private static final String TYPE = "TestType";
 
   @RegisterExtension
   public final UserSessionRule userSession = UserSessionRule.standalone();
@@ -51,7 +53,13 @@ class RemoveGroupActionIT {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
 
-  private final WsActionTester ws = new WsActionTester(new RemoveGroupAction(dbClient, userSession, TEST_CHANNEL_BY_TYPE));
+  private final WsActionTester ws = newWs(List.of(TYPE));
+
+  private WsActionTester newWs(List<String> groupSubscriptionDispatchers) {
+    Dispatchers dispatchers = mock(Dispatchers.class);
+    when(dispatchers.getGroupSubscriptionDispatchers()).thenReturn(groupSubscriptionDispatchers);
+    return new WsActionTester(new RemoveGroupAction(dbClient, userSession, dispatchers));
+  }
 
   @Test
   void definition() {
@@ -84,7 +92,7 @@ class RemoveGroupActionIT {
   void removes_subscription_when_subscribed() {
     userSession.logIn().setSystemAdministrator();
     GroupDto group = db.users().insertGroup("my-group");
-    dbClient.notificationGroupSubscriptionsDao().insert(dbSession, group.getUuid(), TYPE, CHANNEL);
+    dbClient.notificationGroupSubscriptionsDao().insert(dbSession, group.getUuid(), TYPE, CHANNEL_KEY);
     dbSession.commit();
 
     ws.newRequest()
@@ -105,5 +113,23 @@ class RemoveGroupActionIT {
       .execute();
 
     assertThat(dbClient.notificationGroupSubscriptionsDao().selectAll(dbSession)).isEmpty();
+  }
+
+  /**
+   * See {@code AddGroupActionIT#fails_when_no_dispatcher_supports_group_subscription}: the accepted
+   * types must match the types advertised by api/notifications/list on this edition.
+   */
+  @Test
+  void fails_when_no_dispatcher_supports_group_subscription() {
+    userSession.logIn().setSystemAdministrator();
+    WsActionTester wsWithoutDispatchers = newWs(List.of());
+
+    var request = wsWithoutDispatchers.newRequest()
+      .setParam(PARAM_GROUP_UUID, "some-uuid")
+      .setParam(PARAM_TYPE, TYPE);
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Value of parameter 'type' (TestType) must be one of: []");
   }
 }
