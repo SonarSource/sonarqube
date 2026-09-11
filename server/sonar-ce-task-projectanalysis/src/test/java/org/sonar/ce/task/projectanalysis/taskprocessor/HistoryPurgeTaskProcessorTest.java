@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.projectanalysis.history.HistoryPurgeStep;
+import org.sonar.ce.task.projectanalysis.history.HistoryPurgeTaskComponentProvider;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.SpringComponentContainer;
 
@@ -34,13 +35,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.taskprocessor.HistoryPurgeTaskProcessor.HistoryPurgeComputationSteps;
 import static org.sonar.db.ce.CeTaskTypes.HISTORY_PURGE;
 
 public class HistoryPurgeTaskProcessorTest {
 
   private final SpringComponentContainer ceEngineContainer = mock(SpringComponentContainer.class);
-  private final HistoryPurgeTaskProcessor underTest = new HistoryPurgeTaskProcessor(ceEngineContainer);
+  private final HistoryPurgeTaskProcessor underTest = new HistoryPurgeTaskProcessor(ceEngineContainer, null);
   private final TaskContainer container = spy(TaskContainer.class);
 
   @Test
@@ -64,6 +66,20 @@ public class HistoryPurgeTaskProcessorTest {
     HistoryPurgeTaskProcessor.newContainerPopulator(task).populateContainer(container);
 
     verify(container, times(4)).add(any());
+  }
+
+  @Test
+  public void newContainerPopulator_whenComponentProvidersArePresent_addsTheirComponents() {
+    CeTask task = new CeTask.Builder()
+      .setUuid("TASK_UUID")
+      .setType("Type")
+      .build();
+    HistoryPurgeTaskComponentProvider componentProvider = mock(HistoryPurgeTaskComponentProvider.class);
+    when(componentProvider.getComponents()).thenReturn(List.of(Object.class));
+
+    HistoryPurgeTaskProcessor.newContainerPopulator(task, componentProvider).populateContainer(container);
+
+    verify(container, times(5)).add(any());
   }
 
   @Test

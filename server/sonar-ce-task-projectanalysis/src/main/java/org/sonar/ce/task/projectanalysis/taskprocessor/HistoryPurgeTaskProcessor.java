@@ -22,11 +22,13 @@ package org.sonar.ce.task.projectanalysis.taskprocessor;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.ce.task.CeTask;
 import org.sonar.ce.task.CeTaskResult;
 import org.sonar.ce.task.container.TaskContainer;
 import org.sonar.ce.task.container.TaskContainerImpl;
 import org.sonar.ce.task.projectanalysis.history.HistoryPurgeStep;
+import org.sonar.ce.task.projectanalysis.history.HistoryPurgeTaskComponentProvider;
 import org.sonar.ce.task.projectanalysis.step.AbstractComputationSteps;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.ce.task.step.ComputationStepExecutor;
@@ -42,9 +44,11 @@ public class HistoryPurgeTaskProcessor implements CeTaskProcessor {
   private static final Set<String> HANDLED_TYPES = Set.of(HISTORY_PURGE);
 
   private final SpringComponentContainer ceEngineContainer;
+  private final HistoryPurgeTaskComponentProvider[] componentProviders;
 
-  public HistoryPurgeTaskProcessor(SpringComponentContainer ceEngineContainer) {
+  public HistoryPurgeTaskProcessor(SpringComponentContainer ceEngineContainer, @Nullable HistoryPurgeTaskComponentProvider[] componentProviders) {
     this.ceEngineContainer = ceEngineContainer;
+    this.componentProviders = componentProviders == null ? new HistoryPurgeTaskComponentProvider[0] : componentProviders;
   }
 
   @Override
@@ -55,17 +59,20 @@ public class HistoryPurgeTaskProcessor implements CeTaskProcessor {
   @CheckForNull
   @Override
   public CeTaskResult process(CeTask task) {
-    try (TaskContainer container = new TaskContainerImpl(ceEngineContainer, newContainerPopulator(task))) {
+    try (TaskContainer container = new TaskContainerImpl(ceEngineContainer, newContainerPopulator(task, componentProviders))) {
       container.bootup();
       container.getComponentByType(ComputationStepExecutor.class).execute();
     }
     return null;
   }
 
-  static ContainerPopulator<TaskContainer> newContainerPopulator(CeTask task) {
+  static ContainerPopulator<TaskContainer> newContainerPopulator(CeTask task, HistoryPurgeTaskComponentProvider... componentProviders) {
     return taskContainer -> {
       taskContainer.add(task);
       taskContainer.add(HistoryServerComponents.recordingComponents().toArray());
+      for (HistoryPurgeTaskComponentProvider componentProvider : componentProviders) {
+        taskContainer.add(componentProvider.getComponents().toArray());
+      }
       taskContainer.add(HistoryPurgeStep.class);
       taskContainer.add(new HistoryPurgeComputationSteps(taskContainer));
       taskContainer.add(ComputationStepExecutor.class);
