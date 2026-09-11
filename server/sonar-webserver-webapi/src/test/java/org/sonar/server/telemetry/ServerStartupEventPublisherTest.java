@@ -56,7 +56,7 @@ class ServerStartupEventPublisherTest {
 
     Event<?> event = captor.getValue();
     // The Analytics. prefix is what routes the event to the telemetry handler.
-    assertThat(event.metadata().eventType()).isEqualTo("Analytics.Server.Started");
+    assertThat(event.metadata().eventType()).isEqualTo("Analytics.Server.ServerStarted");
     assertThat(event.metadata().eventType()).startsWith("Analytics.");
     assertThat(event.metadata().eventVersion()).isEqualTo(ServerStartupEventPublisher.EVENT_VERSION);
     assertThat(event.payload()).isInstanceOfSatisfying(java.util.Map.class, payload -> assertThat(payload)

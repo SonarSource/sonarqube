@@ -42,7 +42,7 @@ public class ServerStartupEventPublisher implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ServerStartupEventPublisher.class);
 
-  static final String EVENT_TYPE = "Analytics.Server.Started";
+  static final String EVENT_TYPE = "Analytics.Server.ServerStarted";
   static final String EVENT_VERSION = "1.0";
   static final String SOURCE_DOMAIN = "Server";
   static final String SOURCE_SERVICE = "ServerStartupEventPublisher";
@@ -65,6 +65,7 @@ public class ServerStartupEventPublisher implements Startable {
         Map.of(
           "serverId", server.getId(),
           "version", server.getVersion())));
+      LOG.debug("Published server startup event {}", EVENT_TYPE);
     } catch (RuntimeException e) {
       // Publishing telemetry must never prevent the server from starting.
       LOG.debug("Failed to publish server startup event", e);
