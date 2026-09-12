@@ -834,4 +834,16 @@
   <delete id="deleteIssueStatsByRuleKey">
     delete from issue_stats_by_rule_key where aggregation_type = #{aggregationType,jdbcType=VARCHAR} and aggregation_id = #{aggregationId,jdbcType=VARCHAR}
   </delete>
+  <delete id="deleteMeasureHistoryByEntityUuid">
+    delete from measure_history where entity_id = #{entityUuid,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteIssueTtrHistoryByEntityUuid">
+    delete from issue_ttr_history where entity_id = #{entityUuid,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteScaTtrHistoryByEntityUuid">
+    delete from sca_ttr_history where entity_id = #{entityUuid,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteIssueCountHistoryByEntityUuid">
+    delete from issue_count_history where entity_id = #{entityUuid,jdbcType=VARCHAR}
+  </delete>
 </mapper>

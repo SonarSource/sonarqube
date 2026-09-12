@@ -290,6 +290,7 @@ public class PurgeDao implements Dao {
     commands.deleteIssuesFixed(branchUuid);
     commands.deleteArchitectureBranchData(branchUuid);
     commands.deleteIssueStatsByRuleKey(aggregationType, branchUuid);
+    commands.deleteDashboardHistory(branchUuid);
     listener.onBranchDeleted(branchUuid);
   }
 
@@ -327,6 +328,7 @@ public class PurgeDao implements Dao {
     commands.deleteReportSubscriptions(projectUuid);
     commands.deleteArchitectureProjectData(projectUuid);
     commands.deleteIssueStatsByRuleKey(aggregationType, projectUuid);
+    commands.deleteDashboardHistory(projectUuid);
   }
 
   /**

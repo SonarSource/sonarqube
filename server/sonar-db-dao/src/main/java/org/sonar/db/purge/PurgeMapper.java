@@ -248,4 +248,12 @@ public interface PurgeMapper {
 
   void deleteIssueStatsByRuleKey(@Param("aggregationType") String aggregationType, @Param("aggregationId") String aggregationId);
 
+  void deleteMeasureHistoryByEntityUuid(@Param("entityUuid") String entityUuid);
+
+  void deleteIssueTtrHistoryByEntityUuid(@Param("entityUuid") String entityUuid);
+
+  void deleteScaTtrHistoryByEntityUuid(@Param("entityUuid") String entityUuid);
+
+  void deleteIssueCountHistoryByEntityUuid(@Param("entityUuid") String entityUuid);
+
 }

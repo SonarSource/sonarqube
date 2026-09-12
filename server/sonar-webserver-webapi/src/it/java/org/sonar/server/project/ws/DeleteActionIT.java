@@ -127,7 +127,7 @@ public class DeleteActionIT {
     db.commit();
     userSessionRule.logIn().addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
     DeleteAction underTestLocal = new DeleteAction(
-      new ComponentCleanerService(dbClient, new TestIndexers(), issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, null),
+      new ComponentCleanerService(dbClient, new TestIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
     new WsActionTester(underTestLocal)
@@ -149,7 +149,7 @@ public class DeleteActionIT {
     dbSession.commit();
     userSessionRule.logIn().addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
     DeleteAction underTestLocal = new DeleteAction(
-      new ComponentCleanerService(dbClient, new TestIndexers(), issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, null),
+      new ComponentCleanerService(dbClient, new TestIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
     new WsActionTester(underTestLocal)
@@ -172,7 +172,7 @@ public class DeleteActionIT {
 
     userSessionRule.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
     DeleteAction underTestLocal = new DeleteAction(
-      new ComponentCleanerService(dbClient, new TestIndexers(), issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, null),
+      new ComponentCleanerService(dbClient, new TestIndexers()),
       from(db), dbClient, userSessionRule, projectLifeCycleListeners);
 
     new WsActionTester(underTestLocal)

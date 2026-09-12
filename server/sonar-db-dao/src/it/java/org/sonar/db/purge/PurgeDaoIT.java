@@ -2350,6 +2350,110 @@ oldCreationDate));
   }
 
   @Test
+  void deleteBranch_purgesDashboardHistory() {
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch1 = db.components().insertProjectBranch(project);
+    BranchDto branch2 = db.components().insertProjectBranch(project);
+
+    insertDashboardHistory("PROJECT_BRANCH", branch1.getUuid());
+    insertDashboardHistory("PROJECT_BRANCH", branch2.getUuid());
+
+    assertThat(db.countRowsOfTable(dbSession, "measure_history")).isEqualTo(2);
+    assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isEqualTo(2);
+    assertThat(db.countRowsOfTable(dbSession, "sca_ttr_history")).isEqualTo(2);
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isEqualTo(2);
+
+    underTest.deleteBranch(dbSession, branch1.getUuid());
+
+    assertThat(db.countRowsOfTable(dbSession, "measure_history")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "sca_ttr_history")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isEqualTo(1);
+  }
+
+  @Test
+  void deletePortfolio_purgesDashboardHistory() {
+    ComponentDto portfolio = db.components().insertPublicPortfolio();
+    ComponentDto otherPortfolio = db.components().insertPublicPortfolio();
+
+    insertDashboardHistory("PORTFOLIO", portfolio.uuid());
+    insertDashboardHistory("PORTFOLIO", otherPortfolio.uuid());
+
+    underTest.deleteProject(dbSession, portfolio.uuid(), portfolio.qualifier(), portfolio.name(), portfolio.getKey());
+
+    assertThat(db.countRowsOfTable(dbSession, "measure_history")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "sca_ttr_history")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isEqualTo(1);
+  }
+
+  @Test
+  void deleteApplication_purgesDashboardHistory() {
+    ProjectData application = db.components().insertPublicApplication();
+    ProjectData otherApplication = db.components().insertPublicApplication();
+
+    insertDashboardHistory("APPLICATION", application.getProjectDto().getUuid());
+    insertDashboardHistory("APPLICATION", otherApplication.getProjectDto().getUuid());
+
+    underTest.deleteProject(dbSession, application.getProjectDto().getUuid(), "APP",
+      application.getProjectDto().getName(), application.getProjectDto().getKey());
+
+    assertThat(db.countRowsOfTable(dbSession, "measure_history")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "sca_ttr_history")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isEqualTo(1);
+  }
+
+  @Test
+  void deleteProject_purgesDashboardHistoryOfAllItsBranches() {
+    ProjectData projectData = db.components().insertPublicProject();
+    BranchDto otherBranch = db.components().insertProjectBranch(projectData.getProjectDto());
+
+    insertDashboardHistory("PROJECT_BRANCH", projectData.mainBranchUuid());
+    insertDashboardHistory("PROJECT_BRANCH", otherBranch.getUuid());
+
+    underTest.deleteProject(dbSession, projectData.projectUuid(), projectData.getProjectDto().getQualifier(),
+      projectData.getProjectDto().getName(), projectData.getProjectDto().getKey());
+
+    assertThat(db.countRowsOfTable(dbSession, "measure_history")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "sca_ttr_history")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isZero();
+  }
+
+  private void insertDashboardHistory(String entityType, String entityId) {
+    long recordedAt = system2.now();
+    db.executeInsert("measure_history",
+      "metric_id", 1,
+      "entity_id", entityId,
+      "entity_type", entityType,
+      "recorded_at_epoch", recordedAt,
+      "text_value", "1");
+    db.executeInsert("issue_ttr_history",
+      "entity_id", entityId,
+      "entity_type", entityType,
+      "dimension_id", 1,
+      "recorded_at_epoch", recordedAt,
+      "total_minutes_to_resolution", 1,
+      "issues_resolved", 1,
+      "total_minutes_to_resolution_recent", 1,
+      "issues_resolved_recent", 1);
+    db.executeInsert("sca_ttr_history",
+      "entity_id", entityId,
+      "entity_type", entityType,
+      "sca_dimension_id", 1,
+      "recorded_at_epoch", recordedAt,
+      "total_minutes_to_resolution", 1,
+      "sca_issues_resolved", 1);
+    db.executeInsert("issue_count_history",
+      "entity_id", entityId,
+      "entity_type", entityType,
+      "dimension_id", 1,
+      "recorded_at_epoch", recordedAt,
+      "issue_count", 1);
+  }
+
+  @Test
   void deleteBranch_purgesArchitectureGraphData() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     BranchDto branch1 = db.components().insertProjectBranch(project);

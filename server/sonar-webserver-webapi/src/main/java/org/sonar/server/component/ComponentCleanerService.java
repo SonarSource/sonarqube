@@ -44,24 +44,10 @@ public class ComponentCleanerService {
 
   private final DbClient dbClient;
   private final Indexers indexers;
-  private final IssueCountHistoryRepository issueCountHistoryRepository;
-  private final MeasureHistoryRepository measureHistoryRepository;
-  private final IssueTtrHistoryRepository issueTtrHistoryRepository;
-  private final EntityCleaner[] entityCleaners;
 
-  public ComponentCleanerService(
-    DbClient dbClient,
-    Indexers indexers,
-    IssueCountHistoryRepository issueCountHistoryRepository,
-    MeasureHistoryRepository measureHistoryRepository,
-    IssueTtrHistoryRepository issueTtrHistoryRepository,
-    @Nullable EntityCleaner[] entityCleaners) {
+  public ComponentCleanerService(DbClient dbClient, Indexers indexers) {
     this.dbClient = dbClient;
     this.indexers = indexers;
-    this.issueCountHistoryRepository = issueCountHistoryRepository;
-    this.measureHistoryRepository = measureHistoryRepository;
-    this.issueTtrHistoryRepository = issueTtrHistoryRepository;
-    this.entityCleaners = entityCleaners == null ? new EntityCleaner[0] : entityCleaners;
   }
 
   public void delete(DbSession dbSession, List<ProjectDto> projects) {
@@ -74,10 +60,7 @@ public class ComponentCleanerService {
     if (branch.isMain()) {
       throw new IllegalArgumentException("Only non-main branches can be deleted");
     }
-    EntityType entityType = dbClient.entityDao().selectByUuid(dbSession, branch.getProjectUuid())
-      .map(entity -> getEntityTypeForQualifier(entity.getQualifier()))
-      .orElse(EntityType.PROJECT_BRANCH);
-    deleteHistoryForEntity(dbSession, branch.getUuid(), entityType);
+
     dbClient.purgeDao().deleteBranch(dbSession, branch.getUuid());
     updateProjectNcloc(dbSession, branch.getProjectUuid());
     indexers.commitAndIndexBranches(dbSession, singletonList(branch), BranchEvent.DELETION);
@@ -93,14 +76,6 @@ public class ComponentCleanerService {
 
   public void deleteEntity(DbSession dbSession, EntityDto entity) {
     checkArgument(!entity.getQualifier().equals(ComponentQualifiers.SUBVIEW), "Qualifier can't be subview");
-    EntityType entityType = getEntityTypeForQualifier(entity.getQualifier());
-    if (entity.isProjectOrApp()) {
-      // delete history for all project and application branches
-      dbClient.branchDao().selectByProjectUuid(dbSession, entity.getUuid())
-        .forEach(branchDto -> deleteHistoryForEntity(dbSession, branchDto.getUuid(), entityType));
-    } else {
-      deleteHistoryForEntity(dbSession, entity.getUuid(), entityType);
-    }
     dbClient.purgeDao().deleteProject(dbSession, entity.getUuid(), entity.getQualifier(), entity.getName(), entity.getKey());
     dbClient.userDao().cleanHomepage(dbSession, entity);
     if (ComponentQualifiers.PROJECT.equals(entity.getQualifier())) {
@@ -108,23 +83,5 @@ public class ComponentCleanerService {
     }
     // Note that we do not send an event for each individual branch being deleted with the project
     indexers.commitAndIndexEntities(dbSession, singletonList(entity), EntityEvent.DELETION);
-  }
-
-  private void deleteHistoryForEntity(DbSession dbSession, String entityId, EntityType entityType) {
-    issueCountHistoryRepository.deleteHistoryForEntity(dbSession, entityId, entityType);
-    measureHistoryRepository.deleteHistoryForEntity(dbSession, entityId, entityType);
-    issueTtrHistoryRepository.deleteForEntity(dbSession, entityId, entityType);
-    for (EntityCleaner entityCleaner : entityCleaners) {
-      entityCleaner.deleteForEntity(dbSession, entityId, entityType);
-    }
-  }
-
-  private static EntityType getEntityTypeForQualifier(String qualifier) {
-    return switch(qualifier) {
-      case ComponentQualifiers.PROJECT -> EntityType.PROJECT_BRANCH;
-      case ComponentQualifiers.VIEW -> EntityType.PORTFOLIO;
-      case ComponentQualifiers.APP -> EntityType.APPLICATION;
-      default -> throw new IllegalArgumentException("Unsupported component qualifier '%s'".formatted(qualifier));
-    };
   }
 }

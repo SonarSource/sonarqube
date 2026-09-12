@@ -133,8 +133,7 @@ public class BulkDeleteActionIT {
     insertHistory(branch);
     db.commit();
 
-    ComponentCleanerService componentCleaner = new ComponentCleanerService(dbClient, new TestIndexers(),
-      issueCountHistoryRepository, measureHistoryRepository, issueTtrHistoryRepository, null);
+    ComponentCleanerService componentCleaner = new ComponentCleanerService(dbClient, new TestIndexers());
     WsActionTester bulkDeleteWs = new WsActionTester(new BulkDeleteAction(componentCleaner, dbClient, userSession, projectLifeCycleListeners));
 
     bulkDeleteWs.newRequest()

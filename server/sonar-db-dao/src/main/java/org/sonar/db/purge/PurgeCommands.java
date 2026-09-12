@@ -253,6 +253,12 @@ class PurgeCommands {
     uuidsPartitions.forEach(purgeMapper::deleteReportSubscriptionsByPortfolioUuids);
     session.commit();
     profiler.stop();
+
+    // removes history of subportfolios when a portfolio is deleted
+    profiler.start("deleteByRootAndSubviews (dashboard history)");
+    uuidsPartitions.forEach(partition -> partition.forEach(this::purgeDashboardHistory));
+    session.commit();
+    profiler.stop();
   }
 
   void deleteDisabledComponentsWithoutIssues(List<String> disabledComponentsWithoutIssue) {
@@ -498,6 +504,20 @@ class PurgeCommands {
     purgeMapper.deleteNewCodePeriodsByProjectUuid(projectUuid);
     session.commit();
     profiler.stop();
+  }
+
+  void deleteDashboardHistory(String entityUuid) {
+    profiler.start("dashboardHistory");
+    purgeDashboardHistory(entityUuid);
+    session.commit();
+    profiler.stop();
+  }
+
+  void purgeDashboardHistory(String entityUuid) {
+    purgeMapper.deleteMeasureHistoryByEntityUuid(entityUuid);
+    purgeMapper.deleteIssueTtrHistoryByEntityUuid(entityUuid);
+    purgeMapper.deleteScaTtrHistoryByEntityUuid(entityUuid);
+    purgeMapper.deleteIssueCountHistoryByEntityUuid(entityUuid);
   }
 
   void deleteNewCodePeriodsForBranch(String branchUuid) {
