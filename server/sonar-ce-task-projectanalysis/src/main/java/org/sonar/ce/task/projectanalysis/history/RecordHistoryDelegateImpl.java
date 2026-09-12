@@ -95,8 +95,14 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
   // -------------------------------------------------------------------------
 
   private void recordIssueHistory(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids, LocalDate today) {
-    Map<IssueCountDimensionKey, Integer> issueCounts = fetchIssueCounts(issueSourceBranchUuids);
-    issueHistoryService.recordIssueHistory(entityUuid, entityType, issueCounts, today);
+    try (DbSession session = dbClient.openSession(false)) {
+      // Manual issue changes use the same primary-database lock before reading their snapshot.
+      if (entityType == EntityType.PROJECT_BRANCH && !dbClient.branchDao().lockForIssueCountHistory(session, entityUuid)) {
+        return;
+      }
+      Map<IssueCountDimensionKey, Integer> issueCounts = fetchIssueCounts(session, issueSourceBranchUuids);
+      issueHistoryService.recordIssueHistory(entityUuid, entityType, issueCounts, today);
+    }
   }
 
   /**
@@ -105,15 +111,13 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
    * queried in batches of at most 1000 due to DB parameter limits). The grouping itself is done in SQL,
    * so no individual issue is ever loaded into memory here (SONAR-31731).
    */
-  private Map<IssueCountDimensionKey, Integer> fetchIssueCounts(Collection<String> issueSourceBranchUuids) {
+  private Map<IssueCountDimensionKey, Integer> fetchIssueCounts(DbSession dbSession, Collection<String> issueSourceBranchUuids) {
     Map<IssueCountDimensionKey, Integer> issueCounts = new HashMap<>();
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      for (IssueCountDimensionDto row : dbClient.issueDao().selectIssueCountDimensionsForBranches(dbSession, issueSourceBranchUuids)) {
-        if (row.issueType() == RuleType.SECURITY_HOTSPOT.getDbConstant()) {
-          continue;
-        }
-        issueCounts.merge(toIssueCountDimensionKey(row), row.issueCount(), Integer::sum);
+    for (IssueCountDimensionDto row : dbClient.issueDao().selectIssueCountDimensionsForBranches(dbSession, issueSourceBranchUuids)) {
+      if (row.issueType() == RuleType.SECURITY_HOTSPOT.getDbConstant()) {
+        continue;
       }
+      issueCounts.merge(toIssueCountDimensionKey(row), row.issueCount(), Integer::sum);
     }
     return issueCounts;
   }

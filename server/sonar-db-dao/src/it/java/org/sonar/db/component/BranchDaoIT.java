@@ -28,6 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
@@ -43,10 +47,13 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.protobuf.DbProjectBranches;
 
 import static java.util.Arrays.asList;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
@@ -68,6 +75,36 @@ class BranchDaoIT {
 
   private final DbSession dbSession = db.getSession();
   private final BranchDao underTest = new BranchDao(system2);
+
+  @Test
+  void history_lock_serializes_sessions_and_preserves_branch() throws Exception {
+    String branchUuid = db.components().insertPrivateProject().getMainBranchComponent().uuid();
+    db.commit();
+    var before = db.selectFirst(dbSession, SELECT_FROM + " where uuid='" + branchUuid + "'");
+    var attemptingLock = new CountDownLatch(1);
+    try (var executor = Executors.newSingleThreadExecutor()) {
+      Future<Boolean> secondLock;
+      try (DbSession firstSession = db.getDbClient().openSession(false)) {
+        assertThat(underTest.lockForIssueCountHistory(firstSession, branchUuid)).isTrue();
+        secondLock = executor.submit(() -> {
+          try (DbSession secondSession = db.getDbClient().openSession(false)) {
+            attemptingLock.countDown();
+            return underTest.lockForIssueCountHistory(secondSession, branchUuid);
+          }
+        });
+        assertThat(attemptingLock.await(10, SECONDS)).isTrue();
+        assertThatThrownBy(() -> secondLock.get(200, MILLISECONDS))
+          .isInstanceOf(TimeoutException.class);
+      }
+      assertThat(secondLock.get(10, SECONDS)).isTrue();
+    }
+    assertThat(db.selectFirst(dbSession, SELECT_FROM + " where uuid='" + branchUuid + "'")).isEqualTo(before);
+  }
+
+  @Test
+  void history_lock_returns_false_for_deleted_branch() {
+    assertThat(underTest.lockForIssueCountHistory(dbSession, "missing")).isFalse();
+  }
 
   @Test
   void insert_branch_with_only_nonnull_fields() {

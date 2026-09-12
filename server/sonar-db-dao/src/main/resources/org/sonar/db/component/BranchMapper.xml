@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 <mapper namespace="org.sonar.db.component.BranchMapper">
+  <!-- Always execute the locking read. affectData ensures MyBatis ends the transaction on session close. -->
+  <select id="lockForIssueCountHistory" resultType="string" useCache="false" flushCache="true" affectData="true">
+    select uuid from project_branches where uuid = #{uuid,jdbcType=VARCHAR} for update
+  </select>
+
+  <select id="lockForIssueCountHistory" resultType="string" databaseId="mssql" useCache="false" flushCache="true" affectData="true">
+    select uuid from project_branches with (updlock, rowlock) where uuid = #{uuid,jdbcType=VARCHAR}
+  </select>
 
   <sql id="columns">
     pb.uuid as uuid,

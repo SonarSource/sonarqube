@@ -44,6 +44,14 @@ public class BranchDao implements Dao {
     this.system2 = system2;
   }
 
+  /**
+   * Serializes issue-count snapshot reads and writes across web and CE processes until the session closes.
+   * Returns false when the branch has been deleted. Use a non-batch primary session.
+   */
+  public boolean lockForIssueCountHistory(DbSession session, String branchUuid) {
+    return mapper(session).lockForIssueCountHistory(branchUuid) != null;
+  }
+
   public void insert(DbSession dbSession, BranchDto dto) {
     BranchMapper mapper = mapper(dbSession);
     mapper.insert(dto, system2.now());

@@ -33,6 +33,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDao;
 import org.sonar.db.issue.IssueCountDimensionDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.measure.MeasureDao;
@@ -50,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -61,6 +63,7 @@ class RecordHistoryDelegateImplTest {
 
   private final DbClient dbClient = mock(DbClient.class);
   private final DbSession dbSession = mock(DbSession.class);
+  private final BranchDao branchDao = mock(BranchDao.class);
   private final IssueDao issueDao = mock(IssueDao.class);
   private final MeasureDao measureDao = mock(MeasureDao.class);
   private final MetricDao metricDao = mock(MetricDao.class);
@@ -74,10 +77,25 @@ class RecordHistoryDelegateImplTest {
   @BeforeEach
   void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.branchDao()).thenReturn(branchDao);
+    when(branchDao.lockForIssueCountHistory(dbSession, ENTITY_UUID)).thenReturn(true);
     when(dbClient.issueDao()).thenReturn(issueDao);
     when(dbClient.measureDao()).thenReturn(measureDao);
     when(dbClient.metricDao()).thenReturn(metricDao);
     when(measureDao.selectByComponentUuid(dbSession, ENTITY_UUID)).thenReturn(Optional.empty());
+  }
+
+  @Test
+  void branch_history_holds_lock_until_snapshot_is_recorded() {
+    DbSession measuresSession = mock(DbSession.class);
+    when(dbClient.openSession(false)).thenReturn(dbSession, measuresSession);
+    recordBranchHistory();
+
+    var order = inOrder(branchDao, issueDao, issueHistoryService, dbSession);
+    order.verify(branchDao).lockForIssueCountHistory(dbSession, ENTITY_UUID);
+    order.verify(issueDao).selectIssueCountDimensionsForBranches(dbSession, List.of(ENTITY_UUID));
+    order.verify(issueHistoryService).recordIssueHistory(eq(ENTITY_UUID), eq(EntityType.PROJECT_BRANCH), any(), any());
+    order.verify(dbSession).close();
   }
 
   @Test

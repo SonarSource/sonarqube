@@ -153,6 +153,8 @@ import org.sonar.server.favorite.ws.FavoriteWsModule;
 import org.sonar.server.feature.JiraSonarQubeFeature;
 import org.sonar.server.feature.ws.FeatureWsModule;
 import org.sonar.server.health.NodeHealthModule;
+import org.sonar.server.history.IssueCountHistoryExecutorImpl;
+import org.sonar.server.history.IssueCountHistoryQGChangeEventListener;
 import org.sonar.server.hotspot.ws.HotspotsWsModule;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
@@ -373,6 +375,7 @@ import org.sonarsource.compliancereports.reports.MetadataRules;
 import org.sonarsource.gessie.server.GessieProperties;
 import org.sonarsource.gessie.server.telemetry.GessieTelemetryWebConfiguration;
 import org.sonarsource.history.server.HistoryServerComponents;
+import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
 import org.sonarsource.measures.server.MeasuresServerComponents;
 import org.sonarsource.metrics.server.bean.MetricsServerComponents;
 import org.sonarsource.organizations.server.OrganizationsServiceServerImpl;
@@ -899,6 +902,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
     // registered via history-server-app
     addAll(HistoryServerComponents.webComponents());
+    add(IssueCountHistoryRecordingService.class, IssueCountHistoryExecutorImpl.class, IssueCountHistoryQGChangeEventListener.class);
 
     // registered via sonar-unified-events
     addAll(EventsWebComponents.components());
