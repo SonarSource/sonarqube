@@ -53,6 +53,11 @@ dependencies {
 
 test {
   systemProperty 'orchestrator.configUrl', System.getProperty('orchestrator.configUrl')
+  // Distinguishes cache entries per DB engine version, since orchestrator.configUrl alone is the
+  // same file for both PostgreSQL 15/18 and both SQL Server 2017/2025 (see the ci-files config/
+  // directory) — without this, a pass on one version's leg could be replayed as a pass on the
+  // other's in the same CI run.
+  inputs.property('dbImage', System.getProperty('sonar.test.dbImage')).optional(true)
   // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
   useJUnitPlatform()
 }
