@@ -109,6 +109,7 @@ public class ProcessProperties {
     WEB_SYSTEM_PASS_CODE("sonar.web.systemPasscode"),
     WEB_ACCESSLOGS_ENABLE("sonar.web.accessLogs.enable"),
     WEB_ACCESSLOGS_PATTERN("sonar.web.accessLogs.pattern"),
+    WEB_ACCESSLOGS_TARGET("sonar.web.accessLogs.target", "file"),
 
     PERFORMANCE_MONITORING_ENABLED("sonar.performanceMonitoring.enabled", Boolean.FALSE.toString()),
 
