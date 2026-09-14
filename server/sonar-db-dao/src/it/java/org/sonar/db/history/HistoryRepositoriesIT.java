@@ -140,6 +140,23 @@ class HistoryRepositoriesIT {
   }
 
   @Test
+  void measureHistory_shouldPreserveLargeTrackedValues() {
+    MeasureKeyMapping languageDistribution = metric("ncloc_language_distribution", "DATA");
+    String oversizedValue = "a".repeat(100_001);
+
+    measureHistory.upsert(db.getSession(), new MeasureHistoryRow(
+      languageDistribution.id(), ENTITY_ID, EntityType.PROJECT_BRANCH, FIRST_DAY, oversizedValue));
+    db.commit();
+
+    assertThat(measureHistory.findMeasureHistoryByMetricNames(
+      db.getSession(), ENTITY_ID, EntityType.PROJECT_BRANCH, List.of("ncloc_language_distribution"), FIRST_DAY, FIRST_DAY))
+      .extracting(MeasureHistoryQueryRow::textValue)
+      .containsExactly(oversizedValue);
+    assertThat(measureHistory.findLatestMeasureValuesForEntity(db.getSession(), ENTITY_ID, EntityType.PROJECT_BRANCH))
+      .containsExactly(Map.entry(languageDistribution.id(), oversizedValue));
+  }
+
+  @Test
   void issueCountHistory_andProjectIssueCounts_shouldQuerySlicedAndUnslicedData() {
     IssueCountDimension bug = insertDimension("java:S100", IssueType.BUG, (short) 2, (short) 3, (short) 4);
     IssueCountDimension codeSmell = insertDimension("java:S200", IssueType.CODE_SMELL, (short) 2, (short) 3, (short) 4);

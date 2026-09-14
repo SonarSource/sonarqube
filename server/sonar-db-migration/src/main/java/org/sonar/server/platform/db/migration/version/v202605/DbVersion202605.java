@@ -111,6 +111,10 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_080, "Create index 'ce_activity_analysis_uuid' on 'ce_activity'", CreateIndexOnCeActivityAnalysisUuid.class)
       .add(2026_05_081, "Create index 'issues_hotspot_migration' on 'issues'", CreateIndexOnIssuesHotspotMigration.class)
       .add(2026_05_082, "Add playbook version to Hunter agent runs", AddPlaybookVersionToHunterAgentRuns.class)
-      .add(2026_05_083, "Add 'secondary_model_identifier' to 'llm_provider_mappings'", AddSecondaryModelIdentifierToLlmProviderMappingsTable.class);
+      .add(2026_05_083, "Add 'secondary_model_identifier' to 'llm_provider_mappings'", AddSecondaryModelIdentifierToLlmProviderMappingsTable.class)
+      .add(2026_05_084, "Alter 'measure_history.text_value' column type to clob", AlterMeasureHistoryTextValueToClob.class)
+      .add(2026_05_085, "Increase issue_count_dimensions.rule_key column size", IncreaseIssueCountDimensionsRuleKeyColumnSize.class)
+      .add(2026_05_086, "Persist the history backfill UTC-day epoch", PersistHistoryBackfillUtcDayEpoch.class)
+      .add(2026_05_087, "Backfill project branch issue-count and measure history", BackfillProjectBranchHistory.class);
   }
 }
