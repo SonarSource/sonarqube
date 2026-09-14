@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
+import org.sonar.server.authentication.OAuth2ContextFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,11 +32,13 @@ import static org.mockito.Mockito.when;
 public class GithubAppManifestGeneratorTest {
 
   private final Server server = mock(Server.class);
-  private final GithubAppManifestGenerator underTest = new GithubAppManifestGenerator(server);
+  private final OAuth2ContextFactory oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
+  private final GithubAppManifestGenerator underTest = new GithubAppManifestGenerator(server, oAuth2ContextFactory);
 
   @Test
   public void generateManifest_buildsExpectedManifest() {
     when(server.getPublicRootUrl()).thenReturn("https://sonarqube.example.com/");
+    when(oAuth2ContextFactory.generateCallbackUrl("github")).thenReturn("https://sonarqube.example.com/oauth2/callback/github");
 
     String manifest = underTest.generateManifest("SonarQube", GithubAppManifestGenerator.SETTINGS_PATH);
 
@@ -43,8 +46,10 @@ public class GithubAppManifestGeneratorTest {
     assertThat(json.get("name").getAsString()).isEqualTo("SonarQube");
     assertThat(json.get("url").getAsString()).isEqualTo("https://sonarqube.example.com");
     assertThat(json.get("redirect_url").getAsString()).isEqualTo("https://sonarqube.example.com/github/manifest/callback");
-    assertThat(json.getAsJsonArray("callback_urls")).hasSize(1);
+    assertThat(json.getAsJsonArray("callback_urls")).hasSize(3);
     assertThat(json.getAsJsonArray("callback_urls").get(0).getAsString()).isEqualTo("https://sonarqube.example.com");
+    assertThat(json.getAsJsonArray("callback_urls").get(1).getAsString()).isEqualTo("https://sonarqube.example.com/oauth2/callback/github");
+    assertThat(json.getAsJsonArray("callback_urls").get(2).getAsString()).isEqualTo("https://sonarqube.example.com/projects/create");
     assertThat(json.get("setup_url").getAsString()).isEqualTo("https://sonarqube.example.com/admin/settings?category=almintegration");
     assertThat(json.get("public").getAsBoolean()).isTrue();
     assertThat(json.get("request_oauth_on_install").getAsBoolean()).isTrue();
@@ -61,6 +66,7 @@ public class GithubAppManifestGeneratorTest {
   @Test
   public void generateManifest_usesGivenSetupPath() {
     when(server.getPublicRootUrl()).thenReturn("https://sonarqube.example.com");
+    when(oAuth2ContextFactory.generateCallbackUrl("github")).thenReturn("https://sonarqube.example.com/oauth2/callback/github");
 
     String manifest = underTest.generateManifest("SonarQube", GithubAppManifestGenerator.AUTH_SETTINGS_PATH);
 

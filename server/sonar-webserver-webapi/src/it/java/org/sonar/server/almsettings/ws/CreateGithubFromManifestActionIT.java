@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.almsettings.MultipleAlmFeature;
 import org.sonar.server.almsettings.ws.GithubManifestStateStore.PendingManifest;
+import org.sonar.server.authentication.OAuth2ContextFactory;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.server.exceptions.BadRequestException;
@@ -57,7 +58,8 @@ public class CreateGithubFromManifestActionIT {
   private final GithubManifestStateStore stateStore = new GithubManifestStateStore(System2.INSTANCE);
   private final AlmSettingsSupport almSettingsSupport = new AlmSettingsSupport(db.getDbClient(), userSession,
     new ComponentFinder(db.getDbClient(), mock(ComponentTypes.class)), multipleAlmFeature);
-  private final GithubAppManifestGenerator manifestGenerator = new GithubAppManifestGenerator(server);
+  private final OAuth2ContextFactory oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
+  private final GithubAppManifestGenerator manifestGenerator = new GithubAppManifestGenerator(server, oAuth2ContextFactory);
 
   private final WsActionTester ws = new WsActionTester(
     new CreateGithubFromManifestAction(db.getDbClient(), userSession, almSettingsSupport, manifestGenerator, stateStore));
@@ -66,6 +68,7 @@ public class CreateGithubFromManifestActionIT {
   public void setUp() {
     when(multipleAlmFeature.isAvailable()).thenReturn(true);
     when(server.getPublicRootUrl()).thenReturn("https://sonarqube.example.com");
+    when(oAuth2ContextFactory.generateCallbackUrl("github")).thenReturn("https://sonarqube.example.com/oauth2/callback/github");
     UserDto user = db.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
   }

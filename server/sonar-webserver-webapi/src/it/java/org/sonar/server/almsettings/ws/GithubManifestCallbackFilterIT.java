@@ -42,6 +42,7 @@ import org.sonar.server.common.almsettings.telemetry.DevOpsConfigurationTelemetr
 import org.sonar.server.common.github.config.GithubConfigurationService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTypes;
+import org.sonar.server.authentication.OAuth2ContextFactory;
 import org.sonar.server.management.ManagedInstanceService;
 import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.tester.UserSessionRule;
@@ -79,7 +80,7 @@ public class GithubManifestCallbackFilterIT {
   private final GithubManifestStateStore stateStore = new GithubManifestStateStore(System2.INSTANCE);
   private final AlmSettingsSupport almSettingsSupport = new AlmSettingsSupport(db.getDbClient(), userSession,
     new ComponentFinder(db.getDbClient(), mock(ComponentTypes.class)), multipleAlmFeature);
-  private final GithubAppManifestGenerator manifestGenerator = new GithubAppManifestGenerator(server);
+  private final GithubAppManifestGenerator manifestGenerator = new GithubAppManifestGenerator(server, mock(OAuth2ContextFactory.class));
 
   private final HttpRequest request = mock(HttpRequest.class);
   private final HttpResponse response = mock(HttpResponse.class);

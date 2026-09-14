@@ -28,7 +28,9 @@ import java.util.TreeMap;
 import javax.annotation.Nullable;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
+import org.sonar.auth.github.GitHubIdentityProvider;
 import org.sonar.auth.github.GithubAppPermissions;
+import org.sonar.server.authentication.OAuth2ContextFactory;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.Strings.CS;
@@ -53,13 +55,18 @@ public class GithubAppManifestGenerator {
   // GitHub authentication settings page.
   @SuppressWarnings("java:S1075")
   static final String AUTH_SETTINGS_PATH = "/admin/settings?category=authentication&tab=github";
+  // Where the webapp redirects after GitHub authorization during project import.
+  @SuppressWarnings("java:S1075")
+  static final String PROJECT_IMPORT_CALLBACK_PATH = "/projects/create";
 
   private static final Gson GSON = new Gson();
 
   private final Server server;
+  private final OAuth2ContextFactory oAuth2ContextFactory;
 
-  public GithubAppManifestGenerator(Server server) {
+  public GithubAppManifestGenerator(Server server, OAuth2ContextFactory oAuth2ContextFactory) {
     this.server = server;
+    this.oAuth2ContextFactory = oAuth2ContextFactory;
   }
 
   public String generateManifest(String appName, String setupPath) {
@@ -70,10 +77,13 @@ public class GithubAppManifestGenerator {
     // No webhook by default: SonarQube does not need GitHub to push events for PR analysis or
     // provisioning. Admins can enable a webhook manually for code scanning alert reporting.
     manifest.put("redirect_url", baseUrl + CALLBACK_PATH);
-    // A single base-URL callback is enough: GitHub matches OAuth redirect_uri values against the
-    // registered callback URLs by path prefix, so both the sign-in callback (/oauth2/callback/github)
-    // and the project import redirect (/projects/create) are covered.
-    manifest.put("callback_urls", List.of(baseUrl));
+    // GitHub's Aug 2026 change dropped implicit prefix matching for new apps, and the manifest
+    // can't opt into wildcard matching, so register the exact paths we redirect to. The base URL
+    // must stay first: request_oauth_on_install makes setup_url unreachable, so GitHub sends the
+    // post-install redirect to callback_urls[0], which must be harmless (landing on the sign-in
+    // callback there fails CSRF verification, since it wasn't reached through a real sign-in flow).
+    manifest.put("callback_urls",
+      List.of(baseUrl, oAuth2ContextFactory.generateCallbackUrl(GitHubIdentityProvider.KEY), baseUrl + PROJECT_IMPORT_CALLBACK_PATH));
     // After installation, GitHub returns the user to the setup URL (the settings page they started
     // from), appending installation_id/setup_action.
     manifest.put("setup_url", baseUrl + setupPath);
