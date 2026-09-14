@@ -19,6 +19,7 @@
  */
 package org.sonar.server.badge.ws;
 
+import java.security.MessageDigest;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
@@ -31,6 +32,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.db.component.BranchType.BRANCH;
@@ -121,6 +123,7 @@ public class ProjectBadgesSupport {
 
   private boolean isTokenValid(DbSession dbSession, ProjectDto projectDto, @Nullable String token) {
     ProjectBadgeTokenDto projectBadgeTokenDto = dbClient.projectBadgeTokenDao().selectTokenByProject(dbSession, projectDto);
-    return token != null && projectBadgeTokenDto != null && token.equals(projectBadgeTokenDto.getToken());
+    return token != null && projectBadgeTokenDto != null && projectBadgeTokenDto.getToken() != null
+      && MessageDigest.isEqual(token.getBytes(UTF_8), projectBadgeTokenDto.getToken().getBytes(UTF_8));
   }
 }
