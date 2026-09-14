@@ -110,6 +110,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_079, "Backfill Hunter model identifiers", BackfillHunterModelIdentifier.class)
       .add(2026_05_080, "Create index 'ce_activity_analysis_uuid' on 'ce_activity'", CreateIndexOnCeActivityAnalysisUuid.class)
       .add(2026_05_081, "Create index 'issues_hotspot_migration' on 'issues'", CreateIndexOnIssuesHotspotMigration.class)
-      .add(2026_05_082, "Add playbook version to Hunter agent runs", AddPlaybookVersionToHunterAgentRuns.class);
+      .add(2026_05_082, "Add playbook version to Hunter agent runs", AddPlaybookVersionToHunterAgentRuns.class)
+      .add(2026_05_083, "Add 'secondary_model_identifier' to 'llm_provider_mappings'", AddSecondaryModelIdentifierToLlmProviderMappingsTable.class);
   }
 }
