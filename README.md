@@ -122,7 +122,7 @@ Please be aware that we are not actively looking for feature contributions. The 
 
 With that in mind, if you would like to submit a code contribution, please create a pull request for this repository. Please explain your motives to contribute this change: what problem you are trying to fix, what improvement you are trying to make.
 
-Make sure that you follow our [code style](https://github.com/SonarSource/sonar-developer-toolset#code-style) and all tests are passing (Travis build is executed for each pull request).
+Make sure that you follow our [code style](https://github.com/SonarSource/sonar-developer-toolset#code-style) and all tests are passing (a GitHub Actions build is executed for each pull request).
 
 Willing to contribute to SonarSource products? We are looking for smart, passionate, and skilled people to help us build world-class code-quality solutions. Have a look at our current [job offers here](https://www.sonarsource.com/company/jobs/)!
 
@@ -132,7 +132,7 @@ To build sources locally follow these instructions.
 
 ### Requirements
 
-- Java 17 - Required to build the project
+- Java 21 - Required to build the project
 - Native Git - Must be installed and available in your PATH
 - Tests - Can be disabled if needed by adding `-x test` to the gradle command (useful if you just want to build without running tests)
 
@@ -165,7 +165,7 @@ Then open the root file `build.gradle` as a project in IntelliJ or Eclipse.
 | -------------------------------- | ----------------------------------------- |
 | `dependencies`                   | list dependencies                         |
 | `spotlessApply`                  | fix source headers by applying HEADER     |
-| `wrapper --gradle-version 5.2.1` | upgrade wrapper                           |
+| `wrapper --gradle-version <version>` | upgrade wrapper                       |
 
 ## Building with UI changes
 
