@@ -36,6 +36,16 @@ message GroupSubscription {
   optional string channelKey = 4;
 }
 
+// WS api/notifications/list_group_subscriptions
+message ListGroupSubscriptionsResponse {
+  repeated UserGroupSubscription groupSubscriptions = 1;
+}
+
+message UserGroupSubscription {
+  optional string groupName = 1;
+  optional string notificationType = 2;
+}
+
 // WS api/notifications/list
 message ListResponse {
   repeated Notification notifications = 1;

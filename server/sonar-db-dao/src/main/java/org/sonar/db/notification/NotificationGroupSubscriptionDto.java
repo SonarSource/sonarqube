@@ -23,6 +23,7 @@ public class NotificationGroupSubscriptionDto {
 
   private String uuid;
   private String groupUuid;
+  private String groupName;
   private String notificationType;
   private String channelKey;
   private long createdAt;
@@ -46,6 +47,15 @@ public class NotificationGroupSubscriptionDto {
 
   public NotificationGroupSubscriptionDto setGroupUuid(String groupUuid) {
     this.groupUuid = groupUuid;
+    return this;
+  }
+
+  public String getGroupName() {
+    return groupName;
+  }
+
+  public NotificationGroupSubscriptionDto setGroupName(String groupName) {
+    this.groupName = groupName;
     return this;
   }
 

@@ -52,6 +52,10 @@ public class NotificationGroupSubscriptionsDao implements Dao {
     return mapper(session).deleteByGroupUuid(groupUuid);
   }
 
+  public List<NotificationGroupSubscriptionDto> selectByUserUuidWithGroupName(DbSession session, String userUuid) {
+    return mapper(session).selectByUserUuidWithGroupName(userUuid);
+  }
+
   public List<NotificationGroupSubscriptionDto> selectByTypeAndChannel(DbSession session, String notificationType, String channelKey) {
     return mapper(session).selectByTypeAndChannel(notificationType, channelKey);
   }

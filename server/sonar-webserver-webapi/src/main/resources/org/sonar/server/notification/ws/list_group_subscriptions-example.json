@@ -1,0 +1,8 @@
+{
+  "groupSubscriptions": [
+    {
+      "groupName": "security-team",
+      "notificationType": "security-alert-raised"
+    }
+  ]
+}

@@ -12,6 +12,11 @@
     <result property="createdAt" column="created_at"/>
   </resultMap>
 
+  <resultMap id="notifGroupSubWithNameMap" type="NotificationGroupSubscription">
+    <result property="groupName" column="group_name"/>
+    <result property="notificationType" column="notification_type"/>
+  </resultMap>
+
   <insert id="insert" parameterType="NotificationGroupSubscription" useGeneratedKeys="false">
     INSERT INTO notif_group_subscriptions (uuid, group_uuid, notification_type, channel_key, created_at)
     VALUES (#{uuid}, #{groupUuid}, #{notificationType}, #{channelKey}, #{createdAt})
@@ -38,6 +43,15 @@
     <include refid="selectFromNotifGroupSubscriptions"/>
     WHERE notification_type = #{notificationType}
       AND channel_key = #{channelKey}
+  </select>
+
+  <select id="selectByUserUuidWithGroupName" resultMap="notifGroupSubWithNameMap">
+    SELECT g.name AS group_name, ngs.notification_type
+    FROM notif_group_subscriptions ngs
+    INNER JOIN groups g ON ngs.group_uuid = g.uuid
+    INNER JOIN groups_users gu ON ngs.group_uuid = gu.group_uuid
+    WHERE gu.user_uuid = #{userUuid,jdbcType=VARCHAR}
+    ORDER BY g.name ASC, ngs.notification_type ASC
   </select>
 
   <select id="selectAll" resultMap="notifGroupSubMap">

@@ -37,5 +37,7 @@ public interface NotificationGroupSubscriptionMapper {
     @Param("notificationType") String notificationType,
     @Param("channelKey") String channelKey);
 
+  List<NotificationGroupSubscriptionDto> selectByUserUuidWithGroupName(@Param("userUuid") String userUuid);
+
   List<NotificationGroupSubscriptionDto> selectAll();
 }

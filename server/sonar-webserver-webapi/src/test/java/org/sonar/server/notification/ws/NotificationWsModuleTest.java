@@ -29,6 +29,6 @@ public class NotificationWsModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new NotificationWsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(10);
+    assertThat(container.getAddedObjects()).hasSize(11);
   }
 }
