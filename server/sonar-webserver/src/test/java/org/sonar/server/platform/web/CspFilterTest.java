@@ -19,14 +19,8 @@
  */
 package org.sonar.server.platform.web;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.junit.Before;
-import org.junit.Test;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
@@ -34,10 +28,42 @@ import static org.mockito.Mockito.RETURNS_MOCKS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class CspFilterTest {
 
   private static final String TEST_CONTEXT = "/sonarqube";
+  private static final String INDEX_HTML = """
+    <script defer>
+          window.__assetsPath = function (filename) {
+            return 'WEB_CONTEXT/' + filename;
+          };
+
+          let themeMode = 'system';
+          try {
+            const storedThemeMode = localStorage.getItem('sonarqube.theme_mode');
+            themeMode = storedThemeMode ? JSON.parse(storedThemeMode) : themeMode;
+          } catch {
+            // noop
+          }
+          const useDarkTheme =
+            themeMode === 'dark-theme' ||
+            (themeMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (useDarkTheme) {
+            document.documentElement.dataset.echoesTheme = 'dark';
+          }
+        </script>
+    """;
   private static final String EXPECTED = "default-src 'self'; " +
     "base-uri 'none'; " +
     "connect-src 'self' http: https:; " +
@@ -45,7 +71,7 @@ public class CspFilterTest {
     "frame-src; " +
     "img-src * data: blob:; " +
     "object-src 'none'; " +
-    "script-src 'self' 'sha256-hK8SVWFNHY0UhP61DBzX/3fvT74EI8u6/jRQvUKeZoU='; " +
+    "script-src 'self' 'sha256-F9cDkTPdWFdfrHs0WmmvW1C05uRXeP2Px3F8BCnlC+8='; " +
     "style-src 'self' 'unsafe-inline'; " +
     "worker-src 'self'";
   private final ServletContext servletContext = mock(ServletContext.class, RETURNS_MOCKS);
@@ -57,6 +83,8 @@ public class CspFilterTest {
   @Before
   public void setUp() throws ServletException {
     when(config.getServletContext()).thenReturn(servletContext);
+    when(servletContext.getResourceAsStream("/index.html"))
+      .thenAnswer(invocation -> new ByteArrayInputStream(INDEX_HTML.getBytes(StandardCharsets.UTF_8)));
   }
 
   @Test
@@ -75,8 +103,27 @@ public class CspFilterTest {
     doInit();
     HttpServletRequest request = newRequest("/");
     underTest.doFilter(request, response, chain);
-    verify(response).setHeader(eq("Content-Security-Policy"), contains("script-src 'self' 'sha256-D1jaqcDDM2TM2STrzE42NNqyKR9PlptcHDe6tyaBcuM='; "));
+    verify(response).setHeader(eq("Content-Security-Policy"), contains("script-src 'self' 'sha256-oih2JXtlruHFLwqXZ0sBVpl+P8ux3mGb96nJG12Hw+I='; "));
     verify(chain).doFilter(request, response);
+  }
+
+  @Test
+  public void should_fail_when_assets_path_script_contains_a_serving_time_placeholder() {
+    when(servletContext.getResourceAsStream("/index.html"))
+      .thenAnswer(invocation -> new ByteArrayInputStream(INDEX_HTML.replace("WEB_CONTEXT", "%SERVER_STATUS%").getBytes(StandardCharsets.UTF_8)));
+
+    assertThatThrownBy(this::doInit)
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("The assets path script in /index.html must not contain serving-time placeholders");
+  }
+
+  @Test
+  public void should_fail_with_a_clear_message_when_index_html_is_missing() {
+    when(servletContext.getResourceAsStream("/index.html")).thenReturn(null);
+
+    assertThatThrownBy(this::doInit)
+      .isInstanceOf(ServletException.class)
+      .hasMessage("/index.html not found in the web context");
   }
 
   private void doInit() throws ServletException {

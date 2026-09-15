@@ -20,21 +20,31 @@
 package org.sonar.server.platform.web;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.IOUtils;
+
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class CspFilter implements Filter {
+  private static final String INDEX_HTML_PATH = "/index.html";
+  private static final Pattern INDEX_SCRIPT_PATTERN = Pattern.compile("<script[^>]*>(\\s*window\\.__assetsPath[\\s\\S]*?)</script>");
+
   private final List<String> cspHeaders = new ArrayList<>();
   private String policies = null;
 
@@ -50,8 +60,7 @@ public class CspFilter implements Filter {
     cspPolicies.add("frame-src");
     cspPolicies.add("img-src * data: blob:");
     cspPolicies.add("object-src 'none'");
-    // the hash below corresponds to the window.__assetsPath script in index.html
-    cspPolicies.add("script-src 'self' " + getAssetsPathScriptCSPHash(filterConfig.getServletContext().getContextPath()));
+    cspPolicies.add("script-src 'self' " + getIndexScriptCSPHash(filterConfig.getServletContext()));
     cspPolicies.add("style-src 'self' 'unsafe-inline'");
     cspPolicies.add("worker-src 'self'");
     this.policies = String.join("; ", cspPolicies).trim();
@@ -72,18 +81,24 @@ public class CspFilter implements Filter {
     // Not used
   }
 
-  private static String getAssetsPathScriptCSPHash(String contextPath) {
-    final String WEB_CONTEXT_PLACEHOLDER = "WEB_CONTEXT";
-    final String ASSETS_PATH_SCRIPT = """
-
-            window.__assetsPath = function (filename) {
-              return 'WEB_CONTEXT/' + filename;
-            };
-          \
-      """;
-
-    String assetsPathScriptWithContextPath = ASSETS_PATH_SCRIPT.replace(WEB_CONTEXT_PLACEHOLDER, contextPath);
-    return generateCSPHash(assetsPathScriptWithContextPath);
+  private static String getIndexScriptCSPHash(ServletContext servletContext) throws ServletException {
+    try (InputStream input = servletContext.getResourceAsStream(INDEX_HTML_PATH)) {
+      if (input == null) {
+        throw new ServletException(INDEX_HTML_PATH + " not found in the web context");
+      }
+      String indexHtml = IOUtils.toString(input, StandardCharsets.UTF_8);
+      Matcher scriptMatcher = INDEX_SCRIPT_PATTERN.matcher(indexHtml);
+      if (!scriptMatcher.find()) {
+        throw new IllegalStateException("Unable to find the assets path script in " + INDEX_HTML_PATH);
+      }
+      String script = scriptMatcher.group(1);
+      if (WebPagePlaceholders.containsServingTimePlaceholder(script)) {
+        throw new IllegalStateException("The assets path script in " + INDEX_HTML_PATH + " must not contain serving-time placeholders");
+      }
+      return generateCSPHash(script.replace(WebPagePlaceholders.WEB_CONTEXT, servletContext.getContextPath()));
+    } catch (IOException e) {
+      throw new ServletException("Failed to load " + INDEX_HTML_PATH, e);
+    }
   }
 
   private static String generateCSPHash(String str) {

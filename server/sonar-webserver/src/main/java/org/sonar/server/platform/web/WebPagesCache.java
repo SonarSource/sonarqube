@@ -37,11 +37,6 @@ import static org.sonar.server.platform.Platform.Status.UP;
 
 public class WebPagesCache {
 
-  private static final String WEB_CONTEXT_PLACEHOLDER = "WEB_CONTEXT";
-  private static final String SERVER_STATUS_PLACEHOLDER = "%SERVER_STATUS%";
-  private static final String INSTANCE_PLACEHOLDER = "%INSTANCE%";
-  private static final String OFFICIAL_PLACEHOLDER = "%OFFICIAL%";
-
   private static final String SONARQUBE_INSTANCE_VALUE = "SonarQube";
 
   private static final String INDEX_HTML_PATH = "/index.html";
@@ -94,10 +89,10 @@ public class WebPagesCache {
     try (InputStream input = servletContext.getResourceAsStream(path)) {
       String template = IOUtils.toString(requireNonNull(input), UTF_8);
       return template
-        .replace(WEB_CONTEXT_PLACEHOLDER, servletContext.getContextPath())
-        .replace(SERVER_STATUS_PLACEHOLDER, serverStatus)
-        .replace(INSTANCE_PLACEHOLDER, WebPagesCache.SONARQUBE_INSTANCE_VALUE)
-        .replace(OFFICIAL_PLACEHOLDER, String.valueOf(officialDistribution.check()));
+        .replace(WebPagePlaceholders.WEB_CONTEXT, servletContext.getContextPath())
+        .replace(WebPagePlaceholders.SERVER_STATUS, serverStatus)
+        .replace(WebPagePlaceholders.INSTANCE, WebPagesCache.SONARQUBE_INSTANCE_VALUE)
+        .replace(WebPagePlaceholders.OFFICIAL, String.valueOf(officialDistribution.check()));
     } catch (Exception e) {
       throw new IllegalStateException("Fail to load file " + path, e);
     }
