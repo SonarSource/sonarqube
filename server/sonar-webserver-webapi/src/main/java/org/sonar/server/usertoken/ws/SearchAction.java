@@ -77,6 +77,7 @@ public class SearchAction implements UserTokensWsAction {
 
   private SearchWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      userTokenSupport.checkNotAuthenticatedWithAnalysisToken();
       UserDto user = userTokenSupport.getUser(dbSession, request);
       List<UserTokenDto> userTokens = dbClient.userTokenDao().selectByUser(dbSession, user);
       return buildResponse(user, userTokens);

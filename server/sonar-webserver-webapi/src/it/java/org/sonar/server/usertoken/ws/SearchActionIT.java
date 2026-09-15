@@ -20,6 +20,7 @@
 package org.sonar.server.usertoken.ws;
 
 import javax.annotation.Nullable;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -33,6 +34,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.UserTokens.SearchWsResponse;
@@ -42,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -54,6 +58,11 @@ public class SearchActionIT {
 
   private DbClient dbClient = db.getDbClient();
   private WsActionTester ws = new WsActionTester(new SearchAction(dbClient, new UserTokenSupport(db.getDbClient(), userSession)));
+
+  @After
+  public void tearDown() {
+    new ThreadLocalUserSession().unload();
+  }
 
   @Test
   public void search_action() {
@@ -184,6 +193,75 @@ public class SearchActionIT {
       newRequest(user.getLogin());
     })
       .isInstanceOf(UnauthorizedException.class);
+  }
+
+  @Test
+  public void fail_if_search_is_called_by_a_session_authenticated_with_a_projectAnalysisToken() {
+    UserDto user = db.users().insertUser();
+    db.users().insertToken(user);
+    UserTokenDto sourceToken = db.users().insertProjectAnalysisToken(user);
+    WsActionTester wsAsProjectAnalysisToken = newWsAuthenticatedWith(user, sourceToken);
+    TestRequest request = wsAsProjectAnalysisToken.newRequest();
+
+    assertThatThrownBy(() -> request.executeProtobuf(SearchWsResponse.class))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+  }
+
+  @Test
+  public void fail_if_search_is_called_by_a_session_authenticated_with_a_globalAnalysisToken() {
+    UserDto user = db.users().insertUser();
+    db.users().insertToken(user);
+    UserTokenDto sourceToken = db.users().insertToken(user, t -> t.setType(GLOBAL_ANALYSIS_TOKEN.name()));
+    WsActionTester wsAsGlobalAnalysisToken = newWsAuthenticatedWith(user, sourceToken);
+    TestRequest request = wsAsGlobalAnalysisToken.newRequest();
+
+    assertThatThrownBy(() -> request.executeProtobuf(SearchWsResponse.class))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+  }
+
+  @Test
+  public void fail_if_search_is_called_by_a_threadLocalUserSession_wrapping_a_projectAnalysisToken() {
+    UserDto user = db.users().insertUser();
+    db.users().insertToken(user);
+    UserTokenDto sourceToken = db.users().insertProjectAnalysisToken(user);
+    WsActionTester wsAsProjectAnalysisToken = newWsAuthenticatedWithThreadLocal(user, sourceToken);
+    TestRequest request = wsAsProjectAnalysisToken.newRequest();
+
+    assertThatThrownBy(() -> request.executeProtobuf(SearchWsResponse.class))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+  }
+
+  @Test
+  public void a_session_authenticated_with_a_userToken_can_still_search_its_own_tokens() {
+    UserDto user = db.users().insertUser();
+    db.users().insertToken(user);
+    UserTokenDto sourceToken = db.users().insertToken(user);
+    WsActionTester wsAsUserToken = newWsAuthenticatedWith(user, sourceToken);
+
+    SearchWsResponse response = wsAsUserToken.newRequest().executeProtobuf(SearchWsResponse.class);
+
+    assertThat(response.getLogin()).isEqualTo(user.getLogin());
+    assertThat(response.getUserTokensCount()).isEqualTo(2);
+  }
+
+  private WsActionTester newWsAuthenticatedWith(UserDto user, UserTokenDto sourceToken) {
+    TokenUserSession tokenUserSession = new TokenUserSession(db.getDbClient(), user, sourceToken);
+    return new WsActionTester(new SearchAction(dbClient, new UserTokenSupport(db.getDbClient(), tokenUserSession)));
+  }
+
+  /**
+   * Routes the session through {@link ThreadLocalUserSession}, exactly as production wiring does (SearchAction and
+   * UserTokenSupport are platform singletons; the injected UserSession is always this wrapper), so the
+   * {@code ThreadLocalUserSession#get()} unwrap branch in {@link UserTokenSupport#checkNotAuthenticatedWithAnalysisToken()}
+   * is actually exercised, not just its bare-session fallback (see {@link #newWsAuthenticatedWith}).
+   */
+  private WsActionTester newWsAuthenticatedWithThreadLocal(UserDto user, UserTokenDto sourceToken) {
+    ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+    threadLocalUserSession.set(new TokenUserSession(db.getDbClient(), user, sourceToken));
+    return new WsActionTester(new SearchAction(dbClient, new UserTokenSupport(db.getDbClient(), threadLocalUserSession)));
   }
 
   private SearchWsResponse newRequest(@Nullable String login) {
