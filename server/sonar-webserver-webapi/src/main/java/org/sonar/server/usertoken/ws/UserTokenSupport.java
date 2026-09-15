@@ -26,13 +26,18 @@ import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
+import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
+import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
@@ -79,6 +84,16 @@ public class UserTokenSupport {
 
   private static boolean isLoggedInUser(UserSession userSession, @Nullable String requestLogin) {
     return requestLogin != null && requestLogin.equals(userSession.getLogin());
+  }
+
+  public void checkNotAuthenticatedWithAnalysisToken() {
+    UserSession effectiveSession = userSession instanceof ThreadLocalUserSession threadLocalUserSession ? threadLocalUserSession.get() : userSession;
+    if (effectiveSession instanceof TokenUserSession tokenUserSession) {
+      TokenType tokenType = tokenUserSession.getTokenType();
+      if (tokenType == PROJECT_ANALYSIS_TOKEN || tokenType == GLOBAL_ANALYSIS_TOKEN) {
+        throw insufficientPrivilegesException();
+      }
+    }
   }
 
   public void validateGlobalScanPermission() {

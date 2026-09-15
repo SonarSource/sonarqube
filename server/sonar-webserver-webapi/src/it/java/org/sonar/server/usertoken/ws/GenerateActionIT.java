@@ -25,6 +25,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,6 +39,7 @@ import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.server.exceptions.BadRequestException;
@@ -46,6 +48,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.usertoken.TokenGenerator;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -103,6 +107,11 @@ public class GenerateActionIT {
     when(tokenGenerator.generate(PROJECT_ANALYSIS_TOKEN)).thenReturn("sqp_123456789");
     when(tokenGenerator.hash(anyString())).thenReturn("987654321");
     when(runtime.getEdition()).thenReturn(ENTERPRISE); // by default, a Sonar version that supports the max allowed lifetime token property
+  }
+
+  @After
+  public void tearDown() {
+    new ThreadLocalUserSession().unload();
   }
 
   @Test
@@ -501,6 +510,93 @@ public class GenerateActionIT {
       newRequest(login, TOKEN_NAME);
     })
       .isInstanceOf(UnauthorizedException.class);
+  }
+
+  @Test
+  public void fail_if_generate_is_called_by_a_session_authenticated_with_a_projectAnalysisToken() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto sourceToken = db.users().insertProjectAnalysisToken(user);
+    WsActionTester wsAsProjectAnalysisToken = newWsAuthenticatedWith(user, sourceToken);
+    TestRequest request = wsAsProjectAnalysisToken.newRequest()
+      .setParam(PARAM_NAME, "escalated-token");
+
+    assertThatThrownBy(() -> request.executeProtobuf(GenerateWsResponse.class))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+  }
+
+  @Test
+  public void fail_if_generate_is_called_by_a_session_authenticated_with_a_globalAnalysisToken() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto sourceToken = db.users().insertToken(user, t -> t.setType(GLOBAL_ANALYSIS_TOKEN.name()));
+    WsActionTester wsAsGlobalAnalysisToken = newWsAuthenticatedWith(user, sourceToken);
+    TestRequest request = wsAsGlobalAnalysisToken.newRequest()
+      .setParam(PARAM_NAME, "escalated-token");
+
+    assertThatThrownBy(() -> request.executeProtobuf(GenerateWsResponse.class))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+  }
+
+  @Test
+  public void fail_if_a_projectAnalysisToken_session_requests_another_projectAnalysisToken_for_itself() {
+    UserDto user = db.users().insertUser();
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    UserTokenDto sourceToken = db.users().insertProjectAnalysisToken(user);
+    WsActionTester wsAsProjectAnalysisToken = newWsAuthenticatedWith(user, sourceToken);
+    TestRequest request = wsAsProjectAnalysisToken.newRequest()
+      .setParam(PARAM_NAME, "escalated-token")
+      .setParam(PARAM_TYPE, PROJECT_ANALYSIS_TOKEN.toString())
+      .setParam(PARAM_PROJECT_KEY, project.getKey());
+
+    assertThatThrownBy(() -> request.executeProtobuf(GenerateWsResponse.class))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+  }
+
+  @Test
+  public void a_session_authenticated_with_a_userToken_can_still_generate_a_new_token_for_himself() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto sourceToken = db.users().insertToken(user);
+    WsActionTester wsAsUserToken = newWsAuthenticatedWith(user, sourceToken);
+
+    GenerateWsResponse response = wsAsUserToken.newRequest()
+      .setParam(PARAM_NAME, "new-token")
+      .executeProtobuf(GenerateWsResponse.class);
+
+    assertThat(response.getLogin()).isEqualTo(user.getLogin());
+  }
+
+  @Test
+  public void fail_if_generate_is_called_by_a_threadLocalUserSession_wrapping_a_projectAnalysisToken() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto sourceToken = db.users().insertProjectAnalysisToken(user);
+    WsActionTester wsAsProjectAnalysisToken = newWsAuthenticatedWithThreadLocal(user, sourceToken);
+    TestRequest request = wsAsProjectAnalysisToken.newRequest()
+      .setParam(PARAM_NAME, "escalated-token-via-threadlocal");
+
+    assertThatThrownBy(() -> request.executeProtobuf(GenerateWsResponse.class))
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+  }
+
+  private WsActionTester newWsAuthenticatedWith(UserDto user, UserTokenDto sourceToken) {
+    TokenUserSession tokenUserSession = new TokenUserSession(db.getDbClient(), user, sourceToken);
+    return new WsActionTester(
+      new GenerateAction(db.getDbClient(), System2.INSTANCE, componentFinder, tokenGenerator, new UserTokenSupport(db.getDbClient(), tokenUserSession), validation));
+  }
+
+  /**
+   * Routes the session through {@link ThreadLocalUserSession}, exactly as production wiring does (GenerateAction and
+   * UserTokenSupport are platform singletons; the injected UserSession is always this wrapper), so the
+   * {@code ThreadLocalUserSession#get()} unwrap branch in {@link UserTokenSupport#checkNotAuthenticatedWithAnalysisToken()}
+   * is actually exercised, not just its bare-session fallback (see {@link #newWsAuthenticatedWith}).
+   */
+  private WsActionTester newWsAuthenticatedWithThreadLocal(UserDto user, UserTokenDto sourceToken) {
+    ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+    threadLocalUserSession.set(new TokenUserSession(db.getDbClient(), user, sourceToken));
+    return new WsActionTester(
+      new GenerateAction(db.getDbClient(), System2.INSTANCE, componentFinder, tokenGenerator, new UserTokenSupport(db.getDbClient(), threadLocalUserSession), validation));
   }
 
   private GenerateWsResponse newRequest(@Nullable String login, String name) {

@@ -115,6 +115,7 @@ public final class GenerateActionValidation {
   }
 
   static void validateParametersCombination(UserTokenSupport userTokenSupport, DbSession dbSession, Request request, TokenType tokenType) {
+    userTokenSupport.checkNotAuthenticatedWithAnalysisToken();
     if (PROJECT_ANALYSIS_TOKEN.equals(tokenType)) {
       validateProjectAnalysisParameters(userTokenSupport, dbSession, request);
     } else if (GLOBAL_ANALYSIS_TOKEN.equals(tokenType)) {
