@@ -115,6 +115,8 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_084, "Alter 'measure_history.text_value' column type to clob", AlterMeasureHistoryTextValueToClob.class)
       .add(2026_05_085, "Increase issue_count_dimensions.rule_key column size", IncreaseIssueCountDimensionsRuleKeyColumnSize.class)
       .add(2026_05_086, "Persist the history backfill UTC-day epoch", PersistHistoryBackfillUtcDayEpoch.class)
-      .add(2026_05_087, "Backfill project branch issue-count and measure history", BackfillProjectBranchHistory.class);
+      .add(2026_05_087, "Backfill project branch issue-count and measure history", BackfillProjectBranchHistory.class)
+      .add(2026_05_088, "Create index 'rule_desc_sections_rule_ctx' on 'rule_desc_sections'", CreateIndexOnRuleDescSectionsRuleContext.class)
+      .add(2026_05_089, "Create index 'issues_rule_uuid_ctx_key' on 'issues'", CreateIndexOnIssuesRuleContextKey.class);
   }
 }

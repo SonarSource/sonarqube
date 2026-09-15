@@ -43,10 +43,10 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonarsource.compliancereports.dao.AggregationType;
 
-import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class PurgeDao implements Dao {
   private static final Logger LOG = LoggerFactory.getLogger(PurgeDao.class);
@@ -132,25 +132,18 @@ public class PurgeDao implements Dao {
   }
 
   private static void deleteIssues(PurgeMapper mapper, Collection<String> issueKeys) {
-    executeLargeInputs(issueKeys, input -> {
-      mapper.deleteIssueChangesFromIssueKeys(input);
-      return emptyList();
-    });
+    // Hunter Agent issues share a small, fixed set of rules; each issue's write-up is its own group of
+    // rule_desc_sections rows (root_cause, how_to_fix, ...) identified by the issue's context_key. That
+    // table has no back-pointer to issues, so it's captured here, before the issues are deleted below.
+    List<String> sectionUuids = executeLargeInputs(issueKeys, mapper::selectHunterAgentRuleDescSectionUuidsByIssueKeys);
 
-    executeLargeInputs(issueKeys, input -> {
-      mapper.deleteNewCodeReferenceIssuesFromKeys(input);
-      return emptyList();
-    });
+    executeLargeUpdates(issueKeys, mapper::deleteIssueChangesFromIssueKeys);
+    executeLargeUpdates(issueKeys, mapper::deleteNewCodeReferenceIssuesFromKeys);
+    executeLargeUpdates(issueKeys, mapper::deleteIssuesImpactsFromKeys);
+    executeLargeUpdates(issueKeys, mapper::deleteIssuesFromKeys);
 
-    executeLargeInputs(issueKeys, input -> {
-      mapper.deleteIssuesImpactsFromKeys(input);
-      return emptyList();
-    });
-
-    executeLargeInputs(issueKeys, input -> {
-      mapper.deleteIssuesFromKeys(input);
-      return emptyList();
-    });
+    // Runs after the issue deletes above, which are visible in the same uncommitted transaction.
+    executeLargeUpdates(sectionUuids, mapper::deleteUnreferencedRuleDescSectionsByUuids);
   }
 
   private static void deleteAbortedAnalyses(String rootUuid, PurgeCommands commands) {

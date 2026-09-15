@@ -21,7 +21,9 @@ package org.sonar.db.rule;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.Uuids;
@@ -156,6 +158,26 @@ public class RuleDbTester {
     }
 
     return insert(ruleDto);
+  }
+
+  /**
+   * Attach an extra description section to an already-inserted rule, optionally under a context key.
+   * Unlike {@code insert(r -> r.addRuleDescriptionSectionDto(...))}, this does not require the section
+   * to be known when the rule itself is first persisted, which is the shape a shared ad-hoc rule needs:
+   * one rule, many sections accumulated over time, one per finding context.
+   */
+  public RuleDescriptionSectionDto insertDescriptionSection(RuleDto rule, String key, @Nullable String contextKey) {
+    RuleDescriptionSectionDto.RuleDescriptionSectionDtoBuilder builder = RuleDescriptionSectionDto.builder()
+      .uuid(Uuids.createFast())
+      .key(key)
+      .content("content");
+    if (contextKey != null) {
+      builder.context(RuleDescriptionSectionContextDto.of(contextKey, contextKey + " display name"));
+    }
+    RuleDescriptionSectionDto section = builder.build();
+    db.getDbClient().ruleDao().insertRuleDescriptionSections(db.getSession(), rule.getUuid(), Set.of(section));
+    db.commit();
+    return section;
   }
 
   @SafeVarargs

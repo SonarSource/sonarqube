@@ -51,8 +51,10 @@ import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbInputStream;
 import org.sonar.db.DbSession;
@@ -1516,6 +1518,267 @@ project.getProjectDto().getKey());
   }
 
   @Test
+  void purge_shouldDeleteUnreferencedHunterAgentRuleDescSections() {
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    db.rules().insertDescriptionSection(rule, "how_to_fix", "f1");
+    db.rules().insertDescriptionSection(rule, "resources", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setStatus("CLOSED");
+      issue.setIssueCloseDate(DateUtils.addDays(new Date(NOW), -31));
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    when(system2.now()).thenReturn(NOW);
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY,
+      new PurgeProfiler());
+    dbSession.commit();
+
+    // only the rule's own default (null-context) section remains
+    assertThat(db.countRowsOfTable("rule_desc_sections")).isOne();
+    assertThat(db.countRowsOfTable("rules")).isOne();
+  }
+
+  @Test
+  void purge_shouldKeepRuleDescSections_whenAnotherIssueInSameProjectReferencesThePair() {
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setStatus("CLOSED");
+      issue.setIssueCloseDate(DateUtils.addDays(new Date(NOW), -31));
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+    // still open, references the same (rule, context) pair
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    when(system2.now()).thenReturn(NOW);
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY,
+      new PurgeProfiler());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'f1'")).isOne();
+  }
+
+  @Test
+  void purge_shouldKeepRuleDescSections_whenAnotherProjectReferencesThePair() {
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+    ProjectData otherProjectData = db.components().insertPublicProject();
+    ComponentDto otherMainBranch = otherProjectData.getMainBranchComponent();
+    ComponentDto otherFile = db.components().insertComponent(newFileDto(otherMainBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setStatus("CLOSED");
+      issue.setIssueCloseDate(DateUtils.addDays(new Date(NOW), -31));
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+    // open issue in a different project, references the same (rule, context) pair
+    db.issues().insert(rule, otherMainBranch, otherFile, issue -> {
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    when(system2.now()).thenReturn(NOW);
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY,
+      new PurgeProfiler());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'f1'")).isOne();
+  }
+
+  @Test
+  void purge_shouldKeepStaticRuleDescSections_whenContextKeyIsNull() {
+    // db.rules().insert() already attaches a default section with a null context key
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setStatus("CLOSED");
+      issue.setIssueCloseDate(DateUtils.addDays(new Date(NOW), -31));
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    when(system2.now()).thenReturn(NOW);
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY,
+      new PurgeProfiler());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'f1'")).isZero();
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key is null")).isOne();
+  }
+
+  @Test
+  void purge_shouldKeepRuleDescSections_ofOtherContextKeysOnSameRule() {
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    db.rules().insertDescriptionSection(rule, "root_cause", "f2");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setStatus("CLOSED");
+      issue.setIssueCloseDate(DateUtils.addDays(new Date(NOW), -31));
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    when(system2.now()).thenReturn(NOW);
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY,
+      new PurgeProfiler());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'f1'")).isZero();
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'f2'")).isOne();
+  }
+
+  @Test
+  void purge_shouldKeepRuleDescSections_ofSameContextKeyOnDifferentRule() {
+    RuleDto ruleA = db.rules().insert();
+    db.rules().insertDescriptionSection(ruleA, "root_cause", "f1");
+    RuleDto ruleB = db.rules().insert();
+    db.rules().insertDescriptionSection(ruleB, "root_cause", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    // only ruleA's issue is purged
+    db.issues().insert(ruleA, mainBranch, file, issue -> {
+      issue.setStatus("CLOSED");
+      issue.setIssueCloseDate(DateUtils.addDays(new Date(NOW), -31));
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    when(system2.now()).thenReturn(NOW);
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY,
+      new PurgeProfiler());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where rule_uuid = '" + ruleA.getUuid() + "' and context_key = 'f1'"))
+      .isZero();
+    assertThat(db.countSql("select count(*) from rule_desc_sections where rule_uuid = '" + ruleB.getUuid() + "' and context_key = 'f1'"))
+      .isOne();
+  }
+
+  @Test
+  void purge_shouldKeepPluginRuleDescSections_whenIssuesAreScannerProduced() {
+    // shape of AdvancedRuleDescriptionSectionsGenerator's plugin-rule contexts (e.g. Java's "spring"/"servlet")
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "how_to_fix", "spring");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    // ordinary scanner-produced issue, not hunter-agent: producer left unset (defaults to SCANNER)
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setStatus("CLOSED");
+      issue.setIssueCloseDate(DateUtils.addDays(new Date(NOW), -31));
+      issue.setRuleDescriptionContextKey("spring");
+    });
+
+    when(system2.now()).thenReturn(NOW);
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY,
+      new PurgeProfiler());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'spring'")).isOne();
+  }
+
+  @Test
+  void purge_shouldNotDeleteRuleRow_whenAllItsSectionsArePurged() {
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setStatus("CLOSED");
+      issue.setIssueCloseDate(DateUtils.addDays(new Date(NOW), -31));
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    when(system2.now()).thenReturn(NOW);
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY,
+      new PurgeProfiler());
+    dbSession.commit();
+
+    assertThat(uuidsIn("rules")).contains(rule.getUuid());
+  }
+
+  @Test
+  void purge_shouldDeleteUnreferencedRuleDescSections_forOrphanIssues() {
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setComponentUuid("nonExisting");
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY,
+      new PurgeProfiler());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'f1'")).isZero();
+  }
+
+  @Test
+  void purge_shouldDeleteRuleDescSections_whenMoreIssuesThanPartitionSize() {
+    RuleDto rule = db.rules().insert();
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    int issueCount = DatabaseUtils.PARTITION_SIZE_FOR_ORACLE + 1;
+    for (int i = 0; i < issueCount; i++) {
+      String contextKey = "ctx-" + i;
+      db.rules().insertDescriptionSection(rule, "root_cause", contextKey);
+      int index = i;
+      db.issues().insert(rule, mainBranch, file, issue -> {
+        issue.setStatus("CLOSED");
+        issue.setIssueCloseDate(DateUtils.addDays(new Date(NOW), -31));
+        issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+        issue.setRuleDescriptionContextKey("ctx-" + index);
+      });
+    }
+
+    when(system2.now()).thenReturn(NOW);
+    underTest.purge(dbSession, newConfigurationWith30Days(system2, mainBranch.uuid(), projectData.projectUuid()), PurgeListener.EMPTY,
+      new PurgeProfiler());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key is not null")).isZero();
+  }
+
+  @Test
   void delete_disabled_components_without_issues() {
     ProjectData projectData = db.components().insertPublicProject(p -> p.setEnabled(true));
     ComponentDto mainBranch = projectData.getMainBranchComponent();
@@ -2309,6 +2572,166 @@ oldCreationDate));
     assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(2);
     underTest.deleteBranch(dbSession, branch1.getUuid());
     assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(1);
+  }
+
+  @Test
+  void deleteBranch_shouldDeleteUnreferencedHunterAgentRuleDescSections() {
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    underTest.deleteBranch(dbSession, mainBranch.uuid());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'f1'")).isZero();
+  }
+
+  @Test
+  void deleteBranch_shouldKeepRuleDescSections_whenAnotherBranchReferencesThePair() {
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+    ComponentDto otherBranch = db.components().insertProjectBranch(mainBranch);
+    ComponentDto otherBranchFile = db.components().insertComponent(newFileDto(otherBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+    // a sibling branch of the same project still references the same (rule, context) pair
+    db.issues().insert(rule, otherBranch, otherBranchFile, issue -> {
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    underTest.deleteBranch(dbSession, mainBranch.uuid());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'f1'")).isOne();
+  }
+
+  @Test
+  void deleteBranch_shouldKeepPluginRuleDescSections_whenIssuesAreScannerProduced() {
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "how_to_fix", "spring");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> issue.setRuleDescriptionContextKey("spring"));
+
+    underTest.deleteBranch(dbSession, mainBranch.uuid());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'spring'")).isOne();
+  }
+
+  @Test
+  void deleteProject_shouldDeleteUnreferencedHunterAgentRuleDescSections() {
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+    ComponentDto otherBranch = db.components().insertProjectBranch(mainBranch);
+    ComponentDto otherBranchFile = db.components().insertComponent(newFileDto(otherBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+    db.issues().insert(rule, otherBranch, otherBranchFile, issue -> {
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    underTest.deleteProject(dbSession, projectData.getProjectDto().getUuid(), projectData.getProjectDto().getQualifier(),
+      projectData.getProjectDto().getName(), projectData.getProjectDto().getKey());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'f1'")).isZero();
+  }
+
+  @Test
+  void deleteProject_shouldKeepRuleDescSections_whenAnotherProjectReferencesThePair() {
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+    ProjectData otherProjectData = db.components().insertPublicProject();
+    ComponentDto otherMainBranch = otherProjectData.getMainBranchComponent();
+    ComponentDto otherFile = db.components().insertComponent(newFileDto(otherMainBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+    db.issues().insert(rule, otherMainBranch, otherFile, issue -> {
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    underTest.deleteProject(dbSession, projectData.getProjectDto().getUuid(), projectData.getProjectDto().getQualifier(),
+      projectData.getProjectDto().getName(), projectData.getProjectDto().getKey());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'f1'")).isOne();
+  }
+
+  @Test
+  void deleteProject_shouldNotDeleteRuleRow() {
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+
+    underTest.deleteProject(dbSession, projectData.getProjectDto().getUuid(), projectData.getProjectDto().getQualifier(),
+      projectData.getProjectDto().getName(), projectData.getProjectDto().getKey());
+    dbSession.commit();
+
+    assertThat(uuidsIn("rules")).contains(rule.getUuid());
+  }
+
+  @Test
+  void deleteBranch_shouldKeepRuleDescSections_whenAnIssueHasNullProjectUuid() {
+    // pins the nullable issues.project_uuid guard: without the explicit null branch, a live section
+    // referenced only by an issue whose project_uuid is null would be wrongly deleted.
+    RuleDto rule = db.rules().insert();
+    db.rules().insertDescriptionSection(rule, "root_cause", "f1");
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
+
+    db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+    IssueDto issueWithNullProjectUuid = db.issues().insert(rule, mainBranch, file, issue -> {
+      issue.setIssueProducer(IssueProducer.HUNTER_AGENT);
+      issue.setRuleDescriptionContextKey("f1");
+    });
+    db.executeUpdateSql("update issues set project_uuid = null where kee = '" + issueWithNullProjectUuid.getKey() + "'");
+
+    underTest.deleteBranch(dbSession, mainBranch.uuid());
+    dbSession.commit();
+
+    assertThat(db.countSql("select count(*) from rule_desc_sections where context_key = 'f1'")).isOne();
   }
 
   @Test

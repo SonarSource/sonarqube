@@ -305,6 +305,32 @@
       )
   </delete>
 
+  <!-- Must run before deleteIssuesByProjectUuid for the same (branch) uuid; restricted to hunter-agent
+       issues, since plugin rules and scanner issues use context_key too. -->
+  <delete id="deleteUnreferencedRuleDescSectionsByProjectUuid" parameterType="map">
+    delete from rule_desc_sections
+    where
+      uuid in (
+        select
+          s.uuid
+        from rule_desc_sections s
+          inner join issues i on i.rule_uuid = s.rule_uuid and i.rule_description_context_key = s.context_key
+        where
+          s.context_key is not null
+          and i.project_uuid = #{projectUuid,jdbcType=VARCHAR}
+          and coalesce(i.producer, 1) = 2
+      )
+      and rule_desc_sections.context_key is not null
+      and not exists (
+        select 1 from issues o
+        where
+          o.rule_uuid = rule_desc_sections.rule_uuid
+          and o.rule_description_context_key = rule_desc_sections.context_key
+          <!-- project_uuid is nullable; without this a live section on a null-project issue would be deleted. -->
+          and (o.project_uuid is null or o.project_uuid != #{projectUuid,jdbcType=VARCHAR})
+      )
+  </delete>
+
   <delete id="deleteFileSourcesByProjectUuid">
     delete from file_sources where project_uuid=#{rootProjectUuid,jdbcType=VARCHAR}
   </delete>
@@ -445,6 +471,40 @@
     <foreach collection="issueKeys" open="(" close=")" item="issueKey" separator=",">
       #{issueKey,jdbcType=VARCHAR}
     </foreach>
+  </delete>
+
+  <!-- Captured before the issues are deleted; restricted to hunter-agent issues, since plugin rules and
+       scanner issues use context_key too. -->
+  <select id="selectHunterAgentRuleDescSectionUuidsByIssueKeys" parameterType="map" resultType="String">
+    SELECT DISTINCT s.uuid
+    FROM rule_desc_sections s
+      INNER JOIN issues i ON i.rule_uuid = s.rule_uuid AND i.rule_description_context_key = s.context_key
+    WHERE
+      s.context_key IS NOT NULL
+      AND coalesce(i.producer, 1) = 2
+      AND i.kee IN
+      <foreach collection="issueKeys" open="(" close=")" item="issueKey" separator=",">
+        #{issueKey,jdbcType=VARCHAR}
+      </foreach>
+  </select>
+
+  <!-- Must run after the issue deletes above, in the same transaction; guard is global (not project-scoped)
+       since rule_desc_sections has no project column. Table name never aliased: SQL Server rejects an
+       alias on a DELETE target, and issues also has a rule_uuid column so a bare one would bind wrong. -->
+  <delete id="deleteUnreferencedRuleDescSectionsByUuids" parameterType="map">
+    DELETE FROM rule_desc_sections
+    WHERE
+      uuid IN
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid,jdbcType=VARCHAR}
+      </foreach>
+      AND rule_desc_sections.context_key IS NOT NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM issues i
+        WHERE
+          i.rule_uuid = rule_desc_sections.rule_uuid
+          AND i.rule_description_context_key = rule_desc_sections.context_key
+      )
   </delete>
 
   <select id="selectCeActivityUuidsByRootUuidOrBeforeWithLimit" resultType="String">

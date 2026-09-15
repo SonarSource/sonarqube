@@ -220,6 +220,15 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
+    // Hunter Agent issues share a small, fixed set of rules; each issue's write-up is its own group of
+    // rule_desc_sections rows (root_cause, how_to_fix, ...) identified by the issue's context_key. That
+    // table has no back-pointer to issues, so without this pass a write-up would outlive the issue it
+    // belongs to. Must run while this branch's issues still exist.
+    profiler.start("deleteIssues (rule_desc_sections)");
+    purgeMapper.deleteUnreferencedRuleDescSectionsByProjectUuid(rootUuid);
+    session.commit();
+    profiler.stop();
+
     profiler.start("deleteIssues (issues)");
     purgeMapper.deleteIssuesByProjectUuid(rootUuid);
     session.commit();
