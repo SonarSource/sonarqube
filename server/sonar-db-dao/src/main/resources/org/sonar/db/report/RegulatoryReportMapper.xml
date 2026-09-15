@@ -50,27 +50,50 @@
     r.security_standards as securityStandards,
     r.name as ruleName,
     i.issue_creation_date as creationDate,
-    <include refid="org.sonar.db.issue.IssueMapper.issueImpactsColumns"/>
     <include refid="org.sonar.db.issue.IssueMapper.isNewCodeReferenceIssue"/>
   </sql>
 
   <select id="scrollIssues" parameterType="String" resultMap="issueResultMap" resultOrdered="true"
     fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
-    select
-    <include refid="issueColumns"/>,
-    ic.kee as issue_change_kee,
-    ic.change_data,
-    ic.change_type
-    from issues i
-    inner join rules r on r.uuid=i.rule_uuid
-    inner join components p on p.uuid=i.component_uuid
-    left join issue_changes ic on ic.issue_key = i.kee
-    left join new_code_reference_issues n on i.kee = n.issue_key
-    left outer join issues_impacts ii on i.kee = ii.issue_key
-    where i.project_uuid=#{branchUuid,jdbcType=VARCHAR}
-    and i.status !='CLOSED'
-    <!--CODE_SMELL, BUG, VULNERABILITY, SECURITY_HOTSPOT    -->
-    and i.issue_type in (1, 2, 3, 4)
-    order by i.kee, ic.issue_change_creation_date
+    select * from (
+      select
+      <include refid="issueColumns"/>,
+      <include refid="org.sonar.db.issue.IssueMapper.issueImpactsColumns"/>
+      null as issue_change_kee,
+      null as change_data,
+      null as change_type,
+      null as issue_change_creation_date
+      from issues i
+      inner join rules r on r.uuid=i.rule_uuid
+      inner join components p on p.uuid=i.component_uuid
+      left join new_code_reference_issues n on i.kee = n.issue_key
+      left outer join issues_impacts ii on i.kee = ii.issue_key
+      where i.project_uuid=#{branchUuid,jdbcType=VARCHAR}
+      and i.status !='CLOSED'
+      <!--CODE_SMELL, BUG, VULNERABILITY, SECURITY_HOTSPOT    -->
+      and i.issue_type in (1, 2, 3, 4)
+
+      union all
+
+      select
+      <include refid="issueColumns"/>,
+      null as ii_softwareQuality,
+      null as ii_severity,
+      null as ii_manualSeverity,
+      ic.kee as issue_change_kee,
+      ic.change_data,
+      ic.change_type,
+      ic.issue_change_creation_date
+      from issues i
+      inner join rules r on r.uuid=i.rule_uuid
+      inner join components p on p.uuid=i.component_uuid
+      left join new_code_reference_issues n on i.kee = n.issue_key
+      inner join issue_changes ic on ic.issue_key = i.kee and ic.change_type = 'comment'
+      where i.project_uuid=#{branchUuid,jdbcType=VARCHAR}
+      and i.status !='CLOSED'
+      <!--CODE_SMELL, BUG, VULNERABILITY, SECURITY_HOTSPOT    -->
+      and i.issue_type in (1, 2, 3, 4)
+    ) issues_and_children
+    order by kee, issue_change_creation_date
   </select>
 </mapper>

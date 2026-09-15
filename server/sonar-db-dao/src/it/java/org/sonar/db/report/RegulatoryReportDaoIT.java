@@ -67,7 +67,10 @@ class RegulatoryReportDaoIT {
   @Test
   void scrollIssues_returns_all_non_closed_issues_for_project() {
     IssueDto issue1 = db.issues().insertIssue(rule, project, file, i -> i.setType(RuleType.BUG).setStatus("OPEN").setResolution(null)
-      .replaceAllImpacts(List.of(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM))));
+      .replaceAllImpacts(List.of(
+        new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM),
+        new ImpactDto(SoftwareQuality.RELIABILITY, Severity.HIGH),
+        new ImpactDto(SoftwareQuality.SECURITY, Severity.LOW))));
     IssueDto issue2 = db.issues().insertIssue(rule, project, file,
       i -> i.setType(RuleType.VULNERABILITY).setStatus("CONFIRMED").setResolution(null));
     IssueDto issue3 = db.issues().insertHotspot(hotspotRule, project, file,
@@ -109,6 +112,9 @@ class RegulatoryReportDaoIT {
     assertThat(issue.getResolution()).isEqualTo(issue1.getResolution());
     assertThat(issue.getStatus()).isEqualTo(issue1.getStatus());
     assertThat(issue.getComments()).containsExactly("c1", "c2");
-    assertThat(issue.getImpacts()).containsExactly(new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
+    assertThat(issue.getImpacts()).containsExactlyInAnyOrder(
+      new ImpactDto(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM),
+      new ImpactDto(SoftwareQuality.RELIABILITY, Severity.HIGH),
+      new ImpactDto(SoftwareQuality.SECURITY, Severity.LOW));
   }
 }
