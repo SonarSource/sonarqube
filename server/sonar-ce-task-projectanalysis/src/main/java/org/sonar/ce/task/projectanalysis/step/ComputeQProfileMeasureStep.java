@@ -28,6 +28,7 @@ import org.sonar.ce.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.ce.task.projectanalysis.component.PathAwareCrawler;
 import org.sonar.ce.task.projectanalysis.component.PathAwareVisitorAdapter;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
+import org.sonar.ce.task.projectanalysis.language.LanguageRepository;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -35,11 +36,13 @@ import org.sonar.ce.task.projectanalysis.metric.MetricRepository;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
+import org.sonar.server.qualityprofile.VirtualLanguageEvaluator;
 
 import static org.sonar.ce.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 /**
- * Compute quality profile measure per module  based on present languages
+ * Compute quality profile measure per module based on present languages, plus the profiles of
+ * virtual languages (e.g. Secrets), which are always considered used.
  */
 public class ComputeQProfileMeasureStep implements ComputationStep {
 
@@ -47,13 +50,15 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
   private final MeasureRepository measureRepository;
   private final MetricRepository metricRepository;
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final LanguageRepository languageRepository;
 
   public ComputeQProfileMeasureStep(TreeRootHolder treeRootHolder, MeasureRepository measureRepository, MetricRepository metricRepository,
-    AnalysisMetadataHolder analysisMetadataHolder) {
+    AnalysisMetadataHolder analysisMetadataHolder, LanguageRepository languageRepository) {
     this.treeRootHolder = treeRootHolder;
     this.measureRepository = measureRepository;
     this.metricRepository = metricRepository;
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.languageRepository = languageRepository;
   }
 
   @Override
@@ -98,7 +103,12 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
 
     @Override
     public void visitProject(Component project, Path<QProfiles> path) {
-      addMeasure(project, path.current());
+      QProfiles qProfiles = path.current();
+      // Add virtual languages (never auto-detected on a file, always present, e.g., Secrets)
+      analysisMetadataHolder.getQProfilesByLanguage().values().stream()
+        .filter(profile -> VirtualLanguageEvaluator.isVirtual(languageRepository.find(profile.getLanguageKey()).orElse(null)))
+        .forEach(qProfiles::add);
+      addMeasure(project, qProfiles);
     }
 
     private void addMeasure(Component component, QProfiles qProfiles) {

@@ -25,11 +25,13 @@ import java.util.Date;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.FileAttributes;
 import org.sonar.ce.task.projectanalysis.component.ReportComponent;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
+import org.sonar.ce.task.projectanalysis.language.LanguageRepositoryImpl;
 import org.sonar.ce.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.ce.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.ce.task.step.TestComputationStepContext;
@@ -86,7 +88,9 @@ public class ComputeQProfileMeasureStepTest {
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  private ComputeQProfileMeasureStep underTest = new ComputeQProfileMeasureStep(treeRootHolder, measureRepository, metricRepository, analysisMetadataHolder);
+  private LanguageRepositoryImpl languageRepository = new LanguageRepositoryImpl(newLanguageWithSuffixes(LANGUAGE_KEY_1, LANGUAGE_KEY_1), newLanguageWithSuffixes(LANGUAGE_KEY_2, LANGUAGE_KEY_2));
+
+  private ComputeQProfileMeasureStep underTest = new ComputeQProfileMeasureStep(treeRootHolder, measureRepository, metricRepository, analysisMetadataHolder, languageRepository);
 
   @Test
   public void add_quality_profile_measure_on_project() {
@@ -105,6 +109,7 @@ public class ComputeQProfileMeasureStepTest {
   public void nothing_to_add_when_no_files() {
     ReportComponent project = ReportComponent.builder(PROJECT, PROJECT_REF).build();
     treeRootHolder.setRoot(project);
+    analysisMetadataHolder.setQProfilesByLanguage(ImmutableMap.of());
 
     underTest.execute(new TestComputationStepContext());
 
@@ -124,6 +129,63 @@ public class ComputeQProfileMeasureStepTest {
       assertThat(e).hasCause(new IllegalStateException("Report contains a file with language 'php' but no matching quality profile"));
     }
 
+  }
+
+  @Test
+  public void add_quality_profile_measure_for_virtual_language_even_without_matching_files() {
+    String virtualLanguageKey = "secrets";
+    treeRootHolder.setRoot(MULTI_MODULE_PROJECT);
+    QualityProfile qpJava = createQProfile(QP_NAME_1, LANGUAGE_KEY_1);
+    QualityProfile qpPhp = createQProfile(QP_NAME_2, LANGUAGE_KEY_2);
+    QualityProfile qpSecrets = createQProfile("qpSecrets", virtualLanguageKey);
+    analysisMetadataHolder.setQProfilesByLanguage(ImmutableMap.of(LANGUAGE_KEY_1, qpJava, LANGUAGE_KEY_2, qpPhp, virtualLanguageKey, qpSecrets));
+    LanguageRepositoryImpl languageRepositoryWithVirtual = new LanguageRepositoryImpl(
+      newLanguageWithSuffixes(LANGUAGE_KEY_1, LANGUAGE_KEY_1),
+      newLanguageWithSuffixes(LANGUAGE_KEY_2, LANGUAGE_KEY_2),
+      newLanguageWithSuffixes(virtualLanguageKey));
+    ComputeQProfileMeasureStep step = new ComputeQProfileMeasureStep(treeRootHolder, measureRepository, metricRepository, analysisMetadataHolder,
+      languageRepositoryWithVirtual);
+
+    step.execute(new TestComputationStepContext());
+
+    assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF).get(QUALITY_PROFILES_KEY))
+      .extracting("data").isEqualTo(toJson(qpJava, qpPhp, qpSecrets));
+  }
+
+  @Test
+  public void does_not_add_quality_profile_measure_for_real_language_with_no_matching_files_even_if_configured() {
+    String virtualLanguageKey = "secrets";
+    String unmatchedRealLanguageKey = "python";
+    treeRootHolder.setRoot(MULTI_MODULE_PROJECT);
+    QualityProfile qpJava = createQProfile(QP_NAME_1, LANGUAGE_KEY_1);
+    QualityProfile qpPhp = createQProfile(QP_NAME_2, LANGUAGE_KEY_2);
+    QualityProfile qpSecrets = createQProfile("qpSecrets", virtualLanguageKey);
+    QualityProfile qpPython = createQProfile("qpPython", unmatchedRealLanguageKey);
+    analysisMetadataHolder.setQProfilesByLanguage(ImmutableMap.of(
+      LANGUAGE_KEY_1, qpJava, LANGUAGE_KEY_2, qpPhp, virtualLanguageKey, qpSecrets, unmatchedRealLanguageKey, qpPython));
+    LanguageRepositoryImpl languageRepositoryWithVirtualAndUnmatchedReal = new LanguageRepositoryImpl(
+      newLanguageWithSuffixes(LANGUAGE_KEY_1, LANGUAGE_KEY_1),
+      newLanguageWithSuffixes(LANGUAGE_KEY_2, LANGUAGE_KEY_2),
+      newLanguageWithSuffixes(virtualLanguageKey),
+      newLanguageWithSuffixes(unmatchedRealLanguageKey, unmatchedRealLanguageKey));
+    ComputeQProfileMeasureStep step = new ComputeQProfileMeasureStep(treeRootHolder, measureRepository, metricRepository, analysisMetadataHolder,
+      languageRepositoryWithVirtualAndUnmatchedReal);
+
+    step.execute(new TestComputationStepContext());
+
+    // qpPython must be excluded: it's a real (suffix-bearing) language with zero matching files in the tree.
+    // Only qpJava/qpPhp (file-matched) and qpSecrets (virtual, always included) must appear.
+    assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF).get(QUALITY_PROFILES_KEY))
+      .extracting("data").isEqualTo(toJson(qpJava, qpPhp, qpSecrets));
+  }
+
+  private static AbstractLanguage newLanguageWithSuffixes(String key, String... suffixes) {
+    return new AbstractLanguage(key) {
+      @Override
+      public String[] getFileSuffixes() {
+        return suffixes;
+      }
+    };
   }
 
   private static QualityProfile createQProfile(String qpName, String languageKey) {

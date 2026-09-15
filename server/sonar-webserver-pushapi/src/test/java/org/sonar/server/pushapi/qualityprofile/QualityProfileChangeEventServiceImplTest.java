@@ -20,8 +20,10 @@
 package org.sonar.server.pushapi.qualityprofile;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +46,13 @@ import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
+import org.sonar.server.qualityprofile.QPMeasureData;
+import org.sonar.server.qualityprofile.QualityProfile;
 
 import static java.util.List.of;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
+import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.db.rule.RuleTesting.newCustomRule;
 import static org.sonar.db.rule.RuleTesting.newTemplateRule;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
@@ -111,7 +115,7 @@ class QualityProfileChangeEventServiceImplTest {
     RuleDto rule = insertCustomRule(templateRule, language, "<div>line1\nline2</div>");
     ActiveRuleChange activeRuleChange = changeActiveRule(defaultQualityProfile, rule, "paramChangeKey", "paramChangeValue")
       .setNewImpacts(Map.of(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
-    db.measures().insertMeasure(mainBranch, m -> m.addValue(NCLOC_LANGUAGE_DISTRIBUTION_KEY, language + "=100"));
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(QUALITY_PROFILES_KEY, qualityProfilesMeasureValue(language)));
 
     db.getSession().commit();
 
@@ -135,6 +139,62 @@ class QualityProfileChangeEventServiceImplTest {
         "\"params\":[{\"key\":\"paramChangeKey\",\"value\":\"paramChangeValue\"}]," +
         "\"impacts\":[{\"softwareQuality\":\"RELIABILITY\",\"severity\":\"MEDIUM\"}]}]," +
         "\"deactivatedRules\":[]");
+  }
+
+  @Test
+  void distributeRuleChangeEvent_when_project_has_only_default_quality_profiles_but_language_not_used() {
+    String language = "xoo";
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    RuleDto templateRule = insertTemplateRule();
+    QProfileDto defaultQualityProfile = insertDefaultQualityProfile(language);
+    RuleDto rule = insertCustomRule(templateRule, language, "<div>line1\nline2</div>");
+    ActiveRuleChange activeRuleChange = changeActiveRule(defaultQualityProfile, rule, "paramChangeKey", "paramChangeValue")
+      .setNewImpacts(Map.of(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
+    // project's code is entirely a different language: no "xoo" entry in the QUALITY_PROFILES measure
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(QUALITY_PROFILES_KEY, qualityProfilesMeasureValue("js")));
+
+    db.getSession().commit();
+
+    underTest.distributeRuleChangeEvent(List.of(defaultQualityProfile), of(activeRuleChange), language);
+
+    Deque<PushEventDto> events = getProjectEvents(projectData.getProjectDto());
+
+    assertThat(events).isEmpty();
+  }
+
+  @Test
+  void distributeRuleChangeEvent_when_project_has_only_default_quality_profile_for_virtual_language() {
+    // a virtual language (e.g. secrets) never appears in NCLOC_LANGUAGE_DISTRIBUTION, but ComputeQProfileMeasureStep
+    // still records it in the QUALITY_PROFILES measure, which is the signal this class relies on.
+    String language = "secrets";
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    RuleDto templateRule = insertTemplateRule();
+    QProfileDto defaultQualityProfile = insertDefaultQualityProfile(language);
+    RuleDto rule = insertCustomRule(templateRule, language, "<div>line1\nline2</div>");
+    ActiveRuleChange activeRuleChange = changeActiveRule(defaultQualityProfile, rule, "paramChangeKey", "paramChangeValue")
+      .setNewImpacts(Map.of(SoftwareQuality.RELIABILITY, Severity.MEDIUM));
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(QUALITY_PROFILES_KEY, qualityProfilesMeasureValue(language)));
+
+    db.getSession().commit();
+
+    underTest.distributeRuleChangeEvent(List.of(defaultQualityProfile), of(activeRuleChange), language);
+
+    Deque<PushEventDto> events = getProjectEvents(projectData.getProjectDto());
+
+    assertThat(events)
+      .hasSize(1);
+    assertThat(events.getFirst())
+      .extracting(PushEventDto::getName, PushEventDto::getLanguage)
+      .contains("RuleSetChanged", "secrets");
+  }
+
+  private static String qualityProfilesMeasureValue(String... languageKeys) {
+    List<QualityProfile> profiles = Arrays.stream(languageKeys)
+      .map(languageKey -> new QualityProfile(languageKey + "-key", languageKey + "-name", languageKey, new Date(1_704_067_200_000L)))
+      .toList();
+    return QPMeasureData.toJson(new QPMeasureData(profiles));
   }
 
   private Deque<PushEventDto> getProjectEvents(ProjectDto projectDto) {

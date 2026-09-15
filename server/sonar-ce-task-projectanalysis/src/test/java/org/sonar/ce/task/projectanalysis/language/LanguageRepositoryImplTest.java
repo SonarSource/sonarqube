@@ -22,9 +22,14 @@ package org.sonar.ce.task.projectanalysis.language;
 import java.util.Optional;
 import org.junit.Test;
 import org.sonar.api.resources.Language;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class LanguageRepositoryImplTest {
 
@@ -57,6 +62,33 @@ public class LanguageRepositoryImplTest {
     LanguageRepositoryImpl languageRepository = new LanguageRepositoryImpl(SOME_LANGUAGE);
     Optional<Language> language = languageRepository.find(ANY_KEY);
     assertThat(language).isEmpty();
+  }
+
+  @Test
+  public void find_skips_language_beans_that_fail_to_build_and_still_returns_the_others() {
+    ConfigurableListableBeanFactory beanFactory = mock(ConfigurableListableBeanFactory.class);
+    when(beanFactory.getBeanNamesForType(Language.class, false, true)).thenReturn(new String[] {"broken", "ok"});
+    when(beanFactory.getBean("broken", Language.class)).thenThrow(new NoSuchBeanDefinitionException("SomeMissingMetadata"));
+    when(beanFactory.getBean("ok", Language.class)).thenReturn(SOME_LANGUAGE);
+
+    LanguageRepositoryImpl languageRepository = new LanguageRepositoryImpl(beanFactory);
+
+    verify(beanFactory).getBean("broken", Language.class);
+    assertThat(languageRepository.find(SOME_LANGUAGE_KEY)).contains(SOME_LANGUAGE);
+  }
+
+  @Test
+  public void find_keeps_first_language_when_two_beans_share_the_same_language_key() {
+    Language first = createLanguage(SOME_LANGUAGE_KEY, "_first");
+    Language duplicate = createLanguage(SOME_LANGUAGE_KEY, "_duplicate");
+    ConfigurableListableBeanFactory beanFactory = mock(ConfigurableListableBeanFactory.class);
+    when(beanFactory.getBeanNamesForType(Language.class, false, true)).thenReturn(new String[] {"first", "duplicate"});
+    when(beanFactory.getBean("first", Language.class)).thenReturn(first);
+    when(beanFactory.getBean("duplicate", Language.class)).thenReturn(duplicate);
+
+    LanguageRepositoryImpl languageRepository = new LanguageRepositoryImpl(beanFactory);
+
+    assertThat(languageRepository.find(SOME_LANGUAGE_KEY)).contains(first);
   }
 
   private static Language createLanguage(final String key, final String nameSuffix) {

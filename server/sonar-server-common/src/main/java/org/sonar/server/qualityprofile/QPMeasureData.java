@@ -20,13 +20,16 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.StringWriter;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.utils.text.JsonWriter;
@@ -41,6 +44,8 @@ import static java.util.function.Function.identity;
 @Immutable
 public class QPMeasureData {
 
+  private static final String LANGUAGE_FIELD = "language";
+
   private final SortedSet<QualityProfile> profiles;
 
   public QPMeasureData(Iterable<QualityProfile> qualityProfiles) {
@@ -48,15 +53,22 @@ public class QPMeasureData {
   }
 
   public static QPMeasureData fromJson(String json) {
-    return new QPMeasureData(StreamSupport.stream(JsonParser.parseString(json).getAsJsonArray().spliterator(), false)
-      .map(jsonElement -> {
-        JsonObject jsonProfile = jsonElement.getAsJsonObject();
-        return new QualityProfile(
-          jsonProfile.get("key").getAsString(),
-          jsonProfile.get("name").getAsString(),
-          jsonProfile.get("language").getAsString(),
-          UtcDateUtils.parseDateTime(jsonProfile.get("rulesUpdatedAt").getAsString()));
-      }).toList());
+    return new QPMeasureData(jsonProfiles(json)
+      .map(jsonProfile -> new QualityProfile(
+        jsonProfile.get("key").getAsString(),
+        jsonProfile.get("name").getAsString(),
+        jsonProfile.get(LANGUAGE_FIELD).getAsString(),
+        UtcDateUtils.parseDateTime(jsonProfile.get("rulesUpdatedAt").getAsString())))
+      .toList());
+  }
+
+  public static boolean containsLanguage(String json, String language) {
+    return jsonProfiles(json).anyMatch(jsonProfile -> Objects.equals(language, jsonProfile.get(LANGUAGE_FIELD).getAsString()));
+  }
+
+  private static Stream<JsonObject> jsonProfiles(String json) {
+    return StreamSupport.stream(JsonParser.parseString(json).getAsJsonArray().spliterator(), false)
+      .map(JsonElement::getAsJsonObject);
   }
 
   public static String toJson(QPMeasureData data) {
@@ -67,7 +79,7 @@ public class QPMeasureData {
         writer
           .beginObject()
           .prop("key", profile.getQpKey())
-          .prop("language", profile.getLanguageKey())
+          .prop(LANGUAGE_FIELD, profile.getLanguageKey())
           .prop("name", profile.getQpName())
           .prop("rulesUpdatedAt", UtcDateUtils.formatDateTime(profile.getRulesUpdatedAt()))
           .endObject();
