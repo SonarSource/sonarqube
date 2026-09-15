@@ -28,8 +28,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 
 class NotificationGroupSubscriptionsDaoIT {
 
@@ -112,6 +114,91 @@ class NotificationGroupSubscriptionsDaoIT {
 
     assertThat(deleted).isZero();
     assertThat(underTest.selectAll(dbSession)).isEmpty();
+  }
+
+  @Nested
+  class SelectByUserUuidWithGroupName {
+
+    private UserDto user;
+
+    @BeforeEach
+    void setUp() {
+      user = db.users().insertUser();
+    }
+
+    @Test
+    void returns_group_and_type_for_member() {
+      GroupDto group = db.users().insertGroup("alpha");
+      db.users().insertMember(group, user);
+      underTest.insert(dbSession, group.getUuid(), "TypeA", "ChannelX");
+      dbSession.commit();
+
+      List<NotificationGroupSubscriptionDto> results = underTest.selectByUserUuidWithGroupName(dbSession, user.getUuid());
+
+      assertThat(results)
+        .extracting(NotificationGroupSubscriptionDto::getGroupName, NotificationGroupSubscriptionDto::getNotificationType)
+        .containsExactly(tuple("alpha", "TypeA"));
+    }
+
+    @Test
+    void returns_results_ordered_by_group_name_then_notification_type() {
+      GroupDto groupBeta = db.users().insertGroup("beta");
+      GroupDto groupAlpha = db.users().insertGroup("alpha");
+      db.users().insertMember(groupBeta, user);
+      db.users().insertMember(groupAlpha, user);
+      underTest.insert(dbSession, groupBeta.getUuid(), "TypeB", "ChannelX");
+      underTest.insert(dbSession, groupAlpha.getUuid(), "TypeZ", "ChannelX");
+      underTest.insert(dbSession, groupAlpha.getUuid(), "TypeA", "ChannelX");
+      dbSession.commit();
+
+      List<NotificationGroupSubscriptionDto> results = underTest.selectByUserUuidWithGroupName(dbSession, user.getUuid());
+
+      assertThat(results)
+        .extracting(NotificationGroupSubscriptionDto::getGroupName, NotificationGroupSubscriptionDto::getNotificationType)
+        .containsExactly(tuple("alpha", "TypeA"), tuple("alpha", "TypeZ"), tuple("beta", "TypeB"));
+    }
+
+    @Test
+    void excludes_groups_user_is_not_member_of() {
+      GroupDto memberGroup = db.users().insertGroup("member-group");
+      GroupDto otherGroup = db.users().insertGroup("other-group");
+      db.users().insertMember(memberGroup, user);
+      underTest.insert(dbSession, memberGroup.getUuid(), "TypeA", "ChannelX");
+      underTest.insert(dbSession, otherGroup.getUuid(), "TypeB", "ChannelX");
+      dbSession.commit();
+
+      List<NotificationGroupSubscriptionDto> results = underTest.selectByUserUuidWithGroupName(dbSession, user.getUuid());
+
+      assertThat(results)
+        .extracting(NotificationGroupSubscriptionDto::getGroupName, NotificationGroupSubscriptionDto::getNotificationType)
+        .containsExactly(tuple("member-group", "TypeA"));
+    }
+
+    @Test
+    void deduplicates_when_same_type_subscribed_on_multiple_channels() {
+      GroupDto group = db.users().insertGroup("mygroup");
+      db.users().insertMember(group, user);
+      underTest.insert(dbSession, group.getUuid(), "TypeA", "ChannelX");
+      underTest.insert(dbSession, group.getUuid(), "TypeA", "ChannelY");
+      dbSession.commit();
+
+      List<NotificationGroupSubscriptionDto> results = underTest.selectByUserUuidWithGroupName(dbSession, user.getUuid());
+
+      assertThat(results)
+        .extracting(NotificationGroupSubscriptionDto::getGroupName, NotificationGroupSubscriptionDto::getNotificationType)
+        .containsExactly(tuple("mygroup", "TypeA"));
+    }
+
+    @Test
+    void returns_empty_when_user_has_no_group_memberships() {
+      GroupDto group = db.users().insertGroup("unused-group");
+      underTest.insert(dbSession, group.getUuid(), "TypeA", "ChannelX");
+      dbSession.commit();
+
+      List<NotificationGroupSubscriptionDto> results = underTest.selectByUserUuidWithGroupName(dbSession, user.getUuid());
+
+      assertThat(results).isEmpty();
+    }
   }
 
 }

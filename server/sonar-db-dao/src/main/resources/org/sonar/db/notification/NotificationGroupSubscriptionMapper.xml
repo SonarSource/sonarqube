@@ -46,7 +46,7 @@
   </select>
 
   <select id="selectByUserUuidWithGroupName" resultMap="notifGroupSubWithNameMap">
-    SELECT g.name AS group_name, ngs.notification_type
+    SELECT DISTINCT g.name AS group_name, ngs.notification_type
     FROM notif_group_subscriptions ngs
     INNER JOIN groups g ON ngs.group_uuid = g.uuid
     INNER JOIN groups_users gu ON ngs.group_uuid = gu.group_uuid
