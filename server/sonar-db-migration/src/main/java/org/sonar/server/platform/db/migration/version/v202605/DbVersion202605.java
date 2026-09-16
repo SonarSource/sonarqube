@@ -117,6 +117,7 @@ public class DbVersion202605 implements DbVersion {
       .add(2026_05_086, "Persist the history backfill UTC-day epoch", PersistHistoryBackfillUtcDayEpoch.class)
       .add(2026_05_087, "Backfill project branch issue-count and measure history", BackfillProjectBranchHistory.class)
       .add(2026_05_088, "Create index 'rule_desc_sections_rule_ctx' on 'rule_desc_sections'", CreateIndexOnRuleDescSectionsRuleContext.class)
-      .add(2026_05_089, "Create index 'issues_rule_uuid_ctx_key' on 'issues'", CreateIndexOnIssuesRuleContextKey.class);
+      .add(2026_05_089, "Create index 'issues_rule_uuid_ctx_key' on 'issues'", CreateIndexOnIssuesRuleContextKey.class)
+      .add(2026_05_090, "Add 'consumed_credits' to 'agent_jobs'", AddConsumedCreditsToAgentJobsTable.class);
   }
 }
