@@ -61,6 +61,7 @@ public class LoadReportAnalysisMetadataHolderStepIT {
 
   private static final String PROJECT_KEY = "project_key";
   private static final long ANALYSIS_DATE = 123456789L;
+  private static final int ROOT_COMPONENT_REF = 1;
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -79,6 +80,7 @@ public class LoadReportAnalysisMetadataHolderStepIT {
     CeTask defaultOrgCeTask = createCeTask(PROJECT_KEY);
     underTest = createStep(defaultOrgCeTask);
     project = db.components().insertPublicProject(p -> p.setKey(PROJECT_KEY)).getProjectDto();
+    putRootComponent(PROJECT_KEY);
   }
 
   @Test
@@ -227,6 +229,18 @@ public class LoadReportAnalysisMetadataHolderStepIT {
   }
 
   @Test
+  public void execute_fails_with_MessageException_when_root_component_key_in_report_is_different_from_componentKey_in_CE_task() {
+    ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
+    reportReader.setMetadata(newBatchReportBuilder().build());
+    putRootComponent(otherProject.getKey());
+    TestComputationStepContext context = new TestComputationStepContext();
+
+    assertThatThrownBy(() -> underTest.execute(context))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Root component key in report (" + otherProject.getKey() + ") is not consistent with projectKey under which the report has been submitted (" + PROJECT_KEY + ")");
+  }
+
+  @Test
   public void execute_sets_branch_even_if_MessageException_is_thrown_because_projectKey_in_report_is_different_from_componentKey_in_CE_task() {
     ComponentDto otherProject = db.components().insertPublicProject().getMainBranchComponent();
     reportReader.setMetadata(
@@ -265,6 +279,7 @@ public class LoadReportAnalysisMetadataHolderStepIT {
       .setProjectKey(project.getKey());
     metadataBuilder.putQprofilesPerLanguage("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("p1").setName("Sonar way").setLanguage("js").build());
     reportReader.setMetadata(metadataBuilder.build());
+    putRootComponent(project.getKey());
 
     ComputationStep underTest = createStep(createCeTask(project.getKey()));
 
@@ -304,7 +319,15 @@ public class LoadReportAnalysisMetadataHolderStepIT {
 
   private static ScannerReport.Metadata.Builder newBatchReportBuilder() {
     return ScannerReport.Metadata.newBuilder()
-      .setProjectKey(PROJECT_KEY);
+      .setProjectKey(PROJECT_KEY)
+      .setRootComponentRef(ROOT_COMPONENT_REF);
+  }
+
+  private void putRootComponent(String key) {
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
+      .setRef(ROOT_COMPONENT_REF)
+      .setKey(key)
+      .build());
   }
 
   private CeTask createCeTask(String projectKey) {

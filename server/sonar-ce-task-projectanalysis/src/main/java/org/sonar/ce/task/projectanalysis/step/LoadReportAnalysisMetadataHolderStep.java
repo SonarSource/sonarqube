@@ -108,6 +108,16 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
           reportMetadata.getProjectKey(),
           entityKey));
       }
+      // the root component key is a second, independent occurrence of the project key in the report, and it is the one
+      // driving component identity when the component tree is built. It must be checked against the task as well,
+      // otherwise the analysis could be bound to a project the submitter has no permission on.
+      String rootComponentKey = reportReader.readComponent(reportMetadata.getRootComponentRef()).getKey();
+      if (!entityKey.equals(rootComponentKey)) {
+        throw MessageException.of(format(
+          "Root component key in report (%s) is not consistent with projectKey under which the report has been submitted (%s)",
+          rootComponentKey,
+          entityKey));
+      }
     };
   }
 
