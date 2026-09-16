@@ -202,12 +202,13 @@ public class SearchAction implements IssuesWsAction {
     PARAM_COMPLIANCE_STANDARDS);
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of " +
-    "the componentKeys parameter. ";
+    "the components parameter. ";
   private static final String NEW_FACET_ADDED_MESSAGE = "Facet '%s' has been added";
   private static final String NEW_PARAM_ADDED_MESSAGE = "Param '%s' has been added";
   private static final String V_2025_3 = "2025.3";
   private static final String V_2025_5 = "2025.5";
   private static final String V_2025_6 = "2025.6";
+  private static final String V_2026_6 = "2026.6";
   private static final Set<String> FACETS_REQUIRING_PROJECT = newHashSet(PARAM_FILES, PARAM_DIRECTORIES);
 
   private final UserSession userSession;
@@ -262,6 +263,7 @@ public class SearchAction implements IssuesWsAction {
         + "<br/>When issue indexing is in progress returns 503 service unavailable HTTP code.")
       .setSince("3.6")
       .setChangelog(
+        new Change(V_2026_6, format("Parameter '%s' is removed, use '%s' instead", PARAM_COMPONENT_KEYS, PARAM_COMPONENTS)),
         new Change(V_2025_6, format(NEW_PARAM_ADDED_MESSAGE, PARAM_COMPLIANCE_STANDARDS)),
         new Change(V_2025_6, format(NEW_FACET_ADDED_MESSAGE, PARAM_COMPLIANCE_STANDARDS)),
         new Change(V_2025_6, format(NEW_FACET_ADDED_MESSAGE, PARAM_LINKED_TICKET_STATUS)),
@@ -541,12 +543,11 @@ public class SearchAction implements IssuesWsAction {
   private static void addComponentRelatedParams(WebService.NewAction action) {
     action.createParam(PARAM_ON_COMPONENT_ONLY)
       .setDescription("Return only issues at a component's level, not on its descendants (modules, directories, files, etc). " +
-        "This parameter is only considered when componentKeys is set.")
+        "This parameter is only considered when components is set.")
       .setBooleanPossibleValues()
       .setDefaultValue("false");
 
     action.createParam(PARAM_COMPONENTS)
-      .setDeprecatedKey(PARAM_COMPONENT_KEYS, "10.2")
       .setDescription("Comma-separated list of component keys. Retrieve issues associated to a specific list of components (and all its " +
         "descendants). " +
         "A component can be a portfolio, project, module, directory or file.")

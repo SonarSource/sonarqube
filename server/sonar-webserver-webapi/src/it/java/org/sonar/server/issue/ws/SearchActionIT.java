@@ -2437,7 +2437,7 @@ class SearchActionIT {
     WebService.Param projectUuids = def.param("projects");
     assertThat(projectUuids.description()).isEqualTo("To retrieve issues associated to a specific list of projects (comma-separated list " +
       "of project keys). " +
-      "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. If this parameter is set, " +
+      "This parameter is mostly used by the Issues page, please prefer usage of the components parameter. If this parameter is set, " +
       "projectUuids must not be set.");
   }
 
