@@ -118,6 +118,9 @@ public class ReportSubmitter {
       if (mainBranchComponentOpt.isPresent()) {
         mainBranchComponent = mainBranchComponentOpt.get();
         validateProject(dbSession, mainBranchComponent, projectKey);
+        // Authorize before the branch is resolved, so that no branch is ever created on behalf of a submission that is
+        // going to be rejected.
+        checkScanPermission(mainBranchComponent);
       } else {
         componentCreationData = createProject(projectKey, projectName, characteristics, dbSession, componentKey);
         mainBranchComponent = componentCreationData.mainBranchComponent();
@@ -140,7 +143,6 @@ public class ReportSubmitter {
         componentUpdater.commitAndIndex(dbSession, componentCreationData);
         checkScanPermission(branchComponent);
       } else {
-        checkScanPermission(branchComponent);
         dbSession.commit();
       }
       return submitReport(dbSession, reportInput, branchComponent, mainBranch, characteristics);
