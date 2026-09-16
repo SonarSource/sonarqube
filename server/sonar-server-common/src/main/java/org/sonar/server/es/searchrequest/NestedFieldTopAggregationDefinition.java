@@ -31,7 +31,7 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class NestedFieldTopAggregationDefinition<T> implements TopAggregationDefinition<NestedFieldFilterScope<T>> {
   private final NestedFieldFilterScope<T> filterScope;
-  private final boolean sticky;
+  private final boolean stickySelection;
 
   public NestedFieldTopAggregationDefinition(String nestedFieldPath, T value, boolean sticky) {
     requireNonNull(nestedFieldPath, "nestedFieldPath can't be null");
@@ -46,7 +46,7 @@ public class NestedFieldTopAggregationDefinition<T> implements TopAggregationDef
     checkArgument(fullPath.length == 2,
       "field path \"%s\" should have exactly 2 non empty field names, got: %s", nestedFieldPath, Arrays.asList(fullPath));
     this.filterScope = new NestedFieldFilterScope<>(fullPath[0], fullPath[1], value);
-    this.sticky = sticky;
+    this.stickySelection = sticky;
   }
 
   @Override
@@ -56,6 +56,6 @@ public class NestedFieldTopAggregationDefinition<T> implements TopAggregationDef
 
   @Override
   public boolean isSticky() {
-    return sticky;
+    return stickySelection;
   }
 }
