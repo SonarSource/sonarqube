@@ -74,6 +74,31 @@ public class StandaloneSystemInfoWriterTest {
     assertThat(writer).hasToString("{\"Health\":\"GREEN\",\"Health Causes\":[],\"Section One\":{\"foo\":\"bar\"},\"Section Two\":{\"one\":1,\"two\":2}}");
   }
 
+  @Test
+  public void groups_agentic_sections() {
+    logInAsSystemAdministrator();
+    when(ceHttpClient.retrieveSystemInfo()).thenReturn(Optional.empty());
+
+    StandaloneSystemInfoWriter writerUnderTest = new StandaloneSystemInfoWriter(ceHttpClient, healthChecker,
+      section("Onboarding"), section("Remediation Agent"), section("MCP"), section("Hunter Agent"),
+      section("Agentic Analysis"), section("Agent Orchestrator"));
+
+    StringWriter writer = new StringWriter();
+    JsonWriter jsonWriter = JsonWriter.of(writer);
+    jsonWriter.beginObject();
+    writerUnderTest.write(jsonWriter);
+    jsonWriter.endObject();
+
+    assertThat(writer).hasToString("{\"Health\":\"GREEN\",\"Health Causes\":[],\"Agent Orchestrator\":{},\"Agentic Analysis\":{},"
+      + "\"Hunter Agent\":{},\"MCP\":{},\"Remediation Agent\":{},\"Onboarding\":{}}");
+  }
+
+  private static SystemInfoSection section(String name) {
+    SystemInfoSection section = mock(SystemInfoSection.class);
+    when(section.toProtobuf()).thenReturn(ProtobufSystemInfo.Section.newBuilder().setName(name).build());
+    return section;
+  }
+
   private void logInAsSystemAdministrator() {
     userSessionRule.logIn().setSystemAdministrator();
   }

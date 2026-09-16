@@ -30,6 +30,9 @@ public abstract class AbstractSystemInfoWriter implements SystemInfoWriter {
     // standalone
     "System", "Statistics", "Database", "Bundled", "Plugins",
 
+    // agentic
+    "Agent Orchestrator", "Agentic Analysis", "Hunter Agent", "MCP", "Remediation Agent",
+
     // cluster
     "Web JVM State", "Web Database Connection", "Web Logging", "Web JVM Properties",
     "Compute Engine Tasks", "Compute Engine JVM State", "Compute Engine Database Connection", "Compute Engine Logging", "Compute Engine JVM Properties",
