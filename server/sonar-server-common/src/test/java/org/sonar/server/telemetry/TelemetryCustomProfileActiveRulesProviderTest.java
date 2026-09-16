@@ -135,6 +135,18 @@ class TelemetryCustomProfileActiveRulesProviderTest {
   }
 
   @Test
+  void getValues_usesProfileUuidNotOrgProfileUuidForKey() {
+    QProfileDto customProfile = newProfile("kee-uuid", "rules-profile-uuid", false);
+    when(qualityProfileDao.selectAll(dbSession)).thenReturn(List.of(customProfile));
+    when(qualityProfileDao.selectAllDefaultProfiles(dbSession)).thenReturn(List.of(customProfile));
+
+    OrgActiveRuleDto activeRule = newActiveRule(customProfile, "kee-uuid", "java", "S1234", "MAJOR");
+    when(activeRuleDao.selectByProfileUuids(dbSession, List.of("kee-uuid"))).thenReturn(List.of(activeRule));
+
+    assertThat(underTest.getValues()).containsExactlyInAnyOrderEntriesOf(Map.of("rules-profile-uuid|java:S1234", "MAJOR"));
+  }
+
+  @Test
   void getValues_excludesActiveRulesBasedOnACustomRuleTemplate() {
     QProfileDto customProfile = newProfile("custom-uuid", false);
     when(qualityProfileDao.selectAll(dbSession)).thenReturn(List.of(customProfile));
@@ -196,10 +208,14 @@ class TelemetryCustomProfileActiveRulesProviderTest {
   }
 
   private static QProfileDto newProfile(String uuid, boolean builtIn) {
+    return newProfile(uuid, uuid, builtIn);
+  }
+
+  private static QProfileDto newProfile(String kee, String rulesProfileUuid, boolean builtIn) {
     return new QProfileDto()
-      .setKee(uuid)
-      .setRulesProfileUuid(uuid)
-      .setName(uuid)
+      .setKee(kee)
+      .setRulesProfileUuid(rulesProfileUuid)
+      .setName(kee)
       .setLanguage("java")
       .setIsBuiltIn(builtIn);
   }

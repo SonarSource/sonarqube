@@ -71,7 +71,7 @@ public class TelemetryCustomProfileActiveRulesProvider extends AbstractTelemetry
         .stream()
         .filter(rule -> rule.getTemplateUuid() == null)
         .forEach(rule -> result.put(
-          rule.getOrgProfileUuid() + "|" + rule.getRuleKey(),
+          rule.getProfileUuid() + "|" + rule.getRuleKey(),
           rule.getSeverityString()));
       return result;
     }
