@@ -270,6 +270,28 @@ class PermissionTemplateDaoIT {
   }
 
   @Test
+  void add_user_permission_to_template_if_not_exists() {
+    PermissionTemplateDto permissionTemplate = templateDb.insertTemplate();
+    UserDto user = db.users().insertUser();
+
+    assertThat(underTest.insertUserPermissionIfNotExists(dbSession, permissionTemplate.getUuid(), user.getUuid(), "user",
+      permissionTemplate.getName(), user.getLogin())).isTrue();
+    assertThat(underTest.insertUserPermissionIfNotExists(dbSession, permissionTemplate.getUuid(), user.getUuid(), "user",
+      permissionTemplate.getName(), user.getLogin())).isFalse();
+    dbSession.commit();
+
+    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(db.getSession(), permissionTemplate.getUuid()))
+      .extracting(PermissionTemplateUserDto::getTemplateUuid, PermissionTemplateUserDto::getUserUuid, PermissionTemplateUserDto::getPermission)
+      .containsOnly(tuple(permissionTemplate.getUuid(), user.getUuid(), "user"));
+  }
+
+  @Test
+  void does_not_add_user_permission_to_missing_template() {
+    assertThat(underTest.insertUserPermissionIfNotExists(dbSession, "missing-template", "user-uuid", "user", "template", "user"))
+      .isFalse();
+  }
+
+  @Test
   void remove_user_permission_from_template() {
     PermissionTemplateDto permissionTemplate = templateDb.insertTemplate();
     UserDto user1 = db.users().insertUser();
@@ -301,6 +323,28 @@ class PermissionTemplateDaoIT {
         PermissionTemplateGroupDto::getCreatedAt,
         PermissionTemplateGroupDto::getUpdatedAt)
       .containsOnly(tuple(permissionTemplate.getUuid(), group.getUuid(), "user", NOW, NOW));
+  }
+
+  @Test
+  void add_group_permission_to_template_if_not_exists() {
+    PermissionTemplateDto permissionTemplate = templateDb.insertTemplate();
+    GroupDto group = db.users().insertGroup();
+
+    assertThat(underTest.insertGroupPermissionIfNotExists(dbSession, permissionTemplate.getUuid(), group.getUuid(), "user",
+      permissionTemplate.getName(), group.getName())).isTrue();
+    assertThat(underTest.insertGroupPermissionIfNotExists(dbSession, permissionTemplate.getUuid(), group.getUuid(), "user",
+      permissionTemplate.getName(), group.getName())).isFalse();
+    dbSession.commit();
+
+    assertThat(db.getDbClient().permissionTemplateDao().selectGroupPermissionsByTemplateUuid(db.getSession(), permissionTemplate.getUuid()))
+      .extracting(PermissionTemplateGroupDto::getTemplateUuid, PermissionTemplateGroupDto::getGroupUuid, PermissionTemplateGroupDto::getPermission)
+      .containsOnly(tuple(permissionTemplate.getUuid(), group.getUuid(), "user"));
+  }
+
+  @Test
+  void does_not_add_group_permission_to_missing_template() {
+    assertThat(underTest.insertGroupPermissionIfNotExists(dbSession, "missing-template", "group-uuid", "user", "template", "group"))
+      .isFalse();
   }
 
   @Test

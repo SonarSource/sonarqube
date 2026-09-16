@@ -20,14 +20,22 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.server.component.ComponentTypesRule;
@@ -39,9 +47,15 @@ import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.ws.BasePermissionWsIT;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
@@ -100,6 +114,34 @@ public class AddUserToTemplateActionIT extends BasePermissionWsIT<AddUserToTempl
     newRequest(user.getLogin(), permissionTemplate.getUuid(), ISSUE_ADMIN);
 
     assertThat(getLoginsInTemplateAndPermission(permissionTemplate, ISSUE_ADMIN)).containsExactly(user.getLogin());
+  }
+
+  @Test
+  public void does_not_add_a_user_twice_when_requests_are_concurrent() throws Exception {
+    loginAsAdmin();
+    PermissionTemplateDao permissionTemplateDao = spy(db.getDbClient().permissionTemplateDao());
+    DbClient actionDbClient = spy(db.getDbClient());
+    doReturn(permissionTemplateDao).when(actionDbClient).permissionTemplateDao();
+    CyclicBarrier permissionCheckBarrier = new CyclicBarrier(3);
+    doAnswer(invocation -> {
+      List<String> usersWithPermission = (List<String>) invocation.callRealMethod();
+      permissionCheckBarrier.await(10, TimeUnit.SECONDS);
+      return usersWithPermission;
+    }).when(permissionTemplateDao).selectUserLoginsByQueryAndTemplate(any(DbSession.class), any(PermissionQuery.class), anyString());
+    WsActionTester concurrencyWsTester = new WsActionTester(new AddUserToTemplateAction(actionDbClient, newPermissionWsSupport(), userSession, wsParameters));
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    try {
+      Future<?> firstRequest = executor.submit(() -> newRequest(concurrencyWsTester, user.getLogin(), permissionTemplate.getUuid(), ISSUE_ADMIN.getKey()));
+      Future<?> secondRequest = executor.submit(() -> newRequest(concurrencyWsTester, user.getLogin(), permissionTemplate.getUuid(), ISSUE_ADMIN.getKey()));
+
+      permissionCheckBarrier.await(10, TimeUnit.SECONDS);
+      firstRequest.get(10, TimeUnit.SECONDS);
+      secondRequest.get(10, TimeUnit.SECONDS);
+    } finally {
+      executor.shutdownNow();
+    }
+
+    assertThat(db.countRowsOfTable("perm_templates_users")).isOne();
   }
 
   @Test
@@ -182,7 +224,11 @@ public class AddUserToTemplateActionIT extends BasePermissionWsIT<AddUserToTempl
   }
 
   private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) {
-    TestRequest request = newRequest();
+    newRequest(wsTester, userLogin, templateKey, permission);
+  }
+
+  private void newRequest(WsActionTester actionTester, @Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) {
+    TestRequest request = actionTester.newRequest().setMethod("POST");
     if (userLogin != null) {
       request.setParam(PARAM_USER_LOGIN, userLogin);
     }

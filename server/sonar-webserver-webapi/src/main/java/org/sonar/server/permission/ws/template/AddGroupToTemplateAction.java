@@ -39,6 +39,7 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobal
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
 import static org.sonar.server.permission.ws.template.WsTemplateRef.fromRequest;
+import static org.sonar.server.permission.ws.template.WsTemplateRef.newTemplateRef;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
@@ -86,8 +87,11 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession);
 
       if (!groupAlreadyAdded(dbSession, template.getUuid(), permission, group)) {
-        dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission,
+        boolean permissionInserted = dbClient.permissionTemplateDao().insertGroupPermissionIfNotExists(dbSession, template.getUuid(), group.getUuid(), permission,
           template.getName(), request.param(PARAM_GROUP_NAME));
+        if (!permissionInserted) {
+          support.findTemplate(dbSession, newTemplateRef(template.getUuid(), null));
+        }
         dbSession.commit();
       }
     }

@@ -20,6 +20,15 @@
     WHERE uuid = #{uuid}
   </update>
 
+  <!-- Always execute the locking read. affectData ensures MyBatis ends the transaction on session close. -->
+  <select id="lockByUuid" resultType="string" useCache="false" flushCache="true" affectData="true">
+    SELECT uuid FROM permission_templates WHERE uuid = #{templateUuid,jdbcType=VARCHAR} FOR UPDATE
+  </select>
+
+  <select id="lockByUuid" resultType="string" databaseId="mssql" useCache="false" flushCache="true" affectData="true">
+    SELECT uuid FROM permission_templates WITH (UPDLOCK, ROWLOCK) WHERE uuid = #{templateUuid,jdbcType=VARCHAR}
+  </select>
+
   <delete id="deleteByUuid" parameterType="String">
     DELETE FROM permission_templates
     WHERE uuid = #{uuid}
@@ -71,6 +80,14 @@
     INSERT INTO perm_templates_users (uuid, template_uuid, user_uuid, permission_reference, created_at, updated_at)
     VALUES (#{uuid}, #{templateUuid}, #{userUuid}, #{permission}, #{createdAt}, #{updatedAt})
   </insert>
+
+  <select id="countUsersWithPermission" resultType="int" parameterType="map">
+    SELECT count(1)
+    FROM perm_templates_users
+    WHERE template_uuid = #{templateUuid}
+    AND permission_reference = #{permission}
+    AND user_uuid = #{userUuid}
+  </select>
 
   <insert id="insertGroupPermission" parameterType="PermissionTemplateGroup">
     INSERT INTO perm_templates_groups (uuid, template_uuid, group_uuid, permission_reference, created_at, updated_at)

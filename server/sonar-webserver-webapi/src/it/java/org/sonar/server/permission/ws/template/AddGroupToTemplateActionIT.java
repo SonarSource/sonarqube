@@ -20,15 +20,23 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.server.component.ComponentTypesRule;
@@ -40,10 +48,16 @@ import org.sonar.server.permission.PermissionServiceImpl;
 import org.sonar.server.permission.ws.BasePermissionWsIT;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.ProjectPermission.ADMIN;
@@ -115,6 +129,53 @@ public class AddGroupToTemplateActionIT extends BasePermissionWsIT<AddGroupToTem
     newRequest(group.getName(), template.getUuid(), ISSUE_ADMIN);
 
     assertThat(getGroupNamesInTemplateAndPermission(template, ISSUE_ADMIN)).containsExactly(group.getName());
+  }
+
+  @Test
+  public void does_not_add_a_group_twice_when_requests_are_concurrent() throws Exception {
+    loginAsAdmin();
+    PermissionTemplateDao permissionTemplateDao = spy(db.getDbClient().permissionTemplateDao());
+    DbClient actionDbClient = spy(db.getDbClient());
+    doReturn(permissionTemplateDao).when(actionDbClient).permissionTemplateDao();
+    CyclicBarrier permissionCheckBarrier = new CyclicBarrier(3);
+    doAnswer(invocation -> {
+      boolean groupAlreadyAdded = (boolean) invocation.callRealMethod();
+      permissionCheckBarrier.await(10, TimeUnit.SECONDS);
+      return groupAlreadyAdded;
+    }).when(permissionTemplateDao).hasGroupsWithPermission(any(DbSession.class), anyString(), anyString(), any());
+    WsActionTester concurrencyWsTester = new WsActionTester(new AddGroupToTemplateAction(actionDbClient, newPermissionWsSupport(), userSession, wsParameters));
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    try {
+      Future<?> firstRequest = executor.submit(() -> newRequest(concurrencyWsTester, group.getName(), template.getUuid(), ISSUE_ADMIN.getKey()));
+      Future<?> secondRequest = executor.submit(() -> newRequest(concurrencyWsTester, group.getName(), template.getUuid(), ISSUE_ADMIN.getKey()));
+
+      permissionCheckBarrier.await(10, TimeUnit.SECONDS);
+      firstRequest.get(10, TimeUnit.SECONDS);
+      secondRequest.get(10, TimeUnit.SECONDS);
+    } finally {
+      executor.shutdownNow();
+    }
+
+    assertThat(db.countRowsOfTable("perm_templates_groups")).isOne();
+  }
+
+  @Test
+  public void fail_if_template_is_deleted_before_permission_is_inserted() {
+    loginAsAdmin();
+    PermissionTemplateDao permissionTemplateDao = spy(db.getDbClient().permissionTemplateDao());
+    DbClient actionDbClient = spy(db.getDbClient());
+    doReturn(permissionTemplateDao).when(actionDbClient).permissionTemplateDao();
+    doAnswer(invocation -> {
+      db.getDbClient().permissionTemplateDao().deleteByUuid(db.getSession(), template.getUuid(), template.getName());
+      db.commit();
+      return false;
+    }).when(permissionTemplateDao).insertGroupPermissionIfNotExists(any(DbSession.class), anyString(), any(), anyString(), anyString(), any());
+    WsActionTester actionTester = new WsActionTester(new AddGroupToTemplateAction(actionDbClient, newPermissionWsSupport(), userSession, wsParameters));
+
+    TestRequest request = newRequestWithoutExecution(actionTester, group.getName(), template.getUuid(), CODEVIEWER.getKey());
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Permission template with id '" + template.getUuid() + "' is not found");
   }
 
   @Test
@@ -198,7 +259,16 @@ public class AddGroupToTemplateActionIT extends BasePermissionWsIT<AddGroupToTem
   }
 
   private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) {
-    TestRequest request = newRequest();
+    newRequest(wsTester, groupName, templateKey, permission);
+  }
+
+  private void newRequest(WsActionTester actionTester, @Nullable String groupName, @Nullable String templateKey, @Nullable String permission) {
+    newRequestWithoutExecution(actionTester, groupName, templateKey, permission).execute();
+  }
+
+  private TestRequest newRequestWithoutExecution(WsActionTester actionTester, @Nullable String groupName, @Nullable String templateKey,
+    @Nullable String permission) {
+    TestRequest request = actionTester.newRequest().setMethod("POST");
     if (groupName != null) {
       request.setParam(PARAM_GROUP_NAME, groupName);
     }
@@ -209,7 +279,7 @@ public class AddGroupToTemplateActionIT extends BasePermissionWsIT<AddGroupToTem
       request.setParam(PARAM_PERMISSION, permission);
     }
 
-    request.execute();
+    return request;
   }
 
   private List<String> getGroupNamesInTemplateAndPermission(PermissionTemplateDto template, ProjectPermission permission) {

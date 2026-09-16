@@ -199,6 +199,21 @@ public class PermissionTemplateDao implements Dao {
     insertUserPermission(session, templateUuid, userUuid, permission.getKey(), templateName, userLogin);
   }
 
+  /**
+   * Inserts a user permission if it is not already present, serializing concurrent inserts for the same template.
+   */
+  public boolean insertUserPermissionIfNotExists(DbSession session, String templateUuid, String userUuid, String permission,
+    String templateName, String userLogin) {
+    PermissionTemplateMapper permissionTemplateMapper = mapper(session);
+    if (permissionTemplateMapper.lockByUuid(templateUuid) == null
+      || permissionTemplateMapper.countUsersWithPermission(templateUuid, permission, userUuid) > 0) {
+      return false;
+    }
+
+    insertUserPermission(session, templateUuid, userUuid, permission, templateName, userLogin);
+    return true;
+  }
+
   public void insertUserPermission(DbSession session, String templateUuid, String userUuid, String permission,
     String templateName, String userLogin) {
     PermissionTemplateUserDto permissionTemplateUser = new PermissionTemplateUserDto()
@@ -247,6 +262,21 @@ public class PermissionTemplateDao implements Dao {
   public void insertGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, ProjectPermission permission,
     String templateName, @Nullable String groupName) {
     insertGroupPermission(session, templateUuid, groupUuid, permission.getKey(), templateName, groupName);
+  }
+
+  /**
+   * Inserts a group permission if it is not already present, serializing concurrent inserts for the same template.
+   */
+  public boolean insertGroupPermissionIfNotExists(DbSession session, String templateUuid, @Nullable String groupUuid, String permission,
+    String templateName, @Nullable String groupName) {
+    PermissionTemplateMapper permissionTemplateMapper = mapper(session);
+    if (permissionTemplateMapper.lockByUuid(templateUuid) == null
+      || permissionTemplateMapper.countGroupsWithPermission(templateUuid, permission, groupUuid) > 0) {
+      return false;
+    }
+
+    insertGroupPermission(session, templateUuid, groupUuid, permission, templateName, groupName);
+    return true;
   }
 
   public void insertGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, String permission,

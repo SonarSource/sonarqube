@@ -98,8 +98,11 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
       UserId user = wsSupport.findUser(dbSession, userLogin);
 
       if (!isUserAlreadyAdded(dbSession, template.getUuid(), userLogin, permission)) {
-        dbClient.permissionTemplateDao().insertUserPermission(dbSession, template.getUuid(), user.getUuid(), permission,
+        boolean permissionInserted = dbClient.permissionTemplateDao().insertUserPermissionIfNotExists(dbSession, template.getUuid(), user.getUuid(), permission,
           template.getName(), user.getLogin());
+        if (!permissionInserted) {
+          wsSupport.findTemplate(dbSession, newTemplateRef(template.getUuid(), null));
+        }
         dbSession.commit();
       }
     }
