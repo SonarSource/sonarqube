@@ -60,16 +60,15 @@ public class PurgeConfiguration {
   }
 
   /**
-   * UUID of the branch being analyzed (root of the component tree). Will be the same as {@link #projectUuid}
-   * if it's the main branch.
-   * Can also be a view.
+   * UUID of the root of the analyzed component tree: the analyzed branch ({@code project_branches.uuid})
+   * for a project analysis, the view for a portfolio or application refresh.
    */
   public String rootUuid() {
     return rootUuid;
   }
 
   /**
-   * @return UUID of the main branch of the project
+   * @return UUID of the analyzed entity ({@code projects.uuid}, {@code portfolios.uuid})
    */
   public String projectUuid() {
     return projectUuid;

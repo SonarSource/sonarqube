@@ -25,8 +25,12 @@ import com.google.common.collect.ListMultimap;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
@@ -196,11 +200,7 @@ public class IssueIndexer implements EventIndexer, AnalysisIndexer, NeedAuthoriz
    */
   public void commitAndIndexIssues(DbSession dbSession, Collection<IssueDto> issues) {
     ListMultimap<String, EsQueueDto> itemsByIssueKey = ArrayListMultimap.create();
-    issues.stream()
-      .map(issue -> createQueueDto(issue.getKey(), ID_TYPE_ISSUE_KEY, issue.getProjectUuid()))
-      // a mutable ListMultimap is needed for doIndexIssueItems, so MoreCollectors.index() is
-      // not used
-      .forEach(i -> itemsByIssueKey.put(i.getDocId(), i));
+    createIssueRecoveryItems(dbSession, issues).forEach(i -> itemsByIssueKey.put(i.getDocId(), i));
     dbClient.esQueueDao().insert(dbSession, itemsByIssueKey.values());
 
     dbSession.commit();
@@ -215,11 +215,37 @@ public class IssueIndexer implements EventIndexer, AnalysisIndexer, NeedAuthoriz
    * never happens (crash), the committed es_queue rows are replayed by the recovery indexer.
    */
   public Collection<EsQueueDto> enqueueForIndexing(DbSession dbSession, Collection<IssueDto> issues) {
-    List<EsQueueDto> items = issues.stream()
-      .map(issue -> createQueueDto(issue.getKey(), ID_TYPE_ISSUE_KEY, issue.getProjectUuid()))
-      .toList();
+    List<EsQueueDto> items = createIssueRecoveryItems(dbSession, issues);
     dbClient.esQueueDao().insert(dbSession, items);
     return items;
+  }
+
+  /**
+   * Issue documents are routed on the uuid of the project <em>entity</em> ({@code projects.uuid}), whereas
+   * {@link IssueDto#getProjectUuid()} holds the uuid of the branch the issue belongs to. Each branch is therefore
+   * resolved to its project, so that the routing stored in {@code es_queue} targets the shard that holds the
+   * document. A branch that no longer exists cannot be resolved to a project, so there is no valid routing to
+   * target and the issue is skipped. Its document, if any, is only removed when the project is deleted.
+   */
+  private List<EsQueueDto> createIssueRecoveryItems(DbSession dbSession, Collection<IssueDto> issues) {
+    Set<String> branchUuids = issues.stream().map(IssueDto::getProjectUuid).collect(Collectors.toSet());
+    Map<String, String> projectUuidByBranchUuid = dbClient.branchDao().selectByUuids(dbSession, branchUuids).stream()
+      .collect(Collectors.toMap(BranchDto::getUuid, BranchDto::getProjectUuid));
+    return issues.stream()
+      .map(issue -> toIssueRecoveryItem(issue, projectUuidByBranchUuid))
+      .filter(Objects::nonNull)
+      .toList();
+  }
+
+  @CheckForNull
+  private static EsQueueDto toIssueRecoveryItem(IssueDto issue, Map<String, String> projectUuidByBranchUuid) {
+    String branchUuid = issue.getProjectUuid();
+    String projectUuid = projectUuidByBranchUuid.get(branchUuid);
+    if (projectUuid == null) {
+      LOGGER.warn("Branch {} of issue {} does not exist, the issue is not indexed", branchUuid, issue.getKey());
+      return null;
+    }
+    return createQueueDto(issue.getKey(), ID_TYPE_ISSUE_KEY, projectUuid);
   }
 
   @Override
