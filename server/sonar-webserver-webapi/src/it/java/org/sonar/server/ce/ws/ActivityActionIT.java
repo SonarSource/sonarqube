@@ -395,6 +395,20 @@ public class ActivityActionIT {
   }
 
   @Test
+  public void search_task_id_in_queue_without_entity() {
+    logInAsSystemAdministrator();
+    insertQueue("T1", null, IN_PROGRESS);
+
+    ActivityResponse result = call(
+      ws.newRequest()
+        .setParam(Param.TEXT_QUERY, "T1")
+        .setParam(PARAM_STATUS, IN_PROGRESS.name()));
+
+    assertThat(result.getTasksCount()).isOne();
+    assertThat(result.getTasks(0).getId()).isEqualTo("T1");
+  }
+
+  @Test
   public void search_by_task_id_returns_403_if_project_admin_but_not_root() {
     // WS api/ce/task must be used in order to search by task id.
     // Here it's a convenient feature of search by text query, which

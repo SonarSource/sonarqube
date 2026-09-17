@@ -73,6 +73,7 @@ import static org.sonar.server.ce.ws.CeWsParameters.PARAM_STATUS;
 import static org.sonar.server.ce.ws.CeWsParameters.PARAM_TYPE;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.NotFoundException.checkFoundWithOptional;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ActivityAction implements CeWsAction {
@@ -262,11 +263,35 @@ public class ActivityAction implements CeWsAction {
 
     Optional<CeQueueDto> queue = dbClient.ceQueueDao().selectByUuid(dbSession, textQuery);
     if (queue.isPresent()) {
+      checkPermissionOnTaskEntity(dbSession, queue.get().getEntityUuid());
       return Optional.of(formatter.formatQueue(dbSession, queue.get()));
     }
 
     Optional<CeActivityDto> activity = dbClient.ceActivityDao().selectByUuid(dbSession, textQuery);
-    return activity.map(ceActivityDto -> formatter.formatActivity(dbSession, ceActivityDto, null));
+    if (activity.isEmpty()) {
+      return Optional.empty();
+    }
+    checkPermissionOnTaskEntity(dbSession, activity.get().getEntityUuid());
+    return Optional.of(formatter.formatActivity(dbSession, activity.get(), null));
+  }
+
+  /**
+   * Authorizes the caller against the entity the returned task actually belongs to.
+   * <p>
+   * {@link #checkPermission(EntityDto)} authorizes against the entity resolved from {@link CeWsParameters#PARAM_COMPONENT},
+   * whereas the task returned here is selected by {@link WebService.Param#TEXT_QUERY} alone: the two parameters are
+   * independent, so the earlier check says nothing about this task.
+   */
+  private void checkPermissionOnTaskEntity(DbSession dbSession, @Nullable String taskEntityUuid) {
+    if (userSession.isSystemAdministrator()) {
+      return;
+    }
+    EntityDto taskEntity = taskEntityUuid == null ? null : dbClient.entityDao().selectByUuid(dbSession, taskEntityUuid).orElse(null);
+    if (taskEntity == null) {
+      // task not attached to any entity: reserved to system administrators
+      throw insufficientPrivilegesException();
+    }
+    userSession.checkEntityPermission(ProjectPermission.ADMIN, taskEntity);
   }
 
   private CeTaskQuery buildQuery(DbSession dbSession, Request request, @Nullable EntityDto entity) {
