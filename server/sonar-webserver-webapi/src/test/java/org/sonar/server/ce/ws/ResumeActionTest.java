@@ -21,28 +21,26 @@ package org.sonar.server.ce.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.SystemPasscode;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class ResumeActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private SystemPasscode passcode = mock(SystemPasscode.class);
   private CeQueue ceQueue = mock(CeQueue.class);
-  private ResumeAction underTest = new ResumeAction(userSession, passcode, ceQueue);
+  private ResumeAction underTest = new ResumeAction(userSession, ceQueue);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -53,7 +51,10 @@ public class ResumeActionTest {
     assertThat(def.isPost()).isTrue();
     assertThat(def.params()).isEmpty();
     assertThat(def.responseExampleAsString()).isNull();
-    assertThat(def.description()).contains("sonar.web.systemPasscode");
+    assertThat(def.description()).doesNotContain("sonar.web.systemPasscode");
+    assertThat(def.changelog())
+      .extracting(Change::getVersion)
+      .containsExactlyInAnyOrder("2026.6", "26.10");
   }
 
   @Test
@@ -68,29 +69,20 @@ public class ResumeActionTest {
   @Test
   public void throw_ForbiddenException_if_not_system_administrator() {
     userSession.logIn().setNonSystemAdministrator();
+    TestRequest testRequest = ws.newRequest();
 
-    assertThatThrownBy(() -> ws.newRequest().execute())
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
   }
 
   @Test
-  public void throw_ForbiddenException_if_invalid_passcode() {
+  public void throw_ForbiddenException_if_anonymous() {
     userSession.anonymous();
-    when(passcode.isValid(any())).thenReturn(false);
+    TestRequest request = ws.newRequest();
 
-    assertThatThrownBy(() -> ws.newRequest().execute())
+    assertThatThrownBy(request::execute)
       .isInstanceOf(ForbiddenException.class)
       .hasMessage("Insufficient privileges");
-  }
-
-  @Test
-  public void authenticate_with_passcode() {
-    userSession.anonymous();
-    when(passcode.isValid(any())).thenReturn(true);
-
-    ws.newRequest().execute();
-
-    verify(ceQueue).resumeWorkers();
   }
 }

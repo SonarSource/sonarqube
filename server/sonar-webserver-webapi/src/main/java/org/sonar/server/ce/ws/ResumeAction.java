@@ -19,33 +19,33 @@
  */
 package org.sonar.server.ce.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.queue.CeQueue;
-import org.sonar.process.ProcessProperties;
-import org.sonar.server.user.AbstractUserSession;
-import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.user.UserSession;
 
 public class ResumeAction implements CeWsAction {
 
+  private static final String PASSCODE_REMOVAL_CHANGE = "System passcode is no longer supported, the system administration permission is now required.";
+
   private final UserSession userSession;
-  private final SystemPasscode systemPasscode;
   private final CeQueue ceQueue;
 
-  public ResumeAction(UserSession userSession, SystemPasscode systemPasscode, CeQueue ceQueue) {
+  public ResumeAction(UserSession userSession, CeQueue ceQueue) {
     this.userSession = userSession;
-    this.systemPasscode = systemPasscode;
     this.ceQueue = ceQueue;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("resume")
-      .setDescription("Resumes pause of Compute Engine workers. Requires the system administration permission or " +
-        "system passcode (see " + ProcessProperties.Property.WEB_SYSTEM_PASS_CODE.getKey() + " in sonar.properties).")
+      .setDescription("Resumes pause of Compute Engine workers. Requires the system administration permission.")
       .setSince("7.2")
+      .setChangelog(
+        new Change("2026.6", PASSCODE_REMOVAL_CHANGE),
+        new Change("26.10", PASSCODE_REMOVAL_CHANGE))
       .setInternal(true)
       .setHandler(this)
       .setPost(true);
@@ -53,9 +53,7 @@ public class ResumeAction implements CeWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    if (!systemPasscode.isValid(request) && !userSession.isSystemAdministrator()) {
-      throw AbstractUserSession.insufficientPrivilegesException();
-    }
+    userSession.checkIsSystemAdministrator();
 
     ceQueue.resumeWorkers();
   }

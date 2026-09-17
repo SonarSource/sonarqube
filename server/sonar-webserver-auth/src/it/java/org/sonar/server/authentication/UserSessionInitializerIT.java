@@ -121,12 +121,16 @@ public class UserSessionInitializerIT {
   @Test
   public void passcode_urls_are_ignored_with_anonymous_access() {
     assertPathIsIgnoredWithAnonymousAccess("/api/ce/info");
-    assertPathIsIgnoredWithAnonymousAccess("/api/ce/pause");
-    assertPathIsIgnoredWithAnonymousAccess("/api/ce/resume");
     assertPathIsIgnoredWithAnonymousAccess("/api/system/health");
     assertPathIsIgnoredWithAnonymousAccess("/api/system/liveness");
     assertPathIsIgnoredWithAnonymousAccess("/api/system/logs");
     assertPathIsIgnoredWithAnonymousAccess("/api/monitoring/metrics");
+  }
+
+  @Test
+  public void ce_pause_and_resume_urls_do_not_allow_anonymous_access() {
+    assertAnonymousAccessIsRejected("/api/ce/pause");
+    assertAnonymousAccessIsRejected("/api/ce/resume");
   }
 
   @Test
@@ -282,6 +286,17 @@ public class UserSessionInitializerIT {
 
     verify(threadLocalSession).set(session);
     reset(threadLocalSession, authenticator);
+  }
+
+  private void assertAnonymousAccessIsRejected(String path) {
+    when(request.getRequestURI()).thenReturn(path);
+    when(authenticator.authenticate(request, response)).thenReturn(new AnonymousMockUserSession());
+
+    assertThat(underTest.initUserSession(request, response)).isFalse();
+
+    verify(response).setStatus(401);
+    verifyNoMoreInteractions(threadLocalSession);
+    reset(threadLocalSession, authenticator, response);
   }
 
   private void assertPathIsNotIgnored(String path) {

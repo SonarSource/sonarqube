@@ -74,8 +74,7 @@ public class UserSessionInitializer {
     "/api/v2/integrations/slack/slash-commands");
 
   private static final Set<String> URL_USING_PASSCODE = Set.of(
-    "/api/ce/info", "/api/ce/pause",
-    "/api/ce/resume", "/api/system/health",
+    "/api/ce/info", "/api/system/health",
     "/api/system/analytics", "/api/system/migrate_es",
     "/api/system/liveness", "/api/system/logs",
     "/api/monitoring/metrics");
