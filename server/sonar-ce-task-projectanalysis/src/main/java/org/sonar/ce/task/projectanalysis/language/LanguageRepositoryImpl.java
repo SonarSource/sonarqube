@@ -20,47 +20,28 @@
 package org.sonar.ce.task.projectanalysis.language;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.resources.Language;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 /**
  * Implementation of {@link LanguageRepository} which find {@link Language} instances available in the container.
  */
 public class LanguageRepositoryImpl implements LanguageRepository {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LanguageRepositoryImpl.class);
-
   private final Map<String, Language> languagesByKey;
 
-  @Autowired
-  public LanguageRepositoryImpl(ConfigurableListableBeanFactory beanFactory) {
-    Map<String, Language> map = new HashMap<>();
-    for (String beanName : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, Language.class, false, true)) {
-      try {
-        Language language = beanFactory.getBean(beanName, Language.class);
-        Language previous = map.putIfAbsent(language.getKey(), language);
-        if (previous != null) {
-          LOG.warn("Duplicate language key '{}': keeping the first bean registered, ignoring '{}'", language.getKey(), beanName);
-        }
-      } catch (BeansException e) {
-        // Set to debug to avoid noisy program stack trace with errors
-        LOG.debug("Skipping language bean '{}': unable to build in this container", beanName, e);
-      }
-    }
-    this.languagesByKey = map;
+  @Autowired(required = false)
+  public LanguageRepositoryImpl() {
+    this.languagesByKey = Collections.emptyMap();
   }
 
+  @Autowired(required = false)
   public LanguageRepositoryImpl(Language... languages) {
     this.languagesByKey = Arrays.stream(languages).filter(Objects::nonNull).collect(Collectors.toMap(Language::getKey, Function.identity()));
   }

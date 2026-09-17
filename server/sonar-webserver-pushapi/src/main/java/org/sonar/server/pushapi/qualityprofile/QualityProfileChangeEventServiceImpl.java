@@ -54,7 +54,6 @@ import org.sonar.db.qualityprofile.ProjectQprofileAssociationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
-import org.sonar.server.qualityprofile.QPMeasureData;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
@@ -280,24 +279,26 @@ public class QualityProfileChangeEventServiceImpl implements QualityProfileChang
   }
 
   private List<ProjectDto> getDefaultQualityProfileAssociatedProjects(DbSession dbSession, String language) {
+    Set<String> associatedProjectUuids = new HashSet<>();
+
     List<BranchDto> branchDtos = dbClient.branchDao().selectMainBranchesAssociatedToDefaultQualityProfile(dbSession);
     Map<String, String> branchUuidToProjectUuid = branchDtos.stream().collect(Collectors.toMap(BranchDto::getUuid,
       BranchDto::getProjectUuid));
-
-    Set<String> associatedProjectUuids = new HashSet<>();
-
-    // One MeasureDto per branch that has ever been analyzed and has a QUALITY_PROFILES measure; unanalyzed branches are absent, not null
     List<MeasureDto> measureDtos = dbClient.measureDao().selectByComponentUuidsAndMetricKeys(dbSession, branchUuidToProjectUuid.keySet(),
-      List.of(CoreMetrics.QUALITY_PROFILES_KEY));
+      List.of(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
     for (MeasureDto measureDto : measureDtos) {
-      String qualityProfilesJson = measureDto.getString(CoreMetrics.QUALITY_PROFILES_KEY);
-      if (qualityProfilesJson != null && QPMeasureData.containsLanguage(qualityProfilesJson, language)) {
+      String distribution = measureDto.getString(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+      if (distribution != null && distributionContainsLanguage(distribution, language)) {
         associatedProjectUuids.add(branchUuidToProjectUuid.get(measureDto.getComponentUuid()));
       }
     }
 
     return dbClient.projectDao().selectByUuids(dbSession, associatedProjectUuids);
+  }
+
+  private static boolean distributionContainsLanguage(String distribution, String language) {
+    return distribution.startsWith(language + "=") || distribution.contains(";" + language + "=");
   }
 
   private List<ProjectDto> getManuallyAssociatedQualityProfileProjects(DbSession dbSession, List<QProfileDto> profiles) {
