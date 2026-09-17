@@ -326,6 +326,27 @@ class GitLabIdentityProviderTest {
   }
 
   @Test
+  void onCallback_withShortAncestorGroupName_fetchesAllGroupsAndAuthenticatesUserWhoIsMemberOfAncestorOnly() {
+    when(gitLabSettings.syncUserGroups()).thenReturn(true);
+    when(configuration.getStringArray("sonar.auth.gitlab.allowedGroups")).thenReturn(new String[] {"ab/child-team"});
+
+    GsonUser gsonUser = mockGsonUser();
+    GsonGroup ancestorGroup = mock(GsonGroup.class);
+    when(ancestorGroup.getFullPath()).thenReturn("ab");
+    when(gitLabGraphQlClient.getGroups(anyString(), isNull())).thenReturn(List.of(ancestorGroup));
+
+    GsonGroup descendantGroup = mock(GsonGroup.class);
+    when(descendantGroup.getFullPath()).thenReturn("ab/child-team");
+    when(gitLabGraphQlClient.getDescendantGroups(anyString(), eq("ab"))).thenReturn(List.of(descendantGroup));
+
+    gitLabIdentityProvider.callback(callbackContext);
+
+    verify(gitLabGraphQlClient).getGroups(anyString(), isNull());
+    verify(gitLabGraphQlClient, never()).getGroups(anyString(), eq("ab/child-team"));
+    verifyAuthenticateIsCalledWithExpectedIdentity(callbackContext, gsonUser, Set.of(ancestorGroup, descendantGroup));
+  }
+
+  @Test
   void onCallback_withAllowAllGroupsFlag_fetchesAllGroupsAndAuthenticates() {
     when(gitLabSettings.syncUserGroups()).thenReturn(true);
     when(gitLabSettings.allowAllGroups()).thenReturn(true);

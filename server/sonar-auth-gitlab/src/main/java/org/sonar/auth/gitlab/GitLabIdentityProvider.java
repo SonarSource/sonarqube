@@ -166,14 +166,17 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
 
   private Set<String> getGroups(OAuth2AccessToken accessToken) {
     Set<String> allowedGroups = gitLabSettings.allowedGroups();
+    Set<String> searchTerms = allowedGroups.stream()
+      .flatMap(GitLabIdentityProvider::pathAndAncestors)
+      .collect(toSet());
     List<GsonGroup> directGroups;
-    if (allowedGroups.isEmpty() || gitLabSettings.allowAllGroups() || hasShortGroupName(allowedGroups)) {
+    if (allowedGroups.isEmpty() || gitLabSettings.allowAllGroups() || hasShortGroupName(searchTerms)) {
       // GitLab GraphQL API requires a minimum of 3 characters for group search queries.
-      // When any allowed group name is shorter than 3 characters, targeted search cannot
-      // be used, so all user groups are fetched and filtered client-side instead.
+      // When any search term (allowed group or one of its ancestors) is shorter than 3
+      // characters, targeted search cannot be used, so all user groups are fetched instead.
       directGroups = gitLabGraphQlClient.getGroups(accessToken.getAccessToken(), null);
     } else {
-      directGroups = findGroupsUsingGraphQlApiInParallel(accessToken, allowedGroups);
+      directGroups = fetchInParallel(searchTerms, term -> gitLabGraphQlClient.getGroups(accessToken.getAccessToken(), term));
     }
     Set<String> directGroupPaths = directGroups.stream()
       .map(GsonGroup::getFullPath)
@@ -181,16 +184,8 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
     return withInheritedDescendantGroups(accessToken, directGroupPaths);
   }
 
-  private static boolean hasShortGroupName(Set<String> allowedGroups) {
-    return allowedGroups.stream().anyMatch(g -> g.length() < 3);
-  }
-
-  private List<GsonGroup> findGroupsUsingGraphQlApiInParallel(OAuth2AccessToken accessToken, Set<String> allowedGroups) {
-    Set<String> searchTerms = allowedGroups.stream()
-      .flatMap(GitLabIdentityProvider::pathAndAncestors)
-      .filter(term -> term.length() >= 3)
-      .collect(toSet());
-    return fetchInParallel(searchTerms, group -> gitLabGraphQlClient.getGroups(accessToken.getAccessToken(), group));
+  private static boolean hasShortGroupName(Set<String> groupNames) {
+    return groupNames.stream().anyMatch(g -> g.length() < 3);
   }
 
   private static Stream<String> pathAndAncestors(String path) {
