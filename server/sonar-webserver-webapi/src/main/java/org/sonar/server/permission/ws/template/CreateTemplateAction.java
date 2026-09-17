@@ -103,9 +103,16 @@ public class CreateTemplateAction implements PermissionsWsAction {
       validateTemplateNameForCreation(dbSession, request.getName());
       RequestValidator.validateProjectPattern(request.getProjectKeyPattern());
 
-      PermissionTemplateDto permissionTemplate = insertTemplate(dbSession, request);
-
-      return buildResponse(permissionTemplate);
+      try {
+        PermissionTemplateDto permissionTemplate = insertTemplate(dbSession, request);
+        return buildResponse(permissionTemplate);
+      } catch (Exception e) {
+        // A concurrent request can insert the same name after the validation above. Roll back before checking, as
+        // PostgreSQL marks the transaction as aborted after a unique-constraint violation.
+        dbSession.rollback();
+        validateTemplateNameForCreation(dbSession, request.getName());
+        throw e;
+      }
     }
   }
 

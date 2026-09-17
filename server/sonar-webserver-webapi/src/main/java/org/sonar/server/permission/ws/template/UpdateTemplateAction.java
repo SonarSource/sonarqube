@@ -115,10 +115,17 @@ public class UpdateTemplateAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession);
 
       validateTemplate(dbSession, templateToUpdate);
-      PermissionTemplateDto updatedTemplate = updateTemplate(dbSession, templateToUpdate);
-      dbSession.commit();
-
-      return buildResponse(updatedTemplate);
+      try {
+        PermissionTemplateDto updatedTemplate = updateTemplate(dbSession, templateToUpdate);
+        dbSession.commit();
+        return buildResponse(updatedTemplate);
+      } catch (Exception e) {
+        // A concurrent request can claim the name after the validation above. Roll back before checking, as
+        // PostgreSQL marks the transaction as aborted after a unique-constraint violation.
+        dbSession.rollback();
+        validateTemplateNameForUpdate(dbSession, templateToUpdate.getName(), templateToUpdate.getUuid());
+        throw e;
+      }
     }
   }
 
