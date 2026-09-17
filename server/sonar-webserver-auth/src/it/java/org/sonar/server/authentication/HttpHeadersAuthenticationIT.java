@@ -86,7 +86,9 @@ public class HttpHeadersAuthenticationIT {
     .setName(DEFAULT_NAME)
     .setEmail(DEFAULT_EMAIL)
     .setExternalLogin(DEFAULT_LOGIN)
-    .setExternalIdentityProvider("sonarqube");
+    .setExternalIdentityProvider("sonarqube")
+    // SSO users are external accounts, never local
+    .setLocal(false);
 
   private GroupDto group1;
   private GroupDto group2;
@@ -142,7 +144,7 @@ public class HttpHeadersAuthenticationIT {
   public void update_user_when_authenticating_exiting_user() {
     startWithSso();
     setNotUserInToken();
-    insertUser(newUserDto().setLogin(DEFAULT_LOGIN).setExternalLogin(DEFAULT_LOGIN).setExternalIdentityProvider("sonarqube").setName("old name").setEmail(DEFAULT_USER.getEmail()), group1);
+    insertUser(newUserDto().setLogin(DEFAULT_LOGIN).setExternalLogin(DEFAULT_LOGIN).setExternalIdentityProvider("sonarqube").setLocal(false).setName("old name").setEmail(DEFAULT_USER.getEmail()), group1);
     // Name, email and groups are different
     HttpRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUP2);
 
@@ -350,6 +352,54 @@ public class HttpHeadersAuthenticationIT {
       .hasFieldOrPropertyWithValue("source", Source.sso());
 
     verifyNoInteractions(authenticationEvent);
+  }
+
+  @Test
+  public void does_not_take_over_pre_existing_local_account() {
+    startWithSso();
+    setNotUserInToken();
+    // A pre-existing local account (built-in admin or any password user), registered under the "sonarqube" authority
+    insertUser(newUserDto()
+      .setLogin(DEFAULT_LOGIN)
+      .setExternalLogin(DEFAULT_LOGIN)
+      .setExternalIdentityProvider("sonarqube")
+      .setLocal(true)
+      .setName("Local User")
+      .setEmail(null));
+    HttpRequest request = createRequest(DEFAULT_LOGIN, "Attacker", "attacker@evil.com", GROUP2);
+
+    // SSO declines rather than authenticating as, or taking over, the local account: no exception, JWT/basic
+    // authentication is left free to run instead
+    Optional<UserDto> result = underTest.authenticate(request, response);
+
+    assertThat(result).isEmpty();
+    verify(authenticationEvent).loginFailure(eq(request), any(AuthenticationException.class));
+    // The local account is left untouched: still local, name not overwritten, password not wiped
+    UserDto reloaded = db.users().selectUserByLogin(DEFAULT_LOGIN).get();
+    assertThat(reloaded.isLocal()).isTrue();
+    assertThat(reloaded.getName()).isEqualTo("Local User");
+    verifyTokenIsNotUpdated();
+  }
+
+  @Test
+  public void does_not_disrupt_an_existing_password_session_when_header_names_the_same_local_account() {
+    startWithSso();
+    UserDto localUser = insertUser(newUserDto()
+      .setLogin(DEFAULT_LOGIN)
+      .setExternalLogin(DEFAULT_LOGIN)
+      .setExternalIdentityProvider("sonarqube")
+      .setLocal(true)
+      .setName("Local User")
+      .setEmail(null));
+    // A password-issued JWT carries no ssoLastRefreshTime, unlike one SSO would have generated itself
+    setUserInToken(localUser, null);
+    HttpRequest request = createRequest(DEFAULT_LOGIN, "Attacker", "attacker@evil.com", GROUP2);
+
+    Optional<UserDto> result = underTest.authenticate(request, response);
+
+    // SSO abstains without touching the existing token, leaving it free for JWT validation to pick up downstream
+    assertThat(result).isEmpty();
+    verifyTokenIsNotUpdated();
   }
 
   private void startWithSso() {

@@ -139,6 +139,27 @@ public class UserRegistrarImplIT {
   }
 
   @Test
+  public void authenticate_via_sso_fails_when_login_matches_a_local_account() {
+    // Any pre-existing local account (not only the built-in admin) must not be adopted by SSO
+    UserDto localUser = insertUser("localuser", "Local User", null, "localuser", "localuser", SQ_AUTHORITY, true, true);
+    UserIdentity identity = UserIdentity.builder()
+      .setProviderLogin("localuser")
+      .setName("Attacker")
+      .build();
+    IdentityProvider ssoProvider = composeIdentityProvider(SQ_AUTHORITY, "sso", true, true);
+    UserRegistration registration = composeUserRegistration(identity, ssoProvider, Source.sso());
+
+    assertThatThrownBy(() -> underTest.register(registration))
+      .isInstanceOf(SsoLocalAccountRejection.class)
+      .hasMessage("Failed to authenticate with login 'localuser'");
+
+    // The local account is preserved (not converted to an external SSO account, password not wiped)
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), localUser.getUuid()))
+      .extracting(UserDto::isLocal, UserDto::getName, UserDto::getExternalIdentityProvider)
+      .containsExactly(true, "Local User", "sonarqube");
+  }
+
+  @Test
   public void authenticate_new_user_generates_login() {
     underTest.register(newUserRegistration(UserIdentity.builder()
       .setProviderId("ABCD")

@@ -42,6 +42,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.management.ManagedInstanceService;
@@ -84,10 +85,37 @@ public class UserRegistrarImpl implements UserRegistrar {
       if (userDto == null) {
         return registerNewUser(dbSession, null, registration);
       }
+      failIfSsoLoginTargetsLocalUser(registration, userDto);
       if (!userDto.isActive()) {
         return registerNewUser(dbSession, userDto, registration);
       }
       return updateExistingUser(dbSession, userDto, registration);
+    }
+  }
+
+  /**
+   * HTTP header (SSO) authentication trusts identity headers set by the front proxy without any credential
+   * verification, so it must never authenticate as, and take over, a pre-existing local account (the built-in
+   * admin or any password user). Doing so would let a forged login header impersonate a local user and, as a
+   * side effect, wipe its credentials. Local accounts are authenticated only against SonarQube's own database;
+   * migrating one to SSO requires an explicit administrator action: deactivate the local account with
+   * {@code POST api/users/deactivate?login=<login>&anonymize=true}, which frees up its login and external
+   * identity so a subsequent header-SSO login provisions a fresh external account under that same login.
+   * {@code api/users/update_identity_provider} must not be used for this: it silently rewrites the deprecated
+   * {@code sonarqube} provider value to the default LDAP provider, so the call succeeds but rebinds the account
+   * to LDAP (and makes it non-local), leaving it unable to authenticate through either SSO headers or password.
+   * Note the built-in admin can't be deactivated while it's the only administrator.
+   * Credential-validated basic/realm flows use a different source and are left unaffected.
+   * <p>
+   * This throws {@link SsoLocalAccountRejection} rather than a plain {@link org.sonar.server.authentication.event.AuthenticationException}:
+   * the caller must be able to treat this specific case as "SSO declines to authenticate", not a hard failure,
+   * so a local account's existing password session isn't disrupted just because a header names its login.
+   */
+  private static void failIfSsoLoginTargetsLocalUser(UserRegistration registration, UserDto userDto) {
+    if (registration.getSource().getMethod() == Method.SSO && userDto.isLocal()) {
+      LOGGER.warn("SSO HTTP header authentication attempted for login '{}' but it is bound to a local account",
+        registration.getUserIdentity().getProviderLogin());
+      throw new SsoLocalAccountRejection(failAuthenticationException(registration.getUserIdentity(), registration.getSource()));
     }
   }
 

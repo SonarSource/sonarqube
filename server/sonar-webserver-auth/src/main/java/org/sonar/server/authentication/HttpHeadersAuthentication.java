@@ -131,7 +131,16 @@ public class HttpHeadersAuthentication implements Startable {
       return user;
     }
 
-    UserDto userDto = doAuthenticate(headerValuesByNames, login);
+    UserDto userDto;
+    try {
+      userDto = doAuthenticate(headerValuesByNames, login);
+    } catch (SsoLocalAccountRejection e) {
+      // The header names a pre-existing local account: SSO declines rather than authenticating as, or taking
+      // over, that account. Returning empty (instead of propagating) lets JWT/basic authentication still run,
+      // so a local account's password session isn't disrupted just because a header names its login.
+      authenticationEvent.loginFailure(request, e.toAuthenticationException());
+      return Optional.empty();
+    }
     jwtHttpHandler.generateToken(userDto, Map.of(LAST_REFRESH_TIME_TOKEN_PARAM, system2.now()), request, response);
     authenticationEvent.loginSuccess(request, userDto.getLogin(), Source.sso());
     return Optional.of(userDto);
