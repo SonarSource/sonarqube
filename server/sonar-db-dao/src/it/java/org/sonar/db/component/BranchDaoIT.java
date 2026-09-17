@@ -77,7 +77,7 @@ class BranchDaoIT {
   private final BranchDao underTest = new BranchDao(system2);
 
   @Test
-  void history_lock_serializes_sessions_and_preserves_branch() throws Exception {
+  void acquire_lock_for_project_branch_serializes_sessions_and_preserves_branch() throws Exception {
     String branchUuid = db.components().insertPrivateProject().getMainBranchComponent().uuid();
     db.commit();
     var before = db.selectFirst(dbSession, SELECT_FROM + " where uuid='" + branchUuid + "'");
@@ -85,11 +85,11 @@ class BranchDaoIT {
     try (var executor = Executors.newSingleThreadExecutor()) {
       Future<Boolean> secondLock;
       try (DbSession firstSession = db.getDbClient().openSession(false)) {
-        assertThat(underTest.lockForIssueCountHistory(firstSession, branchUuid)).isTrue();
+        assertThat(underTest.acquireLockForProjectBranch(firstSession, branchUuid)).isTrue();
         secondLock = executor.submit(() -> {
           try (DbSession secondSession = db.getDbClient().openSession(false)) {
             attemptingLock.countDown();
-            return underTest.lockForIssueCountHistory(secondSession, branchUuid);
+            return underTest.acquireLockForProjectBranch(secondSession, branchUuid);
           }
         });
         assertThat(attemptingLock.await(10, SECONDS)).isTrue();
@@ -102,8 +102,8 @@ class BranchDaoIT {
   }
 
   @Test
-  void history_lock_returns_false_for_deleted_branch() {
-    assertThat(underTest.lockForIssueCountHistory(dbSession, "missing")).isFalse();
+  void acquire_lock_for_project_branch_returns_false_for_deleted_branch() {
+    assertThat(underTest.acquireLockForProjectBranch(dbSession, "missing")).isFalse();
   }
 
   @Test

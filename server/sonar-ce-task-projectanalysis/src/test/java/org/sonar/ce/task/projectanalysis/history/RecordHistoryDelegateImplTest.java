@@ -78,7 +78,7 @@ class RecordHistoryDelegateImplTest {
   void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.branchDao()).thenReturn(branchDao);
-    when(branchDao.lockForIssueCountHistory(dbSession, ENTITY_UUID)).thenReturn(true);
+    when(branchDao.acquireLockForProjectBranch(dbSession, ENTITY_UUID)).thenReturn(true);
     when(dbClient.issueDao()).thenReturn(issueDao);
     when(dbClient.measureDao()).thenReturn(measureDao);
     when(dbClient.metricDao()).thenReturn(metricDao);
@@ -87,14 +87,18 @@ class RecordHistoryDelegateImplTest {
 
   @Test
   void branch_history_holds_lock_until_snapshot_is_recorded() {
-    DbSession measuresSession = mock(DbSession.class);
-    when(dbClient.openSession(false)).thenReturn(dbSession, measuresSession);
+    MeasureDto measureDto = new MeasureDto().addValue("ncloc", 42.0);
+    when(measureDao.selectByComponentUuid(dbSession, ENTITY_UUID)).thenReturn(Optional.of(measureDto));
+    when(metricDao.selectByKeys(eq(dbSession), any())).thenReturn(List.of(new MetricDto().setKey("ncloc").setValueType("INT")));
     recordBranchHistory();
 
-    var order = inOrder(branchDao, issueDao, issueHistoryService, dbSession);
-    order.verify(branchDao).lockForIssueCountHistory(dbSession, ENTITY_UUID);
+    var order = inOrder(branchDao, issueDao, issueHistoryService, measureDao, metricDao, measuresHistoryService, dbSession);
+    order.verify(branchDao).acquireLockForProjectBranch(dbSession, ENTITY_UUID);
     order.verify(issueDao).selectIssueCountDimensionsForBranches(dbSession, List.of(ENTITY_UUID));
     order.verify(issueHistoryService).recordIssueHistory(eq(ENTITY_UUID), eq(EntityType.PROJECT_BRANCH), any(), any());
+    order.verify(measureDao).selectByComponentUuid(dbSession, ENTITY_UUID);
+    order.verify(metricDao).selectByKeys(eq(dbSession), any());
+    order.verify(measuresHistoryService).recordMeasureHistory(eq(ENTITY_UUID), eq(EntityType.PROJECT_BRANCH), any(), any());
     order.verify(dbSession).close();
   }
 

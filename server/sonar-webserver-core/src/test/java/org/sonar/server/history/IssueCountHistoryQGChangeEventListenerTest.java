@@ -32,9 +32,12 @@ import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.issue.IssueDao;
+import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
 import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
+import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -55,12 +58,15 @@ class IssueCountHistoryQGChangeEventListenerTest {
   private final DbSession session = mock(DbSession.class);
   private final BranchDao branchDao = mock(BranchDao.class);
   private final IssueDao issueDao = mock(IssueDao.class);
+  private final org.sonar.db.measure.MeasureDao measureDao = mock(org.sonar.db.measure.MeasureDao.class);
+  private final org.sonar.db.metric.MetricDao metricDao = mock(org.sonar.db.metric.MetricDao.class);
   private final IssueCountHistoryRecordingService recorder = mock(IssueCountHistoryRecordingService.class);
+  private final MeasuresHistoryRecordingService measuresRecorder = mock(MeasuresHistoryRecordingService.class);
   private final ArrayDeque<Runnable> tasks = new ArrayDeque<>();
   private final QGChangeEvent event = mock(QGChangeEvent.class);
   private final ChangedIssue issue = mock(ChangedIssue.class);
   private final IssueCountHistoryQGChangeEventListener underTest = new IssueCountHistoryQGChangeEventListener(
-    dbClient, recorder, System2.INSTANCE, tasks::add);
+    dbClient, recorder, measuresRecorder, System2.INSTANCE, tasks::add);
 
   @BeforeEach
   void setUp() {
@@ -68,7 +74,10 @@ class IssueCountHistoryQGChangeEventListenerTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.branchDao()).thenReturn(branchDao);
     when(dbClient.issueDao()).thenReturn(issueDao);
-    when(branchDao.lockForIssueCountHistory(session, BRANCH)).thenReturn(true);
+    when(dbClient.measureDao()).thenReturn(measureDao);
+    when(dbClient.metricDao()).thenReturn(metricDao);
+    when(measureDao.selectByComponentUuid(session, BRANCH)).thenReturn(java.util.Optional.empty());
+    when(branchDao.acquireLockForProjectBranch(session, BRANCH)).thenReturn(true);
     when(issueDao.selectIssueCountDimensionsForBranches(session, List.of(BRANCH))).thenReturn(List.of());
   }
 
@@ -82,12 +91,22 @@ class IssueCountHistoryQGChangeEventListenerTest {
     tasks.remove().run();
 
     var order = inOrder(branchDao, issueDao, recorder, session);
-    order.verify(branchDao).lockForIssueCountHistory(session, BRANCH);
+    order.verify(branchDao).acquireLockForProjectBranch(session, BRANCH);
     order.verify(issueDao).selectIssueCountDimensionsForBranches(session, List.of(BRANCH));
     order.verify(recorder).recordIssueHistoryForBranch(eq(BRANCH), any(), any());
     order.verify(session).close();
     notifyChange();
     assertThat(tasks).hasSize(1);
+  }
+
+  @Test
+  void records_measure_history_for_every_issue_change() {
+    when(measureDao.selectByComponentUuid(session, BRANCH)).thenReturn(java.util.Optional.of(new MeasureDto().addValue("ncloc", 42.0)));
+    when(metricDao.selectByKeys(session, Set.of("ncloc"))).thenReturn(List.of(new MetricDto().setKey("ncloc").setValueType("INT")));
+    notifyChange();
+    tasks.remove().run();
+
+    verify(measuresRecorder).recordMeasureHistoryForBranch(eq(BRANCH), eq(List.of(new org.sonarsource.history.model.Measure("ncloc", "INT", "42.0"))), any());
   }
 
   @Test
@@ -200,7 +219,7 @@ class IssueCountHistoryQGChangeEventListenerTest {
       tasks.add(invocation.getArgument(0));
       return null;
     }).when(executor).execute(any());
-    var listener = new IssueCountHistoryQGChangeEventListener(dbClient, recorder, System2.INSTANCE, executor);
+    var listener = new IssueCountHistoryQGChangeEventListener(dbClient, recorder, measuresRecorder, System2.INSTANCE, executor);
     Set<ChangedIssue> changedIssues = Set.of(issue);
     assertThatThrownBy(() -> listener.onIssueChanges(event, changedIssues)).isInstanceOf(RejectedExecutionException.class);
 
@@ -219,7 +238,7 @@ class IssueCountHistoryQGChangeEventListenerTest {
       tasks.add(invocation.getArgument(0));
       return null;
     }).when(executor).execute(any());
-    var listener = new IssueCountHistoryQGChangeEventListener(dbClient, recorder, System2.INSTANCE, executor);
+    var listener = new IssueCountHistoryQGChangeEventListener(dbClient, recorder, measuresRecorder, System2.INSTANCE, executor);
     doAnswer(invocation -> {
       listener.onIssueChanges(event, Set.of(issue));
       return null;
@@ -235,11 +254,11 @@ class IssueCountHistoryQGChangeEventListenerTest {
 
   @Test
   void skips_branch_deleted_before_execution() {
-    when(branchDao.lockForIssueCountHistory(session, BRANCH)).thenReturn(false);
+    when(branchDao.acquireLockForProjectBranch(session, BRANCH)).thenReturn(false);
     notifyChange();
     tasks.remove().run();
 
-    verifyNoInteractions(issueDao, recorder);
+    verifyNoInteractions(issueDao, recorder, measuresRecorder);
     verify(session).close();
   }
 

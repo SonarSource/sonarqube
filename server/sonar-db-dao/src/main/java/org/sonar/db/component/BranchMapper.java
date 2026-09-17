@@ -29,7 +29,7 @@ import org.apache.ibatis.annotations.Param;
 public interface BranchMapper {
 
   @Nullable
-  String lockForIssueCountHistory(@Param("uuid") String uuid);
+  String acquireLockForProjectBranch(@Param("uuid") String uuid);
 
   void insert(@Param("dto") BranchDto dto, @Param("now") long now);
 

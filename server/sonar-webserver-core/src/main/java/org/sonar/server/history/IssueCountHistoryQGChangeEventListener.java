@@ -35,12 +35,16 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.issue.IssueCountDimensionDto;
+import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener;
 import org.sonarsource.history.model.IssueCountDimensionKey;
+import org.sonarsource.history.model.Measure;
 import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
+import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
 
-/** Refreshes branch issue-count history after issue changes, without waiting for another analysis. */
+/** Refreshes branch project history after issue changes, without waiting for another analysis. */
 public class IssueCountHistoryQGChangeEventListener implements QGChangeEventListener {
 
   private static final Logger LOG = LoggerFactory.getLogger(IssueCountHistoryQGChangeEventListener.class);
@@ -50,13 +54,16 @@ public class IssueCountHistoryQGChangeEventListener implements QGChangeEventList
   private final IssueCountHistoryExecutor executor;
   private final DbClient dbClient;
   private final IssueCountHistoryRecordingService historyRecordingService;
+  private final MeasuresHistoryRecordingService measuresHistoryRecordingService;
   private final System2 system2;
 
-  public IssueCountHistoryQGChangeEventListener(DbClient dbClient, IssueCountHistoryRecordingService historyRecordingService, System2 system2,
+  public IssueCountHistoryQGChangeEventListener(DbClient dbClient, IssueCountHistoryRecordingService historyRecordingService,
+    MeasuresHistoryRecordingService measuresHistoryRecordingService, System2 system2,
     IssueCountHistoryExecutor executor) {
     this.executor = executor;
     this.dbClient = dbClient;
     this.historyRecordingService = historyRecordingService;
+    this.measuresHistoryRecordingService = measuresHistoryRecordingService;
     this.system2 = system2;
   }
 
@@ -124,8 +131,8 @@ public class IssueCountHistoryQGChangeEventListener implements QGChangeEventList
     // Refresh the complete snapshot: event deltas would lose dimensions or double-count repeated notifications.
     Map<IssueCountDimensionKey, Integer> counts = new HashMap<>();
     try (DbSession session = dbClient.openSession(false)) {
-      // Use the primary and hold the branch lock through the history commit. CE uses the same lock.
-      if (!dbClient.branchDao().lockForIssueCountHistory(session, branchUuid)) {
+      // Use the primary and hold the branch lock through both history commits. CE uses the same lock.
+      if (!dbClient.branchDao().acquireLockForProjectBranch(session, branchUuid)) {
         return;
       }
       for (IssueCountDimensionDto row : dbClient.issueDao().selectIssueCountDimensionsForBranches(session, List.of(branchUuid))) {
@@ -137,7 +144,36 @@ public class IssueCountHistoryQGChangeEventListener implements QGChangeEventList
       }
       LocalDate today = Instant.ofEpochMilli(system2.now()).atZone(ZoneOffset.UTC).toLocalDate();
       historyRecordingService.recordIssueHistoryForBranch(branchUuid, counts, today);
+      List<Measure> measures = fetchMeasures(session, branchUuid);
+      if (!measures.isEmpty()) {
+        measuresHistoryRecordingService.recordMeasureHistoryForBranch(branchUuid, measures, today);
+      }
     }
+  }
+
+  private List<Measure> fetchMeasures(DbSession session, String branchUuid) {
+    return dbClient.measureDao().selectByComponentUuid(session, branchUuid)
+      .map(measureDto -> toMeasures(session, measureDto))
+      .orElseGet(List::of);
+  }
+
+  private List<Measure> toMeasures(DbSession session, MeasureDto measureDto) {
+    Map<String, Object> metricValues = measureDto.getMetricValues();
+    if (metricValues.isEmpty()) {
+      return List.of();
+    }
+    Map<String, String> metricTypes = new HashMap<>();
+    for (MetricDto metric : dbClient.metricDao().selectByKeys(session, metricValues.keySet())) {
+      metricTypes.put(metric.getKey(), metric.getValueType());
+    }
+    List<Measure> measures = new java.util.ArrayList<>(metricValues.size());
+    for (Map.Entry<String, Object> entry : metricValues.entrySet()) {
+      if (entry.getValue() != null) {
+        String metricKey = entry.getKey();
+        measures.add(new Measure(metricKey, metricTypes.get(metricKey), String.valueOf(entry.getValue())));
+      }
+    }
+    return measures;
   }
 
   private static final class PendingBranch {

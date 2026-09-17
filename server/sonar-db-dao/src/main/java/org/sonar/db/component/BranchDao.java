@@ -48,8 +48,8 @@ public class BranchDao implements Dao {
    * Serializes issue-count snapshot reads and writes across web and CE processes until the session closes.
    * Returns false when the branch has been deleted. Use a non-batch primary session.
    */
-  public boolean lockForIssueCountHistory(DbSession session, String branchUuid) {
-    return mapper(session).lockForIssueCountHistory(branchUuid) != null;
+  public boolean acquireLockForProjectBranch(DbSession session, String branchUuid) {
+    return mapper(session).acquireLockForProjectBranch(branchUuid) != null;
   }
 
   public void insert(DbSession dbSession, BranchDto dto) {

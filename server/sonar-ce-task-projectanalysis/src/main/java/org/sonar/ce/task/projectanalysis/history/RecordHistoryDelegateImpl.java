@@ -79,14 +79,25 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
     LocalDate today = LocalDate.now(ZoneOffset.UTC);
 
     LOG.info("Recording History for {} {} on {}", entityType, entityUuid, today);
-    recordIssueHistory(entityUuid, entityType, issueSourceBranchUuids, today);
-    recordMeasureHistory(entityUuid, entityType, today);
-    issueTtrHistoryRecorder.recordTtrHistory(entityUuid);
-    recordScaTtrHistory(entityUuid, entityType);
+    if (entityType == EntityType.PROJECT_BRANCH) {
+      LOG.info("Waiting for lock on project_branch [{}]", entityUuid);
+      try (DbSession session = dbClient.openSession(false)) {
+        if (!dbClient.branchDao().acquireLockForProjectBranch(session, entityUuid)) {
+          return;
+        }
+        LOG.info("Acquired lock on project_branch [{}]", entityUuid);
+        recordHistoryCore(entityUuid, entityType, issueSourceBranchUuids, today);
+      }
+    } else {
+      recordHistoryCore(entityUuid, entityType, issueSourceBranchUuids, today);
+    }
     LOG.info("History recording complete for {} {}", entityType, entityUuid);
   }
 
-  private void recordScaTtrHistory(String entityUuid, EntityType entityType) {
+  private void recordHistoryCore(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids, LocalDate today) {
+    recordIssueHistory(entityUuid, entityType, issueSourceBranchUuids, today);
+    recordMeasureHistory(entityUuid, entityType, today);
+    issueTtrHistoryRecorder.recordTtrHistory(entityUuid);
     scaTtrHistoryRecorder.recordTtrHistory(entityUuid, entityType);
   }
 
@@ -96,10 +107,6 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
 
   private void recordIssueHistory(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids, LocalDate today) {
     try (DbSession session = dbClient.openSession(false)) {
-      // Manual issue changes use the same primary-database lock before reading their snapshot.
-      if (entityType == EntityType.PROJECT_BRANCH && !dbClient.branchDao().lockForIssueCountHistory(session, entityUuid)) {
-        return;
-      }
       Map<IssueCountDimensionKey, Integer> issueCounts = fetchIssueCounts(session, issueSourceBranchUuids);
       issueHistoryService.recordIssueHistory(entityUuid, entityType, issueCounts, today);
     }

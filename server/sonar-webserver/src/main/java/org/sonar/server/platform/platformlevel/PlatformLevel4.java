@@ -155,6 +155,8 @@ import org.sonar.server.feature.ws.FeatureWsModule;
 import org.sonar.server.health.NodeHealthModule;
 import org.sonar.server.history.IssueCountHistoryExecutorImpl;
 import org.sonar.server.history.IssueCountHistoryQGChangeEventListener;
+import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
+import org.sonarsource.history.server.service.ProjectMeasureHistoryMetricKeyProvider;
 import org.sonar.server.hotspot.ws.HotspotsWsModule;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
@@ -902,7 +904,11 @@ public class PlatformLevel4 extends PlatformLevel {
 
     // registered via history-server-app
     addAll(HistoryServerComponents.webComponents());
-    add(IssueCountHistoryRecordingService.class, IssueCountHistoryExecutorImpl.class, IssueCountHistoryQGChangeEventListener.class);
+    add(IssueCountHistoryRecordingService.class,
+        MeasuresHistoryRecordingService.class,
+        ProjectMeasureHistoryMetricKeyProvider.class,
+        IssueCountHistoryExecutorImpl.class,
+        IssueCountHistoryQGChangeEventListener.class);
 
     // registered via sonar-unified-events
     addAll(EventsWebComponents.components());

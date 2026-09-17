@@ -36,6 +36,7 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.ImpactDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListenersImpl;
@@ -45,7 +46,11 @@ import org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments;
 import org.sonarsource.history.server.db.repository.IssueCountDimensionsRepository;
 import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
 import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
+import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
+import org.sonarsource.history.server.db.repository.MeasureKeyMappingRepository;
 import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
+import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
+import org.sonarsource.history.server.service.ProjectMeasureHistoryMetricKeyProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -65,9 +70,12 @@ public class IssueCountHistoryQGChangeEventListenerIT {
   private final System2 system2 = mock(System2.class);
   private final HistoryDbClient historyDbClient = new HistoryDbClient(
     db.getDbClient().getMyBatis(), new DBSessionsImpl(db.getDbClient().getMyBatis()),
-    List.of(new IssueCountDimensionsRepository(), new IssueCountHistoryRepository(), new IssueTtrHistoryRepository()));
+    List.of(new IssueCountDimensionsRepository(), new IssueCountHistoryRepository(), new IssueTtrHistoryRepository(), new MeasureHistoryRepository(),
+      new MeasureKeyMappingRepository()));
   private final IssueCountHistoryQGChangeEventListener underTest = new IssueCountHistoryQGChangeEventListener(
-    db.getDbClient(), new IssueCountHistoryRecordingService(historyDbClient), system2, Runnable::run);
+    db.getDbClient(), new IssueCountHistoryRecordingService(historyDbClient),
+    new MeasuresHistoryRecordingService(historyDbClient, List.of(new ProjectMeasureHistoryMetricKeyProvider())),
+    system2, Runnable::run);
   private final QGChangeEventListenersImpl dispatcher = new QGChangeEventListenersImpl(Set.of(underTest));
 
   @Before
@@ -159,6 +167,18 @@ public class IssueCountHistoryQGChangeEventListenerIT {
     dispatcher.broadcastOnAnyChange(List.of(eventFor(issue)), false);
 
     assertThat(db.countRowsOfTable("issue_count_history")).isZero();
+  }
+
+  @Test
+  public void records_current_branch_measures() {
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    db.getDbClient().measureDao().insert(db.getSession(), new MeasureDto().setComponentUuid(branch.uuid()).setBranchUuid(branch.branchUuid()).addValue("ncloc", 42.0));
+    db.commit();
+
+    broadcast(insertIssue(branch, IssueProducer.SCANNER, RuleType.VULNERABILITY));
+
+    assertThat(db.select("select text_value from measure_history where entity_id = '" + branch.branchUuid() + "'"))
+      .extracting(row -> row.get("text_value")).containsExactly("42.0");
   }
 
   private void assertFalsePositiveAndReopening(IssueProducer producer) {
