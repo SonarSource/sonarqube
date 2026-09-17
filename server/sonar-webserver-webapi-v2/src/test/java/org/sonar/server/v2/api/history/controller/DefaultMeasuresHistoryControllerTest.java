@@ -99,10 +99,10 @@ public class DefaultMeasuresHistoryControllerTest {
     mockMvc.perform(get("/history/measures-history")
         .queryParam("entityType", "PORTFOLIO")
         .queryParam("entityId", ENTITY_ID)
-        .queryParam("metricKeys")
+      .queryParam("metricKeys")
         .queryParam("startDate", startDate.toString()))
       .andExpect(status().isBadRequest())
-      .andExpect(content().json("{\"message\":\"metricKeys must not be empty\"}"));
+      .andExpect(content().json("{\"message\":\"metricKeys: size must be between 1 and 2147483647\"}"));
     verifyNoInteractions(measuresHistoryService);
   }
 
