@@ -26,11 +26,16 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 import com.google.common.annotations.VisibleForTesting;
 import jakarta.inject.Inject;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Function;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.server.authentication.Display;
@@ -49,6 +54,7 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
   public static final String KEY = "gitlab";
 
   private static final int MAX_CONCURRENT_REQUESTS = 5;
+  private static final char GROUP_PATH_DELIMITER = '/';
   private final GitLabSettings gitLabSettings;
   private final ScribeGitLabOauth2Api scribeApi;
   private final GitLabRestClient gitLabRestClient;
@@ -160,18 +166,19 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
 
   private Set<String> getGroups(OAuth2AccessToken accessToken) {
     Set<String> allowedGroups = gitLabSettings.allowedGroups();
-    List<GsonGroup> groups;
+    List<GsonGroup> directGroups;
     if (allowedGroups.isEmpty() || gitLabSettings.allowAllGroups() || hasShortGroupName(allowedGroups)) {
       // GitLab GraphQL API requires a minimum of 3 characters for group search queries.
       // When any allowed group name is shorter than 3 characters, targeted search cannot
       // be used, so all user groups are fetched and filtered client-side instead.
-      groups = gitLabGraphQlClient.getGroups(accessToken.getAccessToken(), null);
+      directGroups = gitLabGraphQlClient.getGroups(accessToken.getAccessToken(), null);
     } else {
-      groups = findGroupsUsingGraphQlApiInParallel(accessToken, allowedGroups);
+      directGroups = findGroupsUsingGraphQlApiInParallel(accessToken, allowedGroups);
     }
-    return groups.stream()
+    Set<String> directGroupPaths = directGroups.stream()
       .map(GsonGroup::getFullPath)
       .collect(toSet());
+    return withInheritedDescendantGroups(accessToken, directGroupPaths);
   }
 
   private static boolean hasShortGroupName(Set<String> allowedGroups) {
@@ -179,9 +186,36 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
   }
 
   private List<GsonGroup> findGroupsUsingGraphQlApiInParallel(OAuth2AccessToken accessToken, Set<String> allowedGroups) {
+    Set<String> searchTerms = allowedGroups.stream()
+      .flatMap(GitLabIdentityProvider::pathAndAncestors)
+      .filter(term -> term.length() >= 3)
+      .collect(toSet());
+    return fetchInParallel(searchTerms, group -> gitLabGraphQlClient.getGroups(accessToken.getAccessToken(), group));
+  }
+
+  private static Stream<String> pathAndAncestors(String path) {
+    return Stream.concat(
+      IntStream.iterate(path.indexOf(GROUP_PATH_DELIMITER), i -> i > 0, i -> path.indexOf(GROUP_PATH_DELIMITER, i + 1)).mapToObj(i -> path.substring(0, i)),
+      Stream.of(path));
+  }
+
+  private Set<String> withInheritedDescendantGroups(OAuth2AccessToken accessToken, Set<String> directGroupPaths) {
+    Set<String> pathsToExpand = directGroupPaths.stream()
+      .filter(path -> directGroupPaths.stream().noneMatch(other -> path.startsWith(other + GROUP_PATH_DELIMITER)))
+      .collect(toSet());
+    Set<String> allGroupPaths = new HashSet<>(directGroupPaths);
+    fetchInParallel(pathsToExpand, path -> gitLabGraphQlClient.getDescendantGroups(accessToken.getAccessToken(), path))
+      .forEach(descendant -> allGroupPaths.add(descendant.getFullPath()));
+    return allGroupPaths;
+  }
+
+  private static List<GsonGroup> fetchInParallel(Collection<String> inputs, Function<String, List<GsonGroup>> fetcher) {
+    if (inputs.isEmpty()) {
+      return List.of();
+    }
     try (var executor = Executors.newFixedThreadPool(MAX_CONCURRENT_REQUESTS)) {
-      List<Future<List<GsonGroup>>> futures = allowedGroups.stream()
-        .map(group -> executor.submit(() -> gitLabGraphQlClient.getGroups(accessToken.getAccessToken(), group)))
+      List<Future<List<GsonGroup>>> futures = inputs.stream()
+        .map(input -> executor.submit(() -> fetcher.apply(input)))
         .toList();
       return futures.stream()
         .flatMap(future -> getResult(future).stream())

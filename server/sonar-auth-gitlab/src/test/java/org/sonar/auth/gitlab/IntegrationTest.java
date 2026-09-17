@@ -89,6 +89,7 @@ public class IntegrationTest {
 
     enqueueGraphQlGroupResponse("group1");
     enqueueGraphQlGroupResponse("group1");
+    enqueueGraphQlDescendantGroupsResponse();
 
     gitLabIdentityProvider.callback(callbackContext);
 
@@ -112,6 +113,7 @@ public class IntegrationTest {
 
     enqueueGraphQlGroupResponse("wrong-group");
     enqueueGraphQlGroupResponse("wrong-group");
+    enqueueGraphQlDescendantGroupsResponse();
 
     assertThatThrownBy(() -> gitLabIdentityProvider.callback(callbackContext))
       .isInstanceOf((UnauthorizedException.class))
@@ -141,6 +143,7 @@ public class IntegrationTest {
 
     enqueueGraphQlGroupResponse("group1/subgroup");
     enqueueGraphQlGroupResponse("group1/subgroup");
+    enqueueGraphQlDescendantGroupsResponse();
 
     gitLabIdentityProvider.callback(callbackContext);
 
@@ -158,6 +161,8 @@ public class IntegrationTest {
 
     enqueueGraphQlGroupResponse("group1");
     enqueueGraphQlGroupResponse("group2");
+    enqueueGraphQlDescendantGroupsResponse();
+    enqueueGraphQlDescendantGroupsResponse();
 
     gitLabIdentityProvider.callback(callbackContext);
 
@@ -199,6 +204,10 @@ public class IntegrationTest {
     mockGraphQlGroupResponseWithNextPage("cursor1", "group1", "group2");
     // Second page with hasNextPage=false
     enqueueGraphQlGroupResponse("group3", "group4");
+    enqueueGraphQlDescendantGroupsResponse();
+    enqueueGraphQlDescendantGroupsResponse();
+    enqueueGraphQlDescendantGroupsResponse();
+    enqueueGraphQlDescendantGroupsResponse();
 
     gitLabIdentityProvider.callback(callbackContext);
 
@@ -231,6 +240,7 @@ public class IntegrationTest {
     mockAccessTokenResponse();
     mockUserResponse();
     enqueueGraphQlGroupResponse("some-group");
+    enqueueGraphQlDescendantGroupsResponse();
 
     gitLabIdentityProvider.callback(callbackContext);
 
@@ -310,6 +320,34 @@ public class IntegrationTest {
           "data": {
             "currentUser": {
               "groups": {
+                "nodes": [%s],
+                "pageInfo": {
+                  "hasNextPage": false,
+                  "endCursor": null
+                }
+              }
+            }
+          }
+        }
+        """.formatted(nodes)));
+  }
+
+  private void enqueueGraphQlDescendantGroupsResponse(String... fullPaths) {
+    StringBuilder nodes = new StringBuilder();
+    for (int i = 0; i < fullPaths.length; i++) {
+      if (i > 0) {
+        nodes.append(",");
+      }
+      nodes.append("""
+        {"fullPath": "%s"}""".formatted(fullPaths[i]));
+    }
+    gitlab.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json")
+      .setBody("""
+        {
+          "data": {
+            "group": {
+              "descendantGroups": {
                 "nodes": [%s],
                 "pageInfo": {
                   "hasNextPage": false,

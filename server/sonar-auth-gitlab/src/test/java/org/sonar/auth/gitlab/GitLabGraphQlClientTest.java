@@ -144,6 +144,55 @@ public class GitLabGraphQlClientTest {
     assertThat(gitlab.getRequestCount()).isZero();
   }
 
+  @Test
+  public void getDescendantGroups_shouldReturnDescendantGroups() {
+    enqueueDescendantGroupsResponse(groupNode("sonar-repro/child-team"), groupNode("sonar-repro/other-team"));
+
+    List<GsonGroup> result = underTest.getDescendantGroups("token", "sonar-repro");
+
+    assertThat(result).extracting(GsonGroup::getFullPath)
+      .containsExactly("sonar-repro/child-team", "sonar-repro/other-team");
+  }
+
+  @Test
+  public void getDescendantGroups_withPagination_shouldFetchAllPages() {
+    enqueueDescendantGroupsResponseWithNextPage("cursor1", groupNode("sonar-repro/child-team"));
+    enqueueDescendantGroupsResponse(groupNode("sonar-repro/other-team"));
+
+    List<GsonGroup> result = underTest.getDescendantGroups("token", "sonar-repro");
+
+    assertThat(result).extracting(GsonGroup::getFullPath)
+      .containsExactly("sonar-repro/child-team", "sonar-repro/other-team");
+  }
+
+  @Test
+  public void getDescendantGroups_withNoDescendants_shouldReturnEmpty() {
+    enqueueDescendantGroupsResponse();
+
+    List<GsonGroup> result = underTest.getDescendantGroups("token", "sonar-repro");
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getDescendantGroups_shouldSendGroupFullPathAsVariable() throws InterruptedException {
+    enqueueDescendantGroupsResponse(groupNode("sonar-repro/child-team"));
+
+    underTest.getDescendantGroups("token", "sonar-repro");
+
+    String body = gitlab.takeRequest().getBody().readUtf8();
+    assertThat(body).contains("\"fullPath\":\"sonar-repro\"");
+  }
+
+  @Test
+  public void getDescendantGroups_whenGitlabReturnsNullGroup_shouldReturnEmptyInsteadOfThrowing() {
+    enqueueDescendantGroupsResponseWithNullGroup();
+
+    List<GsonGroup> result = underTest.getDescendantGroups("token", "sonar-repro");
+
+    assertThat(result).isEmpty();
+  }
+
   private static String projectNode(String id, String name, String visibility) {
     return """
       {"id": "%s", "name": "%s", "visibility": "%s"}""".formatted(id, name, visibility);
@@ -185,5 +234,64 @@ public class GitLabGraphQlClientTest {
           }
         }
         """.formatted(nodesJson, endCursor)));
+  }
+
+  private static String groupNode(String fullPath) {
+    return """
+      {"fullPath": "%s"}""".formatted(fullPath);
+  }
+
+  private void enqueueDescendantGroupsResponse(String... nodes) {
+    String nodesJson = String.join(",", nodes);
+    gitlab.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json")
+      .setBody("""
+        {
+          "data": {
+            "group": {
+              "descendantGroups": {
+                "nodes": [%s],
+                "pageInfo": {
+                  "hasNextPage": false,
+                  "endCursor": null
+                }
+              }
+            }
+          }
+        }
+        """.formatted(nodesJson)));
+  }
+
+  private void enqueueDescendantGroupsResponseWithNextPage(String endCursor, String... nodes) {
+    String nodesJson = String.join(",", nodes);
+    gitlab.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json")
+      .setBody("""
+        {
+          "data": {
+            "group": {
+              "descendantGroups": {
+                "nodes": [%s],
+                "pageInfo": {
+                  "hasNextPage": true,
+                  "endCursor": "%s"
+                }
+              }
+            }
+          }
+        }
+        """.formatted(nodesJson, endCursor)));
+  }
+
+  private void enqueueDescendantGroupsResponseWithNullGroup() {
+    gitlab.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json")
+      .setBody("""
+        {
+          "data": {
+            "group": null
+          }
+        }
+        """));
   }
 }

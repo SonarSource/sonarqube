@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,8 @@ public class GitLabGraphQlClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(GitLabGraphQlClient.class);
   private static final int GRAPHQL_MAX_ARGS_SIZE = 100;
+  private static final String GITLAB_URL_NOT_CONFIGURED_MESSAGE = "GitLab URL is not configured";
+  private static final String GRAPHQL_API_PATH = "/api/graphql";
 
   private static final String GRAPHQL_GROUPS_QUERY = """
     query($search: String, $cursor: String) {
@@ -55,6 +58,23 @@ public class GitLabGraphQlClient {
     }""";
 
   private static final Type GROUPS_ANSWER_TYPE = TypeToken.getParameterized(GsonGraphQlAnswer.class, GroupsData.class).getType();
+
+  private static final String GRAPHQL_DESCENDANT_GROUPS_QUERY = """
+    query($fullPath: ID!, $cursor: String) {
+      group(fullPath: $fullPath) {
+        descendantGroups(first: 100, after: $cursor) {
+          nodes {
+            fullPath
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }
+    }""";
+
+  private static final Type DESCENDANT_GROUPS_ANSWER_TYPE = TypeToken.getParameterized(GsonGraphQlAnswer.class, DescendantGroupsData.class).getType();
 
   private static final String GRAPHQL_PROJECTS_QUERY = """
     query($ids: [ID!], $cursor: String) {
@@ -87,9 +107,9 @@ public class GitLabGraphQlClient {
     variables.put("search", searchTerm);
 
     String gitlabUrl = gitLabSettings.url();
-    checkState(gitlabUrl != null, "GitLab URL is not configured");
+    checkState(gitlabUrl != null, GITLAB_URL_NOT_CONFIGURED_MESSAGE);
     var queryWithPagination = new GraphQlQueryParameters.QueryWithPagination<>(
-      gitlabUrl + "/api/graphql",
+      gitlabUrl + GRAPHQL_API_PATH,
       accessToken,
       GRAPHQL_GROUPS_QUERY,
       variables,
@@ -101,15 +121,34 @@ public class GitLabGraphQlClient {
     return graphQlClient.executeQuery(queryWithPagination);
   }
 
+  List<GsonGroup> getDescendantGroups(String accessToken, String groupFullPath) {
+    Map<String, String> variables = new HashMap<>();
+    variables.put("fullPath", groupFullPath);
+
+    String gitlabUrl = gitLabSettings.url();
+    checkState(gitlabUrl != null, GITLAB_URL_NOT_CONFIGURED_MESSAGE);
+    var queryWithPagination = new GraphQlQueryParameters.QueryWithPagination<>(
+      gitlabUrl + GRAPHQL_API_PATH,
+      accessToken,
+      GRAPHQL_DESCENDANT_GROUPS_QUERY,
+      variables,
+      GitLabGraphQlClient::toDescendantGsonGroups,
+      GitLabGraphQlClient::extractDescendantCursor,
+      GitLabGraphQlClient::hasNextDescendantPage,
+      DESCENDANT_GROUPS_ANSWER_TYPE);
+
+    return graphQlClient.executeQuery(queryWithPagination);
+  }
+
   public List<ProjectsData.ProjectNode> getProjectsDetails(String accessToken, List<String> ids) {
     String gitlabUrl = gitLabSettings.url();
-    checkState(gitlabUrl != null, "GitLab URL is not configured");
+    checkState(gitlabUrl != null, GITLAB_URL_NOT_CONFIGURED_MESSAGE);
     return Lists.partition(ids, GRAPHQL_MAX_ARGS_SIZE).stream()
       .flatMap(chunk -> {
         Map<String, List<String>> variables = new HashMap<>();
         variables.put("ids", chunk);
         var queryWithPagination = new GraphQlQueryParameters.QueryWithPagination<>(
-          gitlabUrl + "/api/graphql",
+          gitlabUrl + GRAPHQL_API_PATH,
           accessToken,
           GRAPHQL_PROJECTS_QUERY,
           variables,
@@ -152,6 +191,36 @@ public class GitLabGraphQlClient {
     return answer.getNonNullData().currentUser().groups().pageInfo().hasNextPage();
   }
 
+  private static List<GsonGroup> toDescendantGsonGroups(GsonGraphQlAnswer<DescendantGroupsData> answer) {
+    DescendantGroupsData.Group.GroupConnection connection = descendantGroupConnection(answer);
+    if (connection == null) {
+      return List.of();
+    }
+    return connection.nodes().stream()
+      .map(node -> {
+        GsonGroup group = new GsonGroup();
+        group.setFullPath(node.fullPath());
+        return group;
+      })
+      .toList();
+  }
+
+  private static String extractDescendantCursor(GsonGraphQlAnswer<DescendantGroupsData> answer) {
+    DescendantGroupsData.Group.GroupConnection connection = descendantGroupConnection(answer);
+    return connection == null ? null : connection.pageInfo().endCursor();
+  }
+
+  private static boolean hasNextDescendantPage(GsonGraphQlAnswer<DescendantGroupsData> answer) {
+    DescendantGroupsData.Group.GroupConnection connection = descendantGroupConnection(answer);
+    return connection != null && connection.pageInfo().hasNextPage();
+  }
+
+  @CheckForNull
+  private static DescendantGroupsData.Group.GroupConnection descendantGroupConnection(GsonGraphQlAnswer<DescendantGroupsData> answer) {
+    DescendantGroupsData.Group group = answer.getNonNullData().group();
+    return group == null ? null : group.descendantGroups();
+  }
+
   public record ProjectsData(ProjectConnection projects) {
     record ProjectConnection(List<ProjectNode> nodes, PageInfo pageInfo) {
     }
@@ -170,6 +239,15 @@ public class GitLabGraphQlClient {
         record GroupNode(String fullPath) {
         }
 
+      }
+    }
+  }
+
+  record DescendantGroupsData(Group group) {
+    record Group(GroupConnection descendantGroups) {
+      record GroupConnection(List<GroupNode> nodes, PageInfo pageInfo) {
+        record GroupNode(String fullPath) {
+        }
       }
     }
   }
