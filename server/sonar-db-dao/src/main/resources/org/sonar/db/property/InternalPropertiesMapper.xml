@@ -3,6 +3,28 @@
 
 <mapper namespace="org.sonar.db.property.InternalPropertiesMapper">
 
+  <!-- Keep timeouts local to these statements. affectData releases read locks even if no writes follow. -->
+  <select id="selectForUpdate" resultType="string" timeout="5" useCache="false" flushCache="true" affectData="true">
+    SELECT kee FROM internal_properties WHERE kee = #{key,jdbcType=VARCHAR} FOR UPDATE
+  </select>
+
+  <select id="selectForUpdate" databaseId="oracle" resultType="string" timeout="5" useCache="false" flushCache="true" affectData="true">
+    SELECT kee FROM internal_properties WHERE kee = #{key,jdbcType=VARCHAR} FOR UPDATE WAIT 5
+  </select>
+
+  <select id="selectForUpdate" databaseId="h2" resultType="string" timeout="5" useCache="false" flushCache="true" affectData="true">
+    SELECT kee FROM internal_properties WHERE kee = #{key,jdbcType=VARCHAR} FOR UPDATE WAIT 5
+  </select>
+
+  <select id="selectForUpdate" databaseId="mssql" resultType="string" timeout="5" useCache="false" flushCache="true" affectData="true">
+    SELECT kee FROM internal_properties WITH (UPDLOCK, ROWLOCK) WHERE kee = #{key,jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insertLock" useGeneratedKeys="false" timeout="5">
+    INSERT INTO internal_properties (kee, is_empty, created_at)
+    VALUES (#{key,jdbcType=VARCHAR}, ${_true}, #{createdAt,jdbcType=BIGINT})
+  </insert>
+
   <select id="selectAsText" parameterType="map" resultType="InternalProperty">
     select
       kee as "key",

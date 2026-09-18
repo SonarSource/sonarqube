@@ -68,6 +68,41 @@ class InternalPropertiesDaoRaiseIT {
   private final InternalPropertiesDao underTest = new InternalPropertiesDao(system2, auditPersister);
 
   @Test
+  void lockForUpdate_createsRowAndReleasesItOnCommit() {
+    try (DbSession first = dbTester.getDbClient().getMyBatis().openSession(false)) {
+      underTest.lockForUpdate(first, A_KEY);
+      first.commit();
+      try (DbSession second = dbTester.getDbClient().getMyBatis().openSession(false)) {
+        underTest.lockForUpdate(second, A_KEY);
+        second.commit();
+      }
+    }
+    assertThat(underTest.selectByKey(dbSession, A_KEY)).contains("");
+  }
+
+  @Test
+  void lockForUpdate_preservesExistingValueAndReleasesReadLockOnClose() {
+    underTest.save(dbSession, A_KEY, "0");
+    dbSession.commit();
+    try (DbSession first = dbTester.getDbClient().getMyBatis().openSession(false)) {
+      underTest.lockForUpdate(first, A_KEY);
+    }
+    try (DbSession second = dbTester.getDbClient().getMyBatis().openSession(false)) {
+      underTest.lockForUpdate(second, A_KEY);
+      second.commit();
+    }
+    assertThat(underTest.selectByKey(dbSession, A_KEY)).contains("0");
+  }
+
+  @Test
+  void lockForUpdate_rollsBackNewMarkerOnClose() {
+    try (DbSession first = dbTester.getDbClient().getMyBatis().openSession(false)) {
+      underTest.lockForUpdate(first, A_KEY);
+    }
+    assertThat(underTest.selectByKey(dbSession, A_KEY)).isEmpty();
+  }
+
+  @Test
   void replaceTextIfEqual_replaces_when_expected_value_matches() {
     underTest.save(dbSession, A_KEY, "3000000000");
     dbSession.commit();

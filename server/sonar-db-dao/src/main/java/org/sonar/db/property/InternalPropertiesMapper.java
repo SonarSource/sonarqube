@@ -20,9 +20,15 @@
 package org.sonar.db.property;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 
 public interface InternalPropertiesMapper {
+  @CheckForNull
+  String selectForUpdate(@Param("key") String key);
+
+  void insertLock(@Param("key") String key, @Param("createdAt") long createdAt);
+
   List<InternalPropertyDto> selectAsText(@Param("keys") List<String> key);
 
   List<InternalPropertyDto> selectAsClob(@Param("keys") List<String> key);

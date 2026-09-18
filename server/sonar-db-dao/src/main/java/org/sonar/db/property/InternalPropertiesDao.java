@@ -222,6 +222,27 @@ public class InternalPropertiesDao implements Dao {
   }
 
   /**
+   * Locks an internal property until commit/rollback, creating an empty row if absent.
+   * Each lock statement has a five-second timeout. Call before other work: a lost first-insert race rolls back
+   * this empty transaction before trying to lock the winner's row. Other failures propagate to the caller.
+   */
+  public void lockForUpdate(DbSession dbSession, String key) {
+    checkKey(key);
+    InternalPropertiesMapper mapper = getMapper(dbSession);
+    if (mapper.selectForUpdate(key) == null) {
+      try {
+        mapper.insertLock(key, system2.now());
+      } catch (RuntimeException e) {
+        // PostgreSQL requires rollback after a duplicate insert. Retry only if another writer created the row.
+        dbSession.rollback();
+        if (mapper.selectForUpdate(key) == null) {
+          throw e;
+        }
+      }
+    }
+  }
+
+  /**
    * Raise a decimal-long text property to {@code value} if it is absent or strictly smaller.
    * Returns the resulting stored value. Concurrent callers observe the maximum, using the same
    * insert-or-{@link InternalPropertiesMapper#replaceValue} compare-and-set as {@link #tryLock}.
