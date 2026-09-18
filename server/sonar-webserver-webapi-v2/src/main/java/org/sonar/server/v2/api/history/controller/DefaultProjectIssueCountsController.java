@@ -31,6 +31,7 @@ import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.api.model.IssueCountStatus;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
+import org.sonarsource.history.api.model.IssueTypeSeverity;
 import org.sonarsource.history.api.model.ProjectIssueCountsResponse;
 import org.sonarsource.history.api.rest.ProjectIssueCountsApi;
 import org.sonarsource.history.server.service.IssueCountHistoryService;
@@ -69,6 +70,7 @@ public class DefaultProjectIssueCountsController implements ProjectIssueCountsAp
     @Nullable String entityId,
     @Nullable List<String> ruleKeys,
     @Nullable List<IssueSeverity> severities,
+    @Nullable List<IssueTypeSeverity> typeSeverities,
     @Nullable List<IssueType> issueTypes,
     @Nullable List<IssueCountStatus> statuses,
     @Nullable List<String> impacts,
@@ -83,6 +85,7 @@ public class DefaultProjectIssueCountsController implements ProjectIssueCountsAp
     var filters = IssueCountHistoryService.buildFilters(
       ruleKeys,
       HistoryModelConverter.toCoreSeverities(severities),
+      HistoryModelConverter.toCoreTypeSeverities(typeSeverities),
       HistoryModelConverter.toCoreIssueTypes(issueTypes),
       HistoryModelConverter.toCoreStatuses(statuses),
       impacts);

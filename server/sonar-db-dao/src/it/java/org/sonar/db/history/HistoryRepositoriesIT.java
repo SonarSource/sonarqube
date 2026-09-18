@@ -203,7 +203,7 @@ class HistoryRepositoriesIT {
       db.getSession(), List.of(ENTITY_ID, "branch-2"), noFilters(), null))
       .containsExactlyInAnyOrderEntriesOf(Map.of(ENTITY_ID, 12L, "branch-2", 11L));
     assertThat(issueCountHistory.findLatestProjectIssueCounts(
-      db.getSession(), List.of(ENTITY_ID), new IssueCountHistoryFilters(List.of("java:S100"), null, null, null, null), null))
+      db.getSession(), List.of(ENTITY_ID), new IssueCountHistoryFilters(List.of("java:S100"), null, null, null, null, null), null))
       .containsExactly(Map.entry(ENTITY_ID, 7L));
     assertThat(issueCountHistory.findLatestDimensionCountsForEntity(
       db.getSession(), "missing-branch", EntityType.PROJECT_BRANCH)).isEmpty();
@@ -252,6 +252,7 @@ class HistoryRepositoriesIT {
         EntityType.PROJECT_BRANCH,
         FIRST_DAY,
         SECOND_DAY,
+        null,
         null,
         null,
         null,
@@ -561,7 +562,7 @@ class HistoryRepositoriesIT {
   }
 
   private static IssueCountHistoryFilters noFilters() {
-    return new IssueCountHistoryFilters(null, null, null, null, null);
+    return new IssueCountHistoryFilters(null, null, null, null, null, null);
   }
 
   private static IssueCountHistoryQuery queryWithSlice(String sliceBy) {

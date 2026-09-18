@@ -106,13 +106,13 @@ class HistoryAuthorizationIT {
     IssueCountHistoryService issueCountHistoryService = mock();
     when(issueCountHistoryService.queryIssueCountHistory(
       eq(publicPortfolio.uuid()), eq(EntityType.PORTFOLIO), eq(START_DATE.toInstant()), eq(END_DATE),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenReturn(new IssueCountHistoryResponse(List.of()));
 
     IssueCountHistoryService issueDensityHistoryService = mock();
     when(issueDensityHistoryService.queryIssueDensityHistory(
       eq(publicPortfolio.uuid()), eq(EntityType.PORTFOLIO), eq(START_DATE.toInstant()), eq(END_DATE),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenReturn(new IssueDensityHistoryResponse(List.of()));
 
     IssueTtrHistoryService issueResolutionHistoryService = mock();
@@ -128,17 +128,17 @@ class HistoryAuthorizationIT {
     assertThat(new DefaultIssueCountHistoryController(
       anonymousUserSession, db.getDbClient(), issueCountHistoryService, clock)
       .getIssueCountHistory(publicPortfolio.uuid(), HistoryEntityType.PORTFOLIO, START_DATE, null,
-        null, null, null, null, null, null)
+        null, null, null, null, null, null, null)
       .getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(new DefaultIssueDensityHistoryController(
       anonymousUserSession, db.getDbClient(), issueDensityHistoryService, clock)
       .getIssueDensityHistory(publicPortfolio.uuid(), HistoryEntityType.PORTFOLIO, START_DATE, null,
-        null, null, null, null, null, null)
+        null, null, null, null, null, null, null)
       .getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(new DefaultIssueResolutionHistoryController(
       anonymousUserSession, db.getDbClient(), issueResolutionHistoryService, clock)
       .getIssueResolutionHistory(publicPortfolio.uuid(), HistoryEntityType.PORTFOLIO,
-        IssueResolutionStatistic.MTTR, START_DATE, null, null, null, null, null)
+        IssueResolutionStatistic.MTTR, START_DATE, null, null, null, null, null, null)
       .getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(new DefaultMeasuresHistoryController(
       anonymousUserSession, db.getDbClient(), measuresHistoryService, clock, new HistoryRequestValidator())
@@ -173,7 +173,7 @@ class HistoryAuthorizationIT {
 
     assertThat(new DefaultProjectIssueCountsController(
       db.getDbClient(), contextLoader, issueCountsService, clock)
-      .getProjectIssueCounts(publicPortfolio.uuid(), null, null, null, null, null, null, null, null, START_DATE,
+      .getProjectIssueCounts(publicPortfolio.uuid(), null, null, null, null, null, null, null, null, null, START_DATE,
         1, 50, ISSUE_COUNTS_SORT, false)
       .getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(new DefaultProjectMeasuresController(
@@ -184,7 +184,7 @@ class HistoryAuthorizationIT {
     assertThat(new DefaultProjectIssueResolutionController(
       db.getDbClient(), contextLoader, issueResolutionService, clock)
       .getProjectIssueResolution(ProjectIssueResolutionStatistic.MTTR, publicPortfolio.uuid(), null, null,
-        null, null, null, null, START_DATE, 1, 50)
+        null, null, null, null, null, START_DATE, 1, 50)
       .getStatusCode()).isEqualTo(HttpStatus.OK);
   }
 

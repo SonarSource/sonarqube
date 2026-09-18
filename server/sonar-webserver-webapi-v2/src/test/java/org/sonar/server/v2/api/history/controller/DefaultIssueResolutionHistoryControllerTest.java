@@ -46,6 +46,7 @@ import org.sonarsource.history.api.model.IssueResolutionSliceBy;
 import org.sonarsource.history.api.model.IssueResolutionStatistic;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
+import org.sonarsource.history.api.model.IssueTypeSeverity;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.model.IssueCountHistoryFilters;
 import org.sonarsource.history.model.IssueResolutionHistoryQuery;
@@ -111,7 +112,7 @@ public class DefaultIssueResolutionHistoryControllerTest {
         && query.startDate().equals(START.toInstant())
         && query.endDate().equals(END.toInstant())
         && query.sliceBy().equals("SEVERITY")
-        && query.filters().equals(new IssueCountHistoryFilters(null, List.of(4), List.of(3), null, null)))))
+        && query.filters().equals(new IssueCountHistoryFilters(null, List.of(4), List.of(3), null, null, List.of("CRITICAL"))))))
       .thenReturn(List.of(new IssueResolutionHistoryPoint(END.toInstant(), List.of())));
 
     ResponseEntity<IssueResolutionHistoryResponse> response = underTest.getIssueResolutionHistory(
@@ -123,6 +124,7 @@ public class DefaultIssueResolutionHistoryControllerTest {
       null,
       List.of(IssueType.VULNERABILITY),
       List.of(IssueSeverity.HIGH),
+      List.of(IssueTypeSeverity.CRITICAL),
       IssueResolutionSliceBy.SEVERITY);
 
     assertThat(response.getStatusCode()).isEqualTo(OK);
@@ -223,6 +225,7 @@ public class DefaultIssueResolutionHistoryControllerTest {
       null,
       null,
       null,
+      null,
       null);
 
     assertThat(response.getStatusCode()).isEqualTo(OK);
@@ -248,6 +251,7 @@ public class DefaultIssueResolutionHistoryControllerTest {
       IssueResolutionStatistic.MTTR,
       START,
       END,
+      null,
       null,
       null,
       null,

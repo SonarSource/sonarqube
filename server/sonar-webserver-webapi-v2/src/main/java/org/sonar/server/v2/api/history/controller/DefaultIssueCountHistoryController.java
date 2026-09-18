@@ -35,6 +35,7 @@ import org.sonarsource.history.api.model.IssueCountHistoryResponse;
 import org.sonarsource.history.api.model.IssueCountStatus;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
+import org.sonarsource.history.api.model.IssueTypeSeverity;
 import org.sonarsource.history.api.rest.IssueCountHistoryApi;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.server.service.IssueCountHistoryService;
@@ -74,10 +75,12 @@ public class DefaultIssueCountHistoryController implements IssueCountHistoryApi 
     @Nullable List<IssueType> issueTypes,
     @Nullable List<String> ruleKeys,
     @Nullable List<IssueSeverity> severities,
+    @Nullable List<IssueTypeSeverity> typeSeverities,
     @Nullable IssueCountDistributionType sliceBy,
     @Nullable List<IssueCountStatus> statuses) {
-    LOG.debug("getIssueCountHistory invoked: entityId={}, entityType={}, startDate={}, endDate={}, sliceBy={}, impacts={}, issueTypes={}, ruleKeys={}, severities={}, statuses={}",
-      entityId, entityType, startDate, endDate, sliceBy, impacts, issueTypes, ruleKeys, severities, statuses);
+    LOG.debug("getIssueCountHistory invoked: entityId={}, entityType={}, startDate={}, endDate={}, " +
+        "sliceBy={}, impacts={}, issueTypes={}, ruleKeys={}, severities={}, typeSeverities={}, statuses={}",
+      entityId, entityType, startDate, endDate, sliceBy, impacts, issueTypes, ruleKeys, severities, typeSeverities, statuses);
 
     EntityType entityTypeEnum = HistoryControllerUtils.ensureValidEntityType(entityType);
     HistoryDateRange dateRange = HistoryControllerUtils.ensureValidDateRange(startDate, endDate, clock);
@@ -88,9 +91,9 @@ public class DefaultIssueCountHistoryController implements IssueCountHistoryApi 
         issueHistoryService.queryIssueCountHistory(
           entityId, entityTypeEnum, dateRange.start(), dateRange.end(),
           ruleKeys, HistoryModelConverter.toCoreSeverities(severities),
+          HistoryModelConverter.toCoreTypeSeverities(typeSeverities),
           HistoryModelConverter.toCoreIssueTypes(issueTypes),
           HistoryModelConverter.toCoreStatuses(statuses), impacts,
           HistoryModelConverter.toCoreIssueCountDistribution(sliceBy))));
   }
-
 }

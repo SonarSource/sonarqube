@@ -43,6 +43,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarsource.history.api.model.HistoryEntityType;
 import org.sonarsource.history.api.model.IssueCountDistributionType;
 import org.sonarsource.history.api.model.IssueDensityHistoryResponse;
+import org.sonarsource.history.api.model.IssueTypeSeverity;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.model.IssueCountDistribution;
 import org.sonarsource.history.model.IssueDensityDistribution;
@@ -129,7 +130,7 @@ public class DefaultIssueDensityHistoryControllerTest {
     when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(issueHistoryService.queryIssueDensityHistory(
       ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), NOW.minusSeconds(3600),
-      null, null, null, null, null, null))
+      null, null, null, null, null, null, null))
       .thenThrow(new IllegalArgumentException("Unsupported density filter"));
     mockMvc.perform(get("/history/issue-density-history")
         .queryParam("entityId", ENTITY_ID)
@@ -160,15 +161,15 @@ public class DefaultIssueDensityHistoryControllerTest {
     when(projectDao.selectByUuid(dbSession, project.getUuid())).thenReturn(Optional.of(project));
     when(issueHistoryService.queryIssueDensityHistory(
       eq(ENTITY_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenReturn(new org.sonarsource.history.model.IssueDensityHistoryResponse(List.of()));
 
     ResponseEntity<IssueDensityHistoryResponse> result = underTest.getIssueDensityHistory(
-      ENTITY_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null);
+      ENTITY_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null, null);
     assertThat(result.getStatusCode()).isEqualTo(OK);
     verify(issueHistoryService).queryIssueDensityHistory(
       eq(ENTITY_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test
@@ -197,14 +198,14 @@ public class DefaultIssueDensityHistoryControllerTest {
     when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(issueHistoryService.queryIssueDensityHistory(
       ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), endDate.toInstant(),
-      null, null, null, null, null, IssueCountDistribution.STATUS))
+      null, null, List.of(org.sonarsource.history.model.IssueTypeSeverity.CRITICAL), null, null, null, IssueCountDistribution.STATUS))
        .thenReturn(new org.sonarsource.history.model.IssueDensityHistoryResponse(List.of(
         new IssueDensityHistoryPoint(
           startDate.toInstant(),
           List.of(new IssueDensityDistribution("all", null))))));
 
     ResponseEntity<IssueDensityHistoryResponse> result = underTest.getIssueDensityHistory(
-      ENTITY_ID, HistoryEntityType.PORTFOLIO, startDate, endDate, null, null, null, null, IssueCountDistributionType.STATUS, null);
+      ENTITY_ID, HistoryEntityType.PORTFOLIO, startDate, endDate, null, null, null, null, List.of(IssueTypeSeverity.CRITICAL), IssueCountDistributionType.STATUS, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     assertThat(result.getBody().getIssueDensityHistory()).singleElement()
@@ -213,7 +214,7 @@ public class DefaultIssueDensityHistoryControllerTest {
     verify(userSession).checkEntityPermission(ProjectPermission.USER, portfolio);
     verify(issueHistoryService).queryIssueDensityHistory(
       ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), endDate.toInstant(),
-      null, null, null, null, null, IssueCountDistribution.STATUS);
+      null, null, List.of(org.sonarsource.history.model.IssueTypeSeverity.CRITICAL), null, null, null, IssueCountDistribution.STATUS);
   }
 
   @Test
@@ -223,11 +224,11 @@ public class DefaultIssueDensityHistoryControllerTest {
     stubProjectBranch(project);
     when(issueHistoryService.queryIssueDensityHistory(
       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenReturn(new org.sonarsource.history.model.IssueDensityHistoryResponse(List.of()));
 
     ResponseEntity<IssueDensityHistoryResponse> result = underTest.getIssueDensityHistory(
-      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null);
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     assertThat(result.getBody()).isNotNull();
@@ -236,7 +237,7 @@ public class DefaultIssueDensityHistoryControllerTest {
     verify(userSession).checkEntityPermission(ProjectPermission.USER, project);
     verify(issueHistoryService).queryIssueDensityHistory(
       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test
@@ -249,11 +250,11 @@ public class DefaultIssueDensityHistoryControllerTest {
     when(projectDao.selectByUuid(dbSession, application.getUuid())).thenReturn(Optional.of(application));
     when(issueHistoryService.queryIssueDensityHistory(
       ENTITY_ID, EntityType.APPLICATION, startDate.toInstant(), endDate.toInstant(),
-      null, null, null, null, null, IssueCountDistribution.STATUS))
+      null, null, null, null, null, null, IssueCountDistribution.STATUS))
       .thenReturn(new org.sonarsource.history.model.IssueDensityHistoryResponse(List.of()));
 
     ResponseEntity<IssueDensityHistoryResponse> result = underTest.getIssueDensityHistory(
-      ENTITY_ID, HistoryEntityType.APPLICATION, startDate, endDate, null, null, null, null,
+      ENTITY_ID, HistoryEntityType.APPLICATION, startDate, endDate, null, null, null, null, null,
       IssueCountDistributionType.STATUS, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
@@ -261,7 +262,7 @@ public class DefaultIssueDensityHistoryControllerTest {
     verify(userSession).checkChildProjectsPermission(ProjectPermission.USER, application);
     verify(issueHistoryService).queryIssueDensityHistory(
       ENTITY_ID, EntityType.APPLICATION, startDate.toInstant(), endDate.toInstant(),
-      null, null, null, null, null, IssueCountDistribution.STATUS);
+      null, null, null, null, null, null, IssueCountDistribution.STATUS);
   }
 
   @Test

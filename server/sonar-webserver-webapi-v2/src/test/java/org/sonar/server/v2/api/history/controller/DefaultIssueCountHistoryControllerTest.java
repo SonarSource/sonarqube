@@ -23,6 +23,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +43,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarsource.history.api.model.HistoryEntityType;
 import org.sonarsource.history.api.model.IssueCountDistributionType;
 import org.sonarsource.history.api.model.IssueCountHistoryResponse;
+import org.sonarsource.history.api.model.IssueTypeSeverity;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.model.IssueCountDistribution;
 import org.sonarsource.history.server.service.IssueCountHistoryService;
@@ -97,18 +99,18 @@ public class DefaultIssueCountHistoryControllerTest {
     when(portfolioDao.selectByUuid(dbSession, ENTITY_ID)).thenReturn(Optional.of(portfolio));
     when(issueHistoryService.queryIssueCountHistory(
       ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), endDate.toInstant(),
-      null, null, null, null, null, IssueCountDistribution.STATUS))
+      null, null, List.of(org.sonarsource.history.model.IssueTypeSeverity.CRITICAL), null, null, null, IssueCountDistribution.STATUS))
       .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
 
     ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
-      ENTITY_ID, ENTITY_TYPE, startDate, endDate, null, null, null, null, IssueCountDistributionType.STATUS, null);
+      ENTITY_ID, ENTITY_TYPE, startDate, endDate, null, null, null, null, List.of(IssueTypeSeverity.CRITICAL), IssueCountDistributionType.STATUS, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     verify(portfolioDao).selectByUuid(dbSession, ENTITY_ID);
     verify(userSession).checkEntityPermission(ProjectPermission.USER, portfolio);
     verify(issueHistoryService).queryIssueCountHistory(
       ENTITY_ID, EntityType.PORTFOLIO, startDate.toInstant(), endDate.toInstant(),
-      null, null, null, null, null, IssueCountDistribution.STATUS);
+      null, null, List.of(org.sonarsource.history.model.IssueTypeSeverity.CRITICAL), null, null, null, IssueCountDistribution.STATUS);
   }
 
   @Test
@@ -148,17 +150,17 @@ public class DefaultIssueCountHistoryControllerTest {
     stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
     when(issueHistoryService.queryIssueCountHistory(
       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
 
     ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null);
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     verify(branchDao).selectByUuid(dbSession, PROJECT_BRANCH_ID);
     verify(issueHistoryService).queryIssueCountHistory(
       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test
@@ -167,7 +169,7 @@ public class DefaultIssueCountHistoryControllerTest {
     stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
     when(issueHistoryService.queryIssueCountHistory(
        eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenThrow(new IllegalArgumentException("Unsupported history filter"));
 
     mockMvc.perform(get("/history/issue-count-history")
@@ -210,16 +212,16 @@ public class DefaultIssueCountHistoryControllerTest {
     stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
     when(issueHistoryService.queryIssueCountHistory(
       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
 
     ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null);
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     verify(issueHistoryService).queryIssueCountHistory(
       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(NOW),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test
@@ -245,16 +247,16 @@ public class DefaultIssueCountHistoryControllerTest {
     stubProjectBranch(project(PROJECT_UUID, ComponentQualifiers.PROJECT));
     when(issueHistoryService.queryIssueCountHistory(
       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(endDate.toInstant()),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
 
     ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null);
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, endDate, null, null, null, null, null, null, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     verify(issueHistoryService).queryIssueCountHistory(
       eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(endDate.toInstant()),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test
@@ -265,11 +267,11 @@ public class DefaultIssueCountHistoryControllerTest {
     org.sonarsource.history.model.IssueCountHistoryResponse response = new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of());
     when(issueHistoryService.queryIssueCountHistory(
        eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenReturn(response);
 
     ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null);
+      PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     assertThat(result.getBody()).isNotNull();
@@ -278,7 +280,7 @@ public class DefaultIssueCountHistoryControllerTest {
     verify(userSession).checkEntityPermission(ProjectPermission.USER, project);
     verify(issueHistoryService).queryIssueCountHistory(
        eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test
@@ -288,18 +290,18 @@ public class DefaultIssueCountHistoryControllerTest {
     stubProjectBranch(application);
     when(issueHistoryService.queryIssueCountHistory(
       eq(PROJECT_BRANCH_ID), eq(EntityType.APPLICATION), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
       .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
 
     ResponseEntity<IssueCountHistoryResponse> result = underTest.getIssueCountHistory(
-      PROJECT_BRANCH_ID, HistoryEntityType.APPLICATION, startDate, null, null, null, null, null, null, null);
+      PROJECT_BRANCH_ID, HistoryEntityType.APPLICATION, startDate, null, null, null, null, null, null, null, null);
 
     assertThat(result.getStatusCode()).isEqualTo(OK);
     verify(userSession).checkEntityPermission(ProjectPermission.USER, application);
     verify(userSession).checkChildProjectsPermission(ProjectPermission.USER, application);
     verify(issueHistoryService).queryIssueCountHistory(
       eq(PROJECT_BRANCH_ID), eq(EntityType.APPLICATION), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull());
   }
 
   @Test
@@ -326,11 +328,11 @@ public class DefaultIssueCountHistoryControllerTest {
     stubProjectBranch(application);
     when(issueHistoryService.queryIssueCountHistory(
        eq(PROJECT_BRANCH_ID), eq(EntityType.PROJECT_BRANCH), eq(startDate.toInstant()), eq(UTC_MIDNIGHT),
-      isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
+      isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull()))
        .thenReturn(new org.sonarsource.history.model.IssueCountHistoryResponse(java.util.List.of()));
 
     underTest.getIssueCountHistory(
-       PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null);
+       PROJECT_BRANCH_ID, HistoryEntityType.PROJECT_BRANCH, startDate, null, null, null, null, null, null, null, null);
 
     verify(projectDao).selectByUuid(dbSession, PROJECT_UUID);
     verify(userSession).checkEntityPermission(ProjectPermission.USER, application);

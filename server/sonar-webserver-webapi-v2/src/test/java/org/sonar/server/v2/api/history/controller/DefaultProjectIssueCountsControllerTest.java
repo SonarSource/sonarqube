@@ -37,6 +37,7 @@ import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.api.model.IssueCountStatus;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
+import org.sonarsource.history.api.model.IssueTypeSeverity;
 import org.sonarsource.history.model.Pagination;
 import org.sonarsource.history.model.ProjectBranch;
 import org.sonarsource.history.model.ProjectIssueCount;
@@ -92,6 +93,7 @@ public class DefaultProjectIssueCountsControllerTest {
   public void getProjectIssueCountsDelegatesAndConvertsResponse() {
     List<String> ruleKeys = List.of("java:S100");
     List<IssueSeverity> severities = List.of(IssueSeverity.HIGH);
+    List<IssueTypeSeverity> typeSeverities = List.of(IssueTypeSeverity.CRITICAL);
     List<IssueType> issueTypes = List.of(IssueType.BUG);
     List<IssueCountStatus> statuses = List.of(IssueCountStatus.OPEN);
     List<String> impacts = List.of("SECURITY:HIGH");
@@ -99,6 +101,7 @@ public class DefaultProjectIssueCountsControllerTest {
     var filters = IssueCountHistoryService.buildFilters(
       ruleKeys,
       HistoryModelConverter.toCoreSeverities(severities),
+      HistoryModelConverter.toCoreTypeSeverities(typeSeverities),
       HistoryModelConverter.toCoreIssueTypes(issueTypes),
       HistoryModelConverter.toCoreStatuses(statuses),
       impacts);
@@ -113,7 +116,7 @@ public class DefaultProjectIssueCountsControllerTest {
         .thenReturn(serviceResponse);
 
     var response = underTest.getProjectIssueCounts(
-      PORTFOLIO_ID, null, null, ruleKeys, severities, issueTypes, statuses, impacts, "alp", referenceDate,
+      PORTFOLIO_ID, null, null, ruleKeys, severities, typeSeverities, issueTypes, statuses, impacts, "alp", referenceDate,
       1, 50, SORT, true);
 
     assertThat(response.getStatusCode()).isEqualTo(OK);
@@ -136,7 +139,7 @@ public class DefaultProjectIssueCountsControllerTest {
 
   @Test
   public void getProjectIssueCountsSupportsTypedSelector() {
-    var filters = IssueCountHistoryService.buildFilters(null, null, null, null, null);
+    var filters = IssueCountHistoryService.buildFilters(null, null, null, null, null, null);
     var serviceResponse = new ProjectIssueCountsResponse(0, List.of(), new Pagination(1, 50, 0));
     when(contextLoader.load(dbSession, ProjectCollectionHistoryEntityType.APPLICATION, APPLICATION_BRANCH_ID)).thenReturn(CONTEXT);
     when(projectIssueCountsService.getProjectIssueCounts(
@@ -145,7 +148,7 @@ public class DefaultProjectIssueCountsControllerTest {
         .thenReturn(serviceResponse);
 
     var response = underTest.getProjectIssueCounts(
-      null, ProjectCollectionHistoryEntityType.APPLICATION, APPLICATION_BRANCH_ID, null, null, null, null, null, null, VALID_REFERENCE_DATE,
+      null, ProjectCollectionHistoryEntityType.APPLICATION, APPLICATION_BRANCH_ID, null, null, null, null, null, null, null, VALID_REFERENCE_DATE,
       1, 50, SORT, false);
 
     assertThat(response.getStatusCode()).isEqualTo(OK);
@@ -199,7 +202,7 @@ public class DefaultProjectIssueCountsControllerTest {
 
   @Test
   public void getProjectIssueCountsAcceptsNullReferenceDateAndForwardsNull() {
-    var filters = IssueCountHistoryService.buildFilters(null, null, null, null, null);
+    var filters = IssueCountHistoryService.buildFilters(null, null, null, null, null, null);
     var serviceResponse = new ProjectIssueCountsResponse(0, List.of(), new Pagination(1, 50, 0));
     when(contextLoader.load(dbSession, PORTFOLIO_ID)).thenReturn(CONTEXT);
     when(projectIssueCountsService.getProjectIssueCounts(
@@ -208,7 +211,7 @@ public class DefaultProjectIssueCountsControllerTest {
       .thenReturn(serviceResponse);
 
     var response = underTest.getProjectIssueCounts(
-      PORTFOLIO_ID, null, null, null, null, null, null, null, null, null,
+      PORTFOLIO_ID, null, null, null, null, null, null, null, null, null, null,
       1, 50, SORT, false);
 
     assertThat(response.getStatusCode()).isEqualTo(OK);
@@ -250,7 +253,7 @@ public class DefaultProjectIssueCountsControllerTest {
   @Test
   public void getProjectIssueCountsAcceptsReferenceDateOlderThanOneYear() {
     OffsetDateTime referenceDate = OffsetDateTime.parse("2020-07-07T23:59:59Z");
-    var filters = IssueCountHistoryService.buildFilters(null, null, null, null, null);
+    var filters = IssueCountHistoryService.buildFilters(null, null, null, null, null, null);
     var serviceResponse = new ProjectIssueCountsResponse(0, List.of(), new Pagination(1, 50, 0));
     when(contextLoader.load(dbSession, PORTFOLIO_ID)).thenReturn(CONTEXT);
     when(projectIssueCountsService.getProjectIssueCounts(
@@ -259,7 +262,7 @@ public class DefaultProjectIssueCountsControllerTest {
       .thenReturn(serviceResponse);
 
     var response = underTest.getProjectIssueCounts(
-      PORTFOLIO_ID, null, null, null, null, null, null, null, null, referenceDate,
+      PORTFOLIO_ID, null, null, null, null, null, null, null, null, null, referenceDate,
       1, 50, SORT, false);
 
     assertThat(response.getStatusCode()).isEqualTo(OK);

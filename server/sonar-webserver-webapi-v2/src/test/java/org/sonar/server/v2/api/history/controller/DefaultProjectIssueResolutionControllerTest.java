@@ -34,6 +34,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.v2.api.ControllerTester;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
+import org.sonarsource.history.api.model.IssueTypeSeverity;
 import org.sonarsource.history.api.model.ProjectCollectionHistoryEntityType;
 import org.sonarsource.history.api.model.ProjectIssueResolutionResponse;
 import org.sonarsource.history.api.model.ProjectIssueResolutionStatistic;
@@ -87,7 +88,7 @@ public class DefaultProjectIssueResolutionControllerTest {
       eq(CONTEXT.visibleBranchIds()),
       eq(org.sonarsource.history.model.IssueResolutionStatistic.RESOLVED_ISSUES),
       argThat(filters -> filters.equals(new IssueCountHistoryFilters(null, List.of(4), List.of(3), null, List.of(
-        new org.sonarsource.history.model.IssueCountHistoryImpactFilter("MAINTAINABILITY", (short) 4))))),
+        new org.sonarsource.history.model.IssueCountHistoryImpactFilter("MAINTAINABILITY", (short) 4)), List.of("CRITICAL")))),
       eq("payments"),
       eq(NOW),
       eq(TREND_SINCE),
@@ -105,6 +106,7 @@ public class DefaultProjectIssueResolutionControllerTest {
       null,
       null,
       List.of(IssueSeverity.HIGH),
+      List.of(IssueTypeSeverity.CRITICAL),
       List.of(IssueType.VULNERABILITY),
       List.of("MAINTAINABILITY:HIGH"),
       "payments",
@@ -126,7 +128,7 @@ public class DefaultProjectIssueResolutionControllerTest {
       eq(CONTEXT.branches()),
       eq(CONTEXT.visibleBranchIds()),
       eq(org.sonarsource.history.model.IssueResolutionStatistic.MTTR),
-      argThat(filters -> filters.equals(new IssueCountHistoryFilters(null, null, null, null, null))),
+      argThat(filters -> filters.equals(new IssueCountHistoryFilters(null, null, null, null, null, null))),
       eq(null),
       eq(NOW),
       eq(null),
@@ -142,6 +144,7 @@ public class DefaultProjectIssueResolutionControllerTest {
       null,
       ProjectCollectionHistoryEntityType.APPLICATION,
       "application-branch-uuid",
+      null,
       null,
       null,
       null,

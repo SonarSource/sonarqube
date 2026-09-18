@@ -35,6 +35,7 @@ import org.sonarsource.history.api.model.IssueDensityHistoryResponse;
 import org.sonarsource.history.api.model.IssueCountStatus;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
+import org.sonarsource.history.api.model.IssueTypeSeverity;
 import org.sonarsource.history.api.model.HistoryEntityType;
 import org.sonarsource.history.api.rest.IssueDensityHistoryApi;
 import org.sonarsource.history.model.EntityType;
@@ -76,10 +77,11 @@ public class DefaultIssueDensityHistoryController implements IssueDensityHistory
       @Nullable List<IssueType> issueTypes,
       @Nullable List<String> ruleKeys,
       @Nullable List<IssueSeverity> severities,
+      @Nullable List<IssueTypeSeverity> typeSeverities,
     @Nullable IssueCountDistributionType sliceBy,
     @Nullable List<IssueCountStatus> statuses) {
     LOG.debug("getIssueDensityHistory invoked: entityId={}, entityType={}, startDate={}, endDate={}, filters=[{}]",
-      entityId, entityType, startDate, endDate, Arrays.asList(sliceBy, impacts, issueTypes, ruleKeys, severities, statuses));
+      entityId, entityType, startDate, endDate, Arrays.asList(sliceBy, impacts, issueTypes, ruleKeys, severities, typeSeverities, statuses));
 
     EntityType entityTypeEnum = HistoryControllerUtils.ensureValidEntityType(entityType);
     HistoryDateRange dateRange = HistoryControllerUtils.ensureValidDateRange(startDate, endDate, clock);
@@ -90,6 +92,7 @@ public class DefaultIssueDensityHistoryController implements IssueDensityHistory
         issueHistoryService.queryIssueDensityHistory(
           entityId, entityTypeEnum, dateRange.start(), dateRange.end(),
           ruleKeys, HistoryModelConverter.toCoreSeverities(severities),
+          HistoryModelConverter.toCoreTypeSeverities(typeSeverities),
           HistoryModelConverter.toCoreIssueTypes(issueTypes),
           HistoryModelConverter.toCoreStatuses(statuses), impacts,
           HistoryModelConverter.toCoreIssueCountDistribution(sliceBy))));

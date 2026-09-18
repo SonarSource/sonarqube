@@ -36,6 +36,7 @@ import org.sonarsource.history.api.model.IssueResolutionSliceBy;
 import org.sonarsource.history.api.model.IssueResolutionStatistic;
 import org.sonarsource.history.api.model.IssueSeverity;
 import org.sonarsource.history.api.model.IssueType;
+import org.sonarsource.history.api.model.IssueTypeSeverity;
 import org.sonarsource.history.api.rest.IssueResolutionHistoryApi;
 import org.sonarsource.history.model.EntityType;
 import org.sonarsource.history.model.IssueResolutionHistoryQuery;
@@ -80,9 +81,10 @@ public class DefaultIssueResolutionHistoryController implements IssueResolutionH
     @Nullable List<String> impacts,
     @Nullable List<IssueType> issueTypes,
     @Nullable List<IssueSeverity> severities,
+    @Nullable List<IssueTypeSeverity> typeSeverities,
     @Nullable IssueResolutionSliceBy sliceBy) {
     LOG.debug("getIssueResolutionHistory invoked: entityId={}, entityType={}, startDate={}, endDate={}, filters=[{}]",
-      entityId, entityType, startDate, endDate, Arrays.asList(sliceBy, impacts, issueTypes, severities));
+      entityId, entityType, startDate, endDate, Arrays.asList(sliceBy, impacts, issueTypes, severities, typeSeverities));
 
     EntityType entityTypeEnum = HistoryControllerUtils.ensureValidEntityType(entityType);
     HistoryDateRange dateRange = HistoryControllerUtils.ensureValidDateRange(startDate, endDate, clock);
@@ -91,6 +93,7 @@ public class DefaultIssueResolutionHistoryController implements IssueResolutionH
     var filters = IssueCountHistoryService.buildFilters(
       null,
       HistoryModelConverter.toCoreSeverities(severities),
+      HistoryModelConverter.toCoreTypeSeverities(typeSeverities),
       HistoryModelConverter.toCoreIssueTypes(issueTypes),
       null,
       impacts);
