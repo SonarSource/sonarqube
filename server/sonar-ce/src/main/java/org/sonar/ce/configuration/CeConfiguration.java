@@ -38,12 +38,12 @@ public interface CeConfiguration {
   long getQueuePollingDelay();
 
   /**
-   * Delay before running job that cleans CE tasks for the first time (in minutes).
+   * Delay before running job that cleans CE tasks for the first time (in seconds).
    */
   long getCleanTasksInitialDelay();
 
   /**
-   * Delay between the end of a run and the start of the next one of the job that cleans CE tasks (in minutes).
+   * Delay between the end of a run and the start of the next one of the job that cleans CE tasks (in seconds).
    */
   long getCleanTasksDelay();
 

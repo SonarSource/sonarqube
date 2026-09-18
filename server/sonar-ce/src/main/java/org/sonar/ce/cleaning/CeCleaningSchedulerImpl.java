@@ -26,7 +26,7 @@ import org.sonar.ce.CeDistributedInformation;
 import org.sonar.ce.configuration.CeConfiguration;
 import org.sonar.ce.queue.InternalCeQueue;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class CeCleaningSchedulerImpl implements CeCleaningScheduler {
   private static final Logger LOG = LoggerFactory.getLogger(CeCleaningSchedulerImpl.class);
@@ -49,7 +49,7 @@ public class CeCleaningSchedulerImpl implements CeCleaningScheduler {
     executorService.scheduleWithFixedDelay(this::cleanCeQueue,
       ceConfiguration.getCleanTasksInitialDelay(),
       ceConfiguration.getCleanTasksDelay(),
-      MINUTES);
+      SECONDS);
   }
 
   private void cleanCeQueue() {

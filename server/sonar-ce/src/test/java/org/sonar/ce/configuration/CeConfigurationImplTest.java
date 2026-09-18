@@ -118,11 +118,20 @@ public class CeConfigurationImplTest {
   }
 
   @Test
-  public void getCleanCeTasksDelay_returns_2() {
+  public void getCleanCeTasksDelay_returns_120_by_default() {
     assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getCleanTasksDelay())
-      .isEqualTo(2L);
+      .isEqualTo(120L);
     workerCountProvider.set(1);
     assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider).getCleanTasksDelay())
+      .isEqualTo(120L);
+  }
+
+  @Test
+  public void getCleanCeTasksDelay_returns_configured_value_when_set() {
+    Configuration configuration = new ConfigurationBridge(new MapSettings()
+      .setProperty(CeConfigurationImpl.PROPERTY_CLEAN_TASKS_DELAY, 2L));
+
+    assertThat(new CeConfigurationImpl(configuration).getCleanTasksDelay())
       .isEqualTo(2L);
   }
 

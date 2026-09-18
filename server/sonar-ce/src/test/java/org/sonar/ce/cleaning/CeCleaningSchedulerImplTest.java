@@ -119,12 +119,12 @@ public class CeCleaningSchedulerImplTest {
           case 1:
             assertThat(initDelay).isEqualTo(wornOutInitialDelay);
             assertThat(period).isEqualTo(wornOutDelay);
-            assertThat(unit).isEqualTo(TimeUnit.MINUTES);
+            assertThat(unit).isEqualTo(TimeUnit.SECONDS);
             break;
           case 2:
             assertThat(initDelay).isEqualTo(unknownWorkerInitialDelay);
             assertThat(period).isEqualTo(unknownWorkerDelay);
-            assertThat(unit).isEqualTo(TimeUnit.MINUTES);
+            assertThat(unit).isEqualTo(TimeUnit.SECONDS);
             break;
           default:
             fail("Unknown call of scheduleWithFixedDelay");
