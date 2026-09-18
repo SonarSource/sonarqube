@@ -48,6 +48,7 @@ import static org.sonar.ce.task.projectanalysis.measure.Measure.newMeasureBuilde
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_RATING_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_RATING_KEY;
 import static org.sonar.core.rule.RuleType.BUG;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.core.rule.RuleType.VULNERABILITY;
 import static org.sonar.server.measure.Rating.A;
 import static org.sonar.server.measure.Rating.B;
@@ -140,6 +141,7 @@ public class NewReliabilityAndSecurityRatingMeasuresVisitor extends PathAwareVis
     componentIssuesRepository.getNotSandboxedIssues(component)
       .stream()
       .filter(issue -> issue.resolution() == null)
+      .filter(issue -> issue.type() != SECURITY_HOTSPOT)
       .forEach(issue -> path.current().processIssueForSoftwareQuality(issue));
   }
 

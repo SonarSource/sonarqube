@@ -34,6 +34,7 @@ import org.sonar.core.metric.SoftwareQualitiesMetrics;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT_KEY;
@@ -141,6 +142,9 @@ public class NewEffortAggregator extends MeasureComputationIssueVisitor {
     }
 
     private void computeSoftwareQualityEffort(DefaultIssue issue, long newEffort) {
+      if (issue.type() == SECURITY_HOTSPOT) {
+        return;
+      }
       issue.impacts().forEach((sq, severity) -> {
         switch (sq) {
           case MAINTAINABILITY:

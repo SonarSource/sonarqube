@@ -1101,6 +1101,7 @@
           </if>
           where i.status not in ('CLOSED', 'IN_SANDBOX')
           and (i.resolution is null or i.resolution = 'WONTFIX')
+          and i.issue_type &lt;&gt; 4
           and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
       ) i2
     group by i2.status, i2.resolution, i2.software_quality, i2.severity, i2.inLeak
@@ -1134,6 +1135,7 @@
           </if>
           where i.status not in ('CLOSED', 'IN_SANDBOX')
           and (i.resolution is null or i.resolution = 'WONTFIX')
+          and i.issue_type &lt;&gt; 4
           and i.component_uuid = #{component.uuid,jdbcType=VARCHAR}
       ) i2
     group by i2.status, i2.resolution, i2.severity, i2.inLeak

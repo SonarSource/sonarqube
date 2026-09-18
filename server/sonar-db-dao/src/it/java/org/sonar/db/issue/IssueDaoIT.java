@@ -81,6 +81,7 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
+import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.issue.impact.Severity.BLOCKER;
 import static org.sonar.api.issue.impact.Severity.HIGH;
 import static org.sonar.api.issue.impact.Severity.INFO;
@@ -1262,6 +1263,48 @@ class IssueDaoIT {
     assertThat(result.stream().filter(g -> g.getSeverity() == BLOCKER).mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isEqualTo(1);
     assertThat(result.stream().filter(g -> g.getSeverity() == HIGH).mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isEqualTo(1);
     assertThat(result.stream().filter(g -> g.getSeverity() == INFO).mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isEqualTo(1);
+  }
+
+  @Test
+  void selectIssueImpactGroupsByComponent_whenSecurityHotspots_shouldExcludeThem() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto rule = db.rules().insert();
+
+    db.issues().insert(rule, project, file,
+      i -> i.setType(RuleType.SECURITY_HOTSPOT).setStatus(STATUS_TO_REVIEW).setResolution(null).setEffort(60L)
+        .replaceAllImpacts(List.of(createImpact(SECURITY, LOW))));
+    db.issues().insert(rule, project, file,
+      i -> i.setType(RuleType.VULNERABILITY).setStatus(STATUS_OPEN).setEffort(60L)
+        .replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
+
+    Collection<IssueImpactGroupDto> result = underTest.selectIssueImpactGroupsByComponent(db.getSession(), file, Long.MAX_VALUE);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.stream().mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(1);
+    assertThat(result.stream().filter(g -> g.getSeverity() == HIGH).mapToLong(IssueImpactGroupDto::getCount).sum()).isEqualTo(1);
+    assertThat(result.stream().filter(g -> g.getSeverity() == LOW)).isEmpty();
+  }
+
+  @Test
+  void selectIssueImpactSeverityGroupsByComponent_whenSecurityHotspots_shouldExcludeThem() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto rule = db.rules().insert();
+
+    db.issues().insert(rule, project, file,
+      i -> i.setType(RuleType.SECURITY_HOTSPOT).setStatus(STATUS_TO_REVIEW).setResolution(null).setEffort(60L)
+        .replaceAllImpacts(List.of(createImpact(SECURITY, LOW))));
+    db.issues().insert(rule, project, file,
+      i -> i.setType(RuleType.VULNERABILITY).setStatus(STATUS_OPEN).setEffort(60L)
+        .replaceAllImpacts(List.of(createImpact(SECURITY, HIGH))));
+
+    Collection<IssueImpactSeverityGroupDto> result = underTest.selectIssueImpactSeverityGroupsByComponent(db.getSession(), file, Long.MAX_VALUE);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.stream().mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isEqualTo(1);
+    assertThat(result.stream().filter(g -> g.getSeverity() == HIGH).mapToLong(IssueImpactSeverityGroupDto::getCount).sum()).isEqualTo(1);
+    assertThat(result.stream().filter(g -> g.getSeverity() == LOW)).isEmpty();
   }
 
   @Test

@@ -55,6 +55,7 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.core.rule.RuleType.BUG;
 import static org.sonar.core.rule.RuleType.CODE_SMELL;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.core.rule.RuleType.VULNERABILITY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
@@ -218,6 +219,34 @@ class ReliabilityAndSecurityRatingMeasuresVisitorTest {
     verifyAddedRawMeasure(FILE_3_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
     verifyAddedRawMeasure(DIRECTORY_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, C);
     verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, D);
+  }
+
+  @Test
+  void software_quality_security_rating_ignores_security_hotspots_carrying_a_security_impact() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newSecurityHotspotWithImpact(Severity.LOW));
+    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newSecurityHotspotWithImpact(Severity.BLOCKER));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(FILE_1_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasure(FILE_2_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasure(DIRECTORY_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, A);
+    // The legacy metric was already type-guarded and must stay unaffected
+    verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, A);
+  }
+
+  @Test
+  void software_quality_security_rating_still_counts_vulnerabilities_carrying_a_security_impact() {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newImpactIssue(SoftwareQuality.SECURITY, Severity.LOW, VULNERABILITY));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(FILE_1_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, B);
+    verifyAddedRawMeasure(DIRECTORY_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, B);
+    verifyAddedRawMeasure(PROJECT_REF, SOFTWARE_QUALITY_SECURITY_RATING_KEY, B);
   }
 
   @Test
@@ -418,14 +447,23 @@ class ReliabilityAndSecurityRatingMeasuresVisitorTest {
   }
 
   private static DefaultIssue newImpactIssue(SoftwareQuality softwareQuality, Severity severity) {
+    return newImpactIssue(softwareQuality, severity, BUG);
+  }
+
+  private static DefaultIssue newImpactIssue(SoftwareQuality softwareQuality, Severity severity, RuleType type) {
     return new DefaultIssue()
       .setKey(Uuids.create())
       .addImpact(softwareQuality, severity)
-      .setType(BUG)
+      .setType(type)
       .setSeverity("BLOCKER")
       .setStatus("OPEN")
       .setResolution(null)
       .setCreationDate(new Date(1000L));
+  }
+
+  private static DefaultIssue newSecurityHotspotWithImpact(Severity severity) {
+    return newImpactIssue(SoftwareQuality.SECURITY, severity, SECURITY_HOTSPOT)
+      .setStatus("TO_REVIEW");
   }
 
 }

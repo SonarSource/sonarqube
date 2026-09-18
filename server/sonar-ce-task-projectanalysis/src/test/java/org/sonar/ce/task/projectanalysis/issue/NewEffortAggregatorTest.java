@@ -57,6 +57,7 @@ import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT;
 import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
 import static org.sonar.core.rule.RuleType.BUG;
 import static org.sonar.core.rule.RuleType.CODE_SMELL;
+import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
 import static org.sonar.core.rule.RuleType.VULNERABILITY;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY;
@@ -227,6 +228,22 @@ class NewEffortAggregatorTest {
 
     assertValue(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 10 + 30);
     assertValue(FILE, NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT_KEY, 10 + 30);
+  }
+
+  @Test
+  void new_software_quality_security_effort_excludes_security_hotspots() {
+    when(newIssueClassifier.isEnabled()).thenReturn(true);
+    DefaultIssue hotspot = createIssue(SECURITY_HOTSPOT, SECURITY, 10, true);
+    DefaultIssue vulnerability = newSecurityIssue(30);
+
+    underTest.beforeComponent(FILE);
+    underTest.onIssue(FILE, hotspot);
+    underTest.onIssue(FILE, vulnerability);
+    underTest.afterComponent(FILE);
+
+    assertValue(FILE, NEW_SOFTWARE_QUALITY_SECURITY_REMEDIATION_EFFORT_KEY, 30);
+    // The legacy metric already excluded hotspots and must stay unaffected
+    assertValue(FILE, NEW_SECURITY_REMEDIATION_EFFORT_KEY, 30);
   }
 
   @Test
