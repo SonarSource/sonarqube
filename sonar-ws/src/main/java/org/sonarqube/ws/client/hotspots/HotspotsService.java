@@ -132,7 +132,7 @@ public class HotspotsService extends BaseService {
         .setParam("hotspots", request.getHotspots() == null ? null : request.getHotspots().stream().collect(Collectors.joining(",")))
         .setParam("onlyMine", request.getOnlyMine())
         .setParam("p", request.getP())
-        .setParam("projectKey", request.getProjectKey())
+        .setParam("project", request.getProject())
         .setParam("ps", request.getPs())
         .setParam("pullRequest", request.getPullRequest())
         .setParam("resolution", request.getResolution())

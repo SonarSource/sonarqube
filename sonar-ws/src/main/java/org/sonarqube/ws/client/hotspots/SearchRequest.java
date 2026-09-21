@@ -35,7 +35,7 @@ public class SearchRequest {
   private List<String> hotspots;
   private String onlyMine;
   private String p;
-  private String projectKey;
+  private String project;
   private String ps;
   private String pullRequest;
   private String resolution;
@@ -101,13 +101,13 @@ public class SearchRequest {
   /**
    * Example value: "my_project"
    */
-  public SearchRequest setProjectKey(String projectKey) {
-    this.projectKey = projectKey;
+  public SearchRequest setProject(String project) {
+    this.project = project;
     return this;
   }
 
-  public String getProjectKey() {
-    return projectKey;
+  public String getProject() {
+    return project;
   }
 
   /**
