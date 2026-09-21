@@ -1,0 +1,40 @@
+/*
+ * SonarQube
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.qualitygate.changeevent;
+
+import java.util.List;
+import org.sonar.api.ce.ComputeEngineSide;
+
+/**
+ * Lets a module contribute {@link QGChangeEventListener}s, and the beans they need, to the state-full container
+ * of a Compute Engine task which broadcasts quality-gate change events.
+ * <p>
+ * This keeps the listeners out of the Compute Engine container - where they would be called by every task - and
+ * avoids a dependency from the module owning the task to the modules owning the listeners.
+ */
+@ComputeEngineSide
+public interface CeTaskQGChangeEventListenerProvider {
+
+  /**
+   * Return the list of components to add to the state-full container of the Compute Engine task.
+   */
+  List<Object> getComponents();
+
+}
