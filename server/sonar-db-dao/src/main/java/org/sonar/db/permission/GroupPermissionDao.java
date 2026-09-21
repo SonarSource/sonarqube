@@ -73,14 +73,6 @@ public class GroupPermissionDao implements Dao {
     return executeLargeInputs(groupUuids, groups -> mapper(dbSession).selectByGroupUuids(groups, entityUuid));
   }
 
-  public List<String> selectProjectKeysWithAnyonePermissions(DbSession dbSession, int max) {
-    return mapper(dbSession).selectProjectKeysWithAnyonePermissions(max);
-  }
-
-  public int countEntitiesWithAnyonePermissions(DbSession dbSession) {
-    return mapper(dbSession).countEntitiesWithAnyonePermissions();
-  }
-
   /**
    * Each row returns a {@link CountPerEntityPermission}
    */

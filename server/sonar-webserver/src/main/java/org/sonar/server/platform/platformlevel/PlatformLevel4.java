@@ -226,7 +226,6 @@ import org.sonar.server.platform.InstallationDateProviderImpl;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.SystemInfoWriterModule;
 import org.sonar.server.platform.WebCoreExtensionsInstaller;
-import org.sonar.server.platform.db.CheckAnyonePermissionsAtStartup;
 import org.sonar.server.platform.db.migration.DatabaseMigrationPersister;
 import org.sonar.server.platform.db.migration.DatabaseMigrationTelemetry;
 import org.sonar.server.platform.issue.IssueCountsByStatusComputation;
@@ -558,7 +557,6 @@ public class PlatformLevel4 extends PlatformLevel {
       PermissionUpdater.class,
       UserPermissionChanger.class,
       GroupPermissionChanger.class,
-      CheckAnyonePermissionsAtStartup.class,
       VisibilityService.class,
 
       // components

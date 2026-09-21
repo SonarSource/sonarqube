@@ -39,37 +39,6 @@
       groups.entityUuid
   </select>
 
-  <select id="selectProjectKeysWithAnyonePermissions" parameterType="int" resultType="string">
-    select distinct(p.kee) as kee from group_roles gr
-    left join projects p on gr.entity_uuid = p.uuid
-    where gr.group_uuid is null and gr.entity_uuid is not null
-    ORDER BY kee ASC
-    limit #{max}
-  </select>
-
-  <!-- Oracle -->
-  <select id="selectProjectKeysWithAnyonePermissions" parameterType="int" resultType="string" databaseId="oracle">
-    select * from (select distinct p.kee as kee from group_roles gr
-    left join projects p on gr.entity_uuid = p.uuid
-    where gr.group_uuid is null and gr.entity_uuid is not null
-    ORDER BY kee ASC
-    )
-    where rownum &lt;= #{max}
-  </select>
-
-  <!-- SQL Server -->
-  <select id="selectProjectKeysWithAnyonePermissions" parameterType="int" resultType="string" databaseId="mssql">
-    select distinct top(#{max}) p.kee as kee from group_roles gr
-    left join projects p on gr.entity_uuid = p.uuid
-    where gr.group_uuid is null and gr.entity_uuid is not null
-    ORDER BY kee ASC
-  </select>
-
-  <select id="countEntitiesWithAnyonePermissions" resultType="int">
-    select count(distinct(gr.entity_uuid))
-    from group_roles gr where gr.group_uuid is null and gr.entity_uuid is not null
-  </select>
-
   <select id="selectGroupNamesByQuery" resultType="string">
     select sub.name, lower(sub.name), sub.groupUuid
     <include refid="groupsByQuery"/>

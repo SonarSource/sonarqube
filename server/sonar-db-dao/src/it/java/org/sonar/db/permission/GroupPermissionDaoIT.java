@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -434,67 +433,6 @@ class GroupPermissionDaoIT {
       .containsOnly("perm6");
     assertThat(underTest.selectEntityPermissionsOfGroup(dbSession, null, project2.getUuid()))
       .isEmpty();
-  }
-
-  @Test
-  void selectProjectKeysWithAnyonePermissions_on__project_none_found() {
-    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
-    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
-    GroupDto group = db.users().insertGroup();
-    db.users().insertEntityPermissionOnGroup(group, "perm1", project1);
-    db.users().insertEntityPermissionOnGroup(group, "perm1", project2);
-    assertThat(underTest.selectProjectKeysWithAnyonePermissions(dbSession, 3)).isEmpty();
-  }
-
-  @Test
-  void selectProjectKeysWithAnyonePermissions_on__project_ordered_by_kee() {
-    ProjectDto project1 = db.components().insertPublicProject().getProjectDto();
-    ProjectDto project2 = db.components().insertPublicProject().getProjectDto();
-    ProjectDto project3 = db.components().insertPublicProject().getProjectDto();
-    db.users().insertEntityPermissionOnAnyone("perm1", project1);
-    db.users().insertEntityPermissionOnAnyone("perm1", project2);
-    db.users().insertEntityPermissionOnAnyone("perm1", project3);
-
-    TreeSet<String> sortedProjectKeys = new TreeSet<>(Set.of(project1.getKey(), project2.getKey(), project3.getKey()));
-    assertThat(underTest.selectProjectKeysWithAnyonePermissions(dbSession, 3))
-      .containsExactlyElementsOf(sortedProjectKeys);
-  }
-
-  @Test
-  void selectProjectKeysWithAnyonePermissions_on__project_ordered_by_kee_max_5() {
-    IntStream.rangeClosed(1, 9).forEach(i -> {
-      ProjectDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i)).getProjectDto();
-      db.users().insertEntityPermissionOnAnyone("perm-" + i, project);
-    });
-
-    assertThat(underTest.selectProjectKeysWithAnyonePermissions(dbSession, 5))
-      .containsExactly("key-1", "key-2", "key-3", "key-4", "key-5");
-  }
-
-  @Test
-  void selectProjectKeysWithAnyonePermissions_on__projects_omit_blanket_anyone_group_permissions() {
-    // Although saved in the same table (group_roles), this should not be included in the result as not assigned to single project.
-    db.users().insertPermissionOnAnyone("perm-anyone");
-
-    IntStream.rangeClosed(1, 9).forEach(i -> {
-      ProjectDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i)).getProjectDto();
-      db.users().insertEntityPermissionOnAnyone("perm-" + i, project);
-    });
-
-    assertThat(underTest.selectProjectKeysWithAnyonePermissions(dbSession, 5))
-      .containsExactly("key-1", "key-2", "key-3", "key-4", "key-5");
-  }
-
-  @Test
-  void countEntitiesWithAnyonePermissions() {
-    GroupDto group = db.users().insertGroup();
-    IntStream.rangeClosed(1, 5).forEach(i -> {
-      ProjectDto project = db.components().insertPublicProject(p -> p.setKey("key-" + i)).getProjectDto();
-      db.users().insertEntityPermissionOnAnyone("perm-" + i, project);
-      db.users().insertEntityPermissionOnGroup(group, "perm-", project);
-    });
-
-    assertThat(underTest.countEntitiesWithAnyonePermissions(dbSession)).isEqualTo(5);
   }
 
   @Test
