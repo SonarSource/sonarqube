@@ -178,6 +178,7 @@ tasks.register('downloadElasticsearch') {
     def archiveFile = destFile.get().asFile
     archiveFile.parentFile.mkdirs()
     if (!archiveFile.exists()) {
+      logger.lifecycle("Downloading Elasticsearch archive from ${srcUrl}")
       download.run {
         src srcUrl
         dest archiveFile
