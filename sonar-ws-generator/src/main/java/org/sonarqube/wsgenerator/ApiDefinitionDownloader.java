@@ -30,6 +30,8 @@ import static com.sonar.orchestrator.container.Edition.COMMUNITY;
 
 public class ApiDefinitionDownloader {
 
+  private static final String LOCALHOST_URL = "http://localhost";
+
   public static void main(String[] args) {
     System.out.println(downloadApiDefinition());
   }
@@ -40,7 +42,14 @@ public class ApiDefinitionDownloader {
     builder.setEdition(COMMUNITY);
     builder.setZipFile(FileLocation.byWildcardMavenFilename(new File("../sonar-application/build/distributions"), "sonar-application-*.zip").getFile())
       .setOrchestratorProperty("orchestrator.workspaceDir", "build");
+    // Silence telemetry on this throwaway instance. Orchestrator already redirects the two sonar.telemetry.*
+    // endpoints to staging, but sonar.gessie.url is not covered by that guard and defaults to production;
+    // the URLs are pinned local so even the daemon's startup opt-out request stays off the network.
     OrchestratorRule orchestrator = builder.setServerProperty("sonar.forceAuthentication", "false")
+      .setServerProperty("sonar.telemetry.enable", "false")
+      .setServerProperty("sonar.telemetry.url", LOCALHOST_URL)
+      .setServerProperty("sonar.telemetry.metrics.url", LOCALHOST_URL)
+      .setServerProperty("sonar.gessie.url", LOCALHOST_URL)
       .build();
 
     orchestrator.start();

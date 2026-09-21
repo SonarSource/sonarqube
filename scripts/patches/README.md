@@ -3,6 +3,9 @@ Patches
 
 This directory contains patches to be used by any script which uses function `call_patches` from `patches_utils.sh`.
 
+`start.sh` disables telemetry by default (pointing it at `http://localhost`) so dev instances don't
+report to production. Use `-p telemetry` to re-enable it against your own endpoint (see `telemetry.sh`).
+
 Patches are files with extension `.sh`. Name of the patch is the name of the file without extension (so name of patch "debug.sh" is "debug").
 
 Patches run in the same directory as the calling script provided `patches_utils.sh` has been sourced in the calling script.

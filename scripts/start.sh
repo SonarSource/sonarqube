@@ -73,6 +73,18 @@ cd "$ROOT"
 
 source "$ROOT"/scripts/patches_utils.sh
 
+# Dev instances must not report to production telemetry. Unlike the integration-test instances, this one
+# is not started through Orchestrator, so nothing redirects it to telemetry-staging on our behalf.
+# Applied before patches so `-p telemetry` (scripts/patches/telemetry.sh) can still point it at your endpoint.
+source "$ROOT"/scripts/property_utils.sh
+echo "disabling telemetry (use '-p telemetry' to send to your own endpoint instead)"
+set_property sonar.telemetry.enable false "$SQ_HOME/conf/sonar.properties"
+# Even when disabled, the daemon sends a one-off opt-out request at startup; keep it local.
+set_property sonar.telemetry.url http://localhost "$SQ_HOME/conf/sonar.properties"
+set_property sonar.telemetry.metrics.url http://localhost "$SQ_HOME/conf/sonar.properties"
+# Same for the gessie event bus.
+set_property sonar.gessie.url http://localhost "$SQ_HOME/conf/sonar.properties"
+
 SQ_EXEC="$SQ_HOME/bin/$OS_DIR/$SH_FILE"
 
 # invoke patches if at least one was specified
