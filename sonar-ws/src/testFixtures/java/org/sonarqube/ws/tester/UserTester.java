@@ -53,8 +53,13 @@ public class UserTester {
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
   private static final List<String> ADMIN_DISMISSED_NOTICES = List.of(
     "showDesignAndArchitectureTour",
+    "showDesignAndArchitectureBanner",
+    "showDesignAndArchitectureOptInBanner",
     "showSandboxedIssuesIntro",
-    "showProjectCoverageTour");
+    "showProjectCoverageTour",
+    "educationPrinciples",
+    "showEnableSca",
+    "sonarlintAd");
 
   private final TesterSession session;
 
