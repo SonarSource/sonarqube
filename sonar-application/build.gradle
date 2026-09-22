@@ -504,7 +504,7 @@ zip {
     // If this is not expected, try performing a Gradle clean and refreshing dependencies.
     // Non-release builds skip re-compressing already-compressed entries (see skipAlreadyCompressed above), which
     // trades a larger archive for a much faster build; release builds fully compress, staying close to the old size.
-    def expectedSize = release ? 940_000_000 : 990_000_000
+    def expectedSize = release ? 950_000_000 : 1_000_000_000
     // We set a tolerance to avoid failing the build for small differences in the archive size.
     def tolerance = 15_000_000
     def minArchiveSize = expectedSize - tolerance
