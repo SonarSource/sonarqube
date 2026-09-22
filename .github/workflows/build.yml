@@ -54,6 +54,9 @@ jobs:
           mise_toml: |
             [tools]
             java = "temurin-21"
+            python = "3.12"
+      - name: Run Python tests
+        run: python3 -m unittest test_health_server.py
       - uses: SonarSource/ci-github-actions/build-gradle@148774f456203f228b7bd1bd68ed0c22254d9cd1 # v1.3.24
         with:
           deploy: false
