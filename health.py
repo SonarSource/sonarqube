@@ -4,13 +4,14 @@
 import argparse
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlsplit
 
 
 class HealthHandler(BaseHTTPRequestHandler):
     """Serve a machine-readable liveness response."""
 
     def do_GET(self):  # noqa: N802 - required by BaseHTTPRequestHandler
-        if self.path != "/health":
+        if urlsplit(self.path).path != "/health":
             self.send_error(404, "Not Found")
             return
 
