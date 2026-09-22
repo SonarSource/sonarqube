@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v202605;
+package org.sonar.server.platform.db.migration.version.v202606;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -26,8 +26,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.platform.db.migration.version.v202605.AddTypeToScaAnalyses.COLUMN_NAME;
-import static org.sonar.server.platform.db.migration.version.v202605.AddTypeToScaAnalyses.TABLE_NAME;
+import static org.sonar.server.platform.db.migration.version.v202606.AddTypeToScaAnalyses.COLUMN_NAME;
+import static org.sonar.server.platform.db.migration.version.v202606.AddTypeToScaAnalyses.TABLE_NAME;
 
 class AddTypeToScaAnalysesTest {
 
