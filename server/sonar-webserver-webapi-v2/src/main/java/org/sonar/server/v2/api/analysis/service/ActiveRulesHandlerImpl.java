@@ -20,27 +20,47 @@
 package org.sonar.server.v2.api.analysis.service;
 
 import java.util.List;
+import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.ProjectPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.server.rule.ActiveRuleRestReponse;
 import org.sonar.server.rule.ActiveRuleService;
+import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class ActiveRulesHandlerImpl implements ActiveRulesHandler {
 
   private final DbClient dbClient;
   private final ActiveRuleService activeRuleService;
+  private final UserSession userSession;
 
-  public ActiveRulesHandlerImpl(DbClient dbClient, ActiveRuleService activeRuleService) {
+  public ActiveRulesHandlerImpl(DbClient dbClient, ActiveRuleService activeRuleService, UserSession userSession) {
     this.dbClient = dbClient;
     this.activeRuleService = activeRuleService;
+    this.userSession = userSession;
   }
 
   @Override
   public List<ActiveRuleRestReponse.ActiveRule> getActiveRules(String projectKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return dbClient.projectDao().selectProjectByKey(dbSession, projectKey)
-        .map(projectDto -> activeRuleService.buildActiveRules(projectDto.getUuid()))
-        .orElse(activeRuleService.buildDefaultActiveRules());
+      boolean hasGlobalScanPermission = userSession.hasPermission(GlobalPermission.SCAN);
+      Optional<ProjectDto> project = dbClient.projectDao().selectProjectByKey(dbSession, projectKey);
+
+      if (project.isPresent()) {
+        if (hasGlobalScanPermission || userSession.hasEntityPermission(ProjectPermission.SCAN, project.get())) {
+          return activeRuleService.buildActiveRules(project.get().getUuid());
+        }
+      } else if (hasGlobalScanPermission || userSession.hasPermission(GlobalPermission.PROVISION_PROJECTS)) {
+        // ReportSubmitter.createProject requires PROVISION_PROJECTS to create a project on first analysis,
+        // independently of how scan permission on it is later granted (global, default template, or DevOps platform).
+        return activeRuleService.buildDefaultActiveRules();
+      }
+
+      throw insufficientPrivilegesException();
     }
   }
 
