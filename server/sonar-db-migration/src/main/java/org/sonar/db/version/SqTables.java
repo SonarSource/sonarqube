@@ -125,6 +125,7 @@ public final class SqTables {
     "rules_profiles",
     "rule_repositories",
     "sca_analyses",
+    "sca_container_analyses",
     "sca_dependencies",
     "sca_encountered_licenses",
     "sca_ir_cve_locations",
