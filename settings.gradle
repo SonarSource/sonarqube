@@ -167,6 +167,16 @@ useLocalUnificationModule('useLocalCagHub', 'cag/hub',
     ]
   ]
 )
+useLocalUnificationModule('useLocalSecurityAlerts', 'security-alerts',
+  ['security-alerts-unified-app', 'security-alerts-server-app'],
+  [
+    group: 'com.sonarsource.sonarqube',
+    projectPaths: [
+      'security-alerts-unified-app': ':private:security-alerts-unified-app',
+      'security-alerts-server-app' : ':private:security-alerts-server-app',
+    ]
+  ]
+)
 
 useLocalUnificationModule('useLocalHistory', 'reporting/history', ['history-api', 'history-server-app', 'history-core', 'history-sca'], [
   groups: [
