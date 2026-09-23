@@ -199,6 +199,10 @@ useLocalUnificationModule('useLocalDashboards', 'reporting/dashboards',
   ]
 ])
 useLocalUnificationModule('useLocalDopTranslation', 'integration/dop-translation', ['dop-translation-api'])
+useLocalUnificationModule('useLocalSlack', 'integration/slack', ['slack-api'], [
+  group: 'com.sonarsource.sonarqube',
+  projectPaths: ['slack-api': ':private:slack-api'],
+])
 useLocalUnificationModule('useLocalRemediationEnablement', 'agentic-workflows',
   ['remediation-agent-enablement-api', 'remediation-agent-enablement-server'],
   [

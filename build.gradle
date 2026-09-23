@@ -448,6 +448,7 @@ subprojects {
       dependency "org.sonarsource.sonarqube:dashboards-built-in-server-app:$dashboardsApiVersion"
       dependency "com.sonarsource.sonarqube:dashboards-server-app:$dashboardsApiVersion"
       dependency "org.sonarsource.sonarqube:dop-translation-api:$dopTranslationApiVersion"
+      dependency "com.sonarsource.sonarqube:slack-api:$slackApiVersion"
       // Keep in sync with sonar-sca's dependency management
       dependency "org.sonarsource.sonarqube:sonar-feature-flags-api:$unifiedCoreVersion"
       dependency "org.sonarsource.sonarqube:sonar-events-api:$unifiedCoreVersion"
