@@ -22,5 +22,11 @@ package org.sonar.server.platform.db.migration.version;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 
 public interface DbVersion {
+  /**
+   * Registers this package's migration steps. Whenever an implementation adds a new step here, also
+   * bump {@code CurrentMigrationNumber.VALUE} (src/test) to the new highest migration number, in this
+   * same commit. If this package is no longer the current one afterward, also add a frozen entry for
+   * it in {@code MigrationNumberingConsistencyTest}.
+   */
   void addSteps(MigrationStepRegistry registry);
 }
