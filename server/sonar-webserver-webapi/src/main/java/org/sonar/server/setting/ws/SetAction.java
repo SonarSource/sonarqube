@@ -231,6 +231,7 @@ public class SetAction implements SettingsWsAction {
     validations.validateQualifier(settingData);
     validations.validateValueType(settingData);
     validations.validateIssueResolution(settingData);
+    validations.validateAuditPurgeBatchSize(settingData);
   }
 
   private static void validatePropertySet(SetRequest request, @Nullable PropertyDefinition definition) {

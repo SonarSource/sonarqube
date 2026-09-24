@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.taskprocessor.ContextUtils.EMPTY_CONTEXT;
 import static org.sonar.core.config.Frequency.MONTHLY;
 import static org.sonar.core.config.PurgeConstants.AUDIT_HOUSEKEEPING_FREQUENCY;
+import static org.sonar.core.config.PurgeConstants.DEFAULT_AUDIT_PURGE_BATCH_SIZE;
 
 public class AuditPurgeStepIT {
   private static final long NOW = 1_400_000_000_000L;
@@ -64,6 +65,7 @@ public class AuditPurgeStepIT {
   public void setUp() {
     when(auditHousekeepingFrequencyHelper.getHouseKeepingFrequency(any(), any())).thenReturn(FREQUENCY_PROPERTY);
     when(auditHousekeepingFrequencyHelper.getThresholdDate(anyString())).thenReturn(NOW);
+    when(auditHousekeepingFrequencyHelper.getPurgeBatchSize(any(), any())).thenReturn(DEFAULT_AUDIT_PURGE_BATCH_SIZE);
   }
 
   @Test
@@ -74,6 +76,19 @@ public class AuditPurgeStepIT {
     underTest.execute(EMPTY_CONTEXT);
 
     assertThat(dbClient.auditDao().selectOlderThan(db.getSession(), LATER + 1)).hasSize(2);
+  }
+
+  @Test
+  public void executeDeletesAtMostConfiguredBatchSize() {
+    insertAudit(BEFORE);
+    insertAudit(BEFORE);
+    insertAudit(BEFORE);
+    db.getSession().commit();
+    when(auditHousekeepingFrequencyHelper.getPurgeBatchSize(any(), any())).thenReturn(2);
+
+    underTest.execute(EMPTY_CONTEXT);
+
+    assertThat(dbClient.auditDao().selectOlderThan(db.getSession(), NOW)).hasSize(1);
   }
 
   @Test

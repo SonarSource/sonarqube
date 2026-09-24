@@ -39,6 +39,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.config.PurgeConstants.AUDIT_HOUSEKEEPING_FREQUENCY;
+import static org.sonar.core.config.PurgeConstants.AUDIT_PURGE_BATCH_SIZE;
+import static org.sonar.core.config.PurgeConstants.DEFAULT_AUDIT_PURGE_BATCH_SIZE;
+import static org.sonar.core.config.PurgeConstants.MAX_AUDIT_PURGE_BATCH_SIZE;
+import static org.sonar.core.config.PurgeConstants.MIN_AUDIT_PURGE_BATCH_SIZE;
 import static org.sonar.core.config.PurgeProperties.DEFAULT_FREQUENCY;
 
 @RunWith(DataProviderRunner.class)
@@ -90,6 +94,59 @@ public class AuditHousekeepingFrequencyHelperIT {
       .thenReturn(null);
     assertThat(underTest.getHouseKeepingFrequency(dbClient, dbSession).getValue())
       .isEqualTo(DEFAULT_FREQUENCY);
+  }
+
+  @Test
+  public void getPurgeBatchSize_returnsConfiguredValue() {
+    PropertyDto propertyDto = new PropertyDto().setKey(AUDIT_PURGE_BATCH_SIZE).setValue("500000");
+    when(dbClient.propertiesDao()).thenReturn(propertiesDao);
+    when(propertiesDao.selectGlobalProperty(dbSession, AUDIT_PURGE_BATCH_SIZE)).thenReturn(propertyDto);
+
+    assertThat(underTest.getPurgeBatchSize(dbClient, dbSession)).isEqualTo(500000);
+  }
+
+  @Test
+  public void getPurgeBatchSize_returnsDefaultWhenNotSet() {
+    when(dbClient.propertiesDao()).thenReturn(propertiesDao);
+    when(propertiesDao.selectGlobalProperty(dbSession, AUDIT_PURGE_BATCH_SIZE)).thenReturn(null);
+
+    assertThat(underTest.getPurgeBatchSize(dbClient, dbSession)).isEqualTo(DEFAULT_AUDIT_PURGE_BATCH_SIZE);
+  }
+
+  @Test
+  public void getPurgeBatchSize_returnsDefaultWhenValueIsNotNumeric() {
+    PropertyDto propertyDto = new PropertyDto().setKey(AUDIT_PURGE_BATCH_SIZE).setValue("not-a-number");
+    when(dbClient.propertiesDao()).thenReturn(propertiesDao);
+    when(propertiesDao.selectGlobalProperty(dbSession, AUDIT_PURGE_BATCH_SIZE)).thenReturn(propertyDto);
+
+    assertThat(underTest.getPurgeBatchSize(dbClient, dbSession)).isEqualTo(DEFAULT_AUDIT_PURGE_BATCH_SIZE);
+  }
+
+  @Test
+  @UseDataProvider("outOfRangeValues")
+  public void getPurgeBatchSize_returnsDefaultWhenValueIsOutOfRange(String value) {
+    PropertyDto propertyDto = new PropertyDto().setKey(AUDIT_PURGE_BATCH_SIZE).setValue(value);
+    when(dbClient.propertiesDao()).thenReturn(propertiesDao);
+    when(propertiesDao.selectGlobalProperty(dbSession, AUDIT_PURGE_BATCH_SIZE)).thenReturn(propertyDto);
+
+    assertThat(underTest.getPurgeBatchSize(dbClient, dbSession)).isEqualTo(DEFAULT_AUDIT_PURGE_BATCH_SIZE);
+  }
+
+  @Test
+  public void getPurgeBatchSize_returnsValueWhenAtMax() {
+    PropertyDto propertyDto = new PropertyDto().setKey(AUDIT_PURGE_BATCH_SIZE).setValue(String.valueOf(MAX_AUDIT_PURGE_BATCH_SIZE));
+    when(dbClient.propertiesDao()).thenReturn(propertiesDao);
+    when(propertiesDao.selectGlobalProperty(dbSession, AUDIT_PURGE_BATCH_SIZE)).thenReturn(propertyDto);
+
+    assertThat(underTest.getPurgeBatchSize(dbClient, dbSession)).isEqualTo(MAX_AUDIT_PURGE_BATCH_SIZE);
+  }
+
+  @DataProvider
+  public static Object[][] outOfRangeValues() {
+    return new Object[][] {
+      {String.valueOf(MIN_AUDIT_PURGE_BATCH_SIZE - 1)},
+      {String.valueOf(MAX_AUDIT_PURGE_BATCH_SIZE + 1)}
+    };
   }
 
   @DataProvider

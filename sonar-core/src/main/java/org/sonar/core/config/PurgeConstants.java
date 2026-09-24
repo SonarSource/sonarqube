@@ -34,6 +34,10 @@ public class PurgeConstants {
   public static final String DAYS_BEFORE_DELETING_ANTICIPATED_TRANSITIONS = "sonar.dbcleaner.daysBeforeDeletingAnticipatedTransitions";
   public static final String DAYS_BEFORE_DELETING_SCANNER_CACHE = "sonar.dbcleaner.daysBeforeDeletingScannerCache";
   public static final int DEFAULT_SCANNER_CACHE_RETENTION_DAYS = 7;
+  public static final String AUDIT_PURGE_BATCH_SIZE = "sonar.dbcleaner.auditPurgeBatchSize";
+  public static final int DEFAULT_AUDIT_PURGE_BATCH_SIZE = 100_000;
+  public static final int MIN_AUDIT_PURGE_BATCH_SIZE = 1;
+  public static final int MAX_AUDIT_PURGE_BATCH_SIZE = 1_000_000;
 
   private PurgeConstants() {
     //class cannot be instantiated

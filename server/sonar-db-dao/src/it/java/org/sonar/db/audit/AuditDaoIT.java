@@ -65,7 +65,7 @@ class AuditDaoIT {
   @Test
   void purge_has_limit() {
     prepareRowsWithDeterministicCreatedAt(100_001);
-    long purged = testAuditDao.deleteBefore(dbSession, 200_000);
+    long purged = testAuditDao.deleteBefore(dbSession, 200_000, 100_000);
     assertThat(purged).isEqualTo(100_000);
     assertThat(db.countRowsOfTable(dbSession, "audits")).isOne();
     assertThat(testAuditDao.selectOlderThan(dbSession, 100_002))
@@ -74,9 +74,22 @@ class AuditDaoIT {
   }
 
   @Test
+  void purge_respects_configured_limit() {
+    prepareRowsWithDeterministicCreatedAt(10);
+
+    long purged = testAuditDao.deleteBefore(dbSession, 11, 3);
+
+    assertThat(purged).isEqualTo(3);
+    assertThat(db.countRowsOfTable(dbSession, "audits")).isEqualTo(7);
+    assertThat(testAuditDao.selectOlderThan(dbSession, 11))
+      .extracting(AuditDto::getCreatedAt)
+      .containsExactlyInAnyOrder(4L, 5L, 6L, 7L, 8L, 9L, 10L);
+  }
+
+  @Test
   void purge_with_threshold() {
     prepareRowsWithDeterministicCreatedAt(100_000);
-    long purged = testAuditDao.deleteBefore(dbSession, 50_000);
+    long purged = testAuditDao.deleteBefore(dbSession, 50_000, 100_000);
     assertThat(purged).isEqualTo(49_999);
     assertThat(db.countRowsOfTable(dbSession, "audits")).isEqualTo(50_001);
     assertThat(testAuditDao.selectOlderThan(dbSession, 100_000))

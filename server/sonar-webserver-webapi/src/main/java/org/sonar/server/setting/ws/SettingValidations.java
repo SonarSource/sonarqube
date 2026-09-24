@@ -40,6 +40,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.config.PurgeConstants;
 import org.sonar.core.i18n.I18n;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -115,6 +116,24 @@ public class SettingValidations {
         "Setting '%s' cannot be enabled when the global SONAR-RESOLVE feature ('%s') is disabled.",
         CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED, CorePropertyDefinitions.ISSUE_RESOLUTION_GLOBAL_ENABLED);
     }
+  }
+
+  public void validateAuditPurgeBatchSize(SettingData data) {
+    if (!PurgeConstants.AUDIT_PURGE_BATCH_SIZE.equals(data.key)) {
+      return;
+    }
+
+    data.values.stream().findFirst().ifPresent(value -> {
+      int parsedValue;
+      try {
+        parsedValue = Integer.parseInt(value);
+      } catch (NumberFormatException e) {
+        return;
+      }
+      checkRequest(parsedValue >= PurgeConstants.MIN_AUDIT_PURGE_BATCH_SIZE && parsedValue <= PurgeConstants.MAX_AUDIT_PURGE_BATCH_SIZE,
+        "Setting '%s' must be between %s and %s", PurgeConstants.AUDIT_PURGE_BATCH_SIZE,
+        PurgeConstants.MIN_AUDIT_PURGE_BATCH_SIZE, PurgeConstants.MAX_AUDIT_PURGE_BATCH_SIZE);
+    });
   }
 
   private static boolean checkComponentQualifier(SettingData data, @Nullable PropertyDefinition definition) {

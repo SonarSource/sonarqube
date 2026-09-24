@@ -32,7 +32,7 @@ public interface AuditMapper {
 
   List<AuditDto> selectOlderThan(@Param("beforeTimestamp") long beforeTimestamp);
 
-  List<String> selectUuidsOlderThan(@Param("beforeTimestamp") long beforeTimestamp);
+  List<String> selectUuidsOlderThan(@Param("beforeTimestamp") long beforeTimestamp, @Param("limit") int limit);
 
   void purgeUuids(@Param("uuids") Collection<String> uuids);
 }

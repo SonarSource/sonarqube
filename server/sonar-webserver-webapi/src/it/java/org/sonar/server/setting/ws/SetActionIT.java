@@ -33,6 +33,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.sonar.api.PropertyType;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.config.PurgeConstants;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinition.ConfigScope;
 import org.sonar.api.config.PropertyDefinitions;
@@ -1287,6 +1288,44 @@ class SetActionIT {
     callForProjectSettingByKey(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED, "true", project.projectKey());
 
     assertComponentSetting(CorePropertyDefinitions.ISSUE_RESOLUTION_ENABLED, "true", project.projectUuid());
+  }
+
+  @Test
+  void fail_when_audit_purge_batch_size_is_zero() {
+    definitions.addComponent(PropertyDefinition.builder(PurgeConstants.AUDIT_PURGE_BATCH_SIZE)
+      .name("Audit Logs Purge Batch Size")
+      .type(PropertyType.INTEGER)
+      .build());
+
+    assertThatThrownBy(() -> callForGlobalSetting(PurgeConstants.AUDIT_PURGE_BATCH_SIZE, "0"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting '%s' must be between %s and %s", PurgeConstants.AUDIT_PURGE_BATCH_SIZE,
+        PurgeConstants.MIN_AUDIT_PURGE_BATCH_SIZE, PurgeConstants.MAX_AUDIT_PURGE_BATCH_SIZE);
+  }
+
+  @Test
+  void fail_when_audit_purge_batch_size_exceeds_max() {
+    definitions.addComponent(PropertyDefinition.builder(PurgeConstants.AUDIT_PURGE_BATCH_SIZE)
+      .name("Audit Logs Purge Batch Size")
+      .type(PropertyType.INTEGER)
+      .build());
+
+    assertThatThrownBy(() -> callForGlobalSetting(PurgeConstants.AUDIT_PURGE_BATCH_SIZE, "5000000"))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Setting '%s' must be between %s and %s", PurgeConstants.AUDIT_PURGE_BATCH_SIZE,
+        PurgeConstants.MIN_AUDIT_PURGE_BATCH_SIZE, PurgeConstants.MAX_AUDIT_PURGE_BATCH_SIZE);
+  }
+
+  @Test
+  void succeed_when_audit_purge_batch_size_is_within_range() {
+    definitions.addComponent(PropertyDefinition.builder(PurgeConstants.AUDIT_PURGE_BATCH_SIZE)
+      .name("Audit Logs Purge Batch Size")
+      .type(PropertyType.INTEGER)
+      .build());
+
+    callForGlobalSetting(PurgeConstants.AUDIT_PURGE_BATCH_SIZE, "1000000");
+
+    assertGlobalSetting(PurgeConstants.AUDIT_PURGE_BATCH_SIZE, "1000000");
   }
 
   private void callForGlobalSetting(@Nullable String key, @Nullable String value) {

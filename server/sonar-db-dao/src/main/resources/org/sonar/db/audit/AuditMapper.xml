@@ -67,27 +67,27 @@
       a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
   </select>
 
-  <select id="selectUuidsOlderThan" parameterType="long" resultType="string">
+  <select id="selectUuidsOlderThan" resultType="string">
     select a.uuid
     from audits a
     where a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
     order by a.created_at
-    limit 100000
+    limit #{limit,jdbcType=INTEGER}
   </select>
 
-    <select id="selectUuidsOlderThan" parameterType="long" resultType="string" databaseId="mssql">
-    select top 100000 a.uuid
+    <select id="selectUuidsOlderThan" resultType="string" databaseId="mssql">
+    select top (#{limit,jdbcType=INTEGER}) a.uuid
     from audits a
     where a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
     order by a.created_at
   </select>
 
-    <select id="selectUuidsOlderThan" parameterType="long" resultType="string" databaseId="oracle">
+    <select id="selectUuidsOlderThan" resultType="string" databaseId="oracle">
     select a.uuid
     from audits a
     where a.created_at &lt; #{beforeTimestamp,jdbcType=BIGINT}
     order by a.created_at
-    fetch first 100000 rows only
+    fetch first #{limit,jdbcType=INTEGER} rows only
   </select>
 
   <delete id="purgeUuids" parameterType="string">

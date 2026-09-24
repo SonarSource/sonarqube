@@ -45,9 +45,10 @@ public final class AuditPurgeStep implements ComputationStep {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PropertyDto property = auditHousekeepingFrequencyHelper.getHouseKeepingFrequency(dbClient, dbSession);
       long threshold = auditHousekeepingFrequencyHelper.getThresholdDate(property.getValue());
+      int batchSize = auditHousekeepingFrequencyHelper.getPurgeBatchSize(dbClient, dbSession);
       Profiler profiler = Profiler.create(LOG).logTimeLast(true);
       profiler.startInfo("Purge audit logs");
-      long deleted = dbClient.auditDao().deleteBefore(dbSession, threshold);
+      long deleted = dbClient.auditDao().deleteBefore(dbSession, threshold, batchSize);
       dbSession.commit();
       profiler.stopInfo(format("Purged %d audit logs", deleted));
     }

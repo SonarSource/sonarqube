@@ -68,8 +68,8 @@ public class AuditDao implements Dao {
     return getMapper(dbSession).selectOlderThan(beforeTimestamp);
   }
 
-  public long deleteBefore(DbSession dbSession, long threshold) {
-    List<String> uuids = getMapper(dbSession).selectUuidsOlderThan(threshold);
+  public long deleteBefore(DbSession dbSession, long threshold, int limit) {
+    List<String> uuids = getMapper(dbSession).selectUuidsOlderThan(threshold, limit);
     DatabaseUtils.executeLargeInputsWithoutOutput(uuids, list -> {
       getMapper(dbSession).purgeUuids(list);
       dbSession.commit();
