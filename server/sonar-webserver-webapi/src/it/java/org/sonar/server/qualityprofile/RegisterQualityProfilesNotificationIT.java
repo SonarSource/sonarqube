@@ -33,6 +33,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -117,8 +118,9 @@ class RegisterQualityProfilesNotificationIT {
   private final BuiltInQProfileUpdate builtInQProfileUpdate = new BuiltInQProfileUpdateImpl(dbClient, ruleActivator, activeRuleIndexer, qualityProfileChangeEventService);
   private final BuiltInQualityProfilesUpdateListener builtInQualityProfilesNotification = mock(BuiltInQualityProfilesUpdateListener.class);
   private final Languages languages = LanguageTesting.newLanguages();
+  private final ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   private final RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient,
-    builtInQProfileInsert, builtInQProfileUpdate, builtInQualityProfilesNotification, system2, languages);
+    builtInQProfileInsert, builtInQProfileUpdate, builtInQualityProfilesNotification, system2, languages, serverUpgradeStatus);
 
   @Test
   void do_not_send_notification_on_new_profile() {

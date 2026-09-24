@@ -31,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.impl.utils.TestSystem2;
+import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.testfixtures.log.LogTester;
@@ -48,12 +49,14 @@ import org.sonar.server.qualityprofile.builtin.BuiltInQProfileInsert;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileRepositoryRule;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileUpdate;
 import org.sonar.server.qualityprofile.builtin.BuiltInQualityProfilesUpdateListener;
+import org.sonar.server.qualityprofile.builtin.sonarwayvariants.SonarWayCoreProfileDefinition;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newRuleProfileDto;
 
@@ -75,8 +78,9 @@ public class RegisterQualityProfilesIT {
   private final DummyBuiltInQProfileInsert insert = new DummyBuiltInQProfileInsert();
   private final DummyBuiltInQProfileUpdate update = new DummyBuiltInQProfileUpdate();
   private final Languages languages = LanguageTesting.newLanguages("foo");
+  private final ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   private final RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient, insert, update,
-    mock(BuiltInQualityProfilesUpdateListener.class), system2, languages);
+    mock(BuiltInQualityProfilesUpdateListener.class), system2, languages, serverUpgradeStatus);
 
   @Test
   public void start_fails_if_BuiltInQProfileRepository_has_not_been_initialized() {
@@ -352,5 +356,85 @@ public class RegisterQualityProfilesIT {
     assertThat(selectUuidOfDefaultProfile(FOO_LANGUAGE.getKey()))
       .isPresent().contains(customProfile.getKee());
 
+  }
+
+  @Test
+  public void start_shouldSwitchDefaultToSonarWayCore_onFreshInstall() {
+    SonarWayAndVariant profiles = insertSonarWayAndVariant(SonarWayCoreProfileDefinition.NAME, true);
+    when(serverUpgradeStatus.isFreshInstall()).thenReturn(true);
+
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "Sonar way", true);
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, SonarWayCoreProfileDefinition.NAME, false);
+    builtInQProfileRepositoryRule.initialize();
+
+    underTest.start();
+
+    assertThat(selectUuidOfDefaultProfile(FOO_LANGUAGE.getKey())).isPresent().contains(profiles.variant().getKee());
+    assertThat(logTester.logs(Level.INFO)).contains(
+      "Default built-in quality profile for language [foo] has been switched from [Sonar way comprehensive] to [Sonar way core] on fresh install.");
+  }
+
+  @Test
+  public void start_shouldNotSwitchDefaultToSonarWayCore_whenNotFreshInstall() {
+    SonarWayAndVariant profiles = insertSonarWayAndVariant(SonarWayCoreProfileDefinition.NAME, true);
+    when(serverUpgradeStatus.isFreshInstall()).thenReturn(false);
+
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "Sonar way", true);
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, SonarWayCoreProfileDefinition.NAME, false);
+    builtInQProfileRepositoryRule.initialize();
+
+    underTest.start();
+
+    assertThat(selectUuidOfDefaultProfile(FOO_LANGUAGE.getKey())).isPresent().contains(profiles.sonarWay().getKee());
+  }
+
+  @Test
+  public void start_shouldNotSwitchDefaultToSonarWayCore_whenVariantHasNoActiveRules() {
+    SonarWayAndVariant profiles = insertSonarWayAndVariant(SonarWayCoreProfileDefinition.NAME, false);
+    when(serverUpgradeStatus.isFreshInstall()).thenReturn(true);
+
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "Sonar way", true);
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, SonarWayCoreProfileDefinition.NAME, false);
+    builtInQProfileRepositoryRule.initialize();
+
+    underTest.start();
+
+    assertThat(selectUuidOfDefaultProfile(FOO_LANGUAGE.getKey())).isPresent().contains(profiles.sonarWay().getKee());
+  }
+
+  private record SonarWayAndVariant(QProfileDto sonarWay, QProfileDto variant) {
+  }
+
+  /**
+   * Persists a default "Sonar way" profile with one active rule, and a "Sonar way {@code variantName}" built-in
+   * profile for the same language, optionally with one active rule of its own.
+   */
+  private SonarWayAndVariant insertSonarWayAndVariant(String variantName, boolean variantHasActiveRule) {
+    RulesProfileDto sonarWayRuleProfile = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName("Sonar way").setLanguage(FOO_LANGUAGE.getKey()));
+    RulesProfileDto variantRuleProfile = newRuleProfileDto(rp -> rp.setIsBuiltIn(true).setName(variantName).setLanguage(FOO_LANGUAGE.getKey()));
+
+    QProfileDto sonarWay = newQualityProfileDto()
+      .setIsBuiltIn(true)
+      .setLanguage(FOO_LANGUAGE.getKey())
+      .setName(sonarWayRuleProfile.getName())
+      .setRulesProfileUuid(sonarWayRuleProfile.getUuid());
+    QProfileDto variant = newQualityProfileDto()
+      .setIsBuiltIn(true)
+      .setLanguage(FOO_LANGUAGE.getKey())
+      .setName(variantRuleProfile.getName())
+      .setRulesProfileUuid(variantRuleProfile.getUuid());
+
+    db.qualityProfiles().insert(sonarWay, variant);
+    db.qualityProfiles().setAsDefault(sonarWay);
+
+    RuleDto sonarWayRule = db.rules().insert();
+    db.qualityProfiles().activateRule(sonarWay, sonarWayRule);
+    if (variantHasActiveRule) {
+      RuleDto variantRule = db.rules().insert();
+      db.qualityProfiles().activateRule(variant, variantRule);
+    }
+    db.commit();
+
+    return new SonarWayAndVariant(sonarWay, variant);
   }
 }
