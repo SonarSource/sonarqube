@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - branch-*
+  pull_request:
   workflow_dispatch:
   schedule:
     - cron: '0 14 * * *'  # Run at 2PM UTC everyday
@@ -54,6 +55,12 @@ jobs:
           mise_toml: |
             [tools]
             java = "temurin-21"
+      # Runs before build-gradle sets up Repox (token + init script rerouting all repositories), so
+      # build.gradle resolves from its public repositories only, as for an external contributor.
+      - name: Resolve all dependencies from public repositories
+        env:
+          GRADLE_USER_HOME: ${{ runner.temp }}/gradle-public
+        run: ./gradlew cacheDependencies --parallel --continue --no-build-cache --no-daemon --console plain
       - uses: SonarSource/ci-github-actions/build-gradle@148774f456203f228b7bd1bd68ed0c22254d9cd1 # v1.3.24
         with:
           deploy: false
