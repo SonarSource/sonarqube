@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - branch-*
+  pull_request:
   workflow_dispatch:
   schedule:
     - cron: '0 14 * * *'  # Run at 2PM UTC everyday
