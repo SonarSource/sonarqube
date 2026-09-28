@@ -122,6 +122,7 @@ import org.sonar.server.common.rule.RuleCreator;
 import org.sonar.server.common.rule.service.RuleService;
 import org.sonar.server.common.text.MacroInterpreter;
 import org.sonar.server.compliance.SqrActiveRuleDao;
+import org.sonar.server.compliance.ws.ComplianceDigestWsModule;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
@@ -508,6 +509,7 @@ public class PlatformLevel4 extends PlatformLevel {
       WebApiV1MetricsInterceptor.class,
       WebServiceEngine.class,
       new WebServicesWsModule(),
+      new ComplianceDigestWsModule(),
       SonarQubeIdeConnectionFilter.class,
       WebServiceFilter.class,
       NoCacheFilter.class,
