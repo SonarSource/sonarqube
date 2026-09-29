@@ -419,8 +419,8 @@ subprojects {
       // mapping for Remediation Agent's validation errors (SONAR-28139).
       dependency 'org.sonarsource.sonarqube:sonar-spring:1.15.0.5023'
       // Record generation for portable modules (e.g. security-alerts-unified-app), mirroring sonar-sca's usage.
-      dependency 'io.soabase.record-builder:record-builder-core:52'
-      dependency 'io.soabase.record-builder:record-builder-processor:52'
+      dependency 'io.soabase.record-builder:record-builder-core:53'
+      dependency 'io.soabase.record-builder:record-builder-processor:53'
       dependency "org.sonarsource.sonarqube:organizations-api:$organizationsApiVersion"
       dependency "org.sonarsource.sonarqube:organizations-server-app:$organizationsApiVersion"
       dependency "org.sonarsource.sonarqube:projects-api:$projectsApiVersion"
