@@ -19,7 +19,10 @@
  */
 package org.sonar.server.component.index;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,8 +30,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.db.DbClient;
@@ -138,7 +139,7 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
     Set<String> entityUuids = items.stream().map(EsQueueDto::getDocId).collect(Collectors.toSet());
     Set<String> remaining = new HashSet<>(entityUuids);
 
-    dbClient.entityDao().selectByUuids(dbSession, entityUuids).forEach(dto -> {
+    getIndexableEntities(dbSession, dbClient.entityDao().selectByUuids(dbSession, entityUuids)).forEach(dto -> {
       remaining.remove(dto.getUuid());
       bulkIndexer.add(toDocument(dto).toBulkOperation());
     });
@@ -159,12 +160,13 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
     bulk.start();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      bulk.add(toDocument(entity).toBulkOperation());
+      List<EntityDto> entities = new ArrayList<>();
+      entities.add(entity);
 
       if (entity.getQualifier().equals("VW")) {
-        dbClient.portfolioDao().selectTree(dbSession, entity.getUuid()).forEach(sub ->
-          bulk.add(toDocument(sub).toBulkOperation()));
+        entities.addAll(dbClient.portfolioDao().selectTree(dbSession, entity.getUuid()));
       }
+      getIndexableEntities(dbSession, entities).forEach(dto -> bulk.add(toDocument(dto).toBulkOperation()));
     }
 
     bulk.stop();
@@ -174,19 +176,24 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
     BulkIndexer bulk = new BulkIndexer(esClient, TYPE_COMPONENT, bulkSize);
     bulk.start();
     Set<EntityDto> corruptedEntities = new HashSet<>();
+    List<EntityDto> portfolios = new ArrayList<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
       dbClient.entityDao().scrollForIndexing(dbSession, context -> {
         EntityDto dto = context.getResultObject();
         if (dto.getAuthUuid() == null) {
           corruptedEntities.add(dto);
+        } else if (dto.isPortfolio()) {
+          portfolios.add(dto);
         } else {
           bulk.add(toDocument(dto).toBulkOperation());
         }
       });
+      getIndexableEntities(dbSession, portfolios).forEach(entity -> bulk.add(toDocument(entity).toBulkOperation()));
       if (!corruptedEntities.isEmpty()) {
         attemptToFixCorruptedEntities(dbSession, corruptedEntities);
         List<EntityDto> fixedEntities = dbClient.entityDao().selectByUuids(dbSession, corruptedEntities.stream().map(EntityDto::getUuid).toList());
-        fixedEntities.forEach(entity -> bulk.add(toDocument(entity).toBulkOperation()));
+        getIndexableEntities(dbSession, fixedEntities)
+          .forEach(entity -> bulk.add(toDocument(entity).toBulkOperation()));
       }
     }
 
@@ -218,6 +225,18 @@ public class EntityDefinitionIndexer implements EventIndexer, AnalysisIndexer, N
       .sort(so -> so.field(f -> f.field("_doc")))
       .size(100));
     bulkIndexer.addDeletion(searchRequest);
+  }
+
+  private List<EntityDto> getIndexableEntities(DbSession dbSession, Collection<? extends EntityDto> entities) {
+    Set<String> portfolioUuids = entities.stream()
+      .filter(EntityDto::isPortfolio)
+      .map(EntityDto::getUuid)
+      .collect(Collectors.toSet());
+    Set<String> componentUuids = new HashSet<>(dbClient.componentDao().selectExistingUuids(dbSession, portfolioUuids));
+    return entities.stream()
+      .filter(entity -> entity.getAuthUuid() == null || !entity.isPortfolio() || componentUuids.contains(entity.getUuid()))
+      .map(EntityDto.class::cast)
+      .toList();
   }
 
   @VisibleForTesting
