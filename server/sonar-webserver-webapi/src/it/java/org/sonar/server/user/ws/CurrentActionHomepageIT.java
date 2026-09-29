@@ -87,7 +87,7 @@ public class CurrentActionHomepageIT {
     setPlatformEdition(edition);
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("PORTFOLIO").setHomepageParameter(portfolio.uuid()));
-    userSessionRule.logIn(user).addProjectPermission(USER, portfolio);
+    userSessionRule.logIn(user).addPortfolioPermission(USER, portfolio);
 
     CurrentWsResponse response = call();
 
@@ -115,9 +115,10 @@ public class CurrentActionHomepageIT {
   @UseDataProvider("enterpriseAndAbove")
   public void return_homepage_when_set_to_an_application(EditionProvider.Edition edition) {
     setPlatformEdition(edition);
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
+    ProjectData applicationData = db.components().insertPrivateApplication();
+    ComponentDto application = applicationData.getMainBranchComponent();
     UserDto user = db.users().insertUser(u -> u.setHomepageType("APPLICATION").setHomepageParameter(application.uuid()));
-    userSessionRule.logIn(user).addProjectPermission(USER, application);
+    userSessionRule.logIn(user).addProjectPermission(USER, applicationData.getProjectDto()).registerBranches(applicationData.getMainBranchDto());
 
     CurrentWsResponse response = call();
 

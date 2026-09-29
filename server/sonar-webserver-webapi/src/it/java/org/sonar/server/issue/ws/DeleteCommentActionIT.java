@@ -28,10 +28,12 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.permission.ProjectPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -179,7 +181,9 @@ public class DeleteCommentActionIT {
   }
 
   private void loginAndAddProjectPermission(UserDto user, IssueDto issueDto, ProjectPermission permission) {
-    userSession.logIn(user).addProjectPermission(permission, dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get());
+    BranchDto branch = dbClient.branchDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get();
+    ProjectDto project = dbClient.projectDao().selectByUuid(dbTester.getSession(), branch.getProjectUuid()).get();
+    userSession.logIn(user).addProjectPermission(permission, project).registerBranches(branch);
   }
 
 }

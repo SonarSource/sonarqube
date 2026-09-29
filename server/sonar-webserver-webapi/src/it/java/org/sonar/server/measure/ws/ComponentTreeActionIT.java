@@ -75,7 +75,6 @@ import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
-import static org.sonar.db.component.ComponentDbTester.toProjectDto;
 import static org.sonar.db.component.ComponentQualifiers.APP;
 import static org.sonar.db.component.ComponentQualifiers.DIRECTORY;
 import static org.sonar.db.component.ComponentQualifiers.FILE;
@@ -237,13 +236,14 @@ class ComponentTreeActionIT {
 
   @Test
   void load_measures_and_periods() {
-    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     dbClient.snapshotDao().insert(dbSession,
       newAnalysis(mainBranch)
         .setPeriodDate(1_704_067_200_000L)
         .setPeriodMode("last_version")
         .setPeriodDate(1_704_067_200_000L));
-    userSession.anonymous().addProjectPermission(USER, mainBranch);
+    userSession.anonymous().addProjectPermission(USER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     ComponentDto directory = newDirectory(mainBranch, "directory-uuid", "path/to/directory").setName("directory-1");
     db.components().insertComponent(directory);
     ComponentDto file = newFileDto(directory, null, "file-uuid").setName("file-1");
@@ -271,9 +271,10 @@ class ComponentTreeActionIT {
 
   @Test
   void load_whenMeasuresWithoutValuesButComputed_shouldBeReplacedWithBestValues() {
-    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     db.components().insertSnapshot(mainBranch);
-    userSession.anonymous().addProjectPermission(USER, mainBranch);
+    userSession.anonymous().addProjectPermission(USER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     ComponentDto directory = newDirectory(mainBranch, "directory-uuid", "path/to/directory").setName("directory-1");
     db.components().insertComponent(directory);
     ComponentDto file = newFileDto(directory, null, "file-uuid").setName("file-1");
@@ -319,9 +320,10 @@ class ComponentTreeActionIT {
 
   @Test
   void load_whenMeasuresWithoutValuesAndNotComputed_shouldNotBeReplacedWithBestValues() {
-    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     db.components().insertSnapshot(mainBranch);
-    userSession.anonymous().addProjectPermission(USER, mainBranch);
+    userSession.anonymous().addProjectPermission(USER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     ComponentDto file = newFileDto(mainBranch, null, "file-uuid").setName("file-1");
     db.components().insertComponent(file);
     MetricDto coverage = insertCoverageMetric();
@@ -356,9 +358,10 @@ class ComponentTreeActionIT {
 
   @Test
   void load_whenLeakMeasuresAreRequested_shouldBeReplacedWithBestValues() {
-    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     db.components().insertSnapshot(mainBranch);
-    userSession.anonymous().addProjectPermission(USER, mainBranch);
+    userSession.anonymous().addProjectPermission(USER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     ComponentDto file = newFileDto(mainBranch);
     db.components().insertComponent(file);
 
@@ -398,8 +401,9 @@ class ComponentTreeActionIT {
 
   @Test
   void use_best_value_for_rating() {
-    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.anonymous().addProjectPermission(USER, mainBranch);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
+    userSession.anonymous().addProjectPermission(USER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     dbClient.snapshotDao().insert(dbSession, newAnalysis(mainBranch)
       .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
       .setPeriodMode("previous_version")
@@ -662,10 +666,11 @@ class ComponentTreeActionIT {
 
   @Test
   void show_branch_on_empty_response_if_not_main_branch() {
-    ComponentDto mainProjectBranch = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(USER, mainProjectBranch);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainProjectBranch = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(USER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     ComponentDto branch = db.components().insertProjectBranch(mainProjectBranch, b -> b.setKey("develop"));
-    userSession.addProjectBranchMapping(mainProjectBranch.uuid(), branch);
+    userSession.addProjectBranchMapping(projectData.projectUuid(), branch);
 
     ComponentDto file = db.components().insertComponent(newFileDto(branch, mainProjectBranch.uuid()));
     MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
@@ -734,7 +739,7 @@ class ComponentTreeActionIT {
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     addProjectPermission(projectData);
     ComponentDto view = db.components().insertPrivatePortfolio();
-    userSession.addProjectPermission(USER, view);
+    userSession.addPortfolioPermission(USER, view);
     SnapshotDto viewAnalysis = db.components().insertSnapshot(view);
     ComponentDto projectCopy = db.components().insertComponent(newProjectCopy(mainBranch, view));
     MetricDto ncloc = insertNclocMetric();
@@ -756,7 +761,7 @@ class ComponentTreeActionIT {
       .setKey("Apache-Projects").setName("Apache Projects"));
     userSession.registerPortfolios(view);
     ComponentDto view2 = db.components().insertPrivatePortfolio();
-    userSession.addProjectPermission(USER, view2);
+    userSession.addPortfolioPermission(USER, view2);
     ComponentDto localView = db.components().insertComponent(
       ComponentTesting.newSubPortfolio(view, "SUB-VIEW-UUID", "All-Projects").setName("All projects").setCopyComponentUuid(view2.uuid()));
     db.components().insertSnapshot(view);
@@ -777,10 +782,11 @@ class ComponentTreeActionIT {
   void application_local_reference_in_portfolio() {
     ComponentDto apache_projects = ComponentTesting.newPortfolio("VIEW1-UUID")
       .setKey("Apache-Projects").setName("Apache Projects").setPrivate(true);
-    userSession.addProjectPermission(USER, apache_projects);
+    userSession.addPortfolioPermission(USER, apache_projects);
     ComponentDto view = db.components().insertComponent(apache_projects);
-    ComponentDto application = db.components().insertPrivateApplication().getMainBranchComponent();
-    userSession.addProjectPermission(USER, application);
+    ProjectData applicationData = db.components().insertPrivateApplication();
+    ComponentDto application = applicationData.getMainBranchComponent();
+    userSession.addProjectPermission(USER, applicationData.getProjectDto()).registerBranches(applicationData.getMainBranchDto());
     ComponentDto localView = db.components().insertComponent(
       ComponentTesting.newSubPortfolio(view, "SUB-VIEW-UUID", "All-Projects").setName("All projects").setCopyComponentUuid(application.uuid()));
     db.components().insertSnapshot(view);
@@ -1020,17 +1026,18 @@ class ComponentTreeActionIT {
   @Test
   void fail_when_app_with_insufficient_privileges_for_projects() {
     userSession.logIn();
-    ComponentDto app = db.components().insertPrivateApplication().getMainBranchComponent();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData appData = db.components().insertPrivateApplication();
+    ComponentDto app = appData.getMainBranchComponent();
+    ProjectData project1Data = db.components().insertPrivateProject();
+    ProjectData project2Data = db.components().insertPrivateProject();
     db.components().insertSnapshot(app);
 
     userSession.registerApplication(
-      toProjectDto(app, 1L),
-      toProjectDto(project1, 1L),
-      toProjectDto(project2, 1L));
+      appData.getProjectDto(),
+      project1Data.getProjectDto(),
+      project2Data.getProjectDto());
 
-    userSession.addProjectPermission(USER, app, project1);
+    userSession.addProjectPermission(USER, appData.getProjectDto(), project1Data.getProjectDto()).registerBranches(appData.getMainBranchDto());
 
     var request = ws.newRequest()
       .setParam(PARAM_COMPONENT, app.getKey())
@@ -1143,10 +1150,11 @@ class ComponentTreeActionIT {
 
   @Test
   void fail_when_component_is_removed() {
-    ComponentDto mainBranch = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto mainBranch = projectData.getMainBranchComponent();
     db.components().insertSnapshot(mainBranch);
     ComponentDto file = db.components().insertComponent(newFileDto(mainBranch).setKey("file-key").setEnabled(false));
-    userSession.anonymous().addProjectPermission(USER, mainBranch);
+    userSession.anonymous().addProjectPermission(USER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     insertNclocMetric();
 
     assertThatThrownBy(() -> {

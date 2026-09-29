@@ -27,6 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -175,25 +176,30 @@ public class SearchActionIT {
 
   @Test
   public void fail_if_directory() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "A/B"));
-    failIfNotAProjectWithKey(project, directory);
-    failIfNotAProjectWithUuid(project, directory);
+    userSession.logIn().addProjectPermission(USER, projectData.getProjectDto());
+    failIfNotAProjectWithKey(directory);
+    failIfNotAProjectWithUuid(directory);
   }
 
   @Test
   public void fail_if_file() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
-    failIfNotAProjectWithKey(project, file);
-    failIfNotAProjectWithUuid(project, file);
+    userSession.logIn().addProjectPermission(USER, projectData.getProjectDto());
+    failIfNotAProjectWithKey(file);
+    failIfNotAProjectWithUuid(file);
   }
 
   @Test
   public void fail_if_view() {
     ComponentDto view = db.components().insertPrivatePortfolio();
-    failIfNotAProjectWithKey(view, view);
-    failIfNotAProjectWithUuid(view, view);
+    userSession.logIn().addPortfolioPermission(USER, view);
+    failIfNotAProjectWithKey(view);
+    failIfNotAProjectWithUuid(view);
   }
 
   @Test
@@ -230,8 +236,9 @@ public class SearchActionIT {
 
   @Test
   public void fail_when_using_branch_db_uuid() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.logIn().addProjectPermission(USER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSession.logIn().addProjectPermission(USER, projectData.getProjectDto());
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -267,9 +274,7 @@ public class SearchActionIT {
     userSession.logIn().addProjectPermission(ADMIN, project);
   }
 
-  private void failIfNotAProjectWithKey(ComponentDto root, ComponentDto component) {
-    userSession.logIn().addProjectPermission(USER, root);
-
+  private void failIfNotAProjectWithKey(ComponentDto component) {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, component.getKey())
       .execute())
@@ -277,9 +282,7 @@ public class SearchActionIT {
       .hasMessageContaining("Project '" + component.getKey() + "' not found");
   }
 
-  private void failIfNotAProjectWithUuid(ComponentDto root, ComponentDto component) {
-    userSession.logIn().addProjectPermission(USER, root);
-
+  private void failIfNotAProjectWithUuid(ComponentDto component) {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam(PARAM_PROJECT_ID, component.uuid())
       .execute())

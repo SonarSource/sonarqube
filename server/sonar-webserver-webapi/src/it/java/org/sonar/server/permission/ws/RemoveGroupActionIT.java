@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
@@ -426,8 +427,9 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   @Test
   public void wsAction_whenUsingBranchUuid_shouldFail() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     TestRequest testRequest = newRequest()

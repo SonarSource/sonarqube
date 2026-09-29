@@ -29,6 +29,7 @@ import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -89,11 +90,12 @@ public class ShowActionIT {
 
   @Test
   public void return_file_with_missing_duplication_data() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
     db.components().insertSnapshot(newAnalysis(project));
 
-    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project);
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
 
     TestResponse result = newBaseRequest().setParam("key", file.getKey()).execute();
 
@@ -107,11 +109,12 @@ public class ShowActionIT {
 
   @Test
   public void duplications_by_file_key_and_branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    userSessionRule.addProjectBranchMapping(project.uuid(), branch);
+    userSessionRule.addProjectBranchMapping(projectData.projectUuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     db.measures().insertMeasure(file, m -> m.addValue(dataMetric.getKey(), format("""
       <duplications>
@@ -163,11 +166,12 @@ public class ShowActionIT {
 
   @Test
   public void duplications_by_file_key_and_pull_request() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     String pullRequestKey = secure().nextAlphanumeric(100);
     ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setBranchType(PULL_REQUEST).setKey(pullRequestKey));
-    userSessionRule.addProjectBranchMapping(project.uuid(), pullRequest);
+    userSessionRule.addProjectBranchMapping(projectData.projectUuid(), pullRequest);
     ComponentDto file = db.components().insertComponent(newFileDto(pullRequest, project.uuid()));
     db.measures().insertMeasure(file, m -> m.addValue(dataMetric.getKey(), format("""
       <duplications>
@@ -249,8 +253,9 @@ public class ShowActionIT {
   }
 
   private void verifyCallToFileWithDuplications(Function<ComponentDto, TestRequest> requestFactory) {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSessionRule.addProjectPermission(ProjectPermission.CODEVIEWER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
     String xml = """
       <duplications>

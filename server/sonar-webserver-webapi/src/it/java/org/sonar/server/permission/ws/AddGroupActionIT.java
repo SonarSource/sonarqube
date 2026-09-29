@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.GlobalPermission;
@@ -455,8 +456,9 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   @Test
   public void fail_when_using_branch_uuid() {
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     var testRequest = newRequest()

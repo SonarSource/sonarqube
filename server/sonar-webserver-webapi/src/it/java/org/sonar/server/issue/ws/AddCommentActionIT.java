@@ -31,11 +31,13 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.permission.ProjectPermission;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -225,10 +227,9 @@ public class AddCommentActionIT {
 
   private void loginWithBrowsePermission(IssueDto issueDto, ProjectPermission permission) {
     UserDto user = dbTester.users().insertUser("john");
-    userSession.logIn(user)
-      .addProjectPermission(permission,
-        dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get(),
-        dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getComponentUuid()).get());
+    BranchDto branch = dbClient.branchDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get();
+    ProjectDto project = dbClient.projectDao().selectByUuid(dbTester.getSession(), branch.getProjectUuid()).get();
+    userSession.logIn(user).addProjectPermission(permission, project).registerBranches(branch);
   }
 
 }

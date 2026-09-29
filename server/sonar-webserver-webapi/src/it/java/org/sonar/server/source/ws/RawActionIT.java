@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
@@ -63,8 +64,9 @@ public class RawActionIT {
 
   @Test
   public void raw_from_file() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(ProjectPermission.CODEVIEWER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(ProjectPermission.CODEVIEWER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     db.fileSources().insertFileSource(file, s -> s.setSourceData(
       Data.newBuilder()
@@ -81,8 +83,9 @@ public class RawActionIT {
 
   @Test
   public void raw_whenFileHasSecretIssue_shouldRedactSecretValue() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(ProjectPermission.CODEVIEWER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(ProjectPermission.CODEVIEWER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     db.fileSources().insertFileSource(file, s -> s.setSourceData(
       Data.newBuilder().addLines(Line.newBuilder().setLine(1).setSource("token=secret-value").build()).build()));
@@ -106,11 +109,12 @@ public class RawActionIT {
 
   @Test
   public void raw_from_branch_file() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(ProjectPermission.CODEVIEWER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(ProjectPermission.CODEVIEWER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     String branchName = secure().nextAlphanumeric(248);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
-    userSession.addProjectBranchMapping(project.uuid(), branch);
+    userSession.addProjectBranchMapping(projectData.projectUuid(), branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     db.fileSources().insertFileSource(file, s -> s.setSourceData(
       Data.newBuilder()
@@ -137,8 +141,9 @@ public class RawActionIT {
 
   @Test
   public void fail_on_unknown_branch() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(ProjectPermission.CODEVIEWER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(ProjectPermission.CODEVIEWER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     db.fileSources().insertFileSource(file);
@@ -153,8 +158,9 @@ public class RawActionIT {
 
   @Test
   public void fail_when_using_branch_db_key() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(ProjectPermission.CODEVIEWER, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(ProjectPermission.CODEVIEWER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     ComponentDto branch = db.components().insertProjectBranch(project);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, project.uuid()));
     db.fileSources().insertFileSource(file);
@@ -168,8 +174,9 @@ public class RawActionIT {
 
   @Test
   public void fail_when_wrong_permission() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    userSession.addProjectPermission(ProjectPermission.ISSUE_ADMIN, project);
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(ProjectPermission.ISSUE_ADMIN, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     assertThatThrownBy(() -> ws.newRequest()

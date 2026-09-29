@@ -22,6 +22,7 @@ package org.sonar.server.permission.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.ProjectPermission;
@@ -453,8 +454,9 @@ public class RemoveUserActionIT extends BasePermissionWsIT<RemoveUserAction> {
 
   @Test
   public void wsAction_whenUsingBranchUuid_shouldFail() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
+    ProjectData projectData = db.components().insertPublicProject();
+    ComponentDto project = projectData.getMainBranchComponent();
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
     ComponentDto branch = db.components().insertProjectBranch(project);
 
     TestRequest testRequest = newRequest()

@@ -209,11 +209,6 @@ public class UserSessionRule implements TestRule, UserSession, BeforeTestExecuti
     return this;
   }
 
-  public UserSessionRule addProjectPermission(ProjectPermission projectPermission, ComponentDto... components) {
-    ensureAbstractMockUserSession().addProjectPermission(projectPermission, components);
-    return this;
-  }
-
   public UserSessionRule addPortfolioPermission(ProjectPermission projectPermission, ComponentDto... components) {
     ensureAbstractMockUserSession().addProjectPermission(projectPermission, components);
     return this;

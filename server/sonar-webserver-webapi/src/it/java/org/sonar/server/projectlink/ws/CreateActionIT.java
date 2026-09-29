@@ -210,7 +210,7 @@ public class CreateActionIT {
   public void fail_if_view() {
     PortfolioData view = db.components().insertPrivatePortfolioData();
 
-    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, view.getRootComponent());
+    userSession.logIn().addPortfolioPermission(ProjectPermission.ADMIN, view.getPortfolioDto());
     TestRequest testRequest = ws.newRequest()
       .setParam(PARAM_NAME, "Custom")
       .setParam(PARAM_URL, "http://example.org")

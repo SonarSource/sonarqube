@@ -228,7 +228,7 @@ public class ComponentActionIT {
   public void reference_key_in_the_response() {
     ProjectData mainBranch = db.components().insertPrivateProject();
     PortfolioData view = db.components().insertPrivatePortfolioData();
-    userSession.addProjectPermission(USER, view.getRootComponent());
+    userSession.addPortfolioPermission(USER, view.getRootComponent());
     db.components().insertSnapshot(view.getPortfolioDto());
     ComponentDto projectCopy = db.components().insertComponent(newProjectCopy("project-uuid-copy", mainBranch.getMainBranchComponent(), view.getRootComponent()));
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));

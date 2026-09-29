@@ -212,8 +212,8 @@ public class ComponentActionIT {
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setEntityUuid(subportfolio.uuid()).setUserUuid(user.getUuid()),
       subportfolio.getKey(), subportfolio.name(), subportfolio.qualifier(), user.getLogin());
 
-    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, portfolio)
-      .addProjectPermission(ProjectPermission.USER, subportfolio);
+    userSession.logIn(user).addPortfolioPermission(ProjectPermission.USER, portfolio)
+      .addPortfolioPermission(ProjectPermission.USER, subportfolio);
     init();
 
     String json = ws.newRequest()
@@ -240,7 +240,7 @@ public class ComponentActionIT {
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setEntityUuid(portfolio.uuid()).setUserUuid(user.getUuid()),
       subportfolio.getKey(), portfolio.name(), portfolio.qualifier(), user.getLogin());
 
-    userSession.logIn(user).addProjectPermission(ProjectPermission.USER, portfolio);
+    userSession.logIn(user).addPortfolioPermission(ProjectPermission.USER, portfolio);
     init();
 
     String json = ws.newRequest()
@@ -310,8 +310,9 @@ public class ComponentActionIT {
   @Test
   public void return_component_info_when_file_on_master() {
     db.qualityGates().createDefaultQualityGate();
-    ComponentDto main = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setKey("sample")).getMainBranchComponent();
-    userSession.addProjectPermission(ProjectPermission.USER, main);
+    ProjectData projectData = componentDbTester.insertPrivateProject(p -> p.setName("Sample").setKey("sample"));
+    ComponentDto main = projectData.getMainBranchComponent();
+    userSession.addProjectPermission(ProjectPermission.USER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     init();
 
     ComponentDto dirDto = componentDbTester.insertComponent(newDirectory(main, "src"));
@@ -434,9 +435,10 @@ public class ComponentActionIT {
 
   @Test
   public void return_default_quality_gate() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto project = projectData.getMainBranchComponent();
     db.qualityGates().createDefaultQualityGate(qg -> qg.setName("Sonar way"));
-    userSession.addProjectPermission(ProjectPermission.USER, project);
+    userSession.addProjectPermission(ProjectPermission.USER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     init();
 
     executeAndVerify(project.getKey(), "return_default_quality_gate.json");
