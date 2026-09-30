@@ -129,13 +129,13 @@ public class SearchMyProjectsActionIT {
 
   @Test
   public void sort_projects_by_name() {
-    ProjectDto b_project = db.components().insertPrivateProject(p -> p.setName("B_project_name")).getProjectDto();
-    ProjectDto c_project = db.components().insertPrivateProject(p -> p.setName("c_project_name")).getProjectDto();
-    ProjectDto a_project = db.components().insertPrivateProject(p -> p.setName("A_project_name")).getProjectDto();
+    ProjectDto bProject = db.components().insertPrivateProject(p -> p.setName("B_project_name")).getProjectDto();
+    ProjectDto cProject = db.components().insertPrivateProject(p -> p.setName("c_project_name")).getProjectDto();
+    ProjectDto aProject = db.components().insertPrivateProject(p -> p.setName("A_project_name")).getProjectDto();
 
-    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, b_project);
-    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, a_project);
-    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, c_project);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, bProject);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, aProject);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, cProject);
 
     SearchMyProjectsWsResponse result = callWs();
 
