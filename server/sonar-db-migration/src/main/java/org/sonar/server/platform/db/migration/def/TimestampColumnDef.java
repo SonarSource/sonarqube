@@ -29,13 +29,14 @@ import org.sonar.db.dialect.PostgreSql;
 import static org.sonar.server.platform.db.migration.def.Validations.validateColumnName;
 
 /**
- * Used to define TIMESTAMP columns.
+ * Defines a SQL TIMESTAMP column.
  *
- * @deprecated implemented for compatibility with old tables, but {@link BigIntegerColumnDef}
- * must be used for storing datetimes as bigints (no problems regarding timezone).
+ * Store new datetimes with {@link BigIntegerColumnDef} (epoch milliseconds).
+ * Use this type when the column must be a real SQL timestamp: legacy columns
+ * recreated by the initial schema, db-scheduler tables, and columns with a
+ * database CURRENT_TIMESTAMP default.
  */
 @Immutable
-@Deprecated
 public class TimestampColumnDef extends AbstractColumnDef {
 
   private TimestampColumnDef(Builder builder) {

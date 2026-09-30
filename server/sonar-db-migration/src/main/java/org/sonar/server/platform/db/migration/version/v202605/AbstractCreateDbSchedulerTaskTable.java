@@ -38,8 +38,7 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVar
  * tables and mandates their documented schema: a binary {@code task_data} payload, real
  * {@code TIMESTAMP} columns and a {@code BOOLEAN picked} flag — unlike the rest of the unified
  * capability tables, which store timestamps as {@code BIGINT} epoch-millis and never use binary
- * columns. {@link org.sonar.server.platform.db.migration.def.TimestampColumnDef} is deprecated in
- * favour of {@code BIGINT} epoch storage, but is the correct (and required) choice here because
+ * columns. {@link org.sonar.server.platform.db.migration.def.TimestampColumnDef} is required here because
  * db-scheduler binds {@code java.time.Instant} to a JDBC {@code TIMESTAMP}.
  *
  * <p>The primary key is the composite {@code (task_name, task_instance)} mandated by db-scheduler.
@@ -85,9 +84,7 @@ public abstract class AbstractCreateDbSchedulerTaskTable extends CreateTableChan
     this.lastHeartbeatIndexName = lastHeartbeatIndexName;
   }
 
-  // TimestampColumnDef is required by db-scheduler; see class Javadoc
   @Override
-  @SuppressWarnings("deprecation")
   public void execute(Context context, String tableName) throws SQLException {
     var dialect = getDialect();
 
