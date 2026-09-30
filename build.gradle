@@ -510,7 +510,7 @@ subprojects {
         entry 'protobuf-java'
         entry 'protobuf-java-util'
       }
-      dependency 'com.h2database:h2:2.3.232'
+      dependency 'com.h2database:h2:2.5.252'
       dependencySet(group: 'com.hazelcast', version: '5.7.0') {
         entry 'hazelcast'
       }
