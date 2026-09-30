@@ -128,7 +128,8 @@ public class ExportMeasuresStepIT {
 
   @Test
   public void export_measures() {
-    SnapshotDto firstAnalysis = insertSnapshot("U_1", PROJECT, STATUS_PROCESSED);
+    // Only one snapshot per root component may have isLast=true (uniq_snapshots_root_comp_uuid_islast).
+    SnapshotDto firstAnalysis = insertSnapshot("U_1", PROJECT, STATUS_PROCESSED, false);
     insertMeasure(firstAnalysis, PROJECT, new ProjectMeasureDto().setValue(100.0).setMetricUuid(NCLOC.getUuid()));
     SnapshotDto secondAnalysis = insertSnapshot("U_2", PROJECT, STATUS_PROCESSED);
     insertMeasure(secondAnalysis, PROJECT, new ProjectMeasureDto().setValue(110.0).setMetricUuid(NCLOC.getUuid()));
@@ -242,11 +243,15 @@ public class ExportMeasuresStepIT {
   }
 
   private SnapshotDto insertSnapshot(String snapshotUuid, ComponentDto project, String status) {
+    return insertSnapshot(snapshotUuid, project, status, true);
+  }
+
+  private SnapshotDto insertSnapshot(String snapshotUuid, ComponentDto project, String status, boolean isLast) {
     SnapshotDto snapshot = new SnapshotDto()
       .setUuid(snapshotUuid)
       .setRootComponentUuid(project.uuid())
       .setStatus(status)
-      .setLast(true);
+      .setLast(isLast);
     dbTester.getDbClient().snapshotDao().insert(dbTester.getSession(), snapshot);
     return snapshot;
   }

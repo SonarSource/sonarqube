@@ -124,7 +124,9 @@ public class ExportAnalysesStepIT {
   @UseDataProvider("versionAndBuildStringCombinations")
   public void export_analyses(@Nullable String version, @Nullable String buildString) {
     SnapshotDto firstAnalysis = newAnalysis("U_1", 1_450_000_000_000L, PROJECT.uuid(), "1.0", false, "1.0.2.3", 1_450_000_000_000L);
-    SnapshotDto secondAnalysis = newAnalysis("U_4", 1_460_000_000_000L, PROJECT.uuid(), "1.1", true, "1.1.3.4", 1_460_000_000_000L);
+    // Only one snapshot per root component may have isLast=true (uniq_snapshots_root_comp_uuid_islast).
+    // thirdAnalysis has the latest analysisDate, so it - not secondAnalysis - is the "last" one.
+    SnapshotDto secondAnalysis = newAnalysis("U_4", 1_460_000_000_000L, PROJECT.uuid(), "1.1", false, "1.1.3.4", 1_460_000_000_000L);
     SnapshotDto thirdAnalysis = newAnalysis("U_7", 1_460_000_000_000L, PROJECT.uuid(), version, true, buildString, 1_470_000_000_000L);
     dbTester.getDbClient().snapshotDao().insert(dbTester.getSession(), firstAnalysis, secondAnalysis, thirdAnalysis);
     dbTester.commit();
@@ -157,7 +159,9 @@ public class ExportAnalysesStepIT {
   @Test
   public void export_analyses_by_ordering_by_technical_creation_date() {
     SnapshotDto firstAnalysis = newAnalysis("U_1", 1_450_000_000_000L, PROJECT.uuid(), "1.0", false, "1.0.2.3", 3_000_000_000_000L);
-    SnapshotDto secondAnalysis = newAnalysis("U_4", 1_460_000_000_000L, PROJECT.uuid(), "1.1", true, "1.1.3.4", 1_000_000_000_000L);
+    // Only one snapshot per root component may have isLast=true (see uniq_snapshots_root_comp_uuid_islast).
+    // This test only cares about analysis_date ordering, so thirdAnalysis is arbitrarily the "last" one.
+    SnapshotDto secondAnalysis = newAnalysis("U_4", 1_460_000_000_000L, PROJECT.uuid(), "1.1", false, "1.1.3.4", 1_000_000_000_000L);
     SnapshotDto thirdAnalysis = newAnalysis("U_7", 1_460_500_000_000L, PROJECT.uuid(), null, true, null, 2_000_000_000_000L);
     dbTester.getDbClient().snapshotDao().insert(dbTester.getSession(), firstAnalysis, secondAnalysis, thirdAnalysis);
     dbTester.commit();

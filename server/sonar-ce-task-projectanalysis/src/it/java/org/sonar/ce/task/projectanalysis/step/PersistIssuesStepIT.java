@@ -185,7 +185,8 @@ public class PersistIssuesStepIT extends BaseStepTest {
     assertThat(result.isPrioritizedRule()).isTrue();
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList(issueKey));
-    assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
+    // IssueChangeMapper.selectByIssues has no ORDER BY, so row order is vendor/storage-dependent.
+    assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactlyInAnyOrder(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
   }
@@ -302,7 +303,8 @@ public class PersistIssuesStepIT extends BaseStepTest {
     assertThat(result.isPrioritizedRule()).isTrue();
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, List.of(issueKey));
-    assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
+    // IssueChangeMapper.selectByIssues has no ORDER BY, so row order is vendor/storage-dependent.
+    assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactlyInAnyOrder(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
     assertThat(context.getStatistics().getAll()).contains(
       entry("inserts", "1"), entry("updates", "0"), entry("merged", "0"));
   }

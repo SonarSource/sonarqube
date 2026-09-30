@@ -253,7 +253,7 @@ public class LoadPeriodsStepIT extends BaseStepTest {
   @Test
   public void load_specific_analysis() {
     ComponentDto branch = dbTester.components().insertProjectBranch(project);
-    SnapshotDto selectedAnalysis = dbTester.components().insertSnapshot(branch);
+    SnapshotDto selectedAnalysis = dbTester.components().insertSnapshot(branch, snapshot -> snapshot.setLast(false));
     SnapshotDto aVersionAnalysis = dbTester.components().insertSnapshot(branch, snapshot -> snapshot.setCreatedAt(milisSinceEpoch(2019, 3, 12, 0)).setLast(false));
     dbTester.events().insertEvent(EventTesting.newEvent(aVersionAnalysis).setName("a_version").setCategory(CATEGORY_VERSION));
     dbTester.components().insertSnapshot(branch, snapshot -> snapshot.setCreatedAt(milisSinceEpoch(2019, 3, 15, 0)).setLast(true));

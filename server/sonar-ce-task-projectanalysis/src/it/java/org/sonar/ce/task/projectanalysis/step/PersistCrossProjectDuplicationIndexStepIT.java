@@ -99,7 +99,8 @@ public class PersistCrossProjectDuplicationIndexStepIT {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    Map<String, Object> dto = dbTester.selectFirst("select HASH, START_LINE, END_LINE, INDEX_IN_FILE, COMPONENT_UUID, ANALYSIS_UUID from duplications_index");
+    Map<String, Object> dto = dbTester.selectFirst("select hash as \"HASH\", start_line as \"START_LINE\", end_line as \"END_LINE\", "
+      + "index_in_file as \"INDEX_IN_FILE\", component_uuid as \"COMPONENT_UUID\", analysis_uuid as \"ANALYSIS_UUID\" from duplications_index");
     assertThat(dto)
       .containsEntry("HASH", CPD_TEXT_BLOCK.getHash())
       .containsEntry("START_LINE", 30L)
@@ -124,7 +125,8 @@ public class PersistCrossProjectDuplicationIndexStepIT {
     TestComputationStepContext context = new TestComputationStepContext();
     underTest.execute(context);
 
-    List<Map<String, Object>> dtos = dbTester.select("select HASH, START_LINE, END_LINE, INDEX_IN_FILE, COMPONENT_UUID, ANALYSIS_UUID from duplications_index");
+    List<Map<String, Object>> dtos = dbTester.select("select hash as \"HASH\", start_line as \"START_LINE\", end_line as \"END_LINE\", "
+      + "index_in_file as \"INDEX_IN_FILE\", component_uuid as \"COMPONENT_UUID\", analysis_uuid as \"ANALYSIS_UUID\" from duplications_index");
     assertThat(dtos).extracting("HASH").containsOnly(CPD_TEXT_BLOCK.getHash(), "b1234353e96320ff");
     assertThat(dtos).extracting("START_LINE").containsOnly(30L, 20L);
     assertThat(dtos).extracting("END_LINE").containsOnly(45L, 15L);
