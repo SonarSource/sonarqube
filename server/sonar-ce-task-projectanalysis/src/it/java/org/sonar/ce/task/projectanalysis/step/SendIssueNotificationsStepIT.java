@@ -557,7 +557,7 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
 
   private void sendIssueChangeNotificationOnBranch(long issueCreatedAt) {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto branch = newBranchComponent(project, newBranchDto(project).setKey(BRANCH_NAME));
+    ComponentDto branch = newBranchComponent(project, newBranchDto(project.uuid(), BranchType.BRANCH).setKey(BRANCH_NAME));
     ComponentDto file = newFileDto(branch, project.uuid());
     treeRootHolder.setRoot(builder(Type.PROJECT, 2).setKey(branch.getKey()).setName(branch.longName()).setUuid(branch.uuid()).addChildren(
       builder(Type.FILE, 11).setKey(file.getKey()).setName(file.longName()).build()).build());

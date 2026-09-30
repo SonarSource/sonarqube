@@ -245,10 +245,6 @@ public class ComponentTesting {
       .setBranchType(branchType);
   }
 
-  public static BranchDto newBranchDto(ComponentDto project) {
-    return newBranchDto(project.branchUuid(), BranchType.BRANCH);
-  }
-
   public static BranchDto newBranchDto(ComponentDto branchComponent, BranchType branchType, String projectUuid) {
     String key = "branch_" + secure().nextAlphanumeric(248);
 

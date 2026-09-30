@@ -357,7 +357,7 @@ public class UpdateVisibilityActionIT {
     ProjectData project = randomPublicOrPrivateProject();
     boolean initiallyPrivate = project.getProjectDto().isPrivate();
 
-    BranchDto branchDto = ComponentTesting.newBranchDto(project.getMainBranchComponent());
+    BranchDto branchDto = ComponentTesting.newBranchDto(project.projectUuid(), BranchType.BRANCH);
     dbClient.branchDao().insert(dbSession, branchDto);
 
     ComponentDto branch = ComponentTesting.newBranchComponent(project.getProjectDto(), branchDto)

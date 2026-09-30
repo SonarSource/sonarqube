@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 
 import static java.util.Arrays.asList;
@@ -200,7 +201,7 @@ class IssueIndexProjectStatisticsTest extends IssueIndexTestCommon {
   @Test
   void searchProjectStatistics_return_branch_issues() {
     ComponentDto project = newPrivateProjectDto();
-    ComponentDto branch = newBranchComponent(project, newBranchDto(project).setKey("branch"));
+    ComponentDto branch = newBranchComponent(project, newBranchDto(project.uuid(), BranchType.BRANCH).setKey("branch"));
     String userUuid = secure().nextAlphanumeric(40);
     long from = 1_111_234_567_890L;
     indexIssues(

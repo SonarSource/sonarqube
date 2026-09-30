@@ -477,11 +477,12 @@ project.getProjectDto().getUuid()), PurgeListener.EMPTY, new PurgeProfiler());
     EventDto projectEvent2 = db.events().insertEvent(projectAnalysis2);
     EventDto projectEvent3 = db.events().insertEvent(projectAnalysis3);
     // note: projectAnalysis4 has no event
-    ComponentDto referencedProjectA = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData referencedProjectAData = db.components().insertPublicProject();
+    ComponentDto referencedProjectA = referencedProjectAData.getMainBranchComponent();
     ComponentDto referencedProjectB = db.components().insertPublicProject().getMainBranchComponent();
     db.events().insertEventComponentChanges(projectEvent1, projectAnalysis1, randomChangeCategory(), referencedProjectA, null);
     db.events().insertEventComponentChanges(projectEvent1, projectAnalysis1, randomChangeCategory(), referencedProjectB, null);
-    BranchDto branchProjectA = newBranchDto(referencedProjectA);
+    BranchDto branchProjectA = newBranchDto(referencedProjectAData.projectUuid(), BranchType.BRANCH);
     ComponentDto cptBranchProjectA = ComponentTesting.newBranchComponent(referencedProjectA, branchProjectA);
     db.events().insertEventComponentChanges(projectEvent2, projectAnalysis2, randomChangeCategory(), cptBranchProjectA, branchProjectA);
     // note: projectEvent3 has no component change
@@ -1159,8 +1160,8 @@ project.getProjectDto().getKey());
   @Test
   void delete_row_in_ce_task_input_referring_to_a_row_in_ce_queue_when_deleting_project() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
+    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project.uuid(), BranchType.BRANCH));
+    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project.uuid(), BranchType.BRANCH));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
 
     insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
@@ -1193,8 +1194,8 @@ project.getProjectDto().getKey());
   @Test
   void delete_row_in_ce_scanner_context_referring_to_a_row_in_ce_queue_when_deleting_project() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
+    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project.uuid(), BranchType.BRANCH));
+    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project.uuid(), BranchType.BRANCH));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
 
     insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
@@ -1232,8 +1233,8 @@ project.getProjectDto().getKey());
   @Test
   void delete_row_in_ce_task_characteristics_referring_to_a_row_in_ce_queue_when_deleting_project() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
+    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project.uuid(), BranchType.BRANCH));
+    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project.uuid(), BranchType.BRANCH));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
 
     insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
@@ -1266,8 +1267,8 @@ project.getProjectDto().getKey());
   @Test
   void delete_row_in_ce_task_message_referring_to_a_row_in_ce_queue_when_deleting_project() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
+    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project.uuid(), BranchType.BRANCH));
+    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project.uuid(), BranchType.BRANCH));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
 
     insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
@@ -1300,8 +1301,8 @@ project.getProjectDto().getKey());
   @Test
   void delete_row_in_events_and_event_component_changes_when_deleting_project() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto();
-    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
-    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project));
+    ComponentDto branch = ComponentTesting.newBranchComponent(project, newBranchDto(project.uuid(), BranchType.BRANCH));
+    ComponentDto anotherBranch = ComponentTesting.newBranchComponent(project, newBranchDto(project.uuid(), BranchType.BRANCH));
     ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto();
 
     insertComponents(List.of(project, anotherProject), List.of(branch, anotherBranch));
@@ -1319,11 +1320,12 @@ project.getProjectDto().getKey());
     EventDto anotherBranchEvent = db.events().insertEvent(anotherBranchAnalysis);
     SnapshotDto anotherProjectAnalysis = db.components().insertSnapshot(anotherProject);
     EventDto anotherProjectEvent = db.events().insertEvent(anotherProjectAnalysis);
-    ComponentDto referencedProjectA = db.components().insertPublicProject().getMainBranchComponent();
+    ProjectData referencedProjectAData = db.components().insertPublicProject();
+    ComponentDto referencedProjectA = referencedProjectAData.getMainBranchComponent();
     ComponentDto referencedProjectB = db.components().insertPublicProject().getMainBranchComponent();
     db.events().insertEventComponentChanges(projectEvent1, projectAnalysis1, randomChangeCategory(), referencedProjectA, null);
     db.events().insertEventComponentChanges(projectEvent1, projectAnalysis1, randomChangeCategory(), referencedProjectB, null);
-    BranchDto branchProjectA = newBranchDto(referencedProjectA);
+    BranchDto branchProjectA = newBranchDto(referencedProjectAData.projectUuid(), BranchType.BRANCH);
     ComponentDto cptBranchProjectA = ComponentTesting.newBranchComponent(referencedProjectA, branchProjectA);
     db.events().insertEventComponentChanges(projectEvent2, projectAnalysis2, randomChangeCategory(), cptBranchProjectA, branchProjectA);
     // note: projectEvent3 has no component change
