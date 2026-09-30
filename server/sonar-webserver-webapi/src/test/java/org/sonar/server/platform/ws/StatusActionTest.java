@@ -21,11 +21,14 @@ package org.sonar.server.platform.ws;
 
 import java.util.Date;
 import java.util.Set;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.app.RestartFlagHolderImpl;
+import org.sonar.server.es.EsClusterOperational;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.ws.WsActionTester;
@@ -35,7 +38,11 @@ import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Iterables.filter;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -56,17 +63,30 @@ public class StatusActionTest {
   private DatabaseMigrationState migrationState = mock(DatabaseMigrationState.class);
   private Platform platform = mock(Platform.class);
   private RestartFlagHolder restartFlagHolder = new RestartFlagHolderImpl();
+  private EsClusterOperational esClusterOperational = mock(EsClusterOperational.class);
 
-  private WsActionTester underTest = new WsActionTester(new StatusAction(server, migrationState, platform, restartFlagHolder));
+  private WsActionTester underTest = new WsActionTester(
+    new StatusAction(server, migrationState, platform, restartFlagHolder, esClusterOperational));
+
+  @Before
+  public void setUp() {
+    when(esClusterOperational.isOperational()).thenReturn(true);
+  }
 
   @Test
   public void action_status_is_defined() {
     WebService.Action action = underTest.getDef();
     assertThat(action.isPost()).isFalse();
-    assertThat(action.description()).isNotEmpty();
+    assertThat(action.description())
+      .contains("STARTING:", "Elasticsearch cluster health is not GREEN or YELLOW")
+      .contains("UP:", "Elasticsearch cluster health is GREEN or YELLOW");
     assertThat(action.responseExample()).isNotNull();
 
     assertThat(action.params()).isEmpty();
+    assertThat(action.changelog())
+      .extracting(Change::getVersion, Change::getDescription)
+      .containsExactly(tuple("2026.6",
+        "Status UP requires Elasticsearch cluster to be healthy While Elasticsearch is unreachable, the status is STARTING."));
   }
 
   @Test
@@ -82,6 +102,23 @@ public class StatusActionTest {
     for (DatabaseMigrationState.Status databaseMigrationStatus : DatabaseMigrationState.Status.values()) {
       verifyStatus(Platform.Status.UP, databaseMigrationStatus, STATUS_UP);
     }
+  }
+
+  @Test
+  public void status_is_STARTING_if_platform_is_UP_and_elasticsearch_is_not_operational() {
+    when(esClusterOperational.isOperational()).thenReturn(false);
+
+    verifyStatus(Platform.Status.UP, DatabaseMigrationState.Status.NONE, STATUS_STARTING);
+  }
+
+  @Test
+  public void status_is_RESTARTING_if_platform_is_UP_and_restartFlag_is_true_even_when_elasticsearch_is_not_operational() {
+    restartFlagHolder.set();
+    when(esClusterOperational.isOperational()).thenReturn(false);
+    clearInvocations(esClusterOperational);
+
+    verifyStatus(Platform.Status.UP, DatabaseMigrationState.Status.NONE, STATUS_RESTARTING);
+    verify(esClusterOperational, never()).isOperational();
   }
 
   @Test

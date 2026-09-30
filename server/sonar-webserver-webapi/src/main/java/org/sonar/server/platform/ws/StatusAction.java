@@ -21,10 +21,12 @@ package org.sonar.server.platform.ws;
 
 import com.google.common.io.Resources;
 import org.sonar.api.platform.Server;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.app.RestartFlagHolder;
+import org.sonar.server.es.EsClusterOperational;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.ws.WsUtils;
@@ -37,17 +39,22 @@ import static java.util.Optional.ofNullable;
  */
 public class StatusAction implements SystemWsAction {
 
+  private static final String STATUS_UP_REQUIRES_ES_HEALTH = "Status UP requires Elasticsearch cluster to be healthy "
+    + "While Elasticsearch is unreachable, the status is STARTING.";
+
   private final Server server;
   private final DatabaseMigrationState migrationState;
   private final Platform platform;
   private final RestartFlagHolder restartFlagHolder;
+  private final EsClusterOperational esClusterOperational;
 
   public StatusAction(Server server, DatabaseMigrationState migrationState,
-                      Platform platform, RestartFlagHolder restartFlagHolder) {
+                      Platform platform, RestartFlagHolder restartFlagHolder, EsClusterOperational esClusterOperational) {
     this.server = server;
     this.migrationState = migrationState;
     this.platform = platform;
     this.restartFlagHolder = restartFlagHolder;
+    this.esClusterOperational = esClusterOperational;
   }
 
   @Override
@@ -57,8 +64,8 @@ public class StatusAction implements SystemWsAction {
         "<p>status: the running status" +
         " <ul>" +
         " <li>STARTING: SonarQube Web Server is up and serving some Web Services (eg. api/system/status) " +
-        "but initialization is still ongoing</li>" +
-        " <li>UP: SonarQube instance is up and running</li>" +
+        "but initialization is still ongoing, or Elasticsearch cluster health is not GREEN or YELLOW</li>" +
+        " <li>UP: SonarQube instance is up and running and Elasticsearch cluster health is GREEN or YELLOW</li>" +
         " <li>DOWN: SonarQube instance is up but not running because " +
         "migration has failed (refer to WS /api/system/migrate_db for details) or some other reason (check logs).</li>" +
         " <li>RESTARTING: SonarQube instance is still up but a restart has been requested " +
@@ -68,6 +75,8 @@ public class StatusAction implements SystemWsAction {
         " </ul>" +
         "</p>")
       .setSince("5.2")
+      .setChangelog(
+        new Change("2026.6", STATUS_UP_REQUIRES_ES_HEALTH))
       .setResponseExample(Resources.getResource(this.getClass(), "example-status.json"))
       .setHandler(this);
   }
@@ -89,7 +98,10 @@ public class StatusAction implements SystemWsAction {
         // unless the Platform's status is UP/SAFEMODE/STARTING
         return System.Status.DOWN;
       case UP:
-        return restartFlagHolder.isRestarting() ? System.Status.RESTARTING : System.Status.UP;
+        if (restartFlagHolder.isRestarting()) {
+          return System.Status.RESTARTING;
+        }
+        return esClusterOperational.isOperational() ? System.Status.UP : System.Status.STARTING;
       case STARTING:
         return computeStatusInStarting();
       case SAFEMODE:

@@ -29,6 +29,6 @@ public class EsModuleTest {
   public void verify_count_of_added_components() {
     ListContainer container = new ListContainer();
     new EsModule().configure(container);
-    assertThat(container.getAddedObjects()).hasSize(1);
+    assertThat(container.getAddedObjects()).hasSize(2);
   }
 }

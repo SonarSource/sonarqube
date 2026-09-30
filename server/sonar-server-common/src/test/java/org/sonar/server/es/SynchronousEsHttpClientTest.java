@@ -33,7 +33,9 @@ import java.util.concurrent.CompletableFuture;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import okhttp3.mockwebserver.SocketPolicy;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.util.Timeout;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -174,6 +176,21 @@ public class SynchronousEsHttpClientTest {
     } finally {
       client.close();
     }
+  }
+
+  @Test(timeout = 10_000)
+  public void rawGet_fails_fast_when_the_server_never_answers() throws Exception {
+    mockWebServer.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
+    SynchronousEsHttpClient client = newClient();
+    long startedAt = System.nanoTime();
+    try {
+      assertThatThrownBy(() -> client.rawGet("/_cluster/health", Map.of("timeout", "1s"), Timeout.ofMilliseconds(500)))
+        .isInstanceOf(IOException.class);
+    } finally {
+      client.close();
+    }
+    long elapsedMs = (System.nanoTime() - startedAt) / 1_000_000L;
+    assertThat(elapsedMs).isLessThan(5_000L);
   }
 
   @Test

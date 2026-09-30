@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.server.es.EsClusterOperational;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class CeWorkerFactoryImpl implements CeWorkerFactory {
@@ -32,6 +33,7 @@ public class CeWorkerFactoryImpl implements CeWorkerFactory {
   private final InternalCeQueue queue;
   private final CeTaskProcessorRepository taskProcessorRepository;
   private final CeWorkerController ceWorkerController;
+  private final EsClusterOperational esClusterOperational;
   private final CeWorker.ExecutionListener[] executionListeners;
   private Set<CeWorker> ceWorkers = Collections.emptySet();
 
@@ -39,24 +41,26 @@ public class CeWorkerFactoryImpl implements CeWorkerFactory {
    * Used by the ioc container when there is no {@link CeWorker.ExecutionListener} in the container.
    */
   @Autowired(required = false)
-  public CeWorkerFactoryImpl(InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository, UuidFactory uuidFactory, CeWorkerController ceWorkerController) {
-    this(queue, taskProcessorRepository, uuidFactory, ceWorkerController, new CeWorker.ExecutionListener[0]);
+  public CeWorkerFactoryImpl(InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository, UuidFactory uuidFactory, CeWorkerController ceWorkerController,
+    EsClusterOperational esClusterOperational) {
+    this(queue, taskProcessorRepository, uuidFactory, ceWorkerController, esClusterOperational, new CeWorker.ExecutionListener[0]);
   }
 
   @Autowired(required = false)
   public CeWorkerFactoryImpl(InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository, UuidFactory uuidFactory, CeWorkerController ceWorkerController,
-    CeWorker.ExecutionListener[] executionListeners) {
+    EsClusterOperational esClusterOperational, CeWorker.ExecutionListener[] executionListeners) {
     this.queue = queue;
     this.taskProcessorRepository = taskProcessorRepository;
     this.uuidFactory = uuidFactory;
     this.ceWorkerController = ceWorkerController;
+    this.esClusterOperational = esClusterOperational;
     this.executionListeners = executionListeners;
   }
 
   @Override
   public CeWorker create(int ordinal) {
     String uuid = uuidFactory.create();
-    CeWorkerImpl ceWorker = new CeWorkerImpl(ordinal, uuid, queue, taskProcessorRepository, ceWorkerController, executionListeners);
+    CeWorkerImpl ceWorker = new CeWorkerImpl(ordinal, uuid, queue, taskProcessorRepository, ceWorkerController, esClusterOperational, executionListeners);
     ceWorkers = Stream.concat(ceWorkers.stream(), Stream.of(ceWorker)).collect(Collectors.toSet());
     return ceWorker;
   }

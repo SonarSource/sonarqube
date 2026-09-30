@@ -74,6 +74,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Base64;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -111,6 +112,7 @@ import org.sonar.server.es.response.NodeStatsResponse;
 public class EsClient implements Closeable {
   public static final Logger LOGGER = Loggers.get("es");
   private static final String ES_USERNAME = "elastic";
+  private static final String CLUSTER_HEALTH_STATUS_FIELD = "status";
   private static final int MAX_CONN_PER_ROUTE = 20;
   private static final int MAX_CONN_TOTAL = 60;
 
@@ -238,6 +240,35 @@ public class EsClient implements Closeable {
 
   public HealthResponse clusterHealthV2(Function<HealthRequest.Builder, ObjectBuilder<HealthRequest>> fn) {
     return execute(() -> elasticsearchClient.cluster().health(fn));
+  }
+
+  /**
+   * Cluster health bounded by {@code httpResponseTimeout}, instead of the client-wide response timeout.
+   *
+   * @return the reported status, or {@code null} when the body has none
+   */
+  @Nullable
+  public HealthStatus clusterHealthStatus(Duration httpResponseTimeout) {
+    long esTimeoutMs = Math.max(1_000L, httpResponseTimeout.toMillis() - 1_000L);
+    String esTimeout = esTimeoutMs + "ms";
+    return execute(() -> parseClusterHealthStatus(httpClient.rawGet("/_cluster/health", Map.of(
+      "timeout", esTimeout,
+      "master_timeout", esTimeout), Timeout.ofMilliseconds(httpResponseTimeout.toMillis()))));
+  }
+
+  @Nullable
+  private HealthStatus parseClusterHealthStatus(String body) {
+    JsonObject json = gson.fromJson(body, JsonObject.class);
+    if (json == null || !json.has(CLUSTER_HEALTH_STATUS_FIELD) || !json.get(CLUSTER_HEALTH_STATUS_FIELD).isJsonPrimitive()) {
+      return null;
+    }
+    String value = json.get(CLUSTER_HEALTH_STATUS_FIELD).getAsString();
+    for (HealthStatus status : HealthStatus.values()) {
+      if (status.jsonValue().equals(value)) {
+        return status;
+      }
+    }
+    return null;
   }
 
   public void waitForStatusV2(HealthStatus healthStatus) {

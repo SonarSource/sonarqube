@@ -40,7 +40,10 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
@@ -50,6 +53,7 @@ import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.net.URIBuilder;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * A synchronous {@link TransportHttpClient} for the Elasticsearch Java API client, backed by Apache
@@ -96,7 +100,7 @@ public final class SynchronousEsHttpClient implements TransportHttpClient {
       contentType = ContentType.parse(ct);
     }
     return executeWithFailover(request.method(), request.path(), request.queryParams(), headers, options,
-      toByteArray(request.body()), contentType);
+      toByteArray(request.body()), contentType, null);
   }
 
   @Override
@@ -116,12 +120,32 @@ public final class SynchronousEsHttpClient implements TransportHttpClient {
    * monitoring endpoints not exposed by the typed API client.
    */
   public String rawGet(String path, Map<String, String> queryParams) throws IOException {
-    BufferedResponse response = executeWithFailover("GET", path, queryParams, Collections.emptyMap(), null, null, null);
+    return responseBody(rawGetResponse(path, queryParams, null));
+  }
+
+  /**
+   * Same as {@link #rawGet(String, Map)}, with a per-request response timeout that replaces the client default.
+   * A non-2xx response fails the call.
+   */
+  public String rawGet(String path, Map<String, String> queryParams, Timeout responseTimeout) throws IOException {
+    BufferedResponse response = rawGetResponse(path, queryParams, responseTimeout);
+    if (response.statusCode >= 300) {
+      throw new IOException("Elasticsearch request to " + path + " failed with HTTP " + response.statusCode);
+    }
+    return responseBody(response);
+  }
+
+  private BufferedResponse rawGetResponse(String path, Map<String, String> queryParams, @Nullable Timeout responseTimeout) throws IOException {
+    return executeWithFailover("GET", path, queryParams, Collections.emptyMap(), null, null, null, responseTimeout);
+  }
+
+  private static String responseBody(BufferedResponse response) {
     return response.bodyBytes == null ? "" : new String(response.bodyBytes, StandardCharsets.UTF_8);
   }
 
   private BufferedResponse executeWithFailover(String method, String path, Map<String, String> queryParams,
-    Map<String, String> headers, @Nullable TransportOptions options, @Nullable byte[] body, @Nullable ContentType contentType) throws IOException {
+    Map<String, String> headers, @Nullable TransportOptions options, @Nullable byte[] body, @Nullable ContentType contentType,
+    @Nullable Timeout responseTimeout) throws IOException {
     ClassicRequestBuilder builder = ClassicRequestBuilder.create(method).setUri(buildRelativeUri(path, queryParams));
     headers.forEach((name, value) -> {
       // Content-Type is carried by the entity below; adding it as a header too makes HttpClient5 reject
@@ -138,7 +162,16 @@ public final class SynchronousEsHttpClient implements TransportHttpClient {
     if (body != null) {
       builder.setEntity(new ByteArrayEntity(body, contentType != null ? contentType : ContentType.APPLICATION_JSON));
     }
-    var classicRequest = builder.build();
+    ClassicHttpRequest classicRequest = builder.build();
+    HttpClientContext context = null;
+    if (responseTimeout != null) {
+      context = HttpClientContext.create();
+      context.setRequestConfig(RequestConfig.custom()
+        .setConnectionRequestTimeout(responseTimeout)
+        .setConnectTimeout(responseTimeout)
+        .setResponseTimeout(responseTimeout)
+        .build());
+    }
 
     int count = hosts.size();
     int start = Math.floorMod(nextHost.getAndIncrement(), count);
@@ -148,7 +181,11 @@ public final class SynchronousEsHttpClient implements TransportHttpClient {
       try {
         // Failover happens only on a connection-establishment error, i.e. before the request is sent, so
         // reusing the (repeatable) request across hosts never re-sends a request that reached a node.
-        return httpClient.execute(host, classicRequest, new BufferingResponseHandler(URI.create(host.toURI())));
+        HttpClientResponseHandler<BufferedResponse> handler = new BufferingResponseHandler(URI.create(host.toURI()));
+        if (context == null) {
+          return httpClient.execute(host, classicRequest, handler);
+        }
+        return httpClient.execute(host, classicRequest, context, handler);
       } catch (ConnectException e) {
         // Host unreachable (HttpHostConnectException is a ConnectException): try the next host.
         connectFailure = e;

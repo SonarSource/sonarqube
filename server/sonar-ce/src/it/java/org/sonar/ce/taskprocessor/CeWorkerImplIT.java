@@ -51,6 +51,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
+import org.sonar.server.es.EsClusterOperational;
 
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,24 +92,26 @@ class CeWorkerImplIT {
   private final CeWorker.ExecutionListener executionListener1 = mock(CeWorker.ExecutionListener.class);
   private final CeWorker.ExecutionListener executionListener2 = mock(CeWorker.ExecutionListener.class);
   private final CeWorkerController ceWorkerController = mock(CeWorkerController.class);
+  private final EsClusterOperational esClusterOperational = mock(EsClusterOperational.class);
   private final ArgumentCaptor<String> workerUuidCaptor = ArgumentCaptor.forClass(String.class);
   private final int ordinal = 37;
   private final String workerUuid = "8e5cc1dd-4617-4974-9234-0a9539212615";
   private final CeWorker underTest = new CeWorkerImpl(ordinal, workerUuid, queue, taskProcessorRepository,
-    ceWorkerController, executionListener1, executionListener2);
+    ceWorkerController, esClusterOperational, executionListener1, executionListener2);
   private final CeWorker underTestNoListener = new CeWorkerImpl(ordinal, workerUuid, queue, taskProcessorRepository,
-    ceWorkerController);
+    ceWorkerController, esClusterOperational);
   private final InOrder inOrder = inOrder(taskProcessor, queue, executionListener1, executionListener2);
   private final CeTask.User submitter = new CeTask.User("UUID_USER_1", "LOGIN_1");
 
   @BeforeEach
   void setUp() {
     when(ceWorkerController.isEnabled(any(CeWorker.class))).thenReturn(true);
+    when(esClusterOperational.isOperational()).thenReturn(true);
   }
 
   @Test
   void constructor_throws_IAE_if_ordinal_is_less_than_zero() {
-    assertThatThrownBy(() -> new CeWorkerImpl(-1, workerUuid, queue, taskProcessorRepository, ceWorkerController))
+    assertThatThrownBy(() -> new CeWorkerImpl(-1, workerUuid, queue, taskProcessorRepository, ceWorkerController, esClusterOperational))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Ordinal must be >= 0");
   }
@@ -116,8 +119,8 @@ class CeWorkerImplIT {
   @Test
   void getUUID_must_return_the_uuid_of_constructor() {
     String uuid = "de338f4f-a06f-474f-8ad0-9941b7455904";
-    CeWorker underTest = new CeWorkerImpl(ordinal, uuid, queue, taskProcessorRepository, ceWorkerController);
-    assertThat(underTest.getUUID()).isEqualTo(uuid);
+    CeWorker worker = new CeWorkerImpl(ordinal, uuid, queue, taskProcessorRepository, ceWorkerController, esClusterOperational);
+    assertThat(worker.getUUID()).isEqualTo(uuid);
   }
 
   @Test
@@ -138,6 +141,16 @@ class CeWorkerImplIT {
     assertThat(underTestNoListener.call()).isEqualTo(DISABLED);
 
     verifyNoInteractions(taskProcessor, executionListener1, executionListener2);
+  }
+
+  @Test
+  void does_not_peek_queue_when_elasticsearch_is_not_operational() throws Exception {
+    when(esClusterOperational.isOperational()).thenReturn(false);
+
+    assertThat(underTest.call()).isEqualTo(NO_TASK);
+
+    verifyNoInteractions(queue, taskProcessor, executionListener1, executionListener2);
+    assertThat(logTester.logs(Level.WARN)).contains("Compute Engine is waiting for Elasticsearch before processing tasks");
   }
 
   @Test

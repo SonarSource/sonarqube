@@ -19,12 +19,8 @@
  */
 package org.sonar.server.es;
 
-import org.sonar.core.platform.Module;
+public interface EsClusterOperational {
 
-public class EsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(new EsClientProvider(),
-      EsClusterOperationalChecker.class);
-  }
+  boolean isOperational();
+
 }

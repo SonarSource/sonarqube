@@ -28,6 +28,7 @@ import java.util.stream.IntStream;
 import org.junit.Test;
 import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.core.util.UuidFactoryImpl;
+import org.sonar.server.es.EsClusterOperational;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.mock;
 public class CeWorkerFactoryImplTest {
   private int randomOrdinal = new Random().nextInt(20);
   private CeWorkerFactoryImpl underTest = new CeWorkerFactoryImpl(mock(InternalCeQueue.class),
-    mock(CeTaskProcessorRepository.class), UuidFactoryImpl.INSTANCE, mock(CeWorkerController.class));
+    mock(CeTaskProcessorRepository.class), UuidFactoryImpl.INSTANCE, mock(CeWorkerController.class), mock(EsClusterOperational.class));
 
   @Test
   public void create_return_CeWorker_object_with_specified_ordinal() {
@@ -49,7 +50,7 @@ public class CeWorkerFactoryImplTest {
     CeWorker.ExecutionListener executionListener1 = mock(CeWorker.ExecutionListener.class);
     CeWorker.ExecutionListener executionListener2 = mock(CeWorker.ExecutionListener.class);
     CeWorkerFactoryImpl underTest = new CeWorkerFactoryImpl(mock(InternalCeQueue.class),
-      mock(CeTaskProcessorRepository.class), UuidFactoryImpl.INSTANCE, mock(CeWorkerController.class),
+      mock(CeTaskProcessorRepository.class), UuidFactoryImpl.INSTANCE, mock(CeWorkerController.class), mock(EsClusterOperational.class),
       new CeWorker.ExecutionListener[] {executionListener1, executionListener2});
 
     CeWorker ceWorker = underTest.create(randomOrdinal);

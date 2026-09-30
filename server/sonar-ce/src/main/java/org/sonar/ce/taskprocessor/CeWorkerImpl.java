@@ -41,6 +41,7 @@ import org.sonar.ce.task.CeTaskResult;
 import org.sonar.ce.task.taskprocessor.CeTaskProcessor;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.ce.CeActivityDto;
+import org.sonar.server.es.EsClusterOperational;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -53,25 +54,30 @@ import static org.sonar.db.ce.CeActivityDto.Status.FAILED;
 public class CeWorkerImpl implements CeWorker {
 
   private static final Logger LOG = LoggerFactory.getLogger(CeWorkerImpl.class);
+  private static final long ES_NOT_READY_LOG_PERIOD_MS = 30_000L;
 
   private final int ordinal;
   private final String uuid;
   private final InternalCeQueue queue;
   private final CeTaskProcessorRepository taskProcessorRepository;
   private final CeWorkerController ceWorkerController;
+  private final EsClusterOperational esClusterOperational;
   private final List<ExecutionListener> listeners;
   private final AtomicReference<RunningState> runningState = new AtomicReference<>();
   private boolean excludeIndexationJob;
+  private long nextEsNotReadyLogAtMs;
 
   public CeWorkerImpl(int ordinal, String uuid,
     InternalCeQueue queue, CeTaskProcessorRepository taskProcessorRepository,
     CeWorkerController ceWorkerController,
+    EsClusterOperational esClusterOperational,
     ExecutionListener... listeners) {
     this.ordinal = checkOrdinal(ordinal);
     this.uuid = uuid;
     this.queue = queue;
     this.taskProcessorRepository = taskProcessorRepository;
     this.ceWorkerController = ceWorkerController;
+    this.esClusterOperational = esClusterOperational;
     this.listeners = Arrays.asList(listeners);
     this.excludeIndexationJob = true;
   }
@@ -150,8 +156,11 @@ public class CeWorkerImpl implements CeWorker {
     if (!ceWorkerController.isEnabled(this)) {
       return DISABLED;
     }
+    if (!isElasticsearchReady()) {
+      return NO_TASK;
+    }
     Optional<CeTask> ceTask = tryAndFindTaskToExecute();
-    if (!ceTask.isPresent()) {
+    if (ceTask.isEmpty()) {
       return NO_TASK;
     }
 
@@ -162,6 +171,18 @@ public class CeWorkerImpl implements CeWorker {
       LOG.error(format("An error occurred while executing task with uuid '%s'", ceTask.get().getUuid()), e);
     }
     return TASK_PROCESSED;
+  }
+
+  private boolean isElasticsearchReady() {
+    if (esClusterOperational.isOperational()) {
+      return true;
+    }
+    long now = System.currentTimeMillis();
+    if (now >= nextEsNotReadyLogAtMs) {
+      LOG.warn("Compute Engine is waiting for Elasticsearch before processing tasks");
+      nextEsNotReadyLogAtMs = now + ES_NOT_READY_LOG_PERIOD_MS;
+    }
+    return false;
   }
 
   private Optional<CeTask> tryAndFindTaskToExecute() {

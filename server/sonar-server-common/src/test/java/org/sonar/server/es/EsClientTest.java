@@ -19,11 +19,13 @@
  */
 package org.sonar.server.es;
 
+import co.elastic.clients.elasticsearch._types.HealthStatus;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import okhttp3.mockwebserver.MockResponse;
@@ -38,6 +40,7 @@ import org.junit.rules.TemporaryFolder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -203,6 +206,34 @@ public class EsClientTest {
     when(httpClient.rawGet(eq("/_stats"), any())).thenThrow(IOException.class);
 
     assertThatThrownBy(() -> underTest.indicesStats())
+      .isInstanceOf(ElasticsearchException.class);
+  }
+
+  @Test
+  public void clusterHealthStatus_reads_status_and_bounds_the_elasticsearch_timeout() throws Exception {
+    when(httpClient.rawGet(eq("/_cluster/health"), any(), any())).thenReturn("{\"status\":\"yellow\"}");
+
+    assertThat(underTest.clusterHealthStatus(Duration.ofSeconds(3))).isEqualTo(HealthStatus.Yellow);
+
+    verify(httpClient).rawGet(eq("/_cluster/health"), argThat(params ->
+      "2000ms".equals(params.get("timeout")) && "2000ms".equals(params.get("master_timeout"))), any());
+  }
+
+  @Test
+  public void clusterHealthStatus_returns_null_when_status_is_missing_or_unknown() throws Exception {
+    when(httpClient.rawGet(eq("/_cluster/health"), any(), any())).thenReturn("{}");
+    assertThat(underTest.clusterHealthStatus(Duration.ofSeconds(3))).isNull();
+
+    when(httpClient.rawGet(eq("/_cluster/health"), any(), any())).thenReturn("{\"status\":\"not-a-status\"}");
+    assertThat(underTest.clusterHealthStatus(Duration.ofSeconds(3))).isNull();
+  }
+
+  @Test
+  public void clusterHealthStatus_wraps_transport_failure() throws Exception {
+    when(httpClient.rawGet(eq("/_cluster/health"), any(), any())).thenThrow(new IOException("timed out"));
+
+    Duration timeout = Duration.ofSeconds(3);
+    assertThatThrownBy(() -> underTest.clusterHealthStatus(timeout))
       .isInstanceOf(ElasticsearchException.class);
   }
 
