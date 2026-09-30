@@ -76,6 +76,7 @@
           "internal": false,
           "post": false,
           "hasResponseExample": false,
+          "contentType": "NO_CONTENT",
           "changelog": [
             {
               "description": "Ten",

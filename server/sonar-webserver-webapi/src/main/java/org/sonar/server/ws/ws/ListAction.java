@@ -102,6 +102,7 @@ public class ListAction implements WebServicesWsAction {
       writer.prop("internal", action.isInternal());
       writer.prop("post", action.isPost());
       writer.prop("hasResponseExample", action.responseExample() != null);
+      ofNullable(action.contentType()).ifPresent(contentType -> writer.prop("contentType", contentType.name()));
       writeChangelog(writer, action);
       writeParameters(writer, action, includeInternals);
       writer.endObject();

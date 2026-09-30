@@ -81,6 +81,7 @@ public class ListActionTest {
     public void define(WebService.NewController controller) {
       WebService.NewAction action = controller
         .createAction("action")
+        .setContentType(Response.ContentType.NO_CONTENT)
         .setHandler(this);
       action.setChangelog(new Change("1.0", "Initial"), new Change("2.0", "Second"), new Change("10.0", "Ten"));
     }
