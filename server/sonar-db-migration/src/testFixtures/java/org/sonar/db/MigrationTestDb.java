@@ -32,7 +32,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.config.internal.Settings;
 import org.sonar.db.testfixtures.DatabaseTestUtils;
 import org.sonar.db.testfixtures.TestDb;
-import org.sonar.db.version.SqTables;
+import org.sonar.db.version.SonarQubeSchema;
 import org.sonar.server.platform.db.migration.step.MigrationStep;
 
 public class MigrationTestDb implements TestDb {
@@ -99,7 +99,7 @@ public class MigrationTestDb implements TestDb {
     //Some DataChange steps might fill the tables with some data, data will be removed to ensure tests run on empty tables
     try {
       DatabaseTestUtils.truncateTables(
-        Objects.requireNonNull(database.getDataSource(), "Database has not been started"), SqTables.TABLES);
+        Objects.requireNonNull(database.getDataSource(), "Database has not been started"), SonarQubeSchema.TABLES);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to truncate db tables", e);
     }

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Test;
 import org.sonar.api.utils.MessageException;
-import org.sonar.db.version.SqTables;
+import org.sonar.db.version.SonarQubeSchema;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -100,7 +100,7 @@ public class PostgresCharsetHandlerTest {
       + " collation_name "
       + "from information_schema.columns "
       + "where table_schema='public' "
-      + "and table_name in (" + SqTables.TABLES.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")) + ") "
+      + "and table_name in (" + SonarQubeSchema.TABLES.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")) + ") "
       + "and udt_name='varchar' order by table_name, column_name"), any(SqlExecutor.StringsConverter.class));
   }
 
@@ -120,7 +120,7 @@ public class PostgresCharsetHandlerTest {
       + " collation_name "
       + "from information_schema.columns "
       + "where table_schema='test-schema' "
-      + "and table_name in (" + SqTables.TABLES.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")) + ") "
+      + "and table_name in (" + SonarQubeSchema.TABLES.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")) + ") "
       + "and udt_name='varchar' order by table_name, column_name"), any(SqlExecutor.StringsConverter.class));
   }
 

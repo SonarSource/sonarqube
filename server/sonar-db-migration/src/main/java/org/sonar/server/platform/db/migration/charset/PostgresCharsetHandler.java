@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
-import org.sonar.db.version.SqTables;
+import org.sonar.db.version.SonarQubeSchema;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
@@ -71,14 +71,14 @@ class PostgresCharsetHandler extends CharsetHandler {
     // Examples:
     // issues | key | ''
     // projects | name | utf8
-    var sqTables = getSqTables();
+    var schemaTables = quotedSchemaTables();
     var schema = getSchema(connection);
     List<String[]> rows = getSqlExecutor().select(connection, String.format("select table_name, column_name, collation_name " +
       "from information_schema.columns " +
       "where table_schema='%s' " +
       "and table_name in (%s) " +
       "and udt_name='varchar' " +
-      "order by table_name, column_name", schema, sqTables), new SqlExecutor.StringsConverter(3 /* columns returned by SELECT */));
+      "order by table_name, column_name", schema, schemaTables), new SqlExecutor.StringsConverter(3 /* columns returned by SELECT */));
     Set<String> errors = new LinkedHashSet<>();
     for (String[] row : rows) {
       if (!isBlank(row[2]) && !CI.contains(row[2], UTF8)) {
@@ -95,8 +95,8 @@ class PostgresCharsetHandler extends CharsetHandler {
     return ofNullable(connection.getSchema()).orElse("public");
   }
 
-  private static String getSqTables() {
-    return SqTables.TABLES.stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
+  private static String quotedSchemaTables() {
+    return SonarQubeSchema.TABLES.stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
   }
 
   @VisibleForTesting

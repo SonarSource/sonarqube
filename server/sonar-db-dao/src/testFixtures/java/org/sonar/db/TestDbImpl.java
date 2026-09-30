@@ -31,7 +31,7 @@ import org.sonar.api.config.internal.Settings;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.testfixtures.DatabaseTestUtils;
 import org.sonar.db.testfixtures.TestDb;
-import org.sonar.db.version.SqTables;
+import org.sonar.db.version.SonarQubeSchema;
 import org.sonar.process.logging.LogbackHelper;
 
 class TestDbImpl implements TestDb {
@@ -113,7 +113,7 @@ class TestDbImpl implements TestDb {
     try {
       // we are overriding truncateTables to use a fixed list of tables instead of loading them from the database
       // because here we may be using Oracle which our dynamic table name query does not handle correctly.
-      DatabaseTestUtils.truncateTables(getDatabase().getDataSource(), SqTables.TABLES);
+      DatabaseTestUtils.truncateTables(getDatabase().getDataSource(), SonarQubeSchema.TABLES);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to truncate db tables", e);
     }

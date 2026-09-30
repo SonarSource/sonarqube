@@ -19,7 +19,6 @@
  */
 package org.sonar.db.jira.dao;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.utils.System2;
@@ -45,11 +44,6 @@ class JiraWorkItemDaoTest {
   private final DbTester db = DbTester.create(system2);
 
   private final JiraWorkItemDao underTest = new JiraWorkItemDao(system2, uuidFactory);
-
-  @BeforeEach
-  void beforeEach() {
-    clearDb();
-  }
 
   @Test
   void insertOrUpdate_shouldInsertNewWorkItem() {
@@ -381,11 +375,5 @@ class JiraWorkItemDaoTest {
 
   private int countWorkItemResources() {
     return db.countRowsOfTable(db.getSession(), "jira_work_items_resources");
-  }
-
-  private void clearDb() {
-    db.executeUpdateSql("DELETE FROM jira_work_items_resources");
-    db.executeUpdateSql("DELETE FROM jira_work_items");
-    db.executeUpdateSql("DELETE FROM jira_project_bindings");
   }
 }
