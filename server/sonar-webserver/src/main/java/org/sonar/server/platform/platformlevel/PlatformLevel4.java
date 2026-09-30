@@ -195,6 +195,7 @@ import org.sonar.server.metric.IssueCountMetrics;
 import org.sonar.server.metric.UnanalyzedLanguageMetrics;
 import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.monitoring.ComputeEngineMetricStatusTask;
+import org.sonar.server.monitoring.DbLatencyTask;
 import org.sonar.server.monitoring.ElasticSearchMetricTask;
 import org.sonar.server.monitoring.MainCollector;
 import org.sonar.server.monitoring.MonitoringWsModule;
@@ -874,6 +875,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ComputeEngineMetricStatusTask.class,
       ElasticSearchMetricTask.class,
       WebUptimeTask.class,
+      DbLatencyTask.class,
       SonarLintConnectedClientsTask.class,
 
       MainCollector.class,

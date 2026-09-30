@@ -185,6 +185,15 @@ public class ServerMonitoringMetricsTest {
   }
 
   @Test
+  public void setDbLatencyTest() {
+    ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
+
+    metrics.setDbLatency(0.0042);
+
+    assertThat(CollectorRegistry.defaultRegistry.getSampleValue("sonarqube_db_latency_seconds")).isEqualTo(0.0042);
+  }
+
+  @Test
   public void observeWebApiV1RequestDurationTest() {
     ServerMonitoringMetrics metrics = new ServerMonitoringMetrics();
     String[] labelNames = {"endpoint"};

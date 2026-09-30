@@ -56,6 +56,7 @@ public class ServerMonitoringMetrics {
   private final Histogram webApiV2RequestDuration;
 
   private final Histogram dbQueryDuration;
+  private final Gauge dbLatency;
 
   public ServerMonitoringMetrics() {
     githubHealthIntegrationStatus = Gauge.build()
@@ -157,6 +158,11 @@ public class ServerMonitoringMetrics {
       .help("Duration of database queries in seconds, labelled by MyBatis mapper method")
       .labelNames("mapper_method")
       .buckets(0.01, 0.1, 0.5, 1.0, 5.0, 10.0)
+      .register();
+
+    dbLatency = Gauge.build()
+      .name("sonarqube_db_latency_seconds")
+      .help("Round-trip time in seconds of the database validation query, excluding the time spent waiting for a pooled connection")
       .register();
 
     webApiV1RequestDuration = Histogram.build()
@@ -280,5 +286,9 @@ public class ServerMonitoringMetrics {
 
   public void observeDbQueryDuration(double durationSeconds, String mapperMethod) {
     dbQueryDuration.labels(mapperMethod).observe(durationSeconds);
+  }
+
+  public void setDbLatency(double latencySeconds) {
+    dbLatency.set(latencySeconds);
   }
 }
