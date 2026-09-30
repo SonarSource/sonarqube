@@ -556,19 +556,19 @@ class AuthorizationDaoIT {
 
   @Test
   void keepAuthorizedEntityUuids_returns_private_project_if_user_is_granted_project_permission_by_group() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto otherProject = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto otherProject = db.components().insertPrivateProject().getProjectDto();
     UserDto otherUser = db.users().insertUser();
     db.users().insertMember(group1, user);
-    db.users().insertProjectPermissionOnGroup(group1, randomPermission, project);
+    db.users().insertEntityPermissionOnGroup(group1, randomPermission, project);
 
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(project.uuid()), user.getUuid(), randomPermission))
-      .containsOnly(project.uuid());
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(project.uuid()), user.getUuid(), "another perm"))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(project.getUuid()), user.getUuid(), randomPermission))
+      .containsOnly(project.getUuid());
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(project.getUuid()), user.getUuid(), "another perm"))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(otherProject.uuid()), user.getUuid(), randomPermission))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(otherProject.getUuid()), user.getUuid(), randomPermission))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(project.uuid()), otherUser.getUuid(), randomPermission))
+    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(project.getUuid()), otherUser.getUuid(), randomPermission))
       .isEmpty();
   }
 

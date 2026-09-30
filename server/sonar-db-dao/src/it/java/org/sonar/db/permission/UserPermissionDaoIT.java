@@ -34,7 +34,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.NoOpAuditPersister;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.entity.EntityDto;
@@ -163,7 +162,7 @@ class UserPermissionDaoIT {
 
   @Test
   void selectUserUuidsByQuery_is_ordering_by_users_having_permissions_first_then_by_name_lowercase_when_high_number_of_users_for_global_permissions() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     IntStream.rangeClosed(1, DEFAULT_PAGE_SIZE + 1).forEach(i -> {
       UserDto user = insertUser(u -> u.setLogin("login" + i).setName("" + i));
       // Add permission on project to be sure projects are excluded
@@ -456,7 +455,7 @@ class UserPermissionDaoIT {
   void selectUserIdsWithPermissionOnEntityBut_returns_empty_if_project_does_not_exist() {
     ProjectData project = randomPublicOrPrivateProject();
     UserDto user = insertUser();
-    db.users().insertProjectPermissionOnUser(user, "foo", project.getMainBranchComponent());
+    db.users().insertProjectPermissionOnUser(user, "foo", project.getProjectDto());
 
     assertThat(underTest.selectUserIdsWithPermissionOnEntityBut(dbSession, "1234", ProjectPermission.USER.getKey()))
       .isEmpty();
@@ -467,8 +466,8 @@ class UserPermissionDaoIT {
     ProjectData project = randomPublicOrPrivateProject();
     UserDto user1 = insertUser();
     UserDto user2 = insertUser();
-    db.users().insertProjectPermissionOnUser(user1, "p1", project.getMainBranchComponent());
-    db.users().insertProjectPermissionOnUser(user2, "p2", project.getMainBranchComponent());
+    db.users().insertProjectPermissionOnUser(user1, "p1", project.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user2, "p2", project.getProjectDto());
 
     assertThat(underTest.selectUserIdsWithPermissionOnEntityBut(dbSession, project.projectUuid(), "p2"))
       .extracting("uuid", "login")
@@ -547,7 +546,7 @@ class UserPermissionDaoIT {
     UserDto user = insertUser();
     db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
     ProjectData project = randomPublicOrPrivateProject();
-    db.users().insertProjectPermissionOnUser(user, GlobalPermission.SCAN.getKey(), project.getMainBranchComponent());
+    db.users().insertProjectPermissionOnUser(user, GlobalPermission.SCAN.getKey(), project.getProjectDto());
 
     int deletedCount = underTest.deleteEntityPermissionOfAnyUser(dbSession, "p1", project.getProjectDto());
 
@@ -564,11 +563,11 @@ class UserPermissionDaoIT {
     db.users().insertGlobalPermissionOnUser(user2, GlobalPermission.SCAN);
     ProjectData project1 = randomPublicOrPrivateProject();
     ProjectData project2 = randomPublicOrPrivateProject();
-    db.users().insertProjectPermissionOnUser(user1, GlobalPermission.SCAN.getKey(), project1.getMainBranchComponent());
-    db.users().insertProjectPermissionOnUser(user2, GlobalPermission.SCAN.getKey(), project1.getMainBranchComponent());
-    db.users().insertProjectPermissionOnUser(user1, GlobalPermission.SCAN.getKey(), project2.getMainBranchComponent());
-    db.users().insertProjectPermissionOnUser(user2, GlobalPermission.SCAN.getKey(), project2.getMainBranchComponent());
-    db.users().insertProjectPermissionOnUser(user2, GlobalPermission.PROVISION_PROJECTS.getKey(), project2.getMainBranchComponent());
+    db.users().insertProjectPermissionOnUser(user1, GlobalPermission.SCAN.getKey(), project1.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user2, GlobalPermission.SCAN.getKey(), project1.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user1, GlobalPermission.SCAN.getKey(), project2.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user2, GlobalPermission.SCAN.getKey(), project2.getProjectDto());
+    db.users().insertProjectPermissionOnUser(user2, GlobalPermission.PROVISION_PROJECTS.getKey(), project2.getProjectDto());
 
     int deletedCount = underTest.deleteEntityPermissionOfAnyUser(dbSession, GlobalPermission.SCAN.getKey(), project1.getProjectDto());
 

@@ -608,10 +608,10 @@ public class ServerUserSessionIT {
     UserSession underTest = newUserSession(user);
 
     ComponentDto portfolio = db.components().insertPrivatePortfolio();
-    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, portfolio);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, db.components().getPortfolioDto(portfolio));
 
     ComponentDto subPortfolio = db.components().insertSubportfolio(portfolio);
-    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, subPortfolio);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, db.components().getPortfolioDto(subPortfolio));
 
     ProjectData app = db.components().insertPrivateApplication();
     db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, app.getProjectDto());
@@ -623,12 +623,12 @@ public class ServerUserSessionIT {
     var copyProject1 = db.components().insertComponent(newProjectCopy(project1, portfolio));
 
     // Add private project2 with USER permissions to private portfolio
-    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project2);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, db.components().getProjectDtoByMainBranch(project2));
     db.components().addPortfolioProject(portfolio, project2);
     var copyProject2 = db.components().insertComponent(newProjectCopy(project2, portfolio));
 
     // Add private project4 with USER permissions to sub-portfolio
-    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project4);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, db.components().getProjectDtoByMainBranch(project4));
     db.components().addPortfolioProject(subPortfolio, project4);
     var copyProject4 = db.components().insertComponent(newProjectCopy(project4, subPortfolio));
     db.components().addPortfolioReference(portfolio, subPortfolio.uuid());

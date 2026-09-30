@@ -172,7 +172,7 @@ public class DeactivateActionIT {
     createAdminUser();
     logInAsSystemAdministrator();
     UserDto user = db.users().insertUser();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
     db.users().insertGlobalPermissionOnUser(user, GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project);
@@ -181,7 +181,7 @@ public class DeactivateActionIT {
     deactivate(user.getLogin());
 
     assertThat(db.getDbClient().userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getUuid())).isEmpty();
-    assertThat(db.getDbClient().userPermissionDao().selectEntityPermissionsOfUser(dbSession, user.getUuid(), project.uuid())).isEmpty();
+    assertThat(db.getDbClient().userPermissionDao().selectEntityPermissionsOfUser(dbSession, user.getUuid(), project.getUuid())).isEmpty();
   }
 
   @Test

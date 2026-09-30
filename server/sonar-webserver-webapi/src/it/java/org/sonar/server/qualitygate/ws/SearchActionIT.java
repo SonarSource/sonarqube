@@ -158,8 +158,8 @@ class SearchActionIT {
   @Test
   void return_only_authorized_projects() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     UserDto user = db.users().insertUser();
     // User can only see project1 1
     db.users().insertProjectPermissionOnUser(user, USER, project1);
@@ -172,8 +172,8 @@ class SearchActionIT {
 
     assertThat(response.getResultsList())
       .extracting(Result::getName)
-      .containsExactlyInAnyOrder(project1.name())
-      .doesNotContain(project2.name());
+      .containsExactlyInAnyOrder(project1.getName())
+      .doesNotContain(project2.getName());
   }
 
   @Test

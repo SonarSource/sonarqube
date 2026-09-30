@@ -31,7 +31,6 @@ import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -122,12 +121,12 @@ class RoleDaoIT {
   void delete_all_group_permissions_by_group_uuid() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     db.users().insertPermissionOnGroup(group1, "admin");
-    db.users().insertProjectPermissionOnGroup(group1, "profileadmin", project);
+    db.users().insertEntityPermissionOnGroup(group1, "profileadmin", project);
     db.users().insertPermissionOnGroup(group1, "gateadmin");
     db.users().insertPermissionOnGroup(group2, "gateadmin");
-    db.users().insertProjectPermissionOnGroup(group2, "admin", project);
+    db.users().insertEntityPermissionOnGroup(group2, "admin", project);
     db.users().insertPermissionOnAnyone("scan");
     db.users().insertPermissionOnAnyone("provisioning");
 
@@ -135,11 +134,11 @@ class RoleDaoIT {
     db.getSession().commit();
 
     assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), group1.getUuid())).isEmpty();
-    assertThat(db.getDbClient().groupPermissionDao().selectEntityPermissionsOfGroup(db.getSession(), group1.getUuid(), project.uuid()))
+    assertThat(db.getDbClient().groupPermissionDao().selectEntityPermissionsOfGroup(db.getSession(), group1.getUuid(), project.getUuid()))
       .isEmpty();
     assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), group2.getUuid()))
       .containsOnly("gateadmin");
-    assertThat(db.getDbClient().groupPermissionDao().selectEntityPermissionsOfGroup(db.getSession(), group2.getUuid(), project.uuid()))
+    assertThat(db.getDbClient().groupPermissionDao().selectEntityPermissionsOfGroup(db.getSession(), group2.getUuid(), project.getUuid()))
       .containsOnly("admin");
     assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null)).containsOnly("scan",
       "provisioning");

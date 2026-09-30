@@ -26,6 +26,7 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.db.permission.ProjectPermission;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.GlobalPermission;
@@ -357,16 +358,16 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
 
   @Test
   public void fail_when_using_branch_uuid() {
-    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    ProjectDto project = db.components().insertPublicProject().getProjectDto();
+    BranchDto branch = db.components().insertProjectBranch(project);
     GroupDto group = db.users().insertGroup();
-    db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
+    db.users().insertEntityPermissionOnGroup(group, ISSUE_ADMIN, project);
     loginAsAdmin();
 
     assertThatThrownBy(() -> {
       newRequest()
         .setParam(PARAM_PERMISSION, ISSUE_ADMIN.getKey())
-        .setParam(PARAM_PROJECT_ID, branch.uuid())
+        .setParam(PARAM_PROJECT_ID, branch.getUuid())
         .execute();
     })
       .isInstanceOf(NotFoundException.class)

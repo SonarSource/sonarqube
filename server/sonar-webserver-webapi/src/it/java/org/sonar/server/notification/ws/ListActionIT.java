@@ -115,7 +115,7 @@ class ListActionIT {
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     ProjectData project = db.components().insertPrivateProject();
-    db.users().insertProjectPermissionOnUser(user, USER, project.getMainBranchComponent());
+    db.users().insertProjectPermissionOnUser(user, USER, project.getProjectDto());
     ProjectDto anotherProject = db.components().insertPrivateProject().getProjectDto();
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project.getProjectDto());
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, anotherProject);
@@ -255,7 +255,7 @@ class ListActionIT {
     userSession.logIn(user);
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     ProjectData project = db.components().insertPrivateProject();
-    db.users().insertProjectPermissionOnUser(user, USER, project.getMainBranchComponent());
+    db.users().insertProjectPermissionOnUser(user, USER, project.getProjectDto());
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project.getProjectDto());
     notificationUpdater.add(dbSession, emailChannel.getKey(), "Unknown Notification", user, project.getProjectDto());
     dbSession.commit();
@@ -342,7 +342,7 @@ class ListActionIT {
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
     ProjectDto project = projectData.getProjectDto();
-    db.users().insertProjectPermissionOnUser(user, USER, projectData.getMainBranchComponent());
+    db.users().insertProjectPermissionOnUser(user, USER, project);
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_ISSUES, user, null);

@@ -30,7 +30,6 @@ import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 
@@ -150,8 +149,8 @@ public class CheckAnyonePermissionsAtStartupTest {
   private void createPublicProjectsWithNonAnyoneGroupPermissions() {
     GroupDto group = dbTester.users().insertGroup();
     IntStream.rangeClosed(1, 3).forEach(i -> {
-      ComponentDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i)).getMainBranchComponent();
-      dbTester.users().insertProjectPermissionOnGroup(group, "perm-" + i, project);
+      ProjectDto project = dbTester.components().insertPublicProject(p -> p.setKey("key-" + i)).getProjectDto();
+      dbTester.users().insertEntityPermissionOnGroup(group, "perm-" + i, project);
     });
   }
 

@@ -30,9 +30,9 @@ import org.sonar.db.permission.ProjectPermission;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateTesting;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
@@ -145,8 +145,8 @@ public class DeleteActionIT {
     addAdmin();
     insertDefaultGroup();
     GroupDto group = db.users().insertGroup();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.users().insertProjectPermissionOnGroup(group, ProjectPermission.ADMIN, project);
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.users().insertEntityPermissionOnGroup(group, ProjectPermission.ADMIN, project);
     loginAsAdmin();
 
     newRequest()

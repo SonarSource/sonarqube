@@ -25,7 +25,9 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -235,7 +237,10 @@ class ProjectCollectionContextLoaderIT {
 
   private void grantBrowsePermission(UserDto user, ComponentDto... components) {
     for (ComponentDto component : components) {
-      db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, component);
+      EntityDto entity = ComponentQualifiers.VIEW.equals(component.qualifier()) || ComponentQualifiers.SUBVIEW.equals(component.qualifier())
+        ? db.components().getPortfolioDto(component)
+        : db.components().getProjectDtoByMainBranch(component);
+      db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, entity);
     }
   }
 }

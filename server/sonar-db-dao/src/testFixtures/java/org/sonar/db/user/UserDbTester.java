@@ -33,8 +33,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
@@ -289,29 +287,6 @@ public class UserDbTester {
     return insertPermissionOnGroup(group, permission.getKey());
   }
 
-  public GroupPermissionDto insertProjectPermissionOnAnyone(String permission, ComponentDto project) {
-    checkArgument(!project.isPrivate(), "No permission to group AnyOne can be granted on a private project");
-    checkArgument(!PUBLIC_PERMISSIONS.stream().map(ProjectPermission::getKey).collect(toSet()).contains(permission),
-      "permission %s can't be granted on a public project", permission);
-    Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.branchUuid());
-    // I don't know if this check is worth it
-    branchDto.ifPresent(dto -> checkArgument(dto.isMain(), PERMISSIONS_CANT_BE_GRANTED_ON_BRANCHES));
-    GroupPermissionDto dto = new GroupPermissionDto()
-      .setUuid(Uuids.createFast())
-      .setGroupUuid(null)
-      .setRole(permission)
-      .setEntityUuid(project.uuid())
-      .setEntityName(project.name());
-
-    // TODO, will be removed later
-    ProjectDto projectDto = new ProjectDto();
-    projectDto.setQualifier(project.qualifier());
-    projectDto.setKey(project.getKey());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, projectDto, null);
-    db.commit();
-    return dto;
-  }
-
   public GroupPermissionDto insertEntityPermissionOnAnyone(ProjectPermission permission, EntityDto entity) {
     return insertEntityPermissionOnAnyone(permission.getKey(), entity);
   }
@@ -336,33 +311,6 @@ public class UserDbTester {
     db.commit();
   }
 
-  public GroupPermissionDto insertProjectPermissionOnGroup(GroupDto group, ProjectPermission permission, ComponentDto project) {
-    return insertProjectPermissionOnGroup(group, permission.getKey(), project);
-  }
-
-  public GroupPermissionDto insertProjectPermissionOnGroup(GroupDto group, String permission, ComponentDto project) {
-    checkArgument(project.isPrivate() || !PUBLIC_PERMISSIONS.stream().map(ProjectPermission::getKey).collect(toSet()).contains(permission),
-      "%s can't be granted on a public project", permission);
-    Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.branchUuid());
-    // I don't know if this check is worth it
-    branchDto.ifPresent(dto -> checkArgument(dto.isMain(), PERMISSIONS_CANT_BE_GRANTED_ON_BRANCHES));
-    GroupPermissionDto dto = new GroupPermissionDto()
-      .setUuid(Uuids.createFast())
-      .setGroupUuid(group.getUuid())
-      .setGroupName(group.getName())
-      .setRole(permission)
-      .setEntityUuid(project.uuid())
-      .setEntityName(project.name());
-
-    // TODO, will be removed later
-    ProjectDto projectDto = new ProjectDto();
-    projectDto.setQualifier(project.qualifier());
-    projectDto.setKey(project.getKey());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, projectDto, null);
-    db.commit();
-    return dto;
-  }
-
   public Set<GroupPermissionDto> insertEntityPermissionsOnGroup(GroupDto group, EntityDto entity, ProjectPermission... permissions) {
     return insertEntityPermissionsOnGroup(group, entity, stream(permissions).map(ProjectPermission::getKey).toArray(String[]::new));
   }
@@ -378,7 +326,7 @@ public class UserDbTester {
   }
 
   public GroupPermissionDto insertEntityPermissionOnGroup(GroupDto group, String permission, EntityDto entity) {
-    checkArgument(entity.isPrivate() || !PUBLIC_PERMISSIONS.contains(permission),
+    checkArgument(entity.isPrivate() || !ProjectPermission.isPublic(permission),
       "%s can't be granted on a public entity (project or portfolio)", permission);
     Optional<BranchDto> branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), entity.getUuid());
     // I don't know if this check is worth it
@@ -436,36 +384,6 @@ public class UserDbTester {
   public void deletePermissionFromUser(EntityDto project, UserDto user, ProjectPermission permission) {
     db.getDbClient().userPermissionDao().deleteEntityPermission(db.getSession(), user, permission.getKey(), project);
     db.commit();
-  }
-
-  /**
-   * Grant permission on given project
-   */
-  public UserPermissionDto insertProjectPermissionOnUser(UserDto user, ProjectPermission permission, ComponentDto project) {
-    return insertProjectPermissionOnUser(user, permission.getKey(), project);
-  }
-
-  public UserPermissionDto insertProjectPermissionOnUser(UserDto user, String permission, ComponentDto project) {
-    checkArgument(project.isPrivate() || !PUBLIC_PERMISSIONS.stream().map(ProjectPermission::getKey).collect(toSet()).contains(permission),
-      "%s can't be granted on a public project", permission);
-    EntityDto entityDto;
-    if (project.qualifier().equals(ComponentQualifiers.VIEW) || project.qualifier().equals(ComponentQualifiers.SUBVIEW)) {
-      entityDto = db.getDbClient().portfolioDao().selectByUuid(db.getSession(), project.uuid())
-        .orElseThrow();
-    } else {
-      BranchDto branchDto = db.getDbClient().branchDao().selectByUuid(db.getSession(), project.branchUuid())
-        .orElseThrow();
-      // I don't know if this check is worth it
-      checkArgument(branchDto.isMain(), PERMISSIONS_CANT_BE_GRANTED_ON_BRANCHES);
-
-      entityDto = dbClient.projectDao().selectByBranchUuid(db.getSession(), branchDto.getUuid())
-        .orElseThrow();
-    }
-
-    UserPermissionDto dto = new UserPermissionDto(Uuids.create(), permission, user.getUuid(), entityDto.getUuid());
-    db.getDbClient().userPermissionDao().insert(db.getSession(), dto, entityDto, user, null);
-    db.commit();
-    return dto;
   }
 
   public UserPermissionDto insertProjectPermissionOnUser(UserDto user, ProjectPermission permission, EntityDto project) {

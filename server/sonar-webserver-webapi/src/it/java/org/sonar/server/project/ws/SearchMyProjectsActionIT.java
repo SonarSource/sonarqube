@@ -34,12 +34,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ProjectLinkDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.portfolio.PortfolioDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -118,7 +118,7 @@ public class SearchMyProjectsActionIT {
   @Test
   public void return_only_first_1000_projects() {
     IntStream.range(0, 1_010).forEach(i -> {
-      ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+      ProjectDto project = db.components().insertPrivateProject().getProjectDto();
       db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, project);
     });
 
@@ -129,9 +129,9 @@ public class SearchMyProjectsActionIT {
 
   @Test
   public void sort_projects_by_name() {
-    ComponentDto b_project = db.components().insertPrivateProject(p -> p.setName("B_project_name")).getMainBranchComponent();
-    ComponentDto c_project = db.components().insertPrivateProject(p -> p.setName("c_project_name")).getMainBranchComponent();
-    ComponentDto a_project = db.components().insertPrivateProject(p -> p.setName("A_project_name")).getMainBranchComponent();
+    ProjectDto b_project = db.components().insertPrivateProject(p -> p.setName("B_project_name")).getProjectDto();
+    ProjectDto c_project = db.components().insertPrivateProject(p -> p.setName("c_project_name")).getProjectDto();
+    ProjectDto a_project = db.components().insertPrivateProject(p -> p.setName("A_project_name")).getProjectDto();
 
     db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, b_project);
     db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, a_project);
