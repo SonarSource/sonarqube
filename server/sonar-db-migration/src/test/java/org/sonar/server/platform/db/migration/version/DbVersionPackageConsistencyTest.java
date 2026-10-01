@@ -27,6 +27,8 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.OptionalInt;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DynamicTest;
@@ -36,6 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 class DbVersionPackageConsistencyTest {
+
+  private static final Pattern COMMERCIAL_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)(?:\\.\\d+)?");
 
   @TestFactory
   Collection<DynamicTest> each_version_package_should_not_exceed_current_commercial_version() throws IOException {
@@ -74,10 +78,10 @@ class DbVersionPackageConsistencyTest {
     assertThat(commercialVersion)
       .describedAs("commercialVersion not found in private/gradle.properties")
       .isNotNull();
-    String[] parts = commercialVersion.split("\\.");
-    assertThat(parts)
-      .describedAs("commercialVersion in private/gradle.properties must have format 'MAJOR.MINOR'")
-      .hasSize(2);
-    return OptionalInt.of(Integer.parseInt(parts[0]) * 100 + Integer.parseInt(parts[1]));
+    Matcher matcher = COMMERCIAL_VERSION_PATTERN.matcher(commercialVersion);
+    assertThat(matcher.matches())
+      .describedAs("commercialVersion '%s' in private/gradle.properties must have format 'MAJOR.MINOR' or 'MAJOR.MINOR.PATCH'", commercialVersion)
+      .isTrue();
+    return OptionalInt.of(Integer.parseInt(matcher.group(1)) * 100 + Integer.parseInt(matcher.group(2)));
   }
 }
