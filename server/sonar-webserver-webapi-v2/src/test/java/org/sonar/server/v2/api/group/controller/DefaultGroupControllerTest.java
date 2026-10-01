@@ -441,6 +441,13 @@ public class DefaultGroupControllerTest {
   }
 
   @Test
+  public void search_whenParameterNameIsUnknown_shouldReturnBadRequest() throws Exception {
+    mockMvc.perform(get(GROUPS_ENDPOINT).queryParam("maneged", "true"))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().json("{\"message\":\"Parameter \\\"maneged\\\" is not a valid parameter for " + GROUPS_ENDPOINT + ".\"}"));
+  }
+
+  @Test
   public void search_whenGroupServiceReturnUsers_shouldReturnThem() throws Exception {
     userSession.logIn().setSystemAdministrator();
 

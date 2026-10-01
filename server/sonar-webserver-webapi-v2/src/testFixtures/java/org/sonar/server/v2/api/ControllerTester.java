@@ -32,6 +32,7 @@ import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator
 import org.jspecify.annotations.NonNull;
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
 import org.sonar.server.v2.common.ServerRestResponseEntityExceptionHandler;
+import org.sonar.server.v2.common.UnknownRequestParameterHandler;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
@@ -77,8 +78,13 @@ public class ControllerTester {
 
 
   private static RequestMappingHandlerMapping resolveRequestMappingHandlerMapping(List<HandlerInterceptor> handlerInterceptors) {
+    List<HandlerInterceptor> interceptors = new ArrayList<>();
+    interceptors.add(new UnknownRequestParameterHandler());
+    if (handlerInterceptors != null) {
+      interceptors.addAll(handlerInterceptors);
+    }
     RequestMappingHandlerMapping handlerMapping = new RequestMappingHandlerMapping();
-    handlerMapping.setInterceptors(handlerInterceptors != null ? handlerInterceptors.toArray() : new Object[0]);
+    handlerMapping.setInterceptors(interceptors.toArray());
     return handlerMapping;
   }
 

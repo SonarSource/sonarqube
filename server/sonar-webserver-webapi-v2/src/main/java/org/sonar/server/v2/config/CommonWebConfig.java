@@ -24,10 +24,12 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
+import org.sonar.server.v2.common.UnknownRequestParameterHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -55,5 +57,12 @@ public class CommonWebConfig implements WebMvcConfigurer {
   @Override
   public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
     configurer.defaultContentType(MediaType.APPLICATION_JSON, MediaType.ALL);
+  }
+
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    // springdoc.api-docs.path. Those handlers are not V2 resources.
+    registry.addInterceptor(new UnknownRequestParameterHandler())
+      .excludePathPatterns("/api-docs", "/api-docs/**", "/api-docs.yaml", "/api-docs.yaml/**");
   }
 }

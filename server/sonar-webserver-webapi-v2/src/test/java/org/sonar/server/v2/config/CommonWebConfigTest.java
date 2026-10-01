@@ -28,6 +28,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
+import org.sonar.server.v2.common.RestResponseEntityExceptionHandler;
 import org.sonar.server.v2.common.ServerRestResponseEntityExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -101,6 +102,35 @@ public class CommonWebConfigTest {
     }
   }
 
+  @Test
+  public void unknownRequestParameter_shouldReturnBadRequest() throws Exception {
+    try (var context = new AnnotationConfigWebApplicationContext()) {
+      context.setServletContext(new MockServletContext());
+      context.register(NativeValidationConfiguration.class, TestControllerConfiguration.class);
+      context.refresh();
+
+      MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+
+      mockMvc.perform(get("/test").queryParam("pageSize", "10").queryParam("maneged", "true"))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().json("{\"message\":\"Parameter \\\"maneged\\\" is not a valid parameter for /test.\"}"));
+    }
+  }
+
+  @Test
+  public void unknownRequestParameter_shouldIgnoreSpringDocPaths() throws Exception {
+    try (var context = new AnnotationConfigWebApplicationContext()) {
+      context.setServletContext(new MockServletContext());
+      context.register(NativeValidationConfiguration.class, TestControllerConfiguration.class);
+      context.refresh();
+
+      MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+
+      mockMvc.perform(get("/api-docs").queryParam("group", "default"))
+        .andExpect(status().isOk());
+    }
+  }
+
   @Configuration
   @EnableWebMvc
   static class NativeValidationConfiguration {
@@ -113,6 +143,11 @@ public class CommonWebConfigTest {
     ServerRestResponseEntityExceptionHandler serverRestResponseEntityExceptionHandler() {
       return new ServerRestResponseEntityExceptionHandler();
     }
+
+    @Bean
+    RestResponseEntityExceptionHandler restResponseEntityExceptionHandler() {
+      return new RestResponseEntityExceptionHandler();
+    }
   }
 
   @Configuration
@@ -120,6 +155,11 @@ public class CommonWebConfigTest {
     @Bean
     TestController testController() {
       return new TestController();
+    }
+
+    @Bean
+    ApiDocsController apiDocsController() {
+      return new ApiDocsController();
     }
   }
 
@@ -129,6 +169,14 @@ public class CommonWebConfigTest {
     ResponseEntity<Void> get(
       @RequestParam(value = "pageIndex", required = false) @Min(1) Integer pageIndex,
       @RequestParam("pageSize") @Max(5000) Integer pageSize);
+  }
+
+  @RestController
+  static class ApiDocsController {
+    @GetMapping("/api-docs")
+    public ResponseEntity<Void> docs() {
+      return ResponseEntity.ok().build();
+    }
   }
 
   @RequestMapping("/test")

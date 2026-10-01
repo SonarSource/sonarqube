@@ -193,10 +193,9 @@ public class DeprecatedHandlerTest {
     }
   }
 
-  private static class GetRequest {
-    @Deprecated(since = DEPRECATED_VERSION)
-    private String deprecatedField;
-    private String notDeprecatedField;
+  private record GetRequest(
+    @Deprecated(since = DEPRECATED_VERSION) String deprecatedField,
+    String notDeprecatedField) {
   }
 
   private record UserSessionData(boolean isLoggedIn, boolean isAuthenticatedBrowserSession) {
