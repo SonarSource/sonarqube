@@ -31,6 +31,7 @@ public class DbVersion202606 implements DbVersion {
       .add(2026_06_000, "Remove duplicate permission templates", RemoveDuplicatePermissionTemplates.class)
       .add(2026_06_001, "Enforce unique permission template names", EnforceUniquePermissionTemplateNames.class)
       .add(2026_06_002, "Add 'type' to 'sca_analyses'", AddTypeToScaAnalyses.class)
-      .add(2026_06_003, "Create table 'sca_container_analyses'", CreateScaContainerAnalysesTable.class);
+      .add(2026_06_003, "Create table 'sca_container_analyses'", CreateScaContainerAnalysesTable.class)
+      .add(2026_06_004, "Create sca_available_fixes table", CreateScaAvailableFixesTable.class);
   }
 }
