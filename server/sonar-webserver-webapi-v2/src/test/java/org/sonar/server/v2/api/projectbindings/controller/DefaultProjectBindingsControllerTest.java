@@ -39,8 +39,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.ProjectPermission.ADMIN;
 import static org.sonar.server.v2.WebApiEndpoints.PROJECT_BINDINGS_ENDPOINT;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -139,26 +139,42 @@ class DefaultProjectBindingsControllerTest {
   }
 
   @Test
-  void searchProjectBindings_whenUserDoesntHaveProjectProvisionPermission_returnsForbidden() throws Exception {
+  void searchProjectBindings_whenUserIsNotLoggedIn_returnsUnauthorized() throws Exception {
+    mockMvc
+      .perform(get(PROJECT_BINDINGS_ENDPOINT)
+        .param("repository", "repo")
+        .param("dopSettingId", "id"))
+      .andExpect(status().isUnauthorized());
+
+    verifyNoInteractions(projectBindingsService);
+  }
+
+  @Test
+  void searchProjectBindings_whenUserDoesntHaveProjectProvisionPermission_returnsEmptyList() throws Exception {
     userSession.logIn();
+    when(projectBindingsService.findProjectBindingsByRequest(any(), any())).thenReturn(new SearchResults<>(List.of(), 0));
 
     mockMvc
       .perform(get(PROJECT_BINDINGS_ENDPOINT)
         .param("repository", "repo")
         .param("dopSettingId", "id"))
       .andExpectAll(
-        status().isForbidden(),
+        status().isOk(),
         content().json("""
           {
-            "message": "Insufficient privileges"
+            "projectBindings": [],
+            "page": {
+              "total": 0
+            }
           }
           """));
 
+    verify(projectBindingsService).findProjectBindingsByRequest(any(), eq(userSession.getUuid()));
   }
 
   @Test
   void searchProjectBindings_whenParametersUsed_shouldForwardWithParameters() throws Exception {
-    userSession.logIn().addPermission(PROVISION_PROJECTS);
+    userSession.logIn();
     when(projectBindingsService.findProjectBindingsByRequest(any(), any())).thenReturn(new SearchResults<>(List.of(), 0));
 
     mockMvc
@@ -178,8 +194,8 @@ class DefaultProjectBindingsControllerTest {
   }
 
   @Test
-  void searchProjectBindings_whenResultsFound_shouldReturnsThem() throws Exception {
-    userSession.logIn().addPermission(PROVISION_PROJECTS);
+  void searchProjectBindings_whenUserDoesntHaveProjectProvisionPermissionAndResultsFound_returnsThem() throws Exception {
+    userSession.logIn();
 
     ProjectBindingInformation dto1 = projectBindingInformation("1");
     ProjectBindingInformation dto2 = projectBindingInformation("2");
@@ -226,7 +242,7 @@ class DefaultProjectBindingsControllerTest {
 
   @Test
   void searchProjectBindings_whenRepositoryUrlUsed_shouldForwardRepositoryUrlParameter() throws Exception {
-    userSession.logIn().addPermission(PROVISION_PROJECTS);
+    userSession.logIn();
     when(projectBindingsService.findProjectBindingsByRequest(any(), any())).thenReturn(new SearchResults<>(List.of(), 0));
 
     mockMvc
@@ -247,7 +263,7 @@ class DefaultProjectBindingsControllerTest {
 
   @Test
   void searchProjectBindings_whenRepositoryUrlWithRepositoryParameter_shouldReturnBadRequest() throws Exception {
-    userSession.logIn().addPermission(PROVISION_PROJECTS);
+    userSession.logIn();
 
     mockMvc
       .perform(get(PROJECT_BINDINGS_ENDPOINT)
@@ -258,7 +274,7 @@ class DefaultProjectBindingsControllerTest {
 
   @Test
   void searchProjectBindings_whenRepositoryUrlWithDopSettingIdParameter_shouldReturnBadRequest() throws Exception {
-    userSession.logIn().addPermission(PROVISION_PROJECTS);
+    userSession.logIn();
 
     mockMvc
       .perform(get(PROJECT_BINDINGS_ENDPOINT)
@@ -268,8 +284,8 @@ class DefaultProjectBindingsControllerTest {
   }
 
   @Test
-  void searchProjectBindings_whenRepositoryUrlReturnsResults_shouldReturnThem() throws Exception {
-    userSession.logIn().addPermission(PROVISION_PROJECTS);
+  void searchProjectBindings_whenUserDoesntHaveProjectProvisionPermissionAndRepositoryUrlReturnsResults_returnsThem() throws Exception {
+    userSession.logIn();
 
     ProjectBindingInformation dto1 = projectBindingInformation("1");
     List<ProjectBindingInformation> expectedResults = List.of(dto1);

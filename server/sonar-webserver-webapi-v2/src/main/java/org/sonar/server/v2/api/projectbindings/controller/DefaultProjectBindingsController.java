@@ -37,7 +37,6 @@ import org.sonar.server.v2.api.projectbindings.response.ProjectBindingsSearchRes
 import org.sonar.server.v2.api.response.PageRestResponse;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.ProjectPermission.USER;
 import static org.sonar.server.exceptions.BadRequestException.throwBadRequestException;
 
@@ -66,7 +65,7 @@ public class DefaultProjectBindingsController implements ProjectBindingsControll
 
   @Override
   public ProjectBindingsSearchRestResponse searchProjectBindings(ProjectBindingsSearchRestRequest restRequest, RestPage restPage) {
-    userSession.checkLoggedIn().checkPermission(PROVISION_PROJECTS);
+    userSession.checkLoggedIn();
     validateSearchParameters(restRequest);
     String userUuid = requireNonNull(userSession.getUuid(), "User UUID cannot be null");
     ProjectBindingsSearchRequest serviceRequest = new ProjectBindingsSearchRequest(

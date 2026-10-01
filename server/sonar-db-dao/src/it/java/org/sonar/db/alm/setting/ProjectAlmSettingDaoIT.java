@@ -39,6 +39,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.NoOpAuditPersister;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.UserPermissionDto;
@@ -515,7 +516,7 @@ class ProjectAlmSettingDaoIT {
   }
 
   private enum PermissionGrant {
-    NONE, DIRECT_ON_USER, VIA_GROUP, VIA_ANYONE_GROUP, DIRECT_ON_ANOTHER_USER
+    NONE, DIRECT_ON_USER, VIA_GROUP, VIA_ANYONE_GROUP, DIRECT_ON_ANOTHER_USER, GLOBAL_PROVISION_ONLY
   }
 
   private static Object[][] authorizationScenarios() {
@@ -525,6 +526,7 @@ class ProjectAlmSettingDaoIT {
       {false, PermissionGrant.VIA_ANYONE_GROUP, true},
       {false, PermissionGrant.DIRECT_ON_ANOTHER_USER, false},
       {false, PermissionGrant.NONE, false},
+      {false, PermissionGrant.GLOBAL_PROVISION_ONLY, false},
       {true, PermissionGrant.NONE, true},
     };
   }
@@ -590,6 +592,7 @@ class ProjectAlmSettingDaoIT {
         UserDto anotherUser = db.users().insertUser();
         db.users().insertProjectPermissionOnUser(anotherUser, ProjectPermission.USER, project);
       }
+      case GLOBAL_PROVISION_ONLY -> db.users().insertGlobalPermissionOnUser(testUser, GlobalPermission.PROVISION_PROJECTS);
       case NONE -> {
         // no permission granted
       }
