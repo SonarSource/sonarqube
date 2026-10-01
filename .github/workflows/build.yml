@@ -32,7 +32,7 @@ jobs:
       contents: write
     services:
       elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:9.4.3
+        image: docker.elastic.co/elasticsearch/elasticsearch:9.4.7
         env:
           discovery.type: single-node
           xpack.security.enabled: "false"
