@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRegistration;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import org.sonar.server.platform.platformlevel.PlatformLevel3;
 import org.sonar.server.platform.platformlevel.PlatformLevel4;
 import org.sonar.server.platform.platformlevel.PlatformLevelSafeMode;
 import org.sonar.server.platform.platformlevel.PlatformLevelStartup;
+import org.sonar.server.platform.web.ApiV2LocalRequestDispatcher;
 import org.sonar.server.platform.web.ApiV2Servlet;
 import org.sonar.server.platform.web.ConditionalSpringSecurityFilter;
 import org.sonar.server.platform.web.McpProxyServlet;
@@ -143,7 +145,8 @@ public class PlatformImpl implements Platform {
     ServletRegistration.Dynamic app = this.servletContext.addServlet("app", servlet);
     app.addMapping("/api/v2/*");
     app.setLoadOnStartup(1);
-    registerSpringSecurityFilter();
+    Filter springSecurityFilter = registerSpringSecurityFilter();
+    level1.getContainer().getComponentByType(ApiV2LocalRequestDispatcher.class).init(servletContext, servlet, springSecurityFilter);
     registerTrailingSlashFilter();
     registerMcpProxyServlet();
   }
@@ -160,7 +163,7 @@ public class PlatformImpl implements Platform {
     mcp.setLoadOnStartup(2);
   }
 
-  private void registerSpringSecurityFilter() {
+  private Filter registerSpringSecurityFilter() {
     var springSecurityFilter = new ConditionalSpringSecurityFilter(
       "springSecurityFilterChain",
       "org.springframework.web.servlet.FrameworkServlet.CONTEXT.app");
@@ -169,6 +172,7 @@ public class PlatformImpl implements Platform {
       java.util.EnumSet.of(REQUEST, ERROR, ASYNC, FORWARD),
       false,
       "app", "mcp");
+    return springSecurityFilter;
   }
 
   private void registerTrailingSlashFilter() {

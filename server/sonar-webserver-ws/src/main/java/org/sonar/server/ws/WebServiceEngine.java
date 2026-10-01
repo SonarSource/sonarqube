@@ -63,12 +63,14 @@ public class WebServiceEngine implements LocalConnector, Startable {
 
   private final WebService[] webServices;
   private final ActionInterceptor[] actionInterceptors;
+  private final V2LocalRequestDispatcher v2LocalRequestDispatcher;
 
   private WebService.Context context;
 
-  public WebServiceEngine(WebService[] webServices, ActionInterceptor[] actionInterceptors) {
+  public WebServiceEngine(WebService[] webServices, ActionInterceptor[] actionInterceptors, V2LocalRequestDispatcher v2LocalRequestDispatcher) {
     this.webServices = webServices;
     this.actionInterceptors = actionInterceptors;
+    this.v2LocalRequestDispatcher = v2LocalRequestDispatcher;
   }
 
   @Override
@@ -94,6 +96,9 @@ public class WebServiceEngine implements LocalConnector, Startable {
 
   @Override
   public LocalResponse call(LocalRequest request) {
+    if (V2LocalRequestDispatcher.isApiV2Path(request.getPath())) {
+      return v2LocalRequestDispatcher.dispatch(request);
+    }
     DefaultLocalResponse localResponse = new DefaultLocalResponse();
     execute(new LocalRequestAdapter(request), localResponse);
     return localResponse;

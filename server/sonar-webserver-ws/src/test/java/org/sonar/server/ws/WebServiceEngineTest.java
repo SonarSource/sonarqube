@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.slf4j.event.Level;
+import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -71,7 +72,7 @@ public class WebServiceEngineTest {
       newWs("api/bar/index", a -> {
       })
     },
-      new ActionInterceptor[] {});
+      new ActionInterceptor[] {}, mock(V2LocalRequestDispatcher.class));
     underTest.start();
     try {
       assertThat(underTest.controllers())
@@ -396,12 +397,65 @@ public class WebServiceEngineTest {
   }
 
   @Test
+  @UseDataProvider("apiV2Paths")
+  public void call_routes_api_v2_paths_to_v2_dispatcher(String path) {
+    V2LocalRequestDispatcher v2LocalRequestDispatcher = mock(V2LocalRequestDispatcher.class);
+    LocalConnector.LocalResponse v2Response = mock(LocalConnector.LocalResponse.class);
+    LocalConnector.LocalRequest request = mock(LocalConnector.LocalRequest.class);
+    when(request.getPath()).thenReturn(path);
+    when(v2LocalRequestDispatcher.dispatch(request)).thenReturn(v2Response);
+    WebServiceEngine underTest = new WebServiceEngine(new WebService[] {newPingWs(a -> {
+    })}, new ActionInterceptor[] {}, v2LocalRequestDispatcher);
+    underTest.start();
+
+    LocalConnector.LocalResponse response = underTest.call(request);
+
+    assertThat(response).isSameAs(v2Response);
+  }
+
+  @DataProvider
+  public static Object[][] apiV2Paths() {
+    return new Object[][] {
+      {"api/v2/foo/bar"},
+      {"/api/v2/foo/bar"},
+      {"/api/v2/foo?baz=1"}
+    };
+  }
+
+  @Test
+  @UseDataProvider("nonApiV2Paths")
+  public void call_does_not_route_other_paths_to_v2_dispatcher(String path) {
+    V2LocalRequestDispatcher v2LocalRequestDispatcher = mock(V2LocalRequestDispatcher.class);
+    LocalConnector.LocalRequest request = mock(LocalConnector.LocalRequest.class);
+    when(request.getPath()).thenReturn(path);
+    when(request.getMethod()).thenReturn("GET");
+    WebServiceEngine underTest = new WebServiceEngine(new WebService[] {newPingWs(a -> {
+    })}, new ActionInterceptor[] {}, v2LocalRequestDispatcher);
+    underTest.start();
+
+    LocalConnector.LocalResponse response = underTest.call(request);
+
+    verify(v2LocalRequestDispatcher, never()).dispatch(any());
+    assertThat(response.getStatus()).isEqualTo(path.contains("ping") ? 200 : 404);
+  }
+
+  @DataProvider
+  public static Object[][] nonApiV2Paths() {
+    return new Object[][] {
+      {"api/ping"},
+      {"/api/ping"},
+      {"api/v20/foo"},
+      {"api/v2"}
+    };
+  }
+
+  @Test
   public void fail_when_start_in_not_called() {
     Request request = new TestRequest().setPath("/api/ping");
     DumbResponse response = new DumbResponse();
     WebServiceEngine underTest = new WebServiceEngine(new WebService[] {
       newPingWs(a -> {
-      })}, new ActionInterceptor[] {});
+      })}, new ActionInterceptor[] {}, mock(V2LocalRequestDispatcher.class));
 
     underTest.execute(request, response);
 
@@ -442,7 +496,7 @@ public class WebServiceEngineTest {
   }
 
   private static Response run(Request request, Response response, List<ActionInterceptor> interceptors, WebService... webServices) {
-    WebServiceEngine underTest = new WebServiceEngine(webServices, interceptors.toArray(new ActionInterceptor[0]));
+    WebServiceEngine underTest = new WebServiceEngine(webServices, interceptors.toArray(new ActionInterceptor[0]), mock(V2LocalRequestDispatcher.class));
     underTest.start();
     try {
       underTest.execute(request, response);
