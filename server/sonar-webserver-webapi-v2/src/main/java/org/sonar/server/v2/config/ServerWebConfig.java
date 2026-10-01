@@ -22,6 +22,7 @@ package org.sonar.server.v2.config;
 import org.sonar.api.internal.MetadataLoader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
+import org.sonar.server.v2.common.UnknownRequestParameterHandler;
 import org.springdoc.core.properties.SpringDocConfigProperties;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -39,6 +41,14 @@ import io.swagger.v3.oas.models.info.Info;
 @PropertySource("classpath:springdoc.properties")
 @EnableWebMvc
 public class ServerWebConfig extends CommonWebConfig {
+
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    super.addInterceptors(registry);
+    // springdoc.api-docs.path. Those handlers are not V2 resources.
+    registry.addInterceptor(new UnknownRequestParameterHandler())
+      .excludePathPatterns("/api-docs", "/api-docs/**", "/api-docs.yaml", "/api-docs.yaml/**");
+  }
 
   @Bean
   public OpenAPI customOpenAPI() {

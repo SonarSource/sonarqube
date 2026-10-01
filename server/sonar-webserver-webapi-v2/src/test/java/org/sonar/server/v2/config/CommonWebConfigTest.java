@@ -135,8 +135,8 @@ public class CommonWebConfigTest {
   @EnableWebMvc
   static class NativeValidationConfiguration {
     @Bean
-    CommonWebConfig commonWebConfig() {
-      return new CommonWebConfig();
+    ServerWebConfig serverWebConfig() {
+      return new ServerWebConfig();
     }
 
     @Bean
