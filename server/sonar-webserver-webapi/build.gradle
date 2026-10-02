@@ -1,3 +1,5 @@
+import org.sonar.build.DbAwareTest
+
 sonar {
   properties {
     property 'sonar.projectName', "${projectTitle} :: WebServer :: WebAPI"
@@ -71,4 +73,6 @@ dependencies {
 test {
   // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
   useJUnitPlatform()
+  // Only the project dump status runs its own JDBC statement; the rest goes through sonar-db-dao
+  DbAwareTest.configure(it, ['org.sonar.server.projectdump.ws.StatusActionIT'])
 }

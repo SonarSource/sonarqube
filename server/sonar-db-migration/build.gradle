@@ -57,4 +57,13 @@ test {
   DbAwareTest.configure(it)
   // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
   useJUnitPlatform()
+  // On vendor databases each test class recreates the schema, so only the version under development runs there,
+  // unless -PallMigrationVersions. Released migrations don't change and already ran on every vendor.
+  if (DbAwareTest.isVendorRun() && !project.hasProperty('allMigrationVersions')) {
+    def versionsDir = file('src/main/java/org/sonar/server/platform/db/migration/version')
+    def releasedVersions = versionsDir.listFiles().findAll { it.directory && it.name ==~ /v\d{6}/ }*.name.sort().dropRight(1)
+    filter {
+      releasedVersions.each { excludeTestsMatching "org.sonar.server.platform.db.migration.version.${it}.*" }
+    }
+  }
 }

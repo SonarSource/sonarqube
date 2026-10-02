@@ -1,3 +1,5 @@
+import org.sonar.build.DbAwareTest
+
 description = 'Code shared between the Web Server and the Compute Engine'
 
 sonar {
@@ -85,4 +87,6 @@ dependencies {
 test {
   // Enabling the JUnit Platform (see https://github.com/junit-team/junit5-samples/tree/master/junit5-migration-gradle)
   useJUnitPlatform()
+  // Only PermissionIndexerDao runs its own JDBC statement; the rest goes through sonar-db-dao
+  DbAwareTest.configure(it, ['org.sonar.server.permission.index.PermissionIndexerDaoIT'])
 }

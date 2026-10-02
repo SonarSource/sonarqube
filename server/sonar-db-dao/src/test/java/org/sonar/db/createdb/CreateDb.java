@@ -24,6 +24,10 @@ import com.sonar.orchestrator.db.DatabaseClient;
 import com.sonar.orchestrator.db.DatabaseFactory;
 import com.sonar.orchestrator.db.DefaultDatabase;
 import com.sonar.orchestrator.locator.Locators;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +58,28 @@ public class CreateDb {
     defaultDatabase.killOtherConnections();
     try {
       defaultDatabase.start();
+      enableReadCommittedSnapshotOnMsSql(defaultDatabase);
 
       execute.accept(configuration);
     } finally {
       defaultDatabase.stop();
+    }
+  }
+
+  /**
+   * Required on SQL Server in production, where readers otherwise block on uncommitted writes.
+   */
+  private static void enableReadCommittedSnapshotOnMsSql(DefaultDatabase database) {
+    DatabaseClient client = database.getClient();
+    if (!"mssql".equals(client.getDialect())) {
+      return;
+    }
+    String databaseName = database.executeSql("SELECT DB_NAME()").get(0).values().iterator().next();
+    try (Connection connection = DriverManager.getConnection(client.getRootUrl(), client.getRootLogin(), client.getRootPassword());
+      Statement statement = connection.createStatement()) {
+      statement.execute("ALTER DATABASE [" + databaseName + "] SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE");
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to enable READ_COMMITTED_SNAPSHOT on " + databaseName, e);
     }
   }
 
