@@ -48,7 +48,6 @@ public class TomcatHttpConnectorFactoryTest {
     assertThat(connector.getProperty("socket.soReuseAddress")).isEqualTo("true");
     assertThat(connector.getProperty("relaxedQueryChars")).isEqualTo("\"<>[\\]^`{|}");
     assertThat(connector.getProperty("maxHttpHeaderSize")).isEqualTo(49152);
-    assertThat(connector.getMaxPostSize()).isEqualTo(-1);
     // Compression properties
     assertThat(connector.getProperty("compression")).isEqualTo("on");
     assertThat(connector.getProperty("compressionMinSize")).isEqualTo(1024);
@@ -69,6 +68,7 @@ public class TomcatHttpConnectorFactoryTest {
     assertThat(connector.getProperty("maxThreads")).isEqualTo(50);
     assertThat(connector.getProperty("acceptCount")).isEqualTo(25);
     assertThat(connector.getProperty("keepAliveTimeout")).isEqualTo(60000);
+    assertThat(connector.getMaxPostSize()).isEqualTo(-1);
   }
 
   @Test
@@ -86,6 +86,7 @@ public class TomcatHttpConnectorFactoryTest {
     assertThat(connector.getProperty("maxThreads")).isEqualTo(42);
     assertThat(connector.getProperty("acceptCount")).isEqualTo(12);
     assertThat(connector.getProperty("keepAliveTimeout")).isEqualTo(1000);
+    assertThat(connector.getMaxPostSize()).isEqualTo(10485760);
   }
 
   @Test
@@ -115,6 +116,7 @@ public class TomcatHttpConnectorFactoryTest {
     properties.setProperty("sonar.web.http.maxThreads", "42");
     properties.setProperty("sonar.web.http.acceptCount", "12");
     properties.setProperty("sonar.web.http.keepAliveTimeout", "1000");
+    properties.setProperty("sonar.web.http.maxPostSize", "10485760");
     return new Props(properties);
   }
 

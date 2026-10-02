@@ -28,6 +28,7 @@ import static java.lang.String.format;
 import static org.sonar.process.ProcessProperties.Property.WEB_HOST;
 import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_ACCEPT_COUNT;
 import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_KEEP_ALIVE_TIMEOUT;
+import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_MAX_POST_SIZE;
 import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_MAX_THREADS;
 import static org.sonar.process.ProcessProperties.Property.WEB_HTTP_MIN_THREADS;
 import static org.sonar.process.ProcessProperties.Property.WEB_PORT;
@@ -39,7 +40,6 @@ public class TomcatHttpConnectorFactory {
   static final String HTTP_PROTOCOL = "HTTP/1.1";
   // Max HTTP headers size must be 48kb to accommodate the authentication token used for negotiate protocol of windows authentication.
   static final int MAX_HTTP_HEADER_SIZE_BYTES = 48 * 1024;
-  private static final int MAX_POST_SIZE = -1;
 
   public Connector createConnector(Props props) {
     Connector connector = new Connector(HTTP_PROTOCOL);
@@ -49,7 +49,7 @@ public class TomcatHttpConnectorFactory {
     // See Tomcat configuration reference: https://tomcat.apache.org/tomcat-9.0-doc/config/http.html
     connector.setProperty("relaxedQueryChars", "\"<>[\\]^`{|}");
     connector.setProperty("maxHttpHeaderSize", String.valueOf(MAX_HTTP_HEADER_SIZE_BYTES));
-    connector.setMaxPostSize(MAX_POST_SIZE);
+    connector.setMaxPostSize(props.valueAsInt(WEB_HTTP_MAX_POST_SIZE.getKey(), -1));
     configurePort(connector, props);
     configurePool(props, connector);
     configureCompression(connector);
