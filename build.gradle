@@ -1,5 +1,6 @@
 import groovy.text.SimpleTemplateEngine
 import org.sonar.build.BlackBoxTest
+import org.sonar.build.ElasticsearchInstancesPlugin
 
 import static org.gradle.api.JavaVersion.VERSION_21
 
@@ -18,6 +19,10 @@ plugins {
 
 if (!JavaVersion.current().isCompatibleWith(VERSION_21)) {
   throw new GradleException("JDK 21+ is required to perform this build. It's currently " + System.getProperty("java.home") + ".")
+}
+
+if (project.hasProperty('includeElasticsearchTests')) {
+  apply plugin: ElasticsearchInstancesPlugin
 }
 
 /**
