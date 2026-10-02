@@ -112,7 +112,7 @@ tasks.register('generateLicenseReport', WriteDependencyLicensesTask) {
 
 // One task per JRE keeps each build cache entry small (all JREs together exceed the remote cache entry size limit).
 def jresMetadataFile = layout.projectDirectory.file('src/main/resources/jres-metadata.json').asFile
-def jresMetadataForDownload = new JsonSlurper().parse(jresMetadataFile)
+def jresMetadataForDownload = jresMetadataFile.exists() ? new JsonSlurper().parse(jresMetadataFile) : []
 def downloadJreTasks = jresMetadataForDownload.collect { jre ->
   tasks.register("downloadJre${jre.os.capitalize()}${jre.arch.capitalize()}") {
     inputs.property('jreReleaseName', jre_release_name)
@@ -136,11 +136,10 @@ def downloadJreTasks = jresMetadataForDownload.collect { jre ->
 
 tasks.register('downloadJres') {
   dependsOn downloadJreTasks
-  inputs.file(jresMetadataFile).withPathSensitivity(PathSensitivity.RELATIVE)
 
   doLast {
     // Remove stale JREs from previous versions so they don't end up in the zip.
-    def expectedFilenames = new JsonSlurper().parse(jresMetadataFile).collect { it.filename } as Set
+    def expectedFilenames = jresMetadataForDownload.collect { it.filename } as Set
     delete fileTree(layout.buildDirectory.dir('jres')) {
       exclude expectedFilenames
     }
