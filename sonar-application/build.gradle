@@ -138,6 +138,9 @@ tasks.register('downloadJres') {
   dependsOn downloadJreTasks
 
   doLast {
+    if (!jresMetadataFile.exists()) {
+      throw new GradleException("Missing ${jresMetadataFile}, cannot download JREs.")
+    }
     // Remove stale JREs from previous versions so they don't end up in the zip.
     def expectedFilenames = jresMetadataForDownload.collect { it.filename } as Set
     delete fileTree(layout.buildDirectory.dir('jres')) {
