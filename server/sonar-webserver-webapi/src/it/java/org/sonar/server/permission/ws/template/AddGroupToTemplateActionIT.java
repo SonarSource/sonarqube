@@ -179,15 +179,6 @@ public class AddGroupToTemplateActionIT extends BasePermissionWsIT<AddGroupToTem
   }
 
   @Test
-  public void add_anyone_group_to_template() {
-    loginAsAdmin();
-
-    newRequest(ANYONE, template.getUuid(), CODEVIEWER);
-
-    assertThat(getGroupNamesInTemplateAndPermission(template, CODEVIEWER)).containsExactly(ANYONE);
-  }
-
-  @Test
   public void fail_if_add_anyone_group_to_admin_permission() {
     loginAsAdmin();
 

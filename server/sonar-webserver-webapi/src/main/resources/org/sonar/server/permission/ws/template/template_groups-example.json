@@ -2,16 +2,9 @@
   "paging": {
     "pageIndex": 1,
     "pageSize": 20,
-    "total": 3
+    "total": 2
   },
   "groups": [
-    {
-      "name": "Anyone",
-      "permissions": [
-        "issueadmin",
-        "user"
-      ]
-    },
     {
       "name": "sonar-administrators",
       "description": "System administrators",

@@ -595,7 +595,7 @@ class PurgeCommandsIT {
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
     purgeCommands.deletePermissions(project.getUuid());
 
-    assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(2);
+    assertThat(dbTester.countRowsOfTable("group_roles")).isOne();
     assertThat(dbTester.countRowsOfTable("user_roles")).isOne();
   }
 
@@ -620,7 +620,7 @@ class PurgeCommandsIT {
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler, system2);
     purgeCommands.deletePermissions(portfolio.uuid());
 
-    assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(2);
+    assertThat(dbTester.countRowsOfTable("group_roles")).isOne();
     assertThat(dbTester.countRowsOfTable("user_roles")).isOne();
   }
 
@@ -855,11 +855,6 @@ class PurgeCommandsIT {
   }
 
   private void addPermissions(EntityDto projectDto) {
-    if (!projectDto.isPrivate()) {
-      dbTester.users().insertEntityPermissionOnAnyone("foo1", projectDto);
-      dbTester.users().insertPermissionOnAnyone("not project level");
-    }
-
     GroupDto group = dbTester.users().insertGroup();
     dbTester.users().insertEntityPermissionOnGroup(group, "bar", projectDto);
     dbTester.users().insertPermissionOnGroup(group, "not project level");
@@ -868,7 +863,7 @@ class PurgeCommandsIT {
     dbTester.users().insertProjectPermissionOnUser(user, "doh", projectDto);
     dbTester.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
 
-    assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(projectDto.isPrivate() ? 2 : 4);
+    assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(2);
     assertThat(dbTester.countRowsOfTable("user_roles")).isEqualTo(2);
   }
 

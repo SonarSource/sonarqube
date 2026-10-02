@@ -207,15 +207,6 @@ public class ServerUserSessionIT {
   }
 
   @Test
-  public void test_hasPermission_for_anonymous_user() {
-    db.users().insertPermissionOnAnyone(GlobalPermission.PROVISION_PROJECTS);
-
-    UserSession session = newAnonymousSession();
-    assertThat(session.hasPermission(GlobalPermission.PROVISION_PROJECTS)).isTrue();
-    assertThat(session.hasPermission(GlobalPermission.ADMINISTER)).isFalse();
-  }
-
-  @Test
   public void hasPermission_keeps_cache_of_permissions_of_logged_in_user() {
     UserDto user = db.users().insertUser();
     db.users().insertGlobalPermissionOnUser(user, GlobalPermission.PROVISION_PROJECTS);
@@ -230,21 +221,6 @@ public class ServerUserSessionIT {
     db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
     assertThat(session.hasPermission(GlobalPermission.PROVISION_PROJECTS)).isTrue();
     assertThat(session.hasPermission(GlobalPermission.ADMINISTER)).isFalse();
-    assertThat(session.hasPermission(GlobalPermission.SCAN)).isFalse();
-  }
-
-  @Test
-  public void hasPermission_keeps_cache_of_permissions_of_anonymous_user() {
-    db.users().insertPermissionOnAnyone(GlobalPermission.PROVISION_PROJECTS);
-
-    UserSession session = newAnonymousSession();
-
-    // feed the cache
-    assertThat(session.hasPermission(GlobalPermission.PROVISION_PROJECTS)).isTrue();
-
-    // change permissions without updating the cache
-    db.users().insertPermissionOnAnyone(GlobalPermission.SCAN);
-    assertThat(session.hasPermission(GlobalPermission.PROVISION_PROJECTS)).isTrue();
     assertThat(session.hasPermission(GlobalPermission.SCAN)).isFalse();
   }
 
@@ -267,37 +243,6 @@ public class ServerUserSessionIT {
     db.components().insertComponent(newProjectCopy(project2.getMainBranchComponent(), application.getMainBranchComponent()));
 
     assertThat(session.hasChildProjectsPermission(ProjectPermission.USER, application.getMainBranchComponent())).isFalse();
-  }
-
-  @Test
-  public void test_hasChildProjectsPermission_for_anonymous_user() {
-    ProjectData project = db.components().insertPrivateProject();
-    db.users().insertPermissionOnAnyone(ProjectPermission.USER);
-    ProjectData application = db.components().insertPrivateApplication();
-    db.components().addApplicationProject(application.getProjectDto(), project.getProjectDto());
-    // add computed project
-    db.components().insertComponent(newProjectCopy(project.getMainBranchComponent(), application.getMainBranchComponent()));
-
-    UserSession session = newAnonymousSession();
-    assertThat(session.hasChildProjectsPermission(ProjectPermission.USER, application.getProjectDto())).isFalse();
-  }
-
-  @Test
-  public void hasChildProjectsPermission_keeps_cache_of_permissions_of_anonymous_user() {
-    db.users().insertPermissionOnAnyone(ProjectPermission.USER);
-
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    ProjectDto application = db.components().insertPublicApplication().getProjectDto();
-    db.components().addApplicationProject(application, project);
-
-    UserSession session = newAnonymousSession();
-
-    // feed the cache
-    assertThat(session.hasChildProjectsPermission(ProjectPermission.USER, application)).isTrue();
-
-    // change privacy of the project without updating the cache
-    db.getDbClient().componentDao().setPrivateForBranchUuidWithoutAudit(db.getSession(), project.getUuid(), true);
-    assertThat(session.hasChildProjectsPermission(ProjectPermission.USER, application)).isTrue();
   }
 
   @Test
@@ -352,40 +297,6 @@ public class ServerUserSessionIT {
   }
 
   @Test
-  public void test_hasPortfolioChildProjectsPermission_for_anonymous_user() {
-    ProjectData project = db.components().insertPrivateProject();
-
-    db.users().insertPermissionOnAnyone(ProjectPermission.USER);
-
-    ComponentDto portfolio = db.components().insertPrivatePortfolio();
-
-    db.components().addPortfolioProject(portfolio, project.getProjectDto().getUuid());
-    // add computed project
-    db.components().insertComponent(newProjectCopy(project.getMainBranchComponent(), portfolio));
-
-    UserSession session = newAnonymousSession();
-    assertThat(session.hasPortfolioChildProjectsPermission(ProjectPermission.USER, portfolio)).isFalse();
-  }
-
-  @Test
-  public void hasPortfolioChildProjectsPermission_keeps_cache_of_permissions_of_anonymous_user() {
-    db.users().insertPermissionOnAnyone(ProjectPermission.USER);
-
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    ComponentDto portfolio = db.components().insertPublicPortfolio();
-    db.components().addPortfolioProject(portfolio, project.getUuid());
-
-    UserSession session = newAnonymousSession();
-
-    // feed the cache
-    assertThat(session.hasPortfolioChildProjectsPermission(ProjectPermission.USER, portfolio)).isTrue();
-
-    // change privacy of the project without updating the cache
-    db.getDbClient().componentDao().setPrivateForBranchUuidWithoutAudit(db.getSession(), project.getUuid(), true);
-    assertThat(session.hasPortfolioChildProjectsPermission(ProjectPermission.USER, portfolio)).isTrue();
-  }
-
-  @Test
   public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_permissions_USER_and_CODEVIEWER_on_public_projects_without_permissions() {
     ProjectData publicProject = db.components().insertPublicProject();
 
@@ -398,7 +309,7 @@ public class ServerUserSessionIT {
   @Test
   public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_permissions_USER_and_CODEVIEWER_on_public_projects_with_global_permissions() {
     ProjectData publicProject = db.components().insertPublicProject();
-    db.users().insertEntityPermissionOnAnyone("p1", publicProject.getProjectDto());
+    db.users().insertPermissionOnGroup(db.users().insertGroup(), "p1");
 
     ServerUserSession underTest = newAnonymousSession();
 
@@ -464,16 +375,6 @@ public class ServerUserSessionIT {
   }
 
   @Test
-  public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_inserted_permissions_on_group_AnyOne_on_public_projects() {
-    ProjectData publicProject = db.components().insertPublicProject();
-    db.users().insertEntityPermissionOnAnyone(ProjectPermission.SCAN, publicProject.getProjectDto());
-
-    ServerUserSession underTest = newAnonymousSession();
-
-    assertThat(hasComponentPermissionByDtoOrUuid(underTest, ProjectPermission.SCAN, publicProject.getMainBranchComponent())).isTrue();
-  }
-
-  @Test
   public void hasComponentPermissionByDtoOrUuid_returns_false_for_anonymous_user_for_inserted_permissions_on_group_on_public_projects() {
     ProjectData publicProject = db.components().insertPublicProject();
     GroupDto group = db.users().insertGroup();
@@ -535,23 +436,6 @@ public class ServerUserSessionIT {
     assertThat(hasComponentPermissionByDtoOrUuid(underTest, ProjectPermission.ISSUE_ADMIN, publicProject.getMainBranchComponent())).isFalse();
   }
 
-  @Test
-  public void hasComponentPermissionByDtoOrUuid_keeps_cache_of_permissions_of_anonymous_user() {
-    ProjectData publicProject = db.components().insertPublicProject();
-    db.users().insertEntityPermissionOnAnyone(ProjectPermission.ADMIN, publicProject.getProjectDto());
-
-    UserSession underTest = newAnonymousSession();
-
-    // feed the cache
-    assertThat(hasComponentPermissionByDtoOrUuid(underTest, ProjectPermission.ADMIN, publicProject.getMainBranchComponent())).isTrue();
-
-    // change permissions without updating the cache
-    db.users().deleteProjectPermissionFromAnyone(publicProject.getProjectDto(), ProjectPermission.ADMIN);
-    db.users().insertEntityPermissionOnAnyone(ProjectPermission.ISSUE_ADMIN, publicProject.getProjectDto());
-    assertThat(hasComponentPermissionByDtoOrUuid(underTest, ProjectPermission.ADMIN, publicProject.getMainBranchComponent())).isTrue();
-    assertThat(hasComponentPermissionByDtoOrUuid(underTest, ProjectPermission.ISSUE_ADMIN, publicProject.getMainBranchComponent())).isFalse();
-  }
-
   private boolean hasComponentPermissionByDtoOrUuid(UserSession underTest, ProjectPermission permission, ComponentDto component) {
     boolean b1 = underTest.hasComponentPermission(permission, component);
     boolean b2 = underTest.hasComponentUuidPermission(permission, component.uuid());
@@ -567,19 +451,6 @@ public class ServerUserSessionIT {
     UserSession underTest = newAnonymousSession();
 
     assertThat(underTest.keepAuthorizedComponents(ProjectPermission.ADMIN, Arrays.asList(privateProject.getMainBranchComponent(), publicProject.getMainBranchComponent()))).isEmpty();
-  }
-
-  @Test
-  public void keepAuthorizedComponents_filters_components_with_granted_permissions_for_anonymous() {
-    ProjectData publicProject = db.components().insertPublicProject();
-    ProjectData privateProject = db.components().insertPrivateProject();
-    db.users().insertEntityPermissionOnAnyone(ProjectPermission.ISSUE_ADMIN, publicProject.getProjectDto());
-
-    UserSession underTest = newAnonymousSession();
-
-    assertThat(underTest.keepAuthorizedComponents(ProjectPermission.ADMIN, Arrays.asList(privateProject.getMainBranchComponent(), publicProject.getMainBranchComponent()))).isEmpty();
-    assertThat(underTest.keepAuthorizedComponents(ProjectPermission.ISSUE_ADMIN, Arrays.asList(privateProject.getMainBranchComponent(), publicProject.getMainBranchComponent())))
-      .containsExactly(publicProject.getMainBranchComponent());
   }
 
   @Test

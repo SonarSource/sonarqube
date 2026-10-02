@@ -40,6 +40,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.audit.NoOpAuditPersister;
 import org.sonar.db.permission.GlobalPermission;
+import org.sonar.db.permission.GroupPermissionDao;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.permission.UserPermissionDto;
@@ -53,6 +54,7 @@ import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -516,14 +518,13 @@ class ProjectAlmSettingDaoIT {
   }
 
   private enum PermissionGrant {
-    NONE, DIRECT_ON_USER, VIA_GROUP, VIA_ANYONE_GROUP, DIRECT_ON_ANOTHER_USER, GLOBAL_PROVISION_ONLY
+    NONE, DIRECT_ON_USER, VIA_GROUP, DIRECT_ON_ANOTHER_USER, GLOBAL_PROVISION_ONLY
   }
 
   private static Object[][] authorizationScenarios() {
     return new Object[][] {
       {false, PermissionGrant.DIRECT_ON_USER, true},
       {false, PermissionGrant.VIA_GROUP, true},
-      {false, PermissionGrant.VIA_ANYONE_GROUP, true},
       {false, PermissionGrant.DIRECT_ON_ANOTHER_USER, false},
       {false, PermissionGrant.NONE, false},
       {false, PermissionGrant.GLOBAL_PROVISION_ONLY, false},
@@ -587,7 +588,6 @@ class ProjectAlmSettingDaoIT {
         db.users().insertMember(group, testUser);
         db.users().insertEntityPermissionOnGroup(group, ProjectPermission.USER, project);
       }
-      case VIA_ANYONE_GROUP -> grantAnyoneGroupPermission(ProjectPermission.USER, project);
       case DIRECT_ON_ANOTHER_USER -> {
         UserDto anotherUser = db.users().insertUser();
         db.users().insertProjectPermissionOnUser(anotherUser, ProjectPermission.USER, project);
@@ -599,21 +599,19 @@ class ProjectAlmSettingDaoIT {
     }
   }
 
-  /**
-   * Grants a permission to the "Anyone" group (group_uuid is null) on a private project. UserDbTester's
-   * insertEntityPermissionOnAnyone() rejects USER/CODEVIEWER on private projects since the product itself
-   * never allows this combination to be created, but the underlying authorization SQL still special-cases
-   * group_uuid is null, so this bypasses the guard to exercise that branch directly.
-   */
-  private void grantAnyoneGroupPermission(ProjectPermission permission, ProjectDto project) {
+  @Test
+  void groupPermissionDao_insert_rejects_anyone_group_permission() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     GroupPermissionDto dto = new GroupPermissionDto()
       .setUuid(Uuids.createFast())
       .setGroupUuid(null)
-      .setRole(permission)
+      .setRole(ProjectPermission.USER)
       .setEntityUuid(project.getUuid())
       .setEntityName(project.getName());
-    db.getDbClient().groupPermissionDao().insert(dbSession, dto, project, null);
-    db.commit();
+    GroupPermissionDao groupPermissionDao = db.getDbClient().groupPermissionDao();
+
+    assertThatThrownBy(() -> groupPermissionDao.insert(dbSession, dto, project, null))
+      .isInstanceOf(IllegalArgumentException.class);
   }
 
 }

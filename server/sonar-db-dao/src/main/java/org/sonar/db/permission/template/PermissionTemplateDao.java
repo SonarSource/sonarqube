@@ -39,14 +39,12 @@ import org.sonar.db.permission.CountPerEntityPermission;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.ProjectPermission;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class PermissionTemplateDao implements Dao {
-
-  private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
 
   private final System2 system;
   private final UuidFactory uuidFactory;
@@ -96,7 +94,7 @@ public class PermissionTemplateDao implements Dao {
   /**
    * @return {@code true} if template contains groups that are granted with {@code permission}, else {@code false}
    */
-  public boolean hasGroupsWithPermission(DbSession dbSession, String templateUuid, String permission, @Nullable String groupUuid) {
+  public boolean hasGroupsWithPermission(DbSession dbSession, String templateUuid, String permission, String groupUuid) {
     return mapper(dbSession).countGroupsWithPermission(templateUuid, permission, groupUuid) > 0;
   }
 
@@ -161,13 +159,10 @@ public class PermissionTemplateDao implements Dao {
    * Each row returns a #{@link CountPerEntityPermission}
    */
   public void groupsCountByTemplateUuidAndPermission(DbSession dbSession, List<String> templateUuids, ResultHandler<CountByTemplateAndPermissionDto> resultHandler) {
-    Map<String, Object> parameters = HashMap.newHashMap(2);
-    parameters.put(ANYONE_GROUP_PARAMETER, ANYONE);
-
     executeLargeInputsWithoutOutput(
       templateUuids,
       partitionedTemplateUuids -> {
-        parameters.put("templateUuids", partitionedTemplateUuids);
+        Map<String, Object> parameters = Map.of("templateUuids", partitionedTemplateUuids);
         mapper(dbSession).groupsCountByTemplateUuidAndPermission(parameters, resultHandler);
       });
   }
@@ -259,7 +254,7 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
-  public void insertGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, ProjectPermission permission,
+  public void insertGroupPermission(DbSession session, String templateUuid, String groupUuid, ProjectPermission permission,
     String templateName, @Nullable String groupName) {
     insertGroupPermission(session, templateUuid, groupUuid, permission.getKey(), templateName, groupName);
   }
@@ -267,7 +262,7 @@ public class PermissionTemplateDao implements Dao {
   /**
    * Inserts a group permission if it is not already present, serializing concurrent inserts for the same template.
    */
-  public boolean insertGroupPermissionIfNotExists(DbSession session, String templateUuid, @Nullable String groupUuid, String permission,
+  public boolean insertGroupPermissionIfNotExists(DbSession session, String templateUuid, String groupUuid, String permission,
     String templateName, @Nullable String groupName) {
     PermissionTemplateMapper permissionTemplateMapper = mapper(session);
     if (permissionTemplateMapper.lockByUuid(templateUuid) == null
@@ -279,8 +274,9 @@ public class PermissionTemplateDao implements Dao {
     return true;
   }
 
-  public void insertGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, String permission,
+  public void insertGroupPermission(DbSession session, String templateUuid, String groupUuid, String permission,
     String templateName, @Nullable String groupName) {
+    checkArgument(groupUuid != null, "Group uuid is mandatory, the 'Anyone' group is no longer supported");
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
       .setUuid(uuidFactory.create())
       .setTemplateUuid(templateUuid)
@@ -294,18 +290,19 @@ public class PermissionTemplateDao implements Dao {
   }
 
   public void insertGroupPermission(DbSession session, PermissionTemplateGroupDto permissionTemplateGroup, String templateName) {
+    checkArgument(permissionTemplateGroup.getGroupUuid() != null, "Group uuid is mandatory, the 'Anyone' group is no longer supported");
     mapper(session).insertGroupPermission(permissionTemplateGroup);
 
     auditPersister.addGroupToPermissionTemplate(session, new PermissionTemplateNewValue(permissionTemplateGroup.getTemplateUuid(), templateName,
       permissionTemplateGroup.getPermission(), null, null, permissionTemplateGroup.getGroupUuid(), permissionTemplateGroup.getGroupName()));
   }
 
-  public void deleteGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, ProjectPermission permission, String templateName,
+  public void deleteGroupPermission(DbSession session, String templateUuid, String groupUuid, ProjectPermission permission, String templateName,
     @Nullable String groupName) {
     deleteGroupPermission(session, templateUuid, groupUuid, permission.getKey(), templateName, groupName);
   }
 
-  public void deleteGroupPermission(DbSession session, String templateUuid, @Nullable String groupUuid, String permission, String templateName,
+  public void deleteGroupPermission(DbSession session, String templateUuid, String groupUuid, String permission, String templateName,
     @Nullable String groupName) {
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
       .setTemplateUuid(templateUuid)

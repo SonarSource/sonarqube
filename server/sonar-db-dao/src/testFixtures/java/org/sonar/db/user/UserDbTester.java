@@ -49,7 +49,6 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
-import static org.sonar.db.permission.ProjectPermission.PUBLIC_PERMISSIONS;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 public class UserDbTester {
@@ -241,24 +240,6 @@ public class UserDbTester {
 
   // GROUP PERMISSIONS
 
-  public GroupPermissionDto insertPermissionOnAnyone(String permission) {
-    GroupPermissionDto dto = new GroupPermissionDto()
-      .setUuid(Uuids.createFast())
-      .setGroupUuid(null)
-      .setRole(permission);
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, null, null);
-    db.commit();
-    return dto;
-  }
-
-  public GroupPermissionDto insertPermissionOnAnyone(ProjectPermission permission) {
-    return insertPermissionOnAnyone(permission.getKey());
-  }
-
-  public GroupPermissionDto insertPermissionOnAnyone(GlobalPermission permission) {
-    return insertPermissionOnAnyone(permission.getKey());
-  }
-
   public Set<GroupPermissionDto> insertPermissionsOnGroup(GroupDto group, ProjectPermission... permissions) {
     return insertPermissionsOnGroup(group, stream(permissions).map(ProjectPermission::getKey).toArray(String[]::new));
   }
@@ -285,30 +266,6 @@ public class UserDbTester {
 
   public GroupPermissionDto insertPermissionOnGroup(GroupDto group, ProjectPermission permission) {
     return insertPermissionOnGroup(group, permission.getKey());
-  }
-
-  public GroupPermissionDto insertEntityPermissionOnAnyone(ProjectPermission permission, EntityDto entity) {
-    return insertEntityPermissionOnAnyone(permission.getKey(), entity);
-  }
-
-  public GroupPermissionDto insertEntityPermissionOnAnyone(String permission, EntityDto entity) {
-    checkArgument(!entity.isPrivate(), "No permission to group AnyOne can be granted on a private entity");
-    checkArgument(!PUBLIC_PERMISSIONS.stream().map(ProjectPermission::getKey).collect(toSet()).contains(permission),
-      "permission %s can't be granted on a public entity", permission);
-    GroupPermissionDto dto = new GroupPermissionDto()
-      .setUuid(Uuids.createFast())
-      .setGroupUuid(null)
-      .setRole(permission)
-      .setEntityUuid(entity.getUuid())
-      .setEntityName(entity.getName());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, entity, null);
-    db.commit();
-    return dto;
-  }
-
-  public void deleteProjectPermissionFromAnyone(EntityDto entity, ProjectPermission permission) {
-    db.getDbClient().groupPermissionDao().delete(db.getSession(), permission.getKey(), null, null, entity);
-    db.commit();
   }
 
   public Set<GroupPermissionDto> insertEntityPermissionsOnGroup(GroupDto group, EntityDto entity, ProjectPermission... permissions) {

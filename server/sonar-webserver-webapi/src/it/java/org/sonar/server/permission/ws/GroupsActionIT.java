@@ -85,7 +85,6 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
     db.users().insertPermissionOnGroup(group1, GlobalPermission.SCAN);
     db.users().insertPermissionOnGroup(group2, GlobalPermission.SCAN);
     db.users().insertPermissionOnGroup(group3, GlobalPermission.ADMINISTER);
-    db.users().insertPermissionOnAnyone(GlobalPermission.SCAN);
     db.commit();
   }
 
@@ -114,15 +113,9 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
       "  \"paging\": {\n" +
       "    \"pageIndex\": 1,\n" +
       "    \"pageSize\": 20,\n" +
-      "    \"total\": 3\n" +
+      "    \"total\": 2\n" +
       "  },\n" +
       "  \"groups\": [\n" +
-      "    {\n" +
-      "      \"name\": \"Anyone\",\n" +
-      "      \"permissions\": [\n" +
-      "        \"scan\"\n" +
-      "      ]\n" +
-      "    },\n" +
       "    {\n" +
       "      \"name\": \"group-1-name\",\n" +
       "      \"description\": \"" + group1.getDescription() + "\",\n" +
@@ -151,7 +144,7 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
       .execute()
       .getInput();
 
-    assertThat(result).containsSubsequence(DefaultGroups.ANYONE, "group-1", "group-2");
+    assertThat(result).containsSubsequence("group-1", "group-2");
   }
 
   @Test
@@ -160,7 +153,7 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
     String result = newRequest()
       .setParam(PARAM_PERMISSION, GlobalPermission.SCAN.getKey())
       .setParam(PAGE_SIZE, "1")
-      .setParam(PAGE, "3")
+      .setParam(PAGE, "2")
       .execute()
       .getInput();
 
@@ -245,22 +238,6 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
       .getInput();
 
     assertThat(result).contains(group.getName()).doesNotContain(groupWithoutPermission.getName());
-  }
-
-  @Test
-  public void return_anyone_group_when_search_query_and_no_param_permission() {
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    GroupDto group = db.users().insertGroup("group-with-permission");
-    db.users().insertEntityPermissionOnGroup(group, ISSUE_ADMIN, project);
-
-    loginAsAdmin();
-    String result = newRequest()
-      .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(TEXT_QUERY, "nyo")
-      .execute()
-      .getInput();
-
-    assertThat(result).contains("Anyone");
   }
 
   @Test

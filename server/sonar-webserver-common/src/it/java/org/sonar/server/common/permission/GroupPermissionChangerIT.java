@@ -26,12 +26,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.permission.GlobalPermission;
-import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
@@ -78,13 +76,6 @@ public class GroupPermissionChangerIT {
   }
 
   @Test
-  public void apply_adds_global_permission_to_group_AnyOne() {
-    apply(new GroupPermissionChange(Operation.ADD, ADMINISTER_QUALITY_PROFILES.getKey(), null, null, permissionService));
-
-    assertThat(db.users().selectAnyonePermissions(null)).containsOnly(ADMINISTER_QUALITY_PROFILES.getKey());
-  }
-
-  @Test
   public void apply_fails_with_BadRequestException_when_adding_any_permission_to_group_AnyOne_on_private_project() {
     permissionService.getAllProjectPermissions()
       .forEach(perm -> {
@@ -95,19 +86,6 @@ public class GroupPermissionChangerIT {
         } catch (BadRequestException e) {
           assertThat(e).hasMessage("No permission can be granted to Anyone on a private component");
         }
-      });
-  }
-
-  @Test
-  public void apply_has_no_effect_when_removing_any_permission_to_group_AnyOne_on_private_project() {
-    permissionService.getAllProjectPermissions()
-      .forEach(this::unsafeInsertProjectPermissionOnAnyone);
-
-    permissionService.getAllProjectPermissions()
-      .forEach(perm -> {
-        apply(new GroupPermissionChange(Operation.REMOVE, perm, privateProject, null, permissionService));
-
-        assertThat(db.users().selectAnyonePermissions(privateProject.getUuid())).map(ProjectPermission::fromKey).contains(perm);
       });
   }
 
@@ -200,20 +178,6 @@ public class GroupPermissionChangerIT {
   }
 
   @Test
-  public void apply_adds_permission_ISSUE_ADMIN_to_group_AnyOne_on_a_public_project() {
-    apply(new GroupPermissionChange(Operation.ADD, ProjectPermission.ISSUE_ADMIN, publicProject, null, permissionService));
-
-    assertThat(db.users().selectAnyonePermissions(publicProject.getUuid())).containsOnly(ProjectPermission.ISSUE_ADMIN.getKey());
-  }
-
-  @Test
-  public void apply_adds_permission_SCAN_EXECUTION_to_group_AnyOne_on_a_public_project() {
-    apply(new GroupPermissionChange(Operation.ADD, GlobalPermission.SCAN.getKey(), publicProject, null, permissionService));
-
-    assertThat(db.users().selectAnyonePermissions(publicProject.getUuid())).containsOnly(GlobalPermission.SCAN.getKey());
-  }
-
-  @Test
   public void apply_fails_with_BadRequestException_when_removing_USER_permission_from_group_AnyOne_on_a_public_project() {
     GroupPermissionChange change = new GroupPermissionChange(Operation.REMOVE, ProjectPermission.USER, publicProject, null, permissionService);
     assertThatThrownBy(() -> apply(change))
@@ -230,29 +194,6 @@ public class GroupPermissionChangerIT {
   }
 
   @Test
-  public void apply_removes_ADMIN_permission_from_group_AnyOne_on_a_public_project() {
-    applyRemovesPermissionFromGroupAnyOneOnAPublicProject(ProjectPermission.ADMIN.getKey());
-  }
-
-  @Test
-  public void apply_removes_ISSUE_ADMIN_permission_from_group_AnyOne_on_a_public_project() {
-    applyRemovesPermissionFromGroupAnyOneOnAPublicProject(ProjectPermission.ISSUE_ADMIN.getKey());
-  }
-
-  @Test
-  public void apply_removes_SCAN_EXECUTION_permission_from_group_AnyOne_on_a_public_project() {
-    applyRemovesPermissionFromGroupAnyOneOnAPublicProject(GlobalPermission.SCAN.getKey());
-  }
-
-  private void applyRemovesPermissionFromGroupAnyOneOnAPublicProject(String permission) {
-    db.users().insertEntityPermissionOnAnyone(permission, publicProject);
-
-    apply(new GroupPermissionChange(Operation.REMOVE, permission, publicProject, null, permissionService), permission);
-
-    assertThat(db.users().selectAnyonePermissions(publicProject.getUuid())).isEmpty();
-  }
-
-  @Test
   public void apply_fails_with_BadRequestException_when_removing_USER_permission_from_a_group_on_a_public_project() {
     GroupPermissionChange change = new GroupPermissionChange(Operation.REMOVE, ProjectPermission.USER, publicProject, group, permissionService);
     assertThatThrownBy(() -> apply(change))
@@ -266,14 +207,6 @@ public class GroupPermissionChangerIT {
     assertThatThrownBy(() -> apply(change))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Permission codeviewer can't be removed from a public component");
-  }
-
-  @Test
-  public void add_permission_to_anyone() {
-    apply(new GroupPermissionChange(Operation.ADD, ADMINISTER_QUALITY_PROFILES, null, permissionService));
-
-    assertThat(db.users().selectGroupPermissions(group, null)).isEmpty();
-    assertThat(db.users().selectAnyonePermissions(null)).containsOnly(ADMINISTER_QUALITY_PROFILES.getKey());
   }
 
   @Test
@@ -382,17 +315,6 @@ public class GroupPermissionChangerIT {
 
   private void apply(GroupPermissionChange change, String... existingPermissions) {
     underTest.apply(db.getSession(), Set.of(existingPermissions), change);
-    db.commit();
-  }
-
-  private void unsafeInsertProjectPermissionOnAnyone(ProjectPermission perm) {
-    GroupPermissionDto dto = new GroupPermissionDto()
-      .setUuid(Uuids.createFast())
-      .setGroupUuid(null)
-      .setRole(perm)
-      .setEntityUuid(privateProject.getUuid())
-      .setEntityName(privateProject.getName());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, privateProject, null);
     db.commit();
   }
 }

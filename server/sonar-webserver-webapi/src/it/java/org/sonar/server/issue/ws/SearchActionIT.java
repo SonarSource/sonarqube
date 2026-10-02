@@ -562,7 +562,6 @@ class SearchActionIT {
     UserDto fabrice = db.users().insertUser(u -> u.setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
     ProjectData project = db.components().insertPublicProject("PROJECT_ID", c -> c.setKey("PROJECT_KEY").setName("NAME_PROJECT_ID"));
-    grantPermissionToAnyone(project.getProjectDto(), ISSUE_ADMIN);
     indexPermissions();
     ComponentDto file =
       db.components().insertComponent(newFileDto(project.getMainBranchComponent(), null, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
@@ -2752,19 +2751,6 @@ class SearchActionIT {
 
   private void indexIssues() {
     issueIndexer.indexAllIssues();
-  }
-
-  private void grantPermissionToAnyone(ProjectDto project, ProjectPermission permission) {
-    dbClient.groupPermissionDao().insert(session,
-      new GroupPermissionDto()
-        .setUuid(Uuids.createFast())
-        .setGroupUuid(null)
-        .setEntityUuid(project.getUuid())
-        .setEntityName(project.getName())
-        .setRole(permission),
-      project, null);
-    session.commit();
-    userSession.logIn().addProjectPermission(permission, project);
   }
 
   private void insertIssues(Consumer<IssueDto>... populators) {

@@ -127,8 +127,6 @@ class RoleDaoIT {
     db.users().insertPermissionOnGroup(group1, "gateadmin");
     db.users().insertPermissionOnGroup(group2, "gateadmin");
     db.users().insertEntityPermissionOnGroup(group2, "admin", project);
-    db.users().insertPermissionOnAnyone("scan");
-    db.users().insertPermissionOnAnyone("provisioning");
 
     underTest.deleteGroupRolesByGroupUuid(db.getSession(), group1.getUuid());
     db.getSession().commit();
@@ -140,8 +138,6 @@ class RoleDaoIT {
       .containsOnly("gateadmin");
     assertThat(db.getDbClient().groupPermissionDao().selectEntityPermissionsOfGroup(db.getSession(), group2.getUuid(), project.getUuid()))
       .containsOnly("admin");
-    assertThat(db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null)).containsOnly("scan",
-      "provisioning");
   }
 
   // TODO : add test for qualifier method.

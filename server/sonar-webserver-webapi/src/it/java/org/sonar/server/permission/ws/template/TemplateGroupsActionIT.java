@@ -90,9 +90,6 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
     PermissionTemplateDto template = addTemplate();
     addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getUuid(), adminGroup.getUuid()), template.getName());
     addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getUuid(), userGroup.getUuid()), template.getName());
-    // Anyone group
-    addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), null), template.getName());
-    addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getUuid(), null), template.getName());
     loginAsAdmin();
 
     String response = newRequest()
@@ -121,10 +118,6 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
 
     GroupDto group3 = db.users().insertGroup("group-3-name");
 
-    // Anyone
-    addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), null), template.getName());
-    addGroupToTemplate(newPermissionTemplateGroup(ISSUE_ADMIN, template.getUuid(), null), template.getName());
-
     PermissionTemplateDto anotherTemplate = addTemplate();
     GroupDto group4 = db.users().insertGroup("group-4-name");
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, anotherTemplate.getUuid(), group3.getUuid()), anotherTemplate.getName());
@@ -135,10 +128,10 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .executeProtobuf(WsGroupsResponse.class);
 
-    assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name", "group-2-name", "group-3-name", "group-4-name");
-    assertThat(response.getGroups(0).getPermissionsList()).containsOnly("user", "issueadmin");
-    assertThat(response.getGroups(1).getPermissionsList()).containsOnly("codeviewer", "admin");
-    assertThat(response.getGroups(2).getPermissionsList()).containsOnly("user", "admin");
+    assertThat(response.getGroupsList()).extracting("name").containsExactly("group-1-name", "group-2-name", "group-3-name", "group-4-name");
+    assertThat(response.getGroups(0).getPermissionsList()).containsOnly("codeviewer", "admin");
+    assertThat(response.getGroups(1).getPermissionsList()).containsOnly("user", "admin");
+    assertThat(response.getGroups(2).getPermissionsList()).isEmpty();
     assertThat(response.getGroups(3).getPermissionsList()).isEmpty();
   }
 
@@ -155,9 +148,6 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
 
     GroupDto group3 = db.users().insertGroup("group-3-name");
 
-    // Anyone
-    addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), null), template.getName());
-
     PermissionTemplateDto anotherTemplate = addTemplate();
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, anotherTemplate.getUuid(), group3.getUuid()), anotherTemplate.getName());
     loginAsAdmin();
@@ -167,9 +157,8 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .executeProtobuf(WsGroupsResponse.class);
 
-    assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name");
-    assertThat(response.getGroups(0).getPermissionsList()).containsOnly("user");
-    assertThat(response.getGroups(1).getPermissionsList()).containsOnly("user", "codeviewer");
+    assertThat(response.getGroupsList()).extracting("name").containsExactly("group-1-name");
+    assertThat(response.getGroups(0).getPermissionsList()).containsOnly("user", "codeviewer");
   }
 
   @Test
@@ -181,7 +170,6 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
     PermissionTemplateDto template = addTemplate();
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), group1.getUuid()), template.getName());
     addGroupToTemplate(newPermissionTemplateGroup(ADMIN, template.getUuid(), group2.getUuid()), template.getName());
-    addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), null), template.getName());
 
     PermissionTemplateDto anotherTemplate = addTemplate();
     addGroupToTemplate(newPermissionTemplateGroup(USER, anotherTemplate.getUuid(), group1.getUuid()), anotherTemplate.getName());
@@ -191,7 +179,7 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .executeProtobuf(WsGroupsResponse.class);
 
-    assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name", "group-2-name", "group-3-name");
+    assertThat(response.getGroupsList()).extracting("name").containsExactly("group-1-name", "group-2-name", "group-3-name");
   }
 
   @Test
@@ -250,22 +238,6 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
   }
 
   @Test
-  public void search_with_text_query_return_anyone_group_even_when_no_permission_set() {
-    PermissionTemplateDto template = addTemplate();
-    GroupDto group = db.users().insertGroup("group");
-    addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), group.getUuid()), template.getName());
-    loginAsAdmin();
-
-    WsGroupsResponse response = newRequest()
-      .setParam(PARAM_TEMPLATE_ID, template.getUuid())
-      .setParam(TEXT_QUERY, "nyo")
-      .executeProtobuf(WsGroupsResponse.class);
-
-    assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone");
-    assertThat(response.getGroups(0).getPermissionsList()).isEmpty();
-  }
-
-  @Test
   public void search_ignores_other_template_and_is_ordered_by_groups_with_permission_then_by_name_when_many_groups() {
     PermissionTemplateDto template = addTemplate();
     PermissionTemplateDto otherTemplate = db.permissionTemplates().insertTemplate();
@@ -284,7 +256,7 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
     assertThat(response.getGroupsList())
       .extracting("name")
       .hasSize(DEFAULT_PAGE_SIZE)
-      .startsWith("Anyone", lastGroupName, "Group-1");
+      .startsWith(lastGroupName, "Group-1");
   }
 
   @Test

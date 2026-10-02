@@ -25,13 +25,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
-import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
@@ -344,25 +342,6 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
   }
 
   @Test
-  public void wsAction_whenRemovingAnyPermissionFromGroupAnyoneOnPrivateProject_shouldHaveNoEffect() {
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    permissionService.getAllProjectPermissions()
-      .forEach(perm -> unsafeInsertProjectPermissionOnAnyone(perm, project));
-    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
-
-    permissionService.getAllProjectPermissions()
-      .forEach(permission -> {
-        newRequest()
-          .setParam(PARAM_GROUP_NAME, "anyone")
-          .setParam(PARAM_PROJECT_ID, project.getUuid())
-          .setParam(PARAM_PERMISSION, permission.getKey())
-          .execute();
-
-        assertThat(db.users().selectAnyonePermissions(project.getUuid())).contains(permission.getKey());
-      });
-  }
-
-  @Test
   public void wsAction_whenRemovingBrowsePermissionFromGroupAnyoneOnPublicProject_shouldFail() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
@@ -499,14 +478,4 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
       .execute();
   }
 
-  private void unsafeInsertProjectPermissionOnAnyone(ProjectPermission perm, ProjectDto project) {
-    GroupPermissionDto dto = new GroupPermissionDto()
-      .setUuid(Uuids.createFast())
-      .setGroupUuid(null)
-      .setRole(perm.getKey())
-      .setEntityUuid(project.getUuid())
-      .setEntityName(project.getName());
-    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto, project, null);
-    db.commit();
-  }
 }

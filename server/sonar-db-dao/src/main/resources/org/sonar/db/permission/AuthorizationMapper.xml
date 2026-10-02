@@ -13,14 +13,6 @@
 
     union
 
-    select gr.role
-    from group_roles gr
-    where
-    gr.group_uuid is null and
-    gr.entity_uuid is null
-
-    union
-
     select ur.role
     from user_roles ur
     where
@@ -44,22 +36,6 @@
     union
 
     select
-      u.uuid as userUuid,
-      gr.role as role
-    from group_roles gr,
-    (
-      select uuid from users where uuid in
-      <foreach collection="userUuids" open="(" close=")" item="userUuid" separator=",">
-        #{userUuid, jdbcType=VARCHAR}
-      </foreach>
-    ) u
-    where
-      gr.group_uuid is null and
-      gr.entity_uuid is null
-
-    union
-
-    select
       ur.user_uuid as userUuid,
       ur.role as role
     from user_roles ur
@@ -74,9 +50,7 @@
     <select id="selectGlobalPermissionsOfAnonymous" parameterType="map" resultType="string">
     select gr.role
     from group_roles gr
-    where
-    gr.entity_uuid is null and
-    gr.group_uuid is null
+    where 1 = 0
   </select>
 
   <select id="countUsersWithGlobalPermissionExcludingGroup" parameterType="map" resultType="int">
@@ -193,17 +167,14 @@
       group_roles gr
     where
       gr.role=#{role, jdbcType=VARCHAR}
-      and (
-        gr.group_uuid is null
-        or exists (
-          select
-            1
-          from
-            groups_users gu
-          where
-            gu.user_uuid = #{userUuid, jdbcType=VARCHAR}
-            and gr.group_uuid = gu.group_uuid
-        )
+      and exists (
+        select
+          1
+        from
+          groups_users gu
+        where
+          gu.user_uuid = #{userUuid, jdbcType=VARCHAR}
+          and gr.group_uuid = gu.group_uuid
       )
       and gr.entity_uuid in
       <foreach collection="entityUuids" open="(" close=")" item="element" index="index" separator=",">
@@ -233,7 +204,7 @@
 
   <!--
     Reusable correlated condition: is the entity identified by entityUuidColumn authorized for #{role}/#{userUuid},
-    either via a direct user permission, a group permission (own group or the "Anyone" group), or because the
+    either via a direct user permission, a group permission (own group), or because the
     entity is public and the role is one of the implicitly-public roles (user, codeviewer).
     entityUuidColumn is a raw SQL fragment (e.g. "p.project_uuid" or "entity.uuid"), never end-user input.
   -->
@@ -247,17 +218,14 @@
         where
           gr.role = #{role, jdbcType=VARCHAR}
           and gr.entity_uuid = ${entityUuidColumn}
-          and (
-            gr.group_uuid is null
-            or exists (
-              select
-                1
-              from
-                groups_users gu
-              where
-                gu.user_uuid = #{userUuid, jdbcType=VARCHAR}
-                and gr.group_uuid = gu.group_uuid
-            )
+          and exists (
+            select
+              1
+            from
+              groups_users gu
+            where
+              gu.user_uuid = #{userUuid, jdbcType=VARCHAR}
+              and gr.group_uuid = gu.group_uuid
           )
       )
       or exists (
@@ -297,20 +265,6 @@
   </sql>
 
     <select id="keepAuthorizedEntityUuidsForAnonymous" parameterType="map" resultType="String">
-    select
-      gr.entity_uuid
-    from
-      group_roles gr
-    where
-      gr.role=#{role, jdbcType=VARCHAR}
-      and gr.group_uuid is null
-      and gr.entity_uuid in
-      <foreach collection="entityUuids" open="(" close=")" item="element" index="index" separator=",">
-        #{element, jdbcType=VARCHAR}
-      </foreach>
-
-    union
-
     <include refid="sqlSelectPublicEntitiesIfRole"/>
   </select>
 
@@ -416,23 +370,6 @@
       <foreach collection="userUuids" open="(" close=")" item="userUuid" separator=",">
         #{userUuid, jdbcType=VARCHAR}
       </foreach>
-
-    union
-
-    select
-      u.uuid as userUuid,
-      gr.role as role
-    from group_roles gr
-    inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on entity.uuid = gr.entity_uuid,
-    (
-      select uuid from users where uuid in
-      <foreach collection="userUuids" open="(" close=")" item="userUuid" separator=",">
-        #{userUuid, jdbcType=VARCHAR}
-      </foreach>
-    ) u
-    where
-      entity.uuid = #{entityUuid, jdbcType=VARCHAR} and
-      gr.group_uuid is null
   </select>
 
   <select id="selectEntityPermissionsObtainedViaManagedGroup" parameterType="map" resultType="org.sonar.db.permission.UserAndPermissionDto">
@@ -469,11 +406,7 @@
       gr.role
     from
       group_roles gr
-    inner join  (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on
-      entity.uuid = gr.entity_uuid
-    where
-      entity.uuid = #{entityUuid, jdbcType=VARCHAR}
-      and gr.group_uuid is null
+    where 1 = 0
   </sql>
 
   <select id="selectEmailSubscribersWithGlobalPermission" parameterType="map" resultType="org.sonar.db.EmailSubscriberDto">

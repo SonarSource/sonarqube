@@ -77,21 +77,13 @@ public class PermissionTemplateDbTester {
     addGroupToTemplate(permissionTemplate.getUuid(), group.getUuid(), permission, permissionTemplate.getName(), group.getName());
   }
 
-  public void addGroupToTemplate(String templateUuid, @Nullable String groupUuid, ProjectPermission permission, String templateName, @Nullable String groupName) {
+  public void addGroupToTemplate(String templateUuid, String groupUuid, ProjectPermission permission, String templateName, @Nullable String groupName) {
     addGroupToTemplate(templateUuid, groupUuid, permission.getKey(), templateName, groupName);
   }
 
-  public void addGroupToTemplate(String templateUuid, @Nullable String groupUuid, String permission, String templateName, @Nullable String groupName) {
+  public void addGroupToTemplate(String templateUuid, String groupUuid, String permission, String templateName, @Nullable String groupName) {
     dbClient.permissionTemplateDao().insertGroupPermission(db.getSession(), templateUuid, groupUuid, permission, templateName, groupName);
     db.commit();
-  }
-
-  public void addAnyoneToTemplate(PermissionTemplateDto permissionTemplate, ProjectPermission permission) {
-    addAnyoneToTemplate(permissionTemplate, permission.getKey());
-  }
-
-  public void addAnyoneToTemplate(PermissionTemplateDto permissionTemplate, String permission) {
-    addGroupToTemplate(permissionTemplate.getUuid(), null, permission, permissionTemplate.getName(), null);
   }
 
   public void addUserToTemplate(PermissionTemplateDto permissionTemplate, UserDto user, ProjectPermission permission) {

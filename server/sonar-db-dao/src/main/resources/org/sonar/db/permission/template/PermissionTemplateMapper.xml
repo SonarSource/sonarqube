@@ -65,15 +65,7 @@
     DELETE FROM perm_templates_groups
     WHERE template_uuid = #{templateUuid}
     AND permission_reference = #{permission}
-    AND
-    <choose>
-      <when test="groupUuid != null">
-        group_uuid = #{groupUuid}
-      </when>
-      <otherwise>
-        group_uuid IS NULL
-      </otherwise>
-    </choose>
+    AND group_uuid = #{groupUuid}
   </delete>
 
   <insert id="insertUserPermission" parameterType="PermissionTemplateUser">
@@ -166,20 +158,6 @@
     LEFT JOIN perm_templates_groups ptg ON
         ptg.group_uuid=g.uuid
       AND ptg.template_uuid=#{templateUuid}
-    UNION ALL
-    SELECT
-      'Anyone' AS group_uuid,
-      'Anyone' AS name,
-      ptg.permission_reference AS permission,
-      ptg.template_uuid AS templateUuid
-    FROM groups g
-    LEFT JOIN perm_templates_groups ptg ON
-      ptg.template_uuid=#{templateUuid}
-          <if test="query.withAtLeastOnePermission()">
-    <where>
-      ptg.group_uuid IS NULL
-    </where>
-          </if>
     ) groups
     <where>
       <if test="query.searchQueryToSql != null">
@@ -282,17 +260,6 @@
       FROM perm_templates_groups ptg
       INNER JOIN groups g ON
         g.uuid=ptg.group_uuid
-      UNION ALL
-        SELECT
-          ptg.uuid,
-          ptg.template_uuid as templateUuid,
-          ptg.permission_reference AS permission,
-          'Anyone' AS groupUuid,
-          'Anyone' AS groupName,
-          ptg.created_at as createdAt,
-          ptg.updated_at as updatedAt
-        FROM perm_templates_groups ptg
-        WHERE ptg.group_uuid IS NULL
     ) sub
     <where>
       sub.templateUuid=#{templateUuid}
@@ -305,38 +272,40 @@
   </select>
 
   <select id="selectPotentialPermissionsByUserUuidAndTemplateUuid" parameterType="map" resultType="String">
-    <if test="userUuid!=null">
-      -- from template users
-      select ptu.permission_reference as permission_key
-      from perm_templates_users ptu
-      <where>
-        and ptu.user_uuid=#{userUuid}
-        and ptu.template_uuid=#{templateUuid}
-      </where>
-      UNION
-      -- from template groups except anyone group
-      select ptg.permission_reference as permission_key
-      from perm_templates_groups ptg
-      inner join groups_users gu on ptg.group_uuid = gu.group_uuid
-      <where>
-        and gu.user_uuid=#{userUuid}
-        and ptg.template_uuid=#{templateUuid}
-      </where>
-      UNION
-      -- from template characteristics
-      select ptc.permission_key as permission_key
-      from perm_tpl_characteristics ptc
-      <where>
-        and with_project_creator = ${_true}
-        and ptc.template_uuid = #{templateUuid}
-      </where>
-      UNION
-    </if>
-    -- from anyone group
-    select ptg.permission_reference as permission_key
-    from perm_templates_groups ptg
-    where ptg.template_uuid=#{templateUuid}
-    and ptg.group_uuid IS NULL
+    <choose>
+      <when test="userUuid!=null">
+        -- from template users
+        select ptu.permission_reference as permission_key
+        from perm_templates_users ptu
+        <where>
+          and ptu.user_uuid=#{userUuid}
+          and ptu.template_uuid=#{templateUuid}
+        </where>
+        UNION
+        -- from template groups
+        select ptg.permission_reference as permission_key
+        from perm_templates_groups ptg
+        inner join groups_users gu on ptg.group_uuid = gu.group_uuid
+        <where>
+          and gu.user_uuid=#{userUuid}
+          and ptg.template_uuid=#{templateUuid}
+        </where>
+        UNION
+        -- from template characteristics
+        select ptc.permission_key as permission_key
+        from perm_tpl_characteristics ptc
+        <where>
+          and with_project_creator = ${_true}
+          and ptc.template_uuid = #{templateUuid}
+        </where>
+      </when>
+      <otherwise>
+        -- no user means no potential permission (there is no more "Anyone" group to fall back on)
+        select ptg.permission_reference as permission_key
+        from perm_templates_groups ptg
+        where 1 = 0
+      </otherwise>
+    </choose>
   </select>
 
   <select id="usersCountByTemplateUuidAndPermission" parameterType="map"
@@ -361,13 +330,6 @@
     (SELECT g.name as name, ptg.permission_reference as permission, ptg.template_uuid as templateUuid
     FROM groups g
     INNER JOIN perm_templates_groups ptg ON ptg.group_uuid=g.uuid
-    UNION
-    -- Add Anyone group permission
-    SELECT #{anyoneGroup} as name, ptg.permission_reference as permission, ptg.template_uuid as templateUuid
-    FROM perm_templates_groups ptg
-    <where>
-      AND ptg.group_uuid IS NULL
-    </where>
     ) groups
     <where>
       AND groups.templateUuid in
@@ -383,13 +345,7 @@
     from perm_templates_groups ptg
     where ptg.template_uuid = #{templateUuid}
     and ptg.permission_reference = #{permission}
-    and
-    <if test="groupUuid == null">
-      ptg.group_uuid is null
-    </if>
-    <if test="groupUuid != null">
-      ptg.group_uuid = #{groupUuid}
-    </if>
+    and ptg.group_uuid = #{groupUuid}
   </select>
 
   <select id="selectAllGroupPermissionTemplatesByGroupUuid" parameterType="string" resultType="PermissionTemplateGroup">

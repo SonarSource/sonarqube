@@ -18,16 +18,6 @@
         groups g
       INNER JOIN group_roles group_role ON
         group_role.group_uuid=g.uuid
-      UNION
-      -- Add Anyone group permission
-      SELECT
-        #{anyoneGroup} as name,
-        group_role.role as permission,
-        group_role.entity_uuid as entityUuid
-      FROM
-        group_roles group_role
-      where
-        group_role.group_uuid IS NULL
     ) groups
     where
       groups.entityUuid in
@@ -66,22 +56,6 @@
         and gr.entity_uuid = #{query.entityUuid,jdbcType=VARCHAR}
       </if>
 
-    union all
-
-    select 'Anyone' as groupUuid, 'Anyone' as name, gr.role as permission, gr.entity_uuid as entityUuid, gr.uuid as uuid
-    from group_roles gr
-    <where>
-      <if test="query.entityUuid == null">
-        and gr.entity_uuid is null
-      </if>
-      <if test="query.entityUuid != null">
-        and gr.entity_uuid = #{query.entityUuid,jdbcType=VARCHAR}
-      </if>
-      <if test="query.withAtLeastOnePermission()">
-        and gr.group_uuid is null
-      </if>
-    </where>
-
     ) sub
     left join (<include refid="org.sonar.db.entity.EntityMapper.selectAll"/>) entity on sub.entityUuid = entity.uuid
     <where>
@@ -111,14 +85,6 @@
       select gr.group_uuid as groupUuid, gr.entity_uuid as entityUuid, gr.role as permission, g.name as name
       from group_roles gr
       inner join groups g ON g.uuid = gr.group_uuid
-      where gr.group_uuid is not null
-
-      union all
-
-      select 'Anyone' as groupUuid, gr.entity_uuid as entityUuid, gr.role as permission, 'Anyone' as name
-      from group_roles gr
-      where
-      gr.group_uuid is null
       ) sub
     where
       sub.groupUuid in
@@ -138,14 +104,7 @@
     from group_roles gr
     where
     gr.entity_uuid is null and
-    <choose>
-      <when test="groupUuid != null">
-        gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
-      </when>
-      <otherwise>
-        gr.group_uuid is null
-      </otherwise>
-    </choose>
+    gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectEntityPermissionsOfGroup" parameterType="map" resultType="String">
@@ -153,14 +112,7 @@
     from group_roles gr
     where
     gr.entity_uuid = #{entityUuid,jdbcType=VARCHAR} and
-    <choose>
-      <when test="groupUuid != null">
-        gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
-      </when>
-      <otherwise>
-        gr.group_uuid is null
-      </otherwise>
-    </choose>
+    gr.group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </select>
 
   <select id="selectGroupUuidsWithPermissionOnEntityBut" resultType="string">
@@ -224,14 +176,7 @@
       group_roles
     where
       entity_uuid=#{entityUuid,jdbcType=VARCHAR}
-      <choose>
-        <when test="groupUuid != null">
-          and group_uuid = #{groupUuid,jdbcType=VARCHAR}
-        </when>
-        <otherwise>
-          and group_uuid is null
-        </otherwise>
-      </choose>
+      and group_uuid = #{groupUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteByEntityUuidAndPermission">
@@ -255,13 +200,6 @@
       </otherwise>
     </choose>
     and
-    <choose>
-      <when test="groupUuid != null">
-        group_uuid=#{groupUuid,jdbcType=VARCHAR}
-      </when>
-      <otherwise>
-        group_uuid is null
-      </otherwise>
-    </choose>
+    group_uuid=#{groupUuid,jdbcType=VARCHAR}
   </delete>
 </mapper>

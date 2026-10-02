@@ -106,8 +106,6 @@ public class VisibilityService {
   }
 
   private void updatePermissionsToPrivate(DbSession dbSession, EntityDto entity) {
-    // delete project permissions for group AnyOne
-    dbClient.groupPermissionDao().deleteByEntityUuidForAnyOne(dbSession, entity);
     // grant UserRole.CODEVIEWER and UserRole.USER to any group or user with at least one permission on project
     PUBLIC_PERMISSIONS.forEach(permission -> {
       dbClient.groupPermissionDao().selectGroupUuidsWithPermissionOnEntityBut(dbSession, entity.getUuid(), permission.getKey())

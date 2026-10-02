@@ -92,7 +92,6 @@ class AuthorizationDaoIT {
    * Union of the permissions granted to:
    * - the user
    * - the groups which user is member
-   * - anyone
    */
   @Test
   void selectGlobalPermissions_for_logged_in_user() {
@@ -101,14 +100,13 @@ class AuthorizationDaoIT {
     db.users().insertPermissionOnUser(user, "perm1");
     db.users().insertProjectPermissionOnUser(user, "perm42", project);
     db.users().insertPermissionOnGroup(group1, "perm2");
-    db.users().insertPermissionOnAnyone("perm3");
 
     // ignored permissions, user is not member of this group
     db.users().insertPermissionOnGroup(group2, "ignored");
 
     Set<String> permissions = underTest.selectGlobalPermissions(dbSession, user.getUuid());
 
-    assertThat(permissions).containsOnly("perm1", "perm2", "perm3");
+    assertThat(permissions).containsOnly("perm1", "perm2");
   }
 
   @Test
@@ -123,12 +121,11 @@ class AuthorizationDaoIT {
     db.users().insertMember(group1, user);
     db.users().insertPermissionOnUser(user, "perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
-    db.users().insertPermissionOnAnyone("perm3");
 
     Map<String, Set<String>> result = underTest.selectGlobalPermissionsBatch(dbSession, List.of(user.getUuid()));
 
     assertThat(result).hasSize(1);
-    assertThat(result.get(user.getUuid())).containsOnly("perm1", "perm2", "perm3");
+    assertThat(result.get(user.getUuid())).containsOnly("perm1", "perm2");
   }
 
   @Test
@@ -300,7 +297,6 @@ class AuthorizationDaoIT {
 
     db.users().insertPermissionOnUser(user4, "perm1");
     db.users().insertPermissionOnUser(user4, "perm2");
-    db.users().insertPermissionOnAnyone("perm1");
 
     // excluding group "g1" -> remain u1, u3 and u4
     assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
@@ -333,7 +329,6 @@ class AuthorizationDaoIT {
     db.users().insertMember(group1, user1);
     db.users().insertMember(group1, user2);
     db.users().insertPermissionOnUser(user3, "p1");
-    db.users().insertPermissionOnAnyone("p1");
 
     // excluding user1 -> remain user2 and user3
     assertThat(underTest.countUsersWithGlobalPermissionExcludingUser(db.getSession(),
@@ -366,7 +361,6 @@ class AuthorizationDaoIT {
     db.users().insertMember(group1, user1);
     db.users().insertMember(group1, user2);
     db.users().insertGlobalPermissionOnUser(user3, ADMINISTER);
-    db.users().insertPermissionOnAnyone(ADMINISTER);
 
     assertThat(underTest.selectUserUuidsWithGlobalPermission(db.getSession(), ADMINISTER.getKey()))
       .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid(), user3.getUuid());
@@ -474,20 +468,6 @@ class AuthorizationDaoIT {
     assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(project.getUuid()), otherUser.getUuid(), randomPermission))
       .isEmpty();
     assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(project.getUuid()), user.getUuid(), "another perm"))
-      .isEmpty();
-  }
-
-  @Test
-  void keepAuthorizedEntityUuids_returns__project_if_group_AnyOne_is_granted_project_permission_directly() {
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    ProjectDto otherProject = db.components().insertPublicProject().getProjectDto();
-    db.users().insertEntityPermissionOnAnyone(randomPermission, project);
-
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(project.getUuid()), null, randomPermission))
-      .containsOnly(project.getUuid());
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(project.getUuid()), null, "another perm"))
-      .isEmpty();
-    assertThat(underTest.keepAuthorizedEntityUuids(dbSession, singleton(otherProject.getUuid()), null, randomPermission))
       .isEmpty();
   }
 
@@ -727,25 +707,6 @@ class AuthorizationDaoIT {
   }
 
   @Test
-  void keepAuthorizedUsersForRoleAndEntity_does_not_return_user_if_granted_project_permission_by_AnyOne_on__project() {
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    ProjectDto otherProject = db.components().insertPublicProject().getProjectDto();
-    UserDto otherUser = db.users().insertUser();
-    db.users().insertEntityPermissionOnAnyone(randomPermission, project);
-
-    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, singleton(user.getUuid()), randomPermission, project.getUuid()))
-      .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, singleton(user.getUuid()), "another perm", project.getUuid()))
-      .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, singleton(user.getUuid()), randomPermission,
-      otherProject.getUuid()))
-      .isEmpty();
-    assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession, singleton(otherUser.getUuid()), randomPermission,
-      project.getUuid()))
-      .isEmpty();
-  }
-
-  @Test
   void keepAuthorizedUsersForRoleAndEntity_returns_empty_for_any_user_on_private_project_without_any_permission_in_DB_and_permission_USER() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
@@ -895,17 +856,6 @@ class AuthorizationDaoIT {
   }
 
   @Test
-  void selectEntityPermissionsOfAnonymous_returns_permissions_of_anonymous_user_on_specified__project() {
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    db.users().insertEntityPermissionOnAnyone("p1", project);
-    db.users().insertProjectPermissionOnUser(db.users().insertUser(), "p2", project);
-    ProjectDto otherProject = db.components().insertPublicProject().getProjectDto();
-    db.users().insertEntityPermissionOnAnyone("p3", otherProject);
-
-    assertThat(underTest.selectEntityPermissionsOfAnonymous(dbSession, project.getUuid())).containsOnly("p1");
-  }
-
-  @Test
   void selectEntityPermissionsOfAnonymous_returns_empty_set_when_project_does_not_exist() {
     assertThat(underTest.selectEntityPermissionsOfAnonymous(dbSession, "does_not_exist")).isEmpty();
   }
@@ -913,15 +863,6 @@ class AuthorizationDaoIT {
   @Test
   void selectEntityPermissions_returns_empty_set_when_logged_in_user_and_project_does_not_exist() {
     assertThat(underTest.selectEntityPermissions(dbSession, "does_not_exist", user.getUuid())).isEmpty();
-  }
-
-  @Test
-  void selectEntityPermissions_returns_permissions_of_logged_in_user_on_specified__project_through_anonymous_permissions() {
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    db.users().insertEntityPermissionOnAnyone("p1", project);
-    db.users().insertEntityPermissionOnAnyone("p2", project);
-
-    assertThat(underTest.selectEntityPermissions(dbSession, project.getUuid(), user.getUuid())).containsOnly("p1", "p2");
   }
 
   @Test
@@ -958,11 +899,10 @@ class AuthorizationDaoIT {
   void selectEntityPermissions_returns_permissions_of_logged_in_user_on_specified__project_through_all_possible_configurations() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     db.users().insertProjectPermissionOnUser(user, "p1", project);
-    db.users().insertEntityPermissionOnAnyone("p2", project);
     db.users().insertEntityPermissionOnGroup(group1, "p3", project);
     db.users().insertMember(group1, user);
 
-    assertThat(underTest.selectEntityPermissions(dbSession, project.getUuid(), user.getUuid())).containsOnly("p1", "p2", "p3");
+    assertThat(underTest.selectEntityPermissions(dbSession, project.getUuid(), user.getUuid())).containsOnly("p1", "p3");
   }
 
   @Test

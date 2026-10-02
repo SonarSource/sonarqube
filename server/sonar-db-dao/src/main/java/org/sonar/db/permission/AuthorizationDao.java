@@ -192,7 +192,6 @@ public class AuthorizationDao implements Dao {
 
   /**
    * Keep only authorized user that have the given permission on a given entity.
-   * Please Note that if the permission is 'Anyone' is NOT taking into account by this method.
    */
   public Collection<String> keepAuthorizedUsersForRoleAndEntity(DbSession dbSession, Collection<String> userUuids, ProjectPermission permission, String entityUuid) {
     return keepAuthorizedUsersForRoleAndEntity(dbSession, userUuids, permission.getKey(), entityUuid);
