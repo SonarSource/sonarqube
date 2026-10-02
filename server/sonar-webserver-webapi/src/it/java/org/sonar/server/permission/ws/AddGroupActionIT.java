@@ -44,7 +44,6 @@ import org.sonar.server.ws.TestRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -81,6 +80,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("2026.6", "Parameter 'groupName' no longer accepts 'Anyone', which is not a recognized group name anymore."),
       tuple("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
       tuple("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."));
   }
@@ -376,54 +376,6 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
   }
 
   @Test
-  public void fails_when_adding_any_permission_to_group_AnyOne_on_a_private_project() {
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
-
-    permissionService.getAllProjectPermissions()
-      .forEach(permission -> {
-        try {
-          newRequest()
-            .setParam(PARAM_GROUP_NAME, "anyone")
-            .setParam(PARAM_PROJECT_ID, project.getUuid())
-            .setParam(PARAM_PERMISSION, permission.getKey())
-            .execute();
-          fail("a BadRequestException should have been raised for " + permission);
-        } catch (BadRequestException e) {
-          assertThat(e).hasMessage("No permission can be granted to Anyone on a private component");
-        }
-      });
-  }
-
-  @Test
-  public void no_effect_when_adding_USER_permission_to_group_AnyOne_on_a_public_project() {
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
-
-    newRequest()
-      .setParam(PARAM_GROUP_NAME, "anyone")
-      .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, ProjectPermission.USER.getKey())
-      .execute();
-
-    assertThat(db.users().selectAnyonePermissions(project.getUuid())).isEmpty();
-  }
-
-  @Test
-  public void no_effect_when_adding_CODEVIEWER_permission_to_group_AnyOne_on_a_public_project() {
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
-
-    newRequest()
-      .setParam(PARAM_GROUP_NAME, "anyone")
-      .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, ProjectPermission.CODEVIEWER.getKey())
-      .execute();
-
-    assertThat(db.users().selectAnyonePermissions(project.getUuid())).isEmpty();
-  }
-
-  @Test
   public void no_effect_when_adding_USER_permission_to_group_on_a_public_project() {
     GroupDto group = db.users().insertGroup();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
@@ -435,7 +387,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
       .setParam(PARAM_PERMISSION, ProjectPermission.USER.getKey())
       .execute();
 
-    assertThat(db.users().selectAnyonePermissions(project.getUuid())).isEmpty();
+    assertThat(db.users().selectGroupPermissions(group, project)).isEmpty();
   }
 
   @Test
@@ -450,7 +402,7 @@ public class AddGroupActionIT extends BasePermissionWsIT<AddGroupAction> {
       .setParam(PARAM_PERMISSION, ProjectPermission.CODEVIEWER.getKey())
       .execute();
 
-    assertThat(db.users().selectAnyonePermissions(project.getUuid())).isEmpty();
+    assertThat(db.users().selectGroupPermissions(group, project)).isEmpty();
   }
 
   @Test

@@ -20,8 +20,6 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.Optional;
-import javax.annotation.CheckForNull;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
@@ -29,7 +27,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.GroupUuid;
-import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonarqube.ws.UserGroups;
 
@@ -76,29 +73,10 @@ public class GroupWsSupport {
     return findGroupDto(dbSession, groupName);
   }
 
-  @CheckForNull
-  public GroupDto findGroupDtoOrNullIfAnyone(DbSession dbSession, String groupName) {
-    if (DefaultGroups.isAnyone(groupName)) {
-      return null;
-    }
-    return findGroupDto(dbSession, groupName);
-  }
-
   public GroupDto findGroupDto(DbSession dbSession, String groupName) {
     Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, groupName);
     checkFoundWithOptional(group, "No group with name '%s'", groupName);
     return group.get();
-  }
-
-  public GroupUuidOrAnyone findGroupOrAnyone(DbSession dbSession, String groupName) {
-
-    if (DefaultGroups.isAnyone(groupName)) {
-      return GroupUuidOrAnyone.forAnyone();
-    }
-
-    Optional<GroupDto> group = dbClient.groupDao().selectByName(dbSession, groupName);
-    checkFoundWithOptional(group, "No group with name '%s'", groupName);
-    return GroupUuidOrAnyone.from(group.get());
   }
 
   void checkGroupIsNotDefault(DbSession dbSession, GroupDto groupDto) {

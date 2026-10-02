@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -164,9 +163,6 @@ public class GroupsAction implements PermissionsWsAction {
   private List<GroupDto> findGroups(DbSession dbSession, PermissionQuery dbQuery) {
     List<String> orderedNames = dbClient.groupPermissionDao().selectGroupNamesByQuery(dbSession, dbQuery);
     List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, orderedNames);
-    if (orderedNames.contains(DefaultGroups.ANYONE)) {
-      groups.add(0, new GroupDto().setUuid(DefaultGroups.ANYONE).setName(DefaultGroups.ANYONE));
-    }
     return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
   }
 

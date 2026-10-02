@@ -86,6 +86,7 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("2026.6", "Parameter 'groupName' no longer accepts 'Anyone', which is not a recognized group name anymore."),
       tuple("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
       tuple("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."));
   }
@@ -339,36 +340,6 @@ public class RemoveGroupActionIT extends BasePermissionWsIT<RemoveGroupAction> {
       .execute();
 
     assertThat(db.users().selectGroupPermissions(aGroup, project)).containsOnly(ProjectPermission.CODEVIEWER.getKey());
-  }
-
-  @Test
-  public void wsAction_whenRemovingBrowsePermissionFromGroupAnyoneOnPublicProject_shouldFail() {
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
-
-    TestRequest testRequest = newRequest()
-      .setParam(PARAM_GROUP_NAME, "anyone")
-      .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, ProjectPermission.USER.getKey());
-
-    assertThatThrownBy(testRequest::execute)
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("Permission user can't be removed from a public component");
-  }
-
-  @Test
-  public void wsAction_whenRemovingCodeviewerPermissionFromGroupAnyoneOnPublicProject_shouldFail() {
-    ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
-
-    TestRequest testRequest = newRequest()
-      .setParam(PARAM_GROUP_NAME, "anyone")
-      .setParam(PARAM_PROJECT_ID, project.getUuid())
-      .setParam(PARAM_PERMISSION, ProjectPermission.CODEVIEWER.getKey());
-
-    assertThatThrownBy(testRequest::execute)
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage("Permission codeviewer can't be removed from a public component");
   }
 
   @Test

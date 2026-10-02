@@ -74,6 +74,7 @@ public class AddGroupAction implements PermissionsWsAction {
         "</ul>")
       .setSince("5.2")
       .setChangelog(
+        new Change("2026.6", "Parameter 'groupName' no longer accepts 'Anyone', which is not a recognized group name anymore."),
         new Change("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
         new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."))
       .setPost(true)
@@ -87,7 +88,7 @@ public class AddGroupAction implements PermissionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      GroupDto groupDto = wsSupport.findGroupDtoOrNullIfAnyone(dbSession, request);
+      GroupDto groupDto = wsSupport.findGroupDto(dbSession, request);
       EntityDto entityDto = wsSupport.findEntity(dbSession, request);
       if (entityDto != null && entityDto.isProject()) {
         managedInstanceChecker.throwIfProjectIsManaged(dbSession, entityDto.getUuid());

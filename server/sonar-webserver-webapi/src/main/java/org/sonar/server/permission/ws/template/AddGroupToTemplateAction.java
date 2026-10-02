@@ -26,15 +26,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.GroupUuidOrAnyone;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
 import org.sonar.server.user.UserSession;
 
-import static java.lang.String.format;
-import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
-import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.WsParameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.WsParameters.createTemplateParameters;
@@ -66,6 +63,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
         "The group name must be provided. <br />" +
         "Requires the following permission: 'Administer System'.")
       .setChangelog(
+        new Change("2026.6", "Parameter 'groupName' no longer accepts 'Anyone', which is not a recognized group name anymore."),
         new Change("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
         new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."))
       .setHandler(this);
@@ -79,9 +77,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String permission = request.mandatoryParam(PARAM_PERMISSION);
-      GroupUuidOrAnyone group = support.findGroupUuidOrAnyone(dbSession, request);
-      checkRequest(!ADMINISTER.getKey().equals(permission) || !group.isAnyone(),
-        format("It is not possible to add the '%s' permission to the group 'Anyone'.", permission));
+      GroupDto group = support.findGroupDto(dbSession, request);
 
       PermissionTemplateDto template = support.findTemplate(dbSession, fromRequest(request));
       checkGlobalAdmin(userSession);
@@ -98,7 +94,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private boolean groupAlreadyAdded(DbSession dbSession, String templateUuid, String permission, GroupUuidOrAnyone group) {
+  private boolean groupAlreadyAdded(DbSession dbSession, String templateUuid, String permission, GroupDto group) {
     return dbClient.permissionTemplateDao().hasGroupsWithPermission(dbSession, templateUuid, permission, group.getUuid());
   }
 }

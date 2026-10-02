@@ -387,7 +387,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
       .setParam(PARAM_PERMISSION, ProjectPermission.USER.getKey())
       .execute();
 
-    assertThat(db.users().selectAnyonePermissions(project.getUuid())).isEmpty();
+    assertThat(db.users().selectEntityPermissionOfUser(user, project.getUuid())).isEmpty();
   }
 
   @Test
@@ -401,7 +401,7 @@ public class AddUserActionIT extends BasePermissionWsIT<AddUserAction> {
       .setParam(PARAM_PERMISSION, ProjectPermission.CODEVIEWER.getKey())
       .execute();
 
-    assertThat(db.users().selectAnyonePermissions(project.getUuid())).isEmpty();
+    assertThat(db.users().selectEntityPermissionOfUser(user, project.getUuid())).isEmpty();
   }
 
   @Test

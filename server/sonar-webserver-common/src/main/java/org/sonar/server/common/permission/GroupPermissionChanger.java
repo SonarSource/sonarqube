@@ -29,11 +29,7 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.ProjectPermission;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.permission.GroupUuidOrAnyone;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static java.lang.String.format;
 import static org.sonar.server.common.permission.Operation.ADD;
 import static org.sonar.server.common.permission.Operation.REMOVE;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
@@ -92,8 +88,7 @@ public class GroupPermissionChanger implements GranteeTypeSpecificPermissionUpda
   }
 
   private static boolean isImplicitlyAlreadyDone(EntityDto project, GroupPermissionChange change) {
-    return isAttemptToAddPublicPermissionToPublicComponent(change, project)
-      || isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(change, project);
+    return isAttemptToAddPublicPermissionToPublicComponent(change, project);
   }
 
   private static boolean isAttemptToAddPublicPermissionToPublicComponent(GroupPermissionChange change, EntityDto project) {
@@ -102,28 +97,13 @@ public class GroupPermissionChanger implements GranteeTypeSpecificPermissionUpda
       && ProjectPermission.isPublic(change.getPermission());
   }
 
-  private static boolean isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(GroupPermissionChange change, EntityDto project) {
-    return project.isPrivate()
-      && change.getOperation() == REMOVE
-      && change.getGroupUuidOrAnyone().isAnyone();
-  }
-
   private static void ensureConsistencyWithVisibility(GroupPermissionChange change) {
     EntityDto project = change.getEntity();
     if (project != null) {
       checkRequest(
-        !isAttemptToAddPermissionToAnyoneOnPrivateComponent(change, project),
-        "No permission can be granted to Anyone on a private component");
-      BadRequestException.checkRequest(
         !isAttemptToRemovePublicPermissionFromPublicComponent(change, project),
         "Permission %s can't be removed from a public component", change.getPermission());
     }
-  }
-
-  private static boolean isAttemptToAddPermissionToAnyoneOnPrivateComponent(GroupPermissionChange change, EntityDto project) {
-    return project.isPrivate()
-      && change.getOperation() == ADD
-      && change.getGroupUuidOrAnyone().isAnyone();
   }
 
   private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(GroupPermissionChange change, EntityDto project) {
@@ -133,48 +113,32 @@ public class GroupPermissionChanger implements GranteeTypeSpecificPermissionUpda
   }
 
   private boolean addPermission(DbSession dbSession, GroupPermissionChange change) {
-    validateNotAnyoneAndAdminPermission(change.getPermission(), change.getGroupUuidOrAnyone());
-
-    String groupUuid = change.getGroupUuidOrAnyone().getUuid();
-    String groupName = change.getGroupName().orElse(null);
-
     GroupPermissionDto addedDto = new GroupPermissionDto()
       .setUuid(uuidFactory.create())
       .setRole(change.getPermission())
-      .setGroupUuid(groupUuid)
+      .setGroupUuid(change.getUuidOfGrantee())
       .setEntityName(change.getProjectName())
       .setEntityUuid(change.getProjectUuid())
-      .setGroupName(groupName);
+      .setGroupName(change.getGroupName());
 
     dbClient.groupPermissionDao().insert(dbSession, addedDto, change.getEntity(), null);
     return true;
   }
 
-  private static void validateNotAnyoneAndAdminPermission(String permission, GroupUuidOrAnyone group) {
-    checkRequest(!GlobalPermission.ADMINISTER.getKey().equals(permission) || !group.isAnyone(),
-      format("It is not possible to add the '%s' permission to group 'Anyone'.", permission));
-  }
-
   private boolean removePermission(DbSession dbSession, GroupPermissionChange change) {
     checkIfRemainingGlobalAdministrators(dbSession, change);
-    String groupUuid = change.getGroupUuidOrAnyone().getUuid();
-    String groupName = change.getGroupName().orElse(null);
     dbClient.groupPermissionDao().delete(dbSession,
       change.getPermission(),
-      groupUuid,
-      groupName,
+      change.getUuidOfGrantee(),
+      change.getGroupName(),
       change.getEntity());
     return true;
   }
 
   private void checkIfRemainingGlobalAdministrators(DbSession dbSession, GroupPermissionChange change) {
-    GroupUuidOrAnyone groupUuidOrAnyone = change.getGroupUuidOrAnyone();
-    if (GlobalPermission.ADMINISTER.getKey().equals(change.getPermission()) &&
-      !groupUuidOrAnyone.isAnyone() &&
-      change.getProjectUuid() == null) {
-      String groupUuid = checkNotNull(groupUuidOrAnyone.getUuid());
+    if (GlobalPermission.ADMINISTER.getKey().equals(change.getPermission()) && change.getProjectUuid() == null) {
       // removing global admin permission from group
-      int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession, GlobalPermission.ADMINISTER.getKey(), groupUuid);
+      int remaining = dbClient.authorizationDao().countUsersWithGlobalPermissionExcludingGroup(dbSession, GlobalPermission.ADMINISTER.getKey(), change.getUuidOfGrantee());
       checkRequest(remaining > 0, "Last group with permission '%s'. Permission cannot be removed.", GlobalPermission.ADMINISTER.getKey());
     }
   }

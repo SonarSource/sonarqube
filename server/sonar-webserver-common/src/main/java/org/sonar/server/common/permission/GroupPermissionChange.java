@@ -19,47 +19,47 @@
  */
 package org.sonar.server.common.permission;
 
-import java.util.Optional;
 import java.util.StringJoiner;
 import javax.annotation.Nullable;
 import org.sonar.db.entity.EntityDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.PermissionService;
+
+import static java.util.Objects.requireNonNull;
 
 public class GroupPermissionChange extends PermissionChange {
 
   private final GroupDto groupDto;
 
   public GroupPermissionChange(Operation operation, String permission, @Nullable EntityDto entityDto,
-    @Nullable GroupDto groupDto, PermissionService permissionService) {
+    GroupDto groupDto, PermissionService permissionService) {
     super(operation, permission, entityDto, permissionService);
-    this.groupDto = groupDto;
+    this.groupDto = requireNonNull(groupDto);
   }
 
   public GroupPermissionChange(Operation operation, ProjectPermission permission, EntityDto entityDto,
-    @Nullable GroupDto groupDto, PermissionService permissionService) {
+    GroupDto groupDto, PermissionService permissionService) {
     this(operation, permission.getKey(), entityDto, groupDto, permissionService);
   }
 
   public GroupPermissionChange(Operation operation, GlobalPermission permission,
-    @Nullable GroupDto groupDto, PermissionService permissionService) {
+    GroupDto groupDto, PermissionService permissionService) {
     this(operation, permission.getKey(), null, groupDto, permissionService);
   }
 
-  public GroupUuidOrAnyone getGroupUuidOrAnyone() {
-    return GroupUuidOrAnyone.from(groupDto);
+  public GroupDto getGroupDto() {
+    return groupDto;
   }
 
-  public Optional<String> getGroupName() {
-    return Optional.ofNullable(groupDto).map(GroupDto::getName);
+  public String getGroupName() {
+    return groupDto.getName();
   }
 
   @Override
   public String getUuidOfGrantee() {
-    return getGroupUuidOrAnyone().getUuid();
+    return groupDto.getUuid();
   }
 
   @Override

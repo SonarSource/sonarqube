@@ -53,7 +53,6 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
-import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.db.permission.GlobalPermission.SCAN;
 
 @ServerSide
@@ -143,15 +142,12 @@ public class PermissionTemplateService {
     List<PermissionTemplateGroupDto> groupsPermissions = dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateUuid(dbSession, template.getUuid());
     groupsPermissions
       .stream()
-      .filter(gp -> groupNameValidForProject(entity.isPrivate(), gp.getGroupName()))
       .filter(gp -> permissionValidForProject(entity.isPrivate(), gp.getPermission()))
       .forEach(gp -> {
-        String groupUuid = isAnyone(gp.getGroupName()) ? null : gp.getGroupUuid();
-        String groupName = groupUuid == null ? null : dbClient.groupDao().selectByUuid(dbSession, groupUuid).getName();
         GroupPermissionDto dto = new GroupPermissionDto()
           .setUuid(uuidFactory.create())
-          .setGroupUuid(groupUuid)
-          .setGroupName(groupName)
+          .setGroupUuid(gp.getGroupUuid())
+          .setGroupName(gp.getGroupName())
           .setRole(gp.getPermission())
           .setEntityUuid(entity.getUuid())
           .setEntityName(entity.getName());
@@ -180,10 +176,6 @@ public class PermissionTemplateService {
 
   private static boolean permissionValidForProject(boolean isPrivateEntity, String permission) {
     return isPrivateEntity || !ProjectPermission.isPublic(permission);
-  }
-
-  private static boolean groupNameValidForProject(boolean isPrivateEntity, String groupName) {
-    return !isPrivateEntity || !isAnyone(groupName);
   }
 
   /**

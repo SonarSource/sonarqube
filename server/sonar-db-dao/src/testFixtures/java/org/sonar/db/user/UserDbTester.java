@@ -307,13 +307,6 @@ public class UserDbTester {
     return db.getDbClient().groupPermissionDao().selectEntityPermissionsOfGroup(db.getSession(), group.getUuid(), entity.getUuid());
   }
 
-  public List<String> selectAnyonePermissions(@Nullable String entityUuid) {
-    if (entityUuid == null) {
-      return db.getDbClient().groupPermissionDao().selectGlobalPermissionsOfGroup(db.getSession(), null);
-    }
-    return db.getDbClient().groupPermissionDao().selectEntityPermissionsOfGroup(db.getSession(), null, entityUuid);
-  }
-
   // USER PERMISSIONS
 
   /**

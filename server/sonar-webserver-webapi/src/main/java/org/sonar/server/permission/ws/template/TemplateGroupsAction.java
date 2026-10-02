@@ -23,7 +23,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
 import java.util.List;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -143,9 +142,6 @@ public class TemplateGroupsAction implements PermissionsWsAction {
   private List<GroupDto> findGroups(DbSession dbSession, PermissionQuery dbQuery, PermissionTemplateDto template) {
     List<String> orderedNames = dbClient.permissionTemplateDao().selectGroupNamesByQueryAndTemplate(dbSession, dbQuery, template.getUuid());
     List<GroupDto> groups = dbClient.groupDao().selectByNames(dbSession, orderedNames);
-    if (orderedNames.contains(DefaultGroups.ANYONE)) {
-      groups.add(0, new GroupDto().setUuid(DefaultGroups.ANYONE).setName(DefaultGroups.ANYONE));
-    }
     return Ordering.explicit(orderedNames).onResultOf(GroupDto::getName).immutableSortedCopy(groups);
   }
 

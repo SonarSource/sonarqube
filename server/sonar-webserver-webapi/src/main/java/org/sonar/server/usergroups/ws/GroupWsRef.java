@@ -22,9 +22,7 @@ package org.sonar.server.usergroups.ws;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.server.permission.GroupUuid;
-import org.sonar.server.permission.GroupUuidOrAnyone;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
@@ -38,7 +36,7 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
  *   <li>group name</li>
  * </ul>
  *
- * The reference is then converted to a {@link GroupUuid} or {@link GroupUuidOrAnyone}.
+ * The reference is then converted to a {@link GroupUuid}.
  */
 @Immutable
 public class GroupWsRef {
@@ -69,7 +67,7 @@ public class GroupWsRef {
   }
 
   /**
-   * @return the non-null group name. Can be anyone.
+   * @return the non-null group name.
    * @throws IllegalStateException if {@link #getUuid()} is {@code true}
    */
   public String getName() {
@@ -78,18 +76,16 @@ public class GroupWsRef {
   }
 
   /**
-   * Creates a reference to a group by its uuid. Virtual groups "Anyone" can't be returned
-   * as they can't be referenced by an uuid.
+   * Creates a reference to a group by its uuid.
    */
   static GroupWsRef fromUuid(String uuid) {
     return new GroupWsRef(uuid, null);
   }
 
   /**
-   * Creates a reference to a group by its name. Virtual groups "Anyone" are
-   * supported.
+   * Creates a reference to a group by its name.
    *
-   * @param name non-null name. Can refer to anyone group (case-insensitive {@code "anyone"}).
+   * @param name non-null name.
    */
   static GroupWsRef fromName(String name) {
     return new GroupWsRef(null, requireNonNull(name));
@@ -103,10 +99,6 @@ public class GroupWsRef {
 
     checkRequest(name != null, "Group name or group id must be provided");
     return fromName(requireNonNull(name, "Group name or group id must be provided"));
-  }
-
-  public boolean isAnyone() {
-    return !hasUuid() && DefaultGroups.isAnyone(name);
   }
 
   @Override

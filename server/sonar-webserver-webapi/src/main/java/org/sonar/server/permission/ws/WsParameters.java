@@ -83,7 +83,7 @@ public class WsParameters {
   public static void createGroupNameParameter(WebService.NewAction action) {
     action.createParam(PARAM_GROUP_NAME)
       .setRequired(true)
-      .setDescription("Group name or 'anyone' (case insensitive)")
+      .setDescription("Group name")
       .setExampleValue("sonar-administrators");
   }
 

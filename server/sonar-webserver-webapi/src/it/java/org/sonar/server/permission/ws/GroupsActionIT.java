@@ -22,7 +22,6 @@ package org.sonar.server.permission.ws;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.db.permission.ProjectPermission;
@@ -172,8 +171,7 @@ public class GroupsActionIT extends BasePermissionWsIT<GroupsAction> {
       .getInput();
 
     assertThat(result)
-      .contains("group-1", "group-2")
-      .doesNotContain(DefaultGroups.ANYONE);
+      .contains("group-1", "group-2");
   }
 
   @Test

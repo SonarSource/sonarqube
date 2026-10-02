@@ -29,7 +29,6 @@ import org.sonar.db.entity.EntityDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.permission.GroupPermissionChange;
-import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.common.permission.Operation;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.common.permission.PermissionUpdater;
@@ -77,6 +76,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
       .setSince("5.2")
       .setPost(true)
       .setChangelog(
+        new Change("2026.6", "Parameter 'groupName' no longer accepts 'Anyone', which is not a recognized group name anymore."),
         new Change("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
         new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."))
       .setHandler(this);
@@ -90,14 +90,14 @@ public class RemoveGroupAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       EntityDto entityDto = wsSupport.findEntity(dbSession, request);
-      GroupDto groupDto = wsSupport.findGroupDtoOrNullIfAnyone(dbSession, request);
-      if (entityDto != null && entityDto.isProject() && groupDto != null) {
+      GroupDto groupDto = wsSupport.findGroupDto(dbSession, request);
+      if (entityDto != null && entityDto.isProject()) {
         managedInstanceChecker.throwIfGroupAndProjectAreManaged(dbSession, groupDto.getUuid(), entityDto.getUuid());
       }
       wsSupport.checkPermissionManagementAccess(userSession, entityDto);
 
       String permission = request.mandatoryParam(PARAM_PERMISSION);
-      wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(dbSession, userSession, entityDto, permission, GroupUuidOrAnyone.from(groupDto));
+      wsSupport.checkRemovingOwnBrowsePermissionOnPrivateProject(dbSession, userSession, entityDto, permission, groupDto);
 
       GroupPermissionChange change = new GroupPermissionChange(
         Operation.REMOVE,

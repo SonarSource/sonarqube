@@ -58,9 +58,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
-import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.db.permission.GlobalPermission.PROVISION_PROJECTS;
-import static org.sonar.db.permission.ProjectPermission.ADMIN;
 import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
 import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_NAME;
@@ -95,6 +93,7 @@ public class AddGroupToTemplateActionIT extends BasePermissionWsIT<AddGroupToTem
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("2026.6", "Parameter 'groupName' no longer accepts 'Anyone', which is not a recognized group name anymore."),
       tuple("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."),
       tuple("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."));
   }
@@ -178,14 +177,6 @@ public class AddGroupToTemplateActionIT extends BasePermissionWsIT<AddGroupToTem
       .hasMessage("Permission template with id '" + template.getUuid() + "' is not found");
   }
 
-  @Test
-  public void fail_if_add_anyone_group_to_admin_permission() {
-    loginAsAdmin();
-
-    assertThatThrownBy(() -> newRequest(ANYONE, template.getUuid(), ADMIN))
-      .isInstanceOf(BadRequestException.class)
-      .hasMessage(String.format("It is not possible to add the '%s' permission to the group 'Anyone'.", ProjectPermission.ADMIN));
-  }
 
   @Test
   public void fail_if_not_a_project_permission() {

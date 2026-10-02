@@ -86,6 +86,7 @@ public class RemoveGroupFromTemplateActionIT extends BasePermissionWsIT<RemoveGr
     assertThat(wsDef.since()).isEqualTo("5.2");
     assertThat(wsDef.isPost()).isTrue();
     assertThat(wsDef.changelog()).extracting(Change::getVersion, Change::getDescription).containsOnly(
+      tuple("2026.6", "Parameter 'groupName' no longer accepts 'Anyone', which is not a recognized group name anymore."),
       tuple("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
       tuple("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."));
   }

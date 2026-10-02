@@ -23,10 +23,7 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.db.user.GroupDto;
 
 /**
- * Reference to a user group, as used internally by the backend. It does
- * not support reference to virtual groups "anyone".
- *
- * @see GroupUuidOrAnyone
+ * Reference to a user group, as used internally by the backend.
  */
 @Immutable
 public class GroupUuid {

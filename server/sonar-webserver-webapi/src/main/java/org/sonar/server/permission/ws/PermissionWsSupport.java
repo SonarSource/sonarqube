@@ -40,7 +40,6 @@ import org.sonar.db.user.UserId;
 import org.sonar.db.user.UserIdDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.permission.GroupUuidOrAnyone;
 import org.sonar.server.permission.ws.template.WsTemplateRef;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.ws.GroupWsSupport;
@@ -89,15 +88,9 @@ public class PermissionWsSupport {
     return null;
   }
 
-  public GroupUuidOrAnyone findGroupUuidOrAnyone(DbSession dbSession, Request request) {
+  public GroupDto findGroupDto(DbSession dbSession, Request request) {
     String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
-    return groupWsSupport.findGroupOrAnyone(dbSession, groupName);
-  }
-
-  @CheckForNull
-  public GroupDto findGroupDtoOrNullIfAnyone(DbSession dbSession, Request request) {
-    String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
-    return groupWsSupport.findGroupDtoOrNullIfAnyone(dbSession, groupName);
+    return groupWsSupport.findGroupDto(dbSession, groupName);
   }
 
   public UserId findUser(DbSession dbSession, String login) {
@@ -132,9 +125,9 @@ public class PermissionWsSupport {
   }
 
   public void checkRemovingOwnBrowsePermissionOnPrivateProject(DbSession dbSession, UserSession userSession, @Nullable EntityDto entityDto, String permission,
-    GroupUuidOrAnyone group) {
+    GroupDto group) {
 
-    if (userSession.isSystemAdministrator() || group.isAnyone() || !isUpdatingBrowsePermissionOnPrivateProject(permission, entityDto)) {
+    if (userSession.isSystemAdministrator() || !isUpdatingBrowsePermissionOnPrivateProject(permission, entityDto)) {
       return;
     }
 

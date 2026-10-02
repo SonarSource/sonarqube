@@ -32,7 +32,6 @@ public class GroupWsRefTest {
     GroupWsRef ref = GroupWsRef.fromUuid("10");
     assertThat(ref.hasUuid()).isTrue();
     assertThat(ref.getUuid()).isEqualTo("10");
-    assertThat(ref.isAnyone()).isFalse();
   }
 
   @Test
@@ -40,7 +39,6 @@ public class GroupWsRefTest {
     GroupWsRef ref = fromName("the-group");
     assertThat(ref.hasUuid()).isFalse();
     assertThat(ref.getName()).isEqualTo("the-group");
-    assertThat(ref.isAnyone()).isFalse();
   }
 
   @Test
@@ -68,17 +66,5 @@ public class GroupWsRefTest {
   public void test_toString() {
     GroupWsRef refId = GroupWsRef.fromUuid("10");
     assertThat(refId).hasToString("GroupWsRef{uuid=10, name='null'}");
-  }
-
-  @Test
-  public void reference_anyone_by_its_name() {
-    GroupWsRef ref = GroupWsRef.fromName("Anyone");
-    assertThat(ref.getName()).isEqualTo("Anyone");
-    assertThat(ref.isAnyone()).isTrue();
-
-    // case-insensitive
-    ref = GroupWsRef.fromName("anyone");
-    assertThat(ref.getName()).isEqualTo("anyone");
-    assertThat(ref.isAnyone()).isTrue();
   }
 }

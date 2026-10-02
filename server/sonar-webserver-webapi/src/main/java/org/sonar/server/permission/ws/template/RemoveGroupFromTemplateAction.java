@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.server.permission.GroupUuidOrAnyone;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.permission.ws.WsParameters;
@@ -61,6 +61,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
         "The group name must be provided. <br />" +
         "Requires the following permission: 'Administer System'.")
       .setChangelog(
+        new Change("2026.6", "Parameter 'groupName' no longer accepts 'Anyone', which is not a recognized group name anymore."),
         new Change("10.0", "Parameter 'groupId' is removed. Use 'groupName' instead."),
         new Change("8.4", "Parameter 'groupId' is deprecated. Format changes from integer to string. Use 'groupName' instead."))
       .setHandler(this);
@@ -76,7 +77,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
       String permission = request.mandatoryParam(PARAM_PERMISSION);
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.fromRequest(request));
       checkGlobalAdmin(userSession);
-      GroupUuidOrAnyone group = wsSupport.findGroupUuidOrAnyone(dbSession, request);
+      GroupDto group = wsSupport.findGroupDto(dbSession, request);
 
       dbClient.permissionTemplateDao().deleteGroupPermission(dbSession, template.getUuid(), group.getUuid(), permission,
         template.getName(), request.param(PARAM_GROUP_NAME));

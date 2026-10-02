@@ -2,13 +2,9 @@
   "paging": {
     "pageIndex": 1,
     "pageSize": 100,
-    "total": 3
+    "total": 2
   },
   "groups": [
-    {
-      "name": "Anyone",
-      "permissions": []
-    },
     {
       "id": "AU-Tpxb--iU5OvuD2FLy",
       "name": "sonar-administrators",
