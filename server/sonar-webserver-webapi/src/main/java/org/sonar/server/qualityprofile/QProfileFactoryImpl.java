@@ -60,7 +60,8 @@ public class QProfileFactoryImpl implements QProfileFactory {
     if (profile == null) {
       profile = doCreate(dbSession, name, null, false, false);
     } else {
-      checkArgument(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s' with language '%s'", profile.getName(), profile.getLanguage());
+      checkArgument(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s' with language '%s'",
+        QualityProfileDisplayNames.toDisplayName(profile.getName(), profile.isBuiltIn()), profile.getLanguage());
     }
 
     return profile;

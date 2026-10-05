@@ -125,6 +125,7 @@ public class QProfileWsSupport {
   }
 
   void checkNotBuiltIn(QProfileDto profile) {
-    checkRequest(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s' with language '%s'", profile.getName(), profile.getLanguage());
+    checkRequest(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s' with language '%s'",
+      QualityProfileDisplayNames.toDisplayName(profile.getName(), profile.isBuiltIn()), profile.getLanguage());
   }
 }

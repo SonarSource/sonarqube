@@ -232,6 +232,38 @@ public class BuiltInQPChangeNotificationTemplateTest {
   }
 
   @Test
+  public void notification_uses_display_name_for_base_sonar_way_profile_in_label_and_link() {
+    BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
+      .addProfile(Profile.newBuilder()
+        .setProfileName("Sonar way")
+        .setLanguageKey("cs")
+        .setLanguageName("C#")
+        .build());
+
+    EmailMessage emailMessage = underTest.format(notification.build());
+
+    assertThat(emailMessage.getMessage())
+      .contains("\"Sonar way comprehensive\" - C#: " + server.getPublicRootUrl() + "/profiles/changelog?language=cs&name=Sonar+way+comprehensive&")
+      .doesNotContain("name=Sonar+way&")
+      .doesNotContain("\"Sonar way\"");
+  }
+
+  @Test
+  public void notification_keeps_name_of_sonar_way_variants() {
+    BuiltInQPChangeNotificationBuilder notification = new BuiltInQPChangeNotificationBuilder()
+      .addProfile(Profile.newBuilder()
+        .setProfileName("Sonar way core")
+        .setLanguageKey("cs")
+        .setLanguageName("C#")
+        .build());
+
+    EmailMessage emailMessage = underTest.format(notification.build());
+
+    assertThat(emailMessage.getMessage())
+      .contains("\"Sonar way core\" - C#: " + server.getPublicRootUrl() + "/profiles/changelog?language=cs&name=Sonar+way+core&");
+  }
+
+  @Test
   public void notification_contains_from_and_to_date() {
     String profileName = newProfileName();
     String languageKey = newLanguageKey();

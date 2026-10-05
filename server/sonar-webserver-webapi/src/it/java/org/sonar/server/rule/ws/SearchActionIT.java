@@ -942,6 +942,31 @@ class SearchActionIT {
   }
 
   @Test
+  void search_returns_display_name_of_built_in_sonar_way_profile_only() {
+    QProfileDto builtIn = db.qualityProfiles().insert(p -> p.setLanguage("java").setName("Sonar way").setIsBuiltIn(true));
+    QProfileDto custom = db.qualityProfiles().insert(p -> p.setLanguage("java").setName("Sonar way").setIsBuiltIn(false));
+    RuleDto rule = db.rules().insert(r -> r.setLanguage("java"));
+    db.qualityProfiles().activateRule(builtIn, rule);
+    db.qualityProfiles().activateRule(custom, rule);
+    indexRules();
+    indexActiveRules();
+
+    SearchResponse builtInResult = ws.newRequest()
+      .setParam("f", "actives")
+      .setParam("activation", "true")
+      .setParam("qprofile", builtIn.getKee())
+      .executeProtobuf(SearchResponse.class);
+    SearchResponse customResult = ws.newRequest()
+      .setParam("f", "actives")
+      .setParam("activation", "true")
+      .setParam("qprofile", custom.getKee())
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(builtInResult.getQProfiles().getQProfilesMap().get(builtIn.getKee()).getName()).isEqualTo("Sonar way comprehensive");
+    assertThat(customResult.getQProfiles().getQProfilesMap().get(custom.getKee()).getName()).isEqualTo("Sonar way");
+  }
+
+  @Test
   void search_profile_active_rules() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage("java"));
     QProfileDto waterproofProfile = db.qualityProfiles().insert(p -> p.setLanguage("java"));

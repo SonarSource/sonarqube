@@ -128,7 +128,8 @@ public class QProfileRulesImpl implements QProfileRules {
   }
 
   private static void verifyNotBuiltIn(QProfileDto profile) {
-    checkArgument(!profile.isBuiltIn(), "The built-in profile %s is read-only and can't be updated", profile.getName());
+    checkArgument(!profile.isBuiltIn(), "The built-in profile %s is read-only and can't be updated",
+      QualityProfileDisplayNames.toDisplayName(profile.getName(), profile.isBuiltIn()));
   }
 
   private BulkChangeResult doBulk(DbSession dbSession, QProfileDto profile, RuleQuery ruleQuery, BiFunction<RuleActivationContext, RuleDto, List<ActiveRuleChange>> fn) {

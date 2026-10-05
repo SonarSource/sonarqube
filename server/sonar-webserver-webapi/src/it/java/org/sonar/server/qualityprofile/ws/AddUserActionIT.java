@@ -97,7 +97,7 @@ public class AddUserActionIT {
       .setParam(PARAM_LOGIN, user.getLogin())
       .execute())
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Operation forbidden for built-in Quality Profile 'Sonar way' with language 'xoo'");
+      .hasMessage("Operation forbidden for built-in Quality Profile 'Sonar way comprehensive' with language 'xoo'");
   }
 
   @Test

@@ -57,6 +57,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.qualityprofile.ActiveRuleInheritance;
+import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 
@@ -235,7 +236,7 @@ public class RulesResponseFormatter {
 
   private void writeProfile(Rules.QProfiles.Builder profilesResponse, QProfileDto profile) {
     Rules.QProfile.Builder profileResponse = Rules.QProfile.newBuilder();
-    ofNullable(profile.getName()).ifPresent(profileResponse::setName);
+    ofNullable(QualityProfileDisplayNames.toDisplayName(profile.getName(), profile.isBuiltIn())).ifPresent(profileResponse::setName);
 
     if (profile.getLanguage() != null) {
       profileResponse.setLang(profile.getLanguage());

@@ -57,6 +57,7 @@ import org.sonar.server.project.Visibility;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
+import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
@@ -192,12 +193,13 @@ public class ComponentAction implements NavigationWsAction {
     }
   }
 
-  private static void writeToJson(JsonWriter json, QualityProfile profile, boolean deleted) {
+  private static void writeToJson(JsonWriter json, QualityProfile profile, @Nullable QProfileDto dto) {
+    boolean isBuiltIn = dto != null && dto.isBuiltIn();
     json.beginObject()
       .prop("key", profile.getQpKey())
-      .prop("name", profile.getQpName())
+      .prop("name", QualityProfileDisplayNames.toDisplayName(profile.getQpName(), isBuiltIn))
       .prop("language", profile.getLanguageKey())
-      .prop("deleted", deleted)
+      .prop("deleted", dto == null)
       .endObject();
   }
 
@@ -257,7 +259,7 @@ public class ComponentAction implements NavigationWsAction {
       .stream()
       .collect(Collectors.toMap(QProfileDto::getKee, Function.identity()));
     json.name("qualityProfiles").beginArray();
-    qualityProfiles.forEach(qp -> writeToJson(json, qp, !dtoByQPKey.containsKey(qp.getQpKey())));
+    qualityProfiles.forEach(qp -> writeToJson(json, qp, dtoByQPKey.get(qp.getQpKey())));
     json.endArray();
   }
 

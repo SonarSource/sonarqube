@@ -390,6 +390,28 @@ public class ComponentActionIT {
   }
 
   @Test
+  public void return_display_name_of_built_in_sonar_way_quality_profile_only() {
+    ProjectData project = insertProject();
+    QProfileDto builtIn = db.qualityProfiles().insert(t -> t.setKee("qp1").setName("Sonar way").setLanguage("java").setIsBuiltIn(true));
+    QProfileDto custom = db.qualityProfiles().insert(t -> t.setKee("qp2").setName("Sonar way").setLanguage("xoo").setIsBuiltIn(false));
+    addQualityProfiles(project.getMainBranchComponent(),
+      new QualityProfile(builtIn.getKee(), builtIn.getName(), builtIn.getLanguage(), new Date(NOW)),
+      new QualityProfile(custom.getKee(), custom.getName(), custom.getLanguage(), new Date(NOW)));
+    userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())
+      .registerBranches(project.getMainBranchDto());
+    init();
+
+    assertJson(execute(project.projectKey())).isSimilarTo("""
+      {
+        "qualityProfiles": [
+          {"key": "qp1", "name": "Sonar way comprehensive", "language": "java", "deleted": false},
+          {"key": "qp2", "name": "Sonar way", "language": "xoo", "deleted": false}
+        ]
+      }
+      """);
+  }
+
+  @Test
   public void return_empty_quality_profiles_when_no_measure() {
     ProjectData project = insertProject();
     userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())

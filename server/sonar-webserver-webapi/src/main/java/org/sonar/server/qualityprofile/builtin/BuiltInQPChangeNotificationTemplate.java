@@ -28,8 +28,10 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.platform.Server;
 import org.sonar.server.issue.notification.EmailMessage;
 import org.sonar.server.issue.notification.EmailTemplate;
+import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.server.qualityprofile.builtin.BuiltInQPChangeNotificationBuilder.Profile;
 import static org.sonar.server.qualityprofile.builtin.BuiltInQPChangeNotificationBuilder.parse;
@@ -54,15 +56,16 @@ public class BuiltInQPChangeNotificationTemplate implements EmailTemplate {
     profilesNotification.getProfiles().stream()
       .sorted(Comparator.comparing(Profile::getLanguageName).thenComparing(Profile::getProfileName))
       .forEach(profile -> {
+        String profileName = requireNonNull(QualityProfileDisplayNames.toDisplayName(profile.getProfileName(), true));
         message.append("\"")
-          .append(profile.getProfileName())
+          .append(profileName)
           .append("\" - ")
           .append(profile.getLanguageName())
           .append(": ")
           .append(server.getPublicRootUrl()).append("/profiles/changelog?language=")
           .append(profile.getLanguageKey())
           .append("&name=")
-          .append(encode(profile.getProfileName()))
+          .append(encode(profileName))
           .append("&since=")
           .append(formatDate(new Date(profile.getStartDate())))
           .append("&to=")
