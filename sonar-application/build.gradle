@@ -406,6 +406,9 @@ task zip(type: ParallelZip, dependsOn: [configurations.compileClasspath]) {
     filter(ReplaceTokens, tokens: [
             'sqversion': version
     ])
+    filePermissions {
+      unix('rwxr-xr-x')
+    }
   }
 
   into("${archiveDir}/bin/macosx-universal-64/") {
@@ -413,6 +416,9 @@ task zip(type: ParallelZip, dependsOn: [configurations.compileClasspath]) {
     filter(ReplaceTokens, tokens: [
             'sqversion': version
     ])
+    filePermissions {
+      unix('rwxr-xr-x')
+    }
   }
 
   into("${archiveDir}/bin/windows-x86-64/") {
