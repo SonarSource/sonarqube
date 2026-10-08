@@ -33,11 +33,14 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.db.user.TokenType.GLOBAL_ANALYSIS_TOKEN;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_LOGIN;
 import static org.sonar.server.usertoken.ws.UserTokenSupport.PARAM_NAME;
 
@@ -140,6 +143,74 @@ public class RevokeActionIT {
     })
       .isInstanceOf(NotFoundException.class)
       .hasMessage("User with login 'unknown-login' doesn't exist");
+  }
+
+  @Test
+  public void fail_if_revoke_is_called_by_a_session_authenticated_with_a_projectAnalysisToken() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto tokenToKeep = db.users().insertToken(user);
+    UserTokenDto sourceToken = db.users().insertProjectAnalysisToken(user);
+    WsActionTester wsAsProjectAnalysisToken = newWsAuthenticatedWith(user, sourceToken);
+    TestRequest request = wsAsProjectAnalysisToken.newRequest().setParam(PARAM_NAME, tokenToKeep.getName());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+    assertThat(dbClient.userTokenDao().selectByUser(dbSession, user)).hasSize(2);
+  }
+
+  @Test
+  public void fail_if_revoke_is_called_by_a_session_authenticated_with_a_globalAnalysisToken() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto tokenToKeep = db.users().insertToken(user);
+    UserTokenDto sourceToken = db.users().insertToken(user, t -> t.setType(GLOBAL_ANALYSIS_TOKEN.name()));
+    WsActionTester wsAsGlobalAnalysisToken = newWsAuthenticatedWith(user, sourceToken);
+    TestRequest request = wsAsGlobalAnalysisToken.newRequest().setParam(PARAM_NAME, tokenToKeep.getName());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+    assertThat(dbClient.userTokenDao().selectByUser(dbSession, user)).hasSize(2);
+  }
+
+  @Test
+  public void fail_if_revoke_is_called_by_a_threadLocalUserSession_wrapping_a_projectAnalysisToken() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto tokenToKeep = db.users().insertToken(user);
+    UserTokenDto sourceToken = db.users().insertProjectAnalysisToken(user);
+    WsActionTester wsAsProjectAnalysisToken = newWsAuthenticatedWithThreadLocal(user, sourceToken);
+    TestRequest request = wsAsProjectAnalysisToken.newRequest().setParam(PARAM_NAME, tokenToKeep.getName());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class)
+      .hasMessage("Insufficient privileges");
+    assertThat(dbClient.userTokenDao().selectByUser(dbSession, user)).hasSize(2);
+  }
+
+  @Test
+  public void a_session_authenticated_with_a_userToken_can_still_revoke_its_own_tokens() {
+    UserDto user = db.users().insertUser();
+    UserTokenDto tokenToDelete = db.users().insertToken(user);
+    UserTokenDto sourceToken = db.users().insertToken(user);
+    WsActionTester wsAsUserToken = newWsAuthenticatedWith(user, sourceToken);
+
+    String response = wsAsUserToken.newRequest().setParam(PARAM_NAME, tokenToDelete.getName()).execute().getInput();
+
+    assertThat(response).isEmpty();
+    assertThat(dbClient.userTokenDao().selectByUser(dbSession, user))
+      .extracting(UserTokenDto::getName)
+      .containsExactly(sourceToken.getName());
+  }
+
+  private WsActionTester newWsAuthenticatedWith(UserDto user, UserTokenDto sourceToken) {
+    TokenUserSession tokenUserSession = new TokenUserSession(db.getDbClient(), user, sourceToken);
+    return new WsActionTester(new RevokeAction(dbClient, new UserTokenSupport(db.getDbClient(), tokenUserSession)));
+  }
+
+  private WsActionTester newWsAuthenticatedWithThreadLocal(UserDto user, UserTokenDto sourceToken) {
+    ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+    threadLocalUserSession.set(new TokenUserSession(db.getDbClient(), user, sourceToken));
+    return new WsActionTester(new RevokeAction(dbClient, new UserTokenSupport(db.getDbClient(), threadLocalUserSession)));
   }
 
   private String newRequest(@Nullable String login, String name) {

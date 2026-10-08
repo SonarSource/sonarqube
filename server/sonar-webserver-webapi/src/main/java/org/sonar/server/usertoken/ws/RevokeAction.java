@@ -63,6 +63,7 @@ public class RevokeAction implements UserTokensWsAction {
   public void handle(Request request, Response response) throws Exception {
     String name = request.mandatoryParam(PARAM_NAME);
     try (DbSession dbSession = dbClient.openSession(false)) {
+      userTokenSupport.checkNotAuthenticatedWithAnalysisToken();
       UserDto user = userTokenSupport.getUser(dbSession, request);
       dbClient.userTokenDao().deleteByUserAndName(dbSession, user, name);
       dbSession.commit();
