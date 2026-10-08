@@ -63,6 +63,7 @@ public class EsInstallation {
   private Properties log4j2Properties;
   private String host;
   private int httpPort;
+  private boolean diskThresholdEnabled = true;
 
   // ES authentication settings
   private final boolean securityEnabled;
@@ -181,6 +182,15 @@ public class EsInstallation {
 
   public EsInstallation setEsYmlSettings(EsYmlSettings esYmlSettings) {
     this.esYmlSettings = esYmlSettings;
+    return this;
+  }
+
+  public boolean isDiskThresholdEnabled() {
+    return diskThresholdEnabled;
+  }
+
+  public EsInstallation setDiskThresholdEnabled(boolean diskThresholdEnabled) {
+    this.diskThresholdEnabled = diskThresholdEnabled;
     return this;
   }
 

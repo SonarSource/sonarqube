@@ -67,6 +67,7 @@ public class EsSettings {
   private static final String ALLOW_MMAP = "node.store.allow_mmap";
 
   private static final String JAVA_ADDITIONAL_OPS_PROPERTY = "sonar.search.javaAdditionalOpts";
+  public static final String DISK_THRESHOLD_ENABLED = "cluster.routing.allocation.disk.threshold_enabled";
 
   private final Props props;
   private final EsInstallation fileSystem;
@@ -255,8 +256,8 @@ public class EsSettings {
       builder.put(ALLOW_MMAP, Boolean.FALSE.toString());
     }
 
-    if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-Dcluster.routing.allocation.disk.threshold_enabled=" + Boolean.FALSE)) {
-      builder.put("cluster.routing.allocation.disk.threshold_enabled", Boolean.FALSE.toString());
+    if (props.value(JAVA_ADDITIONAL_OPS_PROPERTY, "").contains("-D" + DISK_THRESHOLD_ENABLED + "=" + Boolean.FALSE)) {
+      builder.put(DISK_THRESHOLD_ENABLED, Boolean.FALSE.toString());
     }
   }
 }

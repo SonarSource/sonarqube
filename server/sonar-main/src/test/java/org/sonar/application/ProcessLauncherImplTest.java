@@ -34,9 +34,11 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.application.command.EsJvmOptions;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
+import org.sonar.application.es.EsDiskSpaceChecker;
 import org.sonar.application.es.EsInstallation;
 import org.sonar.application.es.EsYmlSettings;
 import org.sonar.application.process.ManagedProcess;
+import org.sonar.process.MessageException;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
@@ -45,6 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,12 +57,13 @@ public class ProcessLauncherImplTest {
   public final TemporaryFolder temp = new TemporaryFolder();
 
   private final AllProcessesCommands commands = mock(AllProcessesCommands.class, RETURNS_MOCKS);
+  private final EsDiskSpaceChecker esDiskSpaceChecker = mock(EsDiskSpaceChecker.class);
 
   @Test
   public void launch_forks_a_new_process() throws Exception {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder, esDiskSpaceChecker);
     JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
     command.addClasspath("lib/*.class");
     command.addClasspath("lib/*.jar");
@@ -94,7 +98,7 @@ public class ProcessLauncherImplTest {
     File tempDir = temp.newFolder();
     File certificateFile = temp.newFile("certificate.pk12");
     TestProcessBuilder processBuilder = new TestProcessBuilder();
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder, esDiskSpaceChecker);
 
     EsInstallation esInstallation = createEsInstallation(new Props(new Properties())
       .set("sonar.cluster.enabled", "true")
@@ -125,7 +129,7 @@ public class ProcessLauncherImplTest {
     File tempDir = temp.newFolder();
     File certificateFile = temp.newFile("certificate.pk12");
     TestProcessBuilder processBuilder = new TestProcessBuilder();
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder, esDiskSpaceChecker);
 
     EsInstallation esInstallation = createEsInstallation(new Props(new Properties())
       .set("sonar.cluster.enabled", "true")
@@ -155,7 +159,7 @@ public class ProcessLauncherImplTest {
     File truststoreFile = temp.newFile("truststore.pk12");
     File keystoreFile = temp.newFile("keystore.pk12");
     TestProcessBuilder processBuilder = new TestProcessBuilder();
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder, esDiskSpaceChecker);
 
     EsInstallation esInstallation = createEsInstallation(new Props(new Properties())
       .set("sonar.cluster.enabled", "true")
@@ -188,7 +192,7 @@ public class ProcessLauncherImplTest {
     File certificateFile = temp.newFile("certificate.pk12");
     File httpCertificateFile = temp.newFile("httpCertificate.pk12");
     TestProcessBuilder processBuilder = new TestProcessBuilder();
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder, esDiskSpaceChecker);
 
     EsInstallation esInstallation = createEsInstallation(new Props(new Properties())
       .set("sonar.cluster.enabled", "true")
@@ -219,7 +223,7 @@ public class ProcessLauncherImplTest {
   public void properties_are_passed_to_command_via_a_temporary_properties_file() throws Exception {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder, esDiskSpaceChecker);
     long gracefulStopTimeoutMs = 1 + new Random().nextInt(10_000);
     JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.WEB_SERVER, temp.newFolder())
       .setReadsArgumentsFromFile(true)
@@ -250,7 +254,7 @@ public class ProcessLauncherImplTest {
   public void temporary_properties_file_can_be_avoided() throws Exception {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder, esDiskSpaceChecker);
     JavaCommand<JvmOptions<?>> command = new JavaCommand<>(ProcessId.WEB_SERVER, temp.newFolder());
     command.setReadsArgumentsFromFile(false);
     command.setArgument("foo", "bar");
@@ -270,7 +274,7 @@ public class ProcessLauncherImplTest {
     File homeDir = temp.newFolder();
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new, esDiskSpaceChecker);
     JavaCommand command = createEsCommand(tempDir, homeDir, dataDir, logDir);
 
     File outdatedEsDir = new File(dataDir, "es");
@@ -288,7 +292,7 @@ public class ProcessLauncherImplTest {
     File homeDir = temp.newFolder();
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new, esDiskSpaceChecker);
     JavaCommand command = createEsCommand(tempDir, homeDir, dataDir, logDir);
 
     File outdatedEsDir = new File(dataDir, "es");
@@ -300,11 +304,31 @@ public class ProcessLauncherImplTest {
   }
 
   @Test
+  public void launch_whenNotEnoughDiskSpaceForEs_shouldFailWithoutStartingProcess() throws Exception {
+    File tempDir = temp.newFolder();
+    File dataDir = temp.newFolder();
+    TestProcessBuilder processBuilder = new TestProcessBuilder();
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder, esDiskSpaceChecker);
+    JavaCommand command = createEsCommand(tempDir, temp.newFolder(), dataDir, temp.newFolder());
+    File outdatedEsDir = new File(dataDir, "es");
+    assertThat(outdatedEsDir.mkdir()).isTrue();
+    doAnswer(invocation -> {
+      assertThat(outdatedEsDir).doesNotExist();
+      throw new MessageException("Not enough free disk space");
+    }).when(esDiskSpaceChecker).check(command.getEsInstallation());
+
+    assertThatThrownBy(() -> underTest.launch(command))
+      .isInstanceOf(MessageException.class)
+      .hasMessage("Not enough free disk space");
+    assertThat(processBuilder.started).isFalse();
+  }
+
+  @Test
   public void throw_ISE_if_command_fails() throws IOException {
     File tempDir = temp.newFolder();
     ProcessLauncherImpl.ProcessBuilder processBuilder = mock(ProcessLauncherImpl.ProcessBuilder.class, RETURNS_MOCKS);
     when(processBuilder.start()).thenThrow(new IOException("error"));
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder, esDiskSpaceChecker);
 
     JavaCommand<?> javaCommand = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
     assertThatThrownBy(() -> underTest.launch(javaCommand))
@@ -318,7 +342,7 @@ public class ProcessLauncherImplTest {
     File homeDir = temp.newFolder();
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
-    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new);
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, TestProcessBuilder::new, esDiskSpaceChecker);
     JavaCommand command = createEsCommand(tempDir, homeDir, dataDir, logDir);
 
     // Create the ES conf directory that should be deleted

@@ -127,6 +127,7 @@ public class CommandFactoryImplTest {
       // default settings
       .contains("-Xms512m", "-Xmx512m", "-XX:+HeapDumpOnOutOfMemoryError");
     assertThat(esConfig.getEsYmlSettings()).isNotNull();
+    assertThat(esConfig.isDiskThresholdEnabled()).isTrue();
     assertThat(esConfig.getLog4j2Properties())
       .contains(entry("appender.file_es.fileName", new File(logsDir, "es.log").getAbsolutePath()));
 
@@ -142,6 +143,19 @@ public class CommandFactoryImplTest {
       .contains("-Xms4m", "-Xmx64m", "-XX:+UseSerialGC")
       .doesNotContain("-Dcli.name=server", "-Dcli.script=./bin/elasticsearch",
         "-Dcli.libs=lib/tools/server-cli");
+  }
+
+  @Test
+  public void createEsCommand_whenDiskThresholdDisabled_shouldDisableDiskThresholdOnEsInstallation() throws Exception {
+    prepareEsFileSystem();
+
+    Properties props = new Properties();
+    props.setProperty("sonar.search.host", "localhost");
+    props.setProperty("sonar.search.javaAdditionalOpts", "-Dcluster.routing.allocation.disk.threshold_enabled=false");
+
+    EsInstallation esConfig = newFactory(props).createEsCommand().getEsInstallation();
+
+    assertThat(esConfig.isDiskThresholdEnabled()).isFalse();
   }
 
   @Test

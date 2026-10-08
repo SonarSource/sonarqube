@@ -40,6 +40,7 @@ import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
 import org.sonar.application.es.EsConnectorImpl;
+import org.sonar.application.es.EsDiskSpaceChecker;
 import org.sonar.application.es.EsInstallation;
 import org.sonar.application.es.EsKeyStoreCli;
 import org.sonar.application.process.EsManagedProcess;
@@ -68,15 +69,18 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   private final File tempDir;
   private final AllProcessesCommands allProcessesCommands;
   private final Supplier<ProcessBuilder> processBuilderSupplier;
+  private final EsDiskSpaceChecker esDiskSpaceChecker;
 
   public ProcessLauncherImpl(File tempDir) {
-    this(tempDir, new AllProcessesCommands(tempDir), JavaLangProcessBuilder::new);
+    this(tempDir, new AllProcessesCommands(tempDir), JavaLangProcessBuilder::new, new EsDiskSpaceChecker());
   }
 
-  ProcessLauncherImpl(File tempDir, AllProcessesCommands allProcessesCommands, Supplier<ProcessBuilder> processBuilderSupplier) {
+  ProcessLauncherImpl(File tempDir, AllProcessesCommands allProcessesCommands, Supplier<ProcessBuilder> processBuilderSupplier,
+    EsDiskSpaceChecker esDiskSpaceChecker) {
     this.tempDir = tempDir;
     this.allProcessesCommands = allProcessesCommands;
     this.processBuilderSupplier = processBuilderSupplier;
+    this.esDiskSpaceChecker = esDiskSpaceChecker;
   }
 
   @Override
@@ -88,6 +92,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     EsInstallation esInstallation = command.getEsInstallation();
     if (esInstallation != null) {
       cleanupOutdatedEsData(esInstallation);
+      esDiskSpaceChecker.check(esInstallation);
       writeConfFiles(esInstallation);
     }
 

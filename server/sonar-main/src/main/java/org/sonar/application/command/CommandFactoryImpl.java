@@ -123,7 +123,8 @@ public class CommandFactoryImpl implements CommandFactory {
         .addFromMandatoryProperty(props, SEARCH_JAVA_ADDITIONAL_OPTS.getKey()))
       .setEsYmlSettings(new EsYmlSettings(settingsMap))
       .setHost(settingsMap.get("http.host"))
-      .setHttpPort(Integer.parseInt(settingsMap.get("http.port")));
+      .setHttpPort(Integer.parseInt(settingsMap.get("http.port")))
+      .setDiskThresholdEnabled(!Boolean.FALSE.toString().equals(settingsMap.get(EsSettings.DISK_THRESHOLD_ENABLED)));
     return esInstallation;
   }
 
