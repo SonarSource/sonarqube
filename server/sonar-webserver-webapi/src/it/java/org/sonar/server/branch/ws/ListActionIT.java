@@ -30,6 +30,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.ComponentFinder;
@@ -309,6 +310,40 @@ public class ListActionIT {
     assertThatThrownBy(() -> ws.newRequest().setParam("project", "foo").execute())
       .isInstanceOf(NotFoundException.class)
       .hasMessageContaining("Project 'foo' not found");
+  }
+
+  @Test
+  public void fail_with_not_found_if_private_project_exists_but_user_has_no_permission() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    userSession.logIn();
+
+    TestRequest request = ws.newRequest().setParam("project", project.getKey());
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + project.getKey() + "' not found");
+  }
+
+  @Test
+  public void fail_with_not_found_if_private_application_exists_but_user_has_no_permission() {
+    ProjectDto application = db.components().insertPrivateApplication().getProjectDto();
+    userSession.logIn();
+
+    TestRequest request = ws.newRequest().setParam("project", application.getKey());
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + application.getKey() + "' not found");
+  }
+
+  @Test
+  public void list_branches_with_global_SCAN_permission() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    userSession.logIn().addPermission(GlobalPermission.SCAN);
+
+    ListWsResponse response = ws.newRequest()
+      .setParam("project", project.getKey())
+      .executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getBranchesList()).extracting(Branch::getName).containsExactly(DEFAULT_MAIN_BRANCH_NAME);
   }
 
 }

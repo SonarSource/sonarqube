@@ -53,7 +53,6 @@ import static org.sonar.db.permission.GlobalPermission.SCAN;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_LIST;
 import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 public class ListAction implements BranchWsAction {
   private final DbClient dbClient;
@@ -86,8 +85,7 @@ public class ListAction implements BranchWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ProjectDto projectOrApp = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
-      checkPermission(projectOrApp);
+      ProjectDto projectOrApp = componentFinder.getAccessibleProjectOrApplicationByKey(dbSession, projectKey, this::canListBranches);
 
       Collection<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, projectOrApp).stream()
         .filter(b -> b.getBranchType() == BRANCH)
@@ -138,11 +136,9 @@ public class ListAction implements BranchWsAction {
     builder.setStatus(statusBuilder);
   }
 
-  private void checkPermission(ProjectDto project) {
-    if (!userSession.hasEntityPermission(USER, project) &&
-        !userSession.hasEntityPermission(ProjectPermission.SCAN, project) &&
-        !userSession.hasPermission(SCAN)) {
-      throw insufficientPrivilegesException();
-    }
+  private boolean canListBranches(ProjectDto project) {
+    return userSession.hasEntityPermission(USER, project) ||
+      userSession.hasEntityPermission(ProjectPermission.SCAN, project) ||
+      userSession.hasPermission(SCAN);
   }
 }

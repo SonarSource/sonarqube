@@ -75,8 +75,7 @@ public class RenameAction implements BranchWsAction {
     String newBranchName = request.mandatoryParam(PARAM_NAME);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
-      checkPermission(project);
+      ProjectDto project = componentFinder.getProjectOrApplicationByKeyAndPermission(dbSession, projectKey, userSession, ProjectPermission.ADMIN);
 
       Optional<BranchDto> existingBranch = dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), newBranchName);
       checkArgument(existingBranch.filter(b -> !b.isMain()).isEmpty(),
@@ -92,10 +91,6 @@ public class RenameAction implements BranchWsAction {
       dbSession.commit();
       response.noContent();
     }
-  }
-
-  private void checkPermission(ProjectDto project) {
-    userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
   }
 
 }

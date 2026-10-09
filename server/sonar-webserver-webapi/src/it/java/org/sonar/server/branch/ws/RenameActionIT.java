@@ -34,10 +34,10 @@ import org.sonar.db.newcodeperiod.NewCodePeriodDto;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,16 +90,29 @@ public class RenameActionIT {
   }
 
   @Test
-  public void fail_if_no_administer_permission() {
+  public void fail_with_not_found_if_no_administer_permission() {
     userSession.logIn();
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-
-    assertThatThrownBy(() -> tester.newRequest()
+    TestRequest request = tester.newRequest()
       .setParam("project", project.getKey())
-      .setParam("name", "branch1")
-      .execute())
-      .isInstanceOf(ForbiddenException.class)
-      .hasMessageContaining("Insufficient privileges");
+      .setParam("name", "branch1");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + project.getKey() + "' not found");
+  }
+
+  @Test
+  public void fail_with_not_found_if_private_project_exists_but_user_has_no_permission() {
+    userSession.logIn();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    TestRequest request = tester.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("name", "branch1");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + project.getKey() + "' not found");
   }
 
   @Test

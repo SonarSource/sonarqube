@@ -79,8 +79,7 @@ public class DeleteAction implements BranchWsAction {
     String branchKey = request.mandatoryParam(PARAM_BRANCH);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
-      checkPermission(project);
+      ProjectDto project = componentFinder.getProjectOrApplicationByKeyAndPermission(dbSession, projectKey, userSession, ProjectPermission.ADMIN);
 
       BranchDto branch = checkFoundWithOptional(
         dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey),
@@ -91,10 +90,6 @@ public class DeleteAction implements BranchWsAction {
       projectLifeCycleListeners.onProjectBranchesChanged(singleton(Project.fromProjectDtoWithTags(project)), Set.of(branch.getUuid()));
       response.noContent();
     }
-  }
-
-  private void checkPermission(ProjectDto project) {
-    userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
   }
 
 }

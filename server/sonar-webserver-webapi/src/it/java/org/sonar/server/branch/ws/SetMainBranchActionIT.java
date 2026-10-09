@@ -34,8 +34,8 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.Indexers;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.project.Project;
@@ -65,7 +65,8 @@ public class SetMainBranchActionIT {
   ProjectLifeCycleListeners projectLifeCycleListeners = mock(ProjectLifeCycleListeners.class);
 
   private final Indexers indexers = mock(Indexers.class);
-  private WsActionTester tester = new WsActionTester(new SetMainBranchAction(db.getDbClient(), userSession, projectLifeCycleListeners, indexers));
+  private WsActionTester tester = new WsActionTester(
+    new SetMainBranchAction(db.getDbClient(), userSession, TestComponentFinder.from(db), projectLifeCycleListeners, indexers));
 
   @Test
   public void testDefinition() {
@@ -110,7 +111,7 @@ public class SetMainBranchActionIT {
   }
 
   @Test
-  public void fail_whenNoAdministerPermission_shouldThrowForbiddenException() {
+  public void fail_whenNoAdministerPermission_shouldThrowNotFoundException() {
     userSession.logIn();
     ProjectDto projectDto = db.components().insertPublicProject().getProjectDto();
 
@@ -119,8 +120,36 @@ public class SetMainBranchActionIT {
       .setParam(PARAM_BRANCH, "anotherBranch");
 
     assertThatThrownBy(request::execute)
-      .isInstanceOf(ForbiddenException.class)
-      .hasMessageContaining("Insufficient privileges");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '%s' not found".formatted(projectDto.getKey()));
+  }
+
+  @Test
+  public void fail_whenPrivateProjectExistsAndUserHasNoPermission_shouldThrowNotFoundException() {
+    ProjectDto projectDto = db.components().insertPrivateProject().getProjectDto();
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, projectDto);
+
+    TestRequest request = tester.newRequest()
+      .setParam(PARAM_PROJECT, projectDto.getKey())
+      .setParam(PARAM_BRANCH, "anotherBranch");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '%s' not found".formatted(projectDto.getKey()));
+  }
+
+  @Test
+  public void fail_whenPrivateProjectExistsAndUserHasNoPermissionAtAll_shouldThrowNotFoundException() {
+    ProjectDto projectDto = db.components().insertPrivateProject().getProjectDto();
+    userSession.logIn();
+
+    TestRequest request = tester.newRequest()
+      .setParam(PARAM_PROJECT, projectDto.getKey())
+      .setParam(PARAM_BRANCH, "anotherBranch");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '%s' not found".formatted(projectDto.getKey()));
   }
 
   @Test
@@ -133,7 +162,7 @@ public class SetMainBranchActionIT {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("Project 'noExistingProjectKey' not found.");
+      .hasMessage("Project 'noExistingProjectKey' not found");
   }
 
   @Test
@@ -148,7 +177,7 @@ public class SetMainBranchActionIT {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining("Project '%s' not found.".formatted(application.projectKey()));
+      .hasMessage("Project '%s' not found".formatted(application.projectKey()));
   }
 
   @Test

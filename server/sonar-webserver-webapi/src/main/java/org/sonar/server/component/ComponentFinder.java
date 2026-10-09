@@ -22,6 +22,7 @@ package org.sonar.server.component;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentQualifiers;
@@ -105,6 +106,16 @@ public class ComponentFinder {
 
   public ProjectDto getProjectOrApplicationByKey(DbSession dbSession, String projectKey) {
     return dbClient.projectDao().selectProjectOrAppByKey(dbSession, projectKey)
+      .orElseThrow(() -> new NotFoundException(String.format(LABEL_PROJECT_NOT_FOUND, projectKey)));
+  }
+
+  public ProjectDto getProjectOrApplicationByKeyAndPermission(DbSession dbSession, String projectKey, UserSession userSession, ProjectPermission permission) {
+    return getAccessibleProjectOrApplicationByKey(dbSession, projectKey, p -> userSession.hasEntityPermission(permission, p));
+  }
+
+  public ProjectDto getAccessibleProjectOrApplicationByKey(DbSession dbSession, String projectKey, Predicate<ProjectDto> canAccess) {
+    return dbClient.projectDao().selectProjectOrAppByKey(dbSession, projectKey)
+      .filter(canAccess)
       .orElseThrow(() -> new NotFoundException(String.format(LABEL_PROJECT_NOT_FOUND, projectKey)));
   }
 

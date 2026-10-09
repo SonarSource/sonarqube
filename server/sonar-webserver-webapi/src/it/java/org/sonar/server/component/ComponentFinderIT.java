@@ -26,8 +26,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +45,8 @@ public class ComponentFinderIT {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   private final DbSession dbSession = db.getSession();
   private final ComponentFinder underTest = TestComponentFinder.from(db);
@@ -277,5 +281,71 @@ public class ComponentFinderIT {
 
     assertThatThrownBy(() -> underTest.getMainBranch(dbSession, projectDto))
       .isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  public void getProjectOrApplicationByKeyAndPermission_whenUserHasPermissionOnProject_shouldReturnProject() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, project);
+
+    ProjectDto result = underTest.getProjectOrApplicationByKeyAndPermission(dbSession, project.getKey(), userSession, ProjectPermission.ADMIN);
+
+    assertThat(result.getUuid()).isEqualTo(project.getUuid());
+  }
+
+  @Test
+  public void getProjectOrApplicationByKeyAndPermission_whenUserHasPermissionOnApplication_shouldReturnApplication() {
+    ProjectDto application = db.components().insertPrivateApplication().getProjectDto();
+    userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, application);
+
+    ProjectDto result = underTest.getProjectOrApplicationByKeyAndPermission(dbSession, application.getKey(), userSession, ProjectPermission.ADMIN);
+
+    assertThat(result.getUuid()).isEqualTo(application.getUuid());
+  }
+
+  @Test
+  public void getProjectOrApplicationByKeyAndPermission_whenUserLacksPermission_shouldThrowNotFoundException() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
+    String projectKey = project.getKey();
+
+    assertThatThrownBy(() -> underTest.getProjectOrApplicationByKeyAndPermission(dbSession, projectKey, userSession, ProjectPermission.ADMIN))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Project '%s' not found", projectKey));
+  }
+
+  @Test
+  public void getProjectOrApplicationByKeyAndPermission_whenKeyDoesNotExist_shouldThrowNotFoundException() {
+    userSession.logIn();
+
+    assertThatThrownBy(() -> underTest.getProjectOrApplicationByKeyAndPermission(dbSession, "unknown", userSession, ProjectPermission.ADMIN))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project 'unknown' not found");
+  }
+
+  @Test
+  public void getAccessibleProjectOrApplicationByKey_whenAccessGranted_shouldReturnProject() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+
+    ProjectDto result = underTest.getAccessibleProjectOrApplicationByKey(dbSession, project.getKey(), p -> true);
+
+    assertThat(result.getUuid()).isEqualTo(project.getUuid());
+  }
+
+  @Test
+  public void getAccessibleProjectOrApplicationByKey_whenAccessDenied_shouldThrowNotFoundException() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    String projectKey = project.getKey();
+
+    assertThatThrownBy(() -> underTest.getAccessibleProjectOrApplicationByKey(dbSession, projectKey, p -> false))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage(format("Project '%s' not found", projectKey));
+  }
+
+  @Test
+  public void getAccessibleProjectOrApplicationByKey_whenKeyDoesNotExist_shouldThrowNotFoundException() {
+    assertThatThrownBy(() -> underTest.getAccessibleProjectOrApplicationByKey(dbSession, "unknown", p -> true))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project 'unknown' not found");
   }
 }

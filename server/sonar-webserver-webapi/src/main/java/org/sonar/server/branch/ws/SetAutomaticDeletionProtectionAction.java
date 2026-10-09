@@ -78,8 +78,7 @@ public class SetAutomaticDeletionProtectionAction implements BranchWsAction {
     boolean excludeFromPurge = request.mandatoryParamAsBoolean(PARAM_VALUE);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ProjectDto project = componentFinder.getProjectOrApplicationByKey(dbSession, projectKey);
-      checkPermission(project);
+      ProjectDto project = componentFinder.getProjectOrApplicationByKeyAndPermission(dbSession, projectKey, userSession, ProjectPermission.ADMIN);
 
       BranchDto branch = dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey)
         .orElseThrow(() -> new NotFoundException(format("Branch '%s' not found for project '%s'", branchKey, projectKey)));
@@ -90,9 +89,5 @@ public class SetAutomaticDeletionProtectionAction implements BranchWsAction {
       response.noContent();
     }
 
-  }
-
-  private void checkPermission(ProjectDto project) {
-    userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
   }
 }

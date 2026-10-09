@@ -32,6 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
@@ -48,12 +49,15 @@ public class SetMainBranchAction implements BranchWsAction {
   private static final Logger LOGGER = LoggerFactory.getLogger(SetMainBranchAction.class);
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
   private final ProjectLifeCycleListeners projectLifeCycleListeners;
   private final Indexers indexers;
 
-  public SetMainBranchAction(DbClient dbClient, UserSession userSession, ProjectLifeCycleListeners projectLifeCycleListeners, Indexers indexers) {
+  public SetMainBranchAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder, ProjectLifeCycleListeners projectLifeCycleListeners,
+    Indexers indexers) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
     this.projectLifeCycleListeners = projectLifeCycleListeners;
     this.indexers = indexers;
   }
@@ -84,9 +88,7 @@ public class SetMainBranchAction implements BranchWsAction {
     String newMainBranchKey = request.mandatoryParam(PARAM_BRANCH);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ProjectDto projectDto = checkFoundWithOptional(dbClient.projectDao().selectProjectByKey(dbSession, projectKey),
-        "Project '%s' not found.", projectKey);
-      checkPermission(projectDto);
+      ProjectDto projectDto = componentFinder.getProjectByKeyAndPermission(dbSession, projectKey, userSession, ProjectPermission.ADMIN);
 
       BranchDto oldMainBranch = dbClient.branchDao().selectMainBranchByProjectUuid(dbSession, projectDto.getUuid())
         .orElseThrow(() -> new IllegalStateException("No main branch for existing project '%s'".formatted(projectDto.getKey())));
@@ -135,9 +137,5 @@ public class SetMainBranchAction implements BranchWsAction {
 
   private void updatePreviousMainBranch(DbSession dbSession, BranchDto oldMainBranch) {
     dbClient.branchDao().updateIsMain(dbSession, oldMainBranch.getUuid(), false);
-  }
-
-  private void checkPermission(ProjectDto project) {
-    userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
   }
 }

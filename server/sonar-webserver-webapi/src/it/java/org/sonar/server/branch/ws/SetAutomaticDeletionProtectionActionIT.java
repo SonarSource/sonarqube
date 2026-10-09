@@ -31,10 +31,10 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.server.component.ComponentTypesRule;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,17 +103,31 @@ public class SetAutomaticDeletionProtectionActionIT {
   }
 
   @Test
-  public void fail_if_no_administer_permission() {
+  public void fail_with_not_found_if_no_administer_permission() {
     userSession.logIn();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-
-    assertThatThrownBy(() -> tester.newRequest()
+    TestRequest request = tester.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", "branch1")
-      .setParam("value", "true")
-      .execute())
-      .isInstanceOf(ForbiddenException.class)
-      .hasMessageContaining("Insufficient privileges");
+      .setParam("value", "true");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + project.getKey() + "' not found");
+  }
+
+  @Test
+  public void fail_with_not_found_if_private_project_exists_but_user_has_no_permission() {
+    userSession.logIn();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    TestRequest request = tester.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", "branch1")
+      .setParam("value", "true");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + project.getKey() + "' not found");
   }
 
   @Test

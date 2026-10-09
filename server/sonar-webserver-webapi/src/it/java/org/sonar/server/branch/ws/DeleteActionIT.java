@@ -37,6 +37,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singleton;
@@ -45,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class DeleteActionIT {
 
@@ -124,6 +126,51 @@ public class DeleteActionIT {
       .execute())
         .isInstanceOf(NotFoundException.class)
         .hasMessageContaining("Project 'foo' not found");
+  }
+
+  @Test
+  public void fail_with_not_found_if_project_exists_but_user_is_not_administrator() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
+    TestRequest request = tester.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", "branch1");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + project.getKey() + "' not found");
+    verifyNoInteractions(componentCleanerService);
+  }
+
+  @Test
+  public void fail_with_not_found_if_private_project_exists_but_user_has_no_permission_at_all() {
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.components().insertProjectBranch(project, b -> b.setKey("branch1"));
+    userSession.logIn();
+    TestRequest request = tester.newRequest()
+      .setParam("project", project.getKey())
+      .setParam("branch", "branch1");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + project.getKey() + "' not found");
+    verifyNoInteractions(componentCleanerService);
+  }
+
+  @Test
+  public void fail_with_not_found_if_application_exists_but_user_has_no_permission() {
+    ProjectDto application = db.components().insertPrivateApplication().getProjectDto();
+    db.components().insertProjectBranch(application, b -> b.setKey("branch1"));
+    userSession.logIn();
+    TestRequest request = tester.newRequest()
+      .setParam("project", application.getKey())
+      .setParam("branch", "branch1");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '" + application.getKey() + "' not found");
+    verifyNoInteractions(componentCleanerService);
   }
 
   @Test
