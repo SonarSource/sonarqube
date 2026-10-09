@@ -38,6 +38,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
@@ -144,7 +145,9 @@ public class GitLabIdentityProvider implements OAuth2IdentityProvider {
     if (gitLabSettings.syncUserGroups()) {
       Set<String> userGroups = getGroups(accessToken);
       validateUserInAllowedGroups(user.getUsername(), userGroups);
-      builder.setGroups(userGroups);
+      builder.setGroups(userGroups.stream()
+        .filter(group -> !DefaultGroups.ADMINISTRATORS.equalsIgnoreCase(group))
+        .collect(toSet()));
     }
     context.authenticate(builder.build());
     context.redirectToRequestedPage();

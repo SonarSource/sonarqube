@@ -470,6 +470,27 @@ class GitLabIdentityProviderTest {
     verify(gitLabGraphQlClient, never()).getDescendantGroups(anyString(), anyString());
   }
 
+  @Test
+  void onCallback_whenUserBelongsToGroupNamedAsBuiltInAdministrators_shouldNotPassItToIdentity() {
+    when(gitLabSettings.syncUserGroups()).thenReturn(true);
+    when(configuration.getStringArray("sonar.auth.gitlab.allowedGroups")).thenReturn(new String[0]);
+
+    mockGsonUser();
+    GsonGroup admins = mock(GsonGroup.class);
+    when(admins.getFullPath()).thenReturn("sonar-administrators");
+    GsonGroup adminsUpperCase = mock(GsonGroup.class);
+    when(adminsUpperCase.getFullPath()).thenReturn("Sonar-Administrators");
+    GsonGroup other = mock(GsonGroup.class);
+    when(other.getFullPath()).thenReturn("team");
+    when(gitLabGraphQlClient.getGroups(anyString(), isNull())).thenReturn(List.of(admins, adminsUpperCase, other));
+
+    gitLabIdentityProvider.callback(callbackContext);
+
+    ArgumentCaptor<UserIdentity> captor = ArgumentCaptor.forClass(UserIdentity.class);
+    verify(callbackContext).authenticate(captor.capture());
+    assertThat(captor.getValue().getGroups()).containsExactly("team");
+  }
+
   private Set<GsonGroup> mockGitlabGroups(Set<String> allowedGroups) {
     GsonGroup gsonGroup = mock(GsonGroup.class);
     when(gsonGroup.getFullPath()).thenReturn("path/to/group");
