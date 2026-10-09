@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.db.MigrationDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
@@ -33,6 +35,9 @@ import static org.assertj.core.groups.Tuple.tuple;
 class MigrateAnyoneGroupPermissionsToSonarUsersIT {
 
   private static final String SONAR_USERS_UUID = "sonar-users-uuid";
+
+  @RegisterExtension
+  public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @RegisterExtension
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MigrateAnyoneGroupPermissionsToSonarUsers.class);
@@ -70,18 +75,63 @@ class MigrateAnyoneGroupPermissionsToSonarUsersIT {
   }
 
   @Test
-  void execute_shouldCopyTemplatePermissionToSonarUsersWhenNoEquivalentExists() throws SQLException {
+  void execute_shouldNotMigrateAnyoneTemplatePermissions() throws SQLException {
     insertSonarUsersGroup();
-    insertPermTemplatesGroups("anyone-perm", "template-1", null, "issueadmin");
+    insertPermTemplatesGroups("anyone-user", "template-1", null, "user");
+    insertPermTemplatesGroups("anyone-codeviewer", "template-1", null, "codeviewer");
+    insertPermTemplatesGroups("anyone-issueadmin", "template-1", null, "issueadmin");
+    insertPermTemplatesGroups("anyone-scan", "template-1", null, "scan");
 
     underTest.execute();
 
-    assertThat(select("SELECT group_uuid FROM perm_templates_groups WHERE group_uuid IS NULL"))
-      .as("Anyone row is left untouched by this step, it is deleted by the follow-up step")
-      .hasSize(1);
-    assertThat(select("SELECT template_uuid, permission_reference FROM perm_templates_groups WHERE group_uuid = '" + SONAR_USERS_UUID + "'"))
-      .extracting(row -> row.get("TEMPLATE_UUID"), row -> row.get("PERMISSION_REFERENCE"))
-      .containsExactly(tuple("template-1", "issueadmin"));
+    assertThat(select("SELECT uuid FROM perm_templates_groups WHERE group_uuid = '" + SONAR_USERS_UUID + "'")).isEmpty();
+    assertThat(select("SELECT uuid FROM perm_templates_groups WHERE group_uuid IS NULL"))
+      .as("Anyone rows are left untouched by this step, they are deleted by the follow-up step")
+      .hasSize(4);
+    assertThat(logTester.logs(Level.WARN)).containsExactlyInAnyOrder(
+      "Dropped 'Anyone' permission 'user' on permission template 'template-1', it is not migrated to 'sonar-users'",
+      "Dropped 'Anyone' permission 'codeviewer' on permission template 'template-1', it is not migrated to 'sonar-users'",
+      "Dropped 'Anyone' permission 'issueadmin' on permission template 'template-1', it is not migrated to 'sonar-users'",
+      "Dropped 'Anyone' permission 'scan' on permission template 'template-1', it is not migrated to 'sonar-users'");
+  }
+
+  @Test
+  void execute_shouldNotMigratePublicPermissionsOnPublicProject() throws SQLException {
+    insertSonarUsersGroup();
+    insertProject("project-1", false);
+    insertGroupRole("anyone-user", null, "project-1", "user");
+    insertGroupRole("anyone-codeviewer", null, "project-1", "codeviewer");
+    insertGroupRole("anyone-issueadmin", null, "project-1", "issueadmin");
+
+    underTest.execute();
+
+    assertThat(select("SELECT entity_uuid, role FROM group_roles WHERE group_uuid = '" + SONAR_USERS_UUID + "'"))
+      .extracting(row -> row.get("ENTITY_UUID"), row -> row.get("ROLE"))
+      .containsExactly(tuple("project-1", "issueadmin"));
+  }
+
+  @Test
+  void execute_shouldNotMigratePublicPermissionsOnPublicPortfolio() throws SQLException {
+    insertSonarUsersGroup();
+    insertPortfolio("portfolio-1", false);
+    insertGroupRole("anyone-codeviewer", null, "portfolio-1", "codeviewer");
+
+    underTest.execute();
+
+    assertThat(select("SELECT uuid FROM group_roles WHERE group_uuid = '" + SONAR_USERS_UUID + "'")).isEmpty();
+  }
+
+  @Test
+  void execute_shouldMigratePublicPermissionsOnPrivateProject() throws SQLException {
+    insertSonarUsersGroup();
+    insertProject("project-1", true);
+    insertGroupRole("anyone-user", null, "project-1", "user");
+
+    underTest.execute();
+
+    assertThat(select("SELECT entity_uuid, role FROM group_roles WHERE group_uuid = '" + SONAR_USERS_UUID + "'"))
+      .extracting(row -> row.get("ENTITY_UUID"), row -> row.get("ROLE"))
+      .containsExactly(tuple("project-1", "user"));
   }
 
   @Test
@@ -111,30 +161,15 @@ class MigrateAnyoneGroupPermissionsToSonarUsersIT {
   }
 
   @Test
-  void execute_shouldNotDuplicateTemplatePermissionWhenSonarUsersAlreadyHasIt() throws SQLException {
-    insertSonarUsersGroup();
-    insertPermTemplatesGroups("anyone-perm", "template-1", null, "issueadmin");
-    insertPermTemplatesGroups("existing-perm", "template-1", SONAR_USERS_UUID, "issueadmin");
-
-    underTest.execute();
-
-    assertThat(select("SELECT uuid FROM perm_templates_groups WHERE group_uuid = '" + SONAR_USERS_UUID + "'"))
-      .extracting(row -> row.get("UUID"))
-      .containsExactly("existing-perm");
-  }
-
-  @Test
   void execute_shouldBeReentrant() throws SQLException {
     insertSonarUsersGroup();
     insertGroupRole("anyone-global", null, null, "scan");
     insertGroupRole("anyone-project", null, "entity-1", "issueadmin");
-    insertPermTemplatesGroups("anyone-perm", "template-1", null, "issueadmin");
 
     underTest.execute();
     underTest.execute();
 
     assertThat(select("SELECT uuid FROM group_roles WHERE group_uuid = '" + SONAR_USERS_UUID + "'")).hasSize(2);
-    assertThat(select("SELECT uuid FROM perm_templates_groups WHERE group_uuid = '" + SONAR_USERS_UUID + "'")).hasSize(1);
   }
 
   @Test
@@ -176,6 +211,28 @@ class MigrateAnyoneGroupPermissionsToSonarUsersIT {
     db.executeInsert("groups",
       "uuid", SONAR_USERS_UUID,
       "name", "sonar-users");
+  }
+
+  private void insertProject(String uuid, boolean isPrivate) {
+    db.executeInsert("projects",
+      "uuid", uuid,
+      "kee", uuid,
+      "qualifier", "TRK",
+      "private", isPrivate,
+      "updated_at", 1L,
+      "creation_method", "LOCAL_API");
+  }
+
+  private void insertPortfolio(String uuid, boolean isPrivate) {
+    db.executeInsert("portfolios",
+      "uuid", uuid,
+      "kee", uuid,
+      "name", uuid,
+      "root_uuid", uuid,
+      "private", isPrivate,
+      "selection_mode", "NONE",
+      "created_at", 1L,
+      "updated_at", 1L);
   }
 
   private void insertGroupRole(String uuid, String groupUuid, String entityUuid, String role) {

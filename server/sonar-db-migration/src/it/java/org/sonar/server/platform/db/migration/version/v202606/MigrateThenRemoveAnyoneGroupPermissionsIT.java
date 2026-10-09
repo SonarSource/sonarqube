@@ -34,8 +34,9 @@ import static org.assertj.core.groups.Tuple.tuple;
  * {@link RemoveAnyoneGroupPermissions} back to back, in the exact order the real {@code DbVersion202606} registry
  * runs them, against a schema built through the real historical migration chain (not a hand-rolled fixture). Seeds
  * a mix of global, project-scoped, and template 'Anyone' permissions plus an unrelated real group's permissions,
- * and asserts the final state matches what both steps' individual unit tests claim in isolation: everything is
- * migrated to 'sonar-users', except a real group's own permissions, which are left untouched.
+ * and asserts the final state matches what both steps' individual unit tests claim in isolation: 'Anyone' global and
+ * project-scoped permissions are migrated to 'sonar-users', 'Anyone' template permissions are dropped, and a real
+ * group's own permissions are left untouched.
  */
 class MigrateThenRemoveAnyoneGroupPermissionsIT {
 
@@ -46,7 +47,7 @@ class MigrateThenRemoveAnyoneGroupPermissionsIT {
   public final MigrationDbTester db = MigrationDbTester.createForMigrationStep(MigrateAnyoneGroupPermissionsToSonarUsers.class);
 
   @Test
-  void execute_shouldMigrateGroupRolesAndTemplatePermissionsAndLeaveRealGroupsUntouched() throws SQLException {
+  void execute_shouldMigrateGroupRolesDropTemplatePermissionsAndLeaveRealGroupsUntouched() throws SQLException {
     db.executeInsert("groups", "uuid", SONAR_USERS_UUID, "name", "sonar-users");
 
     // Anyone: global permissions, one new, one already granted to sonar-users
@@ -57,7 +58,7 @@ class MigrateThenRemoveAnyoneGroupPermissionsIT {
     // Anyone: project-scoped permission, must end up on sonar-users too
     insertGroupRole("anyone-project", null, "entity-1", "issueadmin");
 
-    // Anyone: template permission, must end up on sonar-users too
+    // Anyone: template permission, must be dropped
     insertPermTemplatesGroups("anyone-template", "template-1", null, "issueadmin");
 
     // Real group, untouched by both steps
@@ -80,9 +81,8 @@ class MigrateThenRemoveAnyoneGroupPermissionsIT {
       .containsExactlyInAnyOrder(tuple(null, "scan"), tuple(null, "provisioning"), tuple("entity-1", "issueadmin"));
 
     assertThat(select("SELECT template_uuid, permission_reference FROM perm_templates_groups WHERE group_uuid = '" + SONAR_USERS_UUID + "'"))
-      .as("the template permission also lands on sonar-users")
-      .extracting(row -> row.get("TEMPLATE_UUID"), row -> row.get("PERMISSION_REFERENCE"))
-      .containsExactly(tuple("template-1", "issueadmin"));
+      .as("the template permission is not migrated to sonar-users")
+      .isEmpty();
 
     assertThat(select("SELECT entity_uuid, role FROM group_roles WHERE group_uuid = '" + REAL_GROUP_UUID + "'"))
       .as("a real group's permissions are untouched by both steps")

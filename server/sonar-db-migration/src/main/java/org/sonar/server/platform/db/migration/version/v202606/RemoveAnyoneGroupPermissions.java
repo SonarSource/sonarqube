@@ -25,8 +25,8 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 
 /**
  * Permissions granted to the 'Anyone' group are stored as rows with a null 'group_uuid'. The 'Anyone' group is being
- * removed: {@link MigrateAnyoneGroupPermissionsToSonarUsers} first migrates every such row to 'sonar-users', then
- * this step deletes every remaining null-group row.
+ * removed: {@link MigrateAnyoneGroupPermissionsToSonarUsers} first migrates most of these rows to 'sonar-users' (see its
+ * Javadoc for the exceptions), then this step deletes every remaining null-group row.
  */
 public class RemoveAnyoneGroupPermissions extends DataChange {
 
