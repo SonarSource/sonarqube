@@ -163,6 +163,7 @@ import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.CommentAction;
 import org.sonar.server.issue.FromSonarQubeUpdateFeature;
 import org.sonar.server.issue.IssueChangePostProcessorImpl;
+import org.sonar.server.issue.IssueStatsIndexer;
 import org.sonar.server.issue.PrioritizedRulesFeature;
 import org.sonar.server.issue.RemoveTagsAction;
 import org.sonar.server.issue.SetSeverityAction;
@@ -487,6 +488,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // compliance reports
       IssueIngestionService.class,
       IssueStatsByRuleKeyDaoImpl.class,
+      IssueStatsIndexer.class,
       MetadataLoader.class,
       MetadataRules.class,
       SqrActiveRuleDao.class,

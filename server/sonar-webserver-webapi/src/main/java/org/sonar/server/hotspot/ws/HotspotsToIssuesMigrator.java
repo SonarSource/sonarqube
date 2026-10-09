@@ -56,6 +56,9 @@ import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBu
  * <p>Findings are streamed and processed one bounded batch per transaction (never spanning a branch), so a crash
  * only loses the in-flight batch; committed batches are fully consistent (DB + ES index request via es_queue +
  * live measures + Quality Gate) and the remainder are still {@code SECURITY_HOTSPOT}, so a re-run resumes.</p>
+ *
+ * <p>Once a branch is fully migrated its compliance-report issue stats are re-ingested, since Security Reports
+ * read those pre-aggregated per-rule counts and they are otherwise only refreshed by an analysis.</p>
  */
 public class HotspotsToIssuesMigrator {
 
@@ -132,7 +135,7 @@ public class HotspotsToIssuesMigrator {
         lastKee = lastRow.getKee();
       }
     }
-    run.flushRemaining();
+    run.finishBranch();
 
     List<ProjectMigrationResult> projects = run.toProjectResults();
     int skipped = countNotConverted(scopeProjectUuids);
@@ -201,8 +204,11 @@ public class HotspotsToIssuesMigrator {
     }
 
     private void accept(HotspotToMigrateDto hotspot) {
-      flushIfBranchBoundaryOrFull(hotspot.getProjectUuid());
-      currentBranchUuid = hotspot.getProjectUuid();
+      String branchUuid = hotspot.getProjectUuid();
+      if (currentBranchUuid != null && !branchUuid.equals(currentBranchUuid)) {
+        finishBranch();
+      }
+      currentBranchUuid = branchUuid;
 
       RuleType targetType = hotspot.getRuleTypeEnum();
       // Belt-and-braces: the key query already excludes findings whose rule is still a hotspot, so reaching this
@@ -214,22 +220,32 @@ public class HotspotsToIssuesMigrator {
       }
       migratedByProjectKey.merge(hotspot.getProjectKey(), 1, Integer::sum);
       if (!dryRun) {
+        flushIfFull();
         batch.add(toMigratedIssue(hotspot, targetType));
       }
     }
 
-    // Flush the pending batch when the branch changes or it reaches BATCH_SIZE, so every committed transaction stays
-    // within a single branch and bounded in size.
-    private void flushIfBranchBoundaryOrFull(String branchUuid) {
-      if (!dryRun && !batch.isEmpty() && (!branchUuid.equals(currentBranchUuid) || batch.size() >= BATCH_SIZE)) {
-        flush(batch);
+    /**
+     * Flushes the pending batch once it reaches BATCH_SIZE, so every committed transaction stays bounded in size.
+     * Called only right before adding to the batch, never on its own: that way the pending batch is never left
+     * empty mid-branch, so the branch's last findings always reach {@link #finishBranch()} as a final batch —
+     * which is what carries the issue-stats refresh.
+     */
+    private void flushIfFull() {
+      if (batch.size() >= BATCH_SIZE) {
+        flush(batch, false);
         batch = new ArrayList<>();
       }
     }
 
-    private void flushRemaining() {
-      if (!dryRun && !batch.isEmpty()) {
-        flush(batch);
+    /**
+     * Ends the current branch by committing its pending batch as the branch's final one, so every committed
+     * transaction stays within a single branch and the branch's issue stats are refreshed.
+     */
+    private void finishBranch() {
+      if (!batch.isEmpty()) {
+        flush(batch, true);
+        batch = new ArrayList<>();
       }
     }
 
@@ -256,8 +272,12 @@ public class HotspotsToIssuesMigrator {
     }
 
     /** Persists one bounded batch atomically (single transaction) then indexes — see {@link MigrationBatchWriter}. */
-    private void flush(List<DefaultIssue> pending) {
-      batchWriter.write(pending);
+    private void flush(List<DefaultIssue> pending, boolean lastOfBranch) {
+      if (lastOfBranch) {
+        batchWriter.writeLastBatchOfBranch(pending);
+      } else {
+        batchWriter.write(pending);
+      }
       committedHotspots += pending.size();
       LOG.info("Committed migration batch of {} hotspots on branch {} ({} migrated so far)",
         pending.size(), currentBranchUuid, committedHotspots);

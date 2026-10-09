@@ -33,9 +33,11 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.IssueStatsIndexer;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -45,6 +47,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -69,8 +72,11 @@ public class MigrateToIssuesActionIT {
   private final WebIssueStorage issueStorage = new WebIssueStorage(system2, dbClient,
     new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, uuidFactory);
   private final TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
+  private final IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao = new IssueStatsByRuleKeyDaoImpl(dbClient);
+  private final IssueStatsIndexer issueStatsIndexer = new IssueStatsIndexer(dbClient,
+    new IssueIngestionService(issueStatsByRuleKeyDao), issueStatsByRuleKeyDao);
   private final MigrationBatchWriter batchWriter = new MigrationBatchWriter(dbClient, issueStorage, issueChangePostProcessor,
-    issueIndexer, uuidFactory, system2);
+    issueIndexer, issueStatsIndexer, uuidFactory, system2);
   private final HotspotsToIssuesMigrator migrator = new HotspotsToIssuesMigrator(dbClient, issueFieldsSetter, batchWriter,
     system2, userSession);
 

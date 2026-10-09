@@ -37,17 +37,22 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.hotspot.ws.HotspotsToIssuesMigrator.MigrationResult;
 import org.sonar.server.hotspot.ws.HotspotsToIssuesMigrator.ProjectMigrationResult;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.IssueStatsIndexer;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonarsource.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.IssueStats;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -79,8 +84,11 @@ public class HotspotsToIssuesMigratorIT {
   private final WebIssueStorage issueStorage = new WebIssueStorage(system2, dbClient,
     new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, uuidFactory);
   private final TestIssueChangePostProcessor postProcessor = new TestIssueChangePostProcessor();
+  private final IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao = new IssueStatsByRuleKeyDaoImpl(dbClient);
+  private final IssueStatsIndexer issueStatsIndexer = new IssueStatsIndexer(dbClient,
+    new IssueIngestionService(issueStatsByRuleKeyDao), issueStatsByRuleKeyDao);
   private final MigrationBatchWriter batchWriter = new MigrationBatchWriter(dbClient, issueStorage, postProcessor,
-    issueIndexer, uuidFactory, system2);
+    issueIndexer, issueStatsIndexer, uuidFactory, system2);
 
   private final HotspotsToIssuesMigrator underTest = new HotspotsToIssuesMigrator(dbClient, issueFieldsSetter, batchWriter,
     system2, userSession);
@@ -330,6 +338,61 @@ public class HotspotsToIssuesMigratorIT {
   }
 
   @Test
+  public void migrate_shouldRefreshIssueStatsUsedBySecurityReports() {
+    logInAdmin();
+    RuleDto vulnerabilityRule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    insertHotspot(vulnerabilityRule, branch, file, i -> {});
+    insertHotspot(vulnerabilityRule, branch, file, i -> {});
+    issueStatsIndexer.indexOnAnalysis(branch.branchUuid());
+    assertThat(issueStats(branch)).extracting(IssueStats::issueCount, IssueStats::hotspotCount)
+      .containsExactly(tuple(0, 2));
+
+    underTest.migrate(null, false);
+
+    assertThat(issueStats(branch))
+      .extracting(IssueStats::ruleKey, IssueStats::issueCount, IssueStats::hotspotCount, IssueStats::hotspotsReviewed)
+      .containsExactly(tuple(vulnerabilityRule.getKey().toString(), 2, 0, 0));
+  }
+
+  @Test
+  public void migrate_shouldRefreshIssueStatsOfEveryMigratedBranch() {
+    logInAdmin();
+    RuleDto vulnerabilityRule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto mainBranch = project.getMainBranchComponent();
+    ComponentDto featureBranch = db.components().insertProjectBranch(mainBranch);
+    insertHotspot(vulnerabilityRule, mainBranch, db.components().insertComponent(newFileDto(mainBranch)), i -> {});
+    insertHotspot(vulnerabilityRule, featureBranch, db.components().insertComponent(newFileDto(featureBranch)), i -> {});
+    issueStatsIndexer.indexOnAnalysis(mainBranch.branchUuid());
+    issueStatsIndexer.indexOnAnalysis(featureBranch.branchUuid());
+
+    underTest.migrate(project.getProjectDto().getKey(), false);
+
+    assertThat(issueStats(mainBranch)).extracting(IssueStats::issueCount, IssueStats::hotspotCount)
+      .containsExactly(tuple(1, 0));
+    assertThat(issueStats(featureBranch)).extracting(IssueStats::issueCount, IssueStats::hotspotCount)
+      .containsExactly(tuple(1, 0));
+  }
+
+  @Test
+  public void migrate_dryRun_shouldLeaveIssueStatsUntouched() {
+    logInAdmin();
+    RuleDto vulnerabilityRule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    insertHotspot(vulnerabilityRule, branch, db.components().insertComponent(newFileDto(branch)), i -> {});
+    issueStatsIndexer.indexOnAnalysis(branch.branchUuid());
+
+    underTest.migrate(null, true);
+
+    assertThat(issueStats(branch)).extracting(IssueStats::issueCount, IssueStats::hotspotCount)
+      .containsExactly(tuple(0, 1));
+  }
+
+  @Test
   public void migrate_whenProjectKeyUnknown_shouldThrowNotFound() {
     logInAdmin();
 
@@ -362,6 +425,10 @@ public class HotspotsToIssuesMigratorIT {
       i.setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_TO_REVIEW).setResolution(null).setTags(List.of());
       populator.accept(i);
     });
+  }
+
+  private List<IssueStats> issueStats(ComponentDto branch) {
+    return issueStatsByRuleKeyDao.getIssueStats(branch.branchUuid(), AggregationType.PROJECT);
   }
 
   private IssueDto reload(IssueDto issue) {

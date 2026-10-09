@@ -22,6 +22,7 @@ package org.sonar.server.hotspot.ws;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
@@ -37,16 +38,22 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.IssueChangePostProcessor;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.IssueStatsIndexer;
 import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.RuleDescriptionFormatter;
+import org.sonarsource.compliancereports.dao.AggregationType;
+import org.sonarsource.compliancereports.dao.IssueStats;
+import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
@@ -69,9 +76,12 @@ public class MigrationBatchWriterIT {
   private final WebIssueStorage issueStorage = new WebIssueStorage(system2, dbClient,
     new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class)), issueIndexer, uuidFactory);
   private final TestIssueChangePostProcessor postProcessor = new TestIssueChangePostProcessor();
+  private final IssueStatsByRuleKeyDaoImpl issueStatsByRuleKeyDao = new IssueStatsByRuleKeyDaoImpl(dbClient);
+  private final IssueStatsIndexer issueStatsIndexer = new IssueStatsIndexer(dbClient,
+    new IssueIngestionService(issueStatsByRuleKeyDao), issueStatsByRuleKeyDao);
 
   private final MigrationBatchWriter underTest = new MigrationBatchWriter(dbClient, issueStorage, postProcessor,
-    issueIndexer, uuidFactory, system2);
+    issueIndexer, issueStatsIndexer, uuidFactory, system2);
 
   @Test
   public void write_shouldPersistFieldChangesAndChangelog() {
@@ -120,7 +130,7 @@ public class MigrationBatchWriterIT {
     IssueChangePostProcessor readingPostProcessor = (dbSession, changedIssues, components, fromAlm) -> typeSeenByPostProcessor
       .set(dbClient.issueDao().selectOrFailByKey(dbSession, f.original().getKey()).getType());
     MigrationBatchWriter writer = new MigrationBatchWriter(dbClient, issueStorage, readingPostProcessor,
-      issueIndexer, uuidFactory, system2);
+      issueIndexer, issueStatsIndexer, uuidFactory, system2);
 
     writer.write(List.of(f.issue));
 
@@ -128,6 +138,44 @@ public class MigrationBatchWriterIT {
     // session. MyBatis' BatchExecutor has to flush it before serving a query, otherwise measures and the Quality
     // Gate would be recomputed from the pre-migration type.
     assertThat(typeSeenByPostProcessor.get()).isEqualTo(RuleType.VULNERABILITY.getDbConstant());
+  }
+
+  @Test
+  public void writeLastBatchOfBranch_shouldRefreshIssueStatsBeforeThePostProcessorRuns() {
+    when(issueIndexer.enqueueForIndexing(any(), any())).thenReturn(List.of());
+    Fixture f = newChangedHotspot();
+    issueStatsIndexer.indexOnAnalysis(f.issue().projectUuid());
+    AtomicReference<List<IssueStats>> statsSeenByPostProcessor = new AtomicReference<>();
+    IssueChangePostProcessor readingPostProcessor = (dbSession, changedIssues, components, fromAlm) -> statsSeenByPostProcessor
+      .set(issueStats(f));
+    MigrationBatchWriter writer = new MigrationBatchWriter(dbClient, issueStorage, readingPostProcessor,
+      issueIndexer, issueStatsIndexer, uuidFactory, system2);
+
+    writer.writeLastBatchOfBranch(List.of(f.issue));
+
+    // The post-processing broadcast is what queues the portfolio/application refreshes, and those rebuild their own
+    // stats from this branch's rows. Refreshing the branch afterwards would let them read the pre-migration counts.
+    assertThat(statsSeenByPostProcessor.get()).extracting(IssueStats::issueCount, IssueStats::hotspotCount)
+      .containsExactly(tuple(1, 0));
+  }
+
+  @Test
+  public void write_shouldLeaveIssueStatsToTheBranchFinalBatch() {
+    when(issueIndexer.enqueueForIndexing(any(), any())).thenReturn(List.of());
+    Fixture f = newChangedHotspot();
+    issueStatsIndexer.indexOnAnalysis(f.issue().projectUuid());
+    List<IssueStats> beforeMigration = issueStats(f);
+    assertThat(beforeMigration).extracting(IssueStats::issueCount).containsExactly(0);
+
+    underTest.write(List.of(f.issue));
+
+    // A non-final batch leaves the branch half-migrated, so recomputing its stats here would only be thrown away
+    // by the final batch.
+    assertThat(issueStats(f)).isEqualTo(beforeMigration);
+  }
+
+  private List<IssueStats> issueStats(Fixture f) {
+    return issueStatsByRuleKeyDao.getIssueStats(f.issue().projectUuid(), AggregationType.PROJECT);
   }
 
   private Fixture newChangedHotspot() {

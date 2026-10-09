@@ -34,6 +34,7 @@ import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueChangePostProcessor;
+import org.sonar.server.issue.IssueStatsIndexer;
 import org.sonar.server.issue.WebIssueStorage;
 import org.sonar.server.issue.index.IssueIndexer;
 
@@ -50,6 +51,8 @@ import org.sonar.server.issue.index.IssueIndexer;
  *       alone ({@code updateWithoutIssueImpacts}): this migration never changes them, so rewriting them would be
  *       pure write amplification (SONAR-32244),</li>
  *   <li>enqueue the {@code es_queue} index request ({@code IssueIndexer.enqueueForIndexing}),</li>
+ *   <li>for a branch's final batch only, re-ingest its compliance-report issue stats
+ *       ({@code IssueStatsIndexer.indexOnAnalysis}) — see {@link #write(java.util.List, boolean)},</li>
  *   <li>recompute measures + QG ({@code IssueChangePostProcessor.process}, which commits the session to persist
  *       live measures + the branch index request, and broadcasts portfolio refresh),</li>
  *   <li>a final {@code commit()} in case {@code process} short-circuited without committing.</li>
@@ -83,20 +86,41 @@ public class MigrationBatchWriter {
   private final WebIssueStorage issueStorage;
   private final IssueChangePostProcessor issueChangePostProcessor;
   private final IssueIndexer issueIndexer;
+  private final IssueStatsIndexer issueStatsIndexer;
   private final UuidFactory uuidFactory;
   private final System2 system2;
 
   public MigrationBatchWriter(DbClient dbClient, WebIssueStorage issueStorage,
-    IssueChangePostProcessor issueChangePostProcessor, IssueIndexer issueIndexer, UuidFactory uuidFactory, System2 system2) {
+    IssueChangePostProcessor issueChangePostProcessor, IssueIndexer issueIndexer, IssueStatsIndexer issueStatsIndexer,
+    UuidFactory uuidFactory, System2 system2) {
     this.dbClient = dbClient;
     this.issueStorage = issueStorage;
     this.issueChangePostProcessor = issueChangePostProcessor;
     this.issueIndexer = issueIndexer;
+    this.issueStatsIndexer = issueStatsIndexer;
     this.uuidFactory = uuidFactory;
     this.system2 = system2;
   }
 
+  /** Writes a batch that is followed by more findings on the same branch. */
   public void write(List<DefaultIssue> batch) {
+    write(batch, false);
+  }
+
+  /**
+   * Writes a branch's final batch, additionally re-ingesting its compliance-report issue stats. Security Reports
+   * read those pre-aggregated per-rule counts and nothing but an analysis refreshes them, so the migration has to.
+   *
+   * <p>The re-ingestion runs <em>before</em> the post-processing, because that broadcast is what queues the
+   * portfolio/application refresh tasks and those rebuild their own stats from this branch's rows — refreshing
+   * afterwards would let them read the pre-migration counts. It is the order an analysis uses too:
+   * {@code IndexAnalysisStep} runs well before {@code TriggerViewRefreshStep}.</p>
+   */
+  public void writeLastBatchOfBranch(List<DefaultIssue> batch) {
+    write(batch, true);
+  }
+
+  private void write(List<DefaultIssue> batch, boolean lastBatchOfBranch) {
     long now = system2.now();
     try (DbSession dbSession = dbClient.openSession(true)) {
       IssueChangeMapper changeMapper = dbSession.getMapper(IssueChangeMapper.class);
@@ -112,12 +136,25 @@ public class MigrationBatchWriter {
       batch.forEach(issue -> issueStorage.insertChanges(changeMapper, issue, uuidFactory));
 
       Collection<EsQueueDto> esItems = issueIndexer.enqueueForIndexing(dbSession, updatedDtos);
+      if (lastBatchOfBranch) {
+        refreshIssueStats(dbSession, batch);
+      }
       // Measures + QG for the batch's branch (QG event triggers portfolio/application refresh). Commits the session.
       issueChangePostProcessor.process(dbSession, batch, touchedComponents(dbSession, batch), false);
       dbSession.commit();
       // Post-commit ES write; on failure the committed es_queue rows self-heal via the recovery indexer.
       issueIndexer.index(dbSession, esItems);
     }
+  }
+
+  /**
+   * Re-ingests the branch's compliance-report issue stats from its findings. The session is committed first: the
+   * ingestion scrolls the issues on a session of its own, so it would otherwise miss the tail of this batch that
+   * no implicit commit has flushed yet.
+   */
+  private void refreshIssueStats(DbSession dbSession, List<DefaultIssue> batch) {
+    dbSession.commit();
+    issueStatsIndexer.indexOnAnalysis(batch.getFirst().projectUuid());
   }
 
   private List<ComponentDto> touchedComponents(DbSession dbSession, List<DefaultIssue> changedIssues) {
