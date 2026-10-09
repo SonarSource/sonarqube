@@ -52,6 +52,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.pushapi.qualityprofile.QualityProfileChangeEventService;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfile;
@@ -111,7 +112,7 @@ class RegisterQualityProfilesNotificationIT {
   private final ServerRuleFinder ruleFinder = new DefaultRuleFinder(dbClient, mock(RuleDescriptionFormatter.class));
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
   private final BuiltInQProfileInsert builtInQProfileInsert = new BuiltInQProfileInsertImpl(dbClient, ruleFinder, system2, UuidFactoryImpl.INSTANCE,
-    typeValidations, activeRuleIndexer, sonarQubeVersion);
+    typeValidations, sonarQubeVersion);
   private final RuleActivator ruleActivator = new RuleActivator(system2, dbClient, UuidFactoryImpl.INSTANCE, typeValidations, userSessionRule, mock(Configuration.class),
     sonarQubeVersion);
   private final QProfileRules qProfileRules = new QProfileRulesImpl(dbClient, ruleActivator, mock(RuleIndex.class), activeRuleIndexer, qualityProfileChangeEventService);
@@ -120,7 +121,8 @@ class RegisterQualityProfilesNotificationIT {
   private final Languages languages = LanguageTesting.newLanguages();
   private final ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   private final RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient,
-    builtInQProfileInsert, builtInQProfileUpdate, builtInQualityProfilesNotification, system2, languages, serverUpgradeStatus);
+    builtInQProfileInsert, builtInQProfileUpdate, builtInQualityProfilesNotification, system2, languages, serverUpgradeStatus,
+    activeRuleIndexer, mock(MetadataIndex.class));
 
   @Test
   void do_not_send_notification_on_new_profile() {

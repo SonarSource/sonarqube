@@ -145,8 +145,8 @@ public class RulesRegistrant implements Startable {
       profiler.stopDebug();
 
       if (!rulesRegistrationContext.hasDbRules()) {
-        Stream.concat(ruleIndexer.getIndexTypes().stream(), activeRuleIndexer.getIndexTypes().stream())
-          .forEach(t -> metadataIndex.setInitialized(t, true));
+        // active rules index is left uninitialized so that IndexerStartupTask indexes built-in profiles in bulk
+        ruleIndexer.getIndexTypes().forEach(t -> metadataIndex.setInitialized(t, true));
       }
 
       webServerRuleFinder.startCaching();

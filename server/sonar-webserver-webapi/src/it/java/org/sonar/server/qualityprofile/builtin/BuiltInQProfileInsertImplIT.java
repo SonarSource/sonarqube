@@ -50,7 +50,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.RuleDescriptionFormatter;
 import org.sonar.server.rule.ServerRuleFinder;
@@ -78,9 +77,8 @@ class BuiltInQProfileInsertImplIT {
   private final DbSession dbSession = db.getSession();
   private static final DbSession batchDbSession = db.getDbClient().openSession(true);
   private final ServerRuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient(), mock(RuleDescriptionFormatter.class));
-  private final ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
-  private final BuiltInQProfileInsertImpl underTest = new BuiltInQProfileInsertImpl(db.getDbClient(), ruleFinder, system2, uuidFactory, typeValidations, activeRuleIndexer,
+  private final BuiltInQProfileInsertImpl underTest = new BuiltInQProfileInsertImpl(db.getDbClient(), ruleFinder, system2, uuidFactory, typeValidations,
     sonarQubeVersion);
 
   @AfterAll

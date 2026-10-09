@@ -48,6 +48,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfile;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileInsert;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileRepository;
@@ -55,11 +56,13 @@ import org.sonar.server.qualityprofile.builtin.BuiltInQProfileUpdate;
 import org.sonar.server.qualityprofile.builtin.BuiltInQualityProfilesUpdateListener;
 import org.sonar.server.qualityprofile.builtin.QProfileName;
 import org.sonar.server.qualityprofile.builtin.sonarwayvariants.SonarWayCoreProfileDefinition;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.sonar.server.qualityprofile.ActiveRuleInheritance.NONE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
 /**
  * Synchronize Quality profiles during server startup
@@ -78,12 +81,14 @@ public class RegisterQualityProfiles implements Startable {
   private final System2 system2;
   private final Languages languages;
   private final ServerUpgradeStatus serverUpgradeStatus;
+  private final ActiveRuleIndexer activeRuleIndexer;
+  private final MetadataIndex metadataIndex;
 
   @SuppressWarnings("java:S107")
   public RegisterQualityProfiles(BuiltInQProfileRepository builtInQProfileRepository,
     DbClient dbClient, BuiltInQProfileInsert builtInQProfileInsert, BuiltInQProfileUpdate builtInQProfileUpdate,
     BuiltInQualityProfilesUpdateListener builtInQualityProfilesNotification, System2 system2, Languages languages,
-    ServerUpgradeStatus serverUpgradeStatus) {
+    ServerUpgradeStatus serverUpgradeStatus, ActiveRuleIndexer activeRuleIndexer, MetadataIndex metadataIndex) {
     this.builtInQProfileRepository = builtInQProfileRepository;
     this.dbClient = dbClient;
     this.builtInQProfileInsert = builtInQProfileInsert;
@@ -92,6 +97,8 @@ public class RegisterQualityProfiles implements Startable {
     this.system2 = system2;
     this.languages = languages;
     this.serverUpgradeStatus = serverUpgradeStatus;
+    this.activeRuleIndexer = activeRuleIndexer;
+    this.metadataIndex = metadataIndex;
   }
 
   @Override
@@ -108,11 +115,18 @@ public class RegisterQualityProfiles implements Startable {
 
       Map<QProfileName, RulesProfileDto> persistedRuleProfiles = loadPersistedProfiles(dbSession);
 
+      // active rules are indexed in bulk by IndexerStartupTask when their index is not initialized yet (fresh install)
+      boolean indexActiveRules = metadataIndex.getInitialized(TYPE_ACTIVE_RULE);
       Multimap<QProfileName, ActiveRuleChange> changedProfiles = ArrayListMultimap.create();
       builtInQProfiles.forEach(builtIn -> {
         RulesProfileDto ruleProfile = persistedRuleProfiles.get(builtIn.getQProfileName());
         if (ruleProfile == null) {
-          create(dbSession, batchDbSession, builtIn);
+          List<ActiveRuleChange> changes = create(dbSession, batchDbSession, builtIn);
+          if (indexActiveRules) {
+            activeRuleIndexer.commitAndIndex(batchDbSession, changes);
+          } else {
+            batchDbSession.commit();
+          }
         } else {
           List<ActiveRuleChange> changes = update(dbSession, builtIn, ruleProfile);
           changedProfiles.putAll(builtIn.getQProfileName(), changes.stream()
@@ -147,12 +161,12 @@ public class RegisterQualityProfiles implements Startable {
       .collect(toMap(rp -> new QProfileName(rp.getLanguage(), rp.getName()), Function.identity()));
   }
 
-  private void create(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn) {
+  private List<ActiveRuleChange> create(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn) {
     LOGGER.info("Register profile {}", toDisplayName(builtIn.getQProfileName()));
 
     renameOutdatedProfiles(dbSession, builtIn);
 
-    builtInQProfileInsert.create(batchDbSession, builtIn);
+    return builtInQProfileInsert.create(batchDbSession, builtIn);
   }
 
   private List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile definition, RulesProfileDto dbProfile) {

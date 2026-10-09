@@ -19,12 +19,15 @@
  */
 package org.sonar.server.qualityprofile.builtin;
 
+import java.util.List;
 import org.sonar.db.DbSession;
+import org.sonar.server.qualityprofile.ActiveRuleChange;
 
 public interface BuiltInQProfileInsert {
   /**
-   * Persist a new built-in profile
-   * Db sessions are committed and Elasticsearch indices are updated
+   * Persist a new built-in profile.
+   * The session is not committed and Elasticsearch indices are not updated: the caller is responsible for
+   * committing and indexing the returned changes.
    */
-  void create(DbSession batchSession, BuiltInQProfile builtInQProfile);
+  List<ActiveRuleChange> create(DbSession batchSession, BuiltInQProfile builtInQProfile);
 }

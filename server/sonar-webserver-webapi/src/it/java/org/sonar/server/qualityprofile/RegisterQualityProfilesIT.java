@@ -43,6 +43,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfile;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileInsert;
@@ -50,15 +51,22 @@ import org.sonar.server.qualityprofile.builtin.BuiltInQProfileRepositoryRule;
 import org.sonar.server.qualityprofile.builtin.BuiltInQProfileUpdate;
 import org.sonar.server.qualityprofile.builtin.BuiltInQualityProfilesUpdateListener;
 import org.sonar.server.qualityprofile.builtin.sonarwayvariants.SonarWayCoreProfileDefinition;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newRuleProfileDto;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
 public class RegisterQualityProfilesIT {
   private static final Language FOO_LANGUAGE = LanguageTesting.newLanguage("foo");
@@ -79,8 +87,11 @@ public class RegisterQualityProfilesIT {
   private final DummyBuiltInQProfileUpdate update = new DummyBuiltInQProfileUpdate();
   private final Languages languages = LanguageTesting.newLanguages("foo");
   private final ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
+  private final ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
+  private final MetadataIndex metadataIndex = mock(MetadataIndex.class);
   private final RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient, insert, update,
-    mock(BuiltInQualityProfilesUpdateListener.class), system2, languages, serverUpgradeStatus);
+    mock(BuiltInQualityProfilesUpdateListener.class), system2, languages, serverUpgradeStatus, activeRuleIndexer,
+    metadataIndex);
 
   @Test
   public void start_fails_if_BuiltInQProfileRepository_has_not_been_initialized() {
@@ -99,6 +110,33 @@ public class RegisterQualityProfilesIT {
     assertThat(insert.callLogs).containsExactly(builtInQProfile);
     assertThat(update.callLogs).isEmpty();
     assertThat(logTester.logs(Level.INFO)).contains("Register profile foo/Sonar way comprehensive");
+  }
+
+  @Test
+  public void start_whenActiveRuleIndexInitialized_shouldIndexActiveRulesOfCreatedProfiles() {
+    when(metadataIndex.getInitialized(TYPE_ACTIVE_RULE)).thenReturn(true);
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "Sonar way");
+    builtInQProfileRepositoryRule.add(BAR_LANGUAGE, "Sonar way");
+    builtInQProfileRepositoryRule.initialize();
+
+    underTest.start();
+
+    assertThat(insert.createdChanges).hasSize(2);
+    insert.createdChanges.forEach(change -> verify(activeRuleIndexer).commitAndIndex(any(DbSession.class), eq(List.of(change))));
+    verifyNoMoreInteractions(activeRuleIndexer);
+  }
+
+  @Test
+  public void start_whenActiveRuleIndexNotInitialized_shouldNotIndexActiveRules() {
+    when(metadataIndex.getInitialized(TYPE_ACTIVE_RULE)).thenReturn(false);
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "Sonar way");
+    builtInQProfileRepositoryRule.add(BAR_LANGUAGE, "Sonar way");
+    builtInQProfileRepositoryRule.initialize();
+
+    underTest.start();
+
+    assertThat(insert.callLogs).hasSize(2);
+    verifyNoInteractions(activeRuleIndexer);
   }
 
   @Test
@@ -286,10 +324,14 @@ public class RegisterQualityProfilesIT {
 
   private static class DummyBuiltInQProfileInsert implements BuiltInQProfileInsert {
     private final List<BuiltInQProfile> callLogs = new ArrayList<>();
+    private final List<ActiveRuleChange> createdChanges = new ArrayList<>();
 
     @Override
-    public void create(DbSession batchDbSession, BuiltInQProfile builtIn) {
+    public List<ActiveRuleChange> create(DbSession batchDbSession, BuiltInQProfile builtIn) {
       callLogs.add(builtIn);
+      ActiveRuleChange change = mock(ActiveRuleChange.class);
+      createdChanges.add(change);
+      return List.of(change);
     }
   }
 

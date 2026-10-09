@@ -102,8 +102,10 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -1378,7 +1380,7 @@ class RulesRegistrantIT {
 
   private void verifyIndicesMarkedAsInitialized() {
     verify(metadataIndex).setInitialized(RuleIndexDefinition.TYPE_RULE, true);
-    verify(metadataIndex).setInitialized(RuleIndexDefinition.TYPE_ACTIVE_RULE, true);
+    verify(metadataIndex, never()).setInitialized(eq(RuleIndexDefinition.TYPE_ACTIVE_RULE), anyBoolean());
     reset(metadataIndex);
   }
 

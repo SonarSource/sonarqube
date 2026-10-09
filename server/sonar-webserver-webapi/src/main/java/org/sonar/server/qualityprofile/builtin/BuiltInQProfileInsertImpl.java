@@ -50,7 +50,6 @@ import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.ServerRuleFinder;
 import org.sonar.server.util.TypeValidations;
 
@@ -65,23 +64,21 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
   private final System2 system2;
   private final UuidFactory uuidFactory;
   private final TypeValidations typeValidations;
-  private final ActiveRuleIndexer activeRuleIndexer;
   private RuleRepository ruleRepository;
   private final SonarQubeVersion sonarQubeVersion;
 
   public BuiltInQProfileInsertImpl(DbClient dbClient, ServerRuleFinder ruleFinder, System2 system2, UuidFactory uuidFactory,
-    TypeValidations typeValidations, ActiveRuleIndexer activeRuleIndexer, SonarQubeVersion sonarQubeVersion) {
+    TypeValidations typeValidations, SonarQubeVersion sonarQubeVersion) {
     this.dbClient = dbClient;
     this.ruleFinder = ruleFinder;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.typeValidations = typeValidations;
-    this.activeRuleIndexer = activeRuleIndexer;
     this.sonarQubeVersion = sonarQubeVersion;
   }
 
   @Override
-  public void create(DbSession batchDbSession, BuiltInQProfile builtInQProfile) {
+  public List<ActiveRuleChange> create(DbSession batchDbSession, BuiltInQProfile builtInQProfile) {
     initRuleRepository(batchDbSession);
 
     Date now = new Date(system2.now());
@@ -99,7 +96,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
 
     createDefaultAndOrgQProfiles(batchDbSession, builtInQProfile, ruleProfile);
 
-    activeRuleIndexer.commitAndIndex(batchDbSession, changes);
+    return changes;
   }
 
   private void createDefaultAndOrgQProfiles(DbSession batchDbSession, BuiltInQProfile builtIn, RulesProfileDto rulesProfileDto) {
