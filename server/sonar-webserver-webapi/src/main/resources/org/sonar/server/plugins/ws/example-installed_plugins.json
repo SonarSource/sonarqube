@@ -17,7 +17,20 @@
       "sonarLintSupported": false,
       "documentationPath": "static/documentation.md",
       "updatedAt": 123456789,
-      "requiredForLanguages": []
+      "requiredForLanguages": [],
+      "staticResourceFolder": "scmgit",
+      "staticResources": [
+        {
+          "path": "something.zip",
+          "hash": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+          "size": 1048576
+        },
+        {
+          "path": "subfolder/something-else.jpg",
+          "hash": "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae",
+          "size": 987654
+        }
+      ]
     },
     {
       "key": "java",

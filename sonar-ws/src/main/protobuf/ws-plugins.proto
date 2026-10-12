@@ -125,6 +125,20 @@ message PluginDetails {
   optional int64 updatedAt = 17;
   optional string type = 18;
   repeated string requiredForLanguages = 19;
+  optional string staticResourceFolder = 20;
+  optional StaticResources staticResources = 21;
+}
+
+// Wrapper so that the array can be omitted altogether for a plugin shipping no static resource.
+// The name must keep matching the field name for ProtobufJsonFormat to inline it in JSON.
+message StaticResources {
+  repeated StaticResource staticResources = 1;
+}
+
+message StaticResource {
+  optional string path = 1;
+  optional string hash = 2;
+  optional int64 size = 3;
 }
 
 // WS api/plugins/pending

@@ -41,6 +41,7 @@ import org.sonar.db.plugin.PluginDto;
 import org.sonar.db.plugin.PluginDto.Type;
 import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.ServerPluginStaticResources;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.Plugin;
@@ -69,12 +70,15 @@ public class InstalledAction implements PluginsWsAction {
   private final ServerPluginRepository serverPluginRepository;
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final DbClient dbClient;
+  private final ServerPluginStaticResources serverPluginStaticResources;
 
-  public InstalledAction(ServerPluginRepository serverPluginRepository, UserSession userSession, UpdateCenterMatrixFactory updateCenterMatrixFactory, DbClient dbClient) {
+  public InstalledAction(ServerPluginRepository serverPluginRepository, UserSession userSession, UpdateCenterMatrixFactory updateCenterMatrixFactory,
+    DbClient dbClient, ServerPluginStaticResources serverPluginStaticResources) {
     this.userSession = userSession;
     this.serverPluginRepository = serverPluginRepository;
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.dbClient = dbClient;
+    this.serverPluginStaticResources = serverPluginStaticResources;
   }
 
   @Override
@@ -84,6 +88,7 @@ public class InstalledAction implements PluginsWsAction {
         "Requires authentication.")
       .setSince("5.2")
       .setChangelog(
+        new Change("2026.6", "The fields 'staticResourceFolder' and 'staticResources' are added. Both are omitted for a plugin that ships no static resource"),
         new Change("10.4", "The response field 'requiredForLanguages' is added for plugins that support it"),
         new Change("9.8", "The 'documentationPath' field is deprecated"),
         new Change("9.7", "Authentication check added"),
@@ -134,7 +139,8 @@ public class InstalledAction implements PluginsWsAction {
       Objects.requireNonNull(pluginDto, () -> format("Plugin %s is installed but not in DB", pluginInfo.getKey()));
       Plugin updateCenterPlugin = updateCenterPlugins.get(pluginInfo.getKey());
 
-      pluginList.add(buildPluginDetails(installedPlugin, pluginInfo, pluginDto, updateCenterPlugin));
+      pluginList.add(buildPluginDetails(installedPlugin, pluginInfo, pluginDto, updateCenterPlugin,
+        serverPluginStaticResources.getStaticResources(installedPlugin)));
     }
 
     InstalledPluginsWsResponse wsResponse = InstalledPluginsWsResponse.newBuilder()

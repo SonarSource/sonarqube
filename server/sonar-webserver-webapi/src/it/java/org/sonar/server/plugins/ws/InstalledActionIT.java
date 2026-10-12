@@ -27,9 +27,14 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -45,6 +50,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
 import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.ServerPluginStaticResources;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -79,7 +85,9 @@ public class InstalledActionIT {
 
   private UpdateCenterMatrixFactory updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class, RETURNS_DEEP_STUBS);
   private ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
-  private InstalledAction underTest = new InstalledAction(serverPluginRepository, userSession, updateCenterMatrixFactory, db.getDbClient());
+  private ServerPluginStaticResources serverPluginStaticResources = new ServerPluginStaticResources();
+  private InstalledAction underTest = new InstalledAction(serverPluginRepository, userSession, updateCenterMatrixFactory, db.getDbClient(),
+    serverPluginStaticResources);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @DataProvider
@@ -210,8 +218,73 @@ public class InstalledActionIT {
   }
 
   private ServerPlugin newInstalledPlugin(PluginInfo plugin, PluginType type) throws IOException {
-    FileAndMd5 jar = new FileAndMd5(temp.newFile());
-    return new ServerPlugin(plugin, type, null, jar, null);
+    return newInstalledPluginWithStaticResources(plugin, type, Map.of());
+  }
+
+  private ServerPlugin newInstalledPluginWithStaticResources(PluginInfo plugin, Map<String, String> contentByPath) throws IOException {
+    return newInstalledPluginWithStaticResources(plugin, PluginType.BUNDLED, contentByPath);
+  }
+
+  private ServerPlugin newInstalledPluginWithStaticResources(PluginInfo plugin, PluginType type, Map<String, String> contentByPath) throws IOException {
+    File jar = temp.newFile();
+    try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(jar))) {
+      for (Map.Entry<String, String> resource : contentByPath.entrySet()) {
+        zip.putNextEntry(new ZipEntry("static/" + resource.getKey()));
+        zip.write(resource.getValue().getBytes(StandardCharsets.UTF_8));
+        zip.closeEntry();
+      }
+    }
+    return new ServerPlugin(plugin, type, null, new FileAndMd5(jar), null);
+  }
+
+  @Test
+  public void return_static_resources_of_plugin() throws Exception {
+    ServerPlugin plugin = newInstalledPluginWithStaticResources(new PluginInfo("foo").setName("plugName"),
+      Map.of("sub/bar.js", "world", "foo.txt", "hello"));
+    when(serverPluginRepository.getPlugins()).thenReturn(singletonList(plugin));
+    db.pluginDbTester().insertPlugin(
+      p -> p.setKee(plugin.getPluginInfo().getKey()),
+      p -> p.setType(Type.valueOf(plugin.getType().name())));
+
+    String response = tester.newRequest().execute().getInput();
+
+    assertJson(response).withStrictArrayOrder().isSimilarTo("""
+      {
+        "plugins":
+        [
+          {
+            "key": "foo",
+            "staticResourceFolder": "foo",
+            "staticResources": [
+              {
+                "path": "foo.txt",
+                "hash": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+                "size": 5
+              },
+              {
+                "path": "sub/bar.js",
+                "hash": "486ea46224d1bb4fb680f34f7c9ad96a8f24ec88be73ea8e5a6c65260e9cb8a7",
+                "size": 5
+              }
+            ]
+          }
+        ]
+      }""");
+  }
+
+  @Test
+  public void no_static_resource_field_is_returned_when_plugin_has_no_static_resource() throws Exception {
+    ServerPlugin plugin = newInstalledPluginWithStaticResources(new PluginInfo("foo").setName("plugName"), Map.of());
+    when(serverPluginRepository.getPlugins()).thenReturn(singletonList(plugin));
+    db.pluginDbTester().insertPlugin(
+      p -> p.setKee(plugin.getPluginInfo().getKey()),
+      p -> p.setType(Type.valueOf(plugin.getType().name())));
+
+    String response = tester.newRequest().execute().getInput();
+
+    JsonObject json = Json.parse(response).asObject().get("plugins").asArray().get(0).asObject();
+    assertThat(json.get("staticResourceFolder")).isNull();
+    assertThat(json.get("staticResources")).isNull();
   }
 
   @Test
@@ -266,8 +339,6 @@ public class InstalledActionIT {
 
   @Test
   public void category_is_returned_when_in_additional_fields() throws Exception {
-    String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
-    File jar = new File(getClass().getResource(jarFilename).toURI());
     when(serverPluginRepository.getPlugins()).thenReturn(asList(
       newInstalledPlugin(new PluginInfo("plugKey")
         .setName("plugName")
@@ -279,7 +350,6 @@ public class InstalledActionIT {
         .setHomepageUrl("homepage_url")
         .setIssueTrackerUrl("issueTracker_url")
         .setImplementationBuild("sou_rev_sha1"))));
-    // .setJarFile(jar), new FileAndMd5(jar), null
     UpdateCenter updateCenter = mock(UpdateCenter.class);
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.of(updateCenter));
     when(updateCenter.findAllCompatiblePlugins()).thenReturn(
@@ -366,19 +436,14 @@ public class InstalledActionIT {
   @Test
   @UseDataProvider("editionBundledLicenseValues")
   public void commercial_plugins_from_SonarSource_has_flag_editionBundled_true_based_on_jar_info(String license, String organization) throws Exception {
-    String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
     String pluginKey = "plugKey";
-    File jar = new File(getClass().getResource(jarFilename).toURI());
     when(serverPluginRepository.getPlugins()).thenReturn(asList(
-      new ServerPlugin(new PluginInfo(pluginKey)
+      newInstalledPlugin(new PluginInfo(pluginKey)
         .setName("plugName")
         .setVersion(Version.create("1.0"))
         .setLicense(license)
         .setOrganizationName(organization)
-        .setImplementationBuild("sou_rev_sha1"),
-        PluginType.BUNDLED,
-        null,
-        new FileAndMd5(jar), null)));
+        .setImplementationBuild("sou_rev_sha1"))));
     db.pluginDbTester().insertPlugin(
       p -> p.setKee(pluginKey),
       p -> p.setType(Type.BUNDLED),
@@ -446,12 +511,12 @@ public class InstalledActionIT {
   }
 
   private ServerPlugin plugin(String key, String name) throws IOException {
-    File file = temp.newFile();
     PluginInfo info = new PluginInfo(key)
       .setName(name)
       .setVersion(Version.create("1.0"));
-    info.setJarFile(file);
-    return new ServerPlugin(info, PluginType.BUNDLED, null, new FileAndMd5(file), null);
+    ServerPlugin plugin = newInstalledPlugin(info);
+    info.setJarFile(plugin.getJar().getFile());
+    return plugin;
   }
 
 }

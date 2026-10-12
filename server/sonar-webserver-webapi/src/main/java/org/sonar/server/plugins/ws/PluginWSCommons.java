@@ -29,6 +29,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.db.plugin.PluginDto;
+import org.sonar.server.plugins.PluginStaticResource;
 import org.sonar.server.plugins.ServerPlugin;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.Artifact;
@@ -38,6 +39,8 @@ import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonarqube.ws.Plugins.PluginDetails;
 import org.sonarqube.ws.Plugins.Release;
 import org.sonarqube.ws.Plugins.Require;
+import org.sonarqube.ws.Plugins.StaticResource;
+import org.sonarqube.ws.Plugins.StaticResources;
 import org.sonarqube.ws.Plugins.UpdateStatus;
 
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
@@ -71,6 +74,11 @@ public class PluginWSCommons {
 
   public static PluginDetails buildPluginDetails(@Nullable ServerPlugin installedPlugin, PluginInfo pluginInfo,
     @Nullable PluginDto pluginDto, @Nullable Plugin updateCenterPlugin) {
+    return buildPluginDetails(installedPlugin, pluginInfo, pluginDto, updateCenterPlugin, List.of());
+  }
+
+  public static PluginDetails buildPluginDetails(@Nullable ServerPlugin installedPlugin, PluginInfo pluginInfo,
+    @Nullable PluginDto pluginDto, @Nullable Plugin updateCenterPlugin, List<PluginStaticResource> staticResources) {
     PluginDetails.Builder builder = PluginDetails.newBuilder()
       .setKey(pluginInfo.getKey())
       .setName(pluginInfo.getName())
@@ -95,8 +103,29 @@ public class PluginWSCommons {
     ofNullable(pluginInfo.getImplementationBuild()).ifPresent(builder::setImplementationBuild);
     ofNullable(pluginInfo.getDocumentationPath()).ifPresent(builder::setDocumentationPath);
     builder.addAllRequiredForLanguages(pluginInfo.getRequiredForLanguages());
+    setStaticResources(builder, pluginInfo, staticResources);
 
     return builder.build();
+  }
+
+  /**
+   * Both fields are set together or not at all. The folder is the plugin key because that is what
+   * {@code StaticResourcesServlet} serves under {@code /static/{pluginKey}/{path}}.
+   */
+  private static void setStaticResources(PluginDetails.Builder builder, PluginInfo pluginInfo, List<PluginStaticResource> staticResources) {
+    if (staticResources.isEmpty()) {
+      return;
+    }
+    builder.setStaticResourceFolder(pluginInfo.getKey());
+    builder.setStaticResources(StaticResources.newBuilder()
+      .addAllStaticResources(staticResources.stream()
+        .map(resource -> StaticResource.newBuilder()
+          .setPath(resource.path())
+          .setHash(resource.hash())
+          .setSize(resource.size())
+          .build())
+        .toList())
+      .build());
   }
 
   static Release buildRelease(org.sonar.updatecenter.common.Release release) {

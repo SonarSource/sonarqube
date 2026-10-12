@@ -265,6 +265,7 @@ import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.PluginsRiskConsentFilter;
 import org.sonar.server.plugins.ServerExtensionInstaller;
+import org.sonar.server.plugins.ServerPluginStaticResources;
 import org.sonar.server.plugins.ws.AvailableAction;
 import org.sonar.server.plugins.ws.CancelAllAction;
 import org.sonar.server.plugins.ws.DownloadAction;
@@ -673,6 +674,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // Plugins WS
       PluginUpdateAggregator.class,
+      ServerPluginStaticResources.class,
       InstalledAction.class,
       AvailableAction.class,
       DownloadAction.class,
