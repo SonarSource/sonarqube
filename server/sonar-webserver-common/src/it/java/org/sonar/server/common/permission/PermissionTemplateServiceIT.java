@@ -270,6 +270,64 @@ public class PermissionTemplateServiceIT {
   }
 
   @Test
+  public void apply_empty_default_template_grants_private_portfolio_creator_browse_and_edit() {
+    PortfolioDto portfolio = dbTester.components().insertPrivatePortfolioDto();
+    UserDto creator = dbTester.users().insertUser();
+    PermissionTemplateDto template = templateDb.insertTemplate();
+    templateDb.setDefaultTemplates(template, null, template);
+
+    underTest.applyDefaultToNewComponent(session, portfolio, creator.getUuid());
+
+    assertThat(selectProjectPermissionsOfUser(creator, portfolio.getUuid()))
+      .containsExactlyInAnyOrder(ProjectPermission.USER.getKey(), ProjectPermission.ADMIN.getKey());
+  }
+
+  @Test
+  public void apply_empty_default_template_grants_public_portfolio_creator_browse_and_edit() {
+    PortfolioDto portfolio = dbTester.components().insertPublicPortfolioDto();
+    UserDto creator = dbTester.users().insertUser();
+    PermissionTemplateDto template = templateDb.insertTemplate();
+    templateDb.setDefaultTemplates(template, null, template);
+
+    underTest.applyDefaultToNewComponent(session, portfolio, creator.getUuid());
+
+    assertThat(selectProjectPermissionsOfUser(creator, portfolio.getUuid()))
+      .containsExactly(ProjectPermission.ADMIN.getKey());
+  }
+
+  @Test
+  public void apply_template_with_only_public_permissions_grants_public_portfolio_creator_edit() {
+    PortfolioDto portfolio = dbTester.components().insertPublicPortfolioDto();
+    UserDto creator = dbTester.users().insertUser();
+    GroupDto group = dbTester.users().insertGroup();
+    PermissionTemplateDto template = templateDb.insertTemplate();
+    templateDb.addGroupToTemplate(template, group, ProjectPermission.USER.getKey());
+    templateDb.addProjectCreatorToTemplate(template, ProjectPermission.USER.getKey());
+    templateDb.setDefaultTemplates(template, null, template);
+
+    underTest.applyDefaultToNewComponent(session, portfolio, creator.getUuid());
+
+    assertThat(selectProjectPermissionsOfUser(creator, portfolio.getUuid()))
+      .containsExactly(ProjectPermission.ADMIN.getKey());
+    assertThat(selectProjectPermissionsOfGroup(group, portfolio.getUuid())).isEmpty();
+  }
+
+  @Test
+  public void apply_populated_default_template_does_not_grant_portfolio_creator_permissions() {
+    PortfolioDto portfolio = dbTester.components().insertPrivatePortfolioDto();
+    UserDto creator = dbTester.users().insertUser();
+    GroupDto group = dbTester.users().insertGroup();
+    PermissionTemplateDto template = templateDb.insertTemplate();
+    templateDb.addGroupToTemplate(template, group, ProjectPermission.ADMIN);
+    templateDb.setDefaultTemplates(template, null, template);
+
+    underTest.applyDefaultToNewComponent(session, portfolio, creator.getUuid());
+
+    assertThat(selectProjectPermissionsOfUser(creator, portfolio.getUuid())).isEmpty();
+    assertThat(selectProjectPermissionsOfGroup(group, portfolio.getUuid())).containsExactly(ProjectPermission.ADMIN.getKey());
+  }
+
+  @Test
   public void apply_project_default_template_on_view_when_no_view_default_template() {
     PortfolioDto portfolio = dbTester.components().insertPrivatePortfolioDto();
     PermissionTemplateDto projectPermissionTemplate = dbTester.permissionTemplates().insertTemplate();

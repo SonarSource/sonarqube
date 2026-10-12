@@ -114,7 +114,10 @@ public class PermissionTemplateService {
   public void applyDefaultToNewComponent(DbSession dbSession, EntityDto entityDto, @Nullable String projectCreatorUserId) {
     PermissionTemplateDto template = findTemplate(dbSession, entityDto);
     checkArgument(template != null, "Cannot retrieve default permission template");
-    copyPermissions(dbSession, template, entityDto, projectCreatorUserId);
+    boolean hasConfiguredPermissions = copyPermissions(dbSession, template, entityDto, projectCreatorUserId);
+    if (ComponentQualifiers.VIEW.equals(entityDto.getQualifier()) && projectCreatorUserId != null && !hasConfiguredPermissions) {
+      grantPortfolioCreatorPermissions(dbSession, template, entityDto, projectCreatorUserId);
+    }
   }
 
   public boolean hasDefaultTemplateWithPermissionOnProjectCreator(DbSession dbSession, ProjectDto projectDto) {
@@ -127,23 +130,23 @@ public class PermissionTemplateService {
       .anyMatch(PermissionTemplateCharacteristicDto::getWithProjectCreator);
   }
 
-  private void copyPermissions(DbSession dbSession, PermissionTemplateDto template, EntityDto entity, @Nullable String projectCreatorUserUuid) {
+  private boolean copyPermissions(DbSession dbSession, PermissionTemplateDto template, EntityDto entity, @Nullable String projectCreatorUserUuid) {
     List<PermissionTemplateUserDto> usersPermissions = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getUuid());
-    Set<String> permissionTemplateUserUuids = usersPermissions.stream().map(PermissionTemplateUserDto::getUserUuid).collect(Collectors.toSet());
-    Map<String, UserId> userIdByUuid = dbClient.userDao().selectByUuids(dbSession, permissionTemplateUserUuids).stream().collect(Collectors.toMap(UserDto::getUuid, u -> u));
-    usersPermissions
-      .stream()
+    List<PermissionTemplateUserDto> appliedUserPermissions = usersPermissions.stream()
       .filter(up -> permissionValidForProject(entity.isPrivate(), up.getPermission()))
-      .forEach(up -> {
+      .toList();
+    Set<String> permissionTemplateUserUuids = appliedUserPermissions.stream().map(PermissionTemplateUserDto::getUserUuid).collect(Collectors.toSet());
+    Map<String, UserId> userIdByUuid = dbClient.userDao().selectByUuids(dbSession, permissionTemplateUserUuids).stream().collect(Collectors.toMap(UserDto::getUuid, u -> u));
+    appliedUserPermissions.forEach(up -> {
         UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), up.getPermission(), up.getUserUuid(), entity.getUuid());
         dbClient.userPermissionDao().insert(dbSession, dto, entity, userIdByUuid.get(up.getUserUuid()), template);
       });
 
     List<PermissionTemplateGroupDto> groupsPermissions = dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateUuid(dbSession, template.getUuid());
-    groupsPermissions
-      .stream()
+    List<PermissionTemplateGroupDto> appliedGroupPermissions = groupsPermissions.stream()
       .filter(gp -> permissionValidForProject(entity.isPrivate(), gp.getPermission()))
-      .forEach(gp -> {
+      .toList();
+    appliedGroupPermissions.forEach(gp -> {
         GroupPermissionDto dto = new GroupPermissionDto()
           .setUuid(uuidFactory.create())
           .setGroupUuid(gp.getGroupUuid())
@@ -156,6 +159,7 @@ public class PermissionTemplateService {
       });
 
     List<PermissionTemplateCharacteristicDto> characteristics = dbClient.permissionTemplateCharacteristicDao().selectByTemplateUuids(dbSession, singletonList(template.getUuid()));
+    List<PermissionTemplateCharacteristicDto> appliedCreatorPermissions = List.of();
     if (projectCreatorUserUuid != null) {
       Set<String> permissionsForCurrentUserAlreadyInDb = usersPermissions.stream()
         .filter(userPermission -> projectCreatorUserUuid.equals(userPermission.getUserUuid()))
@@ -163,14 +167,26 @@ public class PermissionTemplateService {
         .collect(java.util.stream.Collectors.toSet());
 
       UserDto userDto = dbClient.userDao().selectByUuid(dbSession, projectCreatorUserUuid);
-      characteristics.stream()
+      appliedCreatorPermissions = characteristics.stream()
         .filter(PermissionTemplateCharacteristicDto::getWithProjectCreator)
         .filter(up -> permissionValidForProject(entity.isPrivate(), up.getPermission()))
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
-        .forEach(c -> {
+        .toList();
+      appliedCreatorPermissions.forEach(c -> {
           UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), c.getPermission(), userDto.getUuid(), entity.getUuid());
           dbClient.userPermissionDao().insert(dbSession, dto, entity, userDto, template);
         });
+    }
+    return !appliedUserPermissions.isEmpty() || !appliedGroupPermissions.isEmpty() || !appliedCreatorPermissions.isEmpty();
+  }
+
+  private void grantPortfolioCreatorPermissions(DbSession dbSession, PermissionTemplateDto template, EntityDto portfolio, String creatorUuid) {
+    UserDto creator = dbClient.userDao().selectByUuid(dbSession, creatorUuid);
+    for (ProjectPermission permission : List.of(ProjectPermission.USER, ProjectPermission.ADMIN)) {
+      if (permissionValidForProject(portfolio.isPrivate(), permission.getKey())) {
+        UserPermissionDto dto = new UserPermissionDto(uuidFactory.create(), permission.getKey(), creatorUuid, portfolio.getUuid());
+        dbClient.userPermissionDao().insert(dbSession, dto, portfolio, creator, template);
+      }
     }
   }
 
