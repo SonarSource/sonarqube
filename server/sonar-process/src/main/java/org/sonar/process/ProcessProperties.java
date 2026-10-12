@@ -198,7 +198,13 @@ public class ProcessProperties {
 
     AUTO_DATABASE_UPGRADE("sonar.autoDatabaseUpgrade", DEFAULT_FALSE),
 
-    DEPRECATION_LOGS_LOGIN_ENABLED("sonar.deprecationLogs.loginEnabled", DEFAULT_FALSE);
+    DEPRECATION_LOGS_LOGIN_ENABLED("sonar.deprecationLogs.loginEnabled", DEFAULT_FALSE),
+
+    /**
+     * Read by the Slack integration. Declared here so that it can only be set at startup,
+     * and never through the settings web service.
+     */
+    SLACK_API_URL("sonar.slack.api.url");
 
     /**
      * Properties that are defined for each LDAP server from the `ldap.servers` property

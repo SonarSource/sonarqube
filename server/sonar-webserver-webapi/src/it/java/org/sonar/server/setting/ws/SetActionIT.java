@@ -1157,6 +1157,18 @@ class SetActionIT {
       .hasMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
   }
 
+  @Test
+  void fail_when_setting_slack_api_url() {
+    String settingKey = ProcessProperties.Property.SLACK_API_URL.getKey();
+
+    TestRequest testRequest = ws.newRequest()
+      .setParam("key", settingKey)
+      .setParam("value", "http://localhost:9931");
+    assertThatThrownBy(testRequest::execute)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(format("Setting '%s' can only be used in sonar.properties", settingKey));
+  }
+
   static Object[][] forbiddenProperties() {
     return new Object[][] {
       {GITLAB_AUTH_URL},
