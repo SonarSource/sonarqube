@@ -89,8 +89,7 @@ public class ListAction implements NewCodePeriodsWsAction {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ProjectDto project = componentFinder.getProjectByKey(dbSession, projectKey);
-      userSession.checkEntityPermission(ProjectPermission.USER, project);
+      ProjectDto project = componentFinder.getProjectByKeyAndPermission(dbSession, projectKey, userSession, ProjectPermission.USER);
       Collection<BranchDto> branches = dbClient.branchDao().selectByProject(dbSession, project).stream()
         .filter(b -> b.getBranchType() == BranchType.BRANCH)
         .sorted(Comparator.comparing(BranchDto::getKey))

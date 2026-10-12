@@ -101,8 +101,7 @@ public class UnsetAction implements NewCodePeriodsWsAction {
       boolean isCommunityEdition = editionProvider.get().filter(t -> t == EditionProvider.Edition.COMMUNITY).isPresent();
 
       if (projectKey != null) {
-        ProjectDto project = getProject(dbSession, projectKey);
-        userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
+        ProjectDto project = componentFinder.getProjectByKeyAndPermission(dbSession, projectKey, userSession, ProjectPermission.ADMIN);
         projectUuid = project.getUuid();
 
         if (branchKey != null) {
@@ -146,10 +145,6 @@ public class UnsetAction implements NewCodePeriodsWsAction {
   private BranchDto getBranch(DbSession dbSession, ProjectDto project, String branchKey) {
     return dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey)
       .orElseThrow(() -> new NotFoundException(format("Branch '%s' in project '%s' not found", branchKey, project.getKey())));
-  }
-
-  private ProjectDto getProject(DbSession dbSession, String projectKey) {
-    return componentFinder.getProjectByKey(dbSession, projectKey);
   }
 
   private void checkInstanceNcdCompliant(DbSession dbSession) {

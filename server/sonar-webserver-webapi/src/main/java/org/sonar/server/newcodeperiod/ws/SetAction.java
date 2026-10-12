@@ -155,8 +155,7 @@ public class SetAction implements NewCodePeriodsWsAction {
       BranchDto branch = null;
 
       if (projectKey != null) {
-        project = getProject(dbSession, projectKey);
-        userSession.checkEntityPermission(ProjectPermission.ADMIN, project);
+        project = componentFinder.getProjectByKeyAndPermission(dbSession, projectKey, userSession, ProjectPermission.ADMIN);
 
         if (branchKey != null) {
           branch = getBranch(dbSession, project, branchKey);
@@ -233,10 +232,6 @@ public class SetAction implements NewCodePeriodsWsAction {
   private BranchDto getBranch(DbSession dbSession, ProjectDto project, String branchKey) {
     return dbClient.branchDao().selectByBranchKey(dbSession, project.getUuid(), branchKey)
       .orElseThrow(() -> new NotFoundException(format("Branch '%s' in project '%s' not found", branchKey, project.getKey())));
-  }
-
-  private ProjectDto getProject(DbSession dbSession, String projectKey) {
-    return componentFinder.getProjectByKey(dbSession, projectKey);
   }
 
   private BranchDto getMainBranch(DbSession dbSession, ProjectDto project) {

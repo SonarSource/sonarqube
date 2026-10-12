@@ -134,8 +134,8 @@ public class UnsetActionIT {
       .setParam("project", project.getKey())
       .setParam("type", "previous_version")
       .execute())
-        .isInstanceOf(ForbiddenException.class)
-        .hasMessageContaining("Insufficient privileges");
+        .isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("Project '" + project.getKey() + "' not found");
   }
 
   @Test

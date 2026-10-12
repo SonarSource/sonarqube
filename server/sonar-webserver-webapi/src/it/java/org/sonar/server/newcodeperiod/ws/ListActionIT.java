@@ -42,7 +42,6 @@ import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -104,7 +103,7 @@ public class ListActionIT {
   }
 
   @Test
-  public void throw_FE_if_no_project_permission() {
+  public void throw_NFE_if_no_project_permission() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     userSession.registerProjects(project);
@@ -112,8 +111,8 @@ public class ListActionIT {
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("project", project.getKey())
       .execute())
-      .isInstanceOf(ForbiddenException.class)
-      .hasMessageContaining("Insufficient privileges");
+      .isInstanceOf(NotFoundException.class)
+      .hasMessageContaining("Project '" + project.getKey() + "' not found");
   }
 
   @Test
