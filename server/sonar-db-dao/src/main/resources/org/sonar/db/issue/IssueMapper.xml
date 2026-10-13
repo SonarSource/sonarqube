@@ -767,12 +767,8 @@
   </select>
 
   <!--
-    Pre-aggregates non-closed issues of one or more branches by history dimension, one row per unique
-    combination with its issue count, so the caller never has to load individual issues to compute it
-    (SONAR-31731). The inner query first collapses the issues_impacts/rules_default_impacts join fan-out
-    to one row per issue (GROUP BY i.kee) before the outer COUNT(*), which keeps the top-level aggregation
-    cheap. The outer GROUP BY does not include the branch, so counts are already merged across every
-    branch passed in; callers batching more than 1000 branches still need to sum counts across batches.
+    Aggregates non-closed issues by history dimension across the selected branches.
+    Each impact join selects one quality, preserving one row per issue before counting.
   -->
   <select id="selectIssueCountDimensionsForBranches" parameterType="map" resultType="org.sonar.db.issue.IssueCountDimensionDto">
     select
@@ -781,7 +777,6 @@
       count(*) as issueCount
     from (
       select
-        i.kee,
         i.issue_type as issueType,
         i.severity as severity,
         case
@@ -799,31 +794,24 @@
         <!-- concat() (not ||/+) for portability: Oracle's concat() only takes 2 args, hence the nesting -->
         concat(concat(r.plugin_name, ':'), r.plugin_rule_key) as ruleKey,
         <!--
-          All-or-nothing fallback, mirroring IssueDto#getEffectiveImpacts: rule defaults are used only when
-          the issue has no issues_impacts row at all (max(ii.software_quality) is then null for every quality).
-          Once the issue overrides any quality, qualities it didn't override stay null instead of silently
-          picking up the rule's default for just that one quality.
+          All-or-nothing fallback, mirroring IssueDto#getEffectiveImpacts: rule defaults apply only when the issue has
+          no impact for any quality; otherwise qualities the issue didn't override stay null.
         -->
-        coalesce(
-          max(case when ii.software_quality = 'MAINTAINABILITY' then ii.severity end),
-          case when max(ii.software_quality) is null
-            then max(case when rdi.software_quality = 'MAINTAINABILITY' then rdi.severity end) end
-        ) as effectiveMaintainability,
-        coalesce(
-          max(case when ii.software_quality = 'SECURITY' then ii.severity end),
-          case when max(ii.software_quality) is null
-            then max(case when rdi.software_quality = 'SECURITY' then rdi.severity end) end
-        ) as effectiveSecurity,
-        coalesce(
-          max(case when ii.software_quality = 'RELIABILITY' then ii.severity end),
-          case when max(ii.software_quality) is null
-            then max(case when rdi.software_quality = 'RELIABILITY' then rdi.severity end) end
-        ) as effectiveReliability
+        case when ii_maintainability.issue_key is not null or ii_security.issue_key is not null or ii_reliability.issue_key is not null
+          then ii_maintainability.severity else rdi_maintainability.severity end as effectiveMaintainability,
+        case when ii_maintainability.issue_key is not null or ii_security.issue_key is not null or ii_reliability.issue_key is not null
+          then ii_security.severity else rdi_security.severity end as effectiveSecurity,
+        case when ii_maintainability.issue_key is not null or ii_security.issue_key is not null or ii_reliability.issue_key is not null
+          then ii_reliability.severity else rdi_reliability.severity end as effectiveReliability
       from issues i
       inner join rules r on r.uuid = i.rule_uuid
       inner join components c on c.uuid = i.component_uuid
-      left outer join issues_impacts ii on i.kee = ii.issue_key
-      left outer join rules_default_impacts rdi on r.uuid = rdi.rule_uuid
+      left outer join issues_impacts ii_maintainability on i.kee = ii_maintainability.issue_key and ii_maintainability.software_quality = 'MAINTAINABILITY'
+      left outer join rules_default_impacts rdi_maintainability on r.uuid = rdi_maintainability.rule_uuid and rdi_maintainability.software_quality = 'MAINTAINABILITY'
+      left outer join issues_impacts ii_security on i.kee = ii_security.issue_key and ii_security.software_quality = 'SECURITY'
+      left outer join rules_default_impacts rdi_security on r.uuid = rdi_security.rule_uuid and rdi_security.software_quality = 'SECURITY'
+      left outer join issues_impacts ii_reliability on i.kee = ii_reliability.issue_key and ii_reliability.software_quality = 'RELIABILITY'
+      left outer join rules_default_impacts rdi_reliability on r.uuid = rdi_reliability.rule_uuid and rdi_reliability.software_quality = 'RELIABILITY'
       where
         c.branch_uuid in
           <foreach collection="branchUuids" open="(" close=")" item="branchUuid" separator=",">
@@ -834,8 +822,6 @@
             #{branchUuid,jdbcType=VARCHAR}
           </foreach>
         and i.status != 'CLOSED'
-      group by
-        i.kee, i.issue_type, i.severity, i.status, i.resolution, c.qualifier, r.plugin_name, r.plugin_rule_key
     ) per_issue
     group by
       issueType, severity, issueStatus, status, hotspotResolution, codeScope, ruleKey,

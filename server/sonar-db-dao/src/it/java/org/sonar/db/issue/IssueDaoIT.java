@@ -40,6 +40,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.impact.Severity;
@@ -447,6 +448,29 @@ class IssueDaoIT {
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).effectiveImpacts()).containsOnly(Map.entry("MAINTAINABILITY", "HIGH"));
+  }
+
+  @ParameterizedTest
+  @EnumSource(SoftwareQuality.class)
+  void selectIssueCountDimensionsForBranches_whenOneQualityIsOverridden_shouldCountEachIssueOnceAndIgnoreOtherDefaults(SoftwareQuality quality) {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S1234").setType(RuleType.BUG)
+      .replaceAllDefaultImpacts(List.of(
+        new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(MEDIUM),
+        new ImpactDto().setSoftwareQuality(SECURITY).setSeverity(MEDIUM),
+        new ImpactDto().setSoftwareQuality(RELIABILITY).setSeverity(MEDIUM))));
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    for (int i = 0; i < 2; i++) {
+      db.issues().insert(rule, branch, file, issue -> issue.setType(rule.getType()).setStatus(STATUS_OPEN).setResolution(null).setSeverity("MAJOR")
+        .replaceAllImpacts(List.of(new ImpactDto().setSoftwareQuality(quality).setSeverity(HIGH))));
+    }
+
+    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
+
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).issueCount()).isEqualTo(2);
+    assertThat(rows.get(0).effectiveImpacts()).containsOnly(Map.entry(quality.name(), "HIGH"));
   }
 
   @Test
