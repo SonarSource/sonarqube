@@ -43,6 +43,9 @@ public class DbVersion202606 implements DbVersion {
       .add(2026_06_012, "Create table 'sca_ref_osv_vulns'", CreateScaRefdbOsvVulnerabilitiesTable.class)
       .add(2026_06_013, "Create table 'sca_ref_reachability_defs'", CreateScaRefdbReachabilityDefinitionsTable.class)
       .add(2026_06_014, "Create table 'sca_ref_upstream_pkgs'", CreateScaRefdbUpstreamPackagesTable.class)
-      .add(2026_06_015, "Create table 'sca_ref_upstream_releases'", CreateScaRefdbUpstreamReleasesTable.class);
+      .add(2026_06_015, "Create table 'sca_ref_upstream_releases'", CreateScaRefdbUpstreamReleasesTable.class)
+      .add(2026_06_016, "Widen 'hunter_agent_jobs' commit SHA columns to 64 chars", WidenHunterAgentJobsCommitShaColumns.class)
+      .add(2026_06_017, "Widen 'hunter_agent_runs.analyzed_commit_sha' to 64 chars", WidenHunterAgentRunsAnalyzedCommitShaColumn.class)
+      .add(2026_06_018, "Widen 'remediation_agent_jobs.result_commit' to 64 chars", WidenRemediationAgentJobsResultCommitColumn.class);
   }
 }
