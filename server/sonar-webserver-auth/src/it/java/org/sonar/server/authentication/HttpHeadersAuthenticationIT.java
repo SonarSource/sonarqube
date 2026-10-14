@@ -402,6 +402,34 @@ public class HttpHeadersAuthenticationIT {
     verifyTokenIsNotUpdated();
   }
 
+  @Test
+  public void does_not_authenticate_state_changing_request_when_no_session_token_is_present() {
+    startWithSso();
+    setNotUserInToken();
+    when(jwtHttpHandler.isCsrfCheckedRequest(any(HttpRequest.class))).thenReturn(true);
+    HttpRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUPS);
+
+    Optional<UserDto> result = underTest.authenticate(request, response);
+
+    assertThat(result).isEmpty();
+    verifyUserNotAuthenticated();
+    verifyTokenIsNotUpdated();
+  }
+
+  @Test
+  public void authenticate_state_changing_request_when_session_token_is_present_but_refresh_time_is_old() {
+    startWithSso();
+    UserDto user = insertUser(DEFAULT_USER, group1);
+    setUserInToken(user, NOW - 10_000_000L);
+    when(jwtHttpHandler.isCsrfCheckedRequest(any(HttpRequest.class))).thenReturn(true);
+    HttpRequest request = createRequest(DEFAULT_LOGIN, DEFAULT_NAME, DEFAULT_EMAIL, GROUPS);
+
+    Optional<UserDto> result = underTest.authenticate(request, response);
+
+    assertThat(result).isPresent();
+    verifyTokenIsUpdated(NOW);
+  }
+
   private void startWithSso() {
     settings.setProperty("sonar.web.sso.enable", true);
     underTest.start();

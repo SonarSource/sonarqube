@@ -113,7 +113,7 @@ public class JwtCsrfVerifier {
     response.setHeader(CSRF_HEADER, csrfState);
   }
 
-  private static boolean shouldRequestBeChecked(HttpRequest request) {
+  static boolean shouldRequestBeChecked(HttpRequest request) {
     if (UPDATE_METHODS.contains(request.getMethod())) {
       String path = request.getRequestURI().replaceFirst(request.getContextPath(), "");
       return path.startsWith(API_URL);

@@ -119,6 +119,10 @@ public class JwtHttpHandler {
     return token.map(Token::getUserDto);
   }
 
+  public boolean isCsrfCheckedRequest(HttpRequest request) {
+    return JwtCsrfVerifier.shouldRequestBeChecked(request);
+  }
+
   public Optional<Token> getToken(HttpRequest request, HttpResponse response) {
     Optional<String> encodedToken = getTokenFromCookie(request);
     if (!encodedToken.isPresent()) {

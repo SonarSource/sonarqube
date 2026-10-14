@@ -126,9 +126,14 @@ public class HttpHeadersAuthentication implements Startable {
     if (login == null) {
       return Optional.empty();
     }
-    Optional<UserDto> user = getUserFromToken(request, response);
-    if (user.isPresent() && login.equals(user.get().getLogin())) {
-      return user;
+    Optional<JwtHttpHandler.Token> token = jwtHttpHandler.getToken(request, response);
+    if (token.isPresent()) {
+      Optional<UserDto> user = getUserFromToken(token.get());
+      if (user.isPresent() && login.equals(user.get().getLogin())) {
+        return user;
+      }
+    } else if (jwtHttpHandler.isCsrfCheckedRequest(request)) {
+      return Optional.empty();
     }
 
     UserDto userDto;
@@ -146,18 +151,14 @@ public class HttpHeadersAuthentication implements Startable {
     return Optional.of(userDto);
   }
 
-  private Optional<UserDto> getUserFromToken(HttpRequest request, HttpResponse response) {
-    Optional<JwtHttpHandler.Token> token = jwtHttpHandler.getToken(request, response);
-    if (token.isEmpty()) {
-      return Optional.empty();
-    }
+  private Optional<UserDto> getUserFromToken(JwtHttpHandler.Token token) {
     Date now = new Date(system2.now());
     int refreshIntervalInMinutes = Integer.parseInt(settingsByKey.get(SONAR_WEB_SSO_REFRESH_INTERVAL_IN_MINUTES.getKey()));
-    Long lastFreshTime = (Long) token.get().getProperties().get(LAST_REFRESH_TIME_TOKEN_PARAM);
+    Long lastFreshTime = (Long) token.getProperties().get(LAST_REFRESH_TIME_TOKEN_PARAM);
     if (lastFreshTime == null || now.after(addMinutes(new Date(lastFreshTime), refreshIntervalInMinutes))) {
       return Optional.empty();
     }
-    return Optional.of(token.get().getUserDto());
+    return Optional.of(token.getUserDto());
   }
 
   private UserDto doAuthenticate(Map<String, String> headerValuesByNames, String login) {
