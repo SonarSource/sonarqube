@@ -338,6 +338,134 @@ public class UserRegistrarImplIT {
   }
 
   @Test
+  public void authenticate_matches_existing_user_whose_external_login_differs_only_by_case_and_updates_it_to_the_current_idp_casing() {
+    UserDto user = insertUser("Old login", "John", "john@email.com", "JohnDoo", "JohnDoo", GH_IDENTITY_PROVIDER.getKey(), false, true);
+
+    underTest.register(newUserRegistration());
+
+    assertThat(db.countRowsOfTable(db.getSession(), "users")).isOne();
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getExternalLogin, UserDto::getExternalId)
+      .containsExactly("johndoo", "ABCD");
+  }
+
+  @Test
+  public void authenticate_does_not_treat_case_only_difference_between_external_id_and_external_login_as_recycled() {
+    // Legacy row where external_id and external_login have drifted apart only by case.
+    UserDto user = insertUser("Old login", "John", "john@email.com", "JohnDoo", "johndoo", GH_IDENTITY_PROVIDER.getKey(), false, true);
+
+    underTest.register(newUserRegistration());
+
+    assertThat(db.countRowsOfTable(db.getSession(), "users")).isOne();
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), user.getUuid()))
+      .extracting(UserDto::getExternalLogin, UserDto::getExternalId)
+      .containsExactly("johndoo", "ABCD");
+  }
+
+  @Test
+  public void authenticate_does_not_merge_into_an_existing_user_whose_login_only_collides_case_insensitively_with_a_different_email() {
+    // "John" and a brand new "john" are two different real identities under a provider that, unlike GitHub,
+    // gives no guarantee that logins are unique case-insensitively (e.g. SAML): they must not be merged.
+    IdentityProvider samlProvider = composeIdentityProvider("saml", "name of saml", true, true);
+    UserDto existingUser = insertUser("existing_login", "John", "john@company.com", "John", "John", samlProvider.getKey(), false, true);
+
+    UserDto newUser = underTest.register(composeUserRegistration(UserIdentity.builder()
+      .setProviderLogin("john")
+      .setName("Jane")
+      .setEmail("jane@company.com")
+      .build(), samlProvider, local(BASIC)));
+
+    assertThat(db.countRowsOfTable(db.getSession(), "users")).isEqualTo(2);
+    assertThat(newUser.getUuid()).isNotEqualTo(existingUser.getUuid());
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), existingUser.getUuid()))
+      .extracting(UserDto::getExternalLogin, UserDto::getEmail)
+      .containsExactly("John", "john@company.com");
+    assertThat(newUser).extracting(UserDto::getExternalLogin, UserDto::getEmail)
+      .containsExactly("john", "jane@company.com");
+  }
+
+  @Test
+  public void authenticate_resolves_a_third_casing_to_the_right_one_of_two_preexisting_case_colliding_users_via_email() {
+    // Two real, distinct identities already collide case-insensitively under this provider (e.g. left that way
+    // because their emails differ, so neither could be merged into the other). A third casing that doesn't
+    // exactly match either must still resolve to the correct one when its email corroborates it, instead of
+    // leaving both candidates aside and creating yet another duplicate.
+    IdentityProvider samlProvider = composeIdentityProvider("saml", "name of saml", true, true);
+    UserDto janeDoe = insertUser("jane_login", "Jane Doe", "jane@company.com", "Jane Doe", "Jane Doe", samlProvider.getKey(), false, true);
+    insertUser("other_jane_login", "Jane Doe", "other-jane@company.com", "JANE DOE", "JANE DOE", samlProvider.getKey(), false, true);
+
+    UserDto matchedUser = underTest.register(composeUserRegistration(UserIdentity.builder()
+      .setProviderLogin("jane doe")
+      .setName("Jane Doe")
+      .setEmail("jane@company.com")
+      .build(), samlProvider, local(BASIC)));
+
+    assertThat(db.countRowsOfTable(db.getSession(), "users")).isEqualTo(2);
+    assertThat(matchedUser.getUuid()).isEqualTo(janeDoe.getUuid());
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), janeDoe.getUuid()))
+      .extracting(UserDto::getExternalLogin, UserDto::getEmail)
+      .containsExactly("jane doe", "jane@company.com");
+  }
+
+  @Test
+  public void authenticate_creates_a_new_user_when_a_third_casing_corroborates_with_none_of_two_preexisting_case_colliding_users() {
+    IdentityProvider samlProvider = composeIdentityProvider("saml", "name of saml", true, true);
+    UserDto janeDoe = insertUser("jane_login", "Jane Doe", "jane@company.com", "Jane Doe", "Jane Doe", samlProvider.getKey(), false, true);
+    UserDto otherJaneDoe = insertUser("other_jane_login", "Jane Doe", "other-jane@company.com", "JANE DOE", "JANE DOE", samlProvider.getKey(), false, true);
+
+    UserDto newUser = underTest.register(composeUserRegistration(UserIdentity.builder()
+      .setProviderLogin("jane doe")
+      .setName("Jane Doe")
+      .setEmail("yet-another-jane@company.com")
+      .build(), samlProvider, local(BASIC)));
+
+    assertThat(db.countRowsOfTable(db.getSession(), "users")).isEqualTo(3);
+    assertThat(newUser.getUuid()).isNotEqualTo(janeDoe.getUuid()).isNotEqualTo(otherJaneDoe.getUuid());
+    assertThat(newUser).extracting(UserDto::getExternalLogin, UserDto::getEmail)
+      .containsExactly("jane doe", "yet-another-jane@company.com");
+  }
+
+  @Test
+  public void authenticate_matches_saml_user_with_no_provider_id_by_case_insensitive_login_and_matching_email() {
+    // SAML typically has no separate provider id (PrincipalToUserIdentityConverter sets none), so the
+    // external-id lookup always misses and matching falls through to external_login, case-insensitively.
+    IdentityProvider samlProvider = composeIdentityProvider("saml", "name of saml", true, true);
+    UserDto existingUser = insertUser("existing_login", "John", "john@company.com", "John", "John", samlProvider.getKey(), false, true);
+
+    UserDto matchedUser = underTest.register(composeUserRegistration(UserIdentity.builder()
+      .setProviderLogin("john")
+      .setName("John")
+      .setEmail("john@company.com")
+      .build(), samlProvider, local(BASIC)));
+
+    assertThat(db.countRowsOfTable(db.getSession(), "users")).isOne();
+    assertThat(matchedUser.getUuid()).isEqualTo(existingUser.getUuid());
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), existingUser.getUuid()))
+      .extracting(UserDto::getExternalLogin, UserDto::getExternalId, UserDto::getEmail)
+      .containsExactly("john", "John", "john@company.com");
+  }
+
+  @Test
+  public void authenticate_does_not_match_case_only_difference_when_the_stored_email_is_missing() {
+    // Documents the intentional choice in pickCorroboratedMatch/emailsMatch: a case-only external_login match
+    // is trusted only when both emails are present and match; a missing stored email can't corroborate it.
+    IdentityProvider samlProvider = composeIdentityProvider("saml", "name of saml", true, true);
+    UserDto existingUser = insertUser("existing_login", "John", null, "John", "John", samlProvider.getKey(), false, true);
+
+    UserDto newUser = underTest.register(composeUserRegistration(UserIdentity.builder()
+      .setProviderLogin("john")
+      .setName("John")
+      .setEmail("john@company.com")
+      .build(), samlProvider, local(BASIC)));
+
+    assertThat(db.countRowsOfTable(db.getSession(), "users")).isEqualTo(2);
+    assertThat(newUser.getUuid()).isNotEqualTo(existingUser.getUuid());
+    assertThat(db.getDbClient().userDao().selectByUuid(db.getSession(), existingUser.getUuid()))
+      .extracting(UserDto::getExternalLogin, UserDto::getEmail)
+      .containsExactly("John", null);
+  }
+
+  @Test
   public void authenticate_existing_user_should_not_update_login() {
     UserDto user = insertUser("old login", USER_IDENTITY.getName(), USER_IDENTITY.getEmail(), USER_IDENTITY.getProviderId(), "old identity", GH_IDENTITY_PROVIDER.getKey(), false, true);
 

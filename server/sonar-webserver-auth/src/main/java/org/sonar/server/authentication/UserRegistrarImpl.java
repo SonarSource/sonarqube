@@ -134,8 +134,35 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   private Optional<UserDto> retrieveUserByExternalLoginAndIdentityProvider(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider, Source source) {
-    return Optional.ofNullable(dbClient.userDao().selectByExternalLoginAndIdentityProvider(dbSession, userIdentity.getProviderLogin(), provider.getKey()))
+    List<UserDto> candidates = dbClient.userDao().selectAllByExternalLoginAndIdentityProviderCaseInsensitive(dbSession, userIdentity.getProviderLogin(), provider.getKey());
+    return pickCorroboratedMatch(candidates, userIdentity)
       .filter(user -> validateAlmSpecificData(user, provider.getKey(), userIdentity, source));
+  }
+
+  /**
+   * The lookup above is case-insensitive on external_login, so a case-only match can be a genuinely different
+   * identity that merely collides case-insensitively with an existing user (e.g. a new "john" when "John"
+   * already exists), not the same account re-authenticating after the IdP changed its casing. An exact-case
+   * match is unambiguous. A case-only match is trusted only when corroborated by the account's email, the same
+   * signal already used elsewhere (see {@link #validateEmailToAvoidLoginRecycling}) to avoid binding to the
+   * wrong account.
+   * <p>
+   * This also covers the rarer case of several existing users already differing only by case under the same
+   * provider (e.g. "Jane Doe" and "JANE DOE"): if a login that doesn't exactly match any of them corroborates
+   * by email with exactly one, that one is picked instead of leaving every candidate aside and creating yet
+   * another duplicate. If none or more than one candidate corroborates, the match stays ambiguous and
+   * registration creates a separate account rather than guessing.
+   */
+  private static Optional<UserDto> pickCorroboratedMatch(List<UserDto> candidates, UserIdentity userIdentity) {
+    if (candidates.size() == 1 && candidates.get(0).getExternalLogin().equals(userIdentity.getProviderLogin())) {
+      return Optional.of(candidates.get(0));
+    }
+    List<UserDto> emailCorroborated = candidates.stream().filter(user -> emailsMatch(user.getEmail(), userIdentity.getEmail())).toList();
+    return emailCorroborated.size() == 1 ? Optional.of(emailCorroborated.get(0)) : Optional.empty();
+  }
+
+  private static boolean emailsMatch(@Nullable String storedEmail, @Nullable String externalEmail) {
+    return storedEmail != null && externalEmail != null && storedEmail.equalsIgnoreCase(externalEmail);
   }
 
   private Optional<UserDto> retrieveUserByLogin(DbSession dbSession, UserIdentity userIdentity, IdentityProvider provider) {
@@ -191,7 +218,7 @@ public class UserRegistrarImpl implements UserRegistrar {
   }
 
   private static boolean userExternalIdMatchesLogin(UserDto user) {
-    return Objects.equals(user.getExternalId(), user.getExternalLogin());
+    return user.getExternalId() != null && user.getExternalId().equalsIgnoreCase(user.getExternalLogin());
   }
 
   private static AuthenticationException failAuthenticationException(UserIdentity userIdentity, Source source) {

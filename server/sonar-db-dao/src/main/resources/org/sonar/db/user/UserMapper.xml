@@ -223,9 +223,14 @@
         </foreach>
     </select>
 
-    <select id="selectByExternalLoginAndIdentityProvider" parameterType="map" resultMap="userResultMap">
+    <select id="selectByExternalLoginAndIdentityProviderExact" parameterType="map" resultMap="userResultMap">
         <include refid="selectFromUsersAndJoinScmAccounts"/>
         WHERE u.external_login=#{externalLogin, jdbcType=VARCHAR} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByExternalLoginAndIdentityProviderCaseInsensitive" parameterType="map" resultMap="userResultMap">
+        <include refid="selectFromUsersAndJoinScmAccounts"/>
+        WHERE lower(u.external_login)=#{externalLogin, jdbcType=VARCHAR} AND u.external_identity_provider=#{externalIdentityProvider, jdbcType=VARCHAR}
     </select>
 
     <sql id="deactivateUserUpdatedFields">

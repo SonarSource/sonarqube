@@ -66,7 +66,10 @@ public interface UserMapper {
   List<UserDto> selectByExternalIdsAndIdentityProvider(@Param("externalIds") List<String> externalIds, @Param("externalIdentityProvider") String externalExternalIdentityProvider);
 
   @CheckForNull
-  UserDto selectByExternalLoginAndIdentityProvider(@Param("externalLogin") String externalLogin, @Param("externalIdentityProvider") String externalExternalIdentityProvider);
+  UserDto selectByExternalLoginAndIdentityProviderExact(@Param("externalLogin") String externalLogin, @Param("externalIdentityProvider") String externalExternalIdentityProvider);
+
+  List<UserDto> selectByExternalLoginAndIdentityProviderCaseInsensitive(@Param("externalLogin") String externalLogin,
+    @Param("externalIdentityProvider") String externalExternalIdentityProvider);
 
   List<String> selectExternalIdentityProviders();
 

@@ -731,6 +731,40 @@ class UserDaoIT {
   }
 
   @Test
+  void select_by_external_login_and_identity_provider_is_case_insensitive() {
+    db.users().insertUser(u -> u.setExternalLogin("John.Doe").setExternalIdentityProvider("saml"));
+
+    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, "John.Doe", "saml")).isNotNull();
+    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, "john.doe", "saml")).isNotNull();
+    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, "JOHN.DOE", "saml")).isNotNull();
+    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, "john.doe", "unknown")).isNull();
+  }
+
+  @Test
+  void select_by_external_login_and_identity_provider_prefers_exact_case_match_when_ambiguous() {
+    UserDto user1 = db.users().insertUser(u -> u.setExternalLogin("John.Doe").setExternalIdentityProvider("saml"));
+    UserDto user2 = db.users().insertUser(u -> u.setExternalLogin("JOHN.DOE").setExternalIdentityProvider("saml"));
+
+    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, "John.Doe", "saml").getUuid()).isEqualTo(user1.getUuid());
+    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, "JOHN.DOE", "saml").getUuid()).isEqualTo(user2.getUuid());
+    assertThat(underTest.selectByExternalLoginAndIdentityProvider(session, "john.doe", "saml")).isNull();
+  }
+
+  @Test
+  void select_all_by_external_login_and_identity_provider_case_insensitive_returns_every_ambiguous_candidate() {
+    UserDto user1 = db.users().insertUser(u -> u.setExternalLogin("John.Doe").setExternalIdentityProvider("saml"));
+    UserDto user2 = db.users().insertUser(u -> u.setExternalLogin("JOHN.DOE").setExternalIdentityProvider("saml"));
+
+    assertThat(underTest.selectAllByExternalLoginAndIdentityProviderCaseInsensitive(session, "john.doe", "saml"))
+      .extracting(UserDto::getUuid)
+      .containsExactlyInAnyOrder(user1.getUuid(), user2.getUuid());
+    assertThat(underTest.selectAllByExternalLoginAndIdentityProviderCaseInsensitive(session, "John.Doe", "saml"))
+      .extracting(UserDto::getUuid)
+      .containsExactly(user1.getUuid());
+    assertThat(underTest.selectAllByExternalLoginAndIdentityProviderCaseInsensitive(session, "unknown", "saml")).isEmpty();
+  }
+
+  @Test
   void scrollByLUuids() {
     UserDto u1 = insertUser(true);
     UserDto u2 = insertUser(false);

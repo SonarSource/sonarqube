@@ -209,9 +209,32 @@ public class UserDao implements Dao {
     return executeLargeInputs(externalIds, e -> mapper(dbSession).selectByExternalIdsAndIdentityProvider(e, externalIdentityProvider));
   }
 
+  /**
+   * Matching is case-insensitive from the caller's perspective: an exact match is tried first, so the common
+   * case (unchanged casing) hits the unique index on (external_identity_provider, external_login) instead of
+   * the unindexed case-insensitive scan below. If more than one row matches case-insensitively (two distinct
+   * users whose external_login happens to differ only by case under the same provider), the match is
+   * ambiguous and null is returned rather than guessing; use
+   * {@link #selectAllByExternalLoginAndIdentityProviderCaseInsensitive} if the caller can disambiguate itself.
+   */
   @CheckForNull
   public UserDto selectByExternalLoginAndIdentityProvider(DbSession dbSession, String externalLogin, String externalIdentityProvider) {
-    return mapper(dbSession).selectByExternalLoginAndIdentityProvider(externalLogin, externalIdentityProvider);
+    List<UserDto> candidates = selectAllByExternalLoginAndIdentityProviderCaseInsensitive(dbSession, externalLogin, externalIdentityProvider);
+    return candidates.size() == 1 ? candidates.get(0) : null;
+  }
+
+  /**
+   * Every row matching externalLogin case-insensitively under externalIdentityProvider, instead of collapsing
+   * an ambiguous match to null like {@link #selectByExternalLoginAndIdentityProvider} does. The exact-case
+   * match is tried first and returned alone (single-element list) when found, so the common case still hits
+   * the unique index on (external_identity_provider, external_login) rather than the unindexed scan below.
+   */
+  public List<UserDto> selectAllByExternalLoginAndIdentityProviderCaseInsensitive(DbSession dbSession, String externalLogin, String externalIdentityProvider) {
+    UserDto exactMatch = mapper(dbSession).selectByExternalLoginAndIdentityProviderExact(externalLogin, externalIdentityProvider);
+    if (exactMatch != null) {
+      return List.of(exactMatch);
+    }
+    return mapper(dbSession).selectByExternalLoginAndIdentityProviderCaseInsensitive(externalLogin.toLowerCase(ENGLISH), externalIdentityProvider);
   }
 
   public long countSonarlintWeeklyUsers(DbSession dbSession) {
