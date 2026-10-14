@@ -5,15 +5,6 @@
   </picture>
 </p>
 
-# SonarQube
-
-<p>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://assets-eu-01.kc-usercontent.com/ef593040-b591-0198-9506-ed88b30bc023/19f97554-c5ec-4cf1-87f7-878c02a19702/SQ_Logo_Server_Dark%20Backgrounds.svg">
-    <img src="https://assets-eu-01.kc-usercontent.com/ef593040-b591-0198-9506-ed88b30bc023/4a785d22-7141-409d-95a2-695c42595f90/SQ_Logo_Server_Light%20Backgrounds.png" alt="SonarQube Server logo" width="400">
-  </picture>
-</p>
-
 [![Build](https://github.com/SonarSource/sonarqube/actions/workflows/build.yml/badge.svg)](https://github.com/SonarSource/sonarqube/actions/workflows/build.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=sonarqube&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=sonarqube)
 [![AI Code Assurance](https://next.sonarqube.com/sonarqube/api/project_badges/ai_code_assurance?project=org.sonarsource.sonarqube%3Asonarqube-private&token=sqb_c0e2fa9ac4ef89f9a8403c6ba235e108ceb1dce1)](https://next.sonarqube.com/sonarqube/dashboard?id=sonarqube)
@@ -22,11 +13,14 @@
 [![License](https://img.shields.io/badge/license-LGPL%20v3-blue)](#license)
 [![Community](https://img.shields.io/badge/community-forum-blue)](https://community.sonarsource.com/c/sq/10)
 
+<!-- sonar-marketing:start -->
+<!-- Marketing maintains this section. For wording changes, consult the relevant Product Marketing Manager (PMM). Repository CODEOWNERS review accuracy and merge changes. -->
+
+# SonarQube
+
 SonarQube is the algorithmic verification platform for code quality and security. Its static analysis applies techniques such as symbolic execution and data and control flow analysis to inspect your code, find bugs, vulnerabilities, and structural problems, and tell you exactly what to fix and why, in your IDE, your pull requests, and your CI pipeline.
 
 This repository holds the source of the **SonarQube Community Build**, the free, open-source edition of the SonarQube platform. It shares the same analysis used across the SonarQube product line.
-
-Trusted by more than 7 million developers and 22,000 organizations, SonarQube analyzes over 750 billion lines of code every day.
 
 ## Built for the AI era
 
@@ -39,7 +33,7 @@ AI writes code faster than teams can review it, creating verification debt: code
 - **Maintainability and structural issues** that make code harder to change over time.
 - **Coverage on new code**, so quality improves with every commit instead of stalling behind a backlog.
 
-It analyzes 40+ programming languages and frameworks. Analysis is repeatable, auditable, and explainable: the same code always produces the same findings, every finding is traceable, and each one tells you what the problem is and why it matters.
+The SonarQube platform analyzes more than 40 programming languages and frameworks; the Community Build supports a subset of them. Analysis is repeatable, auditable, and explainable: the same code always produces the same findings, every finding is traceable, and each one tells you what the problem is and why it matters.
 
 ## Commercial editions
 
@@ -86,19 +80,15 @@ The Community Build is free and open source. The wider SonarQube line applies th
 - **[SonarQube MCP Server](https://github.com/SonarSource/sonarqube-mcp-server)**, bringing SonarQube analysis into your AI agent's context.
 - **[SonarQube CLI](https://docs.sonarsource.com/sonarqube-cli)**, running analysis from the command line.
 
-See the [product page](https://www.sonarsource.com/products/sonarqube/server/) for a full comparison.
+Compare [SonarQube plans and pricing](https://www.sonarsource.com/plans-and-pricing/) to choose the appropriate product and deployment model.
 
-## Links
+## Product links
 
 - [Website](https://www.sonarsource.com/products/sonarqube)
 - [Download](https://www.sonarsource.com/products/sonarqube/downloads)
 - [Documentation](https://docs.sonarsource.com/sonarqube)
-- [Webapp source code](https://github.com/SonarSource/sonarqube-webapp)
 - [X](https://twitter.com/SonarQube)
 - [SonarSource](https://www.sonarsource.com), author of SonarQube
-- [Issue tracking](https://jira.sonarsource.com/browse/SONAR/), read-only. Only SonarSourcers can create tickets.
-- [Responsible Disclosure](https://community.sonarsource.com/t/responsible-vulnerability-disclosure/9317)
-- [Next](https://next.sonarqube.com/sonarqube) instance of the next SonarQube version
 
 ## FAQ
 
@@ -107,6 +97,14 @@ See the [product page](https://www.sonarsource.com/products/sonarqube/server/) f
 **What is the difference between the Community Build and SonarQube Server?** The Community Build is the free, self-managed engine. SonarQube Server and SonarQube Cloud are the commercial editions. They cover more languages and add branch and pull request analysis, software composition analysis (SCA), architecture management, advanced security with taint analysis (SAST), secrets detection, infrastructure as code (IaC) analysis, the SonarQube Remediation Agent for verified fix pull requests, and enterprise reporting. Some capabilities are part of the SonarQube Advanced Security add-on. See the [product line](#the-sonarqube-product-line) for details.
 
 **Does it work on AI-generated code?** Yes. SonarQube applies the same analysis to all code, whether a developer or an agent wrote it.
+
+<!-- sonar-marketing:end -->
+
+## Project links
+
+- [Webapp source code](https://github.com/SonarSource/sonarqube-webapp)
+- [Issue tracking](https://jira.sonarsource.com/browse/SONAR/), read-only. Only SonarSourcers can create tickets.
+- [Responsible Disclosure](https://community.sonarsource.com/t/responsible-vulnerability-disclosure/9317)
 
 ## Have Questions or Feedback?
 
