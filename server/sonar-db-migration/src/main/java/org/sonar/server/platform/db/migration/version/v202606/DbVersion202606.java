@@ -34,6 +34,15 @@ public class DbVersion202606 implements DbVersion {
       .add(2026_06_003, "Create table 'sca_container_analyses'", CreateScaContainerAnalysesTable.class)
       .add(2026_06_004, "Create sca_available_fixes table", CreateScaAvailableFixesTable.class)
       .add(2026_06_005, "Migrate Anyone group permissions to sonar-users", MigrateAnyoneGroupPermissionsToSonarUsers.class)
-      .add(2026_06_006, "Remove Anyone group permissions", RemoveAnyoneGroupPermissions.class);
+      .add(2026_06_006, "Remove Anyone group permissions", RemoveAnyoneGroupPermissions.class)
+      .add(2026_06_007, "Create table 'sca_ref_epss_scores'", CreateScaRefdbEpssScoresTable.class)
+      .add(2026_06_008, "Create table 'sca_ref_kev_vulns'", CreateScaRefdbKevVulnerabilitiesTable.class)
+      .add(2026_06_009, "Create table 'sca_ref_licensing_infos'", CreateScaRefdbLicensingInfosTable.class)
+      .add(2026_06_010, "Create table 'sca_ref_osv_aff_ranges'", CreateScaRefdbOsvAffectedRangesTable.class)
+      .add(2026_06_011, "Create table 'sca_ref_osv_aff_versions'", CreateScaRefdbOsvAffectedVersionsTable.class)
+      .add(2026_06_012, "Create table 'sca_ref_osv_vulns'", CreateScaRefdbOsvVulnerabilitiesTable.class)
+      .add(2026_06_013, "Create table 'sca_ref_reachability_defs'", CreateScaRefdbReachabilityDefinitionsTable.class)
+      .add(2026_06_014, "Create table 'sca_ref_upstream_pkgs'", CreateScaRefdbUpstreamPackagesTable.class)
+      .add(2026_06_015, "Create table 'sca_ref_upstream_releases'", CreateScaRefdbUpstreamReleasesTable.class);
   }
 }
