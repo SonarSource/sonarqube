@@ -270,6 +270,7 @@ subprojects {
     protobufVersion = '4.36.2'
     springSecurityVersion = '7.1.1'
     elasticSearchClientVersion = '7.17.29' // Old REST High Level Client (to be removed)
+    // When upgrading, revisit the org.apache.httpcomponents.client5:httpclient5 pin in dependencyManagement
     elasticSearchJavaClientVersion = '9.4.7' // New Java API Client (matches server version)
   }
 
@@ -600,6 +601,7 @@ subprojects {
       dependency 'org.cyclonedx:cyclonedx-core-java:13.2.0'
       dependency 'com.fasterxml.staxmate:staxmate:2.4.2'
       dependency "co.elastic.clients:elasticsearch-java:${elasticSearchJavaClientVersion}"
+      dependency 'org.apache.httpcomponents.client5:httpclient5:5.6.4'
       dependency 'org.eclipse.jgit:org.eclipse.jgit:7.8.0.202609011348-r'
       dependency('org.tmatesoft.svnkit:svnkit:1.10.11')
       dependency 'org.hamcrest:hamcrest:3.0'
