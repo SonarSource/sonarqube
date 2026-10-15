@@ -69,6 +69,45 @@ public class ExportActionIT {
   }
 
   @Test
+  public void return_backup_of_built_in_profile_when_using_its_display_name() {
+    QProfileDto sonarWay = db.qualityProfiles().insert(p -> p.setName("Sonar way").setLanguage(XOO_LANGUAGE).setIsBuiltIn(true));
+
+    String result = newWsActionTester().newRequest()
+      .setParam("language", XOO_LANGUAGE)
+      .setParam("qualityProfile", "Sonar way comprehensive")
+      .execute()
+      .getInput();
+
+    assertThat(result).isEqualTo("Backup of " + XOO_LANGUAGE + "/" + sonarWay.getKee());
+  }
+
+  @Test
+  public void return_backup_of_built_in_profile_when_using_its_internal_name() {
+    QProfileDto sonarWay = db.qualityProfiles().insert(p -> p.setName("Sonar way").setLanguage(XOO_LANGUAGE).setIsBuiltIn(true));
+
+    String result = newWsActionTester().newRequest()
+      .setParam("language", XOO_LANGUAGE)
+      .setParam("qualityProfile", "Sonar way")
+      .execute()
+      .getInput();
+
+    assertThat(result).isEqualTo("Backup of " + XOO_LANGUAGE + "/" + sonarWay.getKee());
+  }
+
+  @Test
+  public void return_backup_of_custom_profile_named_like_internal_built_in_name() {
+    QProfileDto custom = db.qualityProfiles().insert(p -> p.setName("Sonar way").setLanguage(XOO_LANGUAGE).setIsBuiltIn(false));
+
+    String result = newWsActionTester().newRequest()
+      .setParam("language", XOO_LANGUAGE)
+      .setParam("qualityProfile", "Sonar way")
+      .execute()
+      .getInput();
+
+    assertThat(result).isEqualTo("Backup of " + XOO_LANGUAGE + "/" + custom.getKee());
+  }
+
+  @Test
   public void throw_NotFoundException_if_profile_with_specified_name_does_not_exist() {
     assertThatThrownBy(() -> {
       newWsActionTester().newRequest()

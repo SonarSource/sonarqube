@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.resources.Languages;
@@ -38,6 +39,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.language.LanguageParamUtils;
 import org.sonar.server.qualityprofile.QProfileBackuper;
+import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -110,7 +112,8 @@ public class ExportAction implements QProfileWsAction {
       // return the default profile
       profile = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, language);
     } else {
-      profile = dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, name, language);
+      String internalName = Objects.requireNonNull(QualityProfileDisplayNames.toInternalName(name));
+      profile = dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, internalName, language);
     }
     return checkFound(profile, "Could not find profile with name '%s' for language '%s'", name, language);
   }
