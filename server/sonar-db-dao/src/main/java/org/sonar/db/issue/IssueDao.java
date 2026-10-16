@@ -20,9 +20,12 @@
 package org.sonar.db.issue;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.cursor.Cursor;
@@ -187,14 +190,29 @@ public class IssueDao implements Dao {
   }
 
   /**
-   * Returns the non-closed issues of the given branches pre-aggregated by history dimension (type, severity,
-   * status, code scope, rule, effective impact severities), with its issue count. The grouping is done in SQL
-   * so the caller never materializes one object per issue (SONAR-31731).
-   * <p>Branches are queried in batches (DB parameter limits), so the same dimension may appear once per batch:
-   * callers must sum the counts of equal dimensions instead of assuming one row per combination.</p>
+   * Returns the non-closed issues of the given branches, security hotspots excluded, counted by history dimension (type,
+   * severity, status, code scope, rule, effective impact severities). Issues are counted in SQL by their own columns only;
+   * rule keys and rule default impacts are then resolved from the distinct rules.
+   * <p>Several rows may share the same dimension: callers must sum their counts instead of assuming one row per combination.</p>
    */
   public List<IssueCountDimensionDto> selectIssueCountDimensionsForBranches(DbSession dbSession, Collection<String> branchUuids) {
-    return executeLargeInputs(branchUuids, mapper(dbSession)::selectIssueCountDimensionsForBranches);
+    IssueMapper mapper = mapper(dbSession);
+    List<IssueCountByRuleDto> counts = executeLargeInputs(branchUuids, mapper::selectIssueCountsByRuleForBranches);
+    Set<String> ruleUuids = counts.stream().map(IssueCountByRuleDto::ruleUuid).collect(Collectors.toSet());
+
+    Map<String, String> ruleKeysByUuid = new HashMap<>();
+    Map<String, Map<String, String>> defaultImpactsByRuleUuid = new HashMap<>();
+    for (IssueCountRuleImpactDto rule : executeLargeInputs(ruleUuids, mapper::selectIssueCountRuleImpacts)) {
+      ruleKeysByUuid.put(rule.ruleUuid(), RuleKey.of(rule.repository(), rule.ruleKey()).toString());
+      if (rule.softwareQuality() != null) {
+        defaultImpactsByRuleUuid.computeIfAbsent(rule.ruleUuid(), k -> new HashMap<>()).put(rule.softwareQuality(), rule.severity());
+      }
+    }
+
+    return counts.stream()
+      .filter(count -> ruleKeysByUuid.containsKey(count.ruleUuid()))
+      .map(count -> count.toDimension(ruleKeysByUuid.get(count.ruleUuid()), defaultImpactsByRuleUuid.getOrDefault(count.ruleUuid(), Map.of())))
+      .toList();
   }
 
   public AggregatedIssueStatsDto aggregateIssueStatsForBranchUuidAndRuleKey(DbSession dbSession,

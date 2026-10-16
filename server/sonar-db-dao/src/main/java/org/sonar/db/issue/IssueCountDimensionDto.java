@@ -24,10 +24,9 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 /**
- * One row of a per-dimension issue count, pre-aggregated in SQL for a branch's non-closed issues.
- * Each row already carries the issue count for its unique combination of dimension attributes,
- * so the caller never needs to load individual issues to compute it. MyBatis binds this canonical
- * constructor directly, matching each SQL column alias to a component name.
+ * One row of a per-dimension issue count for a branch's non-closed issues.
+ * Each row already carries the issue count for its combination of dimension attributes,
+ * so the caller never needs to load individual issues to compute it.
  *
  * @param ruleKey already composed as {@code repository:rule} (e.g. {@code java:S1234})
  */
