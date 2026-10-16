@@ -22,6 +22,7 @@ package org.sonar.server.project.ws;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,6 +34,7 @@ import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.project.DeletedProject;
 import org.sonar.server.project.Project;
 import org.sonar.server.project.ProjectLifeCycleListeners;
@@ -68,6 +70,8 @@ public class DeleteAction implements ProjectsWsAction {
       .setDescription("Delete a project.<br> " +
         "Requires 'Administer System' permission or 'Administer' permission on the project.")
       .setSince("5.2")
+      .setChangelog(new Change("2026.6", "Returns HTTP 404 instead of HTTP 403 when the user lacks both " +
+        "'Administer' permission on the project and 'Administer System' permission."))
       .setHandler(this);
 
     action
@@ -85,6 +89,7 @@ public class DeleteAction implements ProjectsWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectDto project = componentFinder.getProjectByKey(dbSession, key);
+      checkPermission(project);
       @Nullable String mainBranchUuid = dbClient.branchDao()
         .selectMainBranchByProjectUuid(dbSession, project.getUuid())
         .map(BranchDto::getUuid)
@@ -92,7 +97,6 @@ public class DeleteAction implements ProjectsWsAction {
       // Branch UUIDs must be collected before deleteEntity() removes the rows from project_branches.
       Set<String> branchUuids = dbClient.branchDao().selectByProject(dbSession, project)
         .stream().map(BranchDto::getUuid).collect(Collectors.toSet());
-      checkPermission(project);
       componentCleanerService.deleteEntity(dbSession, project);
       // onBranchesDeleted cleans per-branch extension data (e.g. SCA dependency findings).
       // onProjectsDeleted cleans project-level extension data (e.g. SCA license profiles).
@@ -105,8 +109,8 @@ public class DeleteAction implements ProjectsWsAction {
   }
 
   private void checkPermission(ProjectDto project) {
-    if (!userSession.hasEntityPermission(ProjectPermission.ADMIN, project)) {
-      userSession.checkPermission(GlobalPermission.ADMINISTER);
+    if (!userSession.hasEntityPermission(ProjectPermission.ADMIN, project) && !userSession.hasPermission(GlobalPermission.ADMINISTER)) {
+      throw new NotFoundException(String.format("Project '%s' not found", project.getKey()));
     }
   }
 }

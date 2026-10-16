@@ -39,7 +39,7 @@ import org.sonar.db.webhook.WebhookDbTester;
 import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.es.TestIndexers;
-import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.project.DeletedProject;
 import org.sonar.server.project.Project;
@@ -64,6 +64,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.component.TestComponentFinder.from;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
@@ -185,7 +186,7 @@ public class DeleteActionIT {
   }
 
   @Test
-  public void return_403_if_not_project_admin_nor_org_admin() {
+  public void return_404_if_not_project_admin_nor_global_admin() {
     ProjectData project = db.components().insertPrivateProject();
 
     userSessionRule.logIn()
@@ -195,7 +196,43 @@ public class DeleteActionIT {
 
     TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, project.projectKey());
     assertThatThrownBy(() -> call(request))
-      .isInstanceOf(ForbiddenException.class);
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '%s' not found", project.projectKey());
+    verifyNoInteractions(componentCleanerService, projectLifeCycleListeners);
+  }
+
+  @Test
+  public void return_404_if_no_project_permissions() {
+    ProjectData project = db.components().insertPrivateProject();
+    userSessionRule.logIn();
+
+    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, project.projectKey());
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project '%s' not found", project.projectKey());
+    verifyNoInteractions(componentCleanerService, projectLifeCycleListeners);
+  }
+
+  @Test
+  public void return_404_if_project_does_not_exist() {
+    userSessionRule.logIn();
+
+    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, "missing-project");
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project 'missing-project' not found");
+    verifyNoInteractions(componentCleanerService, projectLifeCycleListeners);
+  }
+
+  @Test
+  public void return_404_if_project_does_not_exist_for_global_admin() {
+    userSessionRule.logIn().addPermission(GlobalPermission.ADMINISTER);
+
+    TestRequest request = tester.newRequest().setParam(PARAM_PROJECT, "missing-project");
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Project 'missing-project' not found");
+    verifyNoInteractions(componentCleanerService, projectLifeCycleListeners);
   }
 
   @Test
