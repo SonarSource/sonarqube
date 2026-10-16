@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -753,6 +755,47 @@ class ComponentTreeActionIT {
     assertThat(result.getComponentsList())
       .extracting(Component::getKey, Component::getRefKey)
       .containsExactlyInAnyOrder(tuple(projectCopy.getKey(), mainBranch.getKey()));
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void project_copy_base_requires_browse_on_original_project(boolean publicPortfolio) {
+    ProjectData hiddenProject = db.components().insertPrivateProject();
+    ComponentDto portfolio = publicPortfolio ? db.components().insertPublicPortfolio() : db.components().insertPrivatePortfolio();
+    if (publicPortfolio) {
+      userSession.anonymous().registerPortfolios(portfolio);
+    } else {
+      userSession.addPortfolioPermission(USER, portfolio);
+    }
+    userSession.registerBranches(hiddenProject.getMainBranchDto());
+    db.components().insertSnapshot(portfolio);
+    ComponentDto copy = db.components().insertComponent(newProjectCopy(hiddenProject.getMainBranchComponent(), portfolio));
+    MetricDto ncloc = insertNclocMetric();
+    db.measures().insertMeasure(copy, m -> m.addValue(ncloc.getKey(), 42d));
+    String copyKey = copy.getKey();
+    TestRequest request = ws.newRequest().setParam(PARAM_COMPONENT, copyKey).setParam(PARAM_METRIC_KEYS, ncloc.getKey());
+
+    assertThatThrownBy(() -> request.executeProtobuf(ComponentTreeWsResponse.class))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key '%s' not found", copyKey);
+  }
+
+  @Test
+  void project_branch_copy_base_is_accessible_with_browse_on_original_project() {
+    ProjectData projectData = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(projectData.getMainBranchComponent());
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    userSession.addPortfolioPermission(USER, portfolio).addProjectPermission(USER, projectData.getProjectDto())
+      .addProjectBranchMapping(projectData.projectUuid(), branch);
+    db.components().insertSnapshot(portfolio);
+    ComponentDto copy = db.components().insertComponent(newProjectCopy(branch, portfolio));
+    MetricDto ncloc = insertNclocMetric();
+    db.measures().insertMeasure(copy, m -> m.addValue(ncloc.getKey(), 42d));
+
+    ComponentTreeWsResponse result = ws.newRequest().setParam(PARAM_COMPONENT, copy.getKey()).setParam(PARAM_METRIC_KEYS, ncloc.getKey())
+      .executeProtobuf(ComponentTreeWsResponse.class);
+
+    assertThat(result.getBaseComponent().getMeasuresList()).extracting(Measure::getValue).containsExactly("42");
   }
 
   @Test

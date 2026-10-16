@@ -106,6 +106,7 @@ import static org.sonar.server.measure.ws.ComponentResponseCommon.addMetricToRes
 import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.updateMeasureBuilder;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
+import static org.sonar.server.measure.ws.MeasuresWsPermissions.checkCopyComponentPermission;
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeriods;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -177,12 +178,14 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setDescription(format("Navigate through components based on the chosen strategy with specified measures.<br>" +
         "Requires the following permission: 'Browse' on the specified project.<br>" +
         "For applications, it also requires 'Browse' permission on its child projects. <br>" +
+        "For copied components, it also requires 'Browse' permission on the original project. <br>" +
         "When limiting search with the %s parameter, directories are not returned.", Param.TEXT_QUERY))
       .setResponseExample(getClass().getResource("component_tree-example.json"))
       .setSince("5.4")
       .setHandler(this)
       .addPagingParams(100, MAX_SIZE)
       .setChangelog(
+        new Change("2026.6", "Copied base components require 'Browse' permission on the original project; otherwise, HTTP 404 is returned."),
         new Change("2025.4", format(
           "The following SCA metrics are available on licensed enterprise/datacenter editions with SCA enabled: %s",
           MeasuresWsModule.getNewScaMetricsInSonarQube202504())),
@@ -478,7 +481,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   private ComponentTreeData load(ComponentTreeRequest wsRequest) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto baseComponent = loadComponent(dbSession, wsRequest);
-      checkPermissions(baseComponent);
+      checkPermissions(baseComponent, wsRequest);
       // portfolios don't have branches
       BranchDto branchDto = dbClient.branchDao().selectByUuid(dbSession, baseComponent.branchUuid()).orElse(null);
 
@@ -717,8 +720,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return componentTreeQueryBuilder.build();
   }
 
-  private void checkPermissions(ComponentDto baseComponent) {
+  private void checkPermissions(ComponentDto baseComponent, ComponentTreeRequest request) {
     userSession.checkComponentPermission(ProjectPermission.USER, baseComponent);
+    checkCopyComponentPermission(userSession, baseComponent, request.getBranch(), request.getPullRequest());
 
     if (ComponentScopes.PROJECT.equals(baseComponent.scope()) && ComponentQualifiers.APP.equals(baseComponent.qualifier())) {
       userSession.checkChildProjectsPermission(ProjectPermission.USER, baseComponent);

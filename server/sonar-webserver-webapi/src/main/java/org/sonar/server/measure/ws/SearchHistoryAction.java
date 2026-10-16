@@ -71,6 +71,7 @@ import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_FROM;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRICS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PULL_REQUEST;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_TO;
+import static org.sonar.server.measure.ws.MeasuresWsPermissions.checkCopyComponentPermission;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -104,10 +105,12 @@ public class SearchHistoryAction implements MeasuresWsAction {
         "Measures are ordered chronologically.<br>" +
         "Pagination applies to the number of measures for each metric.<br>" +
         "Requires the following permission: 'Browse' on the specified component. <br>" +
-        "For applications, it also requires 'Browse' permission on its child projects.")
+        "For applications, it also requires 'Browse' permission on its child projects. <br>" +
+        "For copied components, it also requires 'Browse' permission on the original project.")
       .setResponseExample(getClass().getResource("search_history-example.json"))
       .setSince("6.3")
       .setChangelog(
+        new Change("2026.6", "Copied components require 'Browse' permission on the original project; otherwise, HTTP 404 is returned."),
         new Change("2025.4", format(
           "The following SCA metrics are available on licensed enterprise/datacenter editions with SCA enabled: %s",
           MeasuresWsModule.getNewScaMetricsInSonarQube202504())),
@@ -229,6 +232,7 @@ public class SearchHistoryAction implements MeasuresWsAction {
   private ComponentDto searchComponent(SearchHistoryRequest request, DbSession dbSession) {
     ComponentDto component = loadComponent(dbSession, request);
     userSession.checkComponentPermission(ProjectPermission.USER, component);
+    checkCopyComponentPermission(userSession, component, request.getBranch(), request.getPullRequest());
     if (ComponentScopes.PROJECT.equals(component.scope()) && ComponentQualifiers.APP.equals(component.qualifier())) {
       userSession.checkChildProjectsPermission(ProjectPermission.USER, component);
     }

@@ -25,6 +25,8 @@ import java.util.stream.LongStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -65,6 +67,7 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.BranchType.PULL_REQUEST;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newProjectMeasureDto;
@@ -395,6 +398,43 @@ class SearchHistoryActionIT {
 
     assertThatThrownBy(() -> call(request))
       .isInstanceOf(ForbiddenException.class);
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void project_copy_history_requires_browse_on_original_project(boolean publicPortfolio) {
+    ProjectData hiddenProject = db.components().insertPrivateProject();
+    ComponentDto portfolio = publicPortfolio ? db.components().insertPublicPortfolio() : db.components().insertPrivatePortfolio();
+    if (publicPortfolio) {
+      userSession.anonymous().registerPortfolios(portfolio);
+    } else {
+      userSession.addPortfolioPermission(ProjectPermission.USER, portfolio);
+    }
+    userSession.registerBranches(hiddenProject.getMainBranchDto());
+    SnapshotDto portfolioAnalysis = db.components().insertSnapshot(portfolio);
+    ComponentDto copy = db.components().insertComponent(newProjectCopy(hiddenProject.getMainBranchComponent(), portfolio));
+    db.measures().insertProjectMeasure(copy, portfolioAnalysis, nclocMetric, m -> m.setValue(42d));
+    String copyKey = copy.getKey();
+    SearchHistoryRequest request = SearchHistoryRequest.builder().setComponent(copyKey).setMetrics(singletonList(nclocMetric.getKey())).build();
+
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key '%s' not found", copyKey);
+  }
+
+  @Test
+  void project_branch_copy_history_is_accessible_with_browse_on_original_project() {
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent());
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    userSession.addPortfolioPermission(ProjectPermission.USER, portfolio).addProjectBranchMapping(project.projectUuid(), branch);
+    SnapshotDto portfolioAnalysis = db.components().insertSnapshot(portfolio);
+    ComponentDto copy = db.components().insertComponent(newProjectCopy(branch, portfolio));
+    db.measures().insertProjectMeasure(copy, portfolioAnalysis, nclocMetric, m -> m.setValue(42d));
+    SearchHistoryRequest request = SearchHistoryRequest.builder().setComponent(copy.getKey()).setMetrics(singletonList(nclocMetric.getKey())).build();
+
+    SearchHistoryResponse result = call(request);
+
+    assertThat(result.getMeasures(0).getHistoryList()).extracting(HistoryValue::getValue).containsExactly("42");
   }
 
   @Test

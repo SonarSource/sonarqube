@@ -36,7 +36,6 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -229,13 +228,175 @@ public class ComponentActionIT {
     ProjectData mainBranch = db.components().insertPrivateProject();
     PortfolioData view = db.components().insertPrivatePortfolioData();
     userSession.addPortfolioPermission(USER, view.getRootComponent());
+    userSession.addProjectPermission(USER, mainBranch.getProjectDto()).registerBranches(mainBranch.getMainBranchDto());
     db.components().insertSnapshot(view.getPortfolioDto());
     ComponentDto projectCopy = db.components().insertComponent(newProjectCopy("project-uuid-copy", mainBranch.getMainBranchComponent(), view.getRootComponent()));
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
+    db.measures().insertMeasure(projectCopy, m -> m.addValue(metric.getKey(), 42));
 
     ComponentWsResponse response = newRequest(projectCopy.getKey(), metric.getKey());
 
     assertThat(response.getComponent().getRefKey()).isEqualTo(mainBranch.getMainBranchComponent().getKey());
+    assertThat(response.getComponent().getMeasuresList()).extracting(Measures.Measure::getValue).containsExactly("42");
+  }
+
+  @Test
+  public void anonymous_user_cannot_read_private_project_copy_in_public_portfolio() {
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto portfolio = db.components().insertPublicPortfolio();
+    userSession.anonymous().registerPortfolios(portfolio).registerBranches(project.getMainBranchDto());
+    ComponentDto copy = db.components().insertComponent(newProjectCopy("copy", project.getMainBranchComponent(), portfolio));
+    String copyKey = copy.getKey();
+
+    assertThatThrownBy(() -> newRequest(copyKey, "ncloc"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key '%s' not found", copyKey);
+  }
+
+  @Test
+  public void anonymous_user_can_read_public_project_copy_in_public_portfolio() {
+    ProjectData project = db.components().insertPublicProject();
+    ComponentDto portfolio = db.components().insertPublicPortfolio();
+    userSession.anonymous().registerPortfolios(portfolio).registerProjects(project.getProjectDto()).registerBranches(project.getMainBranchDto());
+    ComponentDto copy = db.components().insertComponent(newProjectCopy("copy", project.getMainBranchComponent(), portfolio));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
+    db.measures().insertMeasure(copy, m -> m.addValue(metric.getKey(), 42));
+
+    assertThat(newRequest(copy.getKey(), metric.getKey()).getComponent().getMeasuresList())
+      .extracting(Measures.Measure::getValue).containsExactly("42");
+  }
+
+  @Test
+  public void project_branch_copy_requires_browse_on_original_project() {
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey("project-branch"));
+    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    userSession.addPortfolioPermission(USER, portfolio).addProjectBranchMapping(project.projectUuid(), branch);
+    ComponentDto copy = db.components().insertComponent(newProjectCopy("copy", branch, portfolio));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
+    db.measures().insertMeasure(copy, m -> m.addValue(metric.getKey(), 42));
+    String copyKey = copy.getKey();
+    String metricKey = metric.getKey();
+
+    assertThatThrownBy(() -> newRequest(copyKey, metricKey))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key '%s' not found", copyKey);
+
+    userSession.addProjectPermission(USER, project.getProjectDto());
+
+    Component component = newRequest(copy.getKey(), metric.getKey()).getComponent();
+    assertThat(component.getRefKey()).isEqualTo(project.getMainBranchComponent().getKey());
+    assertThat(component.getBranch()).isEqualTo("project-branch");
+    assertThat(component.getMeasuresList()).extracting(Measures.Measure::getValue).containsExactly("42");
+  }
+
+  @Test
+  public void fail_when_project_copy_is_accessible_but_original_project_is_not() {
+    ProjectData project = db.components().insertPrivateProject();
+    PortfolioData portfolio = db.components().insertPrivatePortfolioData();
+    userSession.addPortfolioPermission(USER, portfolio.getRootComponent()).registerBranches(project.getMainBranchDto());
+    ComponentDto copy = db.components().insertComponent(newProjectCopy("copy", project.getMainBranchComponent(), portfolio.getRootComponent()));
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
+    db.measures().insertMeasure(copy, m -> m.addValue(metric.getKey(), 42));
+    String copyKey = copy.getKey();
+    String metricKey = metric.getKey();
+
+    assertThatThrownBy(() -> newRequest(copyKey, metricKey))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key '%s' not found", copyKey);
+  }
+
+  @Test
+  public void scan_permissions_do_not_grant_browse_on_original_project() {
+    ProjectData project = db.components().insertPrivateProject();
+    PortfolioData portfolio = db.components().insertPrivatePortfolioData();
+    userSession.addPortfolioPermission(USER, portfolio.getRootComponent())
+      .addProjectPermission(SCAN, project.getProjectDto()).registerBranches(project.getMainBranchDto())
+      .addPermission(GlobalPermission.SCAN);
+    ComponentDto copy = db.components().insertComponent(newProjectCopy("copy", project.getMainBranchComponent(), portfolio.getRootComponent()));
+    String copyKey = copy.getKey();
+
+    assertThatThrownBy(() -> newRequest(copyKey, "ncloc"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key '%s' not found", copyKey);
+  }
+
+  @Test
+  public void fail_when_original_project_is_accessible_but_portfolio_is_not() {
+    ProjectData project = db.components().insertPrivateProject();
+    PortfolioData portfolio = db.components().insertPrivatePortfolioData();
+    userSession.registerPortfolios(portfolio.getRootComponent())
+      .addProjectPermission(USER, project.getProjectDto()).registerBranches(project.getMainBranchDto());
+    ComponentDto copy = db.components().insertComponent(newProjectCopy("copy", project.getMainBranchComponent(), portfolio.getRootComponent()));
+    String copyKey = copy.getKey();
+
+    assertThatThrownBy(() -> newRequest(copyKey, "ncloc"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key '%s' not found", copyKey);
+  }
+
+  @Test
+  public void fail_when_original_project_does_not_exist() {
+    PortfolioData portfolio = db.components().insertPrivatePortfolioData();
+    userSession.addPortfolioPermission(USER, portfolio.getRootComponent());
+    ComponentDto copy = db.components().insertComponent(newProjectCopy("copy", portfolio.getRootComponent(), portfolio.getRootComponent())
+      .setCopyComponentUuid("missing"));
+    String copyKey = copy.getKey();
+
+    assertThatThrownBy(() -> newRequest(copyKey, "ncloc"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key '%s' not found", copyKey);
+  }
+
+  @Test
+  public void portfolio_measures_do_not_require_browse_on_child_projects() {
+    PortfolioData portfolio = db.components().insertPrivatePortfolioData();
+    ProjectData project = db.components().insertPrivateProject();
+    db.components().insertComponent(newProjectCopy("copy", project.getMainBranchComponent(), portfolio.getRootComponent()));
+    userSession.addPortfolioPermission(USER, portfolio.getRootComponent());
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
+    db.measures().insertMeasure(portfolio.getRootComponent(), m -> m.addValue(metric.getKey(), 42));
+
+    ComponentWsResponse response = newRequest(portfolio.getRootComponent().getKey(), metric.getKey());
+
+    assertThat(response.getComponent().getMeasuresList()).extracting(Measures.Measure::getValue).containsExactly("42");
+  }
+
+  @Test
+  public void application_measures_require_browse_on_all_child_projects() {
+    ProjectData application = db.components().insertPrivateApplication();
+    ProjectData firstProject = db.components().insertPrivateProject();
+    ProjectData secondProject = db.components().insertPrivateProject();
+    userSession.registerApplication(application.getProjectDto(), firstProject.getProjectDto(), secondProject.getProjectDto())
+      .registerBranches(application.getMainBranchDto())
+      .addProjectPermission(USER, application.getProjectDto(), firstProject.getProjectDto());
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
+    ComponentDto component = application.getMainBranchComponent();
+    db.measures().insertMeasure(component, m -> m.addValue(metric.getKey(), 42));
+    String componentKey = component.getKey();
+    String metricKey = metric.getKey();
+
+    assertThatThrownBy(() -> newRequest(componentKey, metricKey))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key '%s' not found", componentKey);
+
+    userSession.addProjectPermission(USER, secondProject.getProjectDto());
+
+    assertThat(newRequest(component.getKey(), metric.getKey()).getComponent().getMeasuresList())
+      .extracting(Measures.Measure::getValue).containsExactly("42");
+  }
+
+  @Test
+  public void global_scan_permission_does_not_bypass_application_child_project_permissions() {
+    ProjectData application = db.components().insertPrivateApplication();
+    ProjectData project = db.components().insertPrivateProject();
+    userSession.registerApplication(application.getProjectDto(), project.getProjectDto())
+      .registerBranches(application.getMainBranchDto()).addPermission(GlobalPermission.SCAN);
+    String applicationKey = application.getMainBranchComponent().getKey();
+
+    assertThatThrownBy(() -> newRequest(applicationKey, "ncloc"))
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key '%s' not found", applicationKey);
   }
 
   @Test
@@ -338,7 +499,40 @@ public class ComponentActionIT {
     MetricDto metric = db.measures().insertMetric(m -> m.setValueType("INT"));
 
     assertThatThrownBy(() -> newRequest(mainBranch.getKey(), metric.getKey()))
-      .isInstanceOf(ForbiddenException.class);
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component key '%s' not found", mainBranch.getKey());
+  }
+
+  @Test
+  public void fail_when_not_enough_permission_on_branch() {
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setKey("my-branch"));
+    userSession.registerBranches(project.getMainBranchDto()).addProjectBranchMapping(project.projectUuid(), branch);
+
+    var request = ws.newRequest()
+      .setParam(PARAM_COMPONENT, branch.getKey())
+      .setParam(PARAM_BRANCH, "my-branch")
+      .setParam(PARAM_METRIC_KEYS, "ncloc");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component '%s' on branch 'my-branch' not found", branch.getKey());
+  }
+
+  @Test
+  public void fail_when_not_enough_permission_on_pull_request() {
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto pullRequest = db.components().insertProjectBranch(project.getMainBranchComponent(), b -> b.setBranchType(PULL_REQUEST).setKey("123"));
+    userSession.registerBranches(project.getMainBranchDto()).addProjectBranchMapping(project.projectUuid(), pullRequest);
+
+    var request = ws.newRequest()
+      .setParam(PARAM_COMPONENT, pullRequest.getKey())
+      .setParam(PARAM_PULL_REQUEST, "123")
+      .setParam(PARAM_METRIC_KEYS, "ncloc");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(NotFoundException.class)
+      .hasMessage("Component '%s' of pull request '123' not found", pullRequest.getKey());
   }
 
   @Test

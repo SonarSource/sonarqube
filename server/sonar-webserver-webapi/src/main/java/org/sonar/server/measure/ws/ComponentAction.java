@@ -37,6 +37,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQualifiers;
+import org.sonar.db.component.ComponentScopes;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -66,8 +67,8 @@ import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDto
 import static org.sonar.server.measure.ws.ComponentResponseCommon.addMetricToResponseIncludingRenamedMetric;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
+import static org.sonar.server.measure.ws.MeasuresWsPermissions.checkCopyComponentPermission;
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriod.snapshotToWsPeriods;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
@@ -94,10 +95,15 @@ public class ComponentAction implements MeasuresWsAction {
           "<ul>" +
           "<li>'Browse' on the project of the specified component</li>" +
           "<li>'Execute Analysis' on the project of the specified component</li>" +
-          "</ul>")
+          "</ul>" +
+          "For copied components, 'Browse' permission is also required on the original project.<br>" +
+          "For applications, 'Browse' permission is also required on all child projects.")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.4")
       .setChangelog(
+        new Change("2026.6", "Requests without the required permissions now return HTTP 404 instead of HTTP 403. " +
+          "Copied components additionally require 'Browse' permission on the original project. " +
+          "Applications additionally require 'Browse' permission on all child projects, including when accessing with 'Execute Analysis' permission."),
         new Change("2025.4", format(
           "The following SCA metrics are available on licensed enterprise/datacenter editions with SCA enabled: %s",
           MeasuresWsModule.getNewScaMetricsInSonarQube202504())),
@@ -171,7 +177,7 @@ public class ComponentAction implements MeasuresWsAction {
       String branch = request.getBranch();
       String pullRequest = request.getPullRequest();
       ComponentDto component = loadComponent(dbSession, request, branch, pullRequest);
-      checkPermissions(component);
+      checkPermissions(component, request);
       SnapshotDto analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, component.branchUuid()).orElse(null);
 
       List<MetricDto> metrics = searchMetrics(dbSession, new HashSet<>(withRemovedMetricAlias(request.getMetricKeys())));
@@ -291,12 +297,23 @@ public class ComponentAction implements MeasuresWsAction {
     return componentRequest;
   }
 
-  private void checkPermissions(ComponentDto baseComponent) {
+  private void checkPermissions(ComponentDto baseComponent, ComponentRequest request) {
     if (!userSession.hasComponentPermission(ProjectPermission.USER, baseComponent) &&
       !userSession.hasComponentPermission(ProjectPermission.SCAN, baseComponent) &&
       !userSession.hasPermission(GlobalPermission.SCAN)) {
-      throw insufficientPrivilegesException();
+      throw componentNotFound(request);
     }
+
+    checkCopyComponentPermission(userSession, baseComponent, request.getBranch(), request.getPullRequest());
+
+    if (ComponentScopes.PROJECT.equals(baseComponent.scope()) && ComponentQualifiers.APP.equals(baseComponent.qualifier()) &&
+      !userSession.hasChildProjectsPermission(ProjectPermission.USER, baseComponent)) {
+      throw componentNotFound(request);
+    }
+  }
+
+  private static NotFoundException componentNotFound(ComponentRequest request) {
+    return MeasuresWsPermissions.componentNotFound(request.getComponent(), request.getBranch(), request.getPullRequest());
   }
 
   private static class ComponentRequest {
