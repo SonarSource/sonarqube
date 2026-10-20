@@ -20,7 +20,6 @@
 package org.sonar.ce.container;
 
 import java.io.File;
-import org.apache.commons.io.FileUtils;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
@@ -47,10 +46,8 @@ public class CePluginJarExploder extends PluginJarExploder {
     try {
       org.sonar.core.util.FileUtils.cleanDirectory(toDir);
 
-      File jarSource = pluginInfo.getNonNullJarFile();
-      File jarTarget = new File(toDir, jarSource.getName());
-      FileUtils.copyFile(jarSource, jarTarget);
-      ZipUtils.unzip(jarSource, toDir, newLibFilter());
+      File jarTarget = extractExecutableJar(pluginInfo, toDir);
+      ZipUtils.unzip(jarTarget, toDir, newLibFilter());
       return explodeFromUnzippedDir(pluginInfo, jarTarget, toDir);
     } catch (Exception e) {
       throw new IllegalStateException(String.format(

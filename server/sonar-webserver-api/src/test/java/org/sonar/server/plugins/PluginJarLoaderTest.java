@@ -19,9 +19,11 @@
  */
 package org.sonar.server.plugins;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -29,6 +31,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -293,6 +297,51 @@ public class PluginJarLoaderTest {
       .hasMessage("Plugin Base Plugin [testbase] requires at least Sonar Plugin API version 4.5.4 (current: 1.0)");
   }
 
+  @Test
+  public void load_zip_packaged_plugin_from_each_scanned_dir() throws Exception {
+    createZip(fs.getInstalledExternalPluginsDir(), "zipexternal", "main", null, "1.0");
+    createZip(fs.getInstalledBundledPluginsDir(), "zipbundled", "main", null, "1.0");
+
+    Collection<ServerPluginInfo> loadedPlugins = underTest.loadPlugins();
+
+    assertThat(loadedPlugins).extracting(PluginInfo::getKey).containsOnly("zipexternal", "zipbundled");
+    assertThat(loadedPlugins).extracting(PluginInfo::isZipPackaging).containsOnly(true);
+  }
+
+  @Test
+  public void load_jar_and_zip_packaged_plugins_simultaneously() throws Exception {
+    createJar(fs.getInstalledExternalPluginsDir(), "jarplugin", "main", null);
+    createZip(fs.getInstalledExternalPluginsDir(), "zipplugin", "main", null, "1.0");
+
+    Collection<ServerPluginInfo> loadedPlugins = underTest.loadPlugins();
+
+    assertThat(loadedPlugins).extracting(PluginInfo::getKey).containsOnly("jarplugin", "zipplugin");
+  }
+
+  @Test
+  public void file_with_unsupported_extension_is_silently_ignored() throws Exception {
+    createJar(fs.getInstalledExternalPluginsDir(), "jarplugin", "main", null);
+    FileUtils.write(new File(fs.getInstalledExternalPluginsDir(), "README.txt"), "not a plugin", StandardCharsets.UTF_8);
+
+    Collection<ServerPluginInfo> loadedPlugins = underTest.loadPlugins();
+
+    assertThat(loadedPlugins).extracting(PluginInfo::getKey).containsOnly("jarplugin");
+  }
+
+  @Test
+  public void fail_if_zip_plugin_is_malformed() throws Exception {
+    File zip = File.createTempFile("broken", ".zip", fs.getInstalledExternalPluginsDir());
+    try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+      zos.putNextEntry(new ZipEntry("resources/foo.txt"));
+      zos.write("hi".getBytes(StandardCharsets.UTF_8));
+      zos.closeEntry();
+    }
+
+    assertThatThrownBy(underTest::loadPlugins)
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("found 0");
+  }
+
   private static File copyTestPluginTo(String testPluginName, File toDir) throws IOException {
     File jar = TestProjectUtils.jarOf(testPluginName);
     // file is copied because it's supposed to be moved by the test
@@ -310,6 +359,31 @@ public class PluginJarLoaderTest {
   }
 
   private static File createJar(File dir, String key, @Nullable String mainClass, @Nullable String basePlugin, @Nullable String version) throws IOException {
+    Manifest manifest = newManifest(key, mainClass, basePlugin, version);
+    File jarFile = File.createTempFile(key, ".jar", dir);
+    try (JarOutputStream jar = new JarOutputStream(new FileOutputStream(jarFile), manifest)) {
+      // nothing else to add
+    }
+    return jarFile;
+  }
+
+  private static File createZip(File dir, String key, @Nullable String mainClass, @Nullable String basePlugin, @Nullable String version) throws IOException {
+    Manifest manifest = newManifest(key, mainClass, basePlugin, version);
+    ByteArrayOutputStream innerJarBytes = new ByteArrayOutputStream();
+    try (JarOutputStream jar = new JarOutputStream(innerJarBytes, manifest)) {
+      // nothing else to add
+    }
+
+    File zipFile = File.createTempFile(key, ".zip", dir);
+    try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zipFile))) {
+      zip.putNextEntry(new ZipEntry("plugin/" + key + ".jar"));
+      zip.write(innerJarBytes.toByteArray());
+      zip.closeEntry();
+    }
+    return zipFile;
+  }
+
+  private static Manifest newManifest(String key, @Nullable String mainClass, @Nullable String basePlugin, @Nullable String version) {
     Manifest manifest = new Manifest();
     manifest.getMainAttributes().putValue(PluginManifest.KEY, key);
     manifest.getMainAttributes().putValue(PluginManifest.NAME, key);
@@ -323,10 +397,6 @@ public class PluginJarLoaderTest {
       manifest.getMainAttributes().putValue(PluginManifest.BASE_PLUGIN, basePlugin);
     }
     manifest.getMainAttributes().putValue(MANIFEST_VERSION.toString(), "1.0");
-    File jarFile = File.createTempFile(key, ".jar", dir);
-    try (JarOutputStream jar = new JarOutputStream(new FileOutputStream(jarFile), manifest)) {
-      // nothing else to add
-    }
-    return jarFile;
+    return manifest;
   }
 }

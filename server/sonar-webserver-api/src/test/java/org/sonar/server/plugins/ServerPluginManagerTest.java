@@ -66,9 +66,11 @@ public class ServerPluginManagerTest {
   public void load_plugins() throws IOException {
     ServerPluginInfo p1 = newPluginInfo("p1");
     ServerPluginInfo p2 = newPluginInfo("p2");
+    File p1ExplodedJar = temp.newFile("p1-exploded.jar");
+    File p2ExplodedJar = temp.newFile("p2-exploded.jar");
     when(jarLoader.loadPlugins()).thenReturn(Arrays.asList(p1, p2));
-    when(jarExploder.explode(p1)).thenReturn(new ExplodedPlugin(p1, "p1", new File("p1Exploded.jar"), Collections.singletonList(new File("libP1.jar"))));
-    when(jarExploder.explode(p2)).thenReturn(new ExplodedPlugin(p2, "p2", new File("p2Exploded.jar"), Collections.singletonList(new File("libP2.jar"))));
+    when(jarExploder.explode(p1)).thenReturn(new ExplodedPlugin(p1, "p1", p1ExplodedJar, Collections.singletonList(new File("libP1.jar"))));
+    when(jarExploder.explode(p2)).thenReturn(new ExplodedPlugin(p2, "p2", p2ExplodedJar, Collections.singletonList(new File("libP2.jar"))));
 
     Map<String, Plugin> instances = ImmutableMap.of("p1", mock(Plugin.class), "p2", mock(Plugin.class));
     when(pluginClassLoader.load(anyList())).thenReturn(instances);
@@ -78,17 +80,36 @@ public class ServerPluginManagerTest {
     assertEquals(2, pluginRepository.getPlugins().size());
 
     assertEquals(p1, pluginRepository.getPlugin("p1").getPluginInfo());
-    assertEquals(newFileAndMd5(p1.getNonNullJarFile()).getFile(), pluginRepository.getPlugin("p1").getJar().getFile());
-    assertEquals(newFileAndMd5(p1.getNonNullJarFile()).getMd5(), pluginRepository.getPlugin("p1").getJar().getMd5());
+    assertEquals(newFileAndMd5(p1ExplodedJar).getFile(), pluginRepository.getPlugin("p1").getJar().getFile());
+    assertEquals(newFileAndMd5(p1ExplodedJar).getMd5(), pluginRepository.getPlugin("p1").getJar().getMd5());
     assertEquals(instances.get("p1"), pluginRepository.getPlugin("p1").getInstance());
 
     assertEquals(p2, pluginRepository.getPlugin("p2").getPluginInfo());
-    assertEquals(newFileAndMd5(p2.getNonNullJarFile()).getFile(), pluginRepository.getPlugin("p2").getJar().getFile());
-    assertEquals(newFileAndMd5(p2.getNonNullJarFile()).getMd5(), pluginRepository.getPlugin("p2").getJar().getMd5());
+    assertEquals(newFileAndMd5(p2ExplodedJar).getFile(), pluginRepository.getPlugin("p2").getJar().getFile());
+    assertEquals(newFileAndMd5(p2ExplodedJar).getMd5(), pluginRepository.getPlugin("p2").getJar().getMd5());
     assertEquals(instances.get("p2"), pluginRepository.getPlugin("p2").getInstance());
 
     assertThat(pluginRepository.getPlugins()).extracting(ServerPlugin::getPluginInfo)
       .allMatch(p -> logTester.logs().contains(String.format("Deploy %s / %s / %s", p.getName(), p.getVersion(), p.getImplementationBuild())));
+  }
+
+  /**
+   * For a ZIP-packaged plugin, {@link org.sonar.core.platform.PluginInfo#getNonNullJarFile()} is the
+   * outer zip, not a real jar - only the exploded main file is a classloadable/downloadable jar.
+   */
+  @Test
+  public void plugin_jar_is_based_on_the_exploded_main_file_not_the_installed_file() throws IOException {
+    ServerPluginInfo p1 = newPluginInfo("p1");
+    File explodedJar = temp.newFile("exploded-differs-from-installed.jar");
+    when(jarLoader.loadPlugins()).thenReturn(Collections.singletonList(p1));
+    when(jarExploder.explode(p1)).thenReturn(new ExplodedPlugin(p1, "p1", explodedJar, Collections.emptyList()));
+    when(pluginClassLoader.load(anyList())).thenReturn(ImmutableMap.of("p1", mock(Plugin.class)));
+
+    underTest.start();
+
+    assertThat(pluginRepository.getPlugin("p1").getJar().getFile())
+      .isEqualTo(explodedJar)
+      .isNotEqualTo(p1.getNonNullJarFile());
   }
 
   private ServerPluginInfo newPluginInfo(String key) throws IOException {

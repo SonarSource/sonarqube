@@ -19,9 +19,17 @@
  */
 package org.sonar.server.plugins;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.jar.Attributes;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -141,6 +149,22 @@ public class PluginDownloaderTest {
    * SONAR-4685
    */
   @Test
+  public void download_zip_packaged_plugin_preserves_zip_extension() {
+    Plugin test = Plugin.factory("test");
+    Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.zip");
+    test.addRelease(test10);
+
+    when(updateCenter.findInstallablePlugins("foo", create("1.0"))).thenReturn(newArrayList(test10));
+
+    pluginDownloader.start();
+    pluginDownloader.download("foo", create("1.0"));
+
+    verify(httpDownloader).download(any(URI.class), argThat(new HasFileName("test-1.0.zip.tmp")));
+    assertThat(new File(downloadDir, "test-1.0.zip")).exists();
+    assertThat(new File(downloadDir, "test-1.0.zip.tmp")).doesNotExist();
+  }
+
+  @Test
   public void download_from_redirect_url() {
     Plugin test = Plugin.factory("plugintest");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/redirect?r=release&g=test&a=test&v=1.0&e=jar");
@@ -244,6 +268,42 @@ public class PluginDownloaderTest {
     assertThat(info.getName()).isEqualTo("Base Plugin");
     assertThat(info.getVersion()).isEqualTo(Version.create("0.1-SNAPSHOT"));
     assertThat(info.getMainClass()).isEqualTo("BasePlugin");
+  }
+
+  @Test
+  public void read_download_folder_includes_zip_packaged_plugins() throws Exception {
+    pluginDownloader.start();
+    assertThat(pluginDownloader.getDownloadedPlugins()).isEmpty();
+
+    createZipPlugin(downloadDir, "zipplugin");
+
+    Collection<PluginInfo> downloaded = pluginDownloader.getDownloadedPlugins();
+    assertThat(downloaded).extracting(PluginInfo::getKey).containsOnly("zipplugin");
+  }
+
+  private static File createZipPlugin(File dir, String key) throws Exception {
+    File zip = new File(dir, key + "-1.0.zip");
+    try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+      zos.putNextEntry(new ZipEntry("plugin/" + key + "-1.0.jar"));
+      zos.write(createInnerJarBytes(key));
+      zos.closeEntry();
+    }
+    return zip;
+  }
+
+  private static byte[] createInnerJarBytes(String key) throws Exception {
+    Manifest manifest = new Manifest();
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    manifest.getMainAttributes().putValue("Plugin-Key", key);
+    manifest.getMainAttributes().putValue("Plugin-Version", "1.0");
+    manifest.getMainAttributes().putValue("Plugin-Name", key);
+    manifest.getMainAttributes().putValue("Plugin-Class", "org.foo.Plugin");
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (JarOutputStream jos = new JarOutputStream(baos, manifest)) {
+      // nothing else needed
+    }
+    return baos.toByteArray();
   }
 
   @Test

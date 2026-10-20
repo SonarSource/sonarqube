@@ -22,11 +22,18 @@ package org.sonar.core.platform;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
@@ -325,5 +332,103 @@ public class PluginInfoTest {
       pluginInfo.setMinimalSonarPluginApiVersion(Version.create(version));
     }
     return pluginInfo;
+  }
+
+  @Test
+  public void create_from_zip_packaged_plugin() throws Exception {
+    File zip = createZip(null);
+    PluginInfo pluginInfo = PluginInfo.create(zip);
+
+    assertThat(pluginInfo.getKey()).isEqualTo("zipplugin");
+    assertThat(pluginInfo.getName()).isEqualTo("ZipPlugin");
+    assertThat(pluginInfo.getVersion().getName()).isEqualTo("1.0");
+    assertThat(pluginInfo.getMainClass()).isEqualTo("org.foo.ZipPlugin");
+    assertThat(pluginInfo.getPackaging()).isEqualTo(PluginPackaging.ZIP);
+    assertThat(pluginInfo.isZipPackaging()).isTrue();
+  }
+
+  @Test
+  public void getPackaging_is_jar_by_default() {
+    PluginInfo pluginInfo = new PluginInfo("java").setJarFile(new File("plugin.jar"));
+
+    assertThat(pluginInfo.getPackaging()).isEqualTo(PluginPackaging.JAR);
+    assertThat(pluginInfo.isZipPackaging()).isFalse();
+  }
+
+  @Test
+  public void getDocumentationPath_resolves_resources_documentation_for_zip_packaging() throws Exception {
+    File zip = createZip("# doc");
+    PluginInfo pluginInfo = PluginInfo.create(zip);
+
+    assertThat(pluginInfo.getDocumentationPath()).isEqualTo("resources/documentation.md");
+  }
+
+  @Test
+  public void getDocumentationPath_is_null_when_zip_packaged_plugin_has_no_documentation() throws Exception {
+    File zip = createZip(null);
+    PluginInfo pluginInfo = PluginInfo.create(zip);
+
+    assertThat(pluginInfo.getDocumentationPath()).isNull();
+  }
+
+  @Test
+  public void fail_when_zip_has_no_executable_jar_entry() throws Exception {
+    File zip = temp.newFile("empty-plugin.zip");
+    try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+      zos.putNextEntry(new ZipEntry("resources/foo.txt"));
+      zos.write("hi".getBytes(StandardCharsets.UTF_8));
+      zos.closeEntry();
+    }
+
+    assertThatThrownBy(() -> PluginInfo.create(zip))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("expected exactly one plugin/*.jar entry, found 0");
+  }
+
+  @Test
+  public void fail_when_zip_has_more_than_one_executable_jar_entry() throws Exception {
+    File zip = temp.newFile("ambiguous-plugin.zip");
+    try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+      zos.putNextEntry(new ZipEntry("plugin/a.jar"));
+      zos.write(createInnerJarBytes());
+      zos.closeEntry();
+      zos.putNextEntry(new ZipEntry("plugin/b.jar"));
+      zos.write(createInnerJarBytes());
+      zos.closeEntry();
+    }
+
+    assertThatThrownBy(() -> PluginInfo.create(zip))
+      .isInstanceOf(MessageException.class)
+      .hasMessageContaining("found 2");
+  }
+
+  private File createZip(@Nullable String documentationContent) throws IOException {
+    File zipFile = temp.newFile("zip-plugin-1.0.zip");
+    try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
+      zos.putNextEntry(new ZipEntry("plugin/zip-plugin-1.0.jar"));
+      zos.write(createInnerJarBytes());
+      zos.closeEntry();
+      if (documentationContent != null) {
+        zos.putNextEntry(new ZipEntry("resources/documentation.md"));
+        zos.write(documentationContent.getBytes(StandardCharsets.UTF_8));
+        zos.closeEntry();
+      }
+    }
+    return zipFile;
+  }
+
+  private static byte[] createInnerJarBytes() throws IOException {
+    Manifest manifest = new Manifest();
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    manifest.getMainAttributes().putValue("Plugin-Key", "zipplugin");
+    manifest.getMainAttributes().putValue("Plugin-Version", "1.0");
+    manifest.getMainAttributes().putValue("Plugin-Name", "ZipPlugin");
+    manifest.getMainAttributes().putValue("Plugin-Class", "org.foo.ZipPlugin");
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (JarOutputStream jos = new JarOutputStream(baos, manifest)) {
+      // no class entries needed: only the manifest matters for these tests
+    }
+    return baos.toByteArray();
   }
 }

@@ -31,8 +31,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
@@ -196,6 +199,17 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
   public String getDocumentationPath() {
     return documentationPath;
+  }
+
+  /**
+   * The on-disk packaging of this plugin, derived from the extension of {@link #getNonNullJarFile()}.
+   */
+  public PluginPackaging getPackaging() {
+    return detectPackaging(getNonNullJarFile());
+  }
+
+  public boolean isZipPackaging() {
+    return getPackaging() == PluginPackaging.ZIP;
   }
 
   @CheckForNull
@@ -365,7 +379,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
   public static PluginInfo create(File jarFile) {
     try {
-      PluginManifest manifest = new PluginManifest(jarFile);
+      PluginManifest manifest = readManifest(jarFile);
       return create(jarFile, manifest);
 
     } catch (IOException e) {
@@ -384,6 +398,30 @@ public class PluginInfo implements Comparable<PluginInfo> {
   private static void validateManifest(File jarFile, PluginManifest manifest) {
     if (StringUtils.isBlank(manifest.getKey())) {
       throw MessageException.of(String.format("File is not a plugin. Please delete it and restart: %s", jarFile.getAbsolutePath()));
+    }
+  }
+
+  private static PluginPackaging detectPackaging(File file) {
+    return file.getName().endsWith(".zip") ? PluginPackaging.ZIP : PluginPackaging.JAR;
+  }
+
+  /**
+   * Reads the plugin manifest from either a plain {@code .jar} or a ZIP-packaged plugin, whose
+   * manifest lives inside its nested {@code plugin/*.jar} entry instead of at the file's own root.
+   */
+  protected static PluginManifest readManifest(File file) throws IOException {
+    if (detectPackaging(file) != PluginPackaging.ZIP) {
+      return new PluginManifest(file);
+    }
+    try (ZipFile zip = new ZipFile(file)) {
+      ZipEntry executableJarEntry = ZipPackagingSupport.findExecutableJarEntry(zip);
+      try (JarInputStream executableJar = new JarInputStream(zip.getInputStream(executableJarEntry))) {
+        Manifest manifest = executableJar.getManifest();
+        if (manifest == null) {
+          throw new IOException(String.format("No manifest found in %s inside %s", executableJarEntry.getName(), file));
+        }
+        return new PluginManifest(manifest);
+      }
     }
   }
 
@@ -426,8 +464,9 @@ public class PluginInfo implements Comparable<PluginInfo> {
   }
 
   private static String getDocumentationPath(File file) {
+    String entryName = detectPackaging(file) == PluginPackaging.ZIP ? "resources/documentation.md" : "static/documentation.md";
     try (JarFile jarFile = new JarFile(file)) {
-      return Optional.ofNullable(jarFile.getEntry("static/documentation.md"))
+      return Optional.ofNullable(jarFile.getEntry(entryName))
         .map(ZipEntry::getName)
         .orElse(null);
     } catch (IOException e) {

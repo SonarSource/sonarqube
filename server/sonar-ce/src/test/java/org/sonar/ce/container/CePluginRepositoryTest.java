@@ -19,11 +19,18 @@
  */
 package org.sonar.ce.container;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -126,6 +133,46 @@ public class CePluginRepositoryTest {
     assertThatThrownBy(() -> underTest.getPluginInfos())
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("not started yet");
+  }
+
+  @Test
+  public void load_zip_packaged_plugin() throws Exception {
+    String pluginKey = "zipplugin";
+    File pluginsDir = temp.newFolder();
+    when(fs.getTempDir()).thenReturn(temp.newFolder());
+    when(fs.getInstalledExternalPluginsDir()).thenReturn(pluginsDir);
+    createZipPlugin(pluginsDir, pluginKey);
+
+    underTest.start();
+
+    assertThat(underTest.getPluginInfos()).extracting("key").containsOnly(pluginKey);
+    assertThat(underTest.getPluginInfo(pluginKey).isZipPackaging()).isTrue();
+    assertThat(underTest.getPluginInstance(pluginKey)).isNotNull();
+    assertThat(underTest.hasPlugin(pluginKey)).isTrue();
+  }
+
+  private static void createZipPlugin(File dir, String key) throws IOException {
+    File zip = new File(dir, key + "-1.0.zip");
+    try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+      zos.putNextEntry(new ZipEntry("plugin/" + key + "-1.0.jar"));
+      zos.write(createInnerJarBytes(key));
+      zos.closeEntry();
+    }
+  }
+
+  private static byte[] createInnerJarBytes(String key) throws IOException {
+    Manifest manifest = new Manifest();
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    manifest.getMainAttributes().putValue("Plugin-Key", key);
+    manifest.getMainAttributes().putValue("Plugin-Version", "1.0");
+    manifest.getMainAttributes().putValue("Plugin-Name", key);
+    manifest.getMainAttributes().putValue("Plugin-Class", "org.foo.Plugin");
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (JarOutputStream jos = new JarOutputStream(baos, manifest)) {
+      // nothing else needed
+    }
+    return baos.toByteArray();
   }
 
   private static class DumbPluginClassLoader extends PluginClassLoader {

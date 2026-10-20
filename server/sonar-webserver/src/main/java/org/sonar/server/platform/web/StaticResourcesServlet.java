@@ -23,9 +23,13 @@ import com.google.common.annotations.VisibleForTesting;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import javax.annotation.CheckForNull;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.io.IOUtils;
@@ -33,8 +37,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.extension.CoreExtensionRepository;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.platform.PlatformImpl;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonarqube.ws.MediaTypes;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -45,6 +51,8 @@ public class StaticResourcesServlet extends HttpServlet {
 
   private static final Logger LOG = LoggerFactory.getLogger(StaticResourcesServlet.class);
   private static final long serialVersionUID = -2577454614650178426L;
+  private static final String STATIC_FOLDER = "static/";
+  private static final String RESOURCES_FOLDER = "resources/";
 
   private final transient System system;
 
@@ -60,16 +68,17 @@ public class StaticResourcesServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     String pluginKey = getPluginKey(request);
-    String resource = getResourcePath(request);
-    if (resource == null) {
+    String resourceSubPath = getResourcePath(request);
+    if (resourceSubPath == null) {
       silentlySendError(response, SC_NOT_FOUND);
       return;
     }
+    String resource = null;
     InputStream in = null;
     OutputStream out = null;
     try {
       CoreExtensionRepository coreExtensionRepository = system.getCoreExtensionRepository();
-      PluginRepository pluginRepository = system.getPluginRepository();
+      ServerPluginRepository pluginRepository = system.getPluginRepository();
 
       boolean coreExtension = coreExtensionRepository.isInstalled(pluginKey);
       if (!coreExtension && !pluginRepository.hasPlugin(pluginKey)) {
@@ -77,7 +86,24 @@ public class StaticResourcesServlet extends HttpServlet {
         return;
       }
 
-      in = coreExtension ? system.openCoreExtensionResourceStream(resource) : system.openPluginResourceStream(pluginKey, resource, pluginRepository);
+      if (coreExtension) {
+        resource = STATIC_FOLDER + resourceSubPath;
+        in = system.openCoreExtensionResourceStream(resource);
+      } else {
+        PluginInfo pluginInfo = pluginRepository.getPluginInfo(pluginKey);
+        if (pluginInfo.isZipPackaging()) {
+          resource = RESOURCES_FOLDER + resourceSubPath;
+          // read from the deploy-dir resources archive, not pluginInfo.getNonNullJarFile(), which can have been
+          // moved away by an uninstall while the server is still up - see ExplodedPlugin#getResourcesArchive()
+          File resourcesArchive = pluginRepository.getPlugin(pluginKey).getResourcesArchive();
+          if (resourcesArchive != null) {
+            in = system.openZipPluginResourceStream(resourcesArchive, resource);
+          }
+        } else {
+          resource = STATIC_FOLDER + resourceSubPath;
+          in = system.openPluginResourceStream(pluginKey, resource, pluginRepository);
+        }
+      }
       if (in == null) {
         silentlySendError(response, SC_NOT_FOUND);
         return;
@@ -122,8 +148,8 @@ public class StaticResourcesServlet extends HttpServlet {
   }
 
   /**
-   * Note that returned value should not have a leading "/" - see {@link Class#resolveName(String)}.
-   * Returns null if the path contains traversal sequences.
+   * @return the part of the request path after the plugin key, with no leading "/" - see
+   * {@link Class#resolveName(String)}. Returns null if the path contains traversal sequences.
    */
   @CheckForNull
   private static String getResourcePath(HttpServletRequest request) {
@@ -131,7 +157,7 @@ public class StaticResourcesServlet extends HttpServlet {
     if (resourceSubPath.contains("..")) {
       return null;
     }
-    return "static/" + resourceSubPath;
+    return resourceSubPath;
   }
 
   private static void completeContentType(HttpServletResponse response, String filename) {
@@ -139,8 +165,8 @@ public class StaticResourcesServlet extends HttpServlet {
   }
 
   static class System {
-    PluginRepository getPluginRepository() {
-      return PlatformImpl.getInstance().getContainer().getComponentByType(PluginRepository.class);
+    ServerPluginRepository getPluginRepository() {
+      return PlatformImpl.getInstance().getContainer().getComponentByType(ServerPluginRepository.class);
     }
 
     CoreExtensionRepository getCoreExtensionRepository() {
@@ -158,12 +184,60 @@ public class StaticResourcesServlet extends HttpServlet {
       return getClass().getClassLoader().getResourceAsStream(resource);
     }
 
+    /**
+     * Reads a {@code resources/**} entry straight out of a ZIP-packaged plugin's deploy-dir
+     * resources archive, since it's never on the classpath (only its nested {@code plugin/*.jar} is).
+     */
+    @CheckForNull
+    InputStream openZipPluginResourceStream(File archive, String resource) throws IOException {
+      ZipFile zip = new ZipFile(archive);
+      try {
+        ZipEntry entry = zip.getEntry(resource);
+        if (entry == null || entry.isDirectory()) {
+          zip.close();
+          return null;
+        }
+        return new ZipEntryInputStream(zip, zip.getInputStream(entry));
+      } catch (IOException | RuntimeException e) {
+        zip.close();
+        throw e;
+      }
+    }
+
     boolean isCommitted(HttpServletResponse response) {
       return response.isCommitted();
     }
 
     void sendError(HttpServletResponse response, int error) throws IOException {
       response.sendError(error);
+    }
+  }
+
+  /**
+   * Closes the backing {@link ZipFile} when the entry's stream itself is closed, so callers that
+   * only ever {@code close()} the returned {@link InputStream} (as {@link #doGet} does) don't
+   * leak the zip file handle.
+   */
+  private static final class ZipEntryInputStream extends FilterInputStream {
+    private final ZipFile zipFile;
+
+    private ZipEntryInputStream(ZipFile zipFile, InputStream in) {
+      super(in);
+      this.zipFile = zipFile;
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+      return in.read(b, off, len);
+    }
+
+    @Override
+    public void close() throws IOException {
+      try {
+        super.close();
+      } finally {
+        zipFile.close();
+      }
     }
   }
 }

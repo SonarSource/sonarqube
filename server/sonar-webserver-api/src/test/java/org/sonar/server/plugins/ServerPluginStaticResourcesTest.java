@@ -145,6 +145,47 @@ class ServerPluginStaticResourcesTest {
     assertThat(underTest.getStaticResources(plugin)).isEqualTo(firstCall);
   }
 
+  @Test
+  void getStaticResources_returnsEntriesUnderResourcesFolder_forZipPackagedPlugin() throws IOException {
+    File zip = temp.resolve("foo.zip").toFile();
+    writeJar(zip, Map.of(
+      "resources/a.txt", "a",
+      "resources/sub/b.txt", "b",
+      "plugin/foo-1.0.jar", "x"));
+    ServerPlugin plugin = newPlugin("foo", zip);
+
+    assertThat(underTest.getStaticResources(plugin))
+      .extracting(PluginStaticResource::path)
+      .containsExactly("a.txt", "sub/b.txt");
+  }
+
+  @Test
+  void getStaticResources_zipPackagedPlugin_readsFromResourcesArchive_evenIfInstalledFileWasRemoved() throws IOException {
+    File installedZip = temp.resolve("installed.zip").toFile();
+    writeJar(installedZip, Map.of("resources/a.txt", "a", "plugin/foo-1.0.jar", "x"));
+    File deployedResourcesArchive = temp.resolve("deployed.zip").toFile();
+    Files.copy(installedZip.toPath(), deployedResourcesArchive.toPath());
+    PluginInfo pluginInfo = new PluginInfo("foo").setJarFile(installedZip);
+    ServerPlugin plugin = new ServerPlugin(pluginInfo, PluginType.BUNDLED, null, new FileAndMd5(installedZip), null, deployedResourcesArchive);
+
+    // simulates PluginUninstaller moving the installed archive away while the server is still up
+    Files.delete(installedZip.toPath());
+
+    assertThat(underTest.getStaticResources(plugin))
+      .extracting(PluginStaticResource::path)
+      .containsExactly("a.txt");
+  }
+
+  @Test
+  void getStaticResources_returnsEmpty_whenZipPackagedPluginHasNoResourcesArchive() throws IOException {
+    File installedZip = temp.resolve("installed.zip").toFile();
+    writeJar(installedZip, Map.of("plugin/foo-1.0.jar", "x"));
+    PluginInfo pluginInfo = new PluginInfo("foo").setJarFile(installedZip);
+    ServerPlugin plugin = new ServerPlugin(pluginInfo, PluginType.BUNDLED, null, new FileAndMd5(installedZip), null, null);
+
+    assertThat(underTest.getStaticResources(plugin)).isEmpty();
+  }
+
   private ServerPlugin newPlugin(String key, Map<String, String> entriesByName) throws IOException {
     File jar = temp.resolve(key + ".jar").toFile();
     writeJar(jar, entriesByName);
@@ -162,6 +203,8 @@ class ServerPluginStaticResourcesTest {
   }
 
   private static ServerPlugin newPlugin(String key, File jar) {
-    return new ServerPlugin(new PluginInfo(key), PluginType.BUNDLED, null, new FileAndMd5(jar), null);
+    PluginInfo pluginInfo = new PluginInfo(key).setJarFile(jar);
+    File resourcesArchive = pluginInfo.isZipPackaging() ? jar : null;
+    return new ServerPlugin(pluginInfo, PluginType.BUNDLED, null, new FileAndMd5(jar), null, resourcesArchive);
   }
 }

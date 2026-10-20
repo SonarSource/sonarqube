@@ -19,6 +19,9 @@
  */
 package org.sonar.server.plugins;
 
+import java.io.File;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.plugin.PluginType;
@@ -30,17 +33,23 @@ public class ServerPlugin {
   private final Plugin instance;
   private final FileAndMd5 jar;
   private final ClassLoader classloader;
+  private final File resourcesArchive;
 
   public ServerPlugin(PluginInfo pluginInfo, PluginType type, Plugin instance, FileAndMd5 jar) {
-    this(pluginInfo, type, instance, jar, instance.getClass().getClassLoader());
+    this(pluginInfo, type, instance, jar, instance.getClass().getClassLoader(), null);
   }
 
   public ServerPlugin(PluginInfo pluginInfo, PluginType type, Plugin instance, FileAndMd5 jar, ClassLoader classloader) {
+    this(pluginInfo, type, instance, jar, classloader, null);
+  }
+
+  public ServerPlugin(PluginInfo pluginInfo, PluginType type, Plugin instance, FileAndMd5 jar, ClassLoader classloader, @Nullable File resourcesArchive) {
     this.pluginInfo = pluginInfo;
     this.type = type;
     this.instance = instance;
     this.jar = jar;
     this.classloader = classloader;
+    this.resourcesArchive = resourcesArchive;
   }
 
   public PluginInfo getPluginInfo() {
@@ -61,5 +70,14 @@ public class ServerPlugin {
 
   public ClassLoader getClassloader() {
     return classloader;
+  }
+
+  /**
+   * A deploy-dir copy of the originally-installed archive, set only for a ZIP-packaged plugin.
+   * See {@link org.sonar.core.platform.ExplodedPlugin#getResourcesArchive()}.
+   */
+  @CheckForNull
+  public File getResourcesArchive() {
+    return resourcesArchive;
   }
 }

@@ -51,11 +51,17 @@ public class ServerPluginJarExploder extends PluginJarExploder {
       forceMkdir(toDir);
       org.sonar.core.util.FileUtils.cleanDirectory(toDir);
 
-      File jarTarget = new File(toDir, plugin.getNonNullJarFile().getName());
-
-      FileUtils.copyFile(plugin.getNonNullJarFile(), jarTarget);
-      ZipUtils.unzip(plugin.getNonNullJarFile(), toDir, newLibFilter());
-      return explodeFromUnzippedDir(plugin, jarTarget, toDir);
+      File jarTarget = extractExecutableJar(plugin, toDir);
+      ZipUtils.unzip(jarTarget, toDir, newLibFilter());
+      ExplodedPlugin exploded = explodeFromUnzippedDir(plugin, jarTarget, toDir);
+      if (plugin.isZipPackaging()) {
+        // the outer zip, not the nested plugin/*.jar extracted above, holds the resources/ tree; copy it to the
+        // deploy dir too so static resources stay servable after the installed archive is moved away by an uninstall
+        File resourcesArchive = new File(toDir, plugin.getNonNullJarFile().getName());
+        FileUtils.copyFile(plugin.getNonNullJarFile(), resourcesArchive);
+        exploded.setResourcesArchive(resourcesArchive);
+      }
+      return exploded;
     } catch (Exception e) {
       throw new IllegalStateException(String.format(
         "Fail to unzip plugin [%s] %s to %s", plugin.getKey(), plugin.getNonNullJarFile().getAbsolutePath(), toDir.getAbsolutePath()), e);

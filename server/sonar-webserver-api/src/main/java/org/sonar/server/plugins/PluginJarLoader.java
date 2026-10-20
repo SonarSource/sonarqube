@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginPackaging;
 import org.sonar.server.platform.ServerFileSystem;
 
 import static java.lang.String.format;
@@ -219,7 +220,7 @@ public class PluginJarLoader {
 
   private static Collection<File> listJarFiles(File dir) {
     if (dir.exists()) {
-      return FileUtils.listFiles(dir, new String[] {"jar"}, false);
+      return FileUtils.listFiles(dir, PluginPackaging.fileExtensions(), false);
     }
     return Collections.emptyList();
   }

@@ -22,6 +22,7 @@ package org.sonar.server.platform.web;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -29,7 +30,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.catalina.Context;
@@ -40,12 +46,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.core.extension.CoreExtensionRepository;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.plugin.PluginType;
+import org.sonar.server.plugins.PluginFilesAndMd5.FileAndMd5;
+import org.sonar.server.plugins.ServerPlugin;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -56,16 +67,23 @@ class StaticResourcesServletTest {
   @RegisterExtension
   LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
+  @TempDir
+  private Path temp;
+
   private Tomcat tomcat;
   private int port;
 
-  private final PluginRepository pluginRepository = mock(PluginRepository.class);
+  private final ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
   private final CoreExtensionRepository coreExtensionRepository = mock(CoreExtensionRepository.class);
   private final TestSystem system = new TestSystem(pluginRepository, coreExtensionRepository);
 
   @BeforeEach
   void setUp() throws Exception {
     logTester.setLevel(Level.TRACE);
+    // JAR-packaged plugin by default, like all the JAR-focused tests in this file expect.
+    // Tests exercising a ZIP-packaged plugin override this with a real on-disk .zip.
+    when(pluginRepository.getPluginInfo("myplugin")).thenReturn(new PluginInfo("myplugin").setJarFile(new File("myplugin.jar")));
+
     tomcat = new Tomcat();
     tomcat.setPort(0); // Use an ephemeral port
 
@@ -191,13 +209,94 @@ class StaticResourcesServletTest {
   void return_resource_if_exists_in_requested_plugin() throws Exception {
     system.pluginStream = IOUtils.toInputStream("bar", Charset.defaultCharset());
     when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
-    when(pluginRepository.getPluginInfo("myplugin")).thenReturn(new PluginInfo("myplugin"));
+    when(pluginRepository.getPluginInfo("myplugin")).thenReturn(new PluginInfo("myplugin").setJarFile(new File("myplugin.jar")));
 
     HttpResponse<String> response = callAndStop("/static/myplugin/foo.css");
 
     assertThat(response.statusCode()).isEqualTo(200);
     assertThat(response.body()).isEqualTo("bar");
     assertThat(logTester.logs(Level.ERROR)).isEmpty();
+  }
+
+  @Test
+  void return_content_if_exists_in_zip_packaged_plugin() throws Exception {
+    File zip = writeZip("myplugin.zip", Map.of("resources/foo.txt", "bar"));
+    stubZipPackagedPlugin("myplugin", zip, zip);
+
+    HttpResponse<String> response = callAndStop("/static/myplugin/foo.txt");
+
+    assertThat(response.statusCode()).isEqualTo(200);
+    assertThat(response.body()).isEqualTo("bar");
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+  }
+
+  @Test
+  void return_404_if_resource_not_found_in_zip_packaged_plugin() throws Exception {
+    File zip = writeZip("myplugin.zip", Map.of("resources/other.txt", "bar"));
+    stubZipPackagedPlugin("myplugin", zip, zip);
+
+    HttpResponse<String> response = callAndStop("/static/myplugin/foo.txt");
+
+    assertThat(response.statusCode()).isEqualTo(404);
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+  }
+
+  @Test
+  void return_content_from_zip_packaged_plugin_even_when_installed_archive_was_moved_by_uninstall() throws Exception {
+    File installedZip = writeZip("installed.zip", Map.of("resources/foo.txt", "bar"));
+    File deployedResourcesArchive = writeZip("deployed.zip", Map.of("resources/foo.txt", "bar"));
+    stubZipPackagedPlugin("myplugin", installedZip, deployedResourcesArchive);
+
+    // simulates PluginUninstaller moving the installed archive away while the server is still up
+    assertThat(installedZip.delete()).isTrue();
+
+    HttpResponse<String> response = callAndStop("/static/myplugin/foo.txt");
+
+    assertThat(response.statusCode()).isEqualTo(200);
+    assertThat(response.body()).isEqualTo("bar");
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+  }
+
+  @Test
+  void return_404_if_zip_packaged_plugin_has_no_resources_archive() throws Exception {
+    File zip = writeZip("myplugin.zip", Map.of("resources/foo.txt", "bar"));
+    stubZipPackagedPlugin("myplugin", zip, null);
+
+    HttpResponse<String> response = callAndStop("/static/myplugin/foo.txt");
+
+    assertThat(response.statusCode()).isEqualTo(404);
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+  }
+
+  @Test
+  void return_404_for_directory_entry_in_zip_packaged_plugin() throws Exception {
+    File zip = writeZip("myplugin.zip", Map.of("resources/sub/", "", "resources/sub/foo.txt", "bar"));
+    stubZipPackagedPlugin("myplugin", zip, zip);
+
+    HttpResponse<String> response = callAndStop("/static/myplugin/sub/");
+
+    assertThat(response.statusCode()).isEqualTo(404);
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+  }
+
+  private void stubZipPackagedPlugin(String pluginKey, File installedZip, @Nullable File resourcesArchive) {
+    PluginInfo pluginInfo = new PluginInfo(pluginKey).setJarFile(installedZip);
+    when(pluginRepository.hasPlugin(pluginKey)).thenReturn(true);
+    when(pluginRepository.getPluginInfo(pluginKey)).thenReturn(pluginInfo);
+    when(pluginRepository.getPlugin(pluginKey)).thenReturn(
+      new ServerPlugin(pluginInfo, PluginType.BUNDLED, null, new FileAndMd5(installedZip), null, resourcesArchive));
+  }
+
+  private File writeZip(String filename, Map<String, String> entriesByName) throws IOException {
+    File zip = temp.resolve(filename).toFile();
+    try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+      for (Map.Entry<String, String> entry : entriesByName.entrySet()) {
+        zos.putNextEntry(new ZipEntry(entry.getKey()));
+        zos.write(entry.getValue().getBytes(StandardCharsets.UTF_8));
+        zos.closeEntry();
+      }
+    }
+    return zip;
   }
 
   @Test
@@ -275,7 +374,7 @@ class StaticResourcesServletTest {
   }
 
   private static class TestSystem extends StaticResourcesServlet.System {
-    private final PluginRepository pluginRepository;
+    private final ServerPluginRepository pluginRepository;
     private final CoreExtensionRepository coreExtensionRepository;
     @Nullable
     private InputStream pluginStream;
@@ -289,13 +388,13 @@ class StaticResourcesServletTest {
     private boolean isCommitted = false;
     private IOException sendErrorException = null;
 
-    TestSystem(PluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository) {
+    TestSystem(ServerPluginRepository pluginRepository, CoreExtensionRepository coreExtensionRepository) {
       this.pluginRepository = pluginRepository;
       this.coreExtensionRepository = coreExtensionRepository;
     }
 
     @Override
-    PluginRepository getPluginRepository() {
+    ServerPluginRepository getPluginRepository() {
       return pluginRepository;
     }
 

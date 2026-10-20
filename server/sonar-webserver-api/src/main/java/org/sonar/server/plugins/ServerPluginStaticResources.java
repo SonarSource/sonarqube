@@ -36,6 +36,7 @@ import java.util.zip.ZipFile;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.core.platform.PluginInfo;
 
 /**
  * Inventory of the static resources shipped by the installed plugins, served over
@@ -51,6 +52,7 @@ public class ServerPluginStaticResources {
   private static final Logger LOG = LoggerFactory.getLogger(ServerPluginStaticResources.class);
 
   private static final String STATIC_FOLDER = "static/";
+  private static final String ZIP_RESOURCES_FOLDER = "resources/";
   private static final String PARENT_FOLDER = "..";
   private static final int SCAN_LOCK_STRIPES = 16;
 
@@ -59,7 +61,8 @@ public class ServerPluginStaticResources {
   private final Striped<Lock> scanLocks = Striped.lazyWeakLock(SCAN_LOCK_STRIPES);
 
   public List<PluginStaticResource> getStaticResources(ServerPlugin plugin) {
-    String pluginKey = plugin.getPluginInfo().getKey();
+    PluginInfo pluginInfo = plugin.getPluginInfo();
+    String pluginKey = pluginInfo.getKey();
     List<PluginStaticResource> cached = resourcesByPluginKey.get(pluginKey);
     if (cached != null) {
       return cached;
@@ -67,8 +70,18 @@ public class ServerPluginStaticResources {
     Lock scanLock = scanLocks.get(pluginKey);
     scanLock.lock();
     try {
+      // resources are read from a deploy-dir file, not the originally-installed one (PluginInfo#getNonNullJarFile),
+      // since that one can be moved away by an uninstall while the server is still up: plugin.getJar() for a plain
+      // jar, or the resources archive copied alongside it for a ZIP-packaged plugin, whose plugin.getJar() is the
+      // extracted scanner-side jar and has no resources/ entries at all.
+      boolean zipPackaging = pluginInfo.isZipPackaging();
+      File archive = zipPackaging ? plugin.getResourcesArchive() : plugin.getJar().getFile();
+      if (archive == null) {
+        return List.of();
+      }
+      String resourceFolder = zipPackaging ? ZIP_RESOURCES_FOLDER : STATIC_FOLDER;
       return Optional.ofNullable(resourcesByPluginKey.get(pluginKey))
-        .orElseGet(() -> scan(pluginKey, plugin.getJar().getFile())
+        .orElseGet(() -> scan(pluginKey, archive, resourceFolder)
           .map(resources -> {
             resourcesByPluginKey.put(pluginKey, resources);
             return resources;
@@ -79,15 +92,15 @@ public class ServerPluginStaticResources {
     }
   }
 
-  private static Optional<List<PluginStaticResource>> scan(String pluginKey, File jar) {
+  private static Optional<List<PluginStaticResource>> scan(String pluginKey, File archive, String resourceFolder) {
     List<PluginStaticResource> resources = new ArrayList<>();
     // not a JarFile: the manifest is not needed here and JarFile would verify the signature of every entry
-    try (ZipFile zip = new ZipFile(jar)) {
+    try (ZipFile zip = new ZipFile(archive)) {
       Enumeration<? extends ZipEntry> entries = zip.entries();
       while (entries.hasMoreElements()) {
         ZipEntry entry = entries.nextElement();
-        if (isStaticResource(entry)) {
-          resources.add(toStaticResource(zip, entry));
+        if (isStaticResource(entry, resourceFolder)) {
+          resources.add(toStaticResource(zip, entry, resourceFolder));
         }
       }
     } catch (IOException e) {
@@ -98,21 +111,21 @@ public class ServerPluginStaticResources {
     return Optional.of(List.copyOf(resources));
   }
 
-  private static boolean isStaticResource(ZipEntry entry) {
+  private static boolean isStaticResource(ZipEntry entry, String resourceFolder) {
     String name = entry.getName();
     return !entry.isDirectory()
-      && name.startsWith(STATIC_FOLDER)
-      && name.length() > STATIC_FOLDER.length()
+      && name.startsWith(resourceFolder)
+      && name.length() > resourceFolder.length()
       // StaticResourcesServlet refuses to serve those, so they must not be advertised
       && !name.contains(PARENT_FOLDER);
   }
 
-  private static PluginStaticResource toStaticResource(ZipFile zip, ZipEntry entry) throws IOException {
+  private static PluginStaticResource toStaticResource(ZipFile zip, ZipEntry entry, String resourceFolder) throws IOException {
     String hash;
     try (InputStream in = zip.getInputStream(entry)) {
       hash = DigestUtils.sha256Hex(in);
     }
     // read from the central directory, hence always known here
-    return new PluginStaticResource(entry.getName().substring(STATIC_FOLDER.length()), hash, entry.getSize());
+    return new PluginStaticResource(entry.getName().substring(resourceFolder.length()), hash, entry.getSize());
   }
 }

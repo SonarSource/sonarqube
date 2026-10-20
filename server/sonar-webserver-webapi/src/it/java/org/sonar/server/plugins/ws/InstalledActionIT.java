@@ -234,6 +234,7 @@ public class InstalledActionIT {
         zip.closeEntry();
       }
     }
+    plugin.setJarFile(jar);
     return new ServerPlugin(plugin, type, null, new FileAndMd5(jar), null);
   }
 
@@ -514,9 +515,7 @@ public class InstalledActionIT {
     PluginInfo info = new PluginInfo(key)
       .setName(name)
       .setVersion(Version.create("1.0"));
-    ServerPlugin plugin = newInstalledPlugin(info);
-    info.setJarFile(plugin.getJar().getFile());
-    return plugin;
+    return newInstalledPlugin(info);
   }
 
 }

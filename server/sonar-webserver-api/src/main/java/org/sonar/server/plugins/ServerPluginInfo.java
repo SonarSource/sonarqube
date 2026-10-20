@@ -35,7 +35,7 @@ public class ServerPluginInfo extends PluginInfo {
 
   public static ServerPluginInfo create(File jarFile, PluginType type) {
     try {
-      PluginManifest manifest = new PluginManifest(jarFile);
+      PluginManifest manifest = readManifest(jarFile);
       ServerPluginInfo serverPluginInfo = new ServerPluginInfo(manifest.getKey());
       serverPluginInfo.fillFields(jarFile, manifest, type);
       return serverPluginInfo;

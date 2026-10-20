@@ -19,8 +19,15 @@
  */
 package org.sonar.ce.container;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.jar.Attributes;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -87,6 +94,43 @@ public class CePluginJarExploderTest {
 
   private File plugin2Jar() {
     return new File("src/test/plugins/sonar-test2-plugin/target/sonar-test2-plugin-0.1-SNAPSHOT.jar");
+  }
+
+  @Test
+  public void explode_zip_packaged_plugin_to_temp_directory() throws Exception {
+    PluginInfo info = PluginInfo.create(createZipPlugin("zipplugin"));
+
+    ExplodedPlugin exploded = underTest.explode(info);
+
+    assertThat(exploded.getKey()).isEqualTo("zipplugin");
+    assertThat(exploded.getMain()).isFile().exists().hasName("zipplugin-1.0.jar");
+    assertThat(exploded.getMain().getParentFile()).isDirectory().hasName("zipplugin");
+    assertThat(exploded.getMain().getParentFile().getParentFile()).isDirectory().hasName("ce-exploded-plugins");
+  }
+
+  private File createZipPlugin(String key) throws IOException {
+    File zip = temp.newFile(key + "-1.0.zip");
+    try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+      zos.putNextEntry(new ZipEntry("plugin/" + key + "-1.0.jar"));
+      zos.write(createInnerJarBytes(key));
+      zos.closeEntry();
+    }
+    return zip;
+  }
+
+  private static byte[] createInnerJarBytes(String key) throws IOException {
+    Manifest manifest = new Manifest();
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    manifest.getMainAttributes().putValue("Plugin-Key", key);
+    manifest.getMainAttributes().putValue("Plugin-Version", "1.0");
+    manifest.getMainAttributes().putValue("Plugin-Name", key);
+    manifest.getMainAttributes().putValue("Plugin-Class", "org.foo.Plugin");
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (JarOutputStream jos = new JarOutputStream(baos, manifest)) {
+      // nothing else needed
+    }
+    return baos.toByteArray();
   }
 
   private static class DumbFileSystem implements ServerFileSystem {

@@ -19,11 +19,18 @@
  */
 package org.sonar.server.plugins;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.jar.Attributes;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -139,6 +146,49 @@ public class PluginUninstallerTest {
     new File(uninstallDir, "file1").createNewFile();
     copyTestPluginTo("test-base-plugin", uninstallDir);
     assertThat(underTest.getUninstalledPlugins()).extracting("key").containsOnly("testbase");
+  }
+
+  @Test
+  public void list_uninstalled_plugins_includes_zip_packaged_plugins() throws IOException {
+    copyTestPluginTo("test-base-plugin", uninstallDir);
+    createZipPlugin(uninstallDir, "zipplugin");
+
+    assertThat(underTest.getUninstalledPlugins()).extracting("key").containsOnly("testbase", "zipplugin");
+  }
+
+  @Test
+  public void cancel_restores_zip_packaged_plugin() throws IOException {
+    File zip = createZipPlugin(uninstallDir, "zipplugin");
+
+    underTest.cancelUninstalls();
+
+    assertThat(zip).doesNotExist();
+    assertThat(new File(fs.getInstalledExternalPluginsDir(), zip.getName())).exists();
+  }
+
+  private static File createZipPlugin(File dir, String key) throws IOException {
+    File zip = new File(dir, key + "-1.0.zip");
+    try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+      zos.putNextEntry(new ZipEntry("plugin/" + key + "-1.0.jar"));
+      zos.write(createInnerJarBytes(key));
+      zos.closeEntry();
+    }
+    return zip;
+  }
+
+  private static byte[] createInnerJarBytes(String key) throws IOException {
+    Manifest manifest = new Manifest();
+    manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+    manifest.getMainAttributes().putValue("Plugin-Key", key);
+    manifest.getMainAttributes().putValue("Plugin-Version", "1.0");
+    manifest.getMainAttributes().putValue("Plugin-Name", key);
+    manifest.getMainAttributes().putValue("Plugin-Class", "org.foo.Plugin");
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (JarOutputStream jos = new JarOutputStream(baos, manifest)) {
+      // nothing else needed
+    }
+    return baos.toByteArray();
   }
 
   private static ServerPlugin newPlugin(String key, PluginType type, String jarFile, PluginInfo.RequiredPlugin requiredPlugin) {

@@ -89,8 +89,11 @@ public class ServerPluginManager implements Startable {
   private static List<ServerPlugin> createServerPlugins(Collection<ExplodedPlugin> explodedPlugins, Map<String, Plugin> instancesByKey, Map<String, PluginType> typesByKey) {
     List<ServerPlugin> plugins = new ArrayList<>();
     for (ExplodedPlugin p : explodedPlugins) {
-      plugins.add(new ServerPlugin(p.getPluginInfo(), typesByKey.get(p.getKey()), instancesByKey.get(p.getKey()),
-        new PluginFilesAndMd5.FileAndMd5(p.getPluginInfo().getNonNullJarFile())));
+      // p.getMain() is always a real, classloadable jar, even for a ZIP-packaged plugin whose
+      // installed file (PluginInfo#getNonNullJarFile) is the outer zip, not a jar.
+      Plugin instance = instancesByKey.get(p.getKey());
+      plugins.add(new ServerPlugin(p.getPluginInfo(), typesByKey.get(p.getKey()), instance,
+        new PluginFilesAndMd5.FileAndMd5(p.getMain()), instance.getClass().getClassLoader(), p.getResourcesArchive()));
     }
     return plugins;
   }

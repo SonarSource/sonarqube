@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginPackaging;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -54,7 +55,7 @@ public class PluginDownloader implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginDownloader.class);
   private static final String TMP_SUFFIX = "tmp";
-  private static final String PLUGIN_EXTENSION = "jar";
+  private static final String DEFAULT_PLUGIN_EXTENSION = "jar";
 
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final HttpDownloader downloader;
@@ -136,8 +137,9 @@ public class PluginDownloader implements Startable {
       copyFileToDirectory(file, downloadDir);
     } else {
       String filename = substringAfterLast(uri.getPath(), "/");
-      if (!filename.endsWith("." + PLUGIN_EXTENSION)) {
-        filename = release.getKey() + "-" + release.getVersion() + "." + PLUGIN_EXTENSION;
+      String extension = filename.endsWith(".zip") ? "zip" : DEFAULT_PLUGIN_EXTENSION;
+      if (!filename.endsWith("." + extension)) {
+        filename = release.getKey() + "-" + release.getVersion() + "." + extension;
       }
       File targetFile = new File(downloadDir, filename);
       File tempFile = new File(downloadDir, filename + "." + TMP_SUFFIX);
@@ -152,6 +154,6 @@ public class PluginDownloader implements Startable {
   }
 
   private static Collection<File> listPlugins(File dir) {
-    return FileUtils.listFiles(dir, new String[] {PLUGIN_EXTENSION}, false);
+    return FileUtils.listFiles(dir, PluginPackaging.fileExtensions(), false);
   }
 }

@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Startable;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginPackaging;
 import org.sonar.server.platform.ServerFileSystem;
 
 import static java.lang.String.format;
@@ -39,7 +40,6 @@ import static org.sonar.core.plugin.PluginType.EXTERNAL;
 
 public class PluginUninstaller implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(PluginUninstaller.class);
-  private static final String PLUGIN_EXTENSION = "jar";
 
   private final ServerFileSystem fs;
   private final ServerPluginRepository pluginRepository;
@@ -103,7 +103,7 @@ public class PluginUninstaller implements Startable {
 
   private static Collection<File> listJarFiles(File dir) {
     if (dir.exists()) {
-      return FileUtils.listFiles(dir, new String[] {PLUGIN_EXTENSION}, false);
+      return FileUtils.listFiles(dir, PluginPackaging.fileExtensions(), false);
     }
     return Collections.emptyList();
   }

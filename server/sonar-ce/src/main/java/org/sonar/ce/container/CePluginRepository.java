@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginClassLoader;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginPackaging;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.plugins.PluginRequirementsValidator;
@@ -48,7 +49,6 @@ import static java.lang.String.format;
  */
 public class CePluginRepository implements PluginRepository, Startable {
 
-  private static final String[] JAR_FILE_EXTENSIONS = new String[] {"jar"};
   private static final String NOT_STARTED_YET = "not started yet";
 
   private final ServerFileSystem fs;
@@ -138,7 +138,7 @@ public class CePluginRepository implements PluginRepository, Startable {
 
   private static Collection<File> listJarFiles(File dir) {
     if (dir.exists()) {
-      return FileUtils.listFiles(dir, JAR_FILE_EXTENSIONS, false);
+      return FileUtils.listFiles(dir, PluginPackaging.fileExtensions(), false);
     }
     return Collections.emptyList();
   }
