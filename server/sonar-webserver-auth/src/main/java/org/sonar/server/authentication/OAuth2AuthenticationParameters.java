@@ -33,7 +33,7 @@ import org.sonar.api.server.http.HttpResponse;
  */
 public interface OAuth2AuthenticationParameters {
 
-  void init(HttpRequest request, HttpResponse response);
+  void init(HttpRequest request, HttpResponse response, String providerKey);
 
   Optional<String> getReturnTo(HttpRequest request);
 

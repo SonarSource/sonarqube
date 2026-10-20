@@ -21,6 +21,7 @@ package org.sonar.server.authentication;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.server.http.Cookie;
 import org.sonar.api.server.http.HttpRequest;
@@ -37,12 +38,26 @@ import static java.util.Objects.requireNonNull;
 public class Cookies {
   public static final String SET_COOKIE = "Set-Cookie";
   public static final String SAMESITE_LAX = "Lax";
+  public static final String SAMESITE_NONE = "None";
 
   private static final String HTTPS_HEADER = "X-Forwarded-Proto";
   private static final String HTTPS_VALUE = "https";
 
+  // Provider keys whose callback is a cross-site POST (HTTP-POST binding, e.g. SAML); these get SameSite=None
+  // over HTTPS. A POST-binding provider NOT listed here silently falls back to the legacy cookie and can lose it
+  // on the cross-site callback - add its key here. Literal kept equal to SamlIdentityProvider.KEY (no sonar-auth-saml dep).
+  private static final Set<String> POST_BINDING_PROVIDER_KEYS = Set.of("saml");
+
   private Cookies() {
     // Only static methods
+  }
+
+  public static boolean isHttps(HttpRequest request) {
+    return HTTPS_VALUE.equalsIgnoreCase(request.getHeader(HTTPS_HEADER));
+  }
+
+  public static boolean isCrossSitePostCallback(String providerKey) {
+    return POST_BINDING_PROVIDER_KEYS.contains(providerKey);
   }
 
   public static Optional<Cookie> findCookie(String cookieName, HttpRequest request) {
@@ -117,7 +132,7 @@ public class Cookies {
     public Cookie build() {
       jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie(requireNonNull(name), value);
       cookie.setPath(getContextPath(request));
-      cookie.setSecure(isHttps(request));
+      cookie.setSecure(Cookies.isHttps(request));
       cookie.setHttpOnly(httpOnly);
       cookie.setMaxAge(expiry);
       return new JakartaCookie(cookie);
@@ -134,14 +149,10 @@ public class Cookies {
       if (httpOnly) {
         output += "; HttpOnly";
       }
-      if (isHttps(request)) {
+      if (Cookies.isHttps(request)) {
         output += "; Secure";
       }
       return output;
-    }
-
-    private static boolean isHttps(HttpRequest request) {
-      return HTTPS_VALUE.equalsIgnoreCase(request.getHeader(HTTPS_HEADER));
     }
 
     private static String getContextPath(HttpRequest request) {

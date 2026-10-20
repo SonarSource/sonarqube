@@ -130,7 +130,7 @@ public class InitFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(auth2AuthenticationParameters).init(request, response);
+    verify(auth2AuthenticationParameters).init(request, response, OAUTH2_PROVIDER_KEY);
   }
 
   @Test
@@ -140,7 +140,7 @@ public class InitFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    verify(auth2AuthenticationParameters, never()).init(request, response);
+    verify(auth2AuthenticationParameters, never()).init(request, response, BASIC_PROVIDER_KEY);
   }
 
   @Test

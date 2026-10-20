@@ -40,7 +40,11 @@ import static java.net.URLDecoder.decode;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Optional.empty;
 import static org.sonar.server.authentication.AuthenticationRedirection.encodeMessage;
+import static org.sonar.server.authentication.Cookies.SAMESITE_NONE;
+import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 import static org.sonar.server.authentication.Cookies.findCookie;
+import static org.sonar.server.authentication.Cookies.isCrossSitePostCallback;
+import static org.sonar.server.authentication.Cookies.isHttps;
 import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 
 public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationParameters {
@@ -59,7 +63,7 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
   };
 
   @Override
-  public void init(HttpRequest request, HttpResponse response) {
+  public void init(HttpRequest request, HttpResponse response, String providerKey) {
     String returnTo = request.getParameter(RETURN_TO_PARAMETER);
     Map<String, String> parameters = new HashMap<>();
     Optional<String> sanitizeRedirectUrl = sanitizeRedirectUrl(returnTo);
@@ -67,12 +71,20 @@ public class OAuth2AuthenticationParametersImpl implements OAuth2AuthenticationP
     if (parameters.isEmpty()) {
       return;
     }
-    response.addCookie(newCookieBuilder(request)
+    if (isCrossSitePostCallback(providerKey) && isHttps(request)) {
+      // SameSite=None; Secure so the return_to cookie survives the cross-site POST callback (e.g. slow SAML MFA).
+      response.addHeader(SET_COOKIE, authParamsCookieBuilder(request, parameters).setSameSite(SAMESITE_NONE).toValueString());
+    } else {
+      response.addCookie(authParamsCookieBuilder(request, parameters).build());
+    }
+  }
+
+  private static Cookies.CookieBuilder authParamsCookieBuilder(HttpRequest request, Map<String, String> parameters) {
+    return newCookieBuilder(request)
       .setName(AUTHENTICATION_COOKIE_NAME)
       .setValue(toJson(parameters))
       .setHttpOnly(true)
-      .setExpiry(FIVE_MINUTES_IN_SECONDS)
-      .build());
+      .setExpiry(FIVE_MINUTES_IN_SECONDS);
   }
 
   @Override

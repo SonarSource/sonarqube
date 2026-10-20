@@ -20,13 +20,16 @@
 package org.sonar.server.authentication;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.event.Level;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.http.Cookie;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.api.server.http.HttpResponse;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.http.JakartaHttpRequest;
@@ -42,6 +45,9 @@ import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 
 public class OAuthCsrfVerifierTest {
   private static final String PROVIDER_NAME = "provider name";
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
 
@@ -67,12 +73,23 @@ public class OAuthCsrfVerifierTest {
   }
 
   @Test
-  public void generate_state_does_not_set_explicit_SameSite_for_saml_since_its_callback_is_a_cross_site_POST() {
+  public void generate_state_sets_SameSite_None_Secure_cookie_for_saml_over_https() {
+    when(request.getHeader("X-Forwarded-Proto")).thenReturn("https");
+
+    String state = underTest.generateState(request, response, "saml");
+    assertThat(state).isNotEmpty();
+
+    verify(response).addHeader(SET_COOKIE, String.format("OAUTHSTATE=%s; Path=/; SameSite=None; HttpOnly; Secure", sha256Hex(state)));
+  }
+
+  @Test
+  public void generate_state_falls_back_to_legacy_cookie_and_warns_for_saml_over_http() {
     String state = underTest.generateState(request, response, "saml");
     assertThat(state).isNotEmpty();
 
     verify(response).addCookie(cookieArgumentCaptor.capture());
     verifyCookie(cookieArgumentCaptor.getValue());
+    assertThat(logTester.logs(Level.WARN)).anyMatch(log -> log.contains("SameSite=None over plain HTTP"));
   }
 
   @Test

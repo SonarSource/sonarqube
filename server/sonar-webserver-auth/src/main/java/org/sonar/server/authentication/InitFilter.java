@@ -71,7 +71,7 @@ public class InitFilter extends AuthenticationFilter {
       switch (provider) {
         case BaseIdentityProvider baseIdentityProvider -> handleBaseIdentityProvider(request, response, baseIdentityProvider);
         case OAuth2IdentityProvider oAuth2IdentityProvider -> {
-          oAuthOAuth2AuthenticationParameters.init(request, response);
+          oAuthOAuth2AuthenticationParameters.init(request, response, oAuth2IdentityProvider.getKey());
           handleOAuth2IdentityProvider(request, response, oAuth2IdentityProvider);
         }
         default -> handleError(request, response, format("Unsupported IdentityProvider class: %s", provider.getClass()));

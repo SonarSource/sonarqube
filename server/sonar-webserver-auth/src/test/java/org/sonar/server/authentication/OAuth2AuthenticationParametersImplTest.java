@@ -35,16 +35,19 @@ import org.sonar.server.http.JakartaHttpRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.authentication.Cookies.SET_COOKIE;
 
 @RunWith(DataProviderRunner.class)
 public class OAuth2AuthenticationParametersImplTest {
 
   private static final String AUTHENTICATION_COOKIE_NAME = "AUTH-PARAMS";
   private final ArgumentCaptor<Cookie> cookieArgumentCaptor = ArgumentCaptor.forClass(Cookie.class);
+  private final ArgumentCaptor<String> cookieHeaderCaptor = ArgumentCaptor.forClass(String.class);
   private final HttpResponse response = mock(HttpResponse.class);
   private final HttpRequest request = mock(HttpRequest.class);
 
@@ -59,7 +62,7 @@ public class OAuth2AuthenticationParametersImplTest {
   public void init_create_cookie() {
     when(request.getParameter("return_to")).thenReturn("/admin/settings");
 
-    underTest.init(request, response);
+    underTest.init(request, response, "github");
 
     verify(response).addCookie(cookieArgumentCaptor.capture());
     Cookie cookie = cookieArgumentCaptor.getValue();
@@ -72,8 +75,33 @@ public class OAuth2AuthenticationParametersImplTest {
   }
 
   @Test
+  public void init_sets_SameSite_None_Secure_cookie_for_saml_over_https() {
+    when(request.getParameter("return_to")).thenReturn("/admin/settings");
+    when(request.getHeader("X-Forwarded-Proto")).thenReturn("https");
+
+    underTest.init(request, response, "saml");
+
+    verify(response).addHeader(eq(SET_COOKIE), cookieHeaderCaptor.capture());
+    assertThat(cookieHeaderCaptor.getValue())
+      .startsWith("AUTH-PARAMS=")
+      .contains("; Path=/", "; SameSite=None", "; Max-Age=300", "; HttpOnly", "; Secure");
+  }
+
+  @Test
+  public void init_falls_back_to_legacy_cookie_for_saml_over_http() {
+    when(request.getParameter("return_to")).thenReturn("/admin/settings");
+
+    underTest.init(request, response, "saml");
+
+    verify(response).addCookie(cookieArgumentCaptor.capture());
+    Cookie cookie = cookieArgumentCaptor.getValue();
+    assertThat(cookie.getName()).isEqualTo(AUTHENTICATION_COOKIE_NAME);
+    assertThat(cookie.isSecure()).isFalse();
+  }
+
+  @Test
   public void init_does_not_create_cookie_when_no_parameter() {
-    underTest.init(request, response);
+    underTest.init(request, response, "github");
 
     verify(response, never()).addCookie(any(Cookie.class));
   }
@@ -83,7 +111,7 @@ public class OAuth2AuthenticationParametersImplTest {
     when(request.getParameter("return_to")).thenReturn("");
     when(request.getParameter("allowEmailShift")).thenReturn("");
 
-    underTest.init(request, response);
+    underTest.init(request, response, "github");
 
     verify(response, never()).addCookie(any(Cookie.class));
   }
@@ -93,7 +121,7 @@ public class OAuth2AuthenticationParametersImplTest {
     when(request.getParameter("return_to")).thenReturn(null);
     when(request.getParameter("allowEmailShift")).thenReturn(null);
 
-    underTest.init(request, response);
+    underTest.init(request, response, "github");
 
     verify(response, never()).addCookie(any(Cookie.class));
   }
