@@ -97,7 +97,7 @@ public class AnticipatedTransitionsAction implements IssuesWsAction {
     // validation
     String userUuid = validator.validateUserLoggedIn();
     ProjectDto projectDto = validator.validateProjectKey(request.mandatoryParam(PARAM_PROJECT_KEY));
-    validator.validateUserHasAdministerIssuesPermission(projectDto.getUuid());
+    validator.validateUserHasAdministerIssuesPermission(projectDto);
 
     String requestBody = getRequestBody(request);
     anticipatedTransitionHandler.handleRequestBody(requestBody, userUuid, projectDto);

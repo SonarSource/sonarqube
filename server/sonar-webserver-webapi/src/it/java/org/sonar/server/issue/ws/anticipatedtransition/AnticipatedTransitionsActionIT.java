@@ -32,13 +32,17 @@ import org.sonar.db.DbTester;
 import org.sonar.db.issue.AnticipatedTransitionDao;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.ProjectDto;
+import org.sonar.db.user.TokenType;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTypeTree;
 import org.sonar.server.component.ComponentTypes;
 import org.sonar.server.component.DefaultComponentTypes;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.TokenUserSession;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -49,6 +53,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.component.ProjectTesting.newPrivateProjectDto;
 import static org.sonar.db.permission.ProjectPermission.CODEVIEWER;
 import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
+import static org.sonar.db.permission.ProjectPermission.SCAN;
 
 public class AnticipatedTransitionsActionIT {
 
@@ -214,6 +219,87 @@ public class AnticipatedTransitionsActionIT {
       .isInstanceOf(ForbiddenException.class);
   }
 
+  @Test
+  public void givenProjectAnalysisTokenOfAnotherProject_whenHandle_thenThrowExceptionAndSaveNothing() throws IOException, URISyntaxException {
+    // given the token owner has ISSUE_ADMIN on the target project, but the token is scoped to another project
+    ProjectDto targetProject = mockProjectDto();
+    ProjectDto tokenProject = db.components().insertPrivateProject().getProjectDto();
+    UserDto owner = db.users().insertUser();
+    db.users().insertProjectPermissionOnUser(owner, ISSUE_ADMIN, targetProject);
+    db.users().insertProjectPermissionOnUser(owner, SCAN, tokenProject);
+    UserTokenDto token = new UserTokenDto()
+      .setType(TokenType.PROJECT_ANALYSIS_TOKEN.name())
+      .setName("token")
+      .setUserUuid(owner.getUuid())
+      .setProjectKey(tokenProject.getKey())
+      .setProjectName(tokenProject.getName())
+      .setProjectUuid(tokenProject.getUuid());
+    TestRequest request = wsWithSession(new TokenUserSession(db.getDbClient(), owner, token))
+      .newRequest()
+      .setParam("projectKey", targetProject.getKey())
+      .setMethod("POST")
+      .setMediaType("application/json")
+      .setPayload(readTestResourceFile("request-with-transitions.json"));
+
+    // when then
+    assertThatThrownBy(request::execute)
+      .hasMessage("Insufficient privileges")
+      .isInstanceOf(ForbiddenException.class);
+    assertThat(anticipatedTransitionDao.selectByProjectUuid(db.getSession(), targetProject.getUuid())).isEmpty();
+  }
+
+  @Test
+  public void givenGlobalAnalysisToken_whenHandle_thenThrowExceptionAndSaveNothing() throws IOException, URISyntaxException {
+    // given
+    ProjectDto targetProject = mockProjectDto();
+    UserDto owner = db.users().insertUser();
+    db.users().insertProjectPermissionOnUser(owner, ISSUE_ADMIN, targetProject);
+    UserTokenDto token = new UserTokenDto()
+      .setType(TokenType.GLOBAL_ANALYSIS_TOKEN.name())
+      .setName("token")
+      .setUserUuid(owner.getUuid());
+    TestRequest request = wsWithSession(new TokenUserSession(db.getDbClient(), owner, token))
+      .newRequest()
+      .setParam("projectKey", targetProject.getKey())
+      .setMethod("POST")
+      .setMediaType("application/json")
+      .setPayload(readTestResourceFile("request-with-transitions.json"));
+
+    // when then
+    assertThatThrownBy(request::execute)
+      .hasMessage("Insufficient privileges")
+      .isInstanceOf(ForbiddenException.class);
+    assertThat(anticipatedTransitionDao.selectByProjectUuid(db.getSession(), targetProject.getUuid())).isEmpty();
+  }
+
+  @Test
+  public void givenUserToken_whenHandle_thenTransitionsAreSaved() throws IOException, URISyntaxException {
+    // given
+    ProjectDto targetProject = mockProjectDto();
+    UserDto owner = db.users().insertUser();
+    db.users().insertProjectPermissionOnUser(owner, ISSUE_ADMIN, targetProject);
+    UserTokenDto token = new UserTokenDto()
+      .setType(TokenType.USER_TOKEN.name())
+      .setName("token")
+      .setUserUuid(owner.getUuid());
+    TestResponse response = wsWithSession(new TokenUserSession(db.getDbClient(), owner, token))
+      .newRequest()
+      .setParam("projectKey", targetProject.getKey())
+      .setMethod("POST")
+      .setMediaType("application/json")
+      .setPayload(readTestResourceFile("request-with-transitions.json"))
+      .execute();
+
+    // then
+    assertThat(response.getStatus()).isEqualTo(202);
+    assertThat(anticipatedTransitionDao.selectByProjectUuid(db.getSession(), targetProject.getUuid())).hasSize(2);
+  }
+
+  private WsActionTester wsWithSession(UserSession session) {
+    var sessionValidator = new AnticipatedTransitionsActionValidator(db.getDbClient(), componentFinder, session);
+    return new WsActionTester(new AnticipatedTransitionsAction(sessionValidator, handler));
+  }
+
   private TestRequest getTestRequest(ProjectDto projectDto, String requestBody) {
     return ws.newRequest()
       .setParam("projectKey", projectDto.getKey())
@@ -225,7 +311,7 @@ public class AnticipatedTransitionsActionIT {
   private void mockUser(ProjectDto projectDto, ProjectPermission permission) {
     UserDto user = db.users().insertUser();
     db.users().insertProjectPermissionOnUser(user, permission, projectDto);
-    userSession.logIn(user);
+    userSession.logIn(user).addProjectPermission(permission, projectDto);
   }
 
   private ProjectDto mockProjectDto() {

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.ws.anticipatedtransition;
 
-import java.util.Objects;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.project.ProjectDto;
@@ -57,12 +56,10 @@ public class AnticipatedTransitionsActionValidator {
     return userSession.getUuid();
   }
 
-  public void validateUserHasAdministerIssuesPermission(String projectUuid) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      String userUuid = Objects.requireNonNull(userSession.getUuid());
-      if (!dbClient.authorizationDao().selectEntityPermissions(dbSession, projectUuid, userUuid).contains(ISSUE_ADMIN.getKey())){
-        throw insufficientPrivilegesException();
-      }
+  public void validateUserHasAdministerIssuesPermission(ProjectDto project) {
+    // Goes through the session (not the DB) so that token restrictions apply, e.g. analysis tokens never grant ISSUE_ADMIN.
+    if (!userSession.hasEntityPermission(ISSUE_ADMIN, project)) {
+      throw insufficientPrivilegesException();
     }
   }
 

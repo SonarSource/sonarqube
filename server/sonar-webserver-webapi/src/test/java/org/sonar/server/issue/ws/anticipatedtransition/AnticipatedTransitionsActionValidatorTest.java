@@ -19,11 +19,9 @@
  */
 package org.sonar.server.issue.ws.anticipatedtransition;
 
-import java.util.Set;
 import org.junit.Test;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.AuthorizationDao;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -36,8 +34,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
 
 public class AnticipatedTransitionsActionValidatorTest {
@@ -93,40 +89,24 @@ public class AnticipatedTransitionsActionValidatorTest {
   @Test
   public void givenUserHasAdministerIssuesPermission_whenValidateUserHasAdministerIssuesPermission_thenDoNothing() {
     // given
-    String userUuid = "userUuid";
-    doReturn(userUuid).when(userSession).getUuid();
-    String projectUuid = "projectUuid";
-    DbSession dbSession = mockDbSession();
-    AuthorizationDao authorizationDao = mockAuthorizationDao();
-    doReturn(Set.of("permission1", ISSUE_ADMIN.getKey())).when(authorizationDao).selectEntityPermissions(dbSession, projectUuid, userUuid);
+    ProjectDto projectDto = new ProjectDto();
+    doReturn(true).when(userSession).hasEntityPermission(ISSUE_ADMIN, projectDto);
 
     // when, then
-    assertThatCode(() -> underTest.validateUserHasAdministerIssuesPermission(projectUuid))
+    assertThatCode(() -> underTest.validateUserHasAdministerIssuesPermission(projectDto))
       .doesNotThrowAnyException();
-    verify(dbClient, times(1)).authorizationDao();
   }
 
   @Test
   public void givenUserDoesNotHaveAdministerIssuesPermission_whenValidateUserHasAdministerIssuesPermission_thenThrowForbiddenException() {
     // given
-    String userUuid = "userUuid";
-    doReturn(userUuid).when(userSession).getUuid();
-    String projectUuid = "projectUuid";
-    DbSession dbSession = mockDbSession();
-    AuthorizationDao authorizationDao = mockAuthorizationDao();
-    doReturn(Set.of("permission1")).when(authorizationDao).selectEntityPermissions(dbSession, projectUuid, userUuid);
+    ProjectDto projectDto = new ProjectDto();
+    doReturn(false).when(userSession).hasEntityPermission(ISSUE_ADMIN, projectDto);
 
     // when, then
-    assertThatThrownBy(() -> underTest.validateUserHasAdministerIssuesPermission(projectUuid))
+    assertThatThrownBy(() -> underTest.validateUserHasAdministerIssuesPermission(projectDto))
       .withFailMessage("Insufficient privileges")
       .isInstanceOf(ForbiddenException.class);
-    verify(dbClient, times(1)).authorizationDao();
-  }
-
-  private AuthorizationDao mockAuthorizationDao() {
-    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
-    doReturn(authorizationDao).when(dbClient).authorizationDao();
-    return authorizationDao;
   }
 
   private DbSession mockDbSession() {
