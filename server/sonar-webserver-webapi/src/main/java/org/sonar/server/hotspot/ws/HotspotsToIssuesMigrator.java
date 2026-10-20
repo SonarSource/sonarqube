@@ -20,10 +20,12 @@
 package org.sonar.server.hotspot.ws;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
@@ -44,6 +47,7 @@ import org.sonar.db.issue.HotspotToMigrateDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBuilder;
@@ -59,12 +63,19 @@ import static org.sonar.core.issue.IssueChangeContext.issueChangeContextByUserBu
  *
  * <p>Once a branch is fully migrated its compliance-report issue stats are re-ingested, since Security Reports
  * read those pre-aggregated per-rule counts and they are otherwise only refreshed by an analysis.</p>
+ *
+ * <p>Every run also repairs findings that 2026.5.0 to 2026.5.2 stored as {@code CLOSED}, which issue tracking skips
+ * (SONAR-32693): Reviewed/Safe as {@code CLOSED/WONTFIX} and Reviewed/Fixed as {@code CLOSED/FIXED}. Both become
+ * {@code RESOLVED/WONTFIX} (Accepted), and Reviewed/Fixed also gets the {@code former-hotspot-reviewed-fixed} tag and a
+ * comment, as in a migration. Duplicates an analysis already created are not closed.</p>
  */
 public class HotspotsToIssuesMigrator {
 
   private static final Logger LOG = LoggerFactory.getLogger(HotspotsToIssuesMigrator.class);
 
   static final String FORMER_HOTSPOT_TAG = "former-hotspot";
+  static final String FORMER_HOTSPOT_REVIEWED_FIXED_TAG = CodeQualityIssueWorkflowDefinition.FORMER_HOTSPOT_REVIEWED_FIXED_TAG;
+  static final String MIGRATED_FROM_REVIEWED_FIXED_COMMENT = CodeQualityIssueWorkflowDefinition.MIGRATED_FROM_REVIEWED_FIXED_COMMENT;
   // Max hotspots committed per transaction. Bounds transaction/memory size; committing per issue would be too slow.
   static final int BATCH_SIZE = 1000;
   // Findings fetched per keyset page. Kept <= 1000 so the "load by keys" IN-list stays within Oracle's limit.
@@ -92,7 +103,11 @@ public class HotspotsToIssuesMigrator {
     this.pageSize = pageSize;
   }
 
-  public record ProjectMigrationResult(String projectKey, int migrated) {
+  /**
+   * @param migrated hotspot findings converted to issues in this project
+   * @param repaired findings migrated by an earlier version, moved from {@code CLOSED} to {@code RESOLVED}
+   */
+  public record ProjectMigrationResult(String projectKey, int migrated, int repaired) {
   }
 
   /**
@@ -101,6 +116,13 @@ public class HotspotsToIssuesMigrator {
    *                cannot attribute them to a project.
    */
   public record MigrationResult(boolean dryRun, List<ProjectMigrationResult> projects, int skipped) {
+    public int totalMigrated() {
+      return projects.stream().mapToInt(ProjectMigrationResult::migrated).sum();
+    }
+
+    public int totalRepaired() {
+      return projects.stream().mapToInt(ProjectMigrationResult::repaired).sum();
+    }
   }
 
   /**
@@ -137,16 +159,46 @@ public class HotspotsToIssuesMigrator {
     }
     run.finishBranch();
 
+    repairPreviouslyMigrated(scopeProjectUuids, run);
+    run.finishBranch();
+
     List<ProjectMigrationResult> projects = run.toProjectResults();
     int skipped = countNotConverted(scopeProjectUuids);
+    int repairedTotal = run.totalRepaired();
+    String repairedLabel = dryRun ? " to repair" : " repaired";
+    String repaired = repairedTotal == 0 ? "" : (", " + repairedTotal + repairedLabel);
     if (dryRun) {
-      LOG.info("Hotspots-to-issues migration dry run finished (scope={}): {} project(s), {} to migrate, {} to skip",
-        scope, projects.size(), run.totalMigrated(), skipped);
+      LOG.info("Hotspots-to-issues migration dry run finished (scope={}): {} project(s), {} to migrate{}, {} to skip",
+        scope, projects.size(), run.totalMigrated(), repaired, skipped);
     } else {
-      LOG.info("Hotspots-to-issues migration finished (scope={}): {} project(s), {} migrated, {} skipped, took {} ms",
-        scope, projects.size(), run.totalMigrated(), skipped, system2.now() - startedAt);
+      LOG.info("Hotspots-to-issues migration finished (scope={}): {} project(s), {} migrated{}, {} skipped, took {} ms",
+        scope, projects.size(), run.totalMigrated(), repaired, skipped, system2.now() - startedAt);
     }
     return new MigrationResult(dryRun, projects, skipped);
+  }
+
+  private void repairPreviouslyMigrated(@Nullable Set<String> scopeProjectUuids, MigrationRun run) {
+    List<HotspotMigrationKeyDto> keys;
+    try (DbSession keySession = dbClient.openSession(false)) {
+      keys = dbClient.issueDao().selectRepairKeysForMigration(keySession, scopeProjectUuids);
+    }
+    Lists.partition(keys, pageSize).forEach(page -> processRepairPage(page, run));
+  }
+
+  private void processRepairPage(List<HotspotMigrationKeyDto> page, MigrationRun run) {
+    Map<String, HotspotToMigrateDto> issuesByKey;
+    try (DbSession loadSession = dbClient.openSession(false)) {
+      issuesByKey = dbClient.issueDao().selectHotspotsForMigrationByKeys(loadSession,
+          page.stream().map(HotspotMigrationKeyDto::getKee).toList())
+        .stream().collect(Collectors.toMap(HotspotToMigrateDto::getKey, h -> h));
+    }
+    for (HotspotMigrationKeyDto keyRow : page) {
+      HotspotToMigrateDto issue = issuesByKey.get(keyRow.getKee());
+      // Skip if the finding vanished between the key page and the load (e.g. project deleted concurrently).
+      if (issue != null) {
+        run.acceptRepair(issue);
+      }
+    }
   }
 
   /**
@@ -194,6 +246,7 @@ public class HotspotsToIssuesMigrator {
     private final IssueChangeContext context;
     // migrated count keyed by project key (components.kee is the project key for every branch).
     private final Map<String, Integer> migratedByProjectKey = new LinkedHashMap<>();
+    private final Map<String, Integer> repairedByProjectKey = new LinkedHashMap<>();
     private List<DefaultIssue> batch = new ArrayList<>();
     private String currentBranchUuid;
     private int committedHotspots;
@@ -225,6 +278,48 @@ public class HotspotsToIssuesMigrator {
       }
     }
 
+    private void acceptRepair(HotspotToMigrateDto candidate) {
+      DefaultIssue issue = candidate.toDefaultIssue();
+      // The query only matches the tag as a substring: re-check the exact tag on the loaded row.
+      if (!issue.tags().contains(FORMER_HOTSPOT_TAG) || !isRepairable(issue)) {
+        return;
+      }
+      String branchUuid = candidate.getProjectUuid();
+      if (currentBranchUuid != null && !branchUuid.equals(currentBranchUuid)) {
+        finishBranch();
+      }
+      currentBranchUuid = branchUuid;
+
+      repairedByProjectKey.merge(candidate.getProjectKey(), 1, Integer::sum);
+      if (!dryRun) {
+        flushIfFull();
+        if (Issue.RESOLUTION_FIXED.equals(issue.resolution())) {
+          issueFieldsSetter.setResolution(issue, Issue.RESOLUTION_WONT_FIX, context);
+          Set<String> tags = new HashSet<>(issue.tags());
+          tags.add(FORMER_HOTSPOT_REVIEWED_FIXED_TAG);
+          issueFieldsSetter.setTags(issue, tags, context);
+          addMigratedFromReviewedFixedComment(issue);
+        }
+        issueFieldsSetter.setStatus(issue, Issue.STATUS_RESOLVED, context);
+        batch.add(issue);
+      }
+    }
+
+    @SuppressWarnings("deprecation")
+    private boolean isReviewedAsFixed(DefaultIssue issue) {
+      return Issue.STATUS_REVIEWED.equals(issue.status()) && Issue.RESOLUTION_FIXED.equals(issue.resolution());
+    }
+
+    private void addMigratedFromReviewedFixedComment(DefaultIssue issue) {
+      issue.addComment(DefaultIssueComment.create(issue.key(), userSession.getUuid(), MIGRATED_FROM_REVIEWED_FIXED_COMMENT));
+    }
+
+    @SuppressWarnings("deprecation")
+    private boolean isRepairable(DefaultIssue issue) {
+      return Issue.STATUS_CLOSED.equals(issue.status())
+        && (Issue.RESOLUTION_WONT_FIX.equals(issue.resolution()) || Issue.RESOLUTION_FIXED.equals(issue.resolution()));
+    }
+
     /**
      * Flushes the pending batch once it reaches BATCH_SIZE, so every committed transaction stays bounded in size.
      * Called only right before adding to the batch, never on its own: that way the pending batch is never left
@@ -250,8 +345,10 @@ public class HotspotsToIssuesMigrator {
     }
 
     private List<ProjectMigrationResult> toProjectResults() {
-      return migratedByProjectKey.entrySet().stream()
-        .map(e -> new ProjectMigrationResult(e.getKey(), e.getValue()))
+      Set<String> projectKeys = new LinkedHashSet<>(migratedByProjectKey.keySet());
+      projectKeys.addAll(repairedByProjectKey.keySet());
+      return projectKeys.stream()
+        .map(key -> new ProjectMigrationResult(key, migratedByProjectKey.getOrDefault(key, 0), repairedByProjectKey.getOrDefault(key, 0)))
         .toList();
     }
 
@@ -259,14 +356,23 @@ public class HotspotsToIssuesMigrator {
       return migratedByProjectKey.values().stream().mapToInt(Integer::intValue).sum();
     }
 
+    private int totalRepaired() {
+      return repairedByProjectKey.values().stream().mapToInt(Integer::intValue).sum();
+    }
+
     private DefaultIssue toMigratedIssue(HotspotToMigrateDto hotspot, RuleType targetType) {
       DefaultIssue issue = hotspot.toDefaultIssue();
+      // Read before the mapping overwrites them.
+      boolean reviewedAsFixed = isReviewedAsFixed(issue);
       // Set type, status and tags on the SAME context so all diffs accumulate into one change and are persisted by
       // a SINGLE save (one issue_changes row; no intermediate save between type and status).
       issueFieldsSetter.setType(issue, targetType, context);
       applyStatusMapping(issue);
       Set<String> tags = new HashSet<>(issue.tags());
       tags.add(FORMER_HOTSPOT_TAG);
+      if (reviewedAsFixed) {
+        tags.add(FORMER_HOTSPOT_REVIEWED_FIXED_TAG);
+      }
       issueFieldsSetter.setTags(issue, tags, context);
       return issue;
     }
@@ -290,9 +396,13 @@ public class HotspotsToIssuesMigrator {
      * <pre>
      *   TO_REVIEW               -> OPEN       (resolution null)
      *   REVIEWED / ACKNOWLEDGED -> CONFIRMED  (resolution null)
-     *   REVIEWED / FIXED        -> CLOSED     resolution FIXED
-     *   REVIEWED / SAFE         -> CLOSED     resolution WONTFIX
+     *   REVIEWED / FIXED        -> RESOLVED   resolution WONTFIX (Accepted), + tag former-hotspot-reviewed-fixed and a
+     *                                         "Migrated from Reviewed/Fixed" comment
+     *   REVIEWED / SAFE         -> RESOLVED   resolution WONTFIX (Accepted)
      * </pre>
+     *
+     * Reviewed hotspots are never CLOSED: tracking skips CLOSED issues, and a reviewed hotspot is still detected.
+     * Reviewed/Fixed is a user's review like Safe, so it is kept as Accepted, not re-evaluated as RESOLVED/FIXED.
      */
     // Legacy STATUS_*/RESOLUTION_* constants are deprecated on the plugin API but remain the values persisted in
     // the issues.status/resolution columns that IssueFieldsSetter.setStatus/setResolution write.
@@ -308,10 +418,11 @@ public class HotspotsToIssuesMigrator {
         newResolution = null;
       } else if (Issue.STATUS_REVIEWED.equals(status)) {
         if (Issue.RESOLUTION_FIXED.equals(resolution)) {
-          newStatus = Issue.STATUS_CLOSED;
-          newResolution = Issue.RESOLUTION_FIXED;
+          newStatus = Issue.STATUS_RESOLVED;
+          newResolution = Issue.RESOLUTION_WONT_FIX;
+          addMigratedFromReviewedFixedComment(issue);
         } else if (Issue.RESOLUTION_SAFE.equals(resolution)) {
-          newStatus = Issue.STATUS_CLOSED;
+          newStatus = Issue.STATUS_RESOLVED;
           newResolution = Issue.RESOLUTION_WONT_FIX;
         } else {
           // ACKNOWLEDGED (or any other reviewed resolution) -> Confirmed

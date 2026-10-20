@@ -99,6 +99,8 @@ public interface IssueMapper {
     @Nullable @Param("lastBranchUuid") String lastBranchUuid, @Nullable @Param("lastKee") String lastKee,
     @Param("pagination") Pagination pagination);
 
+  List<HotspotMigrationKeyDto> selectRepairKeysForMigration(@Nullable @Param("projectUuids") Collection<String> projectUuids);
+
   List<HotspotToMigrateDto> selectHotspotsForMigrationByKeys(@Param("keys") List<String> keys);
 
   int countHotspotsForMigration(@Nullable @Param("projectUuids") Collection<String> projectUuids);

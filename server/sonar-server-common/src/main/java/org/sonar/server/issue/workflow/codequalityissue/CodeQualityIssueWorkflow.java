@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.workflow.codequalityissue;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,6 +29,7 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.issue.workflow.statemachine.State;
 import org.sonar.issue.workflow.statemachine.Transition;
@@ -118,6 +120,20 @@ public class CodeQualityIssueWorkflow {
 
     protected CodeQualityIssueWorkflowEntityAdapter(DefaultIssue issue) {
       super(issue);
+    }
+
+    @Override
+    public boolean previousResolutionWasAny(String... resolutions) {
+      return issue.changes().stream()
+        // exclude current change (if any)
+        .filter(change -> change != issue.currentChange())
+        .filter(change -> change.creationDate() != null)
+        .filter(change -> change.get("status") != null)
+        .max(Comparator.comparing(FieldDiffs::creationDate))
+        // No resolution diff: the resolution did not change with the status, so it is still the current one.
+        .map(change -> change.get("resolution") == null ? issue.resolution() : change.get("resolution").oldValue())
+        .filter(Set.of(resolutions)::contains)
+        .isPresent();
     }
 
     @Override

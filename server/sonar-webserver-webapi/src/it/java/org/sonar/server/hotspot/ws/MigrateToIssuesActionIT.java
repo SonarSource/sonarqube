@@ -19,11 +19,14 @@
  */
 package org.sonar.server.hotspot.ws;
 
+import java.util.Date;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.rule.RuleType;
@@ -188,6 +191,114 @@ public class MigrateToIssuesActionIT {
     assertThat(reloadType(hotspot)).isEqualTo(RuleType.SECURITY_HOTSPOT.getDbConstant());
   }
 
+  @Test
+  public void handle_shouldApplyTheStatusMappingToEveryHotspotStatus() {
+    userSession.logIn().setSystemAdministrator();
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    IssueDto toReview = insertHotspotWith(rule, branch, file, Issue.STATUS_TO_REVIEW, null);
+    IssueDto acknowledged = insertHotspotWith(rule, branch, file, Issue.STATUS_REVIEWED, Issue.RESOLUTION_ACKNOWLEDGED);
+    IssueDto fixed = insertHotspotWith(rule, branch, file, Issue.STATUS_REVIEWED, Issue.RESOLUTION_FIXED);
+    IssueDto safe = insertHotspotWith(rule, branch, file, Issue.STATUS_REVIEWED, Issue.RESOLUTION_SAFE);
+    IssueDto closedRemoved = insertHotspotWith(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_REMOVED);
+
+    TestResponse response = tester.newRequest().execute();
+
+    assertThat(response.getInput()).contains("\"migrated\":5").doesNotContain("repaired");
+    assertStatus(toReview, Issue.STATUS_OPEN, null, IssueStatus.OPEN);
+    assertStatus(acknowledged, Issue.STATUS_CONFIRMED, null, IssueStatus.CONFIRMED);
+    // RESOLVED, not CLOSED: issue tracking skips CLOSED issues, and a reviewed hotspot is still detected. Fixed is a
+    // review users set by hand, so it is kept as Accepted like Safe instead of being re-evaluated by the analyzer.
+    assertStatus(fixed, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, IssueStatus.ACCEPTED);
+    assertThat(reload(fixed).getTags()).contains(HotspotsToIssuesMigrator.FORMER_HOTSPOT_REVIEWED_FIXED_TAG);
+    assertThat(reload(safe).getTags()).doesNotContain(HotspotsToIssuesMigrator.FORMER_HOTSPOT_REVIEWED_FIXED_TAG);
+    assertStatus(safe, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, IssueStatus.ACCEPTED);
+    assertStatus(closedRemoved, Issue.STATUS_CLOSED, Issue.RESOLUTION_REMOVED, IssueStatus.FIXED);
+  }
+
+  @Test
+  public void handle_shouldRepairFindingsMigratedByThePreviousMappingAndReportThem() {
+    userSession.logIn().setSystemAdministrator();
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    IssueDto safe = insertPreviouslyMigrated(rule, branch, file, Issue.RESOLUTION_WONT_FIX, false);
+    IssueDto fixed = insertPreviouslyMigrated(rule, branch, file, Issue.RESOLUTION_FIXED, true);
+    // Closed before the migration (no migration status diff): must stay closed.
+    IssueDto closedBeforeMigration = insertPreviouslyMigrated(rule, branch, file, Issue.RESOLUTION_FIXED, false);
+
+    TestResponse preview = tester.newRequest().setParam("dryRun", "true").execute();
+
+    assertThat(preview.getInput()).contains("\"dryRun\":true", "\"migrated\":0", "\"repaired\":2", project.getProjectDto().getKey());
+    assertStatus(safe, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, IssueStatus.FIXED);
+    assertThat(issueChangePostProcessor.wasCalled()).isFalse();
+
+    TestResponse response = tester.newRequest().execute();
+
+    assertThat(response.getInput()).contains("\"dryRun\":false", "\"migrated\":0", "\"repaired\":2");
+    assertStatus(safe, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, IssueStatus.ACCEPTED);
+    assertStatus(fixed, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, IssueStatus.ACCEPTED);
+    assertThat(reload(fixed).getTags()).contains(HotspotsToIssuesMigrator.FORMER_HOTSPOT_REVIEWED_FIXED_TAG);
+    assertThat(reload(safe).getTags()).doesNotContain(HotspotsToIssuesMigrator.FORMER_HOTSPOT_REVIEWED_FIXED_TAG);
+    assertStatus(closedBeforeMigration, Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED, IssueStatus.FIXED);
+    assertThat(issueChangePostProcessor.wasCalled()).isTrue();
+
+    TestResponse rerun = tester.newRequest().execute();
+
+    assertThat(rerun.getInput()).contains("\"migrated\":0", "\"projects\":[]").doesNotContain("repaired");
+  }
+
+  @Test
+  public void handle_whenProjectGiven_shouldOnlyRepairThatProject() {
+    userSession.logIn().setSystemAdministrator();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ProjectData projectA = db.components().insertPrivateProject();
+    ComponentDto branchA = projectA.getMainBranchComponent();
+    IssueDto inA = insertPreviouslyMigrated(rule, branchA, db.components().insertComponent(newFileDto(branchA)), Issue.RESOLUTION_WONT_FIX, false);
+    ComponentDto branchB = db.components().insertPrivateProject().getMainBranchComponent();
+    IssueDto inB = insertPreviouslyMigrated(rule, branchB, db.components().insertComponent(newFileDto(branchB)), Issue.RESOLUTION_WONT_FIX, false);
+
+    TestResponse response = tester.newRequest().setParam("project", projectA.getProjectDto().getKey()).execute();
+
+    assertThat(response.getInput()).contains("\"repaired\":1");
+    assertStatus(inA, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, IssueStatus.ACCEPTED);
+    assertStatus(inB, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, IssueStatus.FIXED);
+  }
+
+  private IssueDto insertHotspotWith(RuleDto rule, ComponentDto branch, ComponentDto file, String status, @Nullable String resolution) {
+    return db.issues().insert(rule, branch, file, i -> i
+      .setType(RuleType.SECURITY_HOTSPOT)
+      .setStatus(status)
+      .setResolution(resolution)
+      .setTags(List.of()));
+  }
+
+  /** A finding as the previous version of the migration left it: rule type, former-hotspot tag, stored as CLOSED. */
+  private IssueDto insertPreviouslyMigrated(RuleDto rule, ComponentDto branch, ComponentDto file, String resolution, boolean withMigrationStatusDiff) {
+    IssueDto issue = db.issues().insert(rule, branch, file, i -> i
+      .setType(rule.getEnumType())
+      .setStatus(Issue.STATUS_CLOSED)
+      .setResolution(resolution)
+      .setTags(List.of(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG)));
+    if (withMigrationStatusDiff) {
+      db.issues().insertFieldDiffs(issue, new FieldDiffs()
+        .setIssueKey(issue.getKey())
+        .setCreationDate(new Date(system2.now() - 1_000))
+        .setDiff("status", Issue.STATUS_REVIEWED, Issue.STATUS_CLOSED)
+        .setDiff("tags", null, "former-hotspot"));
+    }
+    return issue;
+  }
+
+  private void assertStatus(IssueDto issue, String status, @Nullable String resolution, IssueStatus issueStatus) {
+    IssueDto reloaded = reload(issue);
+    assertThat(reloaded.getStatus()).isEqualTo(status);
+    assertThat(reloaded.getResolution()).isEqualTo(resolution);
+    assertThat(IssueStatus.of(reloaded.getStatus(), reloaded.getResolution())).isEqualTo(issueStatus);
+  }
+
   private IssueDto insertHotspotFinding(RuleDto rule, ComponentDto branch, ComponentDto file) {
     // Clear the fixture's random tags: newIssue() generates values with '_' that don't pass RuleTagFormat
     // (real issue tags are always pre-validated on write, so this only matters for the direct-insert fixture).
@@ -199,6 +310,7 @@ public class MigrateToIssuesActionIT {
   }
 
   private IssueDto reload(IssueDto issue) {
+    db.getSession().clearCache();
     return dbClient.issueDao().selectOrFailByKey(db.getSession(), issue.getKey());
   }
 

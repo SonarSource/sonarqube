@@ -26,6 +26,12 @@ public interface CodeQualityIssueWorkflowEntity {
 
   boolean hasAnyResolution(String... resolutions);
 
+  /**
+   * Whether the resolution before the last status change was one of the given values (the current one if that change
+   * did not alter it). Reads the same change as {@link #previousStatusWas(String)}.
+   */
+  boolean previousResolutionWasAny(String... resolutions);
+
   boolean locationsChanged();
 
   boolean isTaintVulnerability();

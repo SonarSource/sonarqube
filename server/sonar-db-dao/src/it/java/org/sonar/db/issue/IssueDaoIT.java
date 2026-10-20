@@ -48,6 +48,7 @@ import org.sonar.api.issue.impact.SoftwareQuality;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueProducer;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbSession;
@@ -697,6 +698,138 @@ class IssueDaoIT {
     assertThat(collected)
       .containsExactlyInAnyOrder(h1.getKey(), h2.getKey(), h3.getKey())
       .doesNotHaveDuplicates();
+  }
+
+  @Test
+  void selectRepairKeysForMigration_returnsOnlyClosedFormerHotspotRowsThatNeedRepair() {
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    String tag = "former-hotspot";
+
+    // Reviewed/Safe stored as CLOSED + WONTFIX by the previous mapping.
+    IssueDto safe = insertMigratedRow(rule, branch, file, "CLOSED", "WONTFIX", tag, false);
+    // Reviewed/Fixed stored as CLOSED + FIXED: only returned with the migration's status diff REVIEWED -> CLOSED.
+    IssueDto fixedWithDiff = insertMigratedRow(rule, branch, file, "CLOSED", "FIXED", tag, true);
+    // A hotspot that was already closed before the migration looks the same, minus that diff.
+    insertMigratedRow(rule, branch, file, "CLOSED", "FIXED", tag, false);
+    insertMigratedRow(rule, branch, file, "CLOSED", "REMOVED", tag, true);
+    insertMigratedRow(rule, branch, file, "CLOSED", "FALSE-POSITIVE", tag, true);
+    // A Reviewed hotspot the analyzer closed (code fixed) carries REVIEWED -> CLOSED too, but in its own entry, with no
+    // tags change: only the migration's entry, which also tags the row, identifies a broken Fixed row.
+    IssueDto closedByAnalyzer = insertMigratedRow(rule, branch, file, "CLOSED", "FIXED", tag, false);
+    db.issues().insertFieldDiffs(closedByAnalyzer, new FieldDiffs()
+      .setIssueKey(closedByAnalyzer.getKey())
+      .setCreationDate(new Date())
+      .setDiff("status", "REVIEWED", "CLOSED")
+      .setDiff("resolution", "", "FIXED"));
+    // Not a closed row, not tagged, or not a former hotspot at all.
+    insertMigratedRow(rule, branch, file, "OPEN", null, tag, false);
+    insertMigratedRow(rule, branch, file, "RESOLVED", "WONTFIX", tag, false);
+    insertMigratedRow(rule, branch, file, "RESOLVED", "FIXED", tag, true);
+    insertMigratedRow(rule, branch, file, "CLOSED", "WONTFIX", "other", false);
+    // The tag filter is a coarse substring pre-filter: a look-alike is returned, and the migrator re-checks the exact tag.
+    IssueDto lookAlike = insertMigratedRow(rule, branch, file, "CLOSED", "WONTFIX", "former-hotspot-x", false);
+    // issue_type 4 is the hotspot migration's own input, never a repair candidate.
+    db.issues().insert(rule, branch, file, i -> i.setType(RuleType.SECURITY_HOTSPOT).setStatus("CLOSED").setResolution("WONTFIX").setTags(List.of(tag)));
+
+    assertThat(underTest.selectRepairKeysForMigration(db.getSession(), null))
+      .extracting(HotspotMigrationKeyDto::getKee)
+      .containsExactlyInAnyOrder(safe.getKey(), fixedWithDiff.getKey(), lookAlike.getKey());
+  }
+
+  /**
+   * A row repaired once records CLOSED -> RESOLVED. If a later analysis closes it again, the migration's old entry
+   * (REVIEWED -> CLOSED with the tags change) must not select it a second time.
+   */
+  @Test
+  void selectRepairKeysForMigration_doesNotSelectARowThatWasAlreadyRepairedAndClosedAgain() {
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    String tag = "former-hotspot";
+    IssueDto notYetRepaired = insertMigratedRow(rule, branch, file, "CLOSED", "FIXED", tag, true);
+    IssueDto repairedThenClosed = insertMigratedRow(rule, branch, file, "CLOSED", "FIXED", tag, true);
+    db.issues().insertFieldDiffs(repairedThenClosed, new FieldDiffs()
+      .setIssueKey(repairedThenClosed.getKey())
+      .setCreationDate(new Date())
+      .setDiff("status", "CLOSED", "RESOLVED")
+      .setDiff("resolution", "FIXED", "WONTFIX"));
+    db.issues().insertFieldDiffs(repairedThenClosed, new FieldDiffs()
+      .setIssueKey(repairedThenClosed.getKey())
+      .setCreationDate(new Date())
+      .setDiff("status", "RESOLVED", "CLOSED")
+      .setDiff("resolution", "WONTFIX", "FIXED"));
+
+    assertThat(underTest.selectRepairKeysForMigration(db.getSession(), null))
+      .extracting(HotspotMigrationKeyDto::getKee)
+      .containsExactly(notYetRepaired.getKey());
+  }
+
+  @Test
+  void selectRepairKeysForMigration_isScopedByProject() {
+    ProjectData projectA = db.components().insertPrivateProject();
+    ComponentDto branchA = projectA.getMainBranchComponent();
+    ProjectData projectB = db.components().insertPrivateProject();
+    ComponentDto branchB = projectB.getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.CODE_SMELL));
+    IssueDto inA = insertMigratedRow(rule, branchA, db.components().insertComponent(newFileDto(branchA)), "CLOSED", "WONTFIX", "former-hotspot", false);
+    IssueDto inB = insertMigratedRow(rule, branchB, db.components().insertComponent(newFileDto(branchB)), "CLOSED", "WONTFIX", "former-hotspot", false);
+
+    assertThat(underTest.selectRepairKeysForMigration(db.getSession(), null))
+      .extracting(HotspotMigrationKeyDto::getKee)
+      .containsExactlyInAnyOrder(inA.getKey(), inB.getKey());
+    assertThat(underTest.selectRepairKeysForMigration(db.getSession(), Set.of(projectA.projectUuid())))
+      .extracting(HotspotMigrationKeyDto::getKee)
+      .containsExactly(inA.getKey());
+    assertThat(underTest.selectRepairKeysForMigration(db.getSession(), Set.of(projectB.projectUuid())))
+      .extracting(HotspotMigrationKeyDto::getKee)
+      .containsExactly(inB.getKey());
+  }
+
+  @Test
+  void selectRepairKeysForMigration_rejectsAnEmptyScopeInsteadOfScanningEverything() {
+    Set<String> emptyScope = Set.of();
+    DbSession session = db.getSession();
+
+    assertThatThrownBy(() -> underTest.selectRepairKeysForMigration(session, emptyScope))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("must be null (all projects) or non-empty");
+  }
+
+  @Test
+  void selectRepairKeysForMigration_returnsEveryRowOnceOrderedByBranchThenKey() {
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto mainBranch = project.getMainBranchComponent();
+    ComponentDto featureBranch = db.components().insertProjectBranch(mainBranch);
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.BUG));
+    List<IssueDto> rows = new ArrayList<>();
+    for (ComponentDto branch : List.of(mainBranch, featureBranch)) {
+      ComponentDto file = db.components().insertComponent(newFileDto(branch));
+      for (int i = 0; i < 3; i++) {
+        rows.add(insertMigratedRow(rule, branch, file, "CLOSED", i % 2 == 0 ? "WONTFIX" : "FIXED", "former-hotspot", i % 2 != 0));
+      }
+    }
+
+    List<HotspotMigrationKeyDto> keys = underTest.selectRepairKeysForMigration(db.getSession(), null);
+
+    assertThat(keys).extracting(HotspotMigrationKeyDto::getKee).containsExactlyInAnyOrderElementsOf(rows.stream().map(IssueDto::getKey).toList());
+    assertThat(keys).isSortedAccordingTo(java.util.Comparator.comparing(HotspotMigrationKeyDto::getBranchUuid).thenComparing(HotspotMigrationKeyDto::getKee));
+  }
+
+  @Test
+  void selectRepairKeysForMigration_rowsLeaveTheSelectionOnceRepaired() {
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    IssueDto row = insertMigratedRow(rule, branch, db.components().insertComponent(newFileDto(branch)), "CLOSED", "WONTFIX", "former-hotspot", false);
+    assertThat(underTest.selectRepairKeysForMigration(db.getSession(), null)).hasSize(1);
+
+    db.executeUpdateSql("update issues set status = 'RESOLVED' where kee = '" + row.getKey() + "'");
+
+    assertThat(underTest.selectRepairKeysForMigration(db.getSession(), null)).isEmpty();
   }
 
   @Test
@@ -2262,6 +2395,24 @@ class IssueDaoIT {
     return new ImpactDto()
       .setSoftwareQuality(softwareQuality)
       .setSeverity(severity);
+  }
+
+  /**
+   * A finding as the previous version of the hotspot migration left it: converted to the rule's type and tagged.
+   * {@code withMigrationStatusDiff} adds the changelog entry that migration wrote for a Reviewed hotspot it closed.
+   */
+  private IssueDto insertMigratedRow(RuleDto rule, ComponentDto branch, ComponentDto file, String status, @Nullable String resolution,
+    String tag, boolean withMigrationStatusDiff) {
+    IssueDto issue = db.issues().insert(rule, branch, file,
+      i -> i.setType(rule.getEnumType()).setStatus(status).setResolution(resolution).setTags(List.of(tag)));
+    if (withMigrationStatusDiff) {
+      db.issues().insertFieldDiffs(issue, new FieldDiffs()
+        .setIssueKey(issue.getKey())
+        .setCreationDate(new Date())
+        .setDiff("status", "REVIEWED", "CLOSED")
+        .setDiff("tags", null, tag));
+    }
+    return issue;
   }
 
   private static RuleType randomRuleTypeExceptHotspot() {

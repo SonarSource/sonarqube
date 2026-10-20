@@ -19,6 +19,7 @@
  */
 package org.sonar.server.hotspot.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -50,7 +51,11 @@ public class MigrateToIssuesAction implements HotspotsWsAction {
       .setDescription("""
         Migrate Security Hotspots to Issues. Requires 'Administer System' permission. \
         Reports 'migrated' per project, plus a scope-wide 'skipped' count of findings that cannot migrate because \
-        their rule is still a Security Hotspot.""");
+        their rule is still a Security Hotspot. \
+        Also repairs findings migrated by 2026.5.0 to 2026.5.2, reported as 'repaired' when there are any. \
+        Running the action again is safe.""")
+      .setChangelog(new Change("2026.5.3", "Reviewed/Safe and Reviewed/Fixed hotspots are migrated to Accepted instead of closed. "
+        + "Response contains 'repaired' when findings migrated by an earlier version were repaired."));
 
     action.createParam(PARAM_PROJECT)
       .setDescription("Project key. If not provided, all projects are migrated.")
@@ -75,6 +80,10 @@ public class MigrateToIssuesAction implements HotspotsWsAction {
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject();
       json.prop(PARAM_DRY_RUN, result.dryRun());
+      json.prop("migrated", result.totalMigrated());
+      if (result.totalRepaired() > 0) {
+        json.prop("repaired", result.totalRepaired());
+      }
       // Scope-wide, not per project: findings whose rule is still a Security Hotspot are excluded in SQL, so a run
       // never loads them and cannot attribute them to a project.
       json.prop("skipped", result.skipped());
@@ -84,6 +93,9 @@ public class MigrateToIssuesAction implements HotspotsWsAction {
         json.beginObject();
         json.prop("projectKey", project.projectKey());
         json.prop("migrated", project.migrated());
+        if (project.repaired() > 0) {
+          json.prop("repaired", project.repaired());
+        }
         json.endObject();
       }
       json.endArray();

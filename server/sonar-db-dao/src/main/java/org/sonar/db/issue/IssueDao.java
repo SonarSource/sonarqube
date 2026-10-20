@@ -148,8 +148,21 @@ public class IssueDao implements Dao {
   }
 
   /**
+   * Keys of findings migrated by an earlier version of the hotspot migration that need repair (SONAR-32693), ordered
+   * by branch then key. Unpaged: see {@code selectRepairKeysForMigration} in {@code IssueMapper.xml}.
+   * The tag filter is a substring match, so callers re-check the exact tag.
+   *
+   * @param projectUuids optional project (entity) uuids; null means all projects, an empty collection is rejected.
+   */
+  public List<HotspotMigrationKeyDto> selectRepairKeysForMigration(DbSession dbSession, @Nullable Collection<String> projectUuids) {
+    checkMigrationScope(projectUuids);
+    return mapper(dbSession).selectRepairKeysForMigration(projectUuids);
+  }
+
+  /**
    * Loads the fully-populated {@link HotspotToMigrateDto} (incl. rule target type) for the given issue keys,
-   * ordered by branch then key. Used together with {@link #selectHotspotKeysForMigration}.
+   * ordered by branch then key. Used together with {@link #selectHotspotKeysForMigration} and
+   * {@link #selectRepairKeysForMigration}.
    */
   public List<HotspotToMigrateDto> selectHotspotsForMigrationByKeys(DbSession dbSession, List<String> keys) {
     return executeLargeInputs(keys, partition -> mapper(dbSession).selectHotspotsForMigrationByKeys(partition));

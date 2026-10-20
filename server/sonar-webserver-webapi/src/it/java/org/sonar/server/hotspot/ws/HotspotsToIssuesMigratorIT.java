@@ -20,25 +20,33 @@
 package org.sonar.server.hotspot.ws;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.event.Level;
 import org.sonar.api.impl.utils.TestSystem2;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ProjectData;
+import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.hotspot.ws.HotspotsToIssuesMigrator.MigrationResult;
 import org.sonar.server.hotspot.ws.HotspotsToIssuesMigrator.ProjectMigrationResult;
@@ -124,22 +132,463 @@ public class HotspotsToIssuesMigratorIT {
 
   @Test
   public void migrate_shouldMapToReviewToOpen() {
-    assertStatusMapping(Issue.STATUS_TO_REVIEW, null, Issue.STATUS_OPEN, null);
+    assertStatusMapping(Issue.STATUS_TO_REVIEW, null, Issue.STATUS_OPEN, null, IssueStatus.OPEN);
   }
 
   @Test
   public void migrate_shouldMapReviewedAcknowledgedToConfirmed() {
-    assertStatusMapping(Issue.STATUS_REVIEWED, Issue.RESOLUTION_ACKNOWLEDGED, Issue.STATUS_CONFIRMED, null);
+    assertStatusMapping(Issue.STATUS_REVIEWED, Issue.RESOLUTION_ACKNOWLEDGED, Issue.STATUS_CONFIRMED, null, IssueStatus.CONFIRMED);
   }
 
   @Test
-  public void migrate_shouldMapReviewedFixedToClosedFixed() {
-    assertStatusMapping(Issue.STATUS_REVIEWED, Issue.RESOLUTION_FIXED, Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED);
+  public void migrate_shouldMapReviewedFixedToResolvedWontFixShownAsAccepted() {
+    // Reviewed/Fixed is a review a user sets by hand on a hotspot the analyzer still raises: it is kept like Safe, not
+    // re-evaluated (RESOLVED/FIXED would reopen it as a vulnerability), and never CLOSED, which tracking skips.
+    assertStatusMapping(Issue.STATUS_REVIEWED, Issue.RESOLUTION_FIXED, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, IssueStatus.ACCEPTED);
   }
 
   @Test
-  public void migrate_shouldMapReviewedSafeToClosedWontFix() {
-    assertStatusMapping(Issue.STATUS_REVIEWED, Issue.RESOLUTION_SAFE, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX);
+  public void migrate_shouldMapReviewedWithoutKnownResolutionToConfirmed() {
+    // Not reachable through the workflow (REVIEWED always carries a resolution), but pinned so it does not change silently.
+    assertStatusMapping(Issue.STATUS_REVIEWED, null, Issue.STATUS_CONFIRMED, null, IssueStatus.CONFIRMED);
+  }
+
+  @Test
+  public void migrate_shouldKeepTheStatusOfAHotspotInAnUnexpectedStatusAndWarn() {
+    logInAdmin();
+    logTester.setLevel(Level.WARN);
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    IssueDto weird = insertHotspot(rule, branch, db.components().insertComponent(newFileDto(branch)),
+      i -> i.setStatus(Issue.STATUS_CONFIRMED).setResolution(null));
+
+    underTest.migrate(null, false);
+
+    IssueDto migrated = reload(weird);
+    assertThat(migrated.getType()).isEqualTo(RuleType.VULNERABILITY.getDbConstant());
+    assertThat(migrated.getStatus()).isEqualTo(Issue.STATUS_CONFIRMED);
+    assertThat(logTester.logs(Level.WARN)).anyMatch(l -> l.contains("Unexpected hotspot status 'CONFIRMED'"));
+  }
+
+  @Test
+  public void migrate_shouldAddTheReviewedFixedTagAndCommentOnlyToReviewedFixed() {
+    logInAdmin();
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    Map<String, IssueDto> byCase = new java.util.LinkedHashMap<>();
+    for (RuleType targetType : List.of(RuleType.VULNERABILITY, RuleType.CODE_SMELL, RuleType.BUG)) {
+      RuleDto rule = db.rules().insert(r -> r.setType(targetType));
+      byCase.put("fixed-" + targetType, insertHotspot(rule, branch, file, i -> i.setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_FIXED)));
+      byCase.put("safe-" + targetType, insertHotspot(rule, branch, file, i -> i.setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_SAFE)));
+      byCase.put("ack-" + targetType, insertHotspot(rule, branch, file, i -> i.setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_ACKNOWLEDGED)));
+      byCase.put("review-" + targetType, insertHotspot(rule, branch, file, i -> i.setStatus(Issue.STATUS_TO_REVIEW).setResolution(null)));
+      byCase.put("closed-" + targetType, insertHotspot(rule, branch, file, i -> i.setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_REMOVED)));
+    }
+
+    underTest.migrate(null, false);
+
+    byCase.forEach((name, hotspot) -> {
+      List<String> comments = commentsOf(hotspot);
+      List<String> tags = reload(hotspot).getTags().stream().toList();
+      if (name.startsWith("fixed-")) {
+        assertThat(comments).as(name).containsExactly(HotspotsToIssuesMigrator.MIGRATED_FROM_REVIEWED_FIXED_COMMENT);
+        assertThat(tags).as(name).contains(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG, HotspotsToIssuesMigrator.FORMER_HOTSPOT_REVIEWED_FIXED_TAG);
+      } else {
+        assertThat(comments).as(name).isEmpty();
+        assertThat(tags).as(name).containsExactly(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+      }
+    });
+  }
+
+  @Test
+  public void migrate_shouldAttributeTheMigratedFromReviewedFixedCommentToTheAdministratorRunningIt() {
+    userSession.logIn("admin-login").setSystemAdministrator();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    IssueDto fixed = insertHotspot(rule, branch, db.components().insertComponent(newFileDto(branch)),
+      i -> i.setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_FIXED));
+
+    underTest.migrate(null, false);
+
+    assertThat(dbClient.issueChangeDao().selectByTypeAndIssueKeys(db.getSession(), List.of(fixed.getKey()), IssueChangeDto.TYPE_COMMENT))
+      .singleElement().satisfies(comment -> assertThat(comment.getUserUuid()).isEqualTo(userSession.getUuid()));
+  }
+
+  @Test
+  public void migrate_shouldPreserveTheExistingHistoryAndAssigneeOfAHotspot() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    UserDto assignee = db.users().insertUser();
+    IssueDto hotspot = insertHotspot(rule, branch, db.components().insertComponent(newFileDto(branch)),
+      i -> i.setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_FIXED).setAssigneeUuid(assignee.getUuid()).setLine(12));
+    db.issues().insertComment(hotspot, assignee, "reviewed on 2025-03-01");
+    db.issues().insertFieldDiffs(hotspot, new FieldDiffs().setIssueKey(hotspot.getKey()).setCreationDate(new Date(system2.now() - 5_000))
+      .setDiff("status", Issue.STATUS_TO_REVIEW, Issue.STATUS_REVIEWED).setDiff("resolution", null, Issue.RESOLUTION_FIXED));
+
+    underTest.migrate(null, false);
+
+    IssueDto migrated = reload(hotspot);
+    assertThat(migrated.getKey()).isEqualTo(hotspot.getKey());
+    assertThat(migrated.getAssigneeUuid()).isEqualTo(assignee.getUuid());
+    assertThat(migrated.getLine()).isEqualTo(12);
+    assertThat(commentsOf(hotspot)).containsExactlyInAnyOrder("reviewed on 2025-03-01", HotspotsToIssuesMigrator.MIGRATED_FROM_REVIEWED_FIXED_COMMENT);
+    // The earlier diff is kept and the migration appends its own.
+    assertThat(dbClient.issueChangeDao().selectChangelogByIssue(db.getSession(), hotspot.getKey())).hasSize(2);
+  }
+
+  @Test
+  public void migrate_shouldBeIdempotentAndNotRepeatTheComment() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    IssueDto fixed = insertHotspot(rule, branch, file, i -> i.setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_FIXED));
+    IssueDto safe = insertHotspot(rule, branch, file, i -> i.setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_SAFE));
+
+    assertThat(underTest.migrate(null, false).totalMigrated()).isEqualTo(2);
+    MigrationResult secondRun = underTest.migrate(null, false);
+
+    assertThat(secondRun.totalMigrated()).isZero();
+    assertThat(secondRun.totalRepaired()).isZero();
+    assertThat(commentsOf(fixed)).hasSize(1);
+    assertThat(dbClient.issueChangeDao().selectChangelogByIssue(db.getSession(), fixed.getKey())).hasSize(1);
+    assertThat(dbClient.issueChangeDao().selectChangelogByIssue(db.getSession(), safe.getKey())).hasSize(1);
+  }
+
+  @Test
+  public void migrate_shouldMapReviewedSafeToResolvedWontFixShownAsAccepted() {
+    // "Accepted" is RESOLVED + WONTFIX. CLOSED would read as Fixed (IssueStatus.FIXED) and is skipped by issue tracking.
+    assertStatusMapping(Issue.STATUS_REVIEWED, Issue.RESOLUTION_SAFE, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, IssueStatus.ACCEPTED);
+  }
+
+  @Test
+  public void migrate_shouldKeepHotspotsClosedBecauseRemovedFromCodeClosed() {
+    for (String resolution : List.of(Issue.RESOLUTION_REMOVED, Issue.RESOLUTION_FIXED)) {
+      assertStatusMapping(Issue.STATUS_CLOSED, resolution, Issue.STATUS_CLOSED, resolution, IssueStatus.FIXED);
+    }
+  }
+
+  @Test
+  public void migrate_shouldRecordStatusDiffOnlyForHotspotsWhoseStatusChanged() {
+    // A hotspot that was already closed has no status diff; a Reviewed one records REVIEWED -> RESOLVED. The repair of
+    // rows migrated by the previous mapping selects REVIEWED -> CLOSED, so a row migrated now can never match it.
+    logInAdmin();
+    RuleDto vulnerabilityRule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    IssueDto reviewedFixed = insertHotspot(vulnerabilityRule, branch, file,
+      i -> i.setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_FIXED));
+    IssueDto reviewedSafe = insertHotspot(vulnerabilityRule, branch, file,
+      i -> i.setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_SAFE));
+    IssueDto alreadyClosed = insertHotspot(vulnerabilityRule, branch, file,
+      i -> i.setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED));
+
+    underTest.migrate(null, false);
+
+    var fixedDiffs = dbClient.issueChangeDao().selectChangelogByIssue(db.getSession(), reviewedFixed.getKey());
+    assertThat(fixedDiffs).hasSize(1);
+    assertThat(fixedDiffs.get(0).get("status").oldValue()).isEqualTo(Issue.STATUS_REVIEWED);
+    assertThat(fixedDiffs.get(0).get("status").newValue()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(fixedDiffs.get(0).get("resolution").oldValue()).isEqualTo(Issue.RESOLUTION_FIXED);
+    assertThat(fixedDiffs.get(0).get("resolution").newValue()).isEqualTo(Issue.RESOLUTION_WONT_FIX);
+    assertThat(String.valueOf(fixedDiffs.get(0).get("tags").newValue())).contains("former-hotspot", "former-hotspot-reviewed-fixed");
+    assertThat(hasStatusChange(reviewedSafe, Issue.STATUS_REVIEWED, Issue.STATUS_RESOLVED)).isTrue();
+    assertThat(dbClient.issueChangeDao().selectChangelogByIssue(db.getSession(), reviewedSafe.getKey()).get(0).get("resolution").oldValue())
+      .isEqualTo(Issue.RESOLUTION_SAFE);
+    assertThat(hasStatusChange(reviewedFixed, Issue.STATUS_REVIEWED, Issue.STATUS_CLOSED)).isFalse();
+    var closedDiffs = dbClient.issueChangeDao().selectChangelogByIssue(db.getSession(), alreadyClosed.getKey());
+    assertThat(closedDiffs).hasSize(1);
+    assertThat(closedDiffs.get(0).diffs()).doesNotContainKey("status");
+  }
+
+  @Test
+  public void repair_shouldMoveSafeRowFromClosedToResolvedKeepingWontFix() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    IssueDto safe = insertPreviouslyMigrated(rule, branch, db.components().insertComponent(newFileDto(branch)),
+      Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false, HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+
+    MigrationResult result = underTest.migrate(null, false);
+
+    assertThat(result.totalMigrated()).isZero();
+    assertThat(result.totalRepaired()).isEqualTo(1);
+    assertThat(result.projects()).extracting(ProjectMigrationResult::projectKey, ProjectMigrationResult::migrated, ProjectMigrationResult::repaired)
+      .containsExactly(tuple(project.getProjectDto().getKey(), 0, 1));
+    IssueDto repaired = reload(safe);
+    assertThat(repaired.getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(repaired.getResolution()).isEqualTo(Issue.RESOLUTION_WONT_FIX);
+    assertThat(IssueStatus.of(repaired.getStatus(), repaired.getResolution())).isEqualTo(IssueStatus.ACCEPTED);
+    assertThat(repaired.getType()).isEqualTo(RuleType.VULNERABILITY.getDbConstant());
+    assertThat(repaired.getTags()).containsExactly(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+    assertThat(hasStatusChange(safe, Issue.STATUS_CLOSED, Issue.STATUS_RESOLVED)).isTrue();
+    assertThat(postProcessor.wasCalled()).isTrue();
+  }
+
+  @Test
+  public void repair_shouldMoveFixedRowWithMigrationStatusDiffToResolvedWontFixAndComment() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    IssueDto fixed = insertPreviouslyMigrated(rule, branch, db.components().insertComponent(newFileDto(branch)),
+      Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED, true, HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+
+    MigrationResult result = underTest.migrate(null, false);
+
+    assertThat(result.totalRepaired()).isEqualTo(1);
+    IssueDto repaired = reload(fixed);
+    assertThat(repaired.getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(repaired.getResolution()).isEqualTo(Issue.RESOLUTION_WONT_FIX);
+    assertThat(IssueStatus.of(repaired.getStatus(), repaired.getResolution())).isEqualTo(IssueStatus.ACCEPTED);
+    // The migration's own entry is kept and the repair appends one more, with both the status and the resolution change.
+    assertThat(dbClient.issueChangeDao().selectChangelogByIssue(db.getSession(), fixed.getKey())).hasSize(2);
+    assertThat(hasStatusChange(fixed, Issue.STATUS_REVIEWED, Issue.STATUS_CLOSED)).isTrue();
+    assertThat(hasStatusChange(fixed, Issue.STATUS_CLOSED, Issue.STATUS_RESOLVED)).isTrue();
+    assertThat(dbClient.issueChangeDao().selectChangelogByIssue(db.getSession(), fixed.getKey()))
+      .anyMatch(diffs -> diffs.get("resolution") != null
+        && Issue.RESOLUTION_FIXED.equals(diffs.get("resolution").oldValue()) && Issue.RESOLUTION_WONT_FIX.equals(diffs.get("resolution").newValue()));
+    assertThat(commentsOf(fixed)).containsExactly(HotspotsToIssuesMigrator.MIGRATED_FROM_REVIEWED_FIXED_COMMENT);
+    assertThat(repaired.getTags()).containsExactlyInAnyOrder(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG,
+      HotspotsToIssuesMigrator.FORMER_HOTSPOT_REVIEWED_FIXED_TAG);
+  }
+
+  @Test
+  public void repair_shouldKeepTheOtherTagsOfAFixedRow() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    IssueDto fixed = insertPreviouslyMigrated(rule, branch, db.components().insertComponent(newFileDto(branch)),
+      Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED, true, HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG, "cwe", "owasp-a1");
+
+    underTest.migrate(null, false);
+
+    assertThat(reload(fixed).getTags()).containsExactlyInAnyOrder("cwe", "owasp-a1", HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG,
+      HotspotsToIssuesMigrator.FORMER_HOTSPOT_REVIEWED_FIXED_TAG);
+  }
+
+  @Test
+  public void repair_shouldNotAddTheReviewedFixedCommentOrTagToARepairedSafeRow() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    IssueDto safe = insertPreviouslyMigrated(rule, branch, db.components().insertComponent(newFileDto(branch)),
+      Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false, HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+
+    underTest.migrate(null, false);
+
+    assertThat(commentsOf(safe)).isEmpty();
+    assertThat(reload(safe).getTags()).containsExactly(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+  }
+
+  @Test
+  public void repair_shouldRepairEveryTargetType() {
+    logInAdmin();
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    List<IssueDto> rows = new ArrayList<>();
+    for (RuleType targetType : List.of(RuleType.VULNERABILITY, RuleType.CODE_SMELL, RuleType.BUG)) {
+      RuleDto rule = db.rules().insert(r -> r.setType(targetType));
+      rows.add(insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false,
+        HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG));
+      rows.add(insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED, true,
+        HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG));
+    }
+
+    MigrationResult result = underTest.migrate(null, false);
+
+    assertThat(result.totalRepaired()).isEqualTo(6);
+    assertThat(rows).hasSize(6).allSatisfy(row -> {
+      IssueDto repaired = reload(row);
+      assertThat(repaired.getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
+      assertThat(repaired.getResolution()).isEqualTo(Issue.RESOLUTION_WONT_FIX);
+      assertThat(IssueStatus.of(repaired.getStatus(), repaired.getResolution())).isEqualTo(IssueStatus.ACCEPTED);
+      assertThat(repaired.getType()).isEqualTo(row.getType());
+    });
+    // rows alternate Safe, Fixed per target type: only the Fixed ones carry the reviewed-fixed tag
+    for (int i = 0; i < rows.size(); i++) {
+      assertThat(reload(rows.get(i)).getTags().contains(HotspotsToIssuesMigrator.FORMER_HOTSPOT_REVIEWED_FIXED_TAG)).as("row %s", i).isEqualTo(i % 2 == 1);
+    }
+  }
+
+  @Test
+  public void repair_shouldLeaveEveryOtherRowUntouched() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    String tag = HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG;
+    IssueDto eligibleSafe = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false, tag);
+    // Already closed before the migration (code removed): no migration status diff, must stay CLOSED.
+    IssueDto closedFixedWithoutDiff = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED, false, tag);
+    IssueDto closedRemoved = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_REMOVED, true, tag);
+    // Closed for another reason.
+    IssueDto closedFalsePositive = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_FALSE_POSITIVE, true, tag);
+    // Not tagged by the migration, or only a look-alike of its tag.
+    IssueDto untagged = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false, "other");
+    IssueDto lookAlikeTag = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false, "former-hotspot-x");
+    // The new tag alone does not make a finding a migrated one: only the exact former-hotspot tag does.
+    IssueDto onlyReviewedFixedTag = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false,
+      HotspotsToIssuesMigrator.FORMER_HOTSPOT_REVIEWED_FIXED_TAG);
+    // Statuses that issue tracking already follows.
+    IssueDto open = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_OPEN, null, false, tag);
+    IssueDto confirmed = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CONFIRMED, null, false, tag);
+    IssueDto resolvedWontFix = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, false, tag);
+    IssueDto resolvedFixed = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_RESOLVED, Issue.RESOLUTION_FIXED, true, tag);
+    List<IssueDto> untouched = List.of(closedFixedWithoutDiff, closedRemoved, closedFalsePositive, untagged, lookAlikeTag, onlyReviewedFixedTag, open,
+      confirmed, resolvedWontFix, resolvedFixed);
+
+    MigrationResult result = underTest.migrate(null, false);
+
+    assertThat(result.totalRepaired()).isEqualTo(1);
+    assertThat(reload(eligibleSafe).getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(untouched).hasSize(10).allSatisfy(row -> {
+      IssueDto reloaded = reload(row);
+      assertThat(reloaded.getStatus()).isEqualTo(row.getStatus());
+      assertThat(reloaded.getResolution()).isEqualTo(row.getResolution());
+    });
+  }
+
+  @Test
+  public void repair_shouldNotTouchPlainIssuesThatWereNeverHotspots() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    IssueDto closedWontFix = db.issues().insert(rule, branch, db.components().insertComponent(newFileDto(branch)),
+      i -> i.setType(RuleType.VULNERABILITY).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_WONT_FIX).setTags(List.of()));
+
+    MigrationResult result = underTest.migrate(null, false);
+
+    assertThat(result.totalRepaired()).isZero();
+    assertThat(reload(closedWontFix).getStatus()).isEqualTo(Issue.STATUS_CLOSED);
+  }
+
+  @Test
+  public void repair_dryRun_shouldCountWithoutWriting() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    IssueDto safe = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false,
+      HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+    IssueDto fixed = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED, true,
+      HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+
+    MigrationResult result = underTest.migrate(null, true);
+
+    assertThat(result.dryRun()).isTrue();
+    assertThat(result.totalRepaired()).isEqualTo(2);
+    assertThat(reload(safe).getStatus()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(reload(fixed).getStatus()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(hasStatusChange(safe, Issue.STATUS_CLOSED, Issue.STATUS_RESOLVED)).isFalse();
+    assertThat(postProcessor.wasCalled()).isFalse();
+  }
+
+  @Test
+  public void repair_shouldBeIdempotent() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    IssueDto safe = insertPreviouslyMigrated(rule, branch, db.components().insertComponent(newFileDto(branch)),
+      Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false, HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+
+    assertThat(underTest.migrate(null, false).totalRepaired()).isEqualTo(1);
+    MigrationResult secondRun = underTest.migrate(null, false);
+
+    assertThat(secondRun.totalRepaired()).isZero();
+    assertThat(secondRun.projects()).isEmpty();
+    assertThat(dbClient.issueChangeDao().selectChangelogByIssue(db.getSession(), safe.getKey())).hasSize(1);
+  }
+
+  @Test
+  public void repair_shouldBeScopedToTheRequestedProject() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ProjectData projectA = db.components().insertPrivateProject();
+    ComponentDto branchA = projectA.getMainBranchComponent();
+    IssueDto inA = insertPreviouslyMigrated(rule, branchA, db.components().insertComponent(newFileDto(branchA)),
+      Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false, HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+    ComponentDto branchB = db.components().insertPrivateProject().getMainBranchComponent();
+    IssueDto inB = insertPreviouslyMigrated(rule, branchB, db.components().insertComponent(newFileDto(branchB)),
+      Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false, HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+
+    MigrationResult result = underTest.migrate(projectA.getProjectDto().getKey(), false);
+
+    assertThat(result.projects()).extracting(ProjectMigrationResult::projectKey, ProjectMigrationResult::repaired)
+      .containsExactly(tuple(projectA.getProjectDto().getKey(), 1));
+    assertThat(reload(inA).getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(reload(inB).getStatus()).isEqualTo(Issue.STATUS_CLOSED);
+  }
+
+  @Test
+  public void repair_shouldRepairEveryRowAcrossBranchesAndChunksInSingleCall() {
+    logInAdmin();
+    underTest.setPageSize(2);
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto mainBranch = project.getMainBranchComponent();
+    ComponentDto mainFile = db.components().insertComponent(newFileDto(mainBranch));
+    ComponentDto featureBranch = db.components().insertProjectBranch(mainBranch);
+    ComponentDto featureFile = db.components().insertComponent(newFileDto(featureBranch));
+    List<IssueDto> rows = new ArrayList<>();
+    for (int i = 0; i < 3; i++) {
+      rows.add(insertPreviouslyMigrated(rule, mainBranch, mainFile, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false,
+        HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG));
+      rows.add(insertPreviouslyMigrated(rule, featureBranch, featureFile, Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED, true,
+        HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG));
+    }
+
+    MigrationResult result = underTest.migrate(project.getProjectDto().getKey(), false);
+
+    assertThat(result.projects()).extracting(ProjectMigrationResult::repaired).containsExactly(6);
+    assertThat(rows).hasSize(6).allSatisfy(row -> {
+      IssueDto repaired = reload(row);
+      assertThat(repaired.getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
+      assertThat(repaired.getResolution()).isEqualTo(Issue.RESOLUTION_WONT_FIX);
+    });
+  }
+
+  @Test
+  public void repair_shouldBeIdempotentForAFixedRowAndNotRepeatTheComment() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    IssueDto fixed = insertPreviouslyMigrated(rule, branch, db.components().insertComponent(newFileDto(branch)),
+      Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED, true, HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+
+    assertThat(underTest.migrate(null, false).totalRepaired()).isEqualTo(1);
+    MigrationResult secondRun = underTest.migrate(null, false);
+
+    assertThat(secondRun.totalRepaired()).isZero();
+    assertThat(commentsOf(fixed)).hasSize(1);
+    assertThat(reload(fixed).getTags()).containsExactlyInAnyOrder(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG,
+      HotspotsToIssuesMigrator.FORMER_HOTSPOT_REVIEWED_FIXED_TAG);
+    assertThat(dbClient.issueChangeDao().selectChangelogByIssue(db.getSession(), fixed.getKey())).hasSize(2);
+  }
+
+  @Test
+  public void migrate_shouldMigrateAndRepairInTheSameRun() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    IssueDto stillHotspot = insertHotspot(rule, branch, file,
+      i -> i.setStatus(Issue.STATUS_REVIEWED).setResolution(Issue.RESOLUTION_SAFE));
+    IssueDto migratedEarlier = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, false,
+      HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+
+    MigrationResult result = underTest.migrate(null, false);
+
+    assertThat(result.projects()).extracting(ProjectMigrationResult::migrated, ProjectMigrationResult::repaired)
+      .containsExactly(tuple(1, 1));
+    assertThat(result.totalMigrated()).isEqualTo(1);
+    assertThat(result.totalRepaired()).isEqualTo(1);
+    // Migrated now: stored as RESOLVED straight away, so it is not "repaired" by the same run.
+    assertThat(reload(stillHotspot).getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(dbClient.issueChangeDao().selectChangelogByIssue(db.getSession(), stillHotspot.getKey())).hasSize(1);
+    assertThat(reload(migratedEarlier).getStatus()).isEqualTo(Issue.STATUS_RESOLVED);
   }
 
   @Test
@@ -401,19 +850,40 @@ public class HotspotsToIssuesMigratorIT {
       .hasMessageContaining("does-not-exist");
   }
 
-  private void assertStatusMapping(String hotspotStatus, String hotspotResolution, String expectedStatus, String expectedResolution) {
+  /**
+   * The status mapping is independent of the target type, so it is checked for a Vulnerability, a Code Smell and a Bug
+   * rule at once. {@code expectedIssueStatus} is what the issue model derives from the stored status/resolution.
+   */
+  private void assertStatusMapping(String hotspotStatus, @Nullable String hotspotResolution, String expectedStatus,
+    @Nullable String expectedResolution, IssueStatus expectedIssueStatus) {
     logInAdmin();
-    RuleDto vulnerabilityRule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
-    ProjectData project = db.components().insertPrivateProject();
-    ComponentDto branch = project.getMainBranchComponent();
-    IssueDto hotspot = insertHotspot(vulnerabilityRule, branch, db.components().insertComponent(newFileDto(branch)),
-      i -> i.setStatus(hotspotStatus).setResolution(hotspotResolution));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    Map<RuleType, IssueDto> hotspotsByTargetType = new EnumMap<>(RuleType.class);
+    for (RuleType targetType : List.of(RuleType.VULNERABILITY, RuleType.CODE_SMELL, RuleType.BUG)) {
+      RuleDto rule = db.rules().insert(r -> r.setType(targetType));
+      hotspotsByTargetType.put(targetType, insertHotspot(rule, branch, file,
+        i -> i.setStatus(hotspotStatus).setResolution(hotspotResolution)));
+    }
 
     underTest.migrate(null, false);
 
-    IssueDto migrated = reload(hotspot);
-    assertThat(migrated.getStatus()).isEqualTo(expectedStatus);
-    assertThat(migrated.getResolution()).isEqualTo(expectedResolution);
+    hotspotsByTargetType.forEach((targetType, hotspot) -> {
+      IssueDto migrated = reload(hotspot);
+      assertThat(migrated.getType()).as("type for %s", targetType).isEqualTo(targetType.getDbConstant());
+      assertThat(migrated.getStatus()).as("status for %s", targetType).isEqualTo(expectedStatus);
+      assertThat(migrated.getResolution()).as("resolution for %s", targetType).isEqualTo(expectedResolution);
+      assertThat(IssueStatus.of(migrated.getStatus(), migrated.getResolution())).as("issue status for %s", targetType)
+        .isEqualTo(expectedIssueStatus);
+      assertThat(migrated.getTags()).contains(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+      boolean reviewedAsFixed = Issue.STATUS_REVIEWED.equals(hotspotStatus) && Issue.RESOLUTION_FIXED.equals(hotspotResolution);
+      if (reviewedAsFixed) {
+        assertThat(migrated.getTags()).as("tags for %s", targetType)
+          .containsExactlyInAnyOrder(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG, HotspotsToIssuesMigrator.FORMER_HOTSPOT_REVIEWED_FIXED_TAG);
+      } else {
+        assertThat(migrated.getTags()).as("tags for %s", targetType).containsExactly(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+      }
+    });
   }
 
   private void logInAdmin() {
@@ -432,6 +902,104 @@ public class HotspotsToIssuesMigratorIT {
   }
 
   private IssueDto reload(IssueDto issue) {
+    // The test session is shared: without this a row read before the migration would be served from its cache.
+    db.getSession().clearCache();
     return dbClient.issueDao().selectOrFailByKey(db.getSession(), issue.getKey());
+  }
+
+  /**
+   * A finding as an earlier version of the migration left it: already converted to the rule's type and tagged, but
+   * stored as CLOSED. {@code withMigrationStatusDiff} adds the changelog entry that migration wrote when it changed a
+   * Reviewed hotspot to CLOSED (REVIEWED -> CLOSED), which is what tells such a row from a hotspot that was already
+   * closed before the migration.
+   */
+  private IssueDto insertPreviouslyMigrated(RuleDto rule, ComponentDto branch, ComponentDto file, String status,
+    @Nullable String resolution, boolean withMigrationStatusDiff, String... tags) {
+    IssueDto issue = db.issues().insert(rule, branch, file,
+      i -> i.setType(rule.getEnumType()).setStatus(status).setResolution(resolution).setTags(List.of(tags)));
+    if (withMigrationStatusDiff) {
+      db.issues().insertFieldDiffs(issue, new FieldDiffs()
+        .setIssueKey(issue.getKey())
+        .setCreationDate(new Date(system2.now() - 1_000))
+        .setDiff("type", "SECURITY_HOTSPOT", rule.getEnumType().name())
+        .setDiff("status", Issue.STATUS_REVIEWED, Issue.STATUS_CLOSED)
+        .setDiff("tags", null, HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG));
+    }
+    return issue;
+  }
+
+  /**
+   * Found on a real server: once a repaired row was closed again by an analysis, every later run repaired it again,
+   * repeating the comment and tagging a Safe row as a Fixed one.
+   */
+  @Test
+  public void repair_shouldNotRepairARowAgainAfterAnAnalysisClosedIt() {
+    logInAdmin();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    ComponentDto branch = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    IssueDto fixed = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_FIXED, true,
+      HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+    IssueDto safe = insertPreviouslyMigrated(rule, branch, file, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX, true,
+      HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+    assertThat(underTest.migrate(null, false).totalRepaired()).isEqualTo(2);
+
+    // What the next analysis does to both when they are no longer matched: closes them, as FIXED, with its own change.
+    for (IssueDto repaired : List.of(fixed, safe)) {
+      db.getSession().clearCache();
+      IssueDto dto = dbClient.issueDao().selectOrFailByKey(db.getSession(), repaired.getKey());
+      dto.setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED);
+      dbClient.issueDao().update(db.getSession(), dto);
+      db.issues().insertFieldDiffs(repaired, new FieldDiffs().setIssueKey(repaired.getKey()).setCreationDate(new Date(system2.now() + 1_000))
+        .setDiff("status", Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED)
+        .setDiff("resolution", Issue.RESOLUTION_WONT_FIX, Issue.RESOLUTION_FIXED));
+    }
+    db.commit();
+
+    MigrationResult second = underTest.migrate(null, false);
+
+    assertThat(second.totalRepaired()).isZero();
+    assertThat(reload(fixed).getStatus()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(reload(safe).getStatus()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(commentsOf(fixed)).containsExactly(HotspotsToIssuesMigrator.MIGRATED_FROM_REVIEWED_FIXED_COMMENT);
+    assertThat(commentsOf(safe)).isEmpty();
+    assertThat(reload(safe).getTags()).containsExactly(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+  }
+
+  @Test
+  public void migrate_shouldNotRepairAReviewedHotspotTheAnalyzerClosedBeforeTheMigration() {
+    ProjectData project = db.components().insertPrivateProject();
+    ComponentDto branch = project.getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setType(RuleType.VULNERABILITY));
+    IssueDto closed = db.issues().insert(rule, branch, db.components().insertComponent(newFileDto(branch)),
+      i -> i.setType(RuleType.SECURITY_HOTSPOT).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED).setTags(List.of()));
+    db.issues().insertFieldDiffs(closed, new FieldDiffs().setIssueKey(closed.getKey()).setCreationDate(new Date(system2.now() - 100_000))
+      .setDiff("status", Issue.STATUS_REVIEWED, Issue.STATUS_CLOSED)
+      .setDiff("resolution", Issue.RESOLUTION_SAFE, Issue.RESOLUTION_FIXED));
+
+    MigrationResult first = underTest.migrate(null, false);
+    MigrationResult second = underTest.migrate(null, false);
+
+    assertThat(first.totalMigrated()).isEqualTo(1);
+    assertThat(first.totalRepaired()).isZero();
+    assertThat(second.totalRepaired()).isZero();
+    IssueDto reloaded = reload(closed);
+    assertThat(reloaded.getStatus()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(reloaded.getResolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    assertThat(reloaded.getTags()).containsExactly(HotspotsToIssuesMigrator.FORMER_HOTSPOT_TAG);
+    assertThat(commentsOf(closed)).isEmpty();
+  }
+
+  private List<String> commentsOf(IssueDto issue) {
+    db.getSession().clearCache();
+    return dbClient.issueChangeDao().selectByTypeAndIssueKeys(db.getSession(), List.of(issue.getKey()), IssueChangeDto.TYPE_COMMENT).stream()
+      .map(IssueChangeDto::getChangeData)
+      .toList();
+  }
+
+  private boolean hasStatusChange(IssueDto issue, String from, String to) {
+    return dbClient.issueChangeDao().selectChangelogByIssue(db.getSession(), issue.getKey()).stream()
+      .map(diffs -> diffs.get("status"))
+      .anyMatch(diff -> diff != null && from.equals(diff.oldValue()) && to.equals(diff.newValue()));
   }
 }

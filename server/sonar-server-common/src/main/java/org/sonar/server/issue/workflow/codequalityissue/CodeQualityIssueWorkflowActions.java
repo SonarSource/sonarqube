@@ -40,5 +40,7 @@ public interface CodeQualityIssueWorkflowActions {
 
   void addComment(String comment);
 
+  void addTag(String tag);
+
   void setStatus(IssueStatus previousIssueStatus, String newStatus);
 }

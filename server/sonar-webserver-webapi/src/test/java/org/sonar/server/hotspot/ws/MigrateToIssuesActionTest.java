@@ -22,6 +22,7 @@ package org.sonar.server.hotspot.ws;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
@@ -51,6 +52,8 @@ public class MigrateToIssuesActionTest {
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("2026.4");
+    assertThat(action.changelog()).extracting(Change::getVersion).contains("2026.5.3");
+    assertThat(action.description()).contains("repairs findings migrated by 2026.5.0 to 2026.5.2");
 
     WebService.Param projectParam = action.param("project");
     assertThat(projectParam).isNotNull();
@@ -86,19 +89,42 @@ public class MigrateToIssuesActionTest {
     String result = actionTester.newRequest().execute().getInput();
 
     verify(migrator).migrate(null, false);
-    JsonAssert.assertJson(result).isSimilarTo("{\"dryRun\":false,\"skipped\":0,\"projects\":[]}");
+    JsonAssert.assertJson(result).isSimilarTo("{\"dryRun\":false,\"migrated\":0,\"skipped\":0,\"projects\":[]}");
   }
 
   @Test
-  public void handle_reportsSkippedAtTopLevelAndMigratedPerProject() {
+  public void handle_reportsSkippedAtTopLevelAndMigratedAndRepairedPerProject() {
     userSession.logIn().setSystemAdministrator();
     when(migrator.migrate(null, false)).thenReturn(new HotspotsToIssuesMigrator.MigrationResult(false,
-      List.of(new HotspotsToIssuesMigrator.ProjectMigrationResult("my-project", 3)), 7));
+      List.of(new HotspotsToIssuesMigrator.ProjectMigrationResult("my-project", 3, 0),
+        new HotspotsToIssuesMigrator.ProjectMigrationResult("other-project", 1, 4)), 7));
 
     String result = actionTester.newRequest().execute().getInput();
 
-    JsonAssert.assertJson(result)
-      .isSimilarTo("{\"dryRun\":false,\"skipped\":7,\"projects\":[{\"projectKey\":\"my-project\",\"migrated\":3}]}");
+    JsonAssert.assertJson(result).isSimilarTo("""
+      {
+        "dryRun": false,
+        "migrated": 4,
+        "repaired": 4,
+        "skipped": 7,
+        "projects": [
+          {"projectKey": "my-project", "migrated": 3},
+          {"projectKey": "other-project", "migrated": 1, "repaired": 4}
+        ]
+      }""");
+  }
+
+  @Test
+  public void handle_reportsRepairedProjectThatHadNothingToMigrate() {
+    userSession.logIn().setSystemAdministrator();
+    when(migrator.migrate(null, true)).thenReturn(new HotspotsToIssuesMigrator.MigrationResult(true,
+      List.of(new HotspotsToIssuesMigrator.ProjectMigrationResult("repair-only", 0, 2)), 0));
+
+    String result = actionTester.newRequest().setParam("dryRun", "true").execute().getInput();
+
+    JsonAssert.assertJson(result).isSimilarTo("""
+      {"dryRun": true, "migrated": 0, "repaired": 2,
+       "projects": [{"projectKey": "repair-only", "migrated": 0, "repaired": 2}]}""");
   }
 
   @Test
@@ -106,7 +132,7 @@ public class MigrateToIssuesActionTest {
     userSession.logIn().setSystemAdministrator();
     when(migrator.migrate("my-project", false))
       .thenReturn(new HotspotsToIssuesMigrator.MigrationResult(false,
-        List.of(new HotspotsToIssuesMigrator.ProjectMigrationResult("my-project", 0)), 0));
+        List.of(new HotspotsToIssuesMigrator.ProjectMigrationResult("my-project", 0, 0)), 0));
 
     actionTester.newRequest().setParam("project", "my-project").execute();
 

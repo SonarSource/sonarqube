@@ -20,7 +20,9 @@
 package org.sonar.server.issue.workflow.issue;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
@@ -90,6 +92,13 @@ public class DefaultIssueWorkflowActions implements CodeQualityIssueWorkflowActi
   public void addComment(String comment) {
     DefaultIssueComment defaultIssueComment = DefaultIssueComment.create(issue.key(), comment);
     issue.addComment(defaultIssueComment);
+  }
+
+  @Override
+  public void addTag(String tag) {
+    Set<String> tags = new HashSet<>(issue.tags());
+    tags.add(tag);
+    updater.setTags(issue, tags, changeContext);
   }
 
   @Override

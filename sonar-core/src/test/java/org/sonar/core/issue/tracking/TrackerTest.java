@@ -46,6 +46,25 @@ public class TrackerTest {
   Tracker<Issue, Issue> tracker = new Tracker<>();
 
   /**
+   * A repaired (formerly CLOSED) migrated row keeps the line it had at migration time, while a duplicate created by a
+   * re-analysis sits on the current line. The raw issue is matched to the duplicate, so the repaired row is left unmatched.
+   */
+  @Test
+  public void issue_on_current_line_wins_over_older_issue_with_stale_line() {
+    FakeInput baseInput = new FakeInput("H1", "H2", "H3", "H4", "H5");
+    Issue repairedStaleRow = baseInput.createIssueOnLine(3, RULE_SYSTEM_PRINT, "msg");
+    Issue duplicateOnCurrentLine = baseInput.createIssueOnLine(5, RULE_SYSTEM_PRINT, "msg");
+
+    FakeInput rawInput = new FakeInput("H1", "H2", "H3", "H4", "H5");
+    Issue raw = rawInput.createIssueOnLine(5, RULE_SYSTEM_PRINT, "msg");
+
+    Tracking<Issue, Issue> tracking = tracker.trackNonClosed(rawInput, baseInput);
+
+    assertThat(tracking.baseFor(raw)).isSameAs(duplicateOnCurrentLine);
+    assertThat(tracking.getUnmatchedBases()).containsExactly(repairedStaleRow);
+  }
+
+  /**
    * Of course rule must match
    */
   @Test

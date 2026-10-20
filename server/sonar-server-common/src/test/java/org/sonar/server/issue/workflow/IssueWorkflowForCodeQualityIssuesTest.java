@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.RuleKey;
@@ -46,6 +47,7 @@ import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang3.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -480,6 +482,194 @@ class IssueWorkflowForCodeQualityIssuesTest {
     assertThat(issue.issueStatus()).isEqualTo(IssueStatus.OPEN);
     List<DefaultIssueComment> issueComments = issue.defaultIssueComments();
     assertThat(issueComments).isEmpty();
+  }
+
+  // Findings migrated from Security Hotspots (MMF-5734): their changelog says TO_REVIEW or REVIEWED before CLOSED.
+
+  @ParameterizedTest
+  @MethodSource("closedFormerHotspotsComingBack")
+  void doAutomaticTransition_whenClosedFormerHotspotIsDetectedAgain_shouldRestoreItsReview(String statusBeforeClosed, String resolutionBeforeClosed,
+    String expectedStatus, String expectedResolution) {
+    for (String closeResolution : SUPPORTED_RESOLUTIONS_FOR_UNCLOSING) {
+      DefaultIssue issue = newClosedIssue(closeResolution).setType(VULNERABILITY);
+      addResolutionAndStatusChange(issue, new Date(NOW), statusBeforeClosed, STATUS_CLOSED, resolutionBeforeClosed, closeResolution);
+
+      underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
+
+      assertThat(issue.status()).as("status when closed with %s", closeResolution).isEqualTo(expectedStatus);
+      assertThat(issue.resolution()).as("resolution when closed with %s", closeResolution).isEqualTo(expectedResolution);
+      assertThat(issue.closeDate()).isNull();
+      assertThat(issue.isChanged()).isTrue();
+    }
+  }
+
+  static Stream<Arguments> closedFormerHotspotsComingBack() {
+    return Stream.of(
+      // status before closing, resolution before closing, expected status, expected resolution
+      Arguments.of("TO_REVIEW", null, STATUS_OPEN, null),
+      Arguments.of("REVIEWED", "ACKNOWLEDGED", STATUS_CONFIRMED, null),
+      Arguments.of("REVIEWED", "SAFE", STATUS_RESOLVED, RESOLUTION_WONT_FIX),
+      Arguments.of("REVIEWED", "FIXED", STATUS_RESOLVED, RESOLUTION_WONT_FIX));
+  }
+
+  @ParameterizedTest
+  @MethodSource("closedFormerHotspotsComingBack")
+  void doAutomaticTransition_whenClosedFormerHotspotIsDetectedAgain_shouldShowTheRestoredReviewAsIssueStatus(String statusBeforeClosed,
+    String resolutionBeforeClosed, String expectedStatus, String expectedResolution) {
+    DefaultIssue issue = newClosedIssue(RESOLUTION_REMOVED).setType(VULNERABILITY);
+    addResolutionAndStatusChange(issue, new Date(NOW), statusBeforeClosed, STATUS_CLOSED, resolutionBeforeClosed, RESOLUTION_REMOVED);
+
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
+
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.of(expectedStatus, expectedResolution));
+    assertThat(issue.issueStatus()).isNotEqualTo(IssueStatus.FIXED);
+  }
+
+  /**
+   * The analyzer closes a hotspot reviewed as Fixed with the resolution FIXED, which it already has: the status change
+   * then carries no resolution diff at all. Found on a real server, where such a hotspot stayed closed.
+   */
+  @Test
+  void doAutomaticTransition_whenReviewedAsFixedFormerHotspotWasClosedWithoutAResolutionChange_shouldRestoreItAsAccepted() {
+    DefaultIssue issue = newClosedIssue(RESOLUTION_FIXED).setType(VULNERABILITY);
+    addStatusChange(issue, new Date(NOW), "REVIEWED", STATUS_CLOSED);
+
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
+
+    assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
+    assertThat(issue.issueStatus()).isEqualTo(IssueStatus.ACCEPTED);
+    assertThat(issue.closeDate()).isNull();
+  }
+
+  @Test
+  void doAutomaticTransition_whenReviewedAsFixedFormerHotspotIsRestored_shouldTagItAndExplainWhy() {
+    DefaultIssue issue = newClosedIssue(RESOLUTION_FIXED).setType(VULNERABILITY);
+    addStatusChange(issue, new Date(NOW), "REVIEWED", STATUS_CLOSED);
+
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
+
+    assertThat(issue.tags()).contains("former-hotspot-reviewed-fixed");
+    assertThat(issue.defaultIssueComments()).extracting(DefaultIssueComment::markdownText).containsExactly("Migrated from Reviewed/Fixed");
+  }
+
+  @Test
+  void doAutomaticTransition_whenReviewedAsSafeFormerHotspotIsRestored_shouldNotTagIt() {
+    DefaultIssue issue = newClosedIssue(RESOLUTION_REMOVED).setType(VULNERABILITY);
+    addResolutionAndStatusChange(issue, new Date(NOW), "REVIEWED", STATUS_CLOSED, "SAFE", RESOLUTION_REMOVED);
+
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
+
+    assertThat(issue.tags()).doesNotContain("former-hotspot-reviewed-fixed");
+    assertThat(issue.defaultIssueComments()).isEmpty();
+  }
+
+  @Test
+  void doAutomaticTransition_whenReviewedFormerHotspotWasClosedWithoutAResolutionChangeAndIsNotFixed_shouldStayClosed() {
+    // Closed as REMOVED without a resolution diff: the review it had cannot be known.
+    DefaultIssue issue = newClosedIssue(RESOLUTION_REMOVED).setType(VULNERABILITY);
+    addStatusChange(issue, new Date(NOW), "REVIEWED", STATUS_CLOSED);
+
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
+
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
+  }
+
+  @Test
+  void doAutomaticTransition_whenClosedFormerHotspotHasNoKnownReview_shouldStayClosed() {
+    // Reviewed with a resolution that is none of SAFE, FIXED or ACKNOWLEDGED, or without any resolution diff.
+    DefaultIssue unknownResolution = newClosedIssue(RESOLUTION_REMOVED);
+    addResolutionAndStatusChange(unknownResolution, new Date(NOW), "REVIEWED", STATUS_CLOSED, "SOMETHING_ELSE", RESOLUTION_REMOVED);
+    DefaultIssue noResolutionDiff = newClosedIssue(RESOLUTION_REMOVED);
+    addStatusChange(noResolutionDiff, new Date(NOW), "REVIEWED", STATUS_CLOSED);
+
+    Stream.of(unknownResolution, noResolutionDiff).forEach(issue -> {
+      underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
+
+      assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
+      assertThat(issue.updateDate()).isNull();
+    });
+  }
+
+  @Test
+  void doAutomaticTransition_whenFormerHotspotWasClosedManuallyOrByAnotherResolution_shouldStayClosed() {
+    for (String resolution : new String[] {RESOLUTION_WONT_FIX, RESOLUTION_FALSE_POSITIVE, null}) {
+      DefaultIssue issue = newClosedIssue(resolution);
+      addResolutionAndStatusChange(issue, new Date(NOW), "REVIEWED", STATUS_CLOSED, "SAFE", resolution == null ? "X" : resolution);
+      issue.setResolution(resolution);
+
+      underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
+
+      assertThat(issue.status()).as("closed with resolution %s", resolution).isEqualTo(STATUS_CLOSED);
+    }
+  }
+
+  @Test
+  void doAutomaticTransition_shouldUseTheMostRecentStatusChangeToDecideWhatAClosedFormerHotspotWas() {
+    // Reviewed as Safe long ago, reopened as Open later, then closed again by the analysis: the latest history wins.
+    DefaultIssue issue = newClosedIssue(RESOLUTION_FIXED);
+    addResolutionAndStatusChange(issue, new Date(NOW - 20_000), "REVIEWED", STATUS_CLOSED, "SAFE", RESOLUTION_FIXED);
+    addStatusChange(issue, new Date(NOW), STATUS_OPEN, STATUS_CLOSED);
+
+    underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build());
+
+    assertThat(issue.status()).isEqualTo(STATUS_OPEN);
+  }
+
+  /**
+   * {@code State.outAutomaticTransition} throws when several automatic transitions support the same issue, which would
+   * fail the whole analysis. Every automatic transition out of CLOSED must therefore exclude the others, whatever the
+   * history of the issue is. This is the guard for whoever adds the next transition out of CLOSED.
+   */
+  @Test
+  void doAutomaticTransition_shouldNeverFindSeveralAutomaticTransitions_forAnyStatusResolutionAndHistory() {
+    String[] statuses = {STATUS_OPEN, STATUS_REOPENED, STATUS_CONFIRMED, STATUS_RESOLVED, STATUS_CLOSED, STATUS_IN_SANDBOX};
+    String[] previousStatuses = {STATUS_OPEN, STATUS_REOPENED, STATUS_CONFIRMED, STATUS_RESOLVED, STATUS_IN_SANDBOX, STATUS_CLOSED,
+      "TO_REVIEW", "REVIEWED", "SOMETHING_ELSE"};
+    String[] resolutions = {null, RESOLUTION_FIXED, RESOLUTION_REMOVED, RESOLUTION_WONT_FIX, RESOLUTION_FALSE_POSITIVE, "SAFE", "ACKNOWLEDGED"};
+    String[] previousResolutions = {null, RESOLUTION_FIXED, RESOLUTION_REMOVED, RESOLUTION_WONT_FIX, RESOLUTION_FALSE_POSITIVE, "SAFE", "ACKNOWLEDGED"};
+    boolean[] beingClosedValues = {false, true};
+
+    int combinations = 0;
+    for (String status : statuses) {
+      for (String previousStatus : previousStatuses) {
+        for (String resolution : resolutions) {
+          for (String previousResolution : previousResolutions) {
+            for (boolean beingClosed : beingClosedValues) {
+              DefaultIssue issue = new DefaultIssue()
+                .setKey("ABCDE")
+                .setRuleKey(RuleKey.of("js", "S001"))
+                .setType(VULNERABILITY)
+                .setStatus(status)
+                .setResolution(resolution)
+                .setNew(false)
+                .setBeingClosed(beingClosed)
+                .setCloseDate(new Date(5_999_999L));
+              FieldDiffs diffs = new FieldDiffs().setCreationDate(new Date(NOW)).setDiff("status", previousStatus, status);
+              if (previousResolution != null) {
+                diffs.setDiff("resolution", previousResolution, resolution == null ? "" : resolution);
+              }
+              issue.addChange(diffs);
+
+              assertThatCode(() -> underTest.doAutomaticTransition(issue, issueChangeContextByScanBuilder(new Date(NOW)).build()))
+                .as("status=%s previousStatus=%s resolution=%s previousResolution=%s beingClosed=%s", status, previousStatus, resolution,
+                  previousResolution, beingClosed)
+                .doesNotThrowAnyException();
+              combinations++;
+            }
+          }
+        }
+      }
+    }
+    assertThat(combinations).isEqualTo(statuses.length * previousStatuses.length * resolutions.length * previousResolutions.length * 2);
+  }
+
+  @Test
+  void outTransitionsKeys_whenStatusClosed_shouldStillReturnNoManualTransition_forFormerHotspots() {
+    DefaultIssue issue = newClosedIssue(RESOLUTION_REMOVED);
+    addResolutionAndStatusChange(issue, new Date(NOW), "REVIEWED", STATUS_CLOSED, "SAFE", RESOLUTION_REMOVED);
+
+    assertThat(underTest.outTransitionsKeys(issue)).isEmpty();
   }
 
   private static DefaultIssue newClosedIssue(String resolution) {

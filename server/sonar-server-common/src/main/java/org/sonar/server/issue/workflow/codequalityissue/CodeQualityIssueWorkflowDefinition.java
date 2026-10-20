@@ -27,15 +27,19 @@ import org.sonar.issue.workflow.statemachine.StateMachine;
 import org.sonar.issue.workflow.statemachine.Transition;
 
 import static java.util.function.Predicate.not;
+import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_REMOVED;
+import static org.sonar.api.issue.Issue.RESOLUTION_SAFE;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
+import static org.sonar.api.issue.Issue.STATUS_REVIEWED;
+import static org.sonar.api.issue.Issue.STATUS_TO_REVIEW;
 import static org.sonar.api.issue.Issue.STATUS_IN_SANDBOX;
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.ACCEPT;
 import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowTransition.CONFIRM;
@@ -48,6 +52,9 @@ import static org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueW
 @ServerSide
 @ComputeEngineSide
 public class CodeQualityIssueWorkflowDefinition {
+
+  public static final String FORMER_HOTSPOT_REVIEWED_FIXED_TAG = "former-hotspot-reviewed-fixed";
+  public static final String MIGRATED_FROM_REVIEWED_FIXED_COMMENT = "Migrated from Reviewed/Fixed";
 
   private static final String AUTOMATIC_CLOSE_TRANSITION = "automaticclose";
 
@@ -255,6 +262,51 @@ public class CodeQualityIssueWorkflowDefinition {
         .automatic()
         .build())
       .transition(reopenTaintVulnOnFlowChanged());
+    buildFormerHotspotUncloseTransitions(builder);
+  }
+
+  private static void buildFormerHotspotUncloseTransitions(StateMachine.Builder<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions> builder) {
+    builder
+      // Former Security Hotspots closed before their migration (SONAR-32693)
+      .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder("automaticuncloseformerhotspottoreview")
+        .from(STATUS_CLOSED).to(STATUS_OPEN)
+        .conditions(
+          i -> i.previousStatusWas(STATUS_TO_REVIEW),
+          i -> i.hasAnyResolution(RESOLUTION_REMOVED, RESOLUTION_FIXED))
+        .actions(UNSET_RESOLUTION, UNSET_CLOSE_DATE)
+        .automatic()
+        .build())
+      .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder("automaticuncloseformerhotspotacknowledged")
+        .from(STATUS_CLOSED).to(STATUS_CONFIRMED)
+        .conditions(
+          i -> i.previousStatusWas(STATUS_REVIEWED),
+          i -> i.previousResolutionWasAny(RESOLUTION_ACKNOWLEDGED),
+          i -> i.hasAnyResolution(RESOLUTION_REMOVED, RESOLUTION_FIXED))
+        .actions(UNSET_RESOLUTION, UNSET_CLOSE_DATE)
+        .automatic()
+        .build())
+      .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder("automaticuncloseformerhotspotaccepted")
+        .from(STATUS_CLOSED).to(STATUS_RESOLVED)
+        .conditions(
+          i -> i.previousStatusWas(STATUS_REVIEWED),
+          i -> i.previousResolutionWasAny(RESOLUTION_SAFE),
+          i -> i.hasAnyResolution(RESOLUTION_REMOVED, RESOLUTION_FIXED))
+        .actions(a -> a.setResolution(RESOLUTION_WONT_FIX), UNSET_CLOSE_DATE)
+        .automatic()
+        .build())
+      .transition(Transition.<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions>builder("automaticuncloseformerhotspotacceptedfromfixed")
+        .from(STATUS_CLOSED).to(STATUS_RESOLVED)
+        .conditions(
+          i -> i.previousStatusWas(STATUS_REVIEWED),
+          i -> i.previousResolutionWasAny(RESOLUTION_FIXED),
+          i -> i.hasAnyResolution(RESOLUTION_REMOVED, RESOLUTION_FIXED))
+        .actions(
+          a -> a.setResolution(RESOLUTION_WONT_FIX),
+          a -> a.addTag(FORMER_HOTSPOT_REVIEWED_FIXED_TAG),
+          a -> a.addComment(MIGRATED_FROM_REVIEWED_FIXED_COMMENT),
+          UNSET_CLOSE_DATE)
+        .automatic()
+        .build());
   }
 
   private static Transition<CodeQualityIssueWorkflowEntity, CodeQualityIssueWorkflowActions> reopenTaintVulnOnFlowChanged() {

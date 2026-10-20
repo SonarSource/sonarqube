@@ -480,6 +480,51 @@
   </select>
 
   <!--
+    Repair candidates of SONAR-32693, in one unpaged pass. The changes subquery filters on the former-hotspot tag diff
+    to tell the migration's own REVIEWED -> CLOSED entry from the analyzer's. Nothing here is indexed (the hotspot
+    index is partial on issue_type = 4), so one scan is the floor: paging would repeat it for every page.
+  -->
+  <select id="selectRepairKeysForMigration" parameterType="map" resultType="org.sonar.db.issue.HotspotMigrationKeyDto">
+    select
+      i.project_uuid as branchUuid,
+      i.kee as kee
+    from issues i
+    where
+      i.issue_type &lt;&gt; 4
+      and i.status = 'CLOSED'
+      and i.tags like '%former-hotspot%'
+      and (
+        i.resolution = 'WONTFIX'
+        or (
+          i.resolution = 'FIXED'
+          and exists (
+            select 1 from issue_changes c
+            where c.issue_key = i.kee
+              and c.change_type = 'diff'
+              and c.change_data like '%status=REVIEWED|CLOSED%'
+              and c.change_data like '%tags=%former-hotspot%'
+          )
+        )
+      )
+      and not exists (
+        select 1 from issue_changes r
+        where r.issue_key = i.kee
+          and r.change_type = 'diff'
+          and r.change_data like '%status=CLOSED|RESOLVED%'
+      )
+      <if test="projectUuids != null and projectUuids.size() > 0">
+        and i.project_uuid in (
+          select pb.uuid from project_branches pb
+          where pb.project_uuid in
+          <foreach collection="projectUuids" item="projectUuid" open="(" separator="," close=")">
+            #{projectUuid,jdbcType=VARCHAR}
+          </foreach>
+        )
+      </if>
+    order by i.project_uuid, i.kee
+  </select>
+
+  <!--
     Loads fully-populated HotspotToMigrateDto (an IssueDto, incl. toDefaultIssue()) for a page of keys, plus the
     rule's current type (r.rule_type as ruleType). The full issue columns are
     required by the write path, which rewrites all columns on update. Ordered by branch then key so the caller can

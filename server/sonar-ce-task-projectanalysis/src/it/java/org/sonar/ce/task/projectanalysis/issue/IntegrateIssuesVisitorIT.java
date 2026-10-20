@@ -20,22 +20,30 @@
 package org.sonar.ce.task.projectanalysis.issue;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueStatus;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.IssueProducer;
+import org.sonar.core.rule.RuleType;
 import org.sonar.ce.common.scanner.ScannerReportReaderRule;
 import org.sonar.ce.task.projectanalysis.analysis.Analysis;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -49,6 +57,7 @@ import org.sonar.ce.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.ce.task.projectanalysis.component.TypeAwareVisitor;
 import org.sonar.ce.task.projectanalysis.filemove.MovedFilesRepository;
 import org.sonar.ce.task.projectanalysis.issue.filter.IssueFilter;
+import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolder;
 import org.sonar.ce.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.ce.task.projectanalysis.qualityprofile.AlwaysActiveRulesHolderImpl;
@@ -71,9 +80,15 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.TaintChecker;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflow;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowActionsFactory;
+import org.sonar.server.issue.workflow.codequalityissue.CodeQualityIssueWorkflowDefinition;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -81,6 +96,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -282,6 +298,207 @@ class IntegrateIssuesVisitorIT {
     verify(locationHashesService).computeHashesAndUpdateIssues(anyCollection(), anyCollection(), eq(FILE));
   }
 
+  // Issue tracking of findings migrated from Security Hotspots (MMF-5734 / USER-2694): the next analysis must match them
+  // to the raw issue of the same rule instead of closing them and creating a new one. These are the 3 states the
+  // migration leaves behind: To review (Open), Acknowledged (Confirmed), and Safe or Fixed (both Accepted).
+  @ParameterizedTest
+  @CsvSource(value = {
+    "OPEN,NULL",
+    "CONFIRMED,NULL",
+    "RESOLVED,WONTFIX"
+  }, nullValues = "NULL")
+  void migrated_hotspot_is_tracked_by_next_analysis(String status, String resolution) {
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    addMigratedBaseIssue(ruleKey, status, resolution);
+    reportReader.putIssues(FILE_REF, singletonList(getReportIssue(ruleKey)));
+
+    underTest.visitAny(FILE);
+
+    verify(issueVisitor, atLeastOnce()).onIssue(eq(FILE), defaultIssueCaptor.capture());
+    List<DefaultIssue> issues = defaultIssueCaptor.getAllValues();
+    assertThat(issues).hasSize(1);
+    assertThat(issues.get(0).key()).isEqualTo("ISSUE");
+    assertThat(issues.get(0).isNew()).isFalse();
+    assertThat(issues.get(0).isBeingClosed()).isFalse();
+  }
+
+  @Test
+  void migrated_hotspot_in_closed_status_is_not_tracked_and_is_recreated_as_new_issue() {
+    // Documents why Reviewed/Safe must not be migrated to CLOSED: closed base issues are excluded from tracking, so the
+    // raw issue of the same rule on the same code becomes a brand new open issue (USER-2694, step 4).
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    addMigratedBaseIssue(ruleKey, Issue.STATUS_CLOSED, Issue.RESOLUTION_WONT_FIX);
+    reportReader.putIssues(FILE_REF, singletonList(getReportIssue(ruleKey)));
+
+    underTest.visitAny(FILE);
+
+    verify(issueVisitor, atLeastOnce()).onIssue(eq(FILE), defaultIssueCaptor.capture());
+    List<DefaultIssue> issues = defaultIssueCaptor.getAllValues();
+    assertThat(issues).hasSize(1);
+    assertThat(issues.get(0).key()).isNotEqualTo("ISSUE");
+    assertThat(issues.get(0).isNew()).isTrue();
+  }
+
+  @Test
+  void migrated_hotspot_is_closed_and_replaced_when_the_analysis_reports_a_different_rule_key() {
+    // Signature of "all previous issues closed, new ones created": the migrated row keeps the old rule, the analyzer now
+    // reports another rule key for the same code. Tracking matches on rule key, so nothing can match.
+    addMigratedBaseIssue(RuleTesting.XOO_X2, Issue.STATUS_OPEN, null);
+    ruleRepositoryRule.add(RuleTesting.XOO_X1);
+    reportReader.putIssues(FILE_REF, singletonList(getReportIssue(RuleTesting.XOO_X1)));
+
+    underTest.visitAny(FILE);
+
+    verify(issueVisitor, atLeastOnce()).onIssue(eq(FILE), defaultIssueCaptor.capture());
+    List<DefaultIssue> issues = defaultIssueCaptor.getAllValues();
+    assertThat(issues).hasSize(2);
+    assertThat(issues).filteredOn(DefaultIssue::isNew).hasSize(1);
+    assertThat(issues).filteredOn(DefaultIssue::isBeingClosed).extracting(DefaultIssue::key).containsExactly("ISSUE");
+  }
+
+  /** USER-2694: a repaired row is tracked when no analysis ran between the migration and the repair. */
+  @ParameterizedTest
+  @ValueSource(ints = {0, 3})
+  void repaired_row_is_tracked_when_the_file_is_analysed_after_the_repair(int linesAddedAbove) {
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    insertBaseFile(fileHashes(0));
+    insertMigratedBaseIssue(ruleKey, "REPAIRED", Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, FINDING_LINE);
+    analyse(ruleKey, linesAddedAbove);
+
+    List<DefaultIssue> issues = analysedIssues();
+
+    assertThat(issues).singleElement().satisfies(issue -> {
+      assertThat(issue.key()).isEqualTo("REPAIRED");
+      assertThat(issue.isNew()).isFalse();
+      assertThat(issue.isBeingClosed()).isFalse();
+    });
+  }
+
+  /** With an Open duplicate on the current line, tracking keeps the duplicate and closes the repaired row. */
+  @ParameterizedTest
+  @ValueSource(ints = {0, 3})
+  void when_an_open_duplicate_exists_the_duplicate_is_kept_and_the_repaired_row_is_closed(int linesAddedAbove) {
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    // The file as of the analysis that created the duplicate: 3 lines were added above the finding, so it moved from
+    // line 24 to line 27, and line 24 now holds other code.
+    insertBaseFile(fileHashes(3));
+    insertMigratedBaseIssue(ruleKey, "REPAIRED", Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, FINDING_LINE);
+    insertBaseIssue(ruleKey, "DUPLICATE", Issue.STATUS_OPEN, null, FINDING_LINE + 3, List.of());
+    analyse(ruleKey, 3 + linesAddedAbove);
+
+    List<DefaultIssue> issues = analysedIssues();
+
+    assertThat(issues).hasSize(2);
+    assertThat(issues).filteredOn(issue -> "DUPLICATE".equals(issue.key())).singleElement().satisfies(issue -> {
+      assertThat(issue.isNew()).isFalse();
+      assertThat(issue.isBeingClosed()).isFalse();
+    });
+    assertThat(issues).filteredOn(issue -> "REPAIRED".equals(issue.key())).singleElement()
+      .satisfies(issue -> assertThat(issue.isBeingClosed()).isTrue());
+    assertThat(issues).noneMatch(DefaultIssue::isNew);
+  }
+
+  /** Uses the real issue workflow: a closed former hotspot whose code comes back is restored with its review. */
+  @ParameterizedTest
+  @CsvSource(value = {
+    // status before closing, resolution before closing, expected status, expected resolution, expected IssueStatus
+    "TO_REVIEW,NULL,OPEN,NULL,OPEN",
+    "REVIEWED,ACKNOWLEDGED,CONFIRMED,NULL,CONFIRMED",
+    "REVIEWED,SAFE,RESOLVED,WONTFIX,ACCEPTED",
+    "REVIEWED,FIXED,RESOLVED,WONTFIX,ACCEPTED"
+  }, nullValues = "NULL")
+  void closed_former_hotspot_whose_code_comes_back_is_restored_by_the_real_workflow(String statusBeforeClosing, String resolutionBeforeClosing,
+    String expectedStatus, String expectedResolution, IssueStatus expectedIssueStatus) {
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    insertBaseFile(fileHashes(0));
+    insertClosedFormerHotspot(ruleKey, "CLOSED_HS", statusBeforeClosing, resolutionBeforeClosing, "REMOVED");
+
+    List<DefaultIssue> issues = analyseWithRealWorkflow(ruleKey, 0);
+
+    assertThat(issues).singleElement().satisfies(issue -> {
+      assertThat(issue.key()).isEqualTo("CLOSED_HS");
+      assertThat(issue.isNew()).isFalse();
+      assertThat(issue.status()).isEqualTo(expectedStatus);
+      assertThat(issue.resolution()).isEqualTo(expectedResolution);
+      assertThat(issue.issueStatus()).isEqualTo(expectedIssueStatus);
+      assertThat(issue.closeDate()).isNull();
+    });
+  }
+
+  @Test
+  void closed_former_hotspot_whose_code_comes_back_on_another_line_is_reported_as_a_new_issue() {
+    // Closed issues are only recovered when rule, line, line hash and message all match, which holds for every closed
+    // issue, not only former hotspots: when lines were added above, the finding is reported as a new open issue, so it
+    // is never hidden. The closed row simply stays closed.
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    insertBaseFile(fileHashes(0));
+    insertClosedFormerHotspot(ruleKey, "CLOSED_HS", "REVIEWED", "SAFE", "FIXED");
+
+    List<DefaultIssue> issues = analyseWithRealWorkflow(ruleKey, 3);
+
+    assertThat(issues).filteredOn(DefaultIssue::isNew).singleElement().satisfies(issue -> assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN));
+    assertThat(issues).filteredOn(issue -> "CLOSED_HS".equals(issue.key())).singleElement()
+      .satisfies(issue -> assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED));
+  }
+
+  @Test
+  void closed_former_hotspot_is_restored_even_when_the_migration_added_its_own_change_after_closing() {
+    // The migration writes one change (type, tags, ...) dated after the closing; it has no status diff, so the closing
+    // must remain the change the workflow reads.
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    insertBaseFile(fileHashes(0));
+    IssueDto closed = insertClosedFormerHotspot(ruleKey, "CLOSED_HS", "REVIEWED", "ACKNOWLEDGED", "REMOVED");
+    dbTester.issues().insertFieldDiffs(closed, new FieldDiffs().setIssueKey(closed.getKee()).setCreationDate(new Date(System.currentTimeMillis() - 1_000))
+      .setDiff("type", "SECURITY_HOTSPOT", "VULNERABILITY").setDiff("tags", null, "former-hotspot"));
+
+    List<DefaultIssue> issues = analyseWithRealWorkflow(ruleKey, 0);
+
+    assertThat(issues).singleElement().satisfies(issue -> assertThat(issue.issueStatus()).isEqualTo(IssueStatus.CONFIRMED));
+  }
+
+  @Test
+  void closed_former_hotspot_with_an_unknown_review_stays_closed_and_no_new_issue_is_created() {
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    insertBaseFile(fileHashes(0));
+    insertClosedFormerHotspot(ruleKey, "CLOSED_HS", "REVIEWED", "SOMETHING_ELSE", "REMOVED");
+
+    List<DefaultIssue> issues = analyseWithRealWorkflow(ruleKey, 0);
+
+    assertThat(issues).singleElement().satisfies(issue -> {
+      assertThat(issue.key()).isEqualTo("CLOSED_HS");
+      assertThat(issue.status()).isEqualTo("CLOSED");
+    });
+  }
+
+  @Test
+  void accepted_former_hotspot_is_not_reopened_when_still_detected() {
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    insertBaseFile(fileHashes(0));
+    insertMigratedBaseIssue(ruleKey, "ACCEPTED_HS", Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, FINDING_LINE);
+
+    List<DefaultIssue> detected = analyseWithRealWorkflow(ruleKey, 0);
+
+    assertThat(detected).singleElement().satisfies(issue -> {
+      assertThat(issue.key()).isEqualTo("ACCEPTED_HS");
+      assertThat(issue.issueStatus()).isEqualTo(IssueStatus.ACCEPTED);
+    });
+  }
+
+  @Test
+  void accepted_former_hotspot_is_closed_when_it_is_no_longer_detected() {
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    insertBaseFile(fileHashes(0));
+    insertMigratedBaseIssue(ruleKey, "ACCEPTED_HS", Issue.STATUS_RESOLVED, Issue.RESOLUTION_WONT_FIX, FINDING_LINE);
+
+    List<DefaultIssue> issues = analyseWithRealWorkflow(ruleKey, 0, false);
+
+    assertThat(issues).singleElement().satisfies(issue -> {
+      assertThat(issue.key()).isEqualTo("ACCEPTED_HS");
+      assertThat(issue.isBeingClosed()).isTrue();
+      assertThat(issue.status()).isEqualTo("CLOSED");
+    });
+  }
+
   @Test
   void reuse_issues_when_data_unchanged() {
     RuleKey ruleKey = RuleTesting.XOO_X1;
@@ -398,6 +615,148 @@ class IntegrateIssuesVisitorIT {
     return ruleDto;
   }
 
+  private static final int FINDING_LINE = 24;
+  private static final String FINDING_HASH = "finding-line";
+
+  /**
+   * Line hashes of the file after {@code linesAddedAbove} new lines were added above its original line 1. The
+   * finding is on original line {@link #FINDING_LINE}; every other line has a hash of its own, so a hash identifies
+   * the code of that line.
+   */
+  private static List<String> fileHashes(int linesAddedAbove) {
+    List<String> hashes = new ArrayList<>();
+    for (int i = 1; i <= linesAddedAbove; i++) {
+      hashes.add("added-" + i);
+    }
+    for (int line = 1; line <= 30; line++) {
+      hashes.add(line == FINDING_LINE ? FINDING_HASH : "line-" + line);
+    }
+    return hashes;
+  }
+
+  private void insertBaseFile(List<String> lineHashes) {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
+    dbTester.components().insertComponents(project, file);
+    dbTester.fileSources().insertFileSource(file, dto -> dto.setLineHashes(lineHashes));
+  }
+
+  private void insertMigratedBaseIssue(RuleKey ruleKey, String kee, String status, String resolution, int line) {
+    insertBaseIssue(ruleKey, kee, status, resolution, line, List.of("former-hotspot"));
+  }
+
+  private void insertBaseIssue(RuleKey ruleKey, String kee, String status, @Nullable String resolution, int line, List<String> tags) {
+    RuleDto ruleDto = dbTester.getDbClient().ruleDao().selectByKey(dbTester.getSession(), ruleKey).orElse(null);
+    if (ruleDto == null) {
+      ruleDto = RuleTesting.newRule(ruleKey).setType(RuleType.VULNERABILITY);
+      dbTester.rules().insert(ruleDto);
+      ruleRepositoryRule.add(ruleDto);
+      activeRulesHolderRule.put(new ActiveRule(ruleKey, Severity.MAJOR, emptyMap(), 1_000L, null, "qp", Map.of()));
+    }
+    ComponentDto project = dbTester.getDbClient().componentDao().selectByUuid(dbTester.getSession(), PROJECT_UUID).orElseThrow();
+    ComponentDto file = dbTester.getDbClient().componentDao().selectByUuid(dbTester.getSession(), FILE_UUID).orElseThrow();
+    IssueDto issue = IssueTesting.newIssue(ruleDto, project, file)
+      .setKee(kee)
+      .setType(RuleType.VULNERABILITY)
+      .setStatus(status)
+      .setResolution(resolution)
+      .setLine(line)
+      .setMessage("the message")
+      .setChecksum(null)
+      .setTags(tags);
+    dbTester.getDbClient().issueDao().insert(dbTester.getSession(), issue);
+    dbTester.getSession().commit();
+  }
+
+  /** Runs the analysis of the file as it is {@code linesAddedAbove} lines after its original version, finding included. */
+  private void analyse(RuleKey ruleKey, int linesAddedAbove) {
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(fileHashes(linesAddedAbove));
+    int line = FINDING_LINE + linesAddedAbove;
+    reportReader.putIssues(FILE_REF, singletonList(ScannerReport.Issue.newBuilder(getReportIssue(ruleKey))
+      .setTextRange(ScannerReport.TextRange.newBuilder().setStartLine(line).setEndLine(line).setStartOffset(0).setEndOffset(5).build())
+      .build()));
+
+    underTest.visitAny(FILE);
+  }
+
+  private List<DefaultIssue> analysedIssues() {
+    verify(issueVisitor, atLeastOnce()).onIssue(eq(FILE), defaultIssueCaptor.capture());
+    return defaultIssueCaptor.getAllValues();
+  }
+
+  /** A hotspot the analyzer closed before it was migrated: its changelog holds the status change recorded when it closed. */
+  private IssueDto insertClosedFormerHotspot(RuleKey ruleKey, String kee, String statusBeforeClosing, @Nullable String resolutionBeforeClosing,
+    String closeResolution) {
+    RuleDto ruleDto = RuleTesting.newRule(ruleKey).setType(RuleType.VULNERABILITY);
+    dbTester.rules().insert(ruleDto);
+    ruleRepositoryRule.add(ruleDto);
+    activeRulesHolderRule.put(new ActiveRule(ruleKey, Severity.MAJOR, emptyMap(), 1_000L, null, "qp", Map.of()));
+    ComponentDto project = dbTester.getDbClient().componentDao().selectByUuid(dbTester.getSession(), PROJECT_UUID).orElseThrow();
+    ComponentDto file = dbTester.getDbClient().componentDao().selectByUuid(dbTester.getSession(), FILE_UUID).orElseThrow();
+    long closedAt = System.currentTimeMillis() - 86_400_000L;
+    IssueDto issue = IssueTesting.newIssue(ruleDto, project, file)
+      .setKee(kee)
+      .setType(RuleType.VULNERABILITY)
+      .setStatus("CLOSED")
+      .setResolution(closeResolution)
+      .setLine(null)
+      .setMessage("the message")
+      .setChecksum(FINDING_HASH)
+      .setIssueCloseDate(new Date(closedAt))
+      .setTags(List.of("former-hotspot"));
+    dbTester.getDbClient().issueDao().insert(dbTester.getSession(), issue);
+    dbTester.getSession().commit();
+    // What the workflow recorded when it closed the hotspot: status, resolution and the line it was on. A resolution
+    // that does not change (reviewed as Fixed, closed as FIXED) has no diff.
+    FieldDiffs closing = new FieldDiffs().setIssueKey(kee).setCreationDate(new Date(closedAt))
+      .setDiff("status", statusBeforeClosing, "CLOSED")
+      .setDiff("line", String.valueOf(FINDING_LINE), "");
+    if (!closeResolution.equals(resolutionBeforeClosing)) {
+      closing.setDiff("resolution", resolutionBeforeClosing == null ? "" : resolutionBeforeClosing, closeResolution);
+    }
+    dbTester.issues().insertFieldDiffs(issue, closing);
+    return issue;
+  }
+
+  /** Analyses the file with the real issue workflow and returns the issues it produced, as the visitors saw them. */
+  private List<DefaultIssue> analyseWithRealWorkflow(RuleKey ruleKey, int linesAddedAbove) {
+    return analyseWithRealWorkflow(ruleKey, linesAddedAbove, true);
+  }
+
+  /** {@code reportFinding} false is an analysis in which the analyzer no longer reports the finding. */
+  private List<DefaultIssue> analyseWithRealWorkflow(RuleKey ruleKey, int linesAddedAbove, boolean reportFinding) {
+    IssueWorkflow realWorkflow = new IssueWorkflow(new CodeQualityIssueWorkflow(new CodeQualityIssueWorkflowActionsFactory(new IssueFieldsSetter()),
+      new CodeQualityIssueWorkflowDefinition(), mock(TaintChecker.class)), null);
+    IssueLifecycle realLifecycle = new IssueLifecycle(analysisMetadataHolder, issueChangeContext, realWorkflow, new IssueFieldsSetter(),
+      mock(DebtCalculator.class), ruleRepositoryRule);
+    DbClient dbClient = dbTester.getDbClient();
+    TrackerBaseInputFactory baseInputFactory = new TrackerBaseInputFactory(issuesLoader, dbClient, movedFilesRepository);
+    ClosedIssuesInputFactory closedIssuesInputFactory = new ClosedIssuesInputFactory(issuesLoader, dbClient, movedFilesRepository);
+    TrackerExecution tracker = new TrackerExecution(baseInputFactory, closedIssuesInputFactory, new Tracker<>(), issuesLoader, analysisMetadataHolder);
+    IssueTrackingDelegator trackingDelegator = new IssueTrackingDelegator(
+      new PullRequestTrackerExecution(baseInputFactory, new Tracker<>(), newLinesRepository),
+      new ReferenceBranchTrackerExecution(new TrackerReferenceBranchInputFactory(issuesLoader, mergeBranchComponentsUuids, dbClient), new Tracker<>()),
+      tracker, analysisMetadataHolder);
+    TypeAwareVisitor visitor = new IntegrateIssuesVisitor(protoIssueCache, rawInputFactory, baseInputFactory, realLifecycle,
+      new IssueVisitors(new IssueVisitor[] {issueVisitor, measureVisitor}), trackingDelegator, issueStatusCopier, referenceBranchComponentUuids,
+      mock(PullRequestSourceBranchMerger.class), fileStatuses, analysisMetadataHolder,
+      new TrackerTargetBranchInputFactory(issuesLoader, targetBranchComponentUuids, dbClient, movedFilesRepository), locationHashesService,
+      issuesLoader, treeRootHolder);
+
+    when(sourceLinesHash.getLineHashesMatchingDBVersion(FILE)).thenReturn(fileHashes(linesAddedAbove));
+    int line = FINDING_LINE + linesAddedAbove;
+    reportReader.putIssues(FILE_REF, reportFinding
+      ? singletonList(ScannerReport.Issue.newBuilder(getReportIssue(ruleKey))
+        .setTextRange(ScannerReport.TextRange.newBuilder().setStartLine(line).setEndLine(line).setStartOffset(0).setEndOffset(5).build())
+        .build())
+      : emptyList());
+
+    visitor.visitAny(FILE);
+
+    verify(issueVisitor, atLeastOnce()).onIssue(eq(FILE), defaultIssueCaptor.capture());
+    return defaultIssueCaptor.getAllValues();
+  }
+
   private void addBaseIssue(RuleKey ruleKey) {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
     ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
@@ -410,6 +769,29 @@ class IntegrateIssuesVisitorIT {
     IssueDto issue = IssueTesting.newIssue(ruleDto, project, file)
       .setKee("ISSUE")
       .setSeverity(Severity.MINOR);
+    dbTester.getDbClient().issueDao().insert(dbTester.getSession(), issue);
+    dbTester.getSession().commit();
+  }
+
+  private void addMigratedBaseIssue(RuleKey ruleKey, String status, @Nullable String resolution) {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
+    dbTester.components().insertComponents(project, file);
+
+    RuleDto ruleDto = RuleTesting.newRule(ruleKey).setType(RuleType.VULNERABILITY);
+    dbTester.rules().insert(ruleDto);
+    ruleRepositoryRule.add(ruleDto);
+
+    // Same shape as a finding converted in place by HotspotsToIssuesMigrator: type switched, mapped status, former-hotspot tag.
+    IssueDto issue = IssueTesting.newIssue(ruleDto, project, file)
+      .setKee("ISSUE")
+      .setType(RuleType.VULNERABILITY)
+      .setStatus(status)
+      .setResolution(resolution)
+      .setLine(null)
+      .setMessage("the message")
+      .setChecksum(null)
+      .setTags(List.of("former-hotspot"));
     dbTester.getDbClient().issueDao().insert(dbTester.getSession(), issue);
     dbTester.getSession().commit();
   }
