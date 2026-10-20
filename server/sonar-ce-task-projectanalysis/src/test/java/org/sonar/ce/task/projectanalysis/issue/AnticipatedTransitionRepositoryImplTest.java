@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ComponentImpl;
 import org.sonar.ce.task.projectanalysis.component.ReportAttributes;
@@ -37,6 +38,7 @@ import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.project.CreationMethod;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -47,9 +49,12 @@ public class AnticipatedTransitionRepositoryImplTest {
   @Rule
   public final DbTester db = DbTester.create(System2.INSTANCE);
 
+  @Rule
+  public final MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
+
   private final DbClient dbClient = db.getDbClient();
 
-  private final AnticipatedTransitionRepository underTest = new AnticipatedTransitionRepositoryImpl(dbClient);
+  private final AnticipatedTransitionRepository underTest = new AnticipatedTransitionRepositoryImpl(dbClient, analysisMetadataHolder);
 
   @Before
   public void cleanUpDb() {
@@ -63,6 +68,7 @@ public class AnticipatedTransitionRepositoryImplTest {
     String projectUuid = "projectUuid1";
     ProjectDto projectDto = getProjectDto(projectUuid, projectKey);
     dbClient.projectDao().insert(db.getSession(), projectDto);
+    analysisMetadataHolder.setProject(Project.from(projectDto));
     String authorizedUserUuid = insertUserWithIssueAdminPermission(projectDto);
 
     insertAnticipatedTransition(projectUuid, "file1.js", authorizedUserUuid);
@@ -93,6 +99,7 @@ public class AnticipatedTransitionRepositoryImplTest {
     String mainFile = "file1.js";
     ProjectDto projectDto = getProjectDto(projectUuid, projectKey);
     dbClient.projectDao().insert(db.getSession(), projectDto);
+    analysisMetadataHolder.setProject(Project.from(projectDto));
     String authorizedUserUuid = insertUserWithIssueAdminPermission(projectDto);
 
     BranchDto branchDto = getBranchDto(projectUuid, "branch");
@@ -119,6 +126,7 @@ public class AnticipatedTransitionRepositoryImplTest {
     String projectUuid = "projectUuid3";
     ProjectDto projectDto = getProjectDto(projectUuid, projectKey);
     dbClient.projectDao().insert(db.getSession(), projectDto);
+    analysisMetadataHolder.setProject(Project.from(projectDto));
 
     String authorizedUserUuid = insertUserWithIssueAdminPermission(projectDto);
     UserDto unauthorizedUser = db.users().insertUser();
@@ -134,6 +142,42 @@ public class AnticipatedTransitionRepositoryImplTest {
 
     assertThat(anticipatedTransitions).hasSize(1);
     assertThat(anticipatedTransitions.iterator().next().getUserUuid()).isEqualTo(authorizedUserUuid);
+  }
+
+  @Test
+  public void givenProjectKeyContainingColon_transitionsOfProjectWithKeyEqualToKeyPrefixShouldNotBeReturned() {
+    // given an analyzed project whose key contains a colon, and a distinct project whose key is the first segment of it
+    ProjectDto analyzedProject = getProjectDto("analyzedProjectUuid", "prefix:web");
+    ProjectDto otherProject = getProjectDto("otherProjectUuid", "prefix");
+    dbClient.projectDao().insert(db.getSession(), analyzedProject);
+    dbClient.projectDao().insert(db.getSession(), otherProject);
+    analysisMetadataHolder.setProject(Project.from(analyzedProject));
+    String otherProjectUserUuid = insertUserWithIssueAdminPermission(otherProject);
+    insertAnticipatedTransition(otherProject.getUuid(), "file1.js", otherProjectUserUuid);
+    db.getSession().commit();
+
+    // when the file is not persisted yet
+    Component file = getFileComponent("notPersistedFileUuid", analyzedProject.getKey(), "file1.js");
+
+    // then
+    assertThat(underTest.getAnticipatedTransitionByComponent(file)).isEmpty();
+  }
+
+  @Test
+  public void givenProjectKeyContainingColon_transitionsOfAnalyzedProjectShouldBeReturned() {
+    // given
+    ProjectDto analyzedProject = getProjectDto("analyzedProjectUuid", "prefix:web");
+    dbClient.projectDao().insert(db.getSession(), analyzedProject);
+    analysisMetadataHolder.setProject(Project.from(analyzedProject));
+    String userUuid = insertUserWithIssueAdminPermission(analyzedProject);
+    insertAnticipatedTransition(analyzedProject.getUuid(), "file1.js", userUuid);
+    db.getSession().commit();
+
+    // when the file is not persisted yet
+    Component file = getFileComponent("notPersistedFileUuid", analyzedProject.getKey(), "file1.js");
+
+    // then
+    assertThat(underTest.getAnticipatedTransitionByComponent(file)).hasSize(1);
   }
 
   private String insertUserWithIssueAdminPermission(ProjectDto projectDto) {

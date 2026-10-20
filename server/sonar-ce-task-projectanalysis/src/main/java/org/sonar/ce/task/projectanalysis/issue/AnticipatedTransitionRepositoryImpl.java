@@ -28,11 +28,11 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.AnticipatedTransition;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.entity.EntityDto;
 import org.sonar.db.issue.AnticipatedTransitionDto;
 
 import static org.sonar.db.permission.ProjectPermission.ISSUE_ADMIN;
@@ -42,18 +42,19 @@ public class AnticipatedTransitionRepositoryImpl implements AnticipatedTransitio
   private static final Logger LOGGER = LoggerFactory.getLogger(AnticipatedTransitionRepositoryImpl.class);
 
   private final DbClient dbClient;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   // Keyed by userUuid only: this instance is recreated per CE task, and a task always analyzes a single project.
   private final Map<String, Boolean> issueAdminPermissionByUser = new HashMap<>();
 
-  public AnticipatedTransitionRepositoryImpl(DbClient dbClient) {
+  public AnticipatedTransitionRepositoryImpl(DbClient dbClient, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
   public Collection<AnticipatedTransition> getAnticipatedTransitionByComponent(Component component) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String projectUuid = dbClient.entityDao().selectByComponentUuid(dbSession, component.getUuid()).map(EntityDto::getUuid)
-        .orElse(calculateProjectUuidFromComponentKey(dbSession, component));
+      String projectUuid = analysisMetadataHolder.getProject().getUuid();
       List<AnticipatedTransitionDto> anticipatedTransitionDtos = dbClient.anticipatedTransitionDao()
         .selectByProjectUuidAndFilePath(dbSession, projectUuid, component.getName());
       List<AnticipatedTransitionDto> authorizedAnticipatedTransitionDtos = filterByIssueAdminPermission(dbSession, projectUuid, anticipatedTransitionDtos);
@@ -89,11 +90,6 @@ public class AnticipatedTransitionRepositoryImpl implements AnticipatedTransitio
         transitionDto.getUuid(), projectUuid, userUuid, ISSUE_ADMIN.getKey());
     }
     return hasPermission;
-  }
-
-  private String calculateProjectUuidFromComponentKey(DbSession dbSession, Component component) {
-    String projectKey = component.getKey().split(":")[0];
-    return dbClient.projectDao().selectProjectByKey(dbSession, projectKey).map(EntityDto::getUuid).orElse("");
   }
 
   private Collection<AnticipatedTransition> getAnticipatedTransitions(List<AnticipatedTransitionDto> anticipatedTransitionDtos) {
