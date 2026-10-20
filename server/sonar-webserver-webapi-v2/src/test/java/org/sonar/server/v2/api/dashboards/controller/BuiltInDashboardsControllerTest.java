@@ -19,6 +19,7 @@
  */
 package org.sonar.server.v2.api.dashboards.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,24 @@ class BuiltInDashboardsControllerTest {
   private final BuiltInDashboardsController underTest = new BuiltInDashboardsController(builtInDashboardService, editionProvider,
     builtInDashboardViewCountProvider);
   private final MockMvc mockMvc = ControllerTester.getMockMvc(underTest);
+
+  @Test
+  void getBuiltInDashboard_withRealProjectHealth_countsIssuesWithoutStatusFilter() throws Exception {
+    when(editionProvider.get()).thenReturn(Optional.of(Edition.COMMUNITY));
+    var controller = new BuiltInDashboardsController(new BuiltInDashboardService(), editionProvider, builtInDashboardViewCountProvider);
+
+    var result = ControllerTester.getMockMvc(controller).perform(get("/dashboards/built-ins/project-health"))
+      .andExpect(status().isOk())
+      .andReturn();
+    var objectMapper = new ObjectMapper();
+    var response = objectMapper.readTree(result.getResponse().getContentAsString());
+    var layout = objectMapper.readTree(response.path("layout").asText());
+    var metric = layout.path("children").get(0).path("children").get(1).path("props").path("metric");
+
+    assertThat(metric).isEqualTo(objectMapper.readTree("""
+      {"metricKey":"issueCount","type":"rich"}
+      """));
+  }
 
   @Test
   void listBuiltInDashboards_inCommunity_returnsOnlyProjectHealth() {
