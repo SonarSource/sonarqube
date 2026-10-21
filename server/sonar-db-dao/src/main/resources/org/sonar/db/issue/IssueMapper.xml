@@ -1382,6 +1382,13 @@
   <update id="resetFlagFromSonarQubeUpdate">
     UPDATE issues
     SET from_sonarqube_update = ${_false}, updated_at = #{now,jdbcType=BIGINT}
-    WHERE from_sonarqube_update = ${_true}
+    <choose>
+      <when test="_databaseId == 'oracle'">
+        WHERE CASE WHEN from_sonarqube_update = 1 THEN 1 END = 1
+      </when>
+      <otherwise>
+        WHERE from_sonarqube_update = ${_true}
+      </otherwise>
+    </choose>
   </update>
 </mapper>
