@@ -19,7 +19,10 @@
  */
 package org.sonar.server.notification;
 
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.config.PropertyDefinitions;
@@ -32,12 +35,12 @@ import org.sonar.db.DbClient;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +57,7 @@ public class NotificationMediumTest {
   private NotificationDispatcher commentOnIssueCreatedByMe = mock(NotificationDispatcher.class);
   private NotificationDispatcher qualityGateChange = mock(NotificationDispatcher.class);
   private DbClient dbClient = mock(DbClient.class);
+  private ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
   private NotificationService service = new NotificationService(dbClient, new NotificationDispatcher[] {commentOnIssueAssignedToMe, commentOnIssueCreatedByMe, qualityGateChange});
   private NotificationDaemon underTest = null;
 
@@ -70,7 +74,14 @@ public class NotificationMediumTest {
 
     MapSettings settings = new MapSettings(new PropertyDefinitions(System2.INSTANCE, NotificationDaemon.class)).setProperty("sonar.notifications.delay", 1L);
 
-    underTest = new NotificationDaemon(settings.asConfig(), manager, service);
+    underTest = new NotificationDaemon(settings.asConfig(), manager, service, () -> executorService);
+  }
+
+  private Runnable startAndCaptureScheduledTask() {
+    underTest.start();
+    ArgumentCaptor<Runnable> task = ArgumentCaptor.forClass(Runnable.class);
+    verify(executorService).scheduleWithFixedDelay(task.capture(), eq(0L), eq(1L), eq(TimeUnit.SECONDS));
+    return task.getValue();
   }
 
   /**
@@ -89,9 +100,9 @@ public class NotificationMediumTest {
     doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnIssueAssignedToMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
     doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnIssueCreatedByMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
 
-    underTest.start();
-    verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
-    underTest.stop();
+    startAndCaptureScheduledTask().run();
+
+    verify(emailChannel).deliver(notification, ASSIGNEE_SIMON);
 
     verify(gtalkChannel, never()).deliver(notification, ASSIGNEE_SIMON);
   }
@@ -113,10 +124,10 @@ public class NotificationMediumTest {
     doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnIssueAssignedToMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
     doAnswer(addUser(CREATOR_EVGENY, gtalkChannel)).when(commentOnIssueCreatedByMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
 
-    underTest.start();
-    verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
-    verify(gtalkChannel, timeout(2000)).deliver(notification, CREATOR_EVGENY);
-    underTest.stop();
+    startAndCaptureScheduledTask().run();
+
+    verify(emailChannel).deliver(notification, ASSIGNEE_SIMON);
+    verify(gtalkChannel).deliver(notification, CREATOR_EVGENY);
 
     verify(emailChannel, never()).deliver(notification, CREATOR_EVGENY);
     verify(gtalkChannel, never()).deliver(notification, ASSIGNEE_SIMON);
@@ -138,10 +149,10 @@ public class NotificationMediumTest {
     doAnswer(addUser(ASSIGNEE_SIMON, new NotificationChannel[]{emailChannel, gtalkChannel}))
       .when(commentOnIssueAssignedToMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
 
-    underTest.start();
-    verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
-    verify(gtalkChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
-    underTest.stop();
+    startAndCaptureScheduledTask().run();
+
+    verify(emailChannel).deliver(notification, ASSIGNEE_SIMON);
+    verify(gtalkChannel).deliver(notification, ASSIGNEE_SIMON);
 
     verify(emailChannel, never()).deliver(notification, CREATOR_EVGENY);
     verify(gtalkChannel, never()).deliver(notification, CREATOR_EVGENY);
@@ -161,8 +172,7 @@ public class NotificationMediumTest {
   public void scenario4() {
     setUpMocks();
 
-    underTest.start();
-    underTest.stop();
+    startAndCaptureScheduledTask().run();
 
     verify(emailChannel, never()).deliver(any(Notification.class), anyString());
     verify(gtalkChannel, never()).deliver(any(Notification.class), anyString());
@@ -176,10 +186,12 @@ public class NotificationMediumTest {
     doAnswer(addUser(ASSIGNEE_SIMON, emailChannel)).when(commentOnIssueAssignedToMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
     doAnswer(addUser(CREATOR_SIMON, emailChannel)).when(commentOnIssueCreatedByMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
 
-    underTest.start();
-    verify(emailChannel, timeout(2000)).deliver(notification, ASSIGNEE_SIMON);
-    underTest.stop();
+    Runnable task = startAndCaptureScheduledTask();
+    task.run();
+    verify(emailChannel, never()).deliver(any(Notification.class), anyString());
 
+    task.run();
+    verify(emailChannel).deliver(notification, ASSIGNEE_SIMON);
     verify(gtalkChannel, never()).deliver(notification, ASSIGNEE_SIMON);
   }
 
@@ -188,8 +200,7 @@ public class NotificationMediumTest {
     setUpMocks();
     doAnswer(addUser(null, gtalkChannel)).when(commentOnIssueCreatedByMe).performDispatch(same(notification), any(NotificationDispatcher.Context.class));
 
-    underTest.start();
-    underTest.stop();
+    startAndCaptureScheduledTask().run();
 
     verify(emailChannel, never()).deliver(any(Notification.class), anyString());
     verify(gtalkChannel, never()).deliver(any(Notification.class), anyString());
@@ -219,10 +230,10 @@ public class NotificationMediumTest {
     underTest = spy(underTest);
     // Emulate processing of each notification take 10 min to have a log each time
     when(underTest.now()).thenReturn(0L).thenReturn(10 * 60 * 1000 + 1L).thenReturn(20 * 60 * 1000 + 2L);
-    underTest.start();
-    verify(underTest, timeout(200)).log(0, 1, 10);
-    verify(underTest, timeout(200)).log(0, 0, 20);
-    underTest.stop();
+    startAndCaptureScheduledTask().run();
+
+    verify(underTest).log(0, 1, 10);
+    verify(underTest).log(0, 0, 20);
   }
 
   private static Answer<Object> addUser(final String user, final NotificationChannel channel) {

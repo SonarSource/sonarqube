@@ -24,6 +24,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+import jakarta.inject.Inject;
 import org.sonar.api.Startable;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -60,24 +62,37 @@ public class NotificationDaemon implements Startable {
   private final long delayBeforeReportingStatusInSeconds;
   private final DefaultNotificationManager manager;
   private final NotificationService service;
+  private final Supplier<ScheduledExecutorService> executorServiceFactory;
 
   private ScheduledExecutorService executorService;
   private boolean stopping = false;
 
+  @Inject
   public NotificationDaemon(Configuration config, DefaultNotificationManager manager, NotificationService service) {
+    this(config, manager, service, NotificationDaemon::createExecutorService);
+  }
+
+  @VisibleForTesting
+  NotificationDaemon(Configuration config, DefaultNotificationManager manager, NotificationService service,
+    Supplier<ScheduledExecutorService> executorServiceFactory) {
     this.delayInSeconds = config.getLong(PROPERTY_DELAY).get();
     this.delayBeforeReportingStatusInSeconds = config.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS).get();
     this.manager = manager;
     this.service = service;
+    this.executorServiceFactory = executorServiceFactory;
   }
 
-  @Override
-  public void start() {
-    executorService = Executors.newSingleThreadScheduledExecutor(
+  private static ScheduledExecutorService createExecutorService() {
+    return Executors.newSingleThreadScheduledExecutor(
       new ThreadFactoryBuilder()
         .setNameFormat(THREAD_NAME_PREFIX + "%d")
         .setPriority(Thread.MIN_PRIORITY)
         .build());
+  }
+
+  @Override
+  public void start() {
+    executorService = executorServiceFactory.get();
     executorService.scheduleWithFixedDelay(() -> {
       try {
         processQueue();
