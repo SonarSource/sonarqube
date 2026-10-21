@@ -362,6 +362,50 @@ class StaticResourcesServletTest {
   }
 
   @Test
+  void return_404_if_core_extension_resource_path_contains_traversal_sequence() throws Exception {
+    system.coreExtensionStream = IOUtils.toInputStream("test", Charset.defaultCharset());
+    when(coreExtensionRepository.isInstalled("coreext")).thenReturn(true);
+
+    HttpResponse<String> response = callAndStop("/static/coreext/....//....//etc/passwd");
+
+    assertThat(response.statusCode()).isEqualTo(404);
+    assertThat(system.coreExtensionResource).isNull();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+  }
+
+  @Test
+  void return_404_if_resource_path_is_empty() throws Exception {
+    system.pluginStream = IOUtils.toInputStream("test", Charset.defaultCharset());
+    when(pluginRepository.hasPlugin("myplugin")).thenReturn(true);
+
+    HttpResponse<String> response = callAndStop("/static/myplugin/");
+
+    assertThat(response.statusCode()).isEqualTo(404);
+    assertThat(system.pluginResource).isNull();
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+  }
+
+  @Test
+  void normalizeAndValidate_normalizes_and_validates_resource_path() {
+    assertThat(StaticResourcesServlet.normalizeAndValidate("static/foo/bar.txt", "static/")).isEqualTo("static/foo/bar.txt");
+    assertThat(StaticResourcesServlet.normalizeAndValidate("static//foo/./bar.txt", "static/")).isEqualTo("static/foo/bar.txt");
+    assertThat(StaticResourcesServlet.normalizeAndValidate("static/foo\\bar.txt", "static/")).isEqualTo("static/foo/bar.txt");
+  }
+
+  @Test
+  void normalizeAndValidate_resolves_backslash_disguised_traversal_sequences_before_validating() {
+    // on Linux "a\..\b" is a single path segment that normalize() would leave untouched if the
+    // backslashes were converted to '/' only after normalizing, uncovering an unresolved ".." segment
+    assertThat(StaticResourcesServlet.normalizeAndValidate("static/a\\..\\b", "static/")).isEqualTo("static/b");
+  }
+
+  @Test
+  void normalizeAndValidate_returns_null_instead_of_throwing_for_paths_illegal_on_the_platform_file_system() {
+    // a NUL character is legal, unencoded, in a URI path but rejected by every java.nio.file.Path provider
+    assertThat(StaticResourcesServlet.normalizeAndValidate("static/foo bar", "static/")).isNull();
+  }
+
+  @Test
   void do_not_fail_when_response_is_committed_after_other_error() throws Exception {
     system.isCommitted = true;
     system.pluginStreamException = new RuntimeException("Simulating a error");

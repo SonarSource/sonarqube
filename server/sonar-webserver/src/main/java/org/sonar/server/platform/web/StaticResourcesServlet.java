@@ -28,6 +28,8 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.annotation.CheckForNull;
@@ -86,23 +88,20 @@ public class StaticResourcesServlet extends HttpServlet {
         return;
       }
 
-      if (coreExtension) {
-        resource = STATIC_FOLDER + resourceSubPath;
-        in = system.openCoreExtensionResourceStream(resource);
+      PluginInfo pluginInfo = coreExtension ? null : pluginRepository.getPluginInfo(pluginKey);
+      if (pluginInfo != null && pluginInfo.isZipPackaging()) {
+        resource = RESOURCES_FOLDER + resourceSubPath;
+        // read from the deploy-dir resources archive, not pluginInfo.getNonNullJarFile(), which can have been
+        // moved away by an uninstall while the server is still up - see ExplodedPlugin#getResourcesArchive()
+        File resourcesArchive = pluginRepository.getPlugin(pluginKey).getResourcesArchive();
+        in = resourcesArchive == null ? null : system.openZipPluginResourceStream(resourcesArchive, resource);
       } else {
-        PluginInfo pluginInfo = pluginRepository.getPluginInfo(pluginKey);
-        if (pluginInfo.isZipPackaging()) {
-          resource = RESOURCES_FOLDER + resourceSubPath;
-          // read from the deploy-dir resources archive, not pluginInfo.getNonNullJarFile(), which can have been
-          // moved away by an uninstall while the server is still up - see ExplodedPlugin#getResourcesArchive()
-          File resourcesArchive = pluginRepository.getPlugin(pluginKey).getResourcesArchive();
-          if (resourcesArchive != null) {
-            in = system.openZipPluginResourceStream(resourcesArchive, resource);
-          }
-        } else {
-          resource = STATIC_FOLDER + resourceSubPath;
-          in = system.openPluginResourceStream(pluginKey, resource, pluginRepository);
+        resource = normalizeAndValidate(STATIC_FOLDER + resourceSubPath, STATIC_FOLDER);
+        if (resource == null) {
+          silentlySendError(response, SC_NOT_FOUND);
+          return;
         }
+        in = openStaticResourceStream(pluginRepository, pluginKey, coreExtension, resource);
       }
       if (in == null) {
         silentlySendError(response, SC_NOT_FOUND);
@@ -122,6 +121,34 @@ public class StaticResourcesServlet extends HttpServlet {
       IOUtils.closeQuietly(in);
       IOUtils.closeQuietly(out);
     }
+  }
+
+  private InputStream openStaticResourceStream(ServerPluginRepository pluginRepository, String pluginKey, boolean coreExtension, String resource) throws Exception {
+    if (coreExtension) {
+      return system.openCoreExtensionResourceStream(resource);
+    }
+    return system.openPluginResourceStream(pluginKey, resource, pluginRepository);
+  }
+
+  /**
+   * Canonicalizes {@code resource} and returns it only if it's still located within {@code expectedFolder},
+   * to protect the classloader resource lookups in {@link System#openPluginResourceStream} and
+   * {@link System#openCoreExtensionResourceStream} against path traversal.
+   */
+  @CheckForNull
+  @VisibleForTesting
+  static String normalizeAndValidate(String resource, String expectedFolder) {
+    String normalized;
+    try {
+      // backslashes must be converted to '/' before normalizing: on Linux, "a\..\b" is a single path
+      // segment that normalize() leaves untouched, so converting afterwards would uncover an
+      // unresolved ".." segment
+      normalized = Paths.get(resource.replace('\\', '/')).normalize().toString().replace('\\', '/');
+    } catch (InvalidPathException e) {
+      // characters such as ':' are legal, unencoded, in a URI path but rejected by the platform's Path parser
+      return null;
+    }
+    return normalized.startsWith(expectedFolder) ? normalized : null;
   }
 
   private void silentlySendError(HttpServletResponse response, int error) {
