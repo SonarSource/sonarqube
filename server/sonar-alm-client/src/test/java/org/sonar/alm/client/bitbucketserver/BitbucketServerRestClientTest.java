@@ -50,6 +50,8 @@ import static org.mockito.Mockito.mock;
 
 @RunWith(DataProviderRunner.class)
 public class BitbucketServerRestClientTest {
+  // Only guards against a hung test: a short timeout makes tests fail whenever the mock server is slow to answer
+  private static final long TIMEOUT_MS = 30_000;
   private final MockWebServer server = new MockWebServer();
   private static final String REPOS_BODY = """
     {
@@ -89,7 +91,7 @@ public class BitbucketServerRestClientTest {
   public void prepare() throws IOException {
     server.start();
 
-    underTest = new BitbucketServerRestClient(new ConstantTimeoutConfiguration(500), new OkHttpClientBuilder().build());
+    underTest = new BitbucketServerRestClient(new ConstantTimeoutConfiguration(TIMEOUT_MS), new OkHttpClientBuilder().build());
   }
 
   @After

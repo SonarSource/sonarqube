@@ -57,6 +57,8 @@ import static org.sonar.alm.client.ApplicationHttpClient.RateLimit;
 public class GenericApplicationHttpClientTest {
   private static final String GH_API_VERSION_HEADER = "X-GitHub-Api-Version";
   private static final String GH_API_VERSION = "2022-11-28";
+  // Only guards against a hung test: a short timeout makes tests fail whenever the mock server is slow to answer
+  private static final long TIMEOUT_MS = 30_000;
 
   @Rule
   public MockWebServer server = new MockWebServer();
@@ -74,7 +76,7 @@ public class GenericApplicationHttpClientTest {
   @Before
   public void setUp() {
     this.appUrl = format("http://%s:%s", server.getHostName(), server.getPort());
-    this.underTest = new TestApplicationHttpClient(new GithubHeaders(), new ConstantTimeoutConfiguration(500), new okhttp3.OkHttpClient());
+    this.underTest = new TestApplicationHttpClient(new GithubHeaders(), new ConstantTimeoutConfiguration(TIMEOUT_MS), new okhttp3.OkHttpClient());
     logTester.clear();
   }
 
@@ -152,10 +154,11 @@ public class GenericApplicationHttpClientTest {
 
   @Test
   public void get_timeout() {
+    TestApplicationHttpClient client = new TestApplicationHttpClient(new GithubHeaders(), new ConstantTimeoutConfiguration(500), new okhttp3.OkHttpClient());
     server.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE));
 
     try {
-      underTest.get(appUrl, accessToken, randomEndPoint);
+      client.get(appUrl, accessToken, randomEndPoint);
       fail("Expected timeout");
     } catch (Exception e) {
       assertThat(e).isInstanceOf(SocketTimeoutException.class);
@@ -544,7 +547,7 @@ public class GenericApplicationHttpClientTest {
 
   @Test
   public void client_should_not_follow_redirects() throws IOException {
-    TestApplicationHttpClient client = new TestApplicationHttpClient(new GithubHeaders(), new ConstantTimeoutConfiguration(500), new okhttp3.OkHttpClient());
+    TestApplicationHttpClient client = new TestApplicationHttpClient(new GithubHeaders(), new ConstantTimeoutConfiguration(TIMEOUT_MS), new okhttp3.OkHttpClient());
 
     // Enqueue a redirect response - followRedirects(false) means it won't be automatically followed
     server.enqueue(new MockResponse().setResponseCode(302).setHeader("Location", appUrl + "/redirected"));
