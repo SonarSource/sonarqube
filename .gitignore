@@ -33,6 +33,7 @@ yarn-error.log*
 
 # ---- Eclipse
 .classpath
+.factorypath
 .project
 .settings
 .externalToolBuilders
