@@ -27,9 +27,13 @@ import java.util.List;
 import java.util.Optional;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.TokenType;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.es.ES8QueryHelper.matchAllQuery;
+import static org.sonar.server.es.ES8QueryHelper.matchNoneQuery;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIELD_ALLOW_ANYONE;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIELD_GROUP_IDS;
 import static org.sonar.server.permission.index.IndexAuthorizationConstants.FIELD_USER_IDS;
@@ -84,9 +88,24 @@ public class WebAuthorizationTypeSupport {
 
     BoolQuery boolQuery = BoolQuery.of(b -> b.should(shouldQueries));
 
+    List<Query> parentFilters = new ArrayList<>();
+    parentFilters.add(Query.of(filterQ -> filterQ.bool(boolQuery)));
+    projectAnalysisTokenScopeFilter().ifPresent(parentFilters::add);
+
     return Query.of(q -> q.hasParent(HasParentQuery.of(hp -> hp
       .parentType(TYPE_AUTHORIZATION)
-      .query(Query.of(innerQ -> innerQ.bool(BoolQuery.of(innerB -> innerB.filter(Query.of(filterQ -> filterQ.bool(boolQuery)))))))
+      .query(Query.of(innerQ -> innerQ.bool(BoolQuery.of(innerB -> innerB.filter(parentFilters)))))
       .score(false))));
+  }
+
+  private Optional<Query> projectAnalysisTokenScopeFilter() {
+    UserSession effectiveSession = userSession instanceof ThreadLocalUserSession threadLocalUserSession ? threadLocalUserSession.get() : userSession;
+    if (!(effectiveSession instanceof TokenUserSession tokenUserSession) || tokenUserSession.getTokenType() != TokenType.PROJECT_ANALYSIS_TOKEN) {
+      return Optional.empty();
+    }
+    String projectUuid = tokenUserSession.getUserToken().getProjectUuid();
+    return Optional.of(projectUuid != null
+      ? Query.of(q -> q.ids(idsQ -> idsQ.values(AuthorizationDoc.idOf(projectUuid))))
+      : matchNoneQuery());
   }
 }

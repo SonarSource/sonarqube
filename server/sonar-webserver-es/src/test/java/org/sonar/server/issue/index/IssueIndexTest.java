@@ -32,7 +32,11 @@ import org.sonar.db.component.ProjectData;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 
 import static com.google.common.collect.ImmutableSortedSet.of;
 import static java.util.Arrays.asList;
@@ -43,6 +47,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 import static org.sonar.server.issue.IssueDocTesting.newDocForProject;
@@ -246,6 +251,43 @@ class IssueIndexTest extends IssueIndexTestCommon {
     // another user
     userSessionRule.logIn(newUserDto());
     assertThatSearchReturnsEmpty(IssueQuery.builder());
+  }
+
+  @Test
+  void project_scoped_analysis_token_does_not_read_issues_from_a_different_project_the_owner_can_browse() {
+    UserDto owner = db.users().insertUser();
+
+    ProjectData projectA = db.components().insertPrivateProject();
+    ProjectData projectB = db.components().insertPrivateProject();
+    ComponentDto fileA = newFileDto(projectA.getMainBranchComponent());
+    ComponentDto fileB = newFileDto(projectB.getMainBranchComponent());
+
+    issueIndexer.index(List.of(
+      newDoc("issueA", projectA.projectUuid(), true, fileA),
+      newDoc("issueB", projectB.projectUuid(), true, fileB)).iterator());
+    authorizationIndexer.allowOnlyUser(projectA.getProjectDto(), owner);
+    authorizationIndexer.allowOnlyUser(projectB.getProjectDto(), owner);
+
+    UserTokenDto tokenScopedToProjectA = new UserTokenDto()
+      .setType(PROJECT_ANALYSIS_TOKEN.name())
+      .setName("ci")
+      .setUserUuid(owner.getUuid())
+      .setProjectKey(projectA.getProjectDto().getKey())
+      .setProjectName(projectA.getProjectDto().getName())
+      .setProjectUuid(projectA.getProjectDto().getUuid());
+
+    TokenUserSession tokenSession = new TokenUserSession(db.getDbClient(), owner, tokenScopedToProjectA);
+    ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+    threadLocalUserSession.set(tokenSession);
+    IssueIndex searchAsToken = new IssueIndex(es.client(), system2, threadLocalUserSession,
+      new WebAuthorizationTypeSupport(threadLocalUserSession), config);
+
+    List<String> visibleIssueKeys = searchAsToken.search(IssueQuery.builder().build(), new SearchOptions())
+      .hits().hits().stream()
+      .map(Hit::id)
+      .toList();
+
+    assertThat(visibleIssueKeys).containsExactly("issueA");
   }
 
   @Test

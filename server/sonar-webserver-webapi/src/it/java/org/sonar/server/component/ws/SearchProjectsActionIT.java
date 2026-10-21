@@ -55,6 +55,8 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.ai.code.assurance.AiCodeAssurance;
 import org.sonar.server.ai.code.assurance.AiCodeAssuranceEntitlement;
 import org.sonar.server.ai.code.assurance.AiCodeAssuranceVerifier;
@@ -66,6 +68,8 @@ import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -83,6 +87,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
@@ -1578,6 +1583,46 @@ class SearchProjectsActionIT {
 
     assertThat(result.getComponentsList()).extracting(Component::getKey)
       .containsExactlyInAnyOrder(project.getKey());
+  }
+
+  @Test
+  void project_scoped_analysis_token_does_not_leak_a_different_project_the_owner_can_browse() {
+    UserDto owner = db.users().insertUser();
+
+    ProjectData projectA = db.components().insertPrivateProject(p -> p.setKey("proj-a").setName("Project A"));
+    ProjectData projectB = db.components().insertPrivateProject(p -> p.setKey("proj-b").setName("Project B"));
+    ProjectDto projectDtoA = projectA.getProjectDto();
+    ProjectDto projectDtoB = projectB.getProjectDto();
+
+    db.users().insertProjectPermissionOnUser(owner, ProjectPermission.USER, projectDtoA);
+    db.users().insertProjectPermissionOnUser(owner, ProjectPermission.USER, projectDtoB);
+
+    projectMeasuresIndexer.indexAll();
+    authorizationIndexerTester.allowOnlyUser(projectDtoA, owner);
+    authorizationIndexerTester.allowOnlyUser(projectDtoB, owner);
+
+    UserTokenDto tokenScopedToProjectA = new UserTokenDto()
+      .setType(PROJECT_ANALYSIS_TOKEN.name())
+      .setName("ci")
+      .setUserUuid(owner.getUuid())
+      .setProjectKey(projectDtoA.getKey())
+      .setProjectName(projectDtoA.getName())
+      .setProjectUuid(projectDtoA.getUuid());
+    TokenUserSession tokenSession = new TokenUserSession(dbClient, owner, tokenScopedToProjectA);
+    ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+    threadLocalUserSession.set(tokenSession);
+
+    ProjectMeasuresIndex indexAsToken = new ProjectMeasuresIndex(es.client(), new WebAuthorizationTypeSupport(threadLocalUserSession), System2.INSTANCE);
+    when(editionProviderMock.get()).thenReturn(Optional.of(Edition.COMMUNITY));
+    WsActionTester wsAsToken = new WsActionTester(
+      new SearchProjectsAction(dbClient, indexAsToken, threadLocalUserSession, editionProviderMock, aiCodeAssuranceEntitlement, aiCodeAssuranceVerifier));
+
+    SearchProjectsWsResponse response = wsAsToken.newRequest().executeProtobuf(SearchProjectsWsResponse.class);
+
+    assertThat(response.getComponentsList())
+      .extracting(Component::getKey)
+      .containsExactly(projectDtoA.getKey());
+    assertThat(response.getPaging().getTotal()).isEqualTo(1);
   }
 
   @Test

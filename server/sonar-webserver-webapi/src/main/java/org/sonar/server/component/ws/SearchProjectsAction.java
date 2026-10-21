@@ -68,6 +68,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
+import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
@@ -727,7 +728,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private boolean isProjectAnalysisToken() {
-    if (userSession instanceof TokenUserSession tokenUserSession) {
+    UserSession effectiveSession = userSession instanceof ThreadLocalUserSession threadLocalUserSession ? threadLocalUserSession.get() : userSession;
+    if (effectiveSession instanceof TokenUserSession tokenUserSession) {
       return TokenType.PROJECT_ANALYSIS_TOKEN.equals(tokenUserSession.getTokenType());
     }
     return false;

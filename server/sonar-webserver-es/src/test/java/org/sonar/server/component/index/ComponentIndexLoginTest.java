@@ -20,11 +20,22 @@
 package org.sonar.server.component.index;
 
 import org.junit.jupiter.api.Test;
+import org.sonar.api.utils.System2;
+import org.sonar.db.component.ProjectData;
 import org.sonar.db.entity.EntityDto;
+import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
+import org.sonar.server.es.SearchIdResult;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.TokenUserSession;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.db.user.TokenType.PROJECT_ANALYSIS_TOKEN;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 class ComponentIndexLoginTest extends ComponentIndexTest {
@@ -69,4 +80,34 @@ class ComponentIndexLoginTest extends ComponentIndexTest {
     assertSearchResults("sonarqube", project);
   }
 
+  @Test
+  void project_scoped_analysis_token_does_not_find_a_different_project_the_owner_can_browse() {
+    UserDto owner = db.users().insertUser();
+
+    ProjectData projectA = db.components().insertPrivateProject(p -> p.setKey("proj-a").setName("Project A"));
+    ProjectData projectB = db.components().insertPrivateProject(p -> p.setKey("proj-b").setName("Project B"));
+    ProjectDto projectDtoA = projectA.getProjectDto();
+    ProjectDto projectDtoB = projectB.getProjectDto();
+
+    indexer.indexAll();
+    authorizationIndexerTester.allowOnlyUser(projectDtoA, owner);
+    authorizationIndexerTester.allowOnlyUser(projectDtoB, owner);
+
+    UserTokenDto tokenScopedToProjectA = new UserTokenDto()
+      .setType(PROJECT_ANALYSIS_TOKEN.name())
+      .setName("ci")
+      .setUserUuid(owner.getUuid())
+      .setProjectKey(projectDtoA.getKey())
+      .setProjectName(projectDtoA.getName())
+      .setProjectUuid(projectDtoA.getUuid());
+
+    TokenUserSession tokenSession = new TokenUserSession(db.getDbClient(), owner, tokenScopedToProjectA);
+    ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+    threadLocalUserSession.set(tokenSession);
+    ComponentIndex searchAsToken = new ComponentIndex(es.client(), new WebAuthorizationTypeSupport(threadLocalUserSession), System2.INSTANCE);
+
+    SearchIdResult<String> result = searchAsToken.searchV2(ComponentQuery.builder().build(), new SearchOptions());
+
+    assertThat(result.getUuids()).containsExactly(projectDtoA.getUuid());
+  }
 }
