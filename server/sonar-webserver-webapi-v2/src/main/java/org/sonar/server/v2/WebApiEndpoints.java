@@ -24,6 +24,9 @@ public class WebApiEndpoints {
   public static final String JSON_MERGE_PATCH_CONTENT_TYPE = "application/merge-patch+json";
   public static final String INTERNAL = "x-sonar-internal";
 
+  public static final String COMPONENTS_DOMAIN = "/components";
+  public static final String PROJECTS_ENDPOINT = COMPONENTS_DOMAIN + "/projects";
+
   public static final String SYSTEM_DOMAIN = "/system";
   public static final String LIVENESS_ENDPOINT = SYSTEM_DOMAIN + "/liveness";
   public static final String HEALTH_ENDPOINT = SYSTEM_DOMAIN + "/health";

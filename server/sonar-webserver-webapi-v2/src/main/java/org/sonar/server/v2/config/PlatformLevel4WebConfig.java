@@ -52,6 +52,7 @@ import org.sonar.server.v2.api.membership.controller.DefaultGroupMembershipContr
 import org.sonar.server.v2.api.mode.controller.DefaultModeController;
 import org.sonar.server.v2.api.projectbindings.controller.DefaultProjectBindingsController;
 import org.sonar.server.v2.api.projects.controller.DefaultBoundProjectsController;
+import org.sonar.server.v2.api.projects.controller.DefaultProjectsController;
 import org.sonar.server.v2.api.rule.controller.DefaultRuleController;
 import org.sonar.server.v2.api.rule.converter.RuleRestResponseGenerator;
 import org.sonar.server.v2.api.scmaccesstoken.controller.DefaultScmAccessTokenController;
@@ -85,6 +86,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
   DefaultActiveRulesController.class,
   HistoryWebConfiguration.class,
   DefaultBoundProjectsController.class,
+  DefaultProjectsController.class,
   DefaultDopSettingsController.class,
   DefaultPermissionChecksController.class,
   DefaultEmailConfigurationController.class,
