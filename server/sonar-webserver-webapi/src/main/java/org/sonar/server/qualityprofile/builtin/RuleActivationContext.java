@@ -56,7 +56,7 @@ public class RuleActivationContext {
 
   private final long date;
 
-  private Set<String> previousBuiltinActiveRuleUuids;
+  private final Set<String> previousBuiltinActiveRuleUuids;
 
   // The profile that is initially targeted by the operation
   private final RulesProfileDto baseRulesProfile;

@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.property.PropertyDto;
 
 public class PropertyNewValue extends NewValue {
-  private String propertyKey;
+  private final String propertyKey;
 
   @Nullable
   private String propertyValue;

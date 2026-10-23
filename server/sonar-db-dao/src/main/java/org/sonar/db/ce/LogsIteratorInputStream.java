@@ -36,7 +36,7 @@ final class LogsIteratorInputStream extends InputStream {
 
   private final Charset charset;
   private final byte[] lineFeed;
-  private CloseableIterator<String> logsIterator;
+  private final CloseableIterator<String> logsIterator;
   private byte[] buf;
   private int nextChar = UNSET;
 

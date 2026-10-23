@@ -56,9 +56,9 @@ import org.sonar.channel.RegexChannel;
  */
 class HtmlListChannel extends Channel<MarkdownOutput> {
 
-  private OrderedListElementChannel orderedListElement = new OrderedListElementChannel();
-  private UnorderedListElementChannel unorderedListElement = new UnorderedListElementChannel();
-  private EndOfLine endOfLine = new EndOfLine();
+  private final OrderedListElementChannel orderedListElement = new OrderedListElementChannel();
+  private final UnorderedListElementChannel unorderedListElement = new UnorderedListElementChannel();
+  private final EndOfLine endOfLine = new EndOfLine();
   private boolean pendingListConstruction;
 
   @Override
@@ -99,7 +99,7 @@ class HtmlListChannel extends Channel<MarkdownOutput> {
 
   private abstract class ListElementChannel extends RegexChannel<MarkdownOutput> {
 
-    private String listElement;
+    private final String listElement;
 
     protected ListElementChannel(String markerRegexp, String listElement) {
       super("\\s*+" + markerRegexp + "\\s[^\r\n]*+");

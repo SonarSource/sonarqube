@@ -53,7 +53,7 @@ public class RuleRepositoryImpl implements RuleRepository {
   private final AdHocRuleCreator creator;
   private final DbClient dbClient;
 
-  private Map<RuleKey, NewAdHocRule> adHocRulesPersist = new HashMap<>();
+  private final Map<RuleKey, NewAdHocRule> adHocRulesPersist = new HashMap<>();
 
   public RuleRepositoryImpl(AdHocRuleCreator creator, DbClient dbClient) {
     this.creator = creator;

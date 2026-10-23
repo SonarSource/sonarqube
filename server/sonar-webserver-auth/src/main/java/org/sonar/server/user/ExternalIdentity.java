@@ -27,9 +27,9 @@ public class ExternalIdentity {
 
   public static final String SQ_AUTHORITY = "sonarqube";
 
-  private String provider;
-  private String login;
-  private String id;
+  private final String provider;
+  private final String login;
+  private final String id;
 
   public ExternalIdentity(String provider, String login, @Nullable String id) {
     this.provider = requireNonNull(provider, "Identity provider cannot be null");

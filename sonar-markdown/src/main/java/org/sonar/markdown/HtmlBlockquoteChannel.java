@@ -40,8 +40,8 @@ import org.sonar.channel.RegexChannel;
  */
 class HtmlBlockquoteChannel extends Channel<MarkdownOutput> {
 
-  private QuotedLineElementChannel quotedLineElement = new QuotedLineElementChannel();
-  private EndOfLine endOfLine = new EndOfLine();
+  private final QuotedLineElementChannel quotedLineElement = new QuotedLineElementChannel();
+  private final EndOfLine endOfLine = new EndOfLine();
   private boolean pendingBlockConstruction;
 
   @Override

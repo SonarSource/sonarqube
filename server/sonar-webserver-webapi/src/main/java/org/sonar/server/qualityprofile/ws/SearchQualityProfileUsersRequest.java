@@ -22,8 +22,8 @@ package org.sonar.server.qualityprofile.ws;
 import org.sonar.server.user.ws.SearchUsersRequest;
 
 class SearchQualityProfileUsersRequest extends SearchUsersRequest {
-  private String qualityProfile;
-  private String language;
+  private final String qualityProfile;
+  private final String language;
 
   private SearchQualityProfileUsersRequest(Builder builder) {
     this.qualityProfile = builder.qualityProfile;

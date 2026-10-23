@@ -66,7 +66,7 @@ public class PaginationInformation {
 
   public static class Builder {
     private int pageSize;
-    private int pageIndex;
+    private final int pageIndex;
 
     private Builder(int pageIndex) {
       this.pageIndex = pageIndex;

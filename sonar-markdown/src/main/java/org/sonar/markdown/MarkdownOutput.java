@@ -21,7 +21,7 @@ package org.sonar.markdown;
 
 class MarkdownOutput {
 
-  private StringBuilder ouput = new StringBuilder();
+  private final StringBuilder ouput = new StringBuilder();
 
   public Appendable append(CharSequence charSequence) {
     return ouput.append(charSequence);

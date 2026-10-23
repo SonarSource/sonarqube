@@ -30,19 +30,19 @@ import org.sonar.core.rule.RuleType;
 import org.sonar.db.rule.SeverityUtil;
 
 public class ExportRuleDto {
-  private String activeRuleUuid = null;
-  private String cleanCodeAttribute = null;
-  private String description = null;
-  private String repository = null;
-  private String rule = null;
-  private String name = null;
-  private String extendedDescription = null;
-  private String template = null;
-  private Integer severity = null;
-  private String impacts = null;
-  private Integer type = null;
+  private String activeRuleUuid;
+  private String cleanCodeAttribute;
+  private String description;
+  private String repository;
+  private String rule;
+  private String name;
+  private String extendedDescription;
+  private String template;
+  private Integer severity;
+  private String impacts;
+  private Integer type;
   private Boolean prioritizedRule;
-  private Set<String> tags = new HashSet<>();
+  private final Set<String> tags = new HashSet<>();
 
   private List<ExportRuleParamDto> params = null;
 

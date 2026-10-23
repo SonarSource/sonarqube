@@ -30,8 +30,8 @@ import org.sonar.db.MyBatis;
 public class NotificationQueueDao implements Dao {
 
   private final MyBatis mybatis;
-  private System2 system2;
-  private UuidFactory uuidFactory;
+  private final System2 system2;
+  private final UuidFactory uuidFactory;
 
   public NotificationQueueDao(MyBatis mybatis, System2 system2, UuidFactory uuidFactory) {
     this.mybatis = mybatis;

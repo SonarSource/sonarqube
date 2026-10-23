@@ -29,7 +29,7 @@ import org.sonar.scanner.protobuf.utils.CloseableIterator;
 
 public final class ObjectInputStreamIterator<E> extends CloseableIterator<E> {
 
-  private ObjectInputStream stream;
+  private final ObjectInputStream stream;
 
   public ObjectInputStreamIterator(InputStream stream) throws IOException {
     this.stream = new ObjectInputStream(stream);

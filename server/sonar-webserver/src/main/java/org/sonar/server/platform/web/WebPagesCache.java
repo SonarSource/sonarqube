@@ -47,7 +47,7 @@ public class WebPagesCache {
   private final OfficialDistribution officialDistribution;
 
   private ServletContext servletContext;
-  private Map<String, String> indexHtmlByPath;
+  private final Map<String, String> indexHtmlByPath;
   private Status status;
 
   public WebPagesCache(Platform platform, OfficialDistribution officialDistribution) {

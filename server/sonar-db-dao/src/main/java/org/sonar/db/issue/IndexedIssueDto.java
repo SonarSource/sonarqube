@@ -63,8 +63,8 @@ public final class IndexedIssueDto {
   private String linkedTicketStatus = LinkedTicketStatus.NOT_LINKED;
   private boolean fromSonarQubeUpdate = false;
 
-  private Set<ImpactDto> impacts = new HashSet<>();
-  private Set<ImpactDto> ruleDefaultImpacts = new HashSet<>();
+  private final Set<ImpactDto> impacts = new HashSet<>();
+  private final Set<ImpactDto> ruleDefaultImpacts = new HashSet<>();
 
   public IndexedIssueDto() {
     // empty constructor

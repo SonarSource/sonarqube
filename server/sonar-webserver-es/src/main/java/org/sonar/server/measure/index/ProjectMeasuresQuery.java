@@ -37,7 +37,7 @@ public class ProjectMeasuresQuery {
   public static final String SORT_BY_LAST_ANALYSIS_DATE = "analysisDate";
   public static final String SORT_BY_CREATION_DATE = "creationDate";
 
-  private List<MetricCriterion> metricCriteria = new ArrayList<>();
+  private final List<MetricCriterion> metricCriteria = new ArrayList<>();
   private Metric.Level qualityGateStatus = null;
   private Set<String> projectUuids = null;
   private Set<String> languages = null;

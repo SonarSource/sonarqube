@@ -72,8 +72,8 @@ class DurationLabel {
   }
 
   static class Result {
-    private String key;
-    private Long value;
+    private final String key;
+    private final Long value;
 
     public Result(String key, @Nullable Long value) {
       this.key = key;

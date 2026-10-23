@@ -23,7 +23,7 @@ import org.sonar.api.server.ws.WebService;
 
 public class UserGroupsWs implements WebService {
 
-  private UserGroupsWsAction[] actions;
+  private final UserGroupsWsAction[] actions;
 
   public UserGroupsWs(UserGroupsWsAction... actions) {
     this.actions = actions;

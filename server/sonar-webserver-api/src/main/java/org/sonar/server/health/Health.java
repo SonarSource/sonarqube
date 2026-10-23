@@ -85,7 +85,7 @@ public class Health {
    */
   public static class Builder {
     private Status status;
-    private Set<String> causes = HashSet.newHashSet(0);
+    private final Set<String> causes = HashSet.newHashSet(0);
 
     private Builder() {
       // use static factory method

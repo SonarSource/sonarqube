@@ -26,7 +26,7 @@ public enum AiCodeAssurance {
   AI_CODE_ASSURANCE_FAIL(true),
   NONE(false);
 
-  private boolean isAiCodeAssured;
+  private final boolean isAiCodeAssured;
 
   AiCodeAssurance(boolean isAiCodeAssured) {
     this.isAiCodeAssured = isAiCodeAssured;

@@ -33,7 +33,7 @@ import static java.util.Objects.requireNonNull;
  * In-memory implementation of {@link DuplicationRepository}.
  */
 public class DuplicationRepositoryImpl implements DuplicationRepository {
-  private Multimap<String, Duplication> duplications = HashMultimap.create();
+  private final Multimap<String, Duplication> duplications = HashMultimap.create();
 
   @Override
   public Iterable<Duplication> getDuplications(Component file) {

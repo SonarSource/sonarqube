@@ -58,7 +58,7 @@ public final class StatementChunker {
    */
   public static final class Builder {
 
-    private List<StatementChannel> channels = new ArrayList<>();
+    private final List<StatementChannel> channels = new ArrayList<>();
 
     private Builder() {
     }

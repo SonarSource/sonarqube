@@ -21,8 +21,8 @@ package org.sonar.core.platform;
 
 public class RemotePluginFile {
 
-  private String filename;
-  private String hash;
+  private final String filename;
+  private final String hash;
 
   public RemotePluginFile(String filename, String hash) {
     this.filename = filename;

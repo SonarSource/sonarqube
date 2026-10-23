@@ -184,8 +184,8 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
   }
 
   public static class ResourceBlocks {
-    private Collection<Block> blocks;
-    private String resourceId;
+    private final Collection<Block> blocks;
+    private final String resourceId;
 
     public ResourceBlocks(String resourceId, Collection<Block> blocks) {
       this.resourceId = resourceId;

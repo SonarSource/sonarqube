@@ -1549,9 +1549,9 @@ public class IssueIndex {
   }
 
   private static class SeverityAggregationDetails {
-    private long count;
-    private OptionalInt rating;
-    private Map<String, Long> distribution;
+    private final long count;
+    private final OptionalInt rating;
+    private final Map<String, Long> distribution;
 
     public SeverityAggregationDetails(long count, OptionalInt rating, Map<String, Long> distribution) {
       this.count = count;

@@ -20,8 +20,8 @@
 package org.sonar.db.audit.model;
 
 public class SecretNewValue extends NewValue {
-  private String targetKey;
-  private String targetValue;
+  private final String targetKey;
+  private final String targetValue;
 
   public SecretNewValue(String targetKey, String targetValue) {
     this.targetKey = targetKey;

@@ -126,7 +126,7 @@ public class NodeHealth implements Externalizable {
     private static final String DETAILS_CANT_BE_NULL = "details can't be null";
 
     private Status status;
-    private Set<String> causes = HashSet.newHashSet(0);
+    private final Set<String> causes = HashSet.newHashSet(0);
     private NodeDetails details;
 
     private Builder() {

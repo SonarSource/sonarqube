@@ -44,11 +44,11 @@ import static org.sonar.ce.task.projectanalysis.qualityprofile.QProfileStatusRep
 
 public class RegisterQualityProfileStatusStep implements ComputationStep {
 
-  private TreeRootHolder treeRootHolder;
-  private MeasureRepository measureRepository;
-  private MetricRepository metricRepository;
-  private MutableQProfileStatusRepository qProfileStatusRepository;
-  private AnalysisMetadataHolder analysisMetadataHolder;
+  private final TreeRootHolder treeRootHolder;
+  private final MeasureRepository measureRepository;
+  private final MetricRepository metricRepository;
+  private final MutableQProfileStatusRepository qProfileStatusRepository;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
   public RegisterQualityProfileStatusStep(TreeRootHolder treeRootHolder, MeasureRepository measureRepository, MetricRepository metricRepository,
     MutableQProfileStatusRepository qProfileStatusRepository, AnalysisMetadataHolder analysisMetadataHolder) {

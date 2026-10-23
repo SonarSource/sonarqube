@@ -22,7 +22,7 @@ package org.sonar.db.source;
 public enum LineHashVersion {
   WITHOUT_SIGNIFICANT_CODE(0), WITH_SIGNIFICANT_CODE(1);
 
-  private int value;
+  private final int value;
 
   LineHashVersion(int value) {
     this.value = value;

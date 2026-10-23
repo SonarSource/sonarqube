@@ -34,8 +34,8 @@ import org.sonar.server.issue.index.IssueQuery;
  */
 class IssuesFinderSort {
 
-  private List<IssueDto> issues;
-  private IssueQuery query;
+  private final List<IssueDto> issues;
+  private final IssueQuery query;
 
   public IssuesFinderSort(List<IssueDto> issues, IssueQuery query) {
     this.issues = issues;

@@ -21,7 +21,7 @@ package org.sonar.db.scim;
 
 public final class ScimUserWithUsernameDto extends ScimUserDto {
 
-  private String userName;
+  private final String userName;
 
   public ScimUserWithUsernameDto(String scimUserUuid, String userUuid, String userName) {
     super(scimUserUuid, userUuid);

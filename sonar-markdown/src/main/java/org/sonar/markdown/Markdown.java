@@ -28,7 +28,7 @@ import org.sonar.channel.CodeReader;
  */
 public final class Markdown {
 
-  private ChannelDispatcher<MarkdownOutput> dispatcher;
+  private final ChannelDispatcher<MarkdownOutput> dispatcher;
 
   private Markdown() {
     dispatcher = ChannelDispatcher.builder()

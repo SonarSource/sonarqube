@@ -29,8 +29,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Immutable
 public class Analysis {
 
-  private String uuid;
-  private long createdAt;
+  private final String uuid;
+  private final long createdAt;
 
   private Analysis(Builder builder) {
     this.uuid = builder.uuid;

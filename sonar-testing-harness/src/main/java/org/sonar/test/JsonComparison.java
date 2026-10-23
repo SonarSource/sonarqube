@@ -42,7 +42,7 @@ class JsonComparison {
 
   private boolean strictTimezone = false;
   private boolean strictArrayOrder = false;
-  private Set<String> ignoredFields = synchronizedSet(new HashSet<>());
+  private final Set<String> ignoredFields = synchronizedSet(new HashSet<>());
 
   boolean isStrictTimezone() {
     return strictTimezone;

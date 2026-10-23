@@ -20,12 +20,12 @@
 package org.sonar.db.component;
 
 public class BranchMeasuresDto {
-  private String branchUuid;
-  private String projectUuid;
-  private String branchKey;
-  private boolean excludeFromPurge;
-  private int greenQualityGateCount;
-  private int analysisCount;
+  private final String branchUuid;
+  private final String projectUuid;
+  private final String branchKey;
+  private final boolean excludeFromPurge;
+  private final int greenQualityGateCount;
+  private final int analysisCount;
 
   public BranchMeasuresDto(String branchUuid, String projectUuid, String branchKey, boolean excludeFromPurge, int greenQualityGateCount, int analysisCount) {
     this.branchUuid = branchUuid;

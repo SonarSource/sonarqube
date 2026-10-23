@@ -27,7 +27,7 @@ import static org.sonar.server.user.ws.HomepageTypes.Type.PROJECTS;
 
 public class HomepageTypesImpl implements HomepageTypes {
 
-  private List<Type> types;
+  private final List<Type> types;
 
   public HomepageTypesImpl() {
     types = Stream.of(HomepageTypes.Type.values()).toList();

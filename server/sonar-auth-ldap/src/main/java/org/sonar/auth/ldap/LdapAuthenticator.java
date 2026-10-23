@@ -33,9 +33,9 @@ public interface LdapAuthenticator {
   LdapAuthenticationResult doAuthenticate(LdapAuthenticator.Context context);
 
   final class Context {
-    private String username;
-    private String password;
-    private HttpRequest request;
+    private final String username;
+    private final String password;
+    private final HttpRequest request;
 
     public Context(@Nullable String username, @Nullable String password, HttpRequest request) {
       requireNonNull(request);

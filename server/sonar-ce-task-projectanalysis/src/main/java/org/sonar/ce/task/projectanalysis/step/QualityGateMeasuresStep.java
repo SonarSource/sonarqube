@@ -225,8 +225,8 @@ public class QualityGateMeasuresStep implements ComputationStep {
 
   private static final class QualityGateDetailsDataBuilder {
     private Measure.Level globalLevel = Measure.Level.OK;
-    private List<String> labels = new ArrayList<>();
-    private List<EvaluatedCondition> evaluatedConditions = new ArrayList<>();
+    private final List<String> labels = new ArrayList<>();
+    private final List<EvaluatedCondition> evaluatedConditions = new ArrayList<>();
     private boolean ignoredConditions;
 
     public Measure.Level getGlobalLevel() {

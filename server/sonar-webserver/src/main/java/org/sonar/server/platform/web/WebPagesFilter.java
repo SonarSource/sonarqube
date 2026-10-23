@@ -55,7 +55,7 @@ public class WebPagesFilter implements Filter {
     .excludes("/mcp/*", "/mcp")
     .build();
 
-  private WebPagesCache webPagesCache;
+  private final WebPagesCache webPagesCache;
 
   public WebPagesFilter() {
     this(PlatformImpl.getInstance().getContainer().getComponentByType(WebPagesCache.class));

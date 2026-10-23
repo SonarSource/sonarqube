@@ -31,9 +31,9 @@ class DecorationDataHolder {
   private static final String SYMBOL_PREFIX = "sym-";
   private static final String HIGHLIGHTABLE = "sym";
 
-  private List<OpeningHtmlTag> openingTagsEntries;
+  private final List<OpeningHtmlTag> openingTagsEntries;
   private int openingTagsIndex;
-  private List<Integer> closingTagsOffsets;
+  private final List<Integer> closingTagsOffsets;
   private int closingTagsIndex;
 
   DecorationDataHolder() {

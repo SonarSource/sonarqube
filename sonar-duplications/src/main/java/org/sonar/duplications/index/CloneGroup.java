@@ -31,7 +31,7 @@ public class CloneGroup {
   private final ClonePart originPart;
   private final int cloneLength;
   private final List<ClonePart> parts;
-  private int length;
+  private final int length;
 
   /**
    * Cache for hash code.

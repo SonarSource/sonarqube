@@ -59,7 +59,7 @@ public class MassUpdate {
   private final ProgressLogger progress = ProgressLogger.create(getClass(), counter);
 
   private Select select;
-  private List<UpsertImpl> updates = new ArrayList<>(1);
+  private final List<UpsertImpl> updates = new ArrayList<>(1);
 
   public MassUpdate(Database db, Connection readConnection, Connection writeConnection) {
     this.db = db;

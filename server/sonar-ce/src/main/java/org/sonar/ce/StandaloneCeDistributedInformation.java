@@ -36,7 +36,7 @@ public class StandaloneCeDistributedInformation implements CeDistributedInformat
   private final CeWorkerFactory ceCeWorkerFactory;
   private Set<String> workerUUIDs;
 
-  private Lock cleanJobLock = new NonConcurrentLock();
+  private final Lock cleanJobLock = new NonConcurrentLock();
 
   public StandaloneCeDistributedInformation(CeWorkerFactory ceCeWorkerFactory) {
     this.ceCeWorkerFactory = ceCeWorkerFactory;

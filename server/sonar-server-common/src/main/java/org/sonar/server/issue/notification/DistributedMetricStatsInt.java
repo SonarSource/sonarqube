@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class DistributedMetricStatsInt {
-  private MetricStatsInt globalStats = new MetricStatsInt();
-  private Map<String, MetricStatsInt> statsPerLabel = new HashMap<>();
+  private final MetricStatsInt globalStats = new MetricStatsInt();
+  private final Map<String, MetricStatsInt> statsPerLabel = new HashMap<>();
 
   DistributedMetricStatsInt increment(String label, boolean onCurrentAnalysis) {
     this.globalStats.increment(onCurrentAnalysis);

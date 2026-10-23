@@ -37,12 +37,12 @@ public class WorkDuration implements Serializable {
     DAYS, HOURS, MINUTES
   }
 
-  private int hoursInDay;
+  private final int hoursInDay;
 
-  private long durationInMinutes;
-  private int days;
-  private int hours;
-  private int minutes;
+  private final long durationInMinutes;
+  private final int days;
+  private final int hours;
+  private final int minutes;
 
   private WorkDuration(long durationInMinutes, int days, int hours, int minutes, int hoursInDay) {
     this.durationInMinutes = durationInMinutes;

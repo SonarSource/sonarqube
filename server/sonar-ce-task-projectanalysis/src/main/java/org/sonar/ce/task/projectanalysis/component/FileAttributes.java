@@ -38,7 +38,7 @@ public class FileAttributes {
   private final String languageKey;
   private final boolean markedAsUnchanged;
   private final int lines;
-  private String oldRelativePath;
+  private final String oldRelativePath;
 
   public FileAttributes(boolean unitTest, @Nullable String languageKey, int lines) {
     this(unitTest, languageKey, lines, false, null);

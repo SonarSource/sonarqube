@@ -381,9 +381,9 @@ public class BulkIndexer {
   }
 
   private static class BulkRequestKey {
-    private String requestType;
-    private String index;
-    private String docType;
+    private final String requestType;
+    private final String index;
+    private final String docType;
 
     private BulkRequestKey(String requestType, String index, String docType) {
       this.requestType = requestType;

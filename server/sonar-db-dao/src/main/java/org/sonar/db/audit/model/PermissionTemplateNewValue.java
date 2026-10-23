@@ -31,7 +31,7 @@ public class PermissionTemplateNewValue extends NewValue {
    */
   @Deprecated(since = "10.2")
   private String templateUuid;
-  private String name;
+  private final String name;
 
   @Nullable
   private String keyPattern;

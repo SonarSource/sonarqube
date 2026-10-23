@@ -28,9 +28,9 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class NewUser {
 
-  private String login;
+  private final String login;
   private String password;
-  private String name;
+  private final String name;
   private String email;
   private List<String> scmAccounts;
   private ExternalIdentity externalIdentity;

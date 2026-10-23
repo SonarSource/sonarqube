@@ -23,11 +23,15 @@ public class QualityGateFindingDto {
   public static final String RATING_VALUE_TYPE = "RATING";
   public static final String PERCENT_VALUE_TYPE = "PERCENT";
 
-  private String description = null;
-  private String operator = null;
-  private String valueType = null;
-  private String errorThreshold = null;
-  private String qualityGateName = null;
+  private String description;
+  private String operator;
+  private String valueType;
+  private String errorThreshold;
+  private String qualityGateName;
+
+  public QualityGateFindingDto() {
+    // default constructor
+  }
 
   public String getDescription() {
     return description;

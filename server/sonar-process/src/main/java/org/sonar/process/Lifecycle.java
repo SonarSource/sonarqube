@@ -48,7 +48,7 @@ public class Lifecycle {
 
   private static final Map<State, Set<State>> TRANSITIONS = buildTransitions();
 
-  private AtomicReference<State> state = new AtomicReference<>(INIT);
+  private final AtomicReference<State> state = new AtomicReference<>(INIT);
 
   private static Map<State, Set<State>> buildTransitions() {
     Map<State, Set<State>> res = new EnumMap<>(State.class);

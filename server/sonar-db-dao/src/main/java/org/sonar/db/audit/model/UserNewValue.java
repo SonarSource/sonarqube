@@ -36,7 +36,7 @@ public class UserNewValue extends NewValue {
    */
   @Deprecated(since = "10.2")
   private String userUuid;
-  private String userLogin;
+  private final String userLogin;
 
   @Nullable
   private String name;

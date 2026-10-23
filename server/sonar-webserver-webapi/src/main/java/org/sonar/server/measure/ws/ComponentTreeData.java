@@ -171,8 +171,8 @@ class ComponentTreeData {
   }
 
   static class Measure {
-    private double value;
-    private String data;
+    private final double value;
+    private final String data;
 
     public Measure(@Nullable String data, @Nullable Double value) {
       this.data = data;

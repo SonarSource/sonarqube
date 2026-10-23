@@ -41,8 +41,8 @@ public final class NotificationDispatcherMetadata {
   public static final String PERMISSION_RESTRICTION = "permissionRestriction";
   public static final String GROUP_SUBSCRIPTION_NOTIFICATION = "groupSubscription";
 
-  private String dispatcherKey;
-  private Map<String, String> properties;
+  private final String dispatcherKey;
+  private final Map<String, String> properties;
 
   private NotificationDispatcherMetadata(String dispatcherKey) {
     this.dispatcherKey = dispatcherKey;

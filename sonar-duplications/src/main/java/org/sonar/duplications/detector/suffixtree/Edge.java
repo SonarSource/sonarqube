@@ -24,11 +24,11 @@ public final class Edge {
   // can't be changed
   private int beginIndex; 
 
-  private int endIndex;
+  private final int endIndex;
   private Node startNode;
 
   // can't be changed, could be used as edge id
-  private Node endNode;
+  private final Node endNode;
 
   // each time edge is created, a new end node is created
   public Edge(int beginIndex, int endIndex, Node startNode) {

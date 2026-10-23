@@ -39,7 +39,7 @@ public class UpdateGitlabAction implements AlmSettingsWsAction {
   private static final String PARAM_PERSONAL_ACCESS_TOKEN = "personalAccessToken";
 
   private final DbClient dbClient;
-  private UserSession userSession;
+  private final UserSession userSession;
   private final AlmSettingsSupport almSettingsSupport;
 
   public UpdateGitlabAction(DbClient dbClient, UserSession userSession, AlmSettingsSupport almSettingsSupport) {

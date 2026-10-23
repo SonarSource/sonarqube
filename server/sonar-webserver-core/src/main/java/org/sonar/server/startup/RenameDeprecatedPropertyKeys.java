@@ -31,8 +31,8 @@ import org.sonar.db.property.PropertiesDao;
  */
 public class RenameDeprecatedPropertyKeys implements Startable {
 
-  private PropertiesDao dao;
-  private PropertyDefinitions definitions;
+  private final PropertiesDao dao;
+  private final PropertyDefinitions definitions;
 
   public RenameDeprecatedPropertyKeys(PropertiesDao dao, PropertyDefinitions definitions) {
     this.dao = dao;

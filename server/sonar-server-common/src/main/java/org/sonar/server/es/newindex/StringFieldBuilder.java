@@ -45,7 +45,7 @@ public abstract class StringFieldBuilder<U extends FieldAware<U>, T extends Stri
   private boolean disableSearch = false;
   private boolean disableNorms = false;
   private boolean termVectorWithPositionOffsets = false;
-  private SortedMap<String, Object> subFields = Maps.newTreeMap();
+  private final SortedMap<String, Object> subFields = Maps.newTreeMap();
   private boolean store = false;
   protected boolean disabledDocValues = false;
 

@@ -27,7 +27,7 @@ import org.sonar.api.utils.TempFolder;
 @ServerSide
 public class TempFolderCleaner implements Startable {
 
-  private TempFolder defaultTempFolder;
+  private final TempFolder defaultTempFolder;
 
   public TempFolderCleaner(TempFolder defaultTempFolder) {
     this.defaultTempFolder = defaultTempFolder;

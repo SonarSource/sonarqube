@@ -41,7 +41,7 @@ public final class MetricImpl implements Metric {
   private final Integer decimalScale;
   private final Double bestValue;
   private final boolean bestValueOptimized;
-  private boolean deleteHistoricalData;
+  private final boolean deleteHistoricalData;
 
   public MetricImpl(String uuid, String key, String name, MetricType type) {
     this(uuid, key, name, type, null, null, false, false);

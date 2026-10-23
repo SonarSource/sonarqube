@@ -27,8 +27,8 @@ import org.sonar.core.issue.DefaultIssue;
 
 public class IssuePattern {
 
-  private WildcardPattern componentPattern;
-  private WildcardPattern rulePattern;
+  private final WildcardPattern componentPattern;
+  private final WildcardPattern rulePattern;
 
   public IssuePattern(String componentPattern, String rulePattern) {
     this.componentPattern = WildcardPattern.create(componentPattern);

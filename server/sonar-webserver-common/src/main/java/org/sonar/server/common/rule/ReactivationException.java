@@ -23,7 +23,7 @@ import org.sonar.api.rule.RuleKey;
 
 public class ReactivationException extends RuntimeException {
 
-  private RuleKey ruleKey;
+  private final RuleKey ruleKey;
 
   public ReactivationException(String s, RuleKey ruleKey) {
     super(s);

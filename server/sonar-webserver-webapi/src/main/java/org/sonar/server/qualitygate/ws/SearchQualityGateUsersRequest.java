@@ -22,7 +22,7 @@ package org.sonar.server.qualitygate.ws;
 import org.sonar.server.user.ws.SearchUsersRequest;
 
 class SearchQualityGateUsersRequest extends SearchUsersRequest {
-  private String qualityGate;
+  private final String qualityGate;
 
   private SearchQualityGateUsersRequest(Builder builder) {
     this.qualityGate = builder.qualityGate;

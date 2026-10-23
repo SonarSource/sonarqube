@@ -36,7 +36,7 @@ public class JiraOrganizationBindingNewValue extends NewValue {
   @Nullable
   private String jiraInstanceUrl;
 
-  private boolean isTokenShared;
+  private final boolean isTokenShared;
 
   public JiraOrganizationBindingNewValue(String bindingId, String sonarOrganizationUuid, String jiraCloudId, String jiraInstanceUrl, boolean isTokenShared) {
     this.bindingId = bindingId;

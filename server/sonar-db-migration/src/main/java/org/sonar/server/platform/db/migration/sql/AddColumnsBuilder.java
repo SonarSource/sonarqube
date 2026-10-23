@@ -36,7 +36,7 @@ public class AddColumnsBuilder {
 
   private final Dialect dialect;
   private final String tableName;
-  private List<ColumnDef> columnDefs = newArrayList();
+  private final List<ColumnDef> columnDefs = newArrayList();
 
   public AddColumnsBuilder(Dialect dialect, String tableName) {
     this.tableName = validateTableName(tableName);

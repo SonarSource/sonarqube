@@ -27,7 +27,7 @@ import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 public class ApplyPermissionTemplateQuery {
 
   private final String templateUuid;
-  private List<String> componentKeys;
+  private final List<String> componentKeys;
 
   private ApplyPermissionTemplateQuery(String templateUuid, List<String> componentKeys) {
     this.templateUuid = templateUuid;

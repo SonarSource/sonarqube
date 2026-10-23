@@ -31,8 +31,8 @@ import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 
 public class MemoryCloneIndex implements CloneIndex {
 
-  private Map<String, List<Block>> byResource = new LinkedHashMap<>();
-  private Map<ByteArray, List<Block>> byHash = new LinkedHashMap<>();
+  private final Map<String, List<Block>> byResource = new LinkedHashMap<>();
+  private final Map<ByteArray, List<Block>> byHash = new LinkedHashMap<>();
 
   @Override
   public Collection<Block> getByResourceId(String resourceId) {

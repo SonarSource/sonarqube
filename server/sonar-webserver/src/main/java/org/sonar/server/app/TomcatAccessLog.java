@@ -152,7 +152,7 @@ class TomcatAccessLog {
   }
 
   static class LifecycleLogger implements LifecycleListener {
-    private Logger logger;
+    private final Logger logger;
 
     LifecycleLogger(Logger logger) {
       this.logger = logger;

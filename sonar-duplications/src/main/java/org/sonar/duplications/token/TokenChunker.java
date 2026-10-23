@@ -60,7 +60,7 @@ public final class TokenChunker {
    */
   public static final class Builder {
 
-    private ChannelDispatcher.Builder channelDispatcherBuilder = ChannelDispatcher.builder();
+    private final ChannelDispatcher.Builder channelDispatcherBuilder = ChannelDispatcher.builder();
 
     private Builder() {
     }
