@@ -94,6 +94,47 @@ class IssueStatsIndexerIT {
     }
 
     @Test
+    void shouldIngestSeparateStatisticsForEachSubportfolio() {
+      ComponentDto root = db.components().insertPrivatePortfolio();
+      ComponentDto firstChild = db.components().insertSubportfolio(root);
+      ComponentDto secondChild = db.components().insertSubportfolio(root);
+      ComponentDto emptyChild = db.components().insertSubportfolio(root);
+      var branches = List.of(
+        insertProjectBranchWithIssues("first-project", "first-branch", Set.of(rule1, rule3)),
+        insertProjectBranchWithIssues("second-project", "second-branch", Set.of(rule1, rule3)));
+      var children = List.of(firstChild, secondChild);
+      for (int i = 0; i < branches.size(); i++) {
+        BranchDto branch = branches.get(i);
+        ComponentDto child = children.get(i);
+        db.components().insertComponent(new ComponentDto()
+          .setUuid(branch.getUuid() + "-copy")
+          .setKey(branch.getUuid() + "-copy")
+          .setBranchUuid(root.uuid())
+          .setUuidPath("." + root.uuid() + "." + child.uuid() + ".")
+          .setCopyComponentUuid(branch.getUuid())
+          .setQualifier("TRK")
+          .setScope("PRJ"));
+        underTest.indexOnAnalysis(branch.getUuid());
+      }
+
+      underTest.indexOnAnalysis(root.uuid());
+
+      for (ComponentDto child : children) {
+        assertThat(issueStatsByRuleKeyDao.getIssueStats(child.uuid(), AggregationType.PORTFOLIO))
+          .extracting("ruleKey", "issueCount", "hotspotCount", "hotspotsReviewed")
+          .containsExactlyInAnyOrder(
+            tuple(rule1.getKey().toString(), 1, 0, 0),
+            tuple(rule3.getKey().toString(), 0, 1, 0));
+      }
+      assertThat(issueStatsByRuleKeyDao.getIssueStats(root.uuid(), AggregationType.PORTFOLIO))
+        .extracting("ruleKey", "issueCount", "hotspotCount", "hotspotsReviewed")
+        .containsExactlyInAnyOrder(
+          tuple(rule1.getKey().toString(), 2, 0, 0),
+          tuple(rule3.getKey().toString(), 0, 2, 0));
+      assertThat(issueStatsByRuleKeyDao.getIssueStats(emptyChild.uuid(), AggregationType.PORTFOLIO)).isEmpty();
+    }
+
+    @Test
     void shouldIngestAllIssuesFromAllProjectBranchesInPortfolio() {
       String portfolioUuid = "portfolio-uuid-1";
       String branchUuid1 = "branch-1";

@@ -320,7 +320,11 @@ public class PurgeDao implements Dao {
     commands.deleteReportSchedules(projectUuid);
     commands.deleteReportSubscriptions(projectUuid);
     commands.deleteArchitectureProjectData(projectUuid);
-    commands.deleteIssueStatsByRuleKey(aggregationType, projectUuid);
+    if (aggregationType == AggregationType.PORTFOLIO) {
+      rootAndSubviews.forEach(uuid -> commands.deleteIssueStatsByRuleKey(aggregationType, uuid));
+    } else {
+      commands.deleteIssueStatsByRuleKey(aggregationType, projectUuid);
+    }
     commands.deleteDashboardHistory(projectUuid);
   }
 
@@ -348,6 +352,7 @@ public class PurgeDao implements Dao {
       .map(ComponentDto::uuid)
       .toList();
     purgeCommands.deleteByRootAndSubviews(subviewsOrProjectCopies);
+    subviewsOrProjectCopies.forEach(uuid -> purgeCommands.deleteIssueStatsByRuleKey(AggregationType.PORTFOLIO, uuid));
     List<String> nonRootComponentUuids = nonRootComponents.stream().map(ComponentDto::uuid).toList();
     purgeCommands.deleteComponentMeasures(nonRootComponentUuids);
     purgeCommands.deleteComponents(nonRootComponentUuids);

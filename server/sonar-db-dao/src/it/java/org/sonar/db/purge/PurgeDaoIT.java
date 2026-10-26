@@ -2739,14 +2739,43 @@ oldCreationDate));
   @Test
   void deletePortfolio_purgeIssueStatsByRuleKey() {
     ComponentDto portfolio = db.components().insertPublicPortfolio();
+    ComponentDto subportfolio = db.components().insertSubportfolio(portfolio);
+    ComponentDto nestedSubportfolio = db.components().insertSubportfolio(subportfolio);
     ComponentDto otherPortfolio = db.components().insertPublicPortfolio();
+    ComponentDto otherSubportfolio = db.components().insertSubportfolio(otherPortfolio);
 
     insertIssueStats("PORTFOLIO", portfolio.uuid());
+    insertIssueStats("PORTFOLIO", subportfolio.uuid());
+    insertIssueStats("PORTFOLIO", nestedSubportfolio.uuid());
     insertIssueStats("PORTFOLIO", otherPortfolio.uuid());
+    insertIssueStats("PORTFOLIO", otherSubportfolio.uuid());
 
-    assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(2);
+    assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(5);
     underTest.deleteProject(dbSession, portfolio.uuid(), portfolio.qualifier(), portfolio.name(), portfolio.getKey());
-    assertThat(db.countRowsOfTable(dbSession, "issue_stats_by_rule_key")).isEqualTo(1);
+    assertThat(uuidsIn("issue_stats_by_rule_key", "aggregation_id")).containsOnly(otherPortfolio.uuid(), otherSubportfolio.uuid());
+  }
+
+  @Test
+  void deleteNonRootComponents_purgesIssueStatsOnlyForRemovedSubviews() {
+    ComponentDto portfolio = db.components().insertPublicPortfolio();
+    ComponentDto removedSubportfolio = db.components().insertSubportfolio(portfolio);
+    ComponentDto nestedSubportfolio = db.components().insertSubportfolio(removedSubportfolio);
+    ComponentDto retainedSubportfolio = db.components().insertSubportfolio(portfolio);
+    ComponentDto otherPortfolio = db.components().insertPublicPortfolio();
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    ComponentDto projectCopy = db.components().insertComponent(newProjectCopy("copy", project, removedSubportfolio));
+
+    insertIssueStats("PORTFOLIO", portfolio.uuid());
+    insertIssueStats("PORTFOLIO", removedSubportfolio.uuid());
+    insertIssueStats("PORTFOLIO", nestedSubportfolio.uuid());
+    insertIssueStats("PORTFOLIO", retainedSubportfolio.uuid());
+    insertIssueStats("PORTFOLIO", otherPortfolio.uuid());
+    insertIssueStats("PROJECT", project.uuid());
+
+    underTest.deleteNonRootComponentsInView(dbSession, List.of(portfolio, removedSubportfolio, nestedSubportfolio, projectCopy));
+
+    assertThat(uuidsIn("issue_stats_by_rule_key", "aggregation_id"))
+      .containsOnly(portfolio.uuid(), retainedSubportfolio.uuid(), otherPortfolio.uuid(), project.uuid());
   }
 
   @Test

@@ -68,16 +68,20 @@ public class IssueStatsIndexer implements AnalysisIndexer {
         }
 
         ingestForSingleBranch(dbSession, branchUuid);
+      } else if (entity.isPortfolio()) {
+        for (var portfolio : dbClient.portfolioDao().selectTree(dbSession, branchUuid)) {
+          ingestForPortfolioOrApp(dbSession, portfolio.getUuid(), portfolio.getRootUuid(), AggregationType.PORTFOLIO);
+        }
       } else {
-        ingestForPortfolioOrApp(dbSession, branchUuid, entity.isPortfolio() ? AggregationType.PORTFOLIO : AggregationType.APPLICATION);
+        ingestForPortfolioOrApp(dbSession, branchUuid, branchUuid, AggregationType.APPLICATION);
       }
     } catch (Exception e) {
       LOGGER.warn("Error ingesting issues for compliance reports", e);
     }
   }
 
-  private void ingestForPortfolioOrApp(DbSession dbSession, String portfolioOrAppUuid, AggregationType aggregationType) {
-    var projectBranchUuids = dbClient.componentDao().selectProjectBranchUuidsFromView(dbSession, portfolioOrAppUuid, portfolioOrAppUuid);
+  private void ingestForPortfolioOrApp(DbSession dbSession, String portfolioOrAppUuid, String rootUuid, AggregationType aggregationType) {
+    var projectBranchUuids = dbClient.componentDao().selectProjectBranchUuidsFromView(dbSession, portfolioOrAppUuid, rootUuid);
     Map<String, IssueStats> issueStatsByRuleKey = issueStatsByRuleKeyDao.loadAllIssueStatsForProjectBranches(projectBranchUuids).stream()
       .collect(Collectors.toMap(IssueStats::ruleKey, Function.identity(), IssueStatsIndexer::mergeIssueStats));
     issueStatsByRuleKeyDao.deleteAndInsertIssueStats(portfolioOrAppUuid, aggregationType, new ArrayList<>(issueStatsByRuleKey.values()));
