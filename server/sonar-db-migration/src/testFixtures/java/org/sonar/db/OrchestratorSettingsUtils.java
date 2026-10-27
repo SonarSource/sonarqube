@@ -25,14 +25,22 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.sonar.api.config.internal.Settings;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class OrchestratorSettingsUtils {
+  /**
+   * Name of the database (user on Oracle) the test task owns on the vendor database server, so that the test tasks
+   * of different modules can run in parallel without sharing a schema.
+   */
+  public static final String DEDICATED_DATABASE_PROPERTY = "sonar.test.dedicatedDatabase";
+
   private OrchestratorSettingsUtils() {
     // prevents instantiation
   }
@@ -71,6 +79,28 @@ public class OrchestratorSettingsUtils {
       throw new IllegalStateException("Cannot load OrchestratorRule properties from:" + url, e);
     } finally {
       IOUtils.closeQuietly(input);
+    }
+    useDedicatedDatabase(settings);
+  }
+
+  /**
+   * Orchestrator drops and creates the database named after the login on PostgreSQL and SQL Server, and the schema
+   * of the login on Oracle, so a dedicated login is enough to isolate the database.
+   */
+  static void useDedicatedDatabase(Settings settings) {
+    String name = settings.getString(DEDICATED_DATABASE_PROPERTY);
+    String url = settings.getString("sonar.jdbc.url");
+    if (isEmpty(name) || isEmpty(url)) {
+      return;
+    }
+    settings.setProperty("sonar.jdbc.username", name);
+    String replacement = Matcher.quoteReplacement(name);
+    switch (StringUtils.defaultString(settings.getString("sonar.jdbc.dialect"))) {
+      case "postgresql" -> settings.setProperty("sonar.jdbc.url", url.replaceFirst("^(jdbc:postgresql://[^/]+/)[^?]*", "$1" + replacement));
+      case "mssql" -> settings.setProperty("sonar.jdbc.url", url.replaceFirst("databaseName=[^;]*", "databaseName=" + replacement));
+      default -> {
+        // Oracle connects to the same service with another user
+      }
     }
   }
 }

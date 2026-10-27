@@ -55,6 +55,9 @@ class TestDbImpl implements TestDb {
     String dialect = settings.getString("sonar.jdbc.dialect");
     Database database;
     if (dialect != null && !"h2".equals(dialect)) {
+      if (schemaPath == null && settings.hasKey(OrchestratorSettingsUtils.DEDICATED_DATABASE_PROPERTY)) {
+        VendorTestDatabaseCreator.recreateWithSchema(settings);
+      }
       database = new DefaultDatabase(new LogbackHelper(), settings);
     } else {
       // CI's DB JUnit job sets this env var to the vendor it expects; if it's set but we still

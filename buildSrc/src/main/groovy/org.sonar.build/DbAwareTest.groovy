@@ -14,6 +14,8 @@ import org.gradle.api.tasks.testing.Test
  */
 class DbAwareTest {
   static final String MARKER = 'sonarDbAwareTest'
+  // Read by OrchestratorSettingsUtils in the sonar-db-migration test fixtures
+  static final String DEDICATED_DATABASE_PROPERTY = 'sonar.test.dedicatedDatabase'
   static final List<String> JDBC_DRIVERS = [
     'com.microsoft.sqlserver:mssql-jdbc',
     'com.oracle.database.jdbc:ojdbc11',
@@ -28,6 +30,9 @@ class DbAwareTest {
       // A test blocked on a database lock never times out on its own, and a JUnit timeout can't interrupt a JDBC read.
       // Sized for the longest suite: all migration versions on Oracle in the nightly.
       test.timeout.set(Duration.ofMinutes(90))
+      // Each test task creates and owns its database, so that test tasks can run in parallel
+      test.systemProperty(DEDICATED_DATABASE_PROPERTY, dedicatedDatabaseName(test))
+      test.maxParallelForks = 1
     }
     JDBC_DRIVERS.each { test.project.dependencies.add('testRuntimeOnly', it) }
   }
@@ -46,6 +51,15 @@ class DbAwareTest {
 
   static boolean isVendorRun() {
     System.getProperty('sonar.test.dbImage') != null
+  }
+
+  /** Also the login, so it must be a valid unquoted identifier on every vendor, at most 63 characters (PostgreSQL). */
+  static String dedicatedDatabaseName(Test test) {
+    String name = "${test.project.path.substring(1)}_${test.name}".replaceAll(/[^A-Za-z0-9]/, '_').toLowerCase()
+    if (name.length() > 63) {
+      throw new IllegalStateException("Dedicated database name '$name' of ${test.path} exceeds 63 characters")
+    }
+    name
   }
 
   static boolean isConfigured(Test test) {
