@@ -31,6 +31,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_MOCKS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -81,6 +82,18 @@ public class WebPagesFilterTest {
     verifyNoInteractions(webPagesCache);
   }
 
+  @Test
+  public void oauth_metadata_is_not_served_as_html() throws Exception {
+    for (String path : java.util.List.of("/.well-known/oauth-protected-resource/mcp", "/.well-known/oauth-authorization-server",
+      "/.well-known/oauth-authorization-server/sonarqube")) {
+      when(request.getRequestURI()).thenReturn(TEST_CONTEXT + path);
+      when(request.getContextPath()).thenReturn(TEST_CONTEXT);
+      underTest.doFilter(request, response, chain);
+    }
+    verify(chain, times(3)).doFilter(request, response);
+    verifyNoInteractions(webPagesCache, response);
+  }
+
   static class StringOutputStream extends ServletOutputStream {
     private final StringBuilder buf = new StringBuilder();
 
@@ -115,3 +128,4 @@ public class WebPagesFilterTest {
     }
   }
 }
+

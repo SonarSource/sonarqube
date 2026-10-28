@@ -42,6 +42,7 @@ import org.sonar.server.platform.platformlevel.PlatformLevel3;
 import org.sonar.server.platform.platformlevel.PlatformLevel4;
 import org.sonar.server.platform.platformlevel.PlatformLevelSafeMode;
 import org.sonar.server.platform.platformlevel.PlatformLevelStartup;
+import org.sonar.server.authentication.McpOAuthDiscovery;
 import org.sonar.server.platform.web.ApiV2LocalRequestDispatcher;
 import org.sonar.server.platform.web.ApiV2Servlet;
 import org.sonar.server.platform.web.ConditionalSpringSecurityFilter;
@@ -159,7 +160,8 @@ public class PlatformImpl implements Platform {
         + "or the ServletContext is already initialized. Requests to /mcp will not be handled.");
       return;
     }
-    mcp.addMapping("/mcp/*", "/mcp");
+    mcp.addMapping("/mcp/*", McpOAuthDiscovery.MCP_PATH, McpOAuthDiscovery.RESOURCE_METADATA_PATH,
+      McpOAuthDiscovery.AUTHORIZATION_METADATA_PATH, McpOAuthDiscovery.AUTHORIZATION_METADATA_PATH + "/*");
     mcp.setLoadOnStartup(2);
   }
 
@@ -464,3 +466,4 @@ public class PlatformImpl implements Platform {
     }
   }
 }
+

@@ -30,12 +30,14 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.sonar.api.web.UrlPattern;
+import org.sonar.server.authentication.McpOAuthDiscovery;
 import org.sonar.server.platform.PlatformImpl;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.io.IOUtils.write;
+import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.sonar.api.impl.ws.StaticResources.patterns;
 import static org.sonarqube.ws.MediaTypes.HTML;
 
@@ -53,6 +55,7 @@ public class WebPagesFilter implements Filter {
     .excludes(patterns())
     .excludes("/api/v2/*")
     .excludes("/mcp/*", "/mcp")
+    .excludes(McpOAuthDiscovery.RESOURCE_METADATA_PATH, McpOAuthDiscovery.AUTHORIZATION_METADATA_PATH, McpOAuthDiscovery.AUTHORIZATION_METADATA_PATH + "/*")
     .build();
 
   private final WebPagesCache webPagesCache;
@@ -75,7 +78,7 @@ public class WebPagesFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest httpServletRequest = (HttpServletRequest) request;
     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-    String path = httpServletRequest.getRequestURI().replaceFirst(httpServletRequest.getContextPath(), "");
+    String path = removeStart(httpServletRequest.getRequestURI(), httpServletRequest.getContextPath());
     if (!URL_PATTERN.matches(path)) {
       chain.doFilter(request, response);
       return;
@@ -93,3 +96,4 @@ public class WebPagesFilter implements Filter {
     // Nothing to do
   }
 }
+

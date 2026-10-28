@@ -22,6 +22,7 @@ package org.sonar.server.authentication;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.slf4j.MDC;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.ws.StaticResources;
@@ -36,8 +37,10 @@ import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -94,6 +97,14 @@ public class UserSessionInitializer {
   private final AuthenticationEvent authenticationEvent;
   private final RequestAuthenticator requestAuthenticator;
 
+  @Nullable
+  private McpOAuthDiscovery mcpOAuthDiscovery;
+
+  @Autowired(required = false)
+  public void setMcpOAuthDiscovery(McpOAuthDiscovery mcpOAuthDiscovery) {
+    this.mcpOAuthDiscovery = mcpOAuthDiscovery;
+  }
+
   public UserSessionInitializer(Configuration config, ThreadLocalUserSession threadLocalSession, AuthenticationEvent authenticationEvent,
     RequestAuthenticator requestAuthenticator) {
     this.config = config;
@@ -104,15 +115,25 @@ public class UserSessionInitializer {
 
   public boolean initUserSession(HttpRequest request, HttpResponse response) {
     MDC.put(USER_LOGIN_MDC_KEY, "-");
-    String path = request.getRequestURI().replaceFirst(request.getContextPath(), "");
+    String path = removeStart(request.getRequestURI(), request.getContextPath());
     try {
       // Do not set user session when url is excluded
-      if (URL_PATTERN.matches(path)) {
+      if (!McpOAuthDiscovery.isMetadataPath(path) && URL_PATTERN.matches(path)) {
         loadUserSession(request, response, PASSCODE_URLS.matches(path));
       }
       return true;
     } catch (AuthenticationException e) {
       authenticationEvent.loginFailure(request, e);
+      if (McpOAuthDiscovery.isMcpPath(path) && mcpOAuthDiscovery != null && mcpOAuthDiscovery.isEnabled()) {
+        response.setStatus(HTTP_UNAUTHORIZED);
+        String challenge = mcpOAuthDiscovery.challenge();
+        if (e.getSource().getMethod() == AuthenticationEvent.Method.SONARQUBE_TOKEN) {
+          challenge += ", error=\"invalid_token\"";
+        }
+        response.setHeader("WWW-Authenticate", challenge);
+        response.setHeader("Cache-Control", "no-store");
+        return false;
+      }
       if (isWsUrl(path)) {
         response.setStatus(HTTP_UNAUTHORIZED);
         return false;
@@ -163,3 +184,4 @@ public class UserSessionInitializer {
     return path.startsWith("/batch/") || path.startsWith("/api/");
   }
 }
+
