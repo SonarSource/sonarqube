@@ -51,7 +51,8 @@ public class EsClusterOperationalChecker implements EsClusterOperational {
         return cachedOperational;
       }
       if (refreshInProgress) {
-        return false;
+        // serve the last known value while another caller refreshes it
+        return cachedAtMs != null && cachedOperational;
       }
       refreshInProgress = true;
     }

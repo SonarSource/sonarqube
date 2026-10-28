@@ -84,17 +84,38 @@ class EsClusterOperationalCheckerTest {
   }
 
   @Test
-  void isOperational_returns_false_to_other_callers_while_an_expired_cache_is_refreshing() throws Exception {
+  void isOperational_returns_the_previous_result_to_other_callers_while_an_expired_cache_is_refreshing() throws Exception {
     stubHealth(HealthStatus.Green);
     assertThat(underTest.isOperational()).isTrue();
     system2.setNow(1_000L + EsClusterOperationalChecker.CACHE_TTL_MS);
 
+    assertWhileRefreshing(HealthStatus.Red, true, false);
+    verify(esClient, times(2)).clusterHealthStatus(any());
+  }
+
+  @Test
+  void isOperational_returns_false_to_other_callers_while_refreshing_when_the_previous_result_was_not_operational() throws Exception {
+    stubHealth(HealthStatus.Red);
+    assertThat(underTest.isOperational()).isFalse();
+    system2.setNow(1_000L + EsClusterOperationalChecker.CACHE_TTL_MS);
+
+    assertWhileRefreshing(HealthStatus.Green, false, true);
+    verify(esClient, times(2)).clusterHealthStatus(any());
+  }
+
+  @Test
+  void isOperational_returns_false_to_other_callers_while_the_first_query_is_running() throws Exception {
+    assertWhileRefreshing(HealthStatus.Green, false, true);
+    verify(esClient, times(1)).clusterHealthStatus(any());
+  }
+
+  private void assertWhileRefreshing(HealthStatus refreshedStatus, boolean expectedDuringRefresh, boolean expectedAfterRefresh) throws Exception {
     CountDownLatch queryStarted = new CountDownLatch(1);
     CountDownLatch releaseQuery = new CountDownLatch(1);
     when(esClient.clusterHealthStatus(any())).thenAnswer(invocation -> {
       queryStarted.countDown();
       assertThat(releaseQuery.await(5, TimeUnit.SECONDS)).isTrue();
-      return HealthStatus.Red;
+      return refreshedStatus;
     });
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -102,11 +123,10 @@ class EsClusterOperationalCheckerTest {
       Future<Boolean> refresh = executor.submit(underTest::isOperational);
       assertThat(queryStarted.await(5, TimeUnit.SECONDS)).isTrue();
 
-      assertThat(underTest.isOperational()).isFalse();
-      verify(esClient, times(2)).clusterHealthStatus(any());
+      assertThat(underTest.isOperational()).isEqualTo(expectedDuringRefresh);
 
       releaseQuery.countDown();
-      assertThat(refresh.get(5, TimeUnit.SECONDS)).isFalse();
+      assertThat(refresh.get(5, TimeUnit.SECONDS)).isEqualTo(expectedAfterRefresh);
     } finally {
       releaseQuery.countDown();
       executor.shutdownNow();
