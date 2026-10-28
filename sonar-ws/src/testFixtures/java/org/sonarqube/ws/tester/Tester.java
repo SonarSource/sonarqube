@@ -261,7 +261,7 @@ public class Tester extends ExternalResource implements TesterSession, BeforeEac
   }
 
   public TesterSession as(String login) {
-    return as(login, login);
+    return as(login, login == null ? null : TestPasswords.of(login));
   }
 
   public TesterSession as(String login, String password) {

@@ -115,11 +115,13 @@ public class UserTester {
     String login = "login" + id;
     CreateRequest request = new CreateRequest()
       .setLogin(login)
-      .setPassword(login)
+      .setPassword(TestPasswords.forLogin(login))
       .setName("name" + id)
       .setEmail(id + "@test.com");
     stream(populators).forEach(p -> p.accept(request));
-    return service().create(request).getUser();
+    User user = service().create(request).getUser();
+    TestPasswords.register(request.getLogin(), request.getPassword());
+    return user;
   }
 
   @SafeVarargs
@@ -166,7 +168,7 @@ public class UserTester {
   private void dismissAdminNotices(User user) {
     UsersService users = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
       .url(session.wsClient().wsConnector().baseUrl())
-      .credentials(user.getLogin(), user.getLogin())
+      .credentials(user.getLogin(), TestPasswords.of(user.getLogin()))
       .build()).users();
     ADMIN_DISMISSED_NOTICES.forEach(users::dismissNotice);
   }

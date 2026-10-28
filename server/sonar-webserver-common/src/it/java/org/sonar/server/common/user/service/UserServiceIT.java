@@ -1037,7 +1037,7 @@ public class UserServiceIT {
       .setName("John")
       .setEmail("john@email.com")
       .setScmAccounts(singletonList("jn"))
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .setLocal(true)
       .build();
 
@@ -1075,7 +1075,7 @@ public class UserServiceIT {
       .setName("John")
       .setEmail("john@email.com")
       .setScmAccounts(singletonList("j,n"))
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .setLocal(true)
       .build();
 
@@ -1091,7 +1091,7 @@ public class UserServiceIT {
       .setName("John")
       .setEmail("john@email.com")
       .setScmAccounts(List.of("admin", "  admin  "))
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .setLocal(true)
       .build();
 
@@ -1107,7 +1107,7 @@ public class UserServiceIT {
       .setName("John")
       .setEmail("john@email.com")
       .setScmAccounts(List.of("admin", "admin"))
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .setLocal(true)
       .build();
 
@@ -1121,7 +1121,7 @@ public class UserServiceIT {
     UserCreateRequest userCreateRequest = UserCreateRequest.builder()
       .setLogin("john")
       .setName("John")
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .setEmail("")
       .setLocal(true)
       .build();
@@ -1142,7 +1142,7 @@ public class UserServiceIT {
       .setName("John")
       .setEmail("john@email.com")
       .setScmAccounts(singletonList("jn"))
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .setLocal(true)
       .build();
 
@@ -1158,7 +1158,7 @@ public class UserServiceIT {
     UserCreateRequest userCreateRequest = UserCreateRequest.builder()
       .setLogin(user.getLogin())
       .setName("John")
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .setLocal(true)
       .build();
 

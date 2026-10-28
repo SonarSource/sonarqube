@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.sonar.server.user.PasswordPolicy;
 
 public record UserCreateRestRequest(
   @Nullable
@@ -50,7 +51,8 @@ public record UserCreateRestRequest(
   String name,
 
   @Nullable
-  @Schema(description = "User password. Only mandatory when creating local user, otherwise it should not be set", accessMode = Schema.AccessMode.WRITE_ONLY)
+  @Schema(description = "User password. Only mandatory when creating local user, otherwise it should not be set. " + PasswordPolicy.REQUIREMENTS_DESCRIPTION,
+    accessMode = Schema.AccessMode.WRITE_ONLY)
   String password,
 
   @Nullable

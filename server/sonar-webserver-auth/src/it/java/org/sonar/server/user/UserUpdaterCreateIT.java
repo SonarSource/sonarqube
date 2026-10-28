@@ -88,7 +88,7 @@ public class UserUpdaterCreateIT {
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
-      .setPassword("PASSWORD")
+      .setPassword("Str0ng!Passw0rd")
       .setScmAccounts(ImmutableList.of("u1", "u_1", "User 1"))
       .build(), u -> {
     });
@@ -166,7 +166,7 @@ public class UserUpdaterCreateIT {
     underTest.createAndCommit(session, NewUser.builder()
       .setLogin("user")
       .setName("User")
-      .setPassword("password")
+      .setPassword("Str0ng!Passw0rd")
       .build(), u -> {
     });
 
@@ -224,7 +224,7 @@ public class UserUpdaterCreateIT {
     underTest.createAndCommit(session, NewUser.builder()
       .setLogin("user")
       .setName("User")
-      .setPassword("password")
+      .setPassword("Str0ng!Passw0rd")
       .setScmAccounts(asList("u1", "", null))
       .build(), u -> {
     });
@@ -239,7 +239,7 @@ public class UserUpdaterCreateIT {
     underTest.createAndCommit(session, NewUser.builder()
       .setLogin("user")
       .setName("User")
-      .setPassword("password")
+      .setPassword("Str0ng!Passw0rd")
       .setScmAccounts(List.of(""))
       .build(), u -> {
     });
@@ -254,7 +254,7 @@ public class UserUpdaterCreateIT {
     underTest.createAndCommit(session, NewUser.builder()
       .setLogin("user")
       .setName("User")
-      .setPassword("password")
+      .setPassword("Str0ng!Passw0rd")
       .setScmAccounts(asList("u1", "u1"))
       .build(), u -> {
     });
@@ -364,7 +364,7 @@ public class UserUpdaterCreateIT {
     NewUser newUser = NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setEmail("marius@mail.com")
-      .setPassword("password")
+      .setPassword("Str0ng!Passw0rd")
       .build();
     assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
     }))
@@ -388,6 +388,24 @@ public class UserUpdaterCreateIT {
     }))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Email is too long (maximum is 100 characters)");
+  }
+
+  @Test
+  public void fail_to_create_user_with_password_violating_policy() {
+    assertCreationFailsWithPassword("a", "Password must be at least 12 characters long");
+    assertCreationFailsWithPassword("lowercase!pass1", "Password must contain at least one uppercase character");
+    assertCreationFailsWithPassword("UPPERCASE!PASS1", "Password must contain at least one lowercase character");
+    assertCreationFailsWithPassword("NoDigits!Passwd", "Password must contain at least one digit");
+    assertCreationFailsWithPassword("NoSpecial1Passwd", "Password must contain at least one special character");
+    assertThat(db.users().selectUserByLogin(DEFAULT_LOGIN)).isEmpty();
+  }
+
+  private void assertCreationFailsWithPassword(String password, String expectedMessage) {
+    NewUser newUser = newUserBuilder().setPassword(password).build();
+    assertThatThrownBy(() -> underTest.createAndCommit(session, newUser, u -> {
+    }))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage(expectedMessage);
   }
 
   @Test
@@ -485,7 +503,7 @@ public class UserUpdaterCreateIT {
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
-      .setPassword("password")
+      .setPassword("Str0ng!Passw0rd")
       .setScmAccounts(asList("u1", "u_1"))
       .build(), u -> {
     });
@@ -526,6 +544,6 @@ public class UserUpdaterCreateIT {
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius")
       .setEmail("marius@mail.com")
-      .setPassword("password");
+      .setPassword("Str0ng!Passw0rd");
   }
 }

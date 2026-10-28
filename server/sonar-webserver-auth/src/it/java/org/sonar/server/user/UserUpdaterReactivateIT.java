@@ -34,6 +34,7 @@ import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.CredentialsLocalAuthentication;
 import org.sonar.server.authentication.CredentialsLocalAuthentication.HashMethod;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.lang.String.format;
@@ -72,7 +73,7 @@ public class UserUpdaterReactivateIT {
       .setLogin("marius")
       .setName("Marius2")
       .setEmail("marius2@mail.com")
-      .setPassword("password2")
+      .setPassword("Str0ng!Passw0rd2")
       .build(),
       u -> {
       });
@@ -100,7 +101,7 @@ public class UserUpdaterReactivateIT {
     underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
       .setName("Marius2")
       .setEmail("marius2@mail.com")
-      .setPassword("password2")
+      .setPassword("Str0ng!Passw0rd2")
       .build(),
       u -> {
       });
@@ -108,6 +109,25 @@ public class UserUpdaterReactivateIT {
     UserDto reloaded = dbClient.userDao().selectByUuid(session, user.getUuid());
     assertThat(reloaded.isActive()).isTrue();
     assertThat(reloaded.getLogin()).isEqualTo(user.getLogin());
+  }
+
+  @Test
+  public void fail_to_reactivate_user_with_password_violating_policy() {
+    UserDto user = db.users().insertDisabledUser();
+    createDefaultGroup();
+    NewUser newUser = NewUser.builder()
+      .setLogin(user.getLogin())
+      .setName(user.getName())
+      .setPassword("weak")
+      .build();
+
+    DbSession dbSession = db.getSession();
+
+    assertThatThrownBy(() -> underTest.reactivateAndCommit(dbSession, user, newUser, u -> {
+    }))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Password must be at least 12 characters long");
+    assertThat(dbClient.userDao().selectByUuid(session, user.getUuid()).isActive()).isFalse();
   }
 
   @Test
@@ -241,7 +261,7 @@ public class UserUpdaterReactivateIT {
       underTest.reactivateAndCommit(db.getSession(), user, NewUser.builder()
           .setLogin(existingUser.getLogin())
           .setName("Marius2")
-          .setPassword("password2")
+          .setPassword("Str0ng!Passw0rd2")
           .build(),
         u -> {
         });

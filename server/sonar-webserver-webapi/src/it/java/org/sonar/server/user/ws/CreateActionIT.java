@@ -98,7 +98,7 @@ public class CreateActionIT {
       .setName("John")
       .setEmail("john@email.com")
       .setScmAccounts(singletonList("jn"))
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .build());
 
     assertThat(response.getUser())
@@ -120,7 +120,7 @@ public class CreateActionIT {
     call(CreateRequest.builder()
       .setLogin("john")
       .setName("John")
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .setLocal(true)
       .build());
 
@@ -153,7 +153,7 @@ public class CreateActionIT {
       .setName("John")
       .setEmail("john@email.com")
       .setScmAccounts(singletonList("j,n"))
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .build());
 
     assertThat(response.getUser().getScmAccountsList()).containsOnly("j,n");
@@ -169,7 +169,7 @@ public class CreateActionIT {
         .setName("John")
         .setEmail("john@email.com")
         .setScmAccounts(List.of("admin", "  admin  "))
-        .setPassword("1234")
+        .setPassword("Str0ng!Passw0rd")
         .build());
     })
       .isInstanceOf(IllegalArgumentException.class)
@@ -186,7 +186,7 @@ public class CreateActionIT {
         .setName("John")
         .setEmail("john@email.com")
         .setScmAccounts(List.of("admin", "admin"))
-        .setPassword("1234")
+        .setPassword("Str0ng!Passw0rd")
         .build());
     })
       .isInstanceOf(IllegalArgumentException.class)
@@ -200,7 +200,7 @@ public class CreateActionIT {
     call(CreateRequest.builder()
       .setLogin("john")
       .setName("John")
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .setEmail("")
       .build());
 
@@ -220,7 +220,7 @@ public class CreateActionIT {
       .setName("John")
       .setEmail("john@email.com")
       .setScmAccounts(singletonList("jn"))
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .build());
 
     assertThat(db.users().selectUserByLogin("john").get().isActive()).isTrue();
@@ -235,7 +235,7 @@ public class CreateActionIT {
       call(CreateRequest.builder()
         .setLogin(user.getLogin())
         .setName("John")
-        .setPassword("1234")
+        .setPassword("Str0ng!Passw0rd")
         .build());
     })
       .isInstanceOf(IllegalArgumentException.class)
@@ -250,7 +250,7 @@ public class CreateActionIT {
       call(CreateRequest.builder()
         .setLogin(null)
         .setName("John")
-        .setPassword("1234")
+        .setPassword("Str0ng!Passw0rd")
         .build());
     })
       .isInstanceOf(IllegalArgumentException.class)
@@ -265,7 +265,7 @@ public class CreateActionIT {
       call(CreateRequest.builder()
         .setLogin("a")
         .setName("John")
-        .setPassword("1234")
+        .setPassword("Str0ng!Passw0rd")
         .build());
     })
       .isInstanceOf(IllegalArgumentException.class)
@@ -280,7 +280,7 @@ public class CreateActionIT {
       call(CreateRequest.builder()
         .setLogin("john")
         .setName(null)
-        .setPassword("1234")
+        .setPassword("Str0ng!Passw0rd")
         .build());
     })
       .isInstanceOf(IllegalArgumentException.class)
@@ -303,13 +303,29 @@ public class CreateActionIT {
   }
 
   @Test
+  public void fail_when_password_violates_policy() {
+    logInAsSystemAdministrator();
+
+    CreateRequest request = CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setPassword("a")
+      .build();
+
+    assertThatThrownBy(() -> call(request))
+      .isInstanceOf(BadRequestException.class)
+      .hasMessage("Password must be at least 12 characters long");
+    assertThat(db.users().selectUserByLogin("john")).isEmpty();
+  }
+
+  @Test
   public void fail_when_password_is_set_on_none_local_user() {
     logInAsSystemAdministrator();
 
     TestRequest request = tester.newRequest()
       .setParam("login", "john")
       .setParam("name", "John")
-      .setParam("password", "1234")
+      .setParam("password", "Str0ng!Passw0rd")
       .setParam("local", "false");
 
     assertThatThrownBy(request::execute)
@@ -324,7 +340,7 @@ public class CreateActionIT {
     CreateRequest request = CreateRequest.builder()
       .setLogin("pipo")
       .setName("John")
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .setEmail("invalid-email")
       .build();
 
@@ -354,7 +370,7 @@ public class CreateActionIT {
     CreateRequest request = CreateRequest.builder()
       .setLogin("pipo")
       .setName("John")
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .build();
 
     assertThatThrownBy(() -> call(request))
@@ -366,7 +382,7 @@ public class CreateActionIT {
     CreateRequest request = CreateRequest.builder()
       .setLogin("pipo")
       .setName("John")
-      .setPassword("1234")
+      .setPassword("Str0ng!Passw0rd")
       .build();
 
     assertThatThrownBy(() -> call(request))
@@ -389,7 +405,7 @@ public class CreateActionIT {
       .setName("name of " + login)
       .setEmail(login + "@email.com")
       .setScmAccounts(singletonList(login.substring(0, 2)))
-      .setPassword("pwd_" + login)
+      .setPassword("Str0ng!Passw0rd")
       .build());
   }
 

@@ -31,6 +31,7 @@ import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.user.service.UserCreateRequest;
 import org.sonar.server.common.user.service.UserInformation;
 import org.sonar.server.common.user.service.UserService;
+import org.sonar.server.user.PasswordPolicy;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users.CreateWsResponse;
 
@@ -73,6 +74,10 @@ public class CreateAction implements UsersWsAction {
         "Requires Administer System permission")
       .setSince("3.7")
       .setChangelog(
+        new Change("2026.6", "The password is now validated against the password policy when a user is created or reactivated, " +
+          "like it already was for 'api/users/change_password': at least 12 characters, with at least one uppercase character, " +
+          "one lowercase character, one digit and one special character. A password that does not comply is rejected with HTTP 400. " +
+          "The same applies to POST api/v2/users-management/users"),
         new Change("10.4", "Deprecated. Use POST api/v2/users-management/users instead"),
         new Change("6.3", "The password is only mandatory when creating local users, and should not be set on non local users"),
         new Change("6.3", "The 'infos' message is no more returned when a user is reactivated"))
@@ -89,8 +94,8 @@ public class CreateAction implements UsersWsAction {
       .setExampleValue("myuser");
 
     action.createParam(PARAM_PASSWORD)
-      .setDescription("User password. Only mandatory when creating local user, otherwise it should not be set")
-      .setExampleValue("mypassword");
+      .setDescription("User password. Only mandatory when creating local user, otherwise it should not be set. " + PasswordPolicy.REQUIREMENTS_DESCRIPTION)
+      .setExampleValue("My_Passw0rd%");
 
     action.createParam(PARAM_NAME)
       .setRequired(true)

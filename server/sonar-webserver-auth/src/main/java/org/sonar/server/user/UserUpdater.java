@@ -117,6 +117,9 @@ public class UserUpdater {
     }
     String password = newUser.password();
     if (password != null) {
+      List<String> messages = new ArrayList<>();
+      validatePasswordPolicy(password, messages);
+      checkRequest(messages.isEmpty(), messages);
       updateUser.setPassword(password);
     }
     updateDto(dbSession, updateUser, reactivatedUser);
@@ -168,7 +171,7 @@ public class UserUpdater {
     }
 
     String password = newUser.password();
-    if (password != null && validatePasswords(password, messages)) {
+    if (password != null && validatePasswords(password, messages) && validatePasswordPolicy(password, messages)) {
       localAuthentication.storeHashPassword(userDto, password);
     }
 
@@ -388,6 +391,12 @@ public class UserUpdater {
       return false;
     }
     return true;
+  }
+
+  private static boolean validatePasswordPolicy(String password, List<String> messages) {
+    Optional<String> violation = PasswordPolicy.findViolation(password);
+    violation.ifPresent(messages::add);
+    return violation.isEmpty();
   }
 
   private boolean validateScmAccounts(DbSession dbSession, List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,
