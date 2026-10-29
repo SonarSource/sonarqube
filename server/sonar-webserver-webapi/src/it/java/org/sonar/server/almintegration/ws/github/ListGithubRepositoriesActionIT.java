@@ -32,6 +32,7 @@ import org.sonar.db.alm.setting.ProjectAlmSettingDao;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.common.almsettings.github.GithubErrorMessages;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
@@ -96,7 +97,7 @@ public class ListGithubRepositoriesActionIT {
         .setParam(ListGithubRepositoriesAction.PARAM_ORGANIZATION, "test");
     assertThatThrownBy(request::execute)
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("No personal access token found");
+        .hasMessage(GithubErrorMessages.MISSING_USER_AUTHORIZATION);
   }
 
   @Test

@@ -54,6 +54,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.almintegration.ws.ImportHelper;
 import org.sonar.server.common.almintegration.ProjectKeyGenerator;
 import org.sonar.server.common.almsettings.github.GithubDevOpsProjectCreationContextService;
+import org.sonar.server.common.almsettings.github.GithubErrorMessages;
 import org.sonar.server.common.almsettings.github.GithubProjectCreatorFactory;
 import org.sonar.server.common.component.ComponentUpdater;
 import org.sonar.server.common.newcodeperiod.NewCodeDefinitionResolver;
@@ -516,7 +517,7 @@ public class ImportGithubProjectActionIT {
       .setParam(PARAM_REPOSITORY_KEY, "test/repo");
     assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("No personal access token found");
+      .hasMessage(GithubErrorMessages.MISSING_USER_AUTHORIZATION);
   }
 
   @Test

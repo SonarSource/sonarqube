@@ -78,7 +78,7 @@ class GithubDevOpsProjectCreationContextServiceTest {
 
     assertThatIllegalArgumentException()
       .isThrownBy(() -> githubDevOpsProjectService.create(almSettingDto, DEV_OPS_PROJECT_DESCRIPTOR))
-      .withMessage("No personal access token found");
+      .withMessage(GithubErrorMessages.MISSING_USER_AUTHORIZATION);
   }
 
   @Test
@@ -89,7 +89,7 @@ class GithubDevOpsProjectCreationContextServiceTest {
 
     assertThatIllegalStateException()
       .isThrownBy(() -> githubDevOpsProjectService.create(almSettingDto, DEV_OPS_PROJECT_DESCRIPTOR))
-      .withMessage("Impossible to find the repository 'repository-identifier' on GitHub, using the devops config alm-config-key");
+      .withMessage(String.format(GithubErrorMessages.REPOSITORY_NOT_FOUND_TEMPLATE, "repository-identifier", "alm-config-key"));
   }
 
   @Test

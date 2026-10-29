@@ -43,6 +43,7 @@ import org.sonar.db.alm.setting.ProjectAlmSettingDao;
 import org.sonar.db.alm.setting.ProjectAlmSettingDto;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.server.almintegration.ws.AlmIntegrationsWsAction;
+import org.sonar.server.common.almsettings.github.GithubErrorMessages;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.AlmIntegrations;
@@ -124,7 +125,7 @@ public class ListGithubRepositoriesAction implements AlmIntegrationsWsAction {
       AccessToken accessToken = dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto)
         .map(AlmPatDto::getPersonalAccessToken)
         .map(UserAccessToken::new)
-        .orElseThrow(() -> new IllegalArgumentException("No personal access token found"));
+        .orElseThrow(() -> new IllegalArgumentException(GithubErrorMessages.MISSING_USER_AUTHORIZATION));
 
       int pageIndex = request.hasParam(PAGE) ? request.mandatoryParamAsInt(PAGE) : 1;
       int pageSize = request.hasParam(PAGE_SIZE) ? request.mandatoryParamAsInt(PAGE_SIZE) : 100;

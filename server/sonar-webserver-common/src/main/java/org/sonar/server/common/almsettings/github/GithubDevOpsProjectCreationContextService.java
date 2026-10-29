@@ -59,7 +59,7 @@ public class GithubDevOpsProjectCreationContextService implements DevOpsProjectC
       return dbClient.almPatDao().selectByUserAndAlmSetting(dbSession, userUuid, almSettingDto)
         .map(AlmPatDto::getPersonalAccessToken)
         .map(UserAccessToken::new)
-        .orElseThrow(() -> new IllegalArgumentException("No personal access token found"));
+        .orElseThrow(() -> new IllegalArgumentException(GithubErrorMessages.MISSING_USER_AUTHORIZATION));
     }
   }
 
@@ -82,7 +82,7 @@ public class GithubDevOpsProjectCreationContextService implements DevOpsProjectC
     String url = requireNonNull(almSettingDto.getUrl(), "DevOps Platform url cannot be null");
     return githubApplicationClient.getRepository(url, accessToken, devOpsProjectDescriptor.repositoryIdentifier())
       .orElseThrow(() -> new IllegalStateException(
-        String.format("Impossible to find the repository '%s' on GitHub, using the devops config %s", devOpsProjectDescriptor.repositoryIdentifier(), almSettingDto.getKey())));
+        String.format(GithubErrorMessages.REPOSITORY_NOT_FOUND_TEMPLATE, devOpsProjectDescriptor.repositoryIdentifier(), almSettingDto.getKey())));
   }
 
 
