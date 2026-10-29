@@ -21,6 +21,7 @@ package org.sonar.server.history;
 
 import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.RejectedExecutionException;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +37,7 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
+import org.sonarsource.history.model.IssueCountDimensionKey;
 import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
 import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
 
@@ -54,6 +56,8 @@ import static org.mockito.Mockito.when;
 
 class IssueCountHistoryQGChangeEventListenerTest {
   private static final String BRANCH = "branch";
+  private static final Map<IssueCountDimensionKey, Integer> ISSUE_COUNTS = Map.of(
+    new IssueCountDimensionKey(null, "MAIN", "MAJOR", "OPEN", "OPEN", 1, "java:S1234", Map.of()), 2);
   private final DbClient dbClient = mock(DbClient.class);
   private final DbSession session = mock(DbSession.class);
   private final BranchDao branchDao = mock(BranchDao.class);
@@ -78,7 +82,7 @@ class IssueCountHistoryQGChangeEventListenerTest {
     when(dbClient.metricDao()).thenReturn(metricDao);
     when(measureDao.selectByComponentUuid(session, BRANCH)).thenReturn(java.util.Optional.empty());
     when(branchDao.acquireLockForProjectBranch(session, BRANCH)).thenReturn(true);
-    when(issueDao.selectIssueCountDimensionsForBranches(session, List.of(BRANCH))).thenReturn(List.of());
+    when(issueDao.selectIssueCountDimensionsForBranches(session, List.of(BRANCH))).thenReturn(ISSUE_COUNTS);
   }
 
   @Test
@@ -93,7 +97,7 @@ class IssueCountHistoryQGChangeEventListenerTest {
     var order = inOrder(branchDao, issueDao, recorder, session);
     order.verify(branchDao).acquireLockForProjectBranch(session, BRANCH);
     order.verify(issueDao).selectIssueCountDimensionsForBranches(session, List.of(BRANCH));
-    order.verify(recorder).recordIssueHistoryForBranch(eq(BRANCH), any(), any());
+    order.verify(recorder).recordIssueHistoryForBranch(eq(BRANCH), eq(ISSUE_COUNTS), any());
     order.verify(session).close();
     notifyChange();
     assertThat(tasks).hasSize(1);

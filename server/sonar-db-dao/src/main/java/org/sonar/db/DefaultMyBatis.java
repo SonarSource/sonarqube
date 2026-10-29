@@ -182,6 +182,9 @@ import org.sonar.db.user.UserTokenMapper;
 import org.sonar.db.user.ai.UserAiToolUsageMapper;
 import org.sonar.db.webhook.WebhookDeliveryMapper;
 import org.sonar.db.webhook.WebhookMapper;
+import org.sonarsource.history.server.db.binding.ColumnEntityId;
+import org.sonarsource.history.server.db.binding.ColumnEntityType;
+import org.sonarsource.history.server.db.binding.TypeHandlers;
 import org.sonarsource.history.server.db.mapper.IssueCountHistoryMapper;
 import org.sonarsource.history.server.db.mapper.MeasureHistoryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -305,6 +308,10 @@ public class DefaultMyBatis extends AbstractMyBatis {
 
   @Override
   public void configureBeforeMappersOnStart(MyBatisConfBuilder confBuilder) {
+    TypeHandlers historyTypeHandlers = TypeHandlers.defaults();
+    confBuilder.loadTypeHandlerRegistration(TypeHandlerRegistration.typed(ColumnEntityId.class, historyTypeHandlers.entityId()));
+    confBuilder.loadTypeHandlerRegistration(TypeHandlerRegistration.typed(ColumnEntityType.class, historyTypeHandlers.entityType()));
+
     // DTO aliases, keep them sorted alphabetically
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);

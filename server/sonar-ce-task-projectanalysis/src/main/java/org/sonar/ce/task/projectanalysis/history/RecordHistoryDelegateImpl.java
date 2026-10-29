@@ -31,10 +31,8 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.issue.IssueCountDimensionDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarsource.history.model.EntityType;
@@ -107,38 +105,9 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
 
   private void recordIssueHistory(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids, LocalDate today) {
     try (DbSession session = dbClient.openSession(false)) {
-      Map<IssueCountDimensionKey, Integer> issueCounts = fetchIssueCounts(session, issueSourceBranchUuids);
+      Map<IssueCountDimensionKey, Integer> issueCounts = dbClient.issueDao().selectIssueCountDimensionsForBranches(session, issueSourceBranchUuids);
       issueHistoryService.recordIssueHistory(entityUuid, entityType, issueCounts, today);
     }
-  }
-
-  /**
-   * Merges the pre-aggregated dimension counts into a single map, summing counts for dimensions shared
-   * across branches (e.g. when recording history for an application) or across DB batches (branches are
-   * queried in batches of at most 1000 due to DB parameter limits). The grouping itself is done in SQL,
-   * so no individual issue is ever loaded into memory here (SONAR-31731).
-   */
-  private Map<IssueCountDimensionKey, Integer> fetchIssueCounts(DbSession dbSession, Collection<String> issueSourceBranchUuids) {
-    Map<IssueCountDimensionKey, Integer> issueCounts = new HashMap<>();
-    for (IssueCountDimensionDto row : dbClient.issueDao().selectIssueCountDimensionsForBranches(dbSession, issueSourceBranchUuids)) {
-      if (row.issueType() == RuleType.SECURITY_HOTSPOT.getDbConstant()) {
-        continue;
-      }
-      issueCounts.merge(toIssueCountDimensionKey(row), row.issueCount(), Integer::sum);
-    }
-    return issueCounts;
-  }
-
-  private static IssueCountDimensionKey toIssueCountDimensionKey(IssueCountDimensionDto row) {
-    return new IssueCountDimensionKey(
-      row.hotspotResolution(),
-      row.codeScope(),
-      row.severity(),
-      row.issueStatus(),
-      row.status(),
-      row.issueType(),
-      row.ruleKey(),
-      row.effectiveImpacts());
   }
 
   // -------------------------------------------------------------------------

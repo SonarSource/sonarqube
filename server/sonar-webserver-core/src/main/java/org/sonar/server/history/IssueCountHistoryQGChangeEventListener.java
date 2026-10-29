@@ -29,12 +29,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
-import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
-import org.sonar.db.issue.IssueCountDimensionDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
@@ -129,19 +127,12 @@ public class IssueCountHistoryQGChangeEventListener implements QGChangeEventList
 
   private void recordSnapshot(String branchUuid) {
     // Refresh the complete snapshot: event deltas would lose dimensions or double-count repeated notifications.
-    Map<IssueCountDimensionKey, Integer> counts = new HashMap<>();
     try (DbSession session = dbClient.openSession(false)) {
       // Use the primary and hold the branch lock through both history commits. CE uses the same lock.
       if (!dbClient.branchDao().acquireLockForProjectBranch(session, branchUuid)) {
         return;
       }
-      for (IssueCountDimensionDto row : dbClient.issueDao().selectIssueCountDimensionsForBranches(session, List.of(branchUuid))) {
-        if (row.issueType() != RuleType.SECURITY_HOTSPOT.getDbConstant()) {
-          IssueCountDimensionKey key = new IssueCountDimensionKey(
-            row.hotspotResolution(), row.codeScope(), row.severity(), row.issueStatus(), row.status(), row.issueType(), row.ruleKey(), row.effectiveImpacts());
-          counts.merge(key, row.issueCount(), Integer::sum);
-        }
-      }
+      Map<IssueCountDimensionKey, Integer> counts = dbClient.issueDao().selectIssueCountDimensionsForBranches(session, List.of(branchUuid));
       LocalDate today = Instant.ofEpochMilli(system2.now()).atZone(ZoneOffset.UTC).toLocalDate();
       historyRecordingService.recordIssueHistoryForBranch(branchUuid, counts, today);
       List<Measure> measures = fetchMeasures(session, branchUuid);

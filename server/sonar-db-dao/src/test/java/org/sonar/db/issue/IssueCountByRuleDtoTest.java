@@ -19,35 +19,33 @@
  */
 package org.sonar.db.issue;
 
-import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.sonarsource.history.model.IssueCountByRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class IssueCountByRuleDtoTest {
 
-  private static final Map<String, String> RULE_DEFAULT_IMPACTS = Map.of("MAINTAINABILITY", "LOW", "RELIABILITY", "MEDIUM");
-
   @Test
-  void toDimension_whenIssueHasImpacts_shouldIgnoreRuleDefaultImpacts() {
-    var count = new IssueCountByRuleDto(1, "MAJOR", "CONFIRMED", null, "rule-uuid", "FIL", null, "HIGH", null, 3);
+  void toIssueCountByRule_whenFileIssue_shouldMapMainScopeIssueStatusAndOwnImpacts() {
+    var count = new IssueCountByRuleDto(1, "MAJOR", "CONFIRMED", null, "rule-uuid", "FIL", "LOW", "HIGH", "MEDIUM", 3);
 
-    assertThat(count.toDimension("java:S1234", RULE_DEFAULT_IMPACTS))
-      .isEqualTo(new IssueCountDimensionDto(1, "MAJOR", "CONFIRMED", "CONFIRMED", null, "MAIN", "java:S1234", null, "HIGH", null, 3));
+    assertThat(count.toIssueCountByRule())
+      .isEqualTo(new IssueCountByRule(null, "MAIN", "MAJOR", "CONFIRMED", "CONFIRMED", 1, "rule-uuid", "LOW", "HIGH", "MEDIUM", 3));
   }
 
   @Test
-  void toDimension_whenIssueHasNoImpacts_shouldUseRuleDefaultImpacts() {
+  void toIssueCountByRule_whenUnitTestFileIssue_shouldMapTestScopeAndResolutionIssueStatus() {
     var count = new IssueCountByRuleDto(2, "MINOR", "RESOLVED", "FIXED", "rule-uuid", "UTS", null, null, null, 1);
 
-    assertThat(count.toDimension("java:S1234", RULE_DEFAULT_IMPACTS))
-      .isEqualTo(new IssueCountDimensionDto(2, "MINOR", "FIXED", "RESOLVED", null, "TEST", "java:S1234", "LOW", null, "MEDIUM", 1));
+    assertThat(count.toIssueCountByRule())
+      .isEqualTo(new IssueCountByRule(null, "TEST", "MINOR", "FIXED", "RESOLVED", 2, "rule-uuid", null, null, null, 1));
   }
 
   @Test
-  void toDimension_whenStatusHasNoIssueStatus_shouldReturnNullIssueStatus() {
+  void toIssueCountByRule_whenStatusHasNoIssueStatus_shouldReturnNullIssueStatus() {
     var count = new IssueCountByRuleDto(1, "MAJOR", "RESOLVED", null, "rule-uuid", "FIL", "HIGH", null, null, 1);
 
-    assertThat(count.toDimension("java:S1234", Map.of()).issueStatus()).isNull();
+    assertThat(count.toIssueCountByRule().issueStatus()).isNull();
   }
 }

@@ -19,15 +19,11 @@
  */
 package org.sonar.db.issue;
 
-import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.IssueStatus;
 import org.sonar.db.component.ComponentQualifiers;
-
-import static org.sonar.api.issue.impact.SoftwareQuality.MAINTAINABILITY;
-import static org.sonar.api.issue.impact.SoftwareQuality.RELIABILITY;
-import static org.sonar.api.issue.impact.SoftwareQuality.SECURITY;
+import org.sonarsource.history.model.IssueCountByRule;
 
 /**
  * Issue count grouped by the issue's own columns, before its rule key and rule default impacts are resolved.
@@ -46,22 +42,18 @@ public record IssueCountByRuleDto(
   @Nullable String reliability,
   int issueCount) {
 
-  /**
-   * Rule default impacts apply only when the issue has no impact for any quality, mirroring IssueDto#getEffectiveImpacts.
-   */
-  IssueCountDimensionDto toDimension(String ruleKey, Map<String, String> ruleDefaultImpacts) {
-    boolean hasImpacts = maintainability != null || security != null || reliability != null;
-    return new IssueCountDimensionDto(
-      issueType,
+  IssueCountByRule toIssueCountByRule() {
+    return new IssueCountByRule(
+      null,
+      ComponentQualifiers.UNIT_TEST_FILE.equals(qualifier) ? "TEST" : "MAIN",
       severity,
       Optional.ofNullable(IssueStatus.of(status, resolution)).map(IssueStatus::name).orElse(null),
       status,
-      null,
-      ComponentQualifiers.UNIT_TEST_FILE.equals(qualifier) ? "TEST" : "MAIN",
-      ruleKey,
-      hasImpacts ? maintainability : ruleDefaultImpacts.get(MAINTAINABILITY.name()),
-      hasImpacts ? security : ruleDefaultImpacts.get(SECURITY.name()),
-      hasImpacts ? reliability : ruleDefaultImpacts.get(RELIABILITY.name()),
+      issueType,
+      ruleUuid,
+      maintainability,
+      security,
+      reliability,
       issueCount);
   }
 }

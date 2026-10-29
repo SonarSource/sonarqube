@@ -66,6 +66,7 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
+import org.sonarsource.history.model.IssueCountDimensionKey;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -371,17 +372,12 @@ class IssueDaoIT {
     db.issues().insert(bugRule, branch, testFile, i -> i.setKee("bug-test-file").setType(bugRule.getType()).setStatus("OPEN").setResolution(null).setSeverity("MAJOR")
       .addImpact(new ImpactDto().setSoftwareQuality(RELIABILITY).setSeverity(HIGH)));
 
-    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
+    Map<IssueCountDimensionKey, Integer> counts = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
 
-    assertThat(rows)
-      .extracting(IssueCountDimensionDto::issueType, IssueCountDimensionDto::codeScope,
-        row -> row.effectiveImpacts().get("RELIABILITY"), IssueCountDimensionDto::issueCount)
-      .containsExactlyInAnyOrder(
-        tuple(RuleType.BUG.getDbConstant(), "MAIN", null, 2),
-        tuple(RuleType.CODE_SMELL.getDbConstant(), "MAIN", null, 1),
-        tuple(RuleType.BUG.getDbConstant(), "TEST", "HIGH", 1));
-    assertThat(rows).extracting(IssueCountDimensionDto::ruleKey)
-      .containsOnly("java:S1234", "java:S5678");
+    assertThat(counts).containsOnly(
+      Map.entry(dimensionKey("MAIN", "MAJOR", "OPEN", "OPEN", RuleType.BUG, "java:S1234", Map.of("MAINTAINABILITY", "HIGH")), 2),
+      Map.entry(dimensionKey("MAIN", "MINOR", "OPEN", "OPEN", RuleType.CODE_SMELL, "java:S5678", Map.of("MAINTAINABILITY", "HIGH")), 1),
+      Map.entry(dimensionKey("TEST", "MAJOR", "OPEN", "OPEN", RuleType.BUG, "java:S1234", Map.of("MAINTAINABILITY", "HIGH", "RELIABILITY", "HIGH")), 1));
   }
 
   @Test
@@ -401,14 +397,13 @@ class IssueDaoIT {
     db.issues().insert(hotspotRule, branch, file, i -> i.setKee("reviewed-hotspot").setType(hotspotRule.getType())
       .setStatus("REVIEWED").setResolution("FIXED").setSeverity("MAJOR"));
 
-    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
+    Map<IssueCountDimensionKey, Integer> counts = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
 
-    assertThat(rows)
-      .extracting(IssueCountDimensionDto::issueType, IssueCountDimensionDto::issueStatus, IssueCountDimensionDto::status, IssueCountDimensionDto::hotspotResolution)
-      .containsExactlyInAnyOrder(
-        tuple(RuleType.BUG.getDbConstant(), "FALSE_POSITIVE", "RESOLVED", null),
-        tuple(RuleType.BUG.getDbConstant(), "ACCEPTED", "RESOLVED", null),
-        tuple(RuleType.BUG.getDbConstant(), "OPEN", "REOPENED", null));
+    Map<String, String> impacts = Map.of("MAINTAINABILITY", "HIGH");
+    assertThat(counts).containsOnly(
+      Map.entry(dimensionKey("MAIN", "MAJOR", "FALSE_POSITIVE", "RESOLVED", RuleType.BUG, "java:S1234", impacts), 1),
+      Map.entry(dimensionKey("MAIN", "MAJOR", "ACCEPTED", "RESOLVED", RuleType.BUG, "java:S1234", impacts), 1),
+      Map.entry(dimensionKey("MAIN", "MAJOR", "OPEN", "REOPENED", RuleType.BUG, "java:S1234", impacts), 1));
   }
 
   @Test
@@ -425,12 +420,11 @@ class IssueDaoIT {
     ComponentDto fileB = db.components().insertComponent(newFileDto(branchB));
     db.issues().insert(bugRule, branchB, fileB, i -> i.setKee("bug-b").setType(bugRule.getType()).setStatus("OPEN").setResolution(null).setSeverity("MAJOR"));
 
-    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(),
+    Map<IssueCountDimensionKey, Integer> counts = underTest.selectIssueCountDimensionsForBranches(db.getSession(),
       List.of(branchA.branchUuid(), branchB.branchUuid()));
 
-    assertThat(rows)
-      .extracting(IssueCountDimensionDto::issueType, IssueCountDimensionDto::issueCount)
-      .containsExactly(tuple(RuleType.BUG.getDbConstant(), 2));
+    assertThat(counts).containsOnly(
+      Map.entry(dimensionKey("MAIN", "MAJOR", "OPEN", "OPEN", RuleType.BUG, "java:S1234", Map.of("MAINTAINABILITY", "HIGH")), 2));
   }
 
   @Test
@@ -449,10 +443,10 @@ class IssueDaoIT {
     db.issues().insert(rule, branch, file, i -> i.setKee("partial-override").setType(rule.getType()).setStatus("OPEN").setResolution(null).setSeverity("MAJOR")
       .replaceAllImpacts(List.of(new ImpactDto().setSoftwareQuality(MAINTAINABILITY).setSeverity(HIGH))));
 
-    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
+    Map<IssueCountDimensionKey, Integer> counts = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
 
-    assertThat(rows).hasSize(1);
-    assertThat(rows.get(0).effectiveImpacts()).containsOnly(Map.entry("MAINTAINABILITY", "HIGH"));
+    assertThat(counts).containsOnly(
+      Map.entry(dimensionKey("MAIN", "MAJOR", "OPEN", "OPEN", RuleType.BUG, "java:S1234", Map.of("MAINTAINABILITY", "HIGH")), 1));
   }
 
   @ParameterizedTest
@@ -471,11 +465,10 @@ class IssueDaoIT {
         .replaceAllImpacts(List.of(new ImpactDto().setSoftwareQuality(quality).setSeverity(HIGH))));
     }
 
-    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
+    Map<IssueCountDimensionKey, Integer> counts = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
 
-    assertThat(rows).hasSize(1);
-    assertThat(rows.get(0).issueCount()).isEqualTo(2);
-    assertThat(rows.get(0).effectiveImpacts()).containsOnly(Map.entry(quality.name(), "HIGH"));
+    assertThat(counts).containsOnly(
+      Map.entry(dimensionKey("MAIN", "MAJOR", "OPEN", "OPEN", RuleType.BUG, "java:S1234", Map.of(quality.name(), "HIGH")), 2));
   }
 
   @Test
@@ -493,12 +486,10 @@ class IssueDaoIT {
     db.issues().insert(rule, branch, file, i -> i.setKee("no-override").setType(rule.getType()).setStatus("OPEN").setResolution(null).setSeverity("MAJOR")
       .replaceAllImpacts(List.of()));
 
-    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
+    Map<IssueCountDimensionKey, Integer> counts = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
 
-    assertThat(rows).hasSize(1);
-    assertThat(rows.get(0).effectiveImpacts()).containsOnly(
-      Map.entry("MAINTAINABILITY", "MEDIUM"),
-      Map.entry("RELIABILITY", "LOW"));
+    assertThat(counts).containsOnly(
+      Map.entry(dimensionKey("MAIN", "MAJOR", "OPEN", "OPEN", RuleType.BUG, "java:S1234", Map.of("MAINTAINABILITY", "MEDIUM", "RELIABILITY", "LOW")), 1));
   }
 
   @Test
@@ -510,10 +501,26 @@ class IssueDaoIT {
     db.issues().insert(rule, branch, file, i -> i.setType(rule.getType()).setStatus(STATUS_OPEN).setResolution(null).setSeverity("MAJOR")
       .replaceAllImpacts(List.of()));
 
-    List<IssueCountDimensionDto> rows = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
+    Map<IssueCountDimensionKey, Integer> counts = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
 
-    assertThat(rows).extracting(IssueCountDimensionDto::ruleKey, IssueCountDimensionDto::effectiveImpacts, IssueCountDimensionDto::issueCount)
-      .containsExactly(tuple("java:S1234", Map.of(), 1));
+    assertThat(counts).containsOnly(Map.entry(dimensionKey("MAIN", "MAJOR", "OPEN", "OPEN", RuleType.BUG, "java:S1234", Map.of()), 1));
+  }
+
+  @Test
+  void selectIssueCountDimensionsForBranches_whenIssueRuleIsMissing_shouldNotCountIt() {
+    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    RuleDto rule = db.rules().insert(r -> r.setRepositoryKey("java").setRuleKey("S1234").setType(RuleType.BUG).replaceAllDefaultImpacts(List.of()));
+    RuleDto missingRule = RuleTesting.newRule().setType(RuleType.BUG);
+    ComponentDto branch = db.components().insertProjectBranch(project);
+    ComponentDto file = db.components().insertComponent(newFileDto(branch));
+    db.issues().insert(rule, branch, file, i -> i.setType(rule.getType()).setStatus(STATUS_OPEN).setResolution(null).setSeverity("MAJOR")
+      .replaceAllImpacts(List.of()));
+    db.issues().insert(missingRule, branch, file, i -> i.setType(missingRule.getType()).setStatus(STATUS_OPEN).setResolution(null).setSeverity("MAJOR")
+      .replaceAllImpacts(List.of()));
+
+    Map<IssueCountDimensionKey, Integer> counts = underTest.selectIssueCountDimensionsForBranches(db.getSession(), List.of(branch.branchUuid()));
+
+    assertThat(counts).containsOnly(Map.entry(dimensionKey("MAIN", "MAJOR", "OPEN", "OPEN", RuleType.BUG, "java:S1234", Map.of()), 1));
   }
 
   @Test
@@ -2458,6 +2465,11 @@ class IssueDaoIT {
 
   private void insertBranchIssue(ComponentDto branch, ComponentDto file, RuleDto rule, String id, String status, Long updateAt) {
     insertBranchIssue(branch, file, rule, id, status, null, "MAJOR", updateAt);
+  }
+
+  private static IssueCountDimensionKey dimensionKey(String codeScope, String severity, String issueStatus, String status, RuleType type, String ruleKey,
+    Map<String, String> impacts) {
+    return new IssueCountDimensionKey(null, codeScope, severity, issueStatus, status, type.getDbConstant(), ruleKey, impacts);
   }
 
   private static IssueQueryParams buildSelectByBranchQuery(ComponentDto branch, boolean resolvedOnly, Long changedSince) {
