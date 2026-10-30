@@ -491,6 +491,8 @@ subprojects {
         exclude 'junit:junit'
       }
       dependency 'io.github.hakky54:ayza:10.1.0'
+      dependency 'io.opentelemetry:opentelemetry-api:1.67.0'
+      dependency 'io.opentelemetry:opentelemetry-context:1.67.0'
       dependency 'io.prometheus:simpleclient:0.16.0'
       dependency 'io.prometheus:simpleclient_common:0.16.0'
       dependency 'io.prometheus:simpleclient_servlet:0.16.0'
