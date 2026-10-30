@@ -37,7 +37,7 @@ public class AddPrimaryKeyBuilderTest {
 
   @Test
   public void fail_when_table_name_is_invalid() {
-    assertThatThrownBy(() -> new AddPrimaryKeyBuilder("abcdefghijklmnopqrstuvwxyz", "id"))
+    assertThatThrownBy(() -> new AddPrimaryKeyBuilder("abcdefghijklmnopqrstuvwxyz12345", "id"))
       .isInstanceOf(IllegalArgumentException.class);
   }
 

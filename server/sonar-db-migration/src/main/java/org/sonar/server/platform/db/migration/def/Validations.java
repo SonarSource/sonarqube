@@ -35,7 +35,7 @@ import static java.util.Objects.requireNonNull;
 
 public class Validations {
 
-  private static final int TABLE_NAME_MAX_SIZE = 25;
+  private static final int TABLE_NAME_MAX_SIZE = 30;
   private static final int CONSTRAINT_NAME_MAX_SIZE = 30;
   private static final int INDEX_NAME_MAX_SIZE = 30;
 

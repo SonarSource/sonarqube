@@ -33,9 +33,10 @@ package org.sonar.server.platform.db.migration.version;
  */
 public final class CurrentMigrationNumber {
 
-  public static final long VALUE = 2026_06_019L;
+  public static final long VALUE = 2026_06_022L;
 
   private CurrentMigrationNumber() {
     // prevents instantiation
   }
 }
+

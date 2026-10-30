@@ -35,6 +35,7 @@ import org.sonar.server.platform.db.migration.def.ColumnDef;
 import org.sonar.server.platform.db.migration.def.TinyIntColumnDef;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -80,15 +81,15 @@ public class CreateTableBuilderTest {
   }
 
   @Test
-  public void constructor_throws_IAE_if_table_name_is_26_chars_long() {
-    assertThatThrownBy(() -> new CreateTableBuilder(mock(Dialect.class), "abcdefghijklmnopqrstuvwxyz"))
+  public void constructor_throws_IAE_if_table_name_is_31_chars_long() {
+    assertThatThrownBy(() -> new CreateTableBuilder(mock(Dialect.class), "abcdefghijklmnopqrstuvwxyz12345"))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Table name length can't be more than 25");
+      .hasMessageContaining("Table name length can't be more than 30");
   }
 
   @Test
-  public void constructor_does_not_fail_if_table_name_is_25_chars_long() {
-    new CreateTableBuilder(mock(Dialect.class), "abcdefghijklmnopqrstuvwxy");
+  public void constructor_does_not_fail_if_table_name_is_30_chars_long() {
+    assertThatNoException().isThrownBy(() -> new CreateTableBuilder(mock(Dialect.class), "abcdefghijklmnopqrstuvwxyz1234"));
   }
 
   @Test

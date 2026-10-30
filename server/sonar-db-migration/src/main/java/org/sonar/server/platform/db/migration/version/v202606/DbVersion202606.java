@@ -47,6 +47,10 @@ public class DbVersion202606 implements DbVersion {
       .add(2026_06_016, "Widen 'hunter_agent_jobs' commit SHA columns to 64 chars", WidenHunterAgentJobsCommitShaColumns.class)
       .add(2026_06_017, "Widen 'hunter_agent_runs.analyzed_commit_sha' to 64 chars", WidenHunterAgentRunsAnalyzedCommitShaColumn.class)
       .add(2026_06_018, "Widen 'remediation_agent_jobs.result_commit' to 64 chars", WidenRemediationAgentJobsResultCommitColumn.class)
-      .add(2026_06_019, "Create partial index on 'issues' for from_sonarqube_update = true", CreateIndexOnIssuesFromSonarQubeUpdate.class);
+      .add(2026_06_019, "Create partial index on 'issues' for from_sonarqube_update = true", CreateIndexOnIssuesFromSonarQubeUpdate.class)
+      .add(2026_06_020, "Create OAuth registered clients", CreateOAuthRegisteredClientsTable.class)
+      .add(2026_06_021, "Create OAuth authorizations", CreateOAuthAuthorizationsTable.class)
+      .add(2026_06_022, "Create OAuth authorization consent", CreateOAuthAuthorizationConsentsTable.class);
   }
 }
+

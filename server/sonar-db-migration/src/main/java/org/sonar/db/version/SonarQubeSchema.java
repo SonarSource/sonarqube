@@ -119,6 +119,9 @@ public final class SonarQubeSchema {
     "new_code_reference_issues",
     "notif_group_subscriptions",
     "notifications",
+    "oauth2_authorization",
+    "oauth2_authorization_consent",
+    "oauth2_registered_client",
     "org_qprofiles",
     "organization_configs",
     "permission_templates",
@@ -219,3 +222,4 @@ public final class SonarQubeSchema {
     // prevents instantiation
   }
 }
+
