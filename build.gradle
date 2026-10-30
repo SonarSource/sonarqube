@@ -620,12 +620,14 @@ subprojects {
       dependencySet(group: 'org.springframework', version: '7.0.9') {
         entry 'spring-test'
         entry 'spring-context'
+        entry 'spring-jdbc'
         entry 'spring-web'
         entry 'spring-webmvc'
       }
       dependencySet(group: 'org.springframework.security', version: "${springSecurityVersion}") {
         entry 'spring-security-config'
         entry 'spring-security-core'
+        entry 'spring-security-oauth2-authorization-server'
         entry 'spring-security-web'
         entry 'spring-security-saml2-service-provider'
       }
