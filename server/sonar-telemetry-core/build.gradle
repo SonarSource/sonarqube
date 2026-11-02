@@ -15,7 +15,6 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'org.sonarsource.sonarqube:sonar-events-api'
 
-    testImplementation(platform("org.junit:junit-bom"))
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-params'
