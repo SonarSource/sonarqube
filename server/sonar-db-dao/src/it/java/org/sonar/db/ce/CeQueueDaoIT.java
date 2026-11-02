@@ -734,6 +734,61 @@ class CeQueueDaoIT {
       .containsExactly(BRANCH, COMPONENT_UUID_1, ENTITY_UUID_1, CeTaskTypes.REPORT);
   }
 
+  @Test
+  void selectEligibleForPeek_returnsOldestPendingTaskOfEntityWithoutTaskInProgress() {
+    insertTask(TASK_UUID_1, ENTITY_UUID_1, IN_PROGRESS, 1L);
+    insertTask(TASK_UUID_2, ENTITY_UUID_1, PENDING, 2L);
+    insertTask(TASK_UUID_3, ENTITY_UUID_2, PENDING, 3L);
+
+    Optional<CeTaskDtoLight> eligible = underTest.selectEligibleForPeek(db.getSession(), false, false);
+
+    assertThat(eligible).map(CeTaskDtoLight::getCeTaskUuid).contains(TASK_UUID_3);
+  }
+
+  @Test
+  void selectEligibleForPeek_returnsPendingTaskWithoutEntity_whenOtherEntityHasTaskInProgress() {
+    insertTask(TASK_UUID_1, ENTITY_UUID_1, IN_PROGRESS, 1L);
+    insertTask(TASK_UUID_2, null, PENDING, 2L);
+
+    Optional<CeTaskDtoLight> eligible = underTest.selectEligibleForPeek(db.getSession(), false, false);
+
+    assertThat(eligible).map(CeTaskDtoLight::getCeTaskUuid).contains(TASK_UUID_2);
+  }
+
+  @Test
+  void selectEligibleForPeek_returnsEmpty_whenAllPendingTasksBelongToEntitiesWithTaskInProgress() {
+    insertTask(TASK_UUID_1, ENTITY_UUID_1, IN_PROGRESS, 1L);
+    insertTask(TASK_UUID_2, ENTITY_UUID_2, IN_PROGRESS, 2L);
+    insertTask(TASK_UUID_3, ENTITY_UUID_1, PENDING, 3L);
+    insertTask("TASK_4", ENTITY_UUID_2, PENDING, 4L);
+
+    assertThat(underTest.selectEligibleForPeek(db.getSession(), false, false)).isEmpty();
+  }
+
+  @Test
+  void selectEligibleForPeek_skipsTasksOfEntitiesWithTaskInProgress_whenMoreBusyEntitiesThanOraclePartitionSize() {
+    int busyEntityCount = 1_001;
+    for (int i = 0; i < busyEntityCount; i++) {
+      insertTask("IN_PROGRESS_" + i, "BUSY_ENTITY_" + i, IN_PROGRESS, i);
+    }
+    insertTask(TASK_UUID_1, "BUSY_ENTITY_" + (busyEntityCount - 1), PENDING, 10_000L);
+    insertTask(TASK_UUID_2, ENTITY_UUID_1, PENDING, 10_001L);
+
+    Optional<CeTaskDtoLight> eligible = underTest.selectEligibleForPeek(db.getSession(), false, false);
+
+    assertThat(eligible).map(CeTaskDtoLight::getCeTaskUuid).contains(TASK_UUID_2);
+  }
+
+  private void insertTask(String uuid, @Nullable String entityUuid, CeQueueDto.Status status, long createdAt) {
+    insertPending(newCeQueueDto(uuid)
+      .setEntityUuid(entityUuid)
+      .setComponentUuid(entityUuid)
+      .setStatus(status)
+      .setStartedAt(status == IN_PROGRESS ? createdAt : null)
+      .setCreatedAt(createdAt)
+      .setUpdatedAt(createdAt));
+  }
+
   private void insertPending(CeQueueDto dto) {
     underTest.insert(db.getSession(), dto);
     db.commit();

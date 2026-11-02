@@ -141,6 +141,16 @@
     </where>
   </sql>
 
+  <select id="selectEntityUuidsWithNonPendingTasks" resultType="String">
+    select distinct
+      cq.entity_uuid
+    from
+      ce_queue cq
+    where
+      cq.status &lt;&gt; 'PENDING'
+      and cq.entity_uuid is not null
+  </select>
+
   <select id="selectEligibleForPeek" parameterType="map" resultType="org.sonar.db.ce.CeTaskDtoLight">
     select cq.uuid as ceTaskUuid, cq.created_at as createdAt
     <include refid="sqlSelectEligibleForPeek"/>
@@ -159,11 +169,16 @@
     <if test="excludeViewRefresh">
         left join components c on c.uuid = cq.entity_uuid and c.qualifier &lt;&gt; 'VW'
     </if>
-      left join ce_queue cq2 on cq.entity_uuid=cq2.entity_uuid and cq2.status &lt;&gt;'PENDING'
     where
       cq.status='PENDING'
       and cq.started_at is null
-      and cq2.uuid is null
+      <foreach collection="busyEntityUuidPartitions" item="busyEntityUuids">
+        and (cq.entity_uuid is null or cq.entity_uuid not in
+          <foreach collection="busyEntityUuids" open="(" close=")" item="busyEntityUuid" separator=",">
+            #{busyEntityUuid,jdbcType=VARCHAR}
+          </foreach>
+        )
+      </foreach>
       <if test="excludeIndexationJob">
         and cq.task_type &lt;&gt; 'ISSUE_SYNC'
       </if>

@@ -20,6 +20,7 @@
 package org.sonar.db.ce;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +33,7 @@ import org.sonar.db.Pagination;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static org.sonar.db.DatabaseUtils.PARTITION_SIZE_FOR_ORACLE;
 import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
@@ -195,7 +197,9 @@ public class CeQueueDao implements Dao {
    * Only returns tasks for projects that currently have no other tasks running
    */
   public Optional<CeTaskDtoLight> selectEligibleForPeek(DbSession session, boolean excludeIndexationJob, boolean excludeView) {
-    return mapper(session).selectEligibleForPeek(ONE_RESULT_PAGINATION, excludeIndexationJob, excludeView);
+    CeQueueMapper mapper = mapper(session);
+    List<String> busyEntityUuids = mapper.selectEntityUuidsWithNonPendingTasks();
+    return mapper.selectEligibleForPeek(ONE_RESULT_PAGINATION, excludeIndexationJob, excludeView, Lists.partition(busyEntityUuids, PARTITION_SIZE_FOR_ORACLE));
   }
 
   public List<PrOrBranchTask> selectOldestPendingPrOrBranch(DbSession session) {

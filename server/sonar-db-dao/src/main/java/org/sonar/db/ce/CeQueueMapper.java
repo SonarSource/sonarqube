@@ -38,7 +38,10 @@ public interface CeQueueMapper {
 
   Optional<CeTaskDtoLight> selectEligibleForPeek(@Param("pagination") Pagination pagination,
                                      @Param("excludeIndexationJob") boolean excludeIndexationJob,
-                                     @Param("excludeViewRefresh") boolean excludeViewRefresh);
+                                     @Param("excludeViewRefresh") boolean excludeViewRefresh,
+                                     @Param("busyEntityUuidPartitions") List<List<String>> busyEntityUuidPartitions);
+
+  List<String> selectEntityUuidsWithNonPendingTasks();
 
   @CheckForNull
   CeQueueDto selectByUuid(@Param("uuid") String uuid);
