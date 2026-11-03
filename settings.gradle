@@ -92,7 +92,7 @@ def useLocalUnificationModule = { String propName, String subPath, List<String> 
     def group = opts.group ?: 'org.sonarsource.sonarqube'
     def groups = opts.groups ?: [:]
     def projectPaths = opts.projectPaths ?: [:]
-    def dir = new File(basePath, subPath)
+    def dir = new File(basePath).isAbsolute() ? new File(basePath, subPath) : new File(rootDir, "${basePath}/${subPath}")
     println "Using local build [${propName}] from: ${dir.absolutePath}"
     if (opts.autoSubstitution) {
       // Preserve project-to-project variants for composites with mixed public and private modules.
