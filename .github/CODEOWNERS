@@ -1,4 +1,5 @@
 .github/CODEOWNERS @SonarSource/platform-server-squad
+/.gitar/ @SonarSource/platform-server-squad
 /private/core-extension-securityreport/ @sonarsource/code-orchestration-organization-reporting-squad
 /private/core-extension-enterprise-server/ @sonarsource/code-orchestration-organization-reporting-squad
 /private/core-extension-jira/ @sonarsource/orchestration-integration-squad
