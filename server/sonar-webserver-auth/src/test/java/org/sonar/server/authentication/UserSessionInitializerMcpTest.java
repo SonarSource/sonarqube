@@ -67,6 +67,42 @@ class UserSessionInitializerMcpTest {
   }
 
   @Test
+  void token_endpoint_does_not_load_a_user_session() {
+    when(request.getRequestURI()).thenReturn("/sonar.v1" + McpOAuthDiscovery.TOKEN_PATH);
+
+    assertThat(underTest.initUserSession(request, response)).isTrue();
+
+    verifyNoInteractions(authenticator, response);
+  }
+
+  @Test
+  void authorization_and_consent_endpoints_load_the_user_session() {
+    UserSession userSession = mock(UserSession.class);
+    when(userSession.isLoggedIn()).thenReturn(true);
+    when(authenticator.authenticate(request, response)).thenReturn(userSession);
+    for (String path : List.of(McpOAuthDiscovery.AUTHORIZATION_PATH, McpOAuthDiscovery.CONSENT_PATH)) {
+      when(request.getRequestURI()).thenReturn("/sonar.v1" + path);
+
+      assertThat(underTest.initUserSession(request, response)).isTrue();
+      assertThat(session.isLoggedIn()).isTrue();
+      underTest.removeUserSession();
+    }
+    verifyNoInteractions(response);
+  }
+
+  @Test
+  void anonymous_requests_to_the_authorization_endpoint_reach_the_login_redirect_without_an_mcp_challenge() {
+    UserSession anonymousSession = mock(UserSession.class);
+    when(authenticator.authenticate(request, response)).thenReturn(anonymousSession);
+    when(request.getRequestURI()).thenReturn("/sonar.v1" + McpOAuthDiscovery.AUTHORIZATION_PATH);
+
+    assertThat(underTest.initUserSession(request, response)).isTrue();
+
+    verifyNoInteractions(response);
+    verify(discovery, never()).challenge();
+  }
+
+  @Test
   void forced_authentication_failure_returns_challenge_instead_of_redirect() {
     UserSession anonymousSession = mock(UserSession.class);
     when(authenticator.authenticate(request, response)).thenReturn(anonymousSession);
@@ -147,7 +183,7 @@ class UserSessionInitializerMcpTest {
   void similar_paths_do_not_bypass_authentication_or_receive_an_mcp_challenge() {
     UserSession anonymousSession = mock(UserSession.class);
     when(authenticator.authenticate(request, response)).thenReturn(anonymousSession);
-    for (String path : List.of("/mcp-other", "/.well-known/unrelated", "/.well-known/oauth-protected-resource/mcp/extra")) {
+    for (String path : List.of("/mcp-other", "/.well-known/unrelated", "/.well-known/oauth-protected-resource/mcp/extra", "/oauth2/authorize/extra", "/oauth2/introspect")) {
       when(request.getRequestURI()).thenReturn("/sonar.v1" + path);
       assertThat(underTest.initUserSession(request, response)).isTrue();
     }

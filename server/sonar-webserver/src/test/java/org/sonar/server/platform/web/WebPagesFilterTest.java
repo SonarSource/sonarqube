@@ -94,6 +94,17 @@ public class WebPagesFilterTest {
     verifyNoInteractions(webPagesCache, response);
   }
 
+  @Test
+  public void oauth_authorization_server_endpoints_are_not_served_as_html() throws Exception {
+    for (String path : java.util.List.of("/oauth2/authorize", "/oauth2/token", "/oauth2/consent")) {
+      when(request.getRequestURI()).thenReturn(TEST_CONTEXT + path);
+      when(request.getContextPath()).thenReturn(TEST_CONTEXT);
+      underTest.doFilter(request, response, chain);
+    }
+    verify(chain, times(3)).doFilter(request, response);
+    verifyNoInteractions(webPagesCache, response);
+  }
+
   static class StringOutputStream extends ServletOutputStream {
     private final StringBuilder buf = new StringBuilder();
 

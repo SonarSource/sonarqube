@@ -118,7 +118,7 @@ public class UserSessionInitializer {
     String path = removeStart(request.getRequestURI(), request.getContextPath());
     try {
       // Do not set user session when url is excluded
-      if (!McpOAuthDiscovery.isMetadataPath(path) && URL_PATTERN.matches(path)) {
+      if (!McpOAuthDiscovery.isMetadataPath(path) && !McpOAuthDiscovery.TOKEN_PATH.equals(path) && URL_PATTERN.matches(path)) {
         loadUserSession(request, response, PASSCODE_URLS.matches(path));
       }
       return true;

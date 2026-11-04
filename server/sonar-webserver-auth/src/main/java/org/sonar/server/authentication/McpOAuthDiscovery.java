@@ -19,11 +19,17 @@
  */
 package org.sonar.server.authentication;
 
+import java.util.Set;
+
 @SuppressWarnings("java:S1075")
 public interface McpOAuthDiscovery {
   String MCP_PATH = "/mcp";
   String RESOURCE_METADATA_PATH = "/.well-known/oauth-protected-resource/mcp";
   String AUTHORIZATION_METADATA_PATH = "/.well-known/oauth-authorization-server";
+  String AUTHORIZATION_PATH = "/oauth2/authorize";
+  String TOKEN_PATH = "/oauth2/token";
+  String CONSENT_PATH = "/oauth2/consent";
+  Set<String> AUTHORIZATION_SERVER_PATHS = Set.of(AUTHORIZATION_PATH, TOKEN_PATH, CONSENT_PATH);
 
   boolean isEnabled();
 
@@ -31,6 +37,10 @@ public interface McpOAuthDiscovery {
 
   static boolean isMetadataPath(String path) {
     return RESOURCE_METADATA_PATH.equals(path) || AUTHORIZATION_METADATA_PATH.equals(path) || path.startsWith(AUTHORIZATION_METADATA_PATH + "/");
+  }
+
+  static boolean isAuthorizationServerPath(String path) {
+    return AUTHORIZATION_SERVER_PATHS.contains(path);
   }
 
   static boolean isMcpPath(String path) {

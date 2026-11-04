@@ -100,7 +100,7 @@ public class RequestAuthenticatorImpl implements RequestAuthenticator {
       if (TOKEN.equals(userAuthResult.getAuthType())) {
         return userSessionFactory.create(userAuthResult.getUserDto(), userAuthResult.getTokenDto());
       }
-      boolean isAuthenticatedBrowserSession = JWT.equals(userAuthResult.getAuthType());
+      boolean isAuthenticatedBrowserSession = JWT.equals(userAuthResult.getAuthType()) || SSO.equals(userAuthResult.getAuthType());
       return userSessionFactory.create(userAuthResult.getUserDto(), isAuthenticatedBrowserSession);
     } else if (GITHUB_WEBHOOK.equals(userAuthResult.getAuthType())) {
       return userSessionFactory.createGithubWebhookUserSession();

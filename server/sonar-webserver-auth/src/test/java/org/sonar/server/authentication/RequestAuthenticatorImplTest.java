@@ -174,7 +174,7 @@ public class RequestAuthenticatorImplTest {
 
     UserSession userSession = underTest.authenticate(request, response);
     assertThat(userSession.getUuid()).isEqualTo(A_USER.getUuid());
-    assertThat(userSession.isAuthenticatedBrowserSession()).isFalse();
+    assertThat(userSession.isAuthenticatedBrowserSession()).isTrue();
 
     verify(httpHeadersAuthentication).authenticate(request, response);
     verify(jwtHttpHandler, never()).validateToken(request, response);

@@ -162,6 +162,7 @@ public class PlatformImpl implements Platform {
     }
     mcp.addMapping("/mcp/*", McpOAuthDiscovery.MCP_PATH, McpOAuthDiscovery.RESOURCE_METADATA_PATH,
       McpOAuthDiscovery.AUTHORIZATION_METADATA_PATH, McpOAuthDiscovery.AUTHORIZATION_METADATA_PATH + "/*");
+    mcp.addMapping(McpOAuthDiscovery.AUTHORIZATION_SERVER_PATHS.toArray(String[]::new));
     mcp.setLoadOnStartup(2);
   }
 

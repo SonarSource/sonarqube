@@ -56,6 +56,7 @@ public class WebPagesFilter implements Filter {
     .excludes("/api/v2/*")
     .excludes("/mcp/*", "/mcp")
     .excludes(McpOAuthDiscovery.RESOURCE_METADATA_PATH, McpOAuthDiscovery.AUTHORIZATION_METADATA_PATH, McpOAuthDiscovery.AUTHORIZATION_METADATA_PATH + "/*")
+    .excludes(McpOAuthDiscovery.AUTHORIZATION_SERVER_PATHS)
     .build();
 
   private final WebPagesCache webPagesCache;
