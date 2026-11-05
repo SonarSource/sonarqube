@@ -263,4 +263,48 @@ public class AppSettingsLoaderImplTest {
       .extracting(e -> e.getFormattedMessage())
       .noneMatch(msg -> msg.contains("is not a recognized system property"));
   }
+
+  @Test
+  public void does_not_warn_for_agentic_properties_and_still_warns_for_an_unknown_key() throws IOException {
+    File homeDir = temp.newFolder();
+    File propsFile = new File(homeDir, "conf/sonar.properties");
+    FileUtils.write(propsFile,
+      """
+        sonar.hunteragent.orchestrator.url=http://localhost:9091
+        sonar.remediationagent.orchestrator.url=http://localhost:9091
+        sonar.vortex.enabled=true
+        sonar.vortex.analysis.url=http://localhost:9092
+        sonar.agentic.signing.secretFile=/etc/sonar/instance-secret
+        sonar.agentic.orchestrator.signingKeyPath=/etc/sonar/agentic-shared.key
+        sonar.agentic.storage.type=S3
+        sonar.agentic.storage.filesystem.base-dir=/var/sonar/agentic
+        sonar.agentic.storage.bucket=analysis-jobs
+        sonar.agentic.storage.region=us-east-1
+        sonar.agentic.storage.endpoint=http://localhost:9000
+        sonar.agentic.storage.access-key=access
+        sonar.agentic.storage.secret-key=secret
+        sonar.agentic.storage.path-style-access=true
+        sonar.agentic.storage.presign-ttl-seconds=3600
+        sonar.agentic.orchestrator.storage.type=S3
+        sonar.agentic.orchestrator.storage.filesystem.base-dir=/var/sonar/orchestrator
+        sonar.agentic.orchestrator.storage.bucket=agentic-jobs
+        sonar.agentic.orchestrator.storage.region=us-east-1
+        sonar.agentic.orchestrator.storage.endpoint=http://localhost:9000
+        sonar.agentic.orchestrator.storage.access-key=access
+        sonar.agentic.orchestrator.storage.secret-key=secret
+        sonar.agentic.orchestrator.storage.path-style-access=true
+        sonar.agentic.orchestrator.storage.presign-ttl-seconds=3600
+        sonar.not.a.real.property=true
+        """,
+      UTF_8);
+
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
+    underTest.load();
+
+    assertThat(listAppender.getLogs())
+      .filteredOn(e -> e.getLevel() == Level.WARN)
+      .extracting(e -> e.getFormattedMessage())
+      .filteredOn(msg -> msg.contains("is not a recognized system property"))
+      .containsExactly("Property 'sonar.not.a.real.property' is not a recognized system property. It cannot be managed from the UI or API when set here, and it may have no effect. Please check the documentation.");
+  }
 }

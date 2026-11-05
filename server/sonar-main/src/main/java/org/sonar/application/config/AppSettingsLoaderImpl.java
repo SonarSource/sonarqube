@@ -59,7 +59,31 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
   private static final Set<String> ADDITIONAL_SYSTEM_KEYS = Set.of(
     "sonar.secretKeyPath",
     "sonar.notifications.delay",
-    "sonar.authenticator.downcase");
+    "sonar.authenticator.downcase",
+    "sonar.hunteragent.orchestrator.url",
+    "sonar.remediationagent.orchestrator.url",
+    "sonar.vortex.enabled",
+    "sonar.vortex.analysis.url",
+    "sonar.agentic.signing.secretFile",
+    "sonar.agentic.orchestrator.signingKeyPath",
+    "sonar.agentic.storage.type",
+    "sonar.agentic.storage.filesystem.base-dir",
+    "sonar.agentic.storage.bucket",
+    "sonar.agentic.storage.region",
+    "sonar.agentic.storage.endpoint",
+    "sonar.agentic.storage.access-key",
+    "sonar.agentic.storage.secret-key",
+    "sonar.agentic.storage.path-style-access",
+    "sonar.agentic.storage.presign-ttl-seconds",
+    "sonar.agentic.orchestrator.storage.type",
+    "sonar.agentic.orchestrator.storage.filesystem.base-dir",
+    "sonar.agentic.orchestrator.storage.bucket",
+    "sonar.agentic.orchestrator.storage.region",
+    "sonar.agentic.orchestrator.storage.endpoint",
+    "sonar.agentic.orchestrator.storage.access-key",
+    "sonar.agentic.orchestrator.storage.secret-key",
+    "sonar.agentic.orchestrator.storage.path-style-access",
+    "sonar.agentic.orchestrator.storage.presign-ttl-seconds");
 
   private final System2 system;
   private final File homeDir;
