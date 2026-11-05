@@ -50,7 +50,9 @@ public class DbVersion202606 implements DbVersion {
       .add(2026_06_019, "Create partial index on 'issues' for from_sonarqube_update = true", CreateIndexOnIssuesFromSonarQubeUpdate.class)
       .add(2026_06_020, "Create OAuth registered clients", CreateOAuthRegisteredClientsTable.class)
       .add(2026_06_021, "Create OAuth authorizations", CreateOAuthAuthorizationsTable.class)
-      .add(2026_06_022, "Create OAuth authorization consent", CreateOAuthAuthorizationConsentsTable.class);
+      .add(2026_06_022, "Create OAuth authorization consent", CreateOAuthAuthorizationConsentsTable.class)
+      .add(2026_06_023, "Add 'created_at' to 'oauth2_authorization'", AddCreatedAtToOAuth2Authorization.class)
+      .add(2026_06_024, "Create index on 'oauth2_authorization.access_token_expires_at'", CreateIndexOnOAuth2AuthorizationAccessTokenExpiry.class);
   }
 }
 

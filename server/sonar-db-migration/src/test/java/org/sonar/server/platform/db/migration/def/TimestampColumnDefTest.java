@@ -54,6 +54,17 @@ public class TimestampColumnDefTest {
   }
 
   @Test
+  public void build_column_def_with_current_timestamp_default() {
+    TimestampColumnDef def = newTimestampColumnDefBuilder()
+      .setColumnName("created_at")
+      .setDefaultValue(TimestampColumnDef.DefaultValue.CURRENT_TIMESTAMP)
+      .build();
+
+    assertThat(def.getDefaultValue()).isEqualTo(TimestampColumnDef.DefaultValue.CURRENT_TIMESTAMP);
+    assertThat(def.getDefaultValue()).hasToString("CURRENT_TIMESTAMP");
+  }
+
+  @Test
   public void generate_sql_type() {
     TimestampColumnDef def = newTimestampColumnDefBuilder()
       .setColumnName("created_at")

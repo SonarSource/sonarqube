@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.def;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
@@ -39,8 +40,15 @@ import static org.sonar.server.platform.db.migration.def.Validations.validateCol
 @Immutable
 public class TimestampColumnDef extends AbstractColumnDef {
 
+  /**
+   * Default values that are SQL expressions, rendered as is by the table and column builders.
+   */
+  public enum DefaultValue {
+    CURRENT_TIMESTAMP
+  }
+
   private TimestampColumnDef(Builder builder) {
-    super(builder.columnName, builder.isNullable, null);
+    super(builder.columnName, builder.isNullable, builder.defaultValue);
   }
 
   public static Builder newTimestampColumnDefBuilder() {
@@ -60,6 +68,7 @@ public class TimestampColumnDef extends AbstractColumnDef {
   public static class Builder {
     private String columnName;
     private boolean isNullable = true;
+    private DefaultValue defaultValue = null;
 
     public Builder setColumnName(String columnName) {
       this.columnName = validateColumnName(columnName);
@@ -68,6 +77,11 @@ public class TimestampColumnDef extends AbstractColumnDef {
 
     public Builder setIsNullable(boolean b) {
       this.isNullable = b;
+      return this;
+    }
+
+    public Builder setDefaultValue(@Nullable DefaultValue defaultValue) {
+      this.defaultValue = defaultValue;
       return this;
     }
 

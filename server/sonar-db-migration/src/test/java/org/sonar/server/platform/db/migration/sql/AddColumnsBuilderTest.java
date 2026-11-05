@@ -31,6 +31,8 @@ import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
+import static org.sonar.server.platform.db.migration.def.TimestampColumnDef.DefaultValue.CURRENT_TIMESTAMP;
+import static org.sonar.server.platform.db.migration.def.TimestampColumnDef.newTimestampColumnDefBuilder;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class AddColumnsBuilderTest {
@@ -61,11 +63,28 @@ public class AddColumnsBuilderTest {
   }
 
   @Test
+  public void add_timestamp_column_defaulting_to_current_timestamp() {
+    assertThat(timestampBuilder(new H2()).build())
+      .isEqualTo("ALTER TABLE issues ADD (created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NULL)");
+    assertThat(timestampBuilder(new Oracle()).build())
+      .isEqualTo("ALTER TABLE issues ADD (created_at TIMESTAMP (6) DEFAULT CURRENT_TIMESTAMP NULL)");
+    assertThat(timestampBuilder(new PostgreSql()).build())
+      .isEqualTo("ALTER TABLE issues ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NULL");
+    assertThat(timestampBuilder(new MsSql()).build())
+      .isEqualTo("ALTER TABLE issues ADD created_at DATETIME DEFAULT CURRENT_TIMESTAMP NULL");
+  }
+
+  @Test
   public void fail_with_ISE_if_no_column() {
     assertThatThrownBy(() -> new AddColumnsBuilder(new H2(), TABLE_NAME).build())
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("No column has been defined");
 
+  }
+
+  private static AddColumnsBuilder timestampBuilder(Dialect dialect) {
+    return new AddColumnsBuilder(dialect, TABLE_NAME)
+      .addColumn(newTimestampColumnDefBuilder().setColumnName("created_at").setIsNullable(true).setDefaultValue(CURRENT_TIMESTAMP).build());
   }
 
   private AddColumnsBuilder createSampleBuilder(Dialect dialect) {
