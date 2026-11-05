@@ -52,7 +52,9 @@ public class DbVersion202606 implements DbVersion {
       .add(2026_06_021, "Create OAuth authorizations", CreateOAuthAuthorizationsTable.class)
       .add(2026_06_022, "Create OAuth authorization consent", CreateOAuthAuthorizationConsentsTable.class)
       .add(2026_06_023, "Add 'created_at' to 'oauth2_authorization'", AddCreatedAtToOAuth2Authorization.class)
-      .add(2026_06_024, "Create index on 'oauth2_authorization.access_token_expires_at'", CreateIndexOnOAuth2AuthorizationAccessTokenExpiry.class);
+      .add(2026_06_024, "Create index on 'oauth2_authorization.access_token_expires_at'", CreateIndexOnOAuth2AuthorizationAccessTokenExpiry.class)
+      .add(2026_06_025, "Create table 'pr_resolution_history'", CreatePrResolutionHistoryTable.class)
+      .add(2026_06_026, "Create table 'sca_pr_resolution_history'", CreateScaPrResolutionHistoryTable.class);
   }
 }
 

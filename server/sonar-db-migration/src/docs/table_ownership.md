@@ -70,6 +70,7 @@ Important read: [Data Ownership Principles](https://xtranet-sonarsource.atlassia
 | portfolio_projects | Organization & Reporting Squad |
 | portfolio_references | Organization & Reporting Squad |
 | portfolios | Organization & Reporting Squad |
+| pr_resolution_history | Organization & Reporting Squad |
 | project_alm_settings | Integration Squad |
 | project_badge_token | Dev and Team Workflow Squad |
 | project_branches |  |
@@ -105,6 +106,7 @@ Important read: [Data Ownership Principles](https://xtranet-sonarsource.atlassia
 | sca_issue_dimensions | Organization & Reporting Squad |
 | sca_issues | SCA Squad |
 | sca_issues_releases | SCA Squad |
+| sca_pr_resolution_history | Organization & Reporting Squad |
 | sca_releases | SCA Squad |
 | sca_ttr_history | Organization & Reporting Squad |
 | sca_vulnerability_issues | SCA Squad |
