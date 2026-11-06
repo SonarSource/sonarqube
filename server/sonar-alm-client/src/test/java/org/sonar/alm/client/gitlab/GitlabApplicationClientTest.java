@@ -135,6 +135,28 @@ public class GitlabApplicationClientTest {
   }
 
   @Test
+  public void check_url_with_token_sends_private_token() throws InterruptedException {
+    server.enqueue(new MockResponse().setResponseCode(200).setBody("[]"));
+
+    underTest.checkUrl(gitlabUrl, "pat");
+
+    RecordedRequest request = server.takeRequest(10, TimeUnit.SECONDS);
+    assertThat(request.getRequestUrl()).hasToString(server.url("") + "projects");
+    assertThat(request.getHeader("Private-Token")).isEqualTo("pat");
+  }
+
+  @Test
+  public void check_url_without_token_sends_no_private_token() throws InterruptedException {
+    server.enqueue(new MockResponse().setResponseCode(200).setBody("[]"));
+
+    underTest.checkUrl(gitlabUrl);
+
+    RecordedRequest request = server.takeRequest(10, TimeUnit.SECONDS);
+    assertThat(request.getRequestUrl()).hasToString(server.url("") + "projects");
+    assertThat(request.getHeader("Private-Token")).isNull();
+  }
+
+  @Test
   public void get_project() {
     MockResponse response = new MockResponse()
       .setResponseCode(200)

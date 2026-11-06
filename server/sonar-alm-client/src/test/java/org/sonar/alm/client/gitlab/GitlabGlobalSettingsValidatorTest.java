@@ -67,11 +67,10 @@ public class GitlabGlobalSettingsValidatorTest {
     when(encryption.isEncrypted(token)).thenReturn(false);
 
     underTest.validate(almSettingDto);
-    verify(gitlabHttpClient).checkUrl(almSettingDto.getUrl());
+    verify(gitlabHttpClient).checkUrl(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
     verify(gitlabHttpClient).checkToken(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
-    verify(gitlabHttpClient).checkReadPermission(almSettingDto.getUrl(),
-      almSettingDto.getDecryptedPersonalAccessToken(encryption));
     verify(gitlabHttpClient).checkWritePermission(almSettingDto.getUrl(), almSettingDto.getDecryptedPersonalAccessToken(encryption));
+    verify(gitlabHttpClient, never()).checkReadPermission(any(), any());
   }
 
   @Test
@@ -82,9 +81,8 @@ public class GitlabGlobalSettingsValidatorTest {
 
     underTest.validate(almSettingDto);
 
-    verify(gitlabHttpClient).checkUrl(almSettingDto.getUrl());
+    verify(gitlabHttpClient).checkUrl(almSettingDto.getUrl(), ACCESS_TOKEN);
     verify(gitlabHttpClient).checkToken(almSettingDto.getUrl(), ACCESS_TOKEN);
-    verify(gitlabHttpClient).checkReadPermission(almSettingDto.getUrl(), ACCESS_TOKEN);
     verify(gitlabHttpClient).checkWritePermission(almSettingDto.getUrl(), ACCESS_TOKEN);
   }
 
@@ -141,25 +139,23 @@ public class GitlabGlobalSettingsValidatorTest {
   public void validate_whenCompleteMode_validatesToken() {
     underTest.validate(COMPLETE, GITLAB_API_URL, ACCESS_TOKEN);
 
-    verify(gitlabHttpClient).checkUrl(GITLAB_API_URL);
+    verify(gitlabHttpClient).checkUrl(GITLAB_API_URL, ACCESS_TOKEN);
     verify(gitlabHttpClient).checkToken(GITLAB_API_URL, ACCESS_TOKEN);
-    verify(gitlabHttpClient).checkReadPermission(GITLAB_API_URL, ACCESS_TOKEN);
     verify(gitlabHttpClient).checkWritePermission(GITLAB_API_URL, ACCESS_TOKEN);
   }
   @Test
   public void validate_whenCompleteModeAndTokenIsEncrypted_decryptAndValidatesToken() {
     underTest.validate(COMPLETE, GITLAB_API_URL, ENCRYPTED_TOKEN);
 
-    verify(gitlabHttpClient).checkUrl(GITLAB_API_URL);
+    verify(gitlabHttpClient).checkUrl(GITLAB_API_URL, ACCESS_TOKEN);
     verify(gitlabHttpClient).checkToken(GITLAB_API_URL, ACCESS_TOKEN);
-    verify(gitlabHttpClient).checkReadPermission(GITLAB_API_URL, ACCESS_TOKEN);
     verify(gitlabHttpClient).checkWritePermission(GITLAB_API_URL, ACCESS_TOKEN);
   }
 
   @Test
   public void validate_whenCompleteModeAndError_reThrowsError() {
     IllegalStateException exception = new IllegalStateException("bla");
-    doThrow(exception).when(gitlabHttpClient).checkReadPermission(GITLAB_API_URL, ACCESS_TOKEN);
+    doThrow(exception).when(gitlabHttpClient).checkWritePermission(GITLAB_API_URL, ACCESS_TOKEN);
 
     assertThatException()
       .isThrownBy(() -> underTest.validate(COMPLETE, GITLAB_API_URL, ACCESS_TOKEN))

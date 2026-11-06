@@ -65,17 +65,17 @@ public class GitlabGlobalSettingsValidator {
     if (gitlabApiUrl == null) {
       throw new IllegalArgumentException("Your Gitlab global configuration is incomplete. The GitLab URL must be set.");
     }
-    gitlabApplicationClient.checkUrl(gitlabApiUrl);
     if (ValidationMode.AUTH_ONLY.equals(validationMode)) {
+      gitlabApplicationClient.checkUrl(gitlabApiUrl);
       return;
     }
 
     String decryptedToken = getDecryptedToken(accessToken);
+    gitlabApplicationClient.checkUrl(gitlabApiUrl, decryptedToken);
     if (decryptedToken == null) {
       throw new IllegalArgumentException("Your Gitlab global configuration is incomplete. The GitLab access token must be set.");
     }
     gitlabApplicationClient.checkToken(gitlabApiUrl, decryptedToken);
-    gitlabApplicationClient.checkReadPermission(gitlabApiUrl, decryptedToken);
     gitlabApplicationClient.checkWritePermission(gitlabApiUrl, decryptedToken);
   }
 

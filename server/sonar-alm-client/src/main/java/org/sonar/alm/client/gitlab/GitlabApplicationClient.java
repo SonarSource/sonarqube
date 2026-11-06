@@ -88,7 +88,11 @@ public class GitlabApplicationClient {
   }
 
   public void checkUrl(@Nullable String gitlabUrl) {
-    checkProjectAccess(gitlabUrl, null, "Could not validate GitLab url. Got an unexpected answer.");
+    checkUrl(gitlabUrl, null);
+  }
+
+  public void checkUrl(@Nullable String gitlabUrl, @Nullable String personalAccessToken) {
+    checkProjectAccess(gitlabUrl, personalAccessToken, "Could not validate GitLab url. Got an unexpected answer.");
   }
 
   private void checkProjectAccess(@Nullable String gitlabUrl, @Nullable String personalAccessToken, String errorMessage) {
