@@ -47,6 +47,7 @@ dependencies {
   api 'org.sonarsource.scanner.engine:scanner-engine-protocol-server'
   implementation 'org.sonarsource.sonarqube:history-core'
   implementation 'org.sonarsource.sonarqube:history-server-app'
+  implementation 'org.sonarsource.sonarqube:organizations-server-app'
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
 

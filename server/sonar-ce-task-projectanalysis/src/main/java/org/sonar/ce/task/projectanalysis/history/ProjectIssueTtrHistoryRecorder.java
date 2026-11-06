@@ -20,20 +20,21 @@
 package org.sonar.ce.task.projectanalysis.history;
 
 import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueForHistoryRepository;
-import org.sonarsource.history.server.service.IssueTtrHistoryRecordingService;
+import org.sonarsource.history.server.service.IssueResolutionHistoryRecordingService;
 
 public class ProjectIssueTtrHistoryRecorder implements IssueTtrHistoryRecorder {
 
   private final FixedIssueForHistoryRepository fixedIssueForHistoryRepository;
-  private final IssueTtrHistoryRecordingService issueTtrHistoryRecordingService;
+  private final IssueResolutionHistoryRecordingService issueResolutionHistoryRecordingService;
 
-  public ProjectIssueTtrHistoryRecorder(FixedIssueForHistoryRepository fixedIssueForHistoryRepository, IssueTtrHistoryRecordingService issueTtrHistoryRecordingService) {
+  public ProjectIssueTtrHistoryRecorder(FixedIssueForHistoryRepository fixedIssueForHistoryRepository,
+    IssueResolutionHistoryRecordingService issueResolutionHistoryRecordingService) {
     this.fixedIssueForHistoryRepository = fixedIssueForHistoryRepository;
-    this.issueTtrHistoryRecordingService = issueTtrHistoryRecordingService;
+    this.issueResolutionHistoryRecordingService = issueResolutionHistoryRecordingService;
   }
 
   @Override
   public void recordTtrHistory(String entityUuid) {
-    issueTtrHistoryRecordingService.recordFixedIssues(fixedIssueForHistoryRepository.getFixedIssues());
+    issueResolutionHistoryRecordingService.recordFixedIssues(fixedIssueForHistoryRepository.getFixedIssues());
   }
 }

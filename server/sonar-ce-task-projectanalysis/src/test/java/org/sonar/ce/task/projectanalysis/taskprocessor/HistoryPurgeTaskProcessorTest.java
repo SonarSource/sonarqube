@@ -27,6 +27,7 @@ import org.sonar.ce.task.projectanalysis.history.HistoryPurgeStep;
 import org.sonar.ce.task.projectanalysis.history.HistoryPurgeTaskComponentProvider;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.core.platform.SpringComponentContainer;
+import org.sonarsource.history.server.HistoryServerComponents;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -66,6 +67,7 @@ public class HistoryPurgeTaskProcessorTest {
     HistoryPurgeTaskProcessor.newContainerPopulator(task).populateContainer(container);
 
     verify(container, times(4)).add(any());
+    verify(container).add(HistoryServerComponents.pullRequestResolutionComponents().toArray());
   }
 
   @Test

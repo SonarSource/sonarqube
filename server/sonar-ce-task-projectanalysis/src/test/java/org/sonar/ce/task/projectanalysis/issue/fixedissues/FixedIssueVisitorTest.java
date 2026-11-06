@@ -25,14 +25,18 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.rule.RuleType;
+import org.sonarsource.history.model.BranchType;
 import org.sonarsource.history.model.FixedIssueForHistory;
+import org.sonarsource.organizations.server.DefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class FixedIssueVisitorTest {
   private static final Date CREATION_DATE = Date.from(Instant.parse("2026-01-05T00:00:00.00Z"));
@@ -40,7 +44,8 @@ class FixedIssueVisitorTest {
   private static final Date CLOSE_DATE = Date.from(Instant.parse("2026-08-05T00:00:00.00Z"));
 
   private final FixedIssueForHistoryRepository fixedIssueForHistoryRepository = new FixedIssueForHistoryRepository();
-  private final FixedIssueVisitor underTest = new FixedIssueVisitor(fixedIssueForHistoryRepository);
+  private final AnalysisMetadataHolder analysisMetadataHolder = mock();
+  private final FixedIssueVisitor underTest = new FixedIssueVisitor(fixedIssueForHistoryRepository, analysisMetadataHolder);
 
   private final Component component = mock();
 
@@ -62,13 +67,29 @@ class FixedIssueVisitorTest {
         SoftwareQuality.MAINTAINABILITY.name(), Severity.HIGH.name(),
         SoftwareQuality.SECURITY.name(), Severity.MEDIUM.name()
       ),
-      "OPEN"
+      "OPEN",
+      BranchType.LONG,
+      DefaultOrganizationProvider.ID.toString()
     );
 
     underTest.onIssue(component, issue);
 
     assertThat(fixedIssueForHistoryRepository.getFixedIssues())
       .containsExactly(expected);
+  }
+
+  @Test
+  void onIssue_whenPullRequestIssueIsClosed_shouldIncludePullRequestScope() {
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
+    var issue = getIssue().setCreationDate(CREATION_DATE).setBeingClosed(true);
+
+    underTest.onIssue(component, issue);
+
+    assertThat(fixedIssueForHistoryRepository.getFixedIssues()).singleElement().satisfies(fixedIssue -> {
+      assertThat(fixedIssue.branchType()).isEqualTo(BranchType.PULL_REQUEST);
+      assertThat(fixedIssue.branchUuid()).isEqualTo(issue.getBranchUuid());
+      assertThat(fixedIssue.organizationUuid()).isEqualTo(DefaultOrganizationProvider.ID.toString());
+    });
   }
 
   @Test

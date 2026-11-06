@@ -36,6 +36,7 @@ public class HistoryReportAnalysisComponentProvider implements ReportAnalysisCom
     List<Object> components = new ArrayList<>();
     components.add(RecordHistoryDelegateImpl.class);
     components.addAll(HistoryServerComponents.recordingComponents());
+    components.addAll(HistoryServerComponents.pullRequestResolutionComponents());
     components.add(FixedIssueVisitor.class);
     components.add(FixedIssueForHistoryRepository.class);
     components.add(ProjectIssueTtrHistoryRecorder.class);

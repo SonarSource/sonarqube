@@ -24,7 +24,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueForHistoryRepository;
 import org.sonarsource.history.model.FixedIssueForHistory;
-import org.sonarsource.history.server.service.IssueTtrHistoryRecordingService;
+import org.sonarsource.history.server.service.IssueResolutionHistoryRecordingService;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -33,9 +33,9 @@ import static org.mockito.Mockito.when;
 class ProjectIssueTtrHistoryRecorderTest {
 
   private final FixedIssueForHistoryRepository fixedIssueForHistoryRepository = mock();
-  private final IssueTtrHistoryRecordingService issueTtrHistoryRecordingService = mock();
+  private final IssueResolutionHistoryRecordingService issueResolutionHistoryRecordingService = mock();
 
-  private final ProjectIssueTtrHistoryRecorder underTest = new ProjectIssueTtrHistoryRecorder(fixedIssueForHistoryRepository, issueTtrHistoryRecordingService);
+  private final ProjectIssueTtrHistoryRecorder underTest = new ProjectIssueTtrHistoryRecorder(fixedIssueForHistoryRepository, issueResolutionHistoryRecordingService);
 
   @Test
   void recordTtrHistory_shouldPassFixedIssuesToHistoryRecordingService() {
@@ -57,7 +57,7 @@ class ProjectIssueTtrHistoryRecorderTest {
 
     underTest.recordTtrHistory("entityUuid");
 
-    verify(issueTtrHistoryRecordingService).recordFixedIssues(fixedIssues);
+    verify(issueResolutionHistoryRecordingService).recordFixedIssues(fixedIssues);
   }
 
 }

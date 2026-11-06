@@ -28,10 +28,14 @@ import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
 import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureKeyMappingRepository;
+import org.sonarsource.history.server.db.repository.PrResolutionHistoryRepository;
 import org.sonarsource.history.server.service.HistoryPurgeService;
 import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
+import org.sonarsource.history.server.service.IssueResolutionHistoryRecordingService;
 import org.sonarsource.history.server.service.IssueTtrHistoryRecordingService;
 import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
+import org.sonarsource.history.server.service.PrResolutionHistoryPurgeExtension;
+import org.sonarsource.history.server.service.PrResolutionHistoryRecordingService;
 import org.sonarsource.history.server.service.ProjectMeasureHistoryMetricKeyProvider;
 import org.sonarsource.history.server.service.RetryableOrderedBatchWriter;
 
@@ -56,6 +60,10 @@ class HistoryReportAnalysisComponentProviderTest {
         ProjectMeasureHistoryMetricKeyProvider.class,
         RetryableOrderedBatchWriter.class,
         HistoryPurgeService.class,
+        PrResolutionHistoryRepository.class,
+        PrResolutionHistoryRecordingService.class,
+        IssueResolutionHistoryRecordingService.class,
+        PrResolutionHistoryPurgeExtension.class,
         FixedIssueVisitor.class,
         FixedIssueForHistoryRepository.class,
         ProjectIssueTtrHistoryRecorder.class);

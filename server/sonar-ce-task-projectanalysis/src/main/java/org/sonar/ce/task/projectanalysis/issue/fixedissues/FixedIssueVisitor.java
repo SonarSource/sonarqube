@@ -28,11 +28,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.impact.Severity;
 import org.sonar.api.issue.impact.SoftwareQuality;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.issue.IssueVisitor;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonarsource.history.model.BranchType;
 import org.sonarsource.history.model.FixedIssueForHistory;
+import org.sonarsource.organizations.server.DefaultOrganizationProvider;
 
 import static java.util.Optional.ofNullable;
 
@@ -40,9 +43,11 @@ public class FixedIssueVisitor extends IssueVisitor {
   private static final Logger LOG = LoggerFactory.getLogger(FixedIssueVisitor.class);
 
   private final FixedIssueForHistoryRepository fixedIssueForHistoryRepository;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public FixedIssueVisitor(FixedIssueForHistoryRepository fixedIssueForHistoryRepository) {
+  public FixedIssueVisitor(FixedIssueForHistoryRepository fixedIssueForHistoryRepository, AnalysisMetadataHolder analysisMetadataHolder) {
     this.fixedIssueForHistoryRepository = fixedIssueForHistoryRepository;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
@@ -56,7 +61,7 @@ public class FixedIssueVisitor extends IssueVisitor {
     }
   }
 
-  private static FixedIssueForHistory toFixedIssueForHistory(DefaultIssue issue) {
+  private FixedIssueForHistory toFixedIssueForHistory(DefaultIssue issue) {
     return new FixedIssueForHistory(
       issue.key(),
       issue.projectUuid(),
@@ -67,7 +72,9 @@ public class FixedIssueVisitor extends IssueVisitor {
       issue.getBranchUuid(),
       issue.severity(),
       effectiveImpacts(issue),
-      getPreviousStatus(issue)
+      getPreviousStatus(issue),
+      analysisMetadataHolder.isPullRequest() ? BranchType.PULL_REQUEST : BranchType.LONG,
+      DefaultOrganizationProvider.ID.toString()
     );
   }
 
