@@ -42,6 +42,8 @@ import org.sonar.server.user.UserSession;
  *       {@link org.sonar.server.authentication.event.AuthenticationException}, as
  *       {@link GithubWebhookAuthentication} does. Falling through would be a fail-open: an endpoint
  *       allowing anonymous access would serve a request whose credential was rejected.
+ *   <li><b>Throw {@link InsufficientScopeException} when the credential verifies but its scopes do not cover the request.</b>
+ *       It is answered with HTTP 403 instead of 401.
  *   <li><b>Do not read the request body.</b> It is not buffered before this point, so draining it
  *       starves the handler behind it. Credentials must therefore cover only the method, the address
  *       and the headers.

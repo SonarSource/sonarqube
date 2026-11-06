@@ -39,6 +39,7 @@ import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE;
@@ -122,6 +123,9 @@ public class UserSessionInitializer {
         loadUserSession(request, response, PASSCODE_URLS.matches(path));
       }
       return true;
+    } catch (InsufficientScopeException e) {
+      response.setStatus(HTTP_FORBIDDEN);
+      return false;
     } catch (AuthenticationException e) {
       authenticationEvent.loginFailure(request, e);
       if (McpOAuthDiscovery.isMcpPath(path) && mcpOAuthDiscovery != null && mcpOAuthDiscovery.isEnabled()) {

@@ -183,6 +183,17 @@ public class UserSessionInitializerIT {
   }
 
   @Test
+  public void return_403_and_stop_when_the_credential_scopes_do_not_cover_the_request() {
+    when(request.getRequestURI()).thenReturn("/api/issues");
+    doThrow(new InsufficientScopeException("read only")).when(authenticator).authenticate(request, response);
+
+    assertThat(underTest.initUserSession(request, response)).isFalse();
+
+    verify(response).setStatus(403);
+    verifyNoMoreInteractions(authenticationEvent, threadLocalSession);
+  }
+
+  @Test
   public void return_401_and_stop_on_batch_ws() {
     when(request.getRequestURI()).thenReturn("/batch/global");
     doThrow(AuthenticationException.newBuilder().setSource(Source.jwt()).setMessage("Token id hasn't been found").build())
