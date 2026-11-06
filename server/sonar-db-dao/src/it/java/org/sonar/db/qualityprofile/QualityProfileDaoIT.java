@@ -821,7 +821,7 @@ class QualityProfileDaoIT {
   void selectAllProjectAssociation_shouldReturnAllProjectsAndQualityProfiles() {
     ProjectDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name")).getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name")).getProjectDto();
-    ProjectDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name")).getProjectDto();
+    db.components().insertPrivateProject(t -> t.setName("Project3 name"));
     db.components().insertProjectBranch(project1, t -> t.setKey("branch"));
 
     QProfileDto profile1 = newQualityProfileDto();
@@ -831,7 +831,6 @@ class QualityProfileDaoIT {
     QProfileDto profile2 = newQualityProfileDto();
     db.qualityProfiles().insert(profile2);
     db.qualityProfiles().associateWithProject(project2, profile2);
-    QProfileDto profile3 = newQualityProfileDto();
 
     assertThat(underTest.selectAllProjectAssociations(dbSession))
       .extracting("projectUuid", "profileKey", "language")

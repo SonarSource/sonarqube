@@ -511,11 +511,6 @@ public class ComponentUpdaterIT {
   @Test
   public void createWithoutCommit_whenProjectIsManagedAndPrivate_applyPublicPermissionsToCreator() {
     UserDto userDto = db.users().insertUser();
-    NewComponent newComponent = NewComponent.newComponentBuilder()
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .setPrivate(true)
-      .build();
 
     DbSession session = db.getSession();
 

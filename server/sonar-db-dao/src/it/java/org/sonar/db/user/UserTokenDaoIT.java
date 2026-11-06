@@ -86,9 +86,9 @@ class UserTokenDaoIT {
 
   @Test
   void select_tokens_expired_in_7_days() {
-    String token1 = insertTokenExpiredInDays(0);
+    insertTokenExpiredInDays(0);
     String token2 = insertTokenExpiredInDays(7);
-    String token3 = insertTokenExpiredInDays(14);
+    insertTokenExpiredInDays(14);
     List<UserTokenDto> tokenList = underTest.selectTokensExpiredInDays(dbSession, 7);
     assertThat(tokenList).hasSize(1)
       .extracting(UserTokenDto::getTokenHash)
@@ -106,7 +106,7 @@ class UserTokenDaoIT {
   void update_last_connection_date() {
     UserDto user1 = db.users().insertUser();
     UserTokenDto userToken1 = db.users().insertToken(user1);
-    UserTokenDto userToken2 = db.users().insertToken(user1);
+    db.users().insertToken(user1);
     assertThat(underTest.selectByTokenHash(dbSession, userToken1.getTokenHash()).getLastConnectionDate()).isNull();
 
     underTest.updateWithoutAudit(dbSession, userToken1.setLastConnectionDate(10_000_000_000L));

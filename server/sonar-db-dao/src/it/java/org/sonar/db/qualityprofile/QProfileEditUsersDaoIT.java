@@ -90,7 +90,7 @@ class QProfileEditUsersDaoIT {
     QProfileDto profile = db.qualityProfiles().insert();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    UserDto user3 = db.users().insertUser();
+    db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, user1);
     db.qualityProfiles().addUserPermission(profile, user2);
 

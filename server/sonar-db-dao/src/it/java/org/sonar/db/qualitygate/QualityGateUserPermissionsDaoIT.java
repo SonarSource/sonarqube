@@ -105,7 +105,7 @@ class QualityGateUserPermissionsDaoIT {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    UserDto user3 = db.users().insertUser();
+    db.users().insertUser();
     db.qualityGates().addUserPermission(qualityGate, user1);
     db.qualityGates().addUserPermission(qualityGate, user2);
 

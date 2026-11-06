@@ -86,7 +86,7 @@ public class ProjectConfigurationLoaderImplIT {
     db.properties().insertProperty(MAIN_BRANCH_PROP_KEY, MAIN_BRANCH_PROP_VALUE, MAIN_BRANCH_UUID);
     db.properties().insertProperty(BRANCH_PROP_KEY, BRANCH_PROP_VALUE, BRANCH_UUID);
 
-    BranchDto mainBranch = insertBranch(MAIN_BRANCH_UUID, MAIN_BRANCH_UUID, true);
+    insertBranch(MAIN_BRANCH_UUID, MAIN_BRANCH_UUID, true);
     BranchDto branch = insertBranch(BRANCH_UUID, MAIN_BRANCH_UUID, false);
 
     Configuration configuration = underTest.loadBranchConfiguration(db.getSession(), branch);

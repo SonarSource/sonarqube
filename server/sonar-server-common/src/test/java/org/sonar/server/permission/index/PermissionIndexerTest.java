@@ -95,7 +95,7 @@ public class PermissionIndexerTest {
   @Test
   public void deletion_resilience_will_deindex_projects() {
     ProjectDto project1 = createUnindexedPublicProject();
-    ProjectDto project2 = createUnindexedPublicProject();
+    createUnindexedPublicProject();
     // UserDto user1 = db.users().insertUser();
     indexOnStartup();
     assertThat(es.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(2);

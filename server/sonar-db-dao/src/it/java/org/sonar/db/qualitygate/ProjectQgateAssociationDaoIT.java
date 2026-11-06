@@ -147,8 +147,6 @@ class ProjectQgateAssociationDaoIT {
 
   @Test
   void select_all() {
-    List<ProjectQgateAssociationDto> t = underTest.selectAll(dbSession);
-
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
     QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();

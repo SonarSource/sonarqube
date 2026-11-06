@@ -30,7 +30,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.project.ProjectDto;
@@ -126,9 +125,9 @@ class QualityGateDaoIT {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
 
     QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
-    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
+    db.qualityGates().insertQualityGate();
 
-    QualityGateDto qualityGate3 = db.qualityGates().insertQualityGate();
+    db.qualityGates().insertQualityGate();
 
     db.qualityGates().associateProjectToQualityGate(project, qualityGate1);
 
@@ -139,7 +138,7 @@ class QualityGateDaoIT {
   @Test
   void selectQualityGateFindings_returns_all_quality_gate_details_for_project() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    BranchDto branch = db.components().insertProjectBranch(project).setBranchType(BranchType.BRANCH);
+    db.components().insertProjectBranch(project).setBranchType(BranchType.BRANCH);
     QualityGateDto gate = db.qualityGates().insertQualityGate();
     db.qualityGates().setDefaultQualityGate(gate);
 
@@ -221,7 +220,7 @@ class QualityGateDaoIT {
   @Test
   void selectBuiltIn() {
     QualityGateDto builtInQualityGate = qualityGateDbTester.insertQualityGate(qg -> qg.setName("Built in").setBuiltIn(true));
-    QualityGateDto qualityGate = qualityGateDbTester.insertQualityGate(qg -> qg.setName("Random quality gate").setBuiltIn(false));
+    qualityGateDbTester.insertQualityGate(qg -> qg.setName("Random quality gate").setBuiltIn(false));
     dbSession.commit();
 
     List<QualityGateDto> result = underTest.selectBuiltIn(dbSession);
@@ -236,7 +235,7 @@ class QualityGateDaoIT {
     String builtInQgName = "Sonar Way";
     QualityGateDto builtInQualityGate = qualityGateDbTester.insertQualityGate(qg -> qg.setName(builtInQgName).setBuiltIn(true));
     QualityGateDto qualityGate1 = qualityGateDbTester.insertQualityGate(qg -> qg.setName("QG1").setBuiltIn(true));
-    QualityGateDto qualityGate2 = qualityGateDbTester.insertQualityGate(qg -> qg.setName("QG2"));
+    qualityGateDbTester.insertQualityGate(qg -> qg.setName("QG2"));
 
     underTest.ensureOnlySonarWayQualityGatesAreBuiltIn(dbSession, builtInQgName);
     dbSession.commit();
@@ -245,6 +244,7 @@ class QualityGateDaoIT {
     assertThat(reloaded.getUuid()).isEqualTo(builtInQualityGate.getUuid());
     assertThat(reloaded.getName()).isEqualTo(builtInQualityGate.getName());
     assertThat(reloaded.isBuiltIn()).isTrue();
+    assertThat(underTest.selectByUuid(dbSession, qualityGate1.getUuid()).isBuiltIn()).isFalse();
   }
 
   private void insertQualityGates() {

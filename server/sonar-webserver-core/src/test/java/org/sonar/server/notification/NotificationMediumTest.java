@@ -27,7 +27,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.config.internal.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -215,8 +214,6 @@ public class NotificationMediumTest {
 
   @Test
   public void getDispatchers_empty() {
-    Settings settings = new MapSettings().setProperty("sonar.notifications.delay", 1L);
-
     service = new NotificationService(dbClient);
     assertThat(service.getDispatchers()).isEmpty();
   }

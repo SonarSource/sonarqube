@@ -82,7 +82,7 @@ class UserDaoIT {
   void selectByUuid_withScmAccount_retrievesScmAccounts() {
     List<String> scmAccountsUser1 = List.of("account1_1", "account1_2");
     UserDto user1 = db.users().insertUser(u -> u.setScmAccounts(scmAccountsUser1));
-    UserDto user2 = db.users().insertUser(u -> u.setScmAccounts(List.of("account2_1", "account2_2")));
+    db.users().insertUser(u -> u.setScmAccounts(List.of("account2_1", "account2_2")));
 
     UserDto userDto = underTest.selectByUuid(session, user1.getUuid());
     assertThat(userDto).isNotNull();
@@ -574,11 +574,11 @@ class UserDaoIT {
 
   @Test
   void count_sonarlint_weekly_users() {
-    UserDto user1 = db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW - 100_000));
-    UserDto user2 = db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW));
+    db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW - 100_000));
+    db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW));
     // these don't count
-    UserDto user3 = db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW - 1_000_000_000));
-    UserDto user4 = db.users().insertUser();
+    db.users().insertUser(c -> c.setLastSonarlintConnectionDate(NOW - 1_000_000_000));
+    db.users().insertUser();
 
     assertThat(underTest.countSonarlintWeeklyUsers(db.getSession())).isEqualTo(2);
   }
@@ -681,8 +681,8 @@ class UserDaoIT {
 
   @Test
   void select_by_email() {
-    UserDto activeUser1 = db.users().insertUser(u -> u.setEmail("user1@email.com"));
-    UserDto activeUser2 = db.users().insertUser(u -> u.setEmail("user1@email.com"));
+    db.users().insertUser(u -> u.setEmail("user1@email.com"));
+    db.users().insertUser(u -> u.setEmail("user1@email.com"));
     UserDto disableUser = db.users().insertUser(u -> u.setActive(false));
 
     assertThat(underTest.selectByEmail(session, "user1@email.com")).hasSize(2);

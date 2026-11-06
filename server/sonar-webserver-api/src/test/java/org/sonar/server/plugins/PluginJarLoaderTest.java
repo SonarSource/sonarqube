@@ -213,7 +213,7 @@ public class PluginJarLoaderTest {
 
   @Test
   public void fail_if_downloaded_plugin_has_same_key_has_bundled() throws IOException {
-    File downloaded = createJar(fs.getDownloadedPluginsDir(), "plugin1", "main", null);
+    createJar(fs.getDownloadedPluginsDir(), "plugin1", "main", null);
     createJar(fs.getInstalledBundledPluginsDir(), "plugin1", "main", null);
     String dir = getDirName(fs.getDownloadedPluginsDir());
 

@@ -29,7 +29,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
 
-import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.server.es.searchrequest.TopAggregationHelperTest.DEFAULT_BUCKET_SIZE;
@@ -45,7 +44,6 @@ public class SubAggregationHelperTest {
 
   @Test
   public void buildTermsAggregationV2_adds_term_subaggregation_with_minDoc_1_and_default_sort() {
-    String aggName = secure().nextAlphabetic(10);
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
 
     Stream.of(underTest, underTestWithCustomSubAgg)
@@ -63,7 +61,6 @@ public class SubAggregationHelperTest {
 
   @Test
   public void buildTermsAggregationV2_adds_custom_order_from_constructor() {
-    String aggName = secure().nextAlphabetic(10);
     SimpleFieldTopAggregationDefinition topAggregation = new SimpleFieldTopAggregationDefinition("bar", false);
 
     Aggregation agg = underTestWithCustomSubAggAndOrder.buildTermsAggregationV2(topAggregation, null);

@@ -1117,7 +1117,7 @@ class RuleIndexIT {
   @Test
   void search_should_support_clean_code_attribute_category_facet_with_filtering() {
     RuleDto php = createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.FOCUSED));
-    RuleDto php1 = createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.LOGICAL));
+    createRule(setRepositoryKey("php"), setCleanCodeAttribute(CleanCodeAttribute.LOGICAL));
     RuleDto java = createRule(setRepositoryKey("java"), setCleanCodeAttribute(CleanCodeAttribute.CONVENTIONAL));
     index();
 

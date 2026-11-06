@@ -142,7 +142,7 @@ public class EntityDefinitionIndexerIT {
   @Test
   public void indexOnStartup_does_not_index_non_main_branches() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
+    db.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
 
     underTest.indexOnStartup(emptySet());
 

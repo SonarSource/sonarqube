@@ -33,7 +33,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Scope;
-import org.sonar.db.rule.RuleParamDto;
 
 import static java.util.Collections.emptySet;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
@@ -129,7 +128,7 @@ public class DefaultRuleFinderIT {
 
   @Test
   public void should_include_rule_params() {
-    RuleParamDto ruleParamDto = dbTester.rules().insertRuleParam(rule1, p -> p.setType("type").setName("name").setDescription("desc"));
+    dbTester.rules().insertRuleParam(rule1, p -> p.setType("type").setName("name").setDescription("desc"));
     dbTester.getSession().commit();
     Rule rule = underTest.findByKey("checkstyle", "com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck");
     assertThat(rule).isNotNull();

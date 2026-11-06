@@ -52,7 +52,7 @@ class ComponentIndexCombinationTest extends ComponentIndexTest {
 
   @Test
   void index_whenQualifierDoesNotMatchWhatIsTheIndex_shouldReturnTheProject() {
-    ProjectDto project = indexProject("struts", "Apache Struts");
+    indexProject("struts", "Apache Struts");
 
     SuggestionQuery query = SuggestionQuery.builder().setQuery("struts").setQualifiers(singletonList(ComponentQualifiers.VIEW)).build();
 

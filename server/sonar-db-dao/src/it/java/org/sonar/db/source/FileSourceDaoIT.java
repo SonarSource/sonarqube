@@ -232,7 +232,7 @@ class FileSourceDaoIT {
     ComponentDto file1 = dbTester.components().insertComponent(newFileDto(project));
     FileSourceDto fileSource1 = dbTester.fileSources().insertFileSource(file1);
     ComponentDto file2 = dbTester.components().insertComponent(newFileDto(project).setPath(null));
-    FileSourceDto fileSource2 = dbTester.fileSources().insertFileSource(file2);
+    dbTester.fileSources().insertFileSource(file2);
 
     LineHashesWithKeyDtoHandler handler = scrollLineHashes(file2.uuid(), file1.uuid());
     assertThat(handler.dtos).hasSize(1);

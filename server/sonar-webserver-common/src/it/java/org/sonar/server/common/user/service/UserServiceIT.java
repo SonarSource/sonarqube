@@ -130,7 +130,7 @@ public class UserServiceIT {
   public void search_for_all_active_users() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    UserDto user3 = db.users().insertUser(u -> u.setActive(false));
+    db.users().insertUser(u -> u.setActive(false));
 
     SearchResults<UserInformation> users = userService.findUsers(SEARCH_REQUEST);
 
@@ -144,7 +144,7 @@ public class UserServiceIT {
   @Test
   public void search_deactivated_users() {
     UserDto user1 = db.users().insertUser(u -> u.setActive(false));
-    UserDto user2 = db.users().insertUser(u -> u.setActive(true));
+    db.users().insertUser(u -> u.setActive(true));
 
     SearchResults<UserInformation> users = userService.findUsers(UsersSearchRequest.builder().setPage(1).setPageSize(50).setDeactivated(true).build());
 
@@ -237,7 +237,7 @@ public class UserServiceIT {
 
   @Test
   public void search_whenFilteringByManagedAndInstanceManaged_returnsCorrectResults() {
-    UserDto nonManagedUser = db.users().insertUser(u -> u.setEmail("john@doe.com"));
+    db.users().insertUser(u -> u.setEmail("john@doe.com"));
     UserDto managedUser = db.users().insertUser(u -> u.setEmail("externalUser@doe.com"));
     db.users().enableScimForUser(managedUser);
     mockUsersAsManaged(managedUser.getUuid());
@@ -400,7 +400,7 @@ public class UserServiceIT {
     UserDto user = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup("group1");
     GroupDto group2 = db.users().insertGroup("group2");
-    GroupDto group3 = db.users().insertGroup("group3");
+    db.users().insertGroup("group3");
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
 

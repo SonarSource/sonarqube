@@ -86,10 +86,10 @@ class RegulatoryReportDaoIT {
     db.issues().insertChange(issue2, ic -> ic.setChangeData("c4").setIssueChangeCreationDate(4000L).setChangeType("diff").setKey(null));
 
     // not returned
-    IssueDto issue4 = db.issues().insertIssue(rule, project, file, i -> i.setStatus("CLOSED").setResolution(null));
+    db.issues().insertIssue(rule, project, file, i -> i.setStatus("CLOSED").setResolution(null));
     ComponentDto otherProject = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto otherFile = db.components().insertComponent(newFileDto(otherProject));
-    IssueDto issue5 = db.issues().insertIssue(rule, otherProject, otherFile);
+    db.issues().insertIssue(rule, otherProject, otherFile);
 
     List<IssueFindingDto> issues = new ArrayList<>();
     underTest.scrollIssues(db.getSession(), PROJECT_UUID, result -> issues.add(result.getResultObject()));

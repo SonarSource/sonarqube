@@ -193,7 +193,7 @@ public class ProjectMeasuresIndexerIT {
   @Test
   public void indexOnAnalysis_indexes_provisioned_project() {
     ProjectData project1 = db.components().insertPrivateProject();
-    ProjectData project2 = db.components().insertPrivateProject();
+    db.components().insertPrivateProject();
 
     underTest.indexOnAnalysis(project1.getMainBranchComponent().uuid());
 
@@ -203,7 +203,7 @@ public class ProjectMeasuresIndexerIT {
   @Test
   public void indexOnAnalysis_whenPassingANonMainBranch_ShouldNotIndexProject() {
     ProjectData project1 = db.components().insertPrivateProject();
-    ProjectData project2 = db.components().insertPrivateProject();
+    db.components().insertPrivateProject();
     BranchDto branchDto = db.components().insertProjectBranch(project1.getProjectDto());
     underTest.indexOnAnalysis(branchDto.getUuid());
 
@@ -213,7 +213,7 @@ public class ProjectMeasuresIndexerIT {
   @Test
   public void indexOnAnalysis_indexes_provisioned_application() {
     ProjectData app1 = db.components().insertPrivateApplication();
-    ProjectData app2 = db.components().insertPrivateApplication();
+    db.components().insertPrivateApplication();
 
     underTest.indexOnAnalysis(app1.getMainBranchComponent().uuid());
 

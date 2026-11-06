@@ -85,7 +85,7 @@ class QProfileEditGroupsDaoIT {
     QProfileDto profile = db.qualityProfiles().insert();
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
-    GroupDto group3 = db.users().insertGroup();
+    db.users().insertGroup();
     db.qualityProfiles().addGroupPermission(profile, group1);
     db.qualityProfiles().addGroupPermission(profile, group2);
 

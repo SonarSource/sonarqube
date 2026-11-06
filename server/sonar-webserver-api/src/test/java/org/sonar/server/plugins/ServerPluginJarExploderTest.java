@@ -68,7 +68,6 @@ public class ServerPluginJarExploderTest {
       assertThat(lib).exists().isFile();
       assertThat(lib.getCanonicalPath()).startsWith(pluginDeployDir.getCanonicalPath());
     }
-    File targetJar = new File(fs.getDeployedPluginsDir(), "testlibs/test-libs-plugin-0.1-SNAPSHOT.jar");
   }
 
   @Test

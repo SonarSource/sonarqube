@@ -568,6 +568,7 @@ class RulesRegistrantIT {
     // template rule and custom rule have been updated
     rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of("java", "rule"));
     RuleDto custom = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RuleKey.of("java", "custom"));
+    assertThat(custom.getTemplateUuid()).isEqualTo(rule1.getUuid());
   }
 
   @Test

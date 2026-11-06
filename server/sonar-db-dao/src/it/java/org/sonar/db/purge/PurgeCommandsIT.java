@@ -225,7 +225,6 @@ class PurgeCommandsIT {
   void deleteProjects() {
     ProjectData projectData = dbTester.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    ProjectDto projectDto = dbTester.getDbClient().projectDao().selectProjectByKey(dbTester.getSession(), mainBranch.getKey()).get();
     ComponentDto file = dbTester.components().insertComponent(newFileDto(mainBranch));
     SnapshotDto analysis = dbTester.components().insertSnapshot(mainBranch);
     dbTester.events().insertEvent(analysis);
@@ -570,7 +569,7 @@ class PurgeCommandsIT {
   void deleteIssues_shouldDeleteIssuesImpacts(ComponentDto projectOrView) {
     RuleDto rule = dbTester.rules().insert();
     dbTester.components().insertComponent(projectOrView);
-    ComponentDto file = dbTester.components().insertComponent(newFileDto(projectOrView));
+    dbTester.components().insertComponent(newFileDto(projectOrView));
     List<String> issueKeys = new ArrayList<>();
     int count = 5;
     IntStream.range(0, count).forEach(i -> {

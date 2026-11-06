@@ -102,7 +102,7 @@ class QualityGateGroupPermissionsDaoIT {
     QualityGateDto qualityGateDto = insertQualityGate();
     GroupDto group1 = dbTester.users().insertGroup();
     GroupDto group2 = dbTester.users().insertGroup();
-    GroupDto group3 = dbTester.users().insertGroup();
+    dbTester.users().insertGroup();
 
     insertQualityGateGroupPermission(qualityGateDto.getUuid(), qualityGateDto.getName(), group1.getUuid(), group1.getName());
     insertQualityGateGroupPermission(qualityGateDto.getUuid(), qualityGateDto.getName(), group2.getUuid(), group2.getName());
