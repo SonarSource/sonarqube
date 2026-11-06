@@ -61,9 +61,13 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
     "sonar.notifications.delay",
     "sonar.authenticator.downcase",
     "sonar.hunteragent.orchestrator.url",
+    "sonar.hunteragent.scheduler.enabled",
+    "sonar.hunteragent.scheduler.pollingIntervalSeconds",
+    "sonar.hunteragent.scheduler.threads",
     "sonar.remediationagent.orchestrator.url",
     "sonar.vortex.enabled",
     "sonar.vortex.analysis.url",
+    "sonar.agents.health.checkIntervalSeconds",
     "sonar.agentic.signing.secretFile",
     "sonar.agentic.orchestrator.signingKeyPath",
     "sonar.agentic.storage.type",
@@ -75,6 +79,10 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
     "sonar.agentic.storage.secret-key",
     "sonar.agentic.storage.path-style-access",
     "sonar.agentic.storage.presign-ttl-seconds",
+    "sonar.agentic.storage.azure.container",
+    "sonar.agentic.storage.azure.connection-string",
+    "sonar.agentic.storage.gcs.project-id",
+    "sonar.agentic.storage.gcs.credentials-json",
     "sonar.agentic.orchestrator.storage.type",
     "sonar.agentic.orchestrator.storage.filesystem.base-dir",
     "sonar.agentic.orchestrator.storage.bucket",
@@ -83,7 +91,11 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
     "sonar.agentic.orchestrator.storage.access-key",
     "sonar.agentic.orchestrator.storage.secret-key",
     "sonar.agentic.orchestrator.storage.path-style-access",
-    "sonar.agentic.orchestrator.storage.presign-ttl-seconds");
+    "sonar.agentic.orchestrator.storage.presign-ttl-seconds",
+    "sonar.agentic.orchestrator.storage.azure.container",
+    "sonar.agentic.orchestrator.storage.azure.connection-string",
+    "sonar.agentic.orchestrator.storage.gcs.project-id",
+    "sonar.agentic.orchestrator.storage.gcs.credentials-json");
 
   private final System2 system;
   private final File homeDir;

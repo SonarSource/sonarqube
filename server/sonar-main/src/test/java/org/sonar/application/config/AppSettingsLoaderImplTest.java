@@ -271,9 +271,13 @@ public class AppSettingsLoaderImplTest {
     FileUtils.write(propsFile,
       """
         sonar.hunteragent.orchestrator.url=http://localhost:9091
+        sonar.hunteragent.scheduler.enabled=true
+        sonar.hunteragent.scheduler.pollingIntervalSeconds=10
+        sonar.hunteragent.scheduler.threads=2
         sonar.remediationagent.orchestrator.url=http://localhost:9091
         sonar.vortex.enabled=true
         sonar.vortex.analysis.url=http://localhost:9092
+        sonar.agents.health.checkIntervalSeconds=30
         sonar.agentic.signing.secretFile=/etc/sonar/instance-secret
         sonar.agentic.orchestrator.signingKeyPath=/etc/sonar/agentic-shared.key
         sonar.agentic.storage.type=S3
@@ -285,6 +289,10 @@ public class AppSettingsLoaderImplTest {
         sonar.agentic.storage.secret-key=secret
         sonar.agentic.storage.path-style-access=true
         sonar.agentic.storage.presign-ttl-seconds=3600
+        sonar.agentic.storage.azure.container=analysis-context
+        sonar.agentic.storage.azure.connection-string=DefaultEndpointsProtocol=https;AccountName=acct;
+        sonar.agentic.storage.gcs.project-id=my-project
+        sonar.agentic.storage.gcs.credentials-json={}
         sonar.agentic.orchestrator.storage.type=S3
         sonar.agentic.orchestrator.storage.filesystem.base-dir=/var/sonar/orchestrator
         sonar.agentic.orchestrator.storage.bucket=agentic-jobs
@@ -294,6 +302,10 @@ public class AppSettingsLoaderImplTest {
         sonar.agentic.orchestrator.storage.secret-key=secret
         sonar.agentic.orchestrator.storage.path-style-access=true
         sonar.agentic.orchestrator.storage.presign-ttl-seconds=3600
+        sonar.agentic.orchestrator.storage.azure.container=agentic-jobs
+        sonar.agentic.orchestrator.storage.azure.connection-string=DefaultEndpointsProtocol=https;AccountName=acct;
+        sonar.agentic.orchestrator.storage.gcs.project-id=my-project
+        sonar.agentic.orchestrator.storage.gcs.credentials-json={}
         sonar.not.a.real.property=true
         """,
       UTF_8);
