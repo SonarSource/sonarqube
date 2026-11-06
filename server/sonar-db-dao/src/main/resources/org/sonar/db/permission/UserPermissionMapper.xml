@@ -107,6 +107,14 @@
     ur.entity_uuid = #{entityUuid,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectEntityUuidsByUserUuid" parameterType="string" resultType="string">
+    select distinct ur.entity_uuid
+    from user_roles ur
+    where
+    ur.user_uuid = #{userUuid,jdbcType=VARCHAR} and
+    ur.entity_uuid is not null
+  </select>
+
   <select id="countUsersByEntityPermission" resultType="org.sonar.db.permission.CountPerEntityPermission">
     select ur.entity_uuid as entityUuid, ur.role as permission, count(u.login) as count
     from users u

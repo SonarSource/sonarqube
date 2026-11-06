@@ -68,5 +68,7 @@ public interface UserPermissionMapper {
 
   List<String> selectEntityPermissionsOfUser(@Param("userUuid") String userUuid, @Param("entityUuid") String entityUuid);
 
+  Set<String> selectEntityUuidsByUserUuid(@Param("userUuid") String userUuid);
+
   int deleteByUserUuid(@Param("userUuid") String userUuid);
 }

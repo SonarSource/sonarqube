@@ -110,6 +110,13 @@ public class UserPermissionDao implements Dao {
     return mapper(dbSession).selectEntityPermissionsOfUser(userUuid, entityUuid);
   }
 
+  /**
+   * Gets the UUIDs of all the entities on which the user has at least one permission. Global permissions are ignored.
+   */
+  public Set<String> selectEntityUuidsByUserUuid(DbSession dbSession, String userUuid) {
+    return mapper(dbSession).selectEntityUuidsByUserUuid(userUuid);
+  }
+
   public Set<UserIdDto> selectUserIdsWithPermissionOnEntityBut(DbSession session, String entityUuid, String permission) {
     return mapper(session).selectUserIdsWithPermissionOnEntityBut(entityUuid, permission);
   }

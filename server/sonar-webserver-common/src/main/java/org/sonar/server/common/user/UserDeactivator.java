@@ -19,40 +19,44 @@
  */
 package org.sonar.server.common.user;
 
+import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.es.Indexers;
 
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER;
+import static org.sonar.server.es.Indexers.EntityEvent.PERMISSION_CHANGE;
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 import static org.sonar.server.exceptions.NotFoundException.checkFound;
 
 public class UserDeactivator {
   private final DbClient dbClient;
   private final UserAnonymizer userAnonymizer;
+  private final Indexers indexers;
 
-  public UserDeactivator(DbClient dbClient, UserAnonymizer userAnonymizer) {
+  public UserDeactivator(DbClient dbClient, UserAnonymizer userAnonymizer, Indexers indexers) {
     this.dbClient = dbClient;
     this.userAnonymizer = userAnonymizer;
+    this.indexers = indexers;
   }
 
   public UserDto deactivateUser(DbSession dbSession, UserDto userDto) {
-    UserDto user = doBeforeDeactivation(dbSession, userDto);
-    return deactivateUserInternal(dbSession, user);
+    Set<String> entityUuids = doBeforeDeactivation(dbSession, userDto);
+    return deactivateUserInternal(dbSession, userDto, entityUuids);
   }
 
   public UserDto deactivateUserWithAnonymization(DbSession dbSession, UserDto userDto) {
-    UserDto user = doBeforeDeactivation(dbSession, userDto);
-    anonymizeUser(dbSession, user);
-    return deactivateUserInternal(dbSession, user);
+    Set<String> entityUuids = doBeforeDeactivation(dbSession, userDto);
+    anonymizeUser(dbSession, userDto);
+    return deactivateUserInternal(dbSession, userDto, entityUuids);
   }
 
-  private UserDto doBeforeDeactivation(DbSession dbSession, UserDto userDto) {
+  private Set<String> doBeforeDeactivation(DbSession dbSession, UserDto userDto) {
     ensureNotLastAdministrator(dbSession, userDto);
-    deleteRelatedData(dbSession, userDto);
-    return userDto;
+    return deleteRelatedData(dbSession, userDto);
   }
 
   private void ensureNotLastAdministrator(DbSession dbSession, UserDto user) {
@@ -60,8 +64,9 @@ public class UserDeactivator {
     checkRequest(!isLastAdmin, "User is last administrator, and cannot be deactivated");
   }
 
-  private void deleteRelatedData(DbSession dbSession, UserDto user) {
+  private Set<String> deleteRelatedData(DbSession dbSession, UserDto user) {
     String userUuid = user.getUuid();
+    Set<String> entityUuids = dbClient.userPermissionDao().selectEntityUuidsByUserUuid(dbSession, userUuid);
     dbClient.userTokenDao().deleteByUser(dbSession, user);
     dbClient.propertiesDao().deleteByKeyAndValue(dbSession, DEFAULT_ISSUE_ASSIGNEE, user.getLogin());
     dbClient.propertiesDao().deleteByQuery(dbSession, PropertyQuery.builder().setUserUuid(userUuid).build());
@@ -73,6 +78,7 @@ public class UserDeactivator {
     dbClient.sessionTokensDao().deleteByUser(dbSession, user);
     dbClient.userDismissedMessagesDao().deleteByUser(dbSession, user);
     dbClient.qualityGateUserPermissionDao().deleteByUser(dbSession, user);
+    return entityUuids;
   }
 
   private void anonymizeUser(DbSession dbSession, UserDto user) {
@@ -81,9 +87,9 @@ public class UserDeactivator {
     dbClient.scimUserDao().deleteByUserUuid(dbSession, user.getUuid());
   }
 
-  private UserDto deactivateUserInternal(DbSession dbSession, UserDto user) {
+  private UserDto deactivateUserInternal(DbSession dbSession, UserDto user, Set<String> entityUuids) {
     dbClient.userDao().deactivateUser(dbSession, user);
-    dbSession.commit();
+    indexers.commitAndIndexOnEntityEvent(dbSession, entityUuids, PERMISSION_CHANGE);
     return getUserOrThrow(dbSession, user.getLogin());
   }
 

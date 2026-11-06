@@ -517,6 +517,30 @@ class UserPermissionDaoIT {
   }
 
   @Test
+  void selectEntityUuidsByUserUuid_returns_distinct_entities_and_ignores_global_permissions_and_other_users() {
+    UserDto user = insertUser();
+    UserDto otherUser = insertUser();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto otherProject = db.components().insertPrivateProject().getProjectDto();
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project1);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.CODEVIEWER, project1);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project2);
+    db.users().insertProjectPermissionOnUser(otherUser, ProjectPermission.USER, otherProject);
+
+    assertThat(underTest.selectEntityUuidsByUserUuid(dbSession, user.getUuid())).containsExactlyInAnyOrder(project1.getUuid(), project2.getUuid());
+  }
+
+  @Test
+  void selectEntityUuidsByUserUuid_returns_empty_when_user_has_only_global_permissions() {
+    UserDto user = insertUser();
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
+
+    assertThat(underTest.selectEntityUuidsByUserUuid(dbSession, user.getUuid())).isEmpty();
+  }
+
+  @Test
   void deleteEntityPermissionOfAnyUser_has_no_effect_if_specified_entity_does_not_exist() {
     UserDto user = insertUser();
     db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);

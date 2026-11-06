@@ -50,6 +50,8 @@ import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.user.UserAnonymizer;
 import org.sonar.server.common.user.UserDeactivator;
 import org.sonar.server.common.user.service.UserService;
+import org.sonar.server.es.Indexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -84,7 +86,8 @@ public class DeactivateActionIT {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private final UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient(), () -> "anonymized");
-  private final UserDeactivator userDeactivator = new UserDeactivator(dbClient, userAnonymizer);
+  private final TestIndexers indexers = new TestIndexers();
+  private final UserDeactivator userDeactivator = new UserDeactivator(dbClient, userAnonymizer, indexers);
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
   private final IdentityProviderRepository identityProviderRepository = mock();
   private final UserService userService = new UserService(dbClient, mock(AvatarResolver.class), mock(ManagedInstanceService.class), managedInstanceChecker, userDeactivator,
@@ -104,6 +107,21 @@ public class DeactivateActionIT {
     deactivate(user.getLogin());
 
     verifyThatUserIsDeactivated(user.getLogin());
+  }
+
+  @Test
+  public void deactivate_user_reindexes_entities_they_had_permissions_on() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto otherProject = db.components().insertPrivateProject().getProjectDto();
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project);
+    logInAsSystemAdministrator();
+
+    deactivate(user.getLogin());
+
+    assertThat(indexers.hasBeenCalledForEntity(project.getUuid(), Indexers.EntityEvent.PERMISSION_CHANGE)).isTrue();
+    assertThat(indexers.hasBeenCalledForEntity(otherProject.getUuid())).isFalse();
   }
 
   @Test

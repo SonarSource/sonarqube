@@ -65,6 +65,8 @@ import org.sonar.server.common.avatar.AvatarResolverImpl;
 import org.sonar.server.common.management.ManagedInstanceChecker;
 import org.sonar.server.common.user.UserAnonymizer;
 import org.sonar.server.common.user.UserDeactivator;
+import org.sonar.server.es.Indexers;
+import org.sonar.server.es.TestIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.management.ManagedInstanceService;
@@ -87,6 +89,8 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -105,8 +109,9 @@ public class UserServiceIT {
   private final ManagedInstanceChecker managedInstanceChecker = mock(ManagedInstanceChecker.class);
 
   private final UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient(), () -> "anonymized");
+  private final TestIndexers indexers = spy(new TestIndexers());
 
-  private final UserDeactivator userDeactivator = new UserDeactivator(db.getDbClient(), userAnonymizer);
+  private final UserDeactivator userDeactivator = new UserDeactivator(db.getDbClient(), userAnonymizer, indexers);
   private final MapSettings settings = new MapSettings().setProperty("sonar.internal.pbkdf2.iterations", "1");
   private final CredentialsLocalAuthentication localAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
   private final UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new DefaultGroupFinder(db.getDbClient()),
@@ -672,6 +677,51 @@ public class UserServiceIT {
 
     assertThat(db.getDbClient().userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getUuid())).isEmpty();
     assertThat(db.getDbClient().userPermissionDao().selectEntityPermissionsOfUser(dbSession, user.getUuid(), project.getUuid())).isEmpty();
+  }
+
+  @Test
+  public void deactivate_user_reindexes_entities_they_had_permissions_on() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto otherProject = db.components().insertPrivateProject().getProjectDto();
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project1);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.CODEVIEWER, project1);
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project2);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
+
+    userService.deactivate(user.getUuid(), false);
+
+    assertThat(indexers.hasBeenCalledForEntity(project1.getUuid(), Indexers.EntityEvent.PERMISSION_CHANGE)).isTrue();
+    assertThat(indexers.hasBeenCalledForEntity(project2.getUuid(), Indexers.EntityEvent.PERMISSION_CHANGE)).isTrue();
+    assertThat(indexers.hasBeenCalledForEntity(otherProject.getUuid())).isFalse();
+  }
+
+  @Test
+  public void deactivate_user_with_anonymization_reindexes_entities_they_had_permissions_on() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.users().insertProjectPermissionOnUser(user, ProjectPermission.USER, project);
+
+    userService.deactivate(user.getUuid(), true);
+
+    assertThat(indexers.hasBeenCalledForEntity(project.getUuid(), Indexers.EntityEvent.PERMISSION_CHANGE)).isTrue();
+  }
+
+  @Test
+  public void deactivate_user_without_entity_permissions_commits_without_reindexing_any_entity() {
+    createAdminUser();
+    UserDto user = db.users().insertUser();
+    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    UserDto otherUser = db.users().insertUser();
+    db.users().insertProjectPermissionOnUser(otherUser, ProjectPermission.USER, project);
+    db.users().insertGlobalPermissionOnUser(user, GlobalPermission.SCAN);
+
+    userService.deactivate(user.getUuid(), false);
+
+    verify(indexers).commitAndIndexOnEntityEvent(any(DbSession.class), eq(Set.of()), eq(Indexers.EntityEvent.PERMISSION_CHANGE));
   }
 
   @Test
