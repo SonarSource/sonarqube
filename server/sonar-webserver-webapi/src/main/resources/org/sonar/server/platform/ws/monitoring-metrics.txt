@@ -48,3 +48,11 @@ sonarqube_elasticsearch_disk_usage_percent 15.0
 # HELP sonarqube_compute_engine_pending_tasks_total Number of tasks at given point of time that were pending in the Compute Engine queue [SHARED, same value for every SonarQube instance]
 # TYPE sonarqube_compute_engine_pending_tasks_total gauge
 sonarqube_compute_engine_pending_tasks_total 0.0
+# HELP sonarqube_agent_queue_jobs Number of AI agent jobs in the given state for the labeled agent. unfinished is pending plus running [SHARED, same value for every SonarQube instance]
+# TYPE sonarqube_agent_queue_jobs gauge
+sonarqube_agent_queue_jobs{agent="hunter",state="pending",} 2.0
+sonarqube_agent_queue_jobs{agent="hunter",state="running",} 1.0
+sonarqube_agent_queue_jobs{agent="hunter",state="unfinished",} 3.0
+sonarqube_agent_queue_jobs{agent="remediation",state="pending",} 0.0
+sonarqube_agent_queue_jobs{agent="remediation",state="running",} 1.0
+sonarqube_agent_queue_jobs{agent="remediation",state="unfinished",} 1.0
