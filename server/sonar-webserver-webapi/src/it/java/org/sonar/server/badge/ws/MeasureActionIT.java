@@ -319,7 +319,7 @@ class MeasureActionIT {
   void return_error_if_branch_does_not_exist() throws ParseException {
     ProjectData projectData = db.components().insertPublicProject();
     ComponentDto project = projectData.getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
     userSession.registerProjects(projectData.getProjectDto());
     MetricDto metric = db.measures().insertMetric(m -> m.setKey(BUGS_KEY));
 

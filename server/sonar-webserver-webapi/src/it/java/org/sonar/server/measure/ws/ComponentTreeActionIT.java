@@ -144,7 +144,7 @@ class ComponentTreeActionIT {
       .setLanguage("java")
       .setQualifier(FILE)
       .setPath("src/main/java/com/sonarsource/markdown/impl/ElementImpl.java"));
-    ComponentDto file2 = db.components().insertComponent(newFileDto(mainBranch)
+    db.components().insertComponent(newFileDto(mainBranch)
       .setUuid("AVIwDXE_bJbJqrw6wFwJ")
       .setKey("com.sonarsource:java-markdown:src/test/java/com/sonarsource/markdown/impl/ElementImplTest.java")
       .setName("ElementImplTest.java")
@@ -487,7 +487,7 @@ class ComponentTreeActionIT {
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     addProjectPermission(projectData);
     db.components().insertSnapshot(mainBranch);
-    ComponentDto file4 = db.components().insertComponent(newFileDto(mainBranch, null, "file-uuid-4").setKey("file-4-key"));
+    db.components().insertComponent(newFileDto(mainBranch, null, "file-uuid-4").setKey("file-4-key"));
     ComponentDto file3 = db.components().insertComponent(newFileDto(mainBranch, null, "file-uuid-3").setKey("file-3-key"));
     ComponentDto file1 = db.components().insertComponent(newFileDto(mainBranch, null, "file-uuid-1").setKey("file-1-key"));
     ComponentDto file2 = db.components().insertComponent(newFileDto(mainBranch, null, "file-uuid-2").setKey("file-2-key"));
@@ -577,7 +577,7 @@ class ComponentTreeActionIT {
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     addProjectPermission(projectData);
     db.components().insertSnapshot(mainBranch);
-    ComponentDto file4 = db.components().insertComponent(newFileDto(mainBranch, null, "file-uuid-4").setKey("file-4-key"));
+    db.components().insertComponent(newFileDto(mainBranch, null, "file-uuid-4").setKey("file-4-key"));
     ComponentDto file3 = db.components().insertComponent(newFileDto(mainBranch, null, "file-uuid-3").setKey("file-3-key"));
     ComponentDto file2 = db.components().insertComponent(newFileDto(mainBranch, null, "file-uuid-2").setKey("file-2-key"));
     ComponentDto file1 = db.components().insertComponent(newFileDto(mainBranch, null, "file-uuid-1").setKey("file-1-key"));
@@ -717,7 +717,7 @@ class ComponentTreeActionIT {
     ProjectData projectData = db.components().insertPrivateProject();
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     addProjectPermission(projectData);
-    SnapshotDto analysis = db.getDbClient().snapshotDao().insert(dbSession, newAnalysis(mainBranch));
+    db.getDbClient().snapshotDao().insert(dbSession, newAnalysis(mainBranch));
     MetricDto metricWithoutDomain = db.measures().insertMetric(m -> m
       .setValueType(Metric.ValueType.INT.name())
       .setDomain(null));

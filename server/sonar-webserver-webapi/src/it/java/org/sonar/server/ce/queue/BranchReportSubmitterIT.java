@@ -306,7 +306,7 @@ public class BranchReportSubmitterIT {
   @Test
   public void submit_report_on_missing_branch_of_missing_project_fails_with_ForbiddenException_if_only_scan_permission() {
     ComponentDto nonExistingBranch = newPrivateProjectDto();
-    UserDto user = db.users().insertUser();
+    db.users().insertUser();
 
     ComponentDto createdBranch = createButDoNotInsertBranch(nonExistingBranch, PROJECT_UUID);
     BranchSupport.ComponentKey componentKey = createComponentKeyOfBranch(nonExistingBranch.getKey());

@@ -492,7 +492,6 @@ public class AssignActionIT {
   @Test
   public void wsExecution_whenHotspotDoesNotExist_shouldFail() {
     ProjectData projectData = dbTester.components().insertPublicProject();
-    ComponentDto project = projectData.getMainBranchComponent();
     UserDto me = insertUser(secure().nextAlphanumeric(10));
     userSessionRule.logIn().registerProjects(projectData.getProjectDto());
 

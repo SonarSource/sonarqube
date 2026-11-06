@@ -117,7 +117,7 @@ class SearchEventsActionIT {
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     userSession.addProjectPermission(USER, projectData.getProjectDto());
     SnapshotDto analysis = insertAnalysis(mainBranch, 1_500_000_000_000L);
-    EventDto e1 = db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));
+    db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));
     IntStream.range(0, 15).forEach(x -> insertIssue(mainBranch, analysis));
     issueIndexer.indexAllIssues();
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
@@ -209,10 +209,10 @@ class SearchEventsActionIT {
     userSession.addProjectPermission(USER, projectData2.getProjectDto());
 
     SnapshotDto a1 = insertAnalysis(mainBranch1, 1_500_000_000_000L);
-    EventDto e1 = db.events().insertEvent(newQualityGateEvent(a1).setDate(a1.getCreatedAt()));
+    db.events().insertEvent(newQualityGateEvent(a1).setDate(a1.getCreatedAt()));
     insertIssue(mainBranch1, a1);
     SnapshotDto a2 = insertAnalysis(mainBranch2, 1_500_000_000_000L);
-    EventDto e2 = db.events().insertEvent(newQualityGateEvent(a2).setDate(a2.getCreatedAt()));
+    db.events().insertEvent(newQualityGateEvent(a2).setDate(a2.getCreatedAt()));
     insertIssue(mainBranch2, a2);
     issueIndexer.indexAllIssues();
 

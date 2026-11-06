@@ -121,7 +121,7 @@ public class AssignActionIT {
   public void assign_to_me() {
     IssueDto issue = newIssueWithBrowsePermission();
 
-    Issues.AssignResponse assignResponse = ws.newRequest()
+    ws.newRequest()
       .setParam("issue", issue.getKey())
       .setParam("assignee", "_me")
       .executeProtobuf(Issues.AssignResponse.class);

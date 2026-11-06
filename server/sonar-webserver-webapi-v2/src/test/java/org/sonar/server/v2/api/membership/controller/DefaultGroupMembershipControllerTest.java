@@ -155,7 +155,6 @@ public class DefaultGroupMembershipControllerTest {
   @Test
   public void delete_whenUserIsAnAdmin_shouldDelete() throws Exception {
     userSession.logIn().setSystemAdministrator();
-    UserGroupDto userGroupDto = new UserGroupDto().setUuid(GROUP_MEMBERSHIP_UUID).setGroupUuid(GROUP_UUID).setUserUuid(USER_UUID);
 
     mockMvc.perform(
         delete(GROUP_MEMBERSHIPS_ENDPOINT + "/" + GROUP_MEMBERSHIP_UUID)

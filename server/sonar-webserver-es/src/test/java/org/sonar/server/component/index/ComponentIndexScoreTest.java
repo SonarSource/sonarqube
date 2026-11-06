@@ -141,7 +141,7 @@ class ComponentIndexScoreTest extends ComponentIndexTest {
   void scoring_test_DbTester() {
     features.set(ComponentTextSearchFeatureRepertoire.PARTIAL);
 
-    ProjectDto project = indexProject("key-1", "Quality Product");
+    indexProject("key-1", "Quality Product");
 
     assertSearch("dbt").isEmpty();
   }

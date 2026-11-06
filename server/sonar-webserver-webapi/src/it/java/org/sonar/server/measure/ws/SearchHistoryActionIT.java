@@ -472,7 +472,7 @@ class SearchHistoryActionIT {
 
   @Test
   void fail_when_component_is_removed() {
-    ProjectData projectData = db.components().insertPrivateProject();
+    db.components().insertPrivateProject();
     db.components().insertComponent(newFileDto(project.getMainBranchComponent()).setKey("file-key").setEnabled(false));
     userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto());
 

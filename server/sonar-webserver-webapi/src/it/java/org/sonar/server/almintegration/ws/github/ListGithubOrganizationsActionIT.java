@@ -206,7 +206,7 @@ public class ListGithubOrganizationsActionIT {
 
     AlmSettingDto githubAlmSettings = setupAlm();
     // old pat
-    AlmPatDto pat = db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSettings.getUuid()).setUserUuid(userSession.getUuid()));
+    db.almPats().insert(p -> p.setAlmSettingUuid(githubAlmSettings.getUuid()).setUserUuid(userSession.getUuid()));
 
     // new pat
     UserAccessToken accessToken = new UserAccessToken("token_for_abc");

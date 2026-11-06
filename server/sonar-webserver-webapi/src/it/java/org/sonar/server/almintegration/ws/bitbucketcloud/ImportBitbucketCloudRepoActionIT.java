@@ -310,7 +310,7 @@ public class ImportBitbucketCloudRepoActionIT {
       dto.setAlmSettingUuid(almSetting.getUuid());
       dto.setUserUuid(user.getUuid());
     });
-    Repository repo = mockBitbucketCloudRepo();
+    mockBitbucketCloudRepo();
     db.components().insertPublicProject(p -> p.setKey(GENERATED_PROJECT_KEY)).getMainBranchComponent();
 
     TestRequest request = ws.newRequest()

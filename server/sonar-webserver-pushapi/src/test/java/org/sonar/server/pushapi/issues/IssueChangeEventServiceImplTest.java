@@ -154,7 +154,6 @@ public class IssueChangeEventServiceImplTest {
     IssueDto issue2 = db.issues().insert(rule, branch2, componentDto2, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));
 
     ProjectData projectData3 = db.components().insertPublicProject();
-    ProjectDto project3 = projectData3.getProjectDto();
     BranchDto branch3 = projectData3.getMainBranchDto();
     ComponentDto componentDto3 = projectData3.getMainBranchComponent();
     IssueDto issue3 = db.issues().insert(rule, branch3, componentDto3, i -> i.setSeverity(MAJOR.name()).setType(RuleType.BUG));

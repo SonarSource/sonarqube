@@ -475,7 +475,6 @@ public class SuggestionsActionIT {
     ProjectData projectData = db.components().insertPrivateProject(p -> p.setName("ProjectTest"));
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file1 = newFileDto(project).setName("File1");
-    ComponentDto file2 = newFileDto(project).setName("File2");
     entityDefinitionIndexer.indexOnAnalysis(project.branchUuid());
     authorizationIndexerTester.allowOnlyAnyone(projectData.getProjectDto());
 
@@ -533,14 +532,13 @@ public class SuggestionsActionIT {
     String query = secure().nextAlphabetic(10);
 
     ProjectData appData = db.components().insertPublicApplication(v -> v.setName(query));
-    ComponentDto app = appData.getMainBranchComponent();
     ComponentDto view = db.components().insertPublicPortfolio(v -> v.setName(query));
-    ComponentDto subView = db.components().insertSubView(view, v -> v.setName(query));
+    db.components().insertSubView(view, v -> v.setName(query));
     ProjectData projectData = db.components().insertPrivateProject(p -> p.setName(query));
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "path").setName(query));
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query));
-    ComponentDto test = db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query).setQualifier(UNIT_TEST_FILE));
+    db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query));
+    db.components().insertComponent(ComponentTesting.newFileDto(project, dir).setName(query).setQualifier(UNIT_TEST_FILE));
     entityDefinitionIndexer.indexAll();
     authorizationIndexerTester.allowOnlyAnyone(projectData.getProjectDto());
     authorizationIndexerTester.allowOnlyAnyone(view);

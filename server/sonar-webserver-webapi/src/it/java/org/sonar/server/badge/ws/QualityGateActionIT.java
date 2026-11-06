@@ -311,7 +311,7 @@ public class QualityGateActionIT {
     ComponentDto project = projectData.getMainBranchComponent();
 
     userSession.registerProjects(projectData.getProjectDto());
-    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
+    db.components().insertProjectBranch(project, b -> b.setBranchType(BRANCH));
 
     TestResponse response = ws.newRequest()
       .setParam("project", project.getKey())

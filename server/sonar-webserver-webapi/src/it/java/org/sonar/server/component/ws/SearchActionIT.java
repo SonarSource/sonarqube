@@ -151,8 +151,8 @@ public class SearchActionIT {
   @Test
   public void return_only_projects_on_which_user_has_browse_permission() {
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
-    ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
-    ComponentDto portfolio = db.components().insertPrivatePortfolio();
+    db.components().insertPrivateProject();
+    db.components().insertPrivatePortfolio();
 
     setBrowsePermissionOnUserAndIndex(List.of(project1));
 
@@ -181,7 +181,7 @@ public class SearchActionIT {
   @Test
   public void does_not_return_branches() {
     ProjectData project = db.components().insertPublicProject();
-    ComponentDto branch = db.components().insertProjectBranch(project.getMainBranchComponent());
+    db.components().insertProjectBranch(project.getMainBranchComponent());
     setBrowsePermissionOnUserAndIndex(List.of(project.getProjectDto()));
 
     SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT)));

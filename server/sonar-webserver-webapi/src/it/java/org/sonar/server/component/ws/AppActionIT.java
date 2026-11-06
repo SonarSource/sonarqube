@@ -386,7 +386,7 @@ public class AppActionIT {
 
   @Test
   public void fail_when_component_not_found() {
-    ComponentDto file = db.components().insertComponent(newFileDto(mainBranchComponent));
+    db.components().insertComponent(newFileDto(mainBranchComponent));
 
     TestRequest request = ws.newRequest()
       .setParam("component", "unknown");

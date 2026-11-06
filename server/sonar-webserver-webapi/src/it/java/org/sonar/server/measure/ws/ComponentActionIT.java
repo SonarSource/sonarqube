@@ -590,7 +590,7 @@ public class ComponentActionIT {
     ProjectData projectData = db.components().insertPrivateProject(p -> p.setKey("MY_PROJECT").setName("My Project"));
     userSession.addProjectPermission(USER, projectData.getProjectDto()).registerBranches(projectData.getMainBranchDto());
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    SnapshotDto analysis = db.components().insertSnapshot(mainBranch, s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+    db.components().insertSnapshot(mainBranch, s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
       .setPeriodMode("previous_version")
       .setPeriodParam("1.0-SNAPSHOT"));
 
@@ -619,7 +619,7 @@ public class ComponentActionIT {
     userSession.addProjectPermission(USER, projectData.getProjectDto())
       .registerBranches(projectData.getMainBranchDto());
     ComponentDto mainBranch = projectData.getMainBranchComponent();
-    SnapshotDto analysis = db.components().insertSnapshot(mainBranch, s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+    db.components().insertSnapshot(mainBranch, s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
       .setPeriodMode("previous_version")
       .setPeriodParam("1.0-SNAPSHOT"));
 
@@ -638,7 +638,7 @@ public class ComponentActionIT {
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     userSession.addProjectPermission(USER, projectData.getProjectDto())
       .registerBranches(projectData.getMainBranchDto());
-    SnapshotDto analysis = db.components().insertSnapshot(mainBranch,
+    db.components().insertSnapshot(mainBranch,
       s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
         .setPeriodMode("previous_version")
         .setPeriodParam("1.0-SNAPSHOT"));

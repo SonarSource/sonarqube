@@ -926,8 +926,8 @@ class SearchActionIT {
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "FILE_ID").setKey("FILE_KEY").setLanguage("java"));
     IssueDto issue1 = db.issues().insertIssue(rule1, project, file);
     IssueDto issue2 = db.issues().insertIssue(rule2, project, file);
-    IssueDto issue3 = db.issues().insertIssue(rule3, project, file);
-    IssueDto issue4 = db.issues().insertIssue(rule4, project, file);
+    db.issues().insertIssue(rule3, project, file);
+    db.issues().insertIssue(rule4, project, file);
     IssueDto issue5 = db.issues().insertIssue(rule1, project, file);
     indexPermissionsAndIssues();
 

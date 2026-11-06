@@ -134,7 +134,7 @@ public class SetAutomaticDeletionProtectionActionIT {
   public void fail_when_attempting_to_set_main_branch_as_included_in_purge() {
     userSession.logIn();
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
+    db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
     userSession.addProjectPermission(ProjectPermission.ADMIN, project);
 
     assertThatThrownBy(() -> tester.newRequest()

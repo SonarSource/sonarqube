@@ -147,9 +147,9 @@ class SearchEventsActionQualityGateIT {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setName("My Project")).getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto a1 = insertSuccessfulActivity(project, 1_500_000_000_000L);
-    EventDto e1 = db.events().insertEvent(newQualityGateEvent(a1).setName("Failed").setDate(a1.getCreatedAt()));
+    db.events().insertEvent(newQualityGateEvent(a1).setName("Failed").setDate(a1.getCreatedAt()));
     SnapshotDto a2 = insertSuccessfulActivity(project, 1_500_000_000_001L);
-    EventDto e2 = db.events().insertEvent(newQualityGateEvent(a2).setName("Passed").setDate(a2.getCreatedAt() + 1L));
+    db.events().insertEvent(newQualityGateEvent(a2).setName("Passed").setDate(a2.getCreatedAt() + 1L));
 
     SearchEventsWsResponse result = ws.newRequest()
       .setParam(PARAM_PROJECTS, project.getKey())
@@ -165,7 +165,7 @@ class SearchEventsActionQualityGateIT {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto analysis = insertSuccessfulActivity(project, 1_500_000_000_000L);
-    EventDto e1 = db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));
+    db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));
     when(server.getPublicRootUrl()).thenReturn("https://sonarcloud.io");
 
     SearchEventsWsResponse result = ws.newRequest()
@@ -182,7 +182,7 @@ class SearchEventsActionQualityGateIT {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setKey("M&M's")).getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto analysis = insertSuccessfulActivity(project, 1_500_000_000_000L);
-    EventDto event = db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));
+    db.events().insertEvent(newQualityGateEvent(analysis).setName("Failed").setDate(analysis.getCreatedAt()));
     when(server.getPublicRootUrl()).thenReturn("http://sonarcloud.io");
 
     SearchEventsWsResponse result = ws.newRequest()
@@ -199,9 +199,9 @@ class SearchEventsActionQualityGateIT {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     userSession.addProjectPermission(USER, db.components().getProjectDtoByMainBranch(project));
     SnapshotDto analysis = insertSuccessfulActivity(project, 1_500_000_000_000L);
-    EventDto qualityGateEvent = db.events().insertEvent(newQualityGateEvent(analysis).setDate(analysis.getCreatedAt()));
-    EventDto versionEvent = db.events().insertEvent(newEvent(analysis).setCategory(EventCategory.VERSION.getLabel()).setDate(analysis.getCreatedAt()));
-    EventDto qualityProfileEvent = db.events().insertEvent(newEvent(analysis).setCategory(EventCategory.QUALITY_PROFILE.getLabel()).setDate(analysis.getCreatedAt()));
+    db.events().insertEvent(newQualityGateEvent(analysis).setDate(analysis.getCreatedAt()));
+    db.events().insertEvent(newEvent(analysis).setCategory(EventCategory.VERSION.getLabel()).setDate(analysis.getCreatedAt()));
+    db.events().insertEvent(newEvent(analysis).setCategory(EventCategory.QUALITY_PROFILE.getLabel()).setDate(analysis.getCreatedAt()));
 
     SearchEventsWsResponse result = ws.newRequest()
       .setParam(PARAM_PROJECTS, project.getKey())
@@ -251,10 +251,10 @@ class SearchEventsActionQualityGateIT {
     SnapshotDto a12 = insertSuccessfulActivity(project1, from + 1L);
     SnapshotDto a21 = insertSuccessfulActivity(project2, from);
     SnapshotDto a22 = insertSuccessfulActivity(project2, from + 1L);
-    EventDto e11 = db.events().insertEvent(newQualityGateEvent(a11).setName("e11").setDate(from));
-    EventDto e12 = db.events().insertEvent(newQualityGateEvent(a12).setName("e12").setDate(from + 1L));
-    EventDto e21 = db.events().insertEvent(newQualityGateEvent(a21).setName("e21").setDate(from));
-    EventDto e22 = db.events().insertEvent(newQualityGateEvent(a22).setName("e22").setDate(from + 1L));
+    db.events().insertEvent(newQualityGateEvent(a11).setName("e11").setDate(from));
+    db.events().insertEvent(newQualityGateEvent(a12).setName("e12").setDate(from + 1L));
+    db.events().insertEvent(newQualityGateEvent(a21).setName("e21").setDate(from));
+    db.events().insertEvent(newQualityGateEvent(a22).setName("e22").setDate(from + 1L));
     String fromDate = formatDateTime(from - 1_000L);
 
     SearchEventsWsResponse result = ws.newRequest()

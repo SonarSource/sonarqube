@@ -206,7 +206,7 @@ public class ComponentFinderIT {
   @Test
   public void fail_when_pull_request_branch_provided() {
     ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto pullRequest = db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
+    db.components().insertProjectBranch(project, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
 
     String projectKey = project.getKey();
     assertThatThrownBy(() -> underTest.getByKeyAndOptionalBranchOrPullRequest(dbSession, projectKey, "pr-123", "pr-123"))
