@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.component;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import java.util.function.Supplier;
 import org.sonar.api.config.Configuration;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.analysis.ProjectConfigurationFactory;

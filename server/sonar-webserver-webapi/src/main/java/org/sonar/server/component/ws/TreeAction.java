@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -211,7 +211,7 @@ public class TreeAction implements ComponentsWsAction {
     }
 
     return dbClient.componentDao().selectByUuids(dbSession, referenceComponentIds).stream()
-      .collect(Collectors.toMap(ComponentDto::uuid, java.util.function.Function.identity()));
+      .collect(Collectors.toMap(ComponentDto::uuid, Function.identity()));
   }
 
   private void checkPermissions(ComponentDto baseComponent) {
@@ -356,7 +356,7 @@ public class TreeAction implements ComponentsWsAction {
     if (!isAscending) {
       ordering = ordering.reverse();
     }
-    return ordering.nullsLast().onResultOf(function);
+    return ordering.nullsLast().onResultOf(function::apply);
   }
 
   private static class Request {

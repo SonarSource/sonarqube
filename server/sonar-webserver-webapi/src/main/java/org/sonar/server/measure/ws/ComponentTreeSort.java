@@ -106,13 +106,13 @@ public class ComponentTreeSort {
     return stringOrdering(isAscending, ComponentDto::path);
   }
 
-  private static Ordering<ComponentDto> stringOrdering(boolean isAscending, Function<ComponentDto, String> function) {
+  private static Ordering<ComponentDto> stringOrdering(boolean isAscending, java.util.function.Function<ComponentDto, String> function) {
     Ordering<String> ordering = Ordering.from(CASE_INSENSITIVE_ORDER);
     if (!isAscending) {
       ordering = ordering.reverse();
     }
 
-    return ordering.nullsLast().onResultOf(function);
+    return ordering.nullsLast().onResultOf(function::apply);
   }
 
   private static Ordering<ComponentDto> metricValueOrdering(ComponentTreeRequest wsRequest, List<MetricDto> metrics,
