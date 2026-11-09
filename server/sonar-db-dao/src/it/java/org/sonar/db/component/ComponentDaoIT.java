@@ -190,7 +190,7 @@ class ComponentDaoIT {
   @Test
   void select_by_key() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project);
+    db.components().insertProjectBranch(project);
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory)
       .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
@@ -272,7 +272,7 @@ class ComponentDaoIT {
   @Test
   void selectByKeys_whenPassingKeys_shouldReturnComponentsInMainBranch() {
     ComponentDto project1 = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project1);
+    db.components().insertProjectBranch(project1);
     ComponentDto project2 = db.components().insertPrivateProject().getMainBranchComponent();
 
     List<ComponentDto> results = underTest.selectByKeys(dbSession, asList(project1.getKey(), project2.getKey()));
@@ -454,11 +454,11 @@ class ComponentDaoIT {
   @Test
   void find_sub_projects_by_component_keys() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
-    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
+    db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
-    ComponentDto removedFile = db.components().insertComponent(newFileDto(project, directory).setEnabled(false));
+    db.components().insertComponent(newFileDto(project, directory).setEnabled(false));
 
     // Sub project of a file
     assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, singletonList(file.uuid())))
@@ -502,7 +502,7 @@ class ComponentDaoIT {
   @Test
   void select_by_branch_uuid() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setEnabled(false));
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto removedDirectory = db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
@@ -519,8 +519,8 @@ class ComponentDaoIT {
   @Test
   void select_uuids_by_key_from_project() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto branch = db.components().insertProjectBranch(project);
-    ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
+    db.components().insertProjectBranch(project);
+    db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto removedDirectory = db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
@@ -542,10 +542,10 @@ class ComponentDaoIT {
     String branchKey = "branch1";
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchKey));
-    ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey(branchKey).setBranchType(PULL_REQUEST));
+    db.components().insertProjectBranch(project, b -> b.setKey(branchKey).setBranchType(PULL_REQUEST));
     ComponentDto directory = db.components().insertComponent(newDirectory(branch, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, directory));
-    ComponentDto projectFile = db.components().insertComponent(newFileDto(project, directory));
+    db.components().insertComponent(newFileDto(project, directory));
 
     Map<String, String> uuidsByKey = underTest.selectUuidsByKeyFromProjectKeyAndBranch(dbSession, project.getKey(), branchKey)
       .stream().collect(Collectors.toMap(KeyWithUuidDto::key, KeyWithUuidDto::uuid));
@@ -561,10 +561,10 @@ class ComponentDaoIT {
     String prKey = "pr1";
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(prKey).setBranchType(PULL_REQUEST));
-    ComponentDto pr = db.components().insertProjectBranch(project, b -> b.setKey(prKey).setBranchType(BRANCH));
+    db.components().insertProjectBranch(project, b -> b.setKey(prKey).setBranchType(BRANCH));
     ComponentDto directory = db.components().insertComponent(newDirectory(branch, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(branch, directory));
-    ComponentDto projectFile = db.components().insertComponent(newFileDto(project, directory));
+    db.components().insertComponent(newFileDto(project, directory));
 
     Map<String, String> uuidsByKey = underTest.selectUuidsByKeyFromProjectKeyAndPullRequest(dbSession, project.getKey(), prKey)
       .stream().collect(Collectors.toMap(KeyWithUuidDto::key, KeyWithUuidDto::uuid));
@@ -1058,7 +1058,7 @@ class ComponentDaoIT {
   @Test
   void selectByProjectUuid() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setEnabled(false));
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto removedDirectory = db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));

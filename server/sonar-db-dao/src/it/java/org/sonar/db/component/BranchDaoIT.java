@@ -793,18 +793,16 @@ class BranchDaoIT {
     assertThat(underTest.doAnyOfComponentsNeedIssueSync(dbSession, emptyList())).isFalse();
 
     ProjectData projectData1 = db.components().insertPrivateProject();
-    ComponentDto project1 = projectData1.getMainBranchComponent();
     ProjectData projectData2 = db.components().insertPrivateProject();
-    ComponentDto project2 = projectData2.getMainBranchComponent();
     db.components().insertProjectBranch(projectData1.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
-    BranchDto projectBranch1 = db.components().insertProjectBranch(projectData1.getProjectDto(),
+    db.components().insertProjectBranch(projectData1.getProjectDto(),
       b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(true));
-    BranchDto projectBranch2 = db.components().insertProjectBranch(projectData1.getProjectDto(),
+    db.components().insertProjectBranch(projectData1.getProjectDto(),
       b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
     db.components().insertProjectBranch(projectData1.getProjectDto(), b -> b.setBranchType(BranchType.BRANCH).setNeedIssueSync(false));
-    BranchDto pullRequest1 = db.components().insertProjectBranch(projectData1.getProjectDto(),
+    db.components().insertProjectBranch(projectData1.getProjectDto(),
       b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
-    BranchDto pullRequest2 = db.components().insertProjectBranch(projectData1.getProjectDto(),
+    db.components().insertProjectBranch(projectData1.getProjectDto(),
       b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(false));
     db.components().insertProjectBranch(projectData1.getProjectDto(), b -> b.setBranchType(BranchType.PULL_REQUEST).setNeedIssueSync(true));
 

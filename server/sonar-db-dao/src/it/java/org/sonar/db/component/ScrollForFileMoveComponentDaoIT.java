@@ -96,8 +96,7 @@ class ScrollForFileMoveComponentDaoIT {
     ComponentAndSource file = insertFileAndSource(project, FILE);
     ComponentAndSource ut = insertFileAndSource(project, UNIT_TEST_FILE);
     ComponentDto fileNoSource = db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(FILE));
-    ComponentDto utNoSource =
-      db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(UNIT_TEST_FILE));
+    db.components().insertComponent(ComponentTesting.newFileDto(project).setPath(null).setQualifier(UNIT_TEST_FILE));
     RecordingResultHandler resultHandler = new RecordingResultHandler();
 
     underTest.scrollAllFilesForFileMove(dbSession, project.uuid(), resultHandler);

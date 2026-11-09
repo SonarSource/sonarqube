@@ -244,9 +244,9 @@ class PropertiesDaoIT {
   @Test
   void selectEntityPropertyByKeyAndUserUuid_shouldFindPortfolioProperties() {
     PortfolioDto portfolio = db.components().insertPrivatePortfolioDto();
-    String uuid1 = insertProperty("key", "value1", portfolio.getUuid(), "user1", null, null, null);
-    String uuid2 = insertProperty("key", "value2", portfolio.getUuid(), "user2", null, null, null);
-    String uuid3 = insertProperty("key2", "value3", portfolio.getUuid(), "user1", null, null, null);
+    insertProperty("key", "value1", portfolio.getUuid(), "user1", null, null, null);
+    insertProperty("key", "value2", portfolio.getUuid(), "user2", null, null, null);
+    insertProperty("key2", "value3", portfolio.getUuid(), "user1", null, null, null);
 
     List<PropertyDto> property = underTest.selectEntityPropertyByKeyAndUserUuid(db.getSession(), "key", "user1");
 
@@ -258,9 +258,9 @@ class PropertiesDaoIT {
   @Test
   void selectEntityPropertyByKeyAndUserUuid_shouldFindProjectAndAppProperties() {
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    String uuid1 = insertProperty("key", "value1", project.getUuid(), "user1", null, null, null);
-    String uuid2 = insertProperty("key", "value2", project.getUuid(), "user2", null, null, null);
-    String uuid3 = insertProperty("key2", "value3", project.getUuid(), "user1", null, null, null);
+    insertProperty("key", "value1", project.getUuid(), "user1", null, null, null);
+    insertProperty("key", "value2", project.getUuid(), "user2", null, null, null);
+    insertProperty("key2", "value3", project.getUuid(), "user1", null, null, null);
 
     List<PropertyDto> property = underTest.selectEntityPropertyByKeyAndUserUuid(db.getSession(), "key", "user1");
 

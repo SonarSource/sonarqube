@@ -121,7 +121,7 @@ class IssueChangeDaoIT {
     IssueDto issue = db.issues().insertIssue();
     IssueChangeDto issueChange1 = db.issues().insertChange(issue);
     IssueChangeDto issueChange2 = db.issues().insertChange(issue);
-    IssueChangeDto issueChange3 = db.issues().insertChange(issue);
+    db.issues().insertChange(issue);
 
     underTest.deleteByUuids(db.getSession(), Set.of(issueChange1.getUuid(), issueChange2.getUuid()));
     assertThat(underTest.selectByIssueKeys(db.getSession(), singleton(issue.getKey()))).extracting(IssueChangeDto::getIssueKey).containsOnly(issue.getKey());

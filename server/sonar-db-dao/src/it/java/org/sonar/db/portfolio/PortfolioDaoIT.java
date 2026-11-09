@@ -68,8 +68,8 @@ class PortfolioDaoIT {
   void selectAllRoots() {
     PortfolioDto p1 = db.components().insertPrivatePortfolioDto("p1");
     PortfolioDto p11 = addPortfolio(p1, "p11");
-    PortfolioDto p111 = addPortfolio(p11, "p111");
-    PortfolioDto p2 = db.components().insertPrivatePortfolioDto("p2");
+    addPortfolio(p11, "p111");
+    db.components().insertPrivatePortfolioDto("p2");
 
     assertThat(portfolioDao.selectAllRoots(session)).extracting("uuid")
       .containsExactlyInAnyOrder("p1", "p2");
@@ -79,8 +79,8 @@ class PortfolioDaoIT {
   void selectAll() {
     PortfolioDto p1 = db.components().insertPrivatePortfolioDto("p1");
     PortfolioDto p11 = addPortfolio(p1, "p11");
-    PortfolioDto p111 = addPortfolio(p11, "p111");
-    PortfolioDto p2 = db.components().insertPrivatePortfolioDto("p2");
+    addPortfolio(p11, "p111");
+    db.components().insertPrivatePortfolioDto("p2");
 
     assertThat(portfolioDao.selectAll(session)).extracting("uuid")
       .containsExactlyInAnyOrder("p1", "p2", "p11", "p111");
@@ -90,9 +90,9 @@ class PortfolioDaoIT {
   void selectTree() {
     PortfolioDto p1 = db.components().insertPrivatePortfolioDto("p1");
     PortfolioDto p11 = addPortfolio(p1, "p11");
-    PortfolioDto p111 = addPortfolio(p11, "p111");
-    PortfolioDto p12 = addPortfolio(p1, "p12");
-    PortfolioDto p2 = db.components().insertPrivatePortfolioDto("p2");
+    addPortfolio(p11, "p111");
+    addPortfolio(p1, "p12");
+    db.components().insertPrivatePortfolioDto("p2");
 
     assertThat(portfolioDao.selectTree(session, "p1")).extracting("uuid").containsOnly("p1", "p11", "p111", "p12");
     assertThat(portfolioDao.selectTree(session, "p11")).extracting("uuid").containsOnly("p1", "p11", "p111", "p12");
@@ -191,12 +191,12 @@ class PortfolioDaoIT {
   @Test
   void delete() {
     ProjectDto proj1 = db.components().insertPrivateProject("proj1").getProjectDto();
-    ProjectDto app1 = db.components().insertPrivateApplication().getProjectDto();
+    db.components().insertPrivateApplication().getProjectDto();
 
     PortfolioDto p1 = db.components().insertPrivatePortfolioDto("p1");
     PortfolioDto p2 = db.components().insertPrivatePortfolioDto("p2");
     PortfolioDto p3 = db.components().insertPrivatePortfolioDto("p3");
-    PortfolioDto p4 = db.components().insertPrivatePortfolioDto("p4");
+    db.components().insertPrivatePortfolioDto("p4");
 
     db.components().addPortfolioProject(p1, proj1);
     db.components().addPortfolioProject(p2, proj1);
@@ -258,7 +258,7 @@ class PortfolioDaoIT {
     db.components().insertPrivatePortfolioDto("portfolio1");
     db.components().insertPrivatePortfolioDto("portfolio2");
     db.components().insertPrivatePortfolioDto("portfolio3");
-    ProjectDto app1 = db.components().insertPrivateApplication(p -> p.setKey("app1")).getProjectDto();
+    db.components().insertPrivateApplication(p -> p.setKey("app1"));
 
     portfolioDao.addReference(session, "portfolio1", "portfolio2");
     portfolioDao.addReference(session, "portfolio2", "portfolio3");
@@ -318,8 +318,8 @@ class PortfolioDaoIT {
   @Test
   void selectAllReferencesToApplicationsInHierarchy() {
     var p1 = db.components().insertPrivatePortfolioDto("portfolio1");
-    var p2 = db.components().insertPrivatePortfolioDto("portfolio2", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
-    var p3 = db.components().insertPrivatePortfolioDto("portfolio3", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
+    db.components().insertPrivatePortfolioDto("portfolio2", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
+    db.components().insertPrivatePortfolioDto("portfolio3", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
     ProjectData appData1 = db.components().insertPrivateApplication(p -> p.setKey("app1"));
     ProjectDto app1 = appData1.getProjectDto();
     ProjectData appData2 = db.components().insertPrivateApplication(p -> p.setKey("app2"));
@@ -339,8 +339,8 @@ class PortfolioDaoIT {
   @Test
   void selectAllReferencesToPortfoliosInHierarchy() {
     var p1 = db.components().insertPrivatePortfolioDto("portfolio1");
-    var p2 = db.components().insertPrivatePortfolioDto("portfolio2", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
-    var p3 = db.components().insertPrivatePortfolioDto("portfolio3", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
+    db.components().insertPrivatePortfolioDto("portfolio2", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
+    db.components().insertPrivatePortfolioDto("portfolio3", p -> p.setRootUuid(p1.getUuid()).setParentUuid(p1.getUuid()));
     var p4 = db.components().insertPrivatePortfolioDto("portfolio4");
     var p5 = db.components().insertPrivatePortfolioDto("portfolio5");
     var p6 = db.components().insertPrivatePortfolioDto("portfolio6");

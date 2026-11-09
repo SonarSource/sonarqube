@@ -343,7 +343,7 @@ class ComponentKeyUpdaterDaoIT {
     ComponentDto directory1 = db.components().insertComponent(newDirectory(mainBranch1, "/src/org/struts").setUuid("B"));
     db.components().insertComponent(ComponentTesting.newFileDto(mainBranch1, directory1).setKey("org.struts:struts:/src/org/struts" +
       "/RequestContext.java").setUuid("C"));
-    ComponentDto project2 = db.components().insertPublicProject(t -> t.setKey("foo:struts-core").setUuid("D")).getMainBranchComponent();
+    db.components().insertPublicProject(t -> t.setKey("foo:struts-core").setUuid("D"));
     return projectData;
   }
 }
