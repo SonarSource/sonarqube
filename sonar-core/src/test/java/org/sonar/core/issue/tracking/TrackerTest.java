@@ -205,7 +205,7 @@ public class TrackerTest {
   @Test
   public void do_not_fail_if_message_is_null() {
     FakeInput baseInput = new FakeInput("H1", "H2");
-    Issue base = baseInput.createIssueOnLine(1, RULE_UNUSED_LOCAL_VARIABLE, null);
+    baseInput.createIssueOnLine(1, RULE_UNUSED_LOCAL_VARIABLE, null);
 
     FakeInput rawInput = new FakeInput("H1", "H2");
     Issue raw = rawInput.createIssueOnLine(1, RULE_UNUSED_LOCAL_VARIABLE, null);
@@ -301,8 +301,8 @@ public class TrackerTest {
         +
         "    }",
       "}");
-    Issue base1 = baseInput.createIssueOnLine(11, RuleKey.of("java", "S109"), "Assign this magic number 42 to a well-named constant, and use the constant instead.");
-    Issue base2 = baseInput.createIssueOnLine(13, RuleKey.of("java", "S00103"), "Split this 163 characters long line (which is greater than 120 authorized).");
+    baseInput.createIssueOnLine(11, RuleKey.of("java", "S109"), "Assign this magic number 42 to a well-named constant, and use the constant instead.");
+    baseInput.createIssueOnLine(13, RuleKey.of("java", "S00103"), "Split this 163 characters long line (which is greater than 120 authorized).");
 
     FakeInput rawInput = FakeInput.createForSourceLines(
       "package aa;",
