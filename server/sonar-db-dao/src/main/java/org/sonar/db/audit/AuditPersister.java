@@ -31,6 +31,8 @@ import org.sonar.db.audit.model.JiraOrganizationBindingNewValue;
 import org.sonar.db.audit.model.JiraProjectBindingNewValue;
 import org.sonar.db.audit.model.JiraWorkItemNewValue;
 import org.sonar.db.audit.model.LicenseNewValue;
+import org.sonar.db.audit.model.McpOAuthClientNewValue;
+import org.sonar.db.audit.model.McpOAuthNewValue;
 import org.sonar.db.audit.model.PermissionTemplateNewValue;
 import org.sonar.db.audit.model.PersonalAccessTokenNewValue;
 import org.sonar.db.audit.model.PluginNewValue;
@@ -183,5 +185,19 @@ public interface AuditPersister {
   void jiraWorkItemAdd(DbSession dbSession, JiraWorkItemNewValue newValue);
 
   void jiraWorkItemDelete(DbSession dbSession, JiraWorkItemNewValue newValue);
+
+  void addMcpOAuthConsent(DbSession dbSession, McpOAuthNewValue newValue);
+
+  void deleteMcpOAuthConsent(DbSession dbSession, McpOAuthNewValue newValue);
+
+  void addMcpOAuthAuthorization(DbSession dbSession, McpOAuthNewValue newValue);
+
+  void deleteMcpOAuthAuthorization(DbSession dbSession, McpOAuthNewValue newValue);
+
+  void addMcpOAuthClient(DbSession dbSession, McpOAuthClientNewValue newValue);
+
+  void updateMcpOAuthClient(DbSession dbSession, McpOAuthClientNewValue newValue);
+
+  void deleteMcpOAuthClient(DbSession dbSession, McpOAuthClientNewValue newValue);
 
 }
