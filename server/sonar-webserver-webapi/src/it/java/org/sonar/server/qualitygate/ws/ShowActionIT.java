@@ -353,7 +353,7 @@ class ShowActionIT {
 
   @Test
   void fail_when_no_name() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    db.qualityGates().insertQualityGate();
 
     assertThatThrownBy(() -> ws.newRequest().execute())
       .isInstanceOf(IllegalArgumentException.class)
@@ -378,7 +378,7 @@ class ShowActionIT {
 
   @Test
   void fail_when_quality_name_does_not_exist() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    db.qualityGates().insertQualityGate();
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("name", "UNKNOWN")

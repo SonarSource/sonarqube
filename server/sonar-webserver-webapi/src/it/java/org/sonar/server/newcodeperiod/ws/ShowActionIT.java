@@ -186,7 +186,7 @@ public class ShowActionIT {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
 
-    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
+    db.components().insertProjectBranch(project, b -> b.setKey("branch"));
 
     tester.insert(new NewCodePeriodDto()
       .setProjectUuid(project.getUuid())
@@ -205,7 +205,7 @@ public class ShowActionIT {
   public void show_inherited_branch_setting_from_global() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     logInAsProjectAdministrator(project);
-    BranchDto branchDto = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
+    db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     tester.insert(new NewCodePeriodDto().setType(NewCodePeriodType.NUMBER_OF_DAYS).setValue("3"));
 
     ShowWSResponse response = ws.newRequest()

@@ -139,7 +139,7 @@ class QProfileRuleImplIT {
   @Test
   void activate_rule_with_default_severity_and_parameters() {
     RuleDto rule = createRule();
-    RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
+    db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
 
     RuleActivation activation = RuleActivation.create(rule.getUuid());
@@ -183,7 +183,7 @@ class QProfileRuleImplIT {
   @Test
   void activate_rule_with_empty_parameter_having_no_default_value() {
     RuleDto rule = createRule();
-    RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
+    db.rules().insertRuleParam(rule, p -> p.setName("min").setDefaultValue("10"));
     QProfileDto profile = createProfile(rule);
 
     RuleActivation activation = RuleActivation.create(rule.getUuid(), null, of("min", ""));
@@ -257,11 +257,11 @@ class QProfileRuleImplIT {
 
     // initial activation -> param "max" has a default value
     RuleActivation activation = RuleActivation.create(rule.getUuid());
-    List<ActiveRuleChange> changes = activate(profile, activation);
+    activate(profile, activation);
 
     // update param "min", which has no default value
     RuleActivation updateActivation = RuleActivation.create(rule.getUuid(), MAJOR, of(paramWithoutDefault.getName(), "3"));
-    changes = activate(profile, updateActivation);
+    List<ActiveRuleChange> changes = activate(profile, updateActivation);
     verify(qualityProfileChangeEventService).distributeRuleChangeEvent(any(), eq(changes), eq(profile.getLanguage()));
 
     assertThatRuleIsUpdated(profile, rule, MAJOR, Map.of(SoftwareQuality.MAINTAINABILITY, org.sonar.api.issue.impact.Severity.MEDIUM), null,
@@ -416,9 +416,9 @@ class QProfileRuleImplIT {
   @Test
   void ignore_parameters_when_activating_custom_rule() {
     RuleDto templateRule = db.rules().insert(r -> r.setIsTemplate(true));
-    RuleParamDto templateParam = db.rules().insertRuleParam(templateRule, p -> p.setName("format"));
+    db.rules().insertRuleParam(templateRule, p -> p.setName("format"));
     RuleDto customRule = db.rules().insert(newCustomRule(templateRule));
-    RuleParamDto customParam = db.rules().insertRuleParam(customRule, p -> p.setName("format").setDefaultValue("txt"));
+    db.rules().insertRuleParam(customRule, p -> p.setName("format").setDefaultValue("txt"));
     QProfileDto profile = createProfile(customRule);
 
     // initial activation

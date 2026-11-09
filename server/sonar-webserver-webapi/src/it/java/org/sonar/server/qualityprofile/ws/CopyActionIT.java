@@ -94,7 +94,6 @@ public class CopyActionIT {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setKee("old")
       .setLanguage("Java")
       .setParentKee(parent.getKee()));
-    String profileUuid = profile.getRulesProfileUuid();
 
     String response = tester.newRequest()
       .setMethod("POST")

@@ -356,7 +356,7 @@ public class UnsetActionIT {
   @Test
   public void do_not_throw_IAE_if_unset_project_NCD_and_instance_NCD_compliant() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
+    db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     db.newCodePeriods().insert(null, null, NewCodePeriodType.PREVIOUS_VERSION, null);
     db.newCodePeriods().insert(project.getUuid(), null, NewCodePeriodType.PREVIOUS_VERSION, null);
 
@@ -371,7 +371,7 @@ public class UnsetActionIT {
   @Test
   public void do_not_throw_IAE_if_unset_project_NCD_and_instance_NCD_not_compliant_and_no_project_NCD() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    BranchDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
+    db.components().insertProjectBranch(project, b -> b.setKey("branch"));
     db.newCodePeriods().insert(null, null, NewCodePeriodType.NUMBER_OF_DAYS, "93");
 
     logInAsProjectAdministrator(project);

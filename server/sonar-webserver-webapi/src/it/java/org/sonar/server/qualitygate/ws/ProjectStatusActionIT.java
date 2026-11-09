@@ -302,7 +302,6 @@ public class ProjectStatusActionIT {
   @Test
   public void return_undefined_status_if_project_is_not_analyzed() {
     ProjectData projectData = db.components().insertPrivateProject();
-    ComponentDto mainBranch = projectData.getMainBranchComponent();
     userSession.addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
 
     ProjectStatusResponse result = ws.newRequest()
@@ -412,7 +411,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void fail_if_project_id_and_ce_task_id_provided() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    db.components().insertPrivateProject().getMainBranchComponent();
     logInAsSystemAdministrator();
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -425,7 +424,7 @@ public class ProjectStatusActionIT {
 
   @Test
   public void fail_if_branch_key_and_pull_request_id_provided() {
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
+    db.components().insertPrivateProject().getMainBranchComponent();
     logInAsSystemAdministrator();
 
     assertThatThrownBy(() -> ws.newRequest()
@@ -453,7 +452,7 @@ public class ProjectStatusActionIT {
     ComponentDto mainBranch = projectData.getMainBranchComponent();
     userSession.logIn().addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
     ComponentDto branch = db.components().insertProjectBranch(mainBranch);
-    SnapshotDto snapshot = db.components().insertSnapshot(branch);
+    db.components().insertSnapshot(branch);
 
     assertThatThrownBy(() -> ws.newRequest()
       .setParam("projectId", branch.uuid())

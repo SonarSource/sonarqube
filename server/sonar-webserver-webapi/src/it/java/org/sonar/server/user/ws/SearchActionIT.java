@@ -198,7 +198,7 @@ public class SearchActionIT {
 
   @Test
   public void search_whenFilteringByManagedAndInstanceManaged_returnsCorrectResults() {
-    UserDto nonManagedUser = db.users().insertUser(u -> u.setEmail("john@doe.com"));
+    db.users().insertUser(u -> u.setEmail("john@doe.com"));
     UserDto managedUser = db.users().insertUser(u -> u.setEmail("externalUser@doe.com"));
     db.users().enableScimForUser(managedUser);
     mockUsersAsManaged(managedUser.getUuid());

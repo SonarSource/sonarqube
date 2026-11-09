@@ -181,7 +181,7 @@ class InheritanceActionIT {
   void handle_whenNoRulesActivated_shouldReturnExpectedInactivateRulesForLanguage() throws IOException {
     String language = "java";
     QProfileDto qualityProfile = db.qualityProfiles().insert(p -> p.setLanguage(language));
-    RuleDto rule = db.rules().insert(r -> r.setLanguage(language));
+    db.rules().insert(r -> r.setLanguage(language));
 
     InputStream response = ws.newRequest()
       .setMediaType(PROTOBUF)

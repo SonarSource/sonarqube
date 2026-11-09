@@ -33,10 +33,8 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ProjectData;
 import org.sonar.db.component.ProjectLinkDto;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.portfolio.PortfolioDto;
 import org.sonar.db.project.ProjectDto;
@@ -88,8 +86,8 @@ public class SearchMyProjectsActionIT {
     db.projectLinks().insertProvidedLink(jdk7.getProjectDto(), l -> l.setHref("http://download.java.net/openjdk/jdk8/").setType(ProjectLinkDto.TYPE_SOURCES).setName("Sources"));
     long oneTime = DateUtils.parseDateTime("2016-06-10T13:17:53+0000").getTime();
     long anotherTime = DateUtils.parseDateTime("2016-06-11T14:25:53+0000").getTime();
-    SnapshotDto jdk7Snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(jdk7.getMainBranchDto()).setCreatedAt(oneTime));
-    SnapshotDto cLangSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(cLang.getMainBranchDto()).setCreatedAt(anotherTime));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(jdk7.getMainBranchDto()).setCreatedAt(oneTime));
+    dbClient.snapshotDao().insert(dbSession, newAnalysis(cLang.getMainBranchDto()).setCreatedAt(anotherTime));
     dbClient.measureDao().insert(dbSession, newMeasure(jdk7.getMainBranchDto(), alertStatusMetric, Level.ERROR.name()));
     dbClient.measureDao().insert(dbSession, newMeasure(cLang.getMainBranchDto(), alertStatusMetric, Level.OK.name()));
     db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, jdk7.getProjectDto());
@@ -188,7 +186,7 @@ public class SearchMyProjectsActionIT {
   @Test
   public void does_not_return_branches() {
     ProjectData project = db.components().insertPublicProject();
-    BranchDto branch = db.components().insertProjectBranch(project.getProjectDto());
+    db.components().insertProjectBranch(project.getProjectDto());
     db.users().insertProjectPermissionOnUser(user, ProjectPermission.ADMIN, project.getProjectDto());
 
     SearchMyProjectsWsResponse result = callWs();

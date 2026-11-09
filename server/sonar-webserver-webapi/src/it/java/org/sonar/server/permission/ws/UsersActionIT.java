@@ -77,7 +77,7 @@ public class UsersActionIT extends BasePermissionWsIT<UsersAction> {
   @Test
   public void search_for_users_with_response_example() {
     UserDto user1 = db.users().insertUser(newUserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
-    UserDto user2 = db.users().insertUser(newUserDto().setLogin("adam.west").setName("Adam West").setEmail("adamwest@adamwest.com"));
+    db.users().insertUser(newUserDto().setLogin("adam.west").setName("Adam West").setEmail("adamwest@adamwest.com"));
     UserDto user3 = db.users().insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
     db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.ADMINISTER_QUALITY_PROFILES);
     db.users().insertGlobalPermissionOnUser(user1, GlobalPermission.ADMINISTER);

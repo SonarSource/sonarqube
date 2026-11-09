@@ -45,7 +45,7 @@ public class ProjectFinderIT {
   public void selected_projects() {
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
-    ProjectDto project3 = db.components().insertPrivateProject().getProjectDto();
+    db.components().insertPrivateProject();
     userSession.addProjectPermission(SCAN, project1, project2);
     List<Project> projects = underTest.search(db.getSession(), "").getProjects();
 

@@ -74,7 +74,7 @@ public class SearchUsersActionIT {
     ws = new WsActionTester(new SearchUsersAction(db.getDbClient(), wsSupport, avatarResolver));
     QualityGateDto gate = db.qualityGates().insertQualityGate();
     UserDto user1 = db.users().insertUser(u -> u.setLogin("admin").setName("Administrator").setEmail("admin@email.com"));
-    UserDto user2 = db.users().insertUser(u -> u.setLogin("george.orwell").setName("George Orwell").setEmail("george@orwell.com"));
+    db.users().insertUser(u -> u.setLogin("george.orwell").setName("George Orwell").setEmail("george@orwell.com"));
     db.qualityGates().addUserPermission(gate, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
 
@@ -112,7 +112,7 @@ public class SearchUsersActionIT {
   public void search_selected_users() {
     QualityGateDto gate = db.qualityGates().insertQualityGate();
     UserDto user1 = db.users().insertUser();
-    UserDto user2 = db.users().insertUser();
+    db.users().insertUser();
     db.qualityGates().addUserPermission(gate, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
 
@@ -148,7 +148,7 @@ public class SearchUsersActionIT {
   public void search_by_login() {
     QualityGateDto gate = db.qualityGates().insertQualityGate();
     UserDto user1 = db.users().insertUser();
-    UserDto user2 = db.users().insertUser();
+    db.users().insertUser();
     db.qualityGates().addUserPermission(gate, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
 
@@ -166,7 +166,7 @@ public class SearchUsersActionIT {
   public void search_by_name() {
     QualityGateDto gate = db.qualityGates().insertQualityGate();
     UserDto user1 = db.users().insertUser(u -> u.setName("John Doe"));
-    UserDto user2 = db.users().insertUser(u -> u.setName("Jane Doe"));
+    db.users().insertUser(u -> u.setName("Jane Doe"));
     UserDto user3 = db.users().insertUser(u -> u.setName("John Smith"));
     db.qualityGates().addUserPermission(gate, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
@@ -282,7 +282,7 @@ public class SearchUsersActionIT {
 
   @Test
   public void fail_when_quality_gate_does_not_exist() {
-    UserDto user = db.users().insertUser();
+    db.users().insertUser();
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
 
     TestRequest request = ws.newRequest().setParam(PARAM_GATE_NAME, "unknown");
@@ -296,7 +296,7 @@ public class SearchUsersActionIT {
   @Test
   public void fail_when_not_enough_permission() {
     QualityGateDto gate = db.qualityGates().insertQualityGate();
-    UserDto user = db.users().insertUser();
+    db.users().insertUser();
     userSession.logIn(db.users().insertUser());
 
     TestRequest request = ws.newRequest().setParam(PARAM_GATE_NAME, gate.getName());

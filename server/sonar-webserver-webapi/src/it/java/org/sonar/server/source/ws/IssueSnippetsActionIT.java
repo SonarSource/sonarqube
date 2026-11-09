@@ -186,7 +186,7 @@ public class IssueSnippetsActionIT {
 
   @Test
   public void fail_if_parameter_missing() {
-    ComponentDto file = insertFile(mainBranchComponent, "file");
+    insertFile(mainBranchComponent, "file");
     userSession.logIn().addProjectPermission(CODEVIEWER, project.getProjectDto());
 
     var request = actionTester.newRequest();

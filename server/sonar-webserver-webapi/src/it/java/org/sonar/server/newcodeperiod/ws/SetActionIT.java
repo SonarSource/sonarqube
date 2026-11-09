@@ -230,7 +230,7 @@ public class SetActionIT {
     ProjectDto project = projectData.getProjectDto();
     ComponentDto branch = db.components().insertProjectBranch(projectData.getMainBranchComponent(), b -> b.setKey("branch"));
 
-    SnapshotDto analysisMaster = db.components().insertSnapshot(project);
+    db.components().insertSnapshot(project);
     SnapshotDto analysisBranch = db.components().insertSnapshot(branch);
 
     logInAsProjectAdministrator(project);
@@ -409,7 +409,7 @@ public class SetActionIT {
     ProjectDto project = projectData.getProjectDto();
     ComponentDto branch = db.components().insertProjectBranch(projectData.getMainBranchComponent(), b -> b.setKey("branch"));
 
-    SnapshotDto analysisMaster = db.components().insertSnapshot(project);
+    db.components().insertSnapshot(project);
     SnapshotDto analysisBranch = db.components().insertSnapshot(branch);
 
     logInAsProjectAdministrator(project);
@@ -430,7 +430,7 @@ public class SetActionIT {
     ProjectDto project = projectData.getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(projectData.getProjectDto(), b -> b.setKey("branch"));
 
-    SnapshotDto analysisMaster = db.components().insertSnapshot(project);
+    db.components().insertSnapshot(project);
     SnapshotDto analysisBranch = db.components().insertSnapshot(branch);
 
     logInAsProjectAdministrator(project);

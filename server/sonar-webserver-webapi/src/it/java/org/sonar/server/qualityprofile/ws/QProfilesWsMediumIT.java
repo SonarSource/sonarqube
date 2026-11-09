@@ -369,7 +369,7 @@ class QProfilesWsMediumIT {
   void bulk_activate_rule_by_query_with_severity() {
     QProfileDto profile = createProfile("java");
     RuleDto rule0 = createRule(profile.getLanguage(), "toto");
-    RuleDto rule1 = createRule(profile.getLanguage(), "tata");
+    createRule(profile.getLanguage(), "tata");
     dbSession.commit();
 
     // 0. Assert No Active Rule for profile

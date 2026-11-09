@@ -160,7 +160,7 @@ public class DeleteConditionActionIT {
     userSession.addPermission(ADMINISTER_QUALITY_PROFILES);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     MetricDto metric = db.measures().insertMetric();
-    QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
+    db.qualityGates().addCondition(qualityGate, metric);
     String unknownConditionUuid = "unknown";
 
     assertThatThrownBy(() -> ws.newRequest()

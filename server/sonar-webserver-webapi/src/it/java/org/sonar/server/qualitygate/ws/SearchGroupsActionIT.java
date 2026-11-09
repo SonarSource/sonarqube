@@ -70,7 +70,7 @@ public class SearchGroupsActionIT {
   public void test_example() {
     QualityGateDto gate = db.qualityGates().insertQualityGate();
     GroupDto group1 = db.users().insertGroup(newGroupDto().setName("users").setDescription("Users"));
-    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("administrators").setDescription("Administrators"));
+    db.users().insertGroup(newGroupDto().setName("administrators").setDescription("Administrators"));
     db.qualityGates().addGroupPermission(gate, group1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
 
@@ -109,7 +109,7 @@ public class SearchGroupsActionIT {
   public void search_selected_groups() {
     QualityGateDto gate = db.qualityGates().insertQualityGate();
     GroupDto group1 = db.users().insertGroup();
-    GroupDto group2 = db.users().insertGroup();
+    db.users().insertGroup();
     db.qualityGates().addGroupPermission(gate, group1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
 

@@ -112,7 +112,7 @@ public class BulkDeleteActionIT {
     ProjectDto project1ToDelete = projectData1ToDelete.getProjectDto();
     ProjectData projectData2ToDelete = db.components().insertPrivateProject();
     ProjectDto project2ToDelete = projectData2ToDelete.getProjectDto();
-    ComponentDto toKeep = db.components().insertPrivateProject().getMainBranchComponent();
+    db.components().insertPrivateProject();
 
     TestResponse result = ws.newRequest()
       .setParam(PARAM_PROJECTS, project1ToDelete.getKey() + "," + project2ToDelete.getKey())
@@ -150,7 +150,7 @@ public class BulkDeleteActionIT {
     userSession.addPermission(ADMINISTER);
     ProjectData toDeleteInOrg1 = db.components().insertPrivateProject();
     ProjectData toDeleteInOrg2 = db.components().insertPrivateProject();
-    ComponentDto toKeep = db.components().insertPrivateProject().getMainBranchComponent();
+    db.components().insertPrivateProject();
 
     ws.newRequest()
       .setParam(PARAM_PROJECTS, toDeleteInOrg1.getProjectDto().getKey() + "," + toDeleteInOrg2.getProjectDto().getKey())
@@ -163,7 +163,7 @@ public class BulkDeleteActionIT {
   @Test
   public void throw_IllegalArgumentException_if_request_without_any_parameters() {
     userSession.addPermission(ADMINISTER);
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    db.components().insertPrivateProject();
 
     try {
       TestRequest request = ws.newRequest();
@@ -199,7 +199,6 @@ public class BulkDeleteActionIT {
     ProjectDto oldProject = oldProjectData.getProjectDto();
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(oldProjectData.getMainBranchComponent()).setCreatedAt(aLongTimeAgo));
     ProjectData recentProjectData = db.components().insertPublicProject();
-    ProjectDto recentProject = recentProjectData.getProjectDto();
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(recentProjectData.getMainBranchComponent()).setCreatedAt(aLongTimeAgo));
     ComponentDto branch = db.components().insertProjectBranch(recentProjectData.getMainBranchComponent());
     db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(branch).setCreatedAt(recentTime));
@@ -260,7 +259,7 @@ public class BulkDeleteActionIT {
     userSession.logIn().addPermission(ADMINISTER);
     ProjectData matchKeyProject = db.components().insertPrivateProject(p -> p.setKey("project-_%-key"));
     ProjectData matchUppercaseKeyProject = db.components().insertPrivateProject(p -> p.setKey("PROJECT-_%-KEY"));
-    ProjectDto noMatchProject = db.components().insertPrivateProject(p -> p.setKey("project-key-without-escaped-characters")).getProjectDto();
+    db.components().insertPrivateProject(p -> p.setKey("project-key-without-escaped-characters"));
 
     ws.newRequest().setParam(Param.TEXT_QUERY, "JeCt-_%-k").execute();
 

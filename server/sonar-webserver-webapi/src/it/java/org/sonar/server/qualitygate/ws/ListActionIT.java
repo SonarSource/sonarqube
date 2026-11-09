@@ -193,7 +193,7 @@ class ListActionIT {
 
   @Test
   void no_default_quality_gate() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    db.qualityGates().insertQualityGate();
 
     assertThatThrownBy(() -> ws.newRequest()
       .executeProtobuf(ListWsResponse.class))

@@ -118,7 +118,7 @@ public class SearchActionIT {
     ProjectDto project1 = db.components().insertPrivateProject().getProjectDto();
     ProjectDto project2 = db.components().insertPrivateProject().getProjectDto();
     ProjectLinkDto link1 = db.projectLinks().insertCustomLink(project1);
-    ProjectLinkDto link2 = db.projectLinks().insertCustomLink(project2);
+    db.projectLinks().insertCustomLink(project2);
     userSession.addProjectPermission(USER, project1);
     userSession.addProjectPermission(USER, project2);
 

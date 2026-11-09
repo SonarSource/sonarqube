@@ -93,7 +93,6 @@ public class RenameActionIT {
       .setLanguage("xoo")
       .setName("Invalid, duplicated name");
     db.qualityProfiles().insert(qualityProfile2);
-    String qualityProfileKey2 = qualityProfile2.getKee();
 
     assertThatThrownBy(() -> {
       call(qualityProfileKey1, "Invalid, duplicated name");

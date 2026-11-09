@@ -234,7 +234,7 @@ class RegisterQualityProfilesNotificationIT {
     RuleDto newRule = db.rules().insert(r -> r.setLanguage(language));
 
     QProfileDto builtInQProfileDto = insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
-    QProfileDto childQProfileDto = insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInQProfileDto.getKee()));
+    insertProfile(orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInQProfileDto.getKee()));
     addPluginProfile(builtInQProfileDto, newRule);
     builtInQProfileRepositoryRule.initialize();
 

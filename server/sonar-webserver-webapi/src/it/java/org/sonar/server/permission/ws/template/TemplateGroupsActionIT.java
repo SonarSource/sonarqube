@@ -165,7 +165,7 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
   public void search_by_template_name() {
     GroupDto group1 = db.users().insertGroup("group-1-name");
     GroupDto group2 = db.users().insertGroup("group-2-name");
-    GroupDto group3 = db.users().insertGroup("group-3-name");
+    db.users().insertGroup("group-3-name");
 
     PermissionTemplateDto template = addTemplate();
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), group1.getUuid()), template.getName());
@@ -206,8 +206,8 @@ public class TemplateGroupsActionIT extends BasePermissionWsIT<TemplateGroupsAct
     PermissionTemplateDto template = addTemplate();
     GroupDto group1 = db.users().insertGroup("group-1-name");
     addGroupToTemplate(newPermissionTemplateGroup(USER, template.getUuid(), group1.getUuid()), template.getName());
-    GroupDto group2 = db.users().insertGroup("group-2-name");
-    GroupDto group3 = db.users().insertGroup("group-3");
+    db.users().insertGroup("group-2-name");
+    db.users().insertGroup("group-3");
     loginAsAdmin();
 
     WsGroupsResponse response = newRequest()
