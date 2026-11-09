@@ -779,6 +779,58 @@ class CeQueueDaoIT {
     assertThat(eligible).map(CeTaskDtoLight::getCeTaskUuid).contains(TASK_UUID_2);
   }
 
+  @Test
+  void tryToPeekIfEntityHasNoTaskInProgress_peeksTask_whenEntityHasNoTaskInProgress() {
+    insertTask(TASK_UUID_1, ENTITY_UUID_1, PENDING, 1L);
+    insertTask(TASK_UUID_2, ENTITY_UUID_1, PENDING, 2L);
+    insertTask(TASK_UUID_3, ENTITY_UUID_2, IN_PROGRESS, 3L);
+
+    Optional<CeQueueDto> peeked = underTest.tryToPeekIfEntityHasNoTaskInProgress(db.getSession(), TASK_UUID_1, WORKER_UUID_1);
+
+    assertThat(peeked).isPresent();
+    assertThat(peeked.get().getStatus()).isEqualTo(IN_PROGRESS);
+    assertThat(peeked.get().getWorkerUuid()).isEqualTo(WORKER_UUID_1);
+    assertThat(peeked.get().getStartedAt()).isEqualTo(INIT_TIME);
+  }
+
+  @Test
+  void tryToPeekIfEntityHasNoTaskInProgress_peeksTaskWithoutEntity_whenOtherTaskWithoutEntityIsInProgress() {
+    insertTask(TASK_UUID_1, null, IN_PROGRESS, 1L);
+    insertTask(TASK_UUID_2, null, PENDING, 2L);
+
+    Optional<CeQueueDto> peeked = underTest.tryToPeekIfEntityHasNoTaskInProgress(db.getSession(), TASK_UUID_2, WORKER_UUID_1);
+
+    assertThat(peeked).map(CeQueueDto::getStatus).contains(IN_PROGRESS);
+  }
+
+  @Test
+  void tryToPeekIfEntityHasNoTaskInProgress_doesNotPeekTask_whenOtherTaskOfSameEntityWasPeekedInTheMeantime() {
+    insertTask(TASK_UUID_1, ENTITY_UUID_1, PENDING, 1L);
+    insertTask(TASK_UUID_2, ENTITY_UUID_1, PENDING, 2L);
+    assertThat(underTest.tryToPeekIfEntityHasNoTaskInProgress(db.getSession(), TASK_UUID_1, WORKER_UUID_1)).isPresent();
+    Optional<CeQueueDto> peekedByWorker2 = underTest.tryToPeekIfEntityHasNoTaskInProgress(db.getSession(), TASK_UUID_2, WORKER_UUID_2);
+
+    assertThat(peekedByWorker2).isEmpty();
+    assertThat(underTest.selectByUuid(db.getSession(), TASK_UUID_2)).map(CeQueueDto::getStatus).contains(PENDING);
+  }
+
+  @Test
+  void tryToPeekIfEntityHasNoTaskInProgress_doesNotPeekTask_whenTaskIsNotPending() {
+    insertTask(TASK_UUID_1, ENTITY_UUID_1, IN_PROGRESS, 1L);
+
+    assertThat(underTest.tryToPeekIfEntityHasNoTaskInProgress(db.getSession(), TASK_UUID_1, WORKER_UUID_2)).isEmpty();
+  }
+
+  @Test
+  void tryToPeek_peeksTask_whenOtherTaskOfSameEntityIsInProgress() {
+    insertTask(TASK_UUID_1, ENTITY_UUID_1, IN_PROGRESS, 1L);
+    insertTask(TASK_UUID_2, ENTITY_UUID_1, PENDING, 2L);
+
+    Optional<CeQueueDto> peeked = underTest.tryToPeek(db.getSession(), TASK_UUID_2, WORKER_UUID_1);
+
+    assertThat(peeked).map(CeQueueDto::getStatus).contains(IN_PROGRESS);
+  }
+
   private void insertTask(String uuid, @Nullable String entityUuid, CeQueueDto.Status status, long createdAt) {
     insertPending(newCeQueueDto(uuid)
       .setEntityUuid(entityUuid)

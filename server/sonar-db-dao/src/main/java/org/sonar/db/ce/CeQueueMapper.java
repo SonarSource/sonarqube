@@ -90,6 +90,10 @@ public interface CeQueueMapper {
     @Param("new") UpdateIf.NewProperties newProperties,
     @Param("old") UpdateIf.OldProperties oldProperties);
 
+  int updateIfEntityHasNoTaskInProgress(@Param("uuid") String uuid,
+    @Param("new") UpdateIf.NewProperties newProperties,
+    @Param("old") UpdateIf.OldProperties oldProperties);
+
   int deleteByUuid(@Param("uuid") String uuid, @Nullable @Param("deleteIf") DeleteIf deleteIf);
 
   boolean hasAnyIssueSyncTaskPendingOrInProgress();

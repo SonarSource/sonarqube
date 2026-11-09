@@ -176,6 +176,22 @@ public class CeQueueDao implements Dao {
     int touchedRows = mapper(session).updateIf(eligibleTaskUuid,
       new UpdateIf.NewProperties(IN_PROGRESS, workerUuid, now, now),
       new UpdateIf.OldProperties(PENDING));
+    return selectPeekedTask(session, eligibleTaskUuid, touchedRows);
+  }
+
+  /**
+   * Same as {@link #tryToPeek(DbSession, String, String)}, but does not peek the task if another task of the same entity
+   * is no longer pending.
+   */
+  public Optional<CeQueueDto> tryToPeekIfEntityHasNoTaskInProgress(DbSession session, String eligibleTaskUuid, String workerUuid) {
+    long now = system2.now();
+    int touchedRows = mapper(session).updateIfEntityHasNoTaskInProgress(eligibleTaskUuid,
+      new UpdateIf.NewProperties(IN_PROGRESS, workerUuid, now, now),
+      new UpdateIf.OldProperties(PENDING));
+    return selectPeekedTask(session, eligibleTaskUuid, touchedRows);
+  }
+
+  private static Optional<CeQueueDto> selectPeekedTask(DbSession session, String eligibleTaskUuid, int touchedRows) {
     if (touchedRows != 1) {
       return Optional.empty();
     }

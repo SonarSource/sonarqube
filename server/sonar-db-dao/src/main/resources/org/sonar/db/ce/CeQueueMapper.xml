@@ -281,6 +281,24 @@
       and status=#{old.status,jdbcType=VARCHAR}
   </update>
 
+  <update id="updateIfEntityHasNoTaskInProgress" parameterType="map">
+    update ce_queue set
+      status=#{new.status,jdbcType=VARCHAR},
+      worker_uuid=#{new.workerUuid,jdbcType=VARCHAR},
+      started_at=#{new.startedAt,jdbcType=BIGINT},
+      updated_at=#{new.updatedAt,jdbcType=BIGINT}
+    where
+      uuid=#{uuid,jdbcType=VARCHAR}
+      and status=#{old.status,jdbcType=VARCHAR}
+      and not exists (
+        select 1
+        from ce_queue cq2
+        where
+          cq2.entity_uuid = ce_queue.entity_uuid
+          and cq2.status &lt;&gt; 'PENDING'
+      )
+  </update>
+
   <delete id="deleteByUuid">
     delete from
       ce_queue

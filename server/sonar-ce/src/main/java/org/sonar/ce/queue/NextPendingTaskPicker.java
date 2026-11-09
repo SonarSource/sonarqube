@@ -38,6 +38,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskDtoLight;
 import org.sonar.db.ce.PrOrBranchTask;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.core.ce.CeTaskCharacteristics.BRANCH;
 import static org.sonar.core.ce.CeTaskCharacteristics.PULL_REQUEST;
 
@@ -65,7 +66,7 @@ public class NextPendingTaskPicker {
 
     eligibleForPeek = ceQueueDao.selectEligibleForPeek(dbSession, !prioritizeAnalysisAndRefresh, prioritizeAnalysisAndRefresh);
     if (eligibleForPeek.isPresent()) {
-      return ceQueueDao.tryToPeek(dbSession, eligibleForPeek.get().getCeTaskUuid(), workerUuid);
+      return ceQueueDao.tryToPeekIfEntityHasNoTaskInProgress(dbSession, eligibleForPeek.get().getCeTaskUuid(), workerUuid);
     }
     return Optional.empty();
   }
@@ -74,11 +75,12 @@ public class NextPendingTaskPicker {
    * priority is always given to the task that is waiting longer - to avoid starvation
    */
   private Optional<CeQueueDto> submitOldest(DbSession session, String workerUuid, @Nullable CeTaskDtoLight eligibleForPeek, @Nullable CeTaskDtoLight eligibleForPeekInParallel) {
-    CeTaskDtoLight oldest = ObjectUtils.min(eligibleForPeek, eligibleForPeekInParallel);
-    Optional<CeQueueDto> ceQueueDto = ceQueueDao.tryToPeek(session, oldest.getCeTaskUuid(), workerUuid);
-    if (!Objects.equals(oldest, eligibleForPeek)) {
-      ceQueueDto.ifPresent(t -> LOG.info("Task [uuid = " + t.getUuid() + "] will be run concurrently with other tasks for the same project"));
+    CeTaskDtoLight oldest = requireNonNull(ObjectUtils.min(eligibleForPeek, eligibleForPeekInParallel));
+    if (Objects.equals(oldest, eligibleForPeek)) {
+      return ceQueueDao.tryToPeekIfEntityHasNoTaskInProgress(session, oldest.getCeTaskUuid(), workerUuid);
     }
+    Optional<CeQueueDto> ceQueueDto = ceQueueDao.tryToPeek(session, oldest.getCeTaskUuid(), workerUuid);
+    ceQueueDto.ifPresent(t -> LOG.info("Task [uuid = {}] will be run concurrently with other tasks for the same project", t.getUuid()));
     return ceQueueDto;
   }
 
