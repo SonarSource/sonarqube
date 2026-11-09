@@ -78,7 +78,7 @@ public class WebIssueStorageIT {
   @Test
   public void load_project_id_from_db() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    db.components().insertComponent(newFileDto(project));
 
     String projectUuid = underTest.project(db.getSession(), new DefaultIssue().setProjectUuid(project.uuid())).uuid();
 

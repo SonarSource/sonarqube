@@ -416,7 +416,7 @@ public class IssueChangeWSSupportIT {
   @UseDataProvider("loadAllOrComments")
   public void newFormattingContext_comments_without_userUuid_or_with_unknown_userUuid_are_not_updatable(Load load) {
     IssueDto issue = dbTester.issues().insertIssue();
-    UserDto user1 = dbTester.users().insertUser();
+    dbTester.users().insertUser();
     String uuid = secure().nextAlphabetic(30);
     IssueChangeDto issueChangeUser1 = newComment(issue);
     IssueChangeDto issueChangeUserUnknown = newComment(issue).setUserUuid(uuid);
@@ -497,7 +497,7 @@ public class IssueChangeWSSupportIT {
   public void formatChangelog_returns_field_diff_details(Load load) {
     IssueDto issue1 = dbTester.issues().insertIssue();
     int createdAt = 2_333_999;
-    IssueChangeDto issueChangeDto = dbTester.issues().insertChange(newFieldChange(issue1)
+    dbTester.issues().insertChange(newFieldChange(issue1)
       .setIssueChangeCreationDate(createdAt)
       .setChangeData(new FieldDiffs()
         .setDiff("f_change_1", "a", "b")

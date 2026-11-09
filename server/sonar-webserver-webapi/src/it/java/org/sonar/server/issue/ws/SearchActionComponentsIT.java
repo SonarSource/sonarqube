@@ -206,10 +206,10 @@ class SearchActionComponentsIT {
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
     db.components().insertSnapshot(project, a -> a.setPeriodDate(parseDateTime("2015-09-03T00:00:00+0100").getTime()));
     RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
-    IssueDto issueAfterLeak = db.issues().insertIssue(rule, project, file, i -> i.setKee(UUID_EXAMPLE_01)
+    db.issues().insertIssue(rule, project, file, i -> i.setKee(UUID_EXAMPLE_01)
       .setIssueCreationDate(parseDateTime("2015-09-04T00:00:00+0100"))
       .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100")));
-    IssueDto issueBeforeLeak = db.issues().insertIssue(rule, project, file, i -> i.setKee(UUID_EXAMPLE_02)
+    db.issues().insertIssue(rule, project, file, i -> i.setKee(UUID_EXAMPLE_02)
       .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
       .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100")));
     allowAnyoneOnProjects(projectData.getProjectDto());
@@ -228,7 +228,7 @@ class SearchActionComponentsIT {
     ComponentDto project = projectData.getMainBranchComponent();
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setKey("FK1"));
     RuleDto rule = db.rules().insertIssueRule(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
-    IssueDto issue = db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
+    db.issues().insertIssue(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
     allowAnyoneOnProjects(projectData.getProjectDto());
     indexIssues();
 

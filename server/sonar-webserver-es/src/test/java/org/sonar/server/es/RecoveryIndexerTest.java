@@ -153,7 +153,7 @@ public class RecoveryIndexerTest {
 
   @Test
   public void recent_records_are_not_recovered() {
-    EsQueueDto item = insertItem(FOO_TYPE, "f1");
+    insertItem(FOO_TYPE, "f1");
 
     SuccessfulFakeIndexer indexer = new SuccessfulFakeIndexer(FOO_TYPE);
     // do not advance in time

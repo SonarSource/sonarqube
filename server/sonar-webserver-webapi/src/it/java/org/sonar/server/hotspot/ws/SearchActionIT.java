@@ -2142,20 +2142,19 @@ class SearchActionIT {
 
     long time = 1577976190000L;
 
-    IssueDto[] hotspots = IntStream.range(0, 3)
-      .mapToObj(i -> {
+    IntStream.range(0, 3)
+      .forEach(i -> {
         RuleKey ruleKey = RuleKey.of("repository-" + i, "rule-" + i);
         RuleDto rule = newRule(SECURITY_HOTSPOT, ruleKey)
           .setSecurityStandards(Sets.newHashSet(SQCategory.WEAK_CRYPTOGRAPHY.getKey()));
-        return insertHotspot(rule, project, fileWithHotspot, issueDto -> issueDto.setKee("hotspot-" + i)
+        insertHotspot(rule, project, fileWithHotspot, issueDto -> issueDto.setKee("hotspot-" + i)
           .setAssigneeUuid("assignee-uuid")
           .setAuthorLogin("joe")
           .setMessage("message-" + i)
           .setLine(10 + i)
           .setIssueCreationTime(time)
           .setIssueUpdateTime(time));
-      })
-      .toArray(IssueDto[]::new);
+      });
     indexIssues();
 
     assertThat(actionTester.getDef().responseExampleAsString()).isNotNull();

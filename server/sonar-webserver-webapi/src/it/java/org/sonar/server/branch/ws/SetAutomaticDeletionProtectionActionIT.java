@@ -137,11 +137,12 @@ public class SetAutomaticDeletionProtectionActionIT {
     db.components().insertProjectBranch(project, b -> b.setKey("branch1").setExcludeFromPurge(false));
     userSession.addProjectPermission(ProjectPermission.ADMIN, project);
 
-    assertThatThrownBy(() -> tester.newRequest()
+    TestRequest request = tester.newRequest()
       .setParam("project", project.getKey())
       .setParam("branch", DEFAULT_MAIN_BRANCH_NAME)
-      .setParam("value", "false")
-      .execute())
+      .setParam("value", "false");
+
+    assertThatThrownBy(request::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("Main branch of the project is always excluded from automatic deletion.");
   }
