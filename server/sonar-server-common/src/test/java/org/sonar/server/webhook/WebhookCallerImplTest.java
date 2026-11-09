@@ -49,6 +49,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
+import static org.sonar.core.config.SecurityProperties.WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY;
 
 public class WebhookCallerImplTest {
 
@@ -201,6 +202,28 @@ public class WebhookCallerImplTest {
     server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", "https://169.254.169.254/latest/meta-data/"));
 
     when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY)).thenReturn(Optional.of(true));
+    WebhookCustomDns dns = spy(new WebhookCustomDns(configuration, networkInterfaceProvider));
+    doReturn(List.of(InetAddress.getLoopbackAddress())).when(dns).lookup(originUrl.host());
+
+    SonarQubeVersion version = new SonarQubeVersion(Version.parse("6.2"));
+    WebhookCaller sender = new WebhookCallerImpl(system, new OkHttpClientProvider().provide(new MapSettings().asConfig(), version), dns);
+    WebhookDelivery delivery = sender.call(webhook, PAYLOAD);
+
+    assertThat(delivery.getHttpStatus()).isEmpty();
+    assertThat(delivery.getError().get()).isInstanceOf(IllegalArgumentException.class);
+    assertThat(delivery.getErrorMessage()).contains(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
+  }
+
+  @Test
+  public void redirects_are_rejected_when_target_is_a_blocked_address_even_if_allow_list_covers_every_address() throws Exception {
+    HttpUrl originUrl = server.url("/redirect");
+    Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
+      secure().nextAlphanumeric(40), "my-webhook", originUrl.toString(), null);
+
+    server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", "https://169.254.169.254/latest/meta-data/"));
+
+    when(configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY)).thenReturn(Optional.of(true));
+    when(configuration.getStringArray(WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY)).thenReturn(new String[] {"0.0.0.0/0", "::/0"});
     WebhookCustomDns dns = spy(new WebhookCustomDns(configuration, networkInterfaceProvider));
     doReturn(List.of(InetAddress.getLoopbackAddress())).when(dns).lookup(originUrl.host());
 

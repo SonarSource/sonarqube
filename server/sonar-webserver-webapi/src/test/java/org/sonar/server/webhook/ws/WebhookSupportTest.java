@@ -43,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.config.SecurityProperties.WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY;
 
 @RunWith(DataProviderRunner.class)
 public class WebhookSupportTest {
@@ -127,6 +128,60 @@ public class WebhookSupportTest {
 
     when(networkInterfaceProvider.getNetworkInterfaceAddresses())
       .thenReturn(List.of(inetAddress));
+    when(configuration.getStringArray(WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY)).thenReturn(new String[0]);
+  }
+
+  @Test
+  @UseDataProvider("siteLocalUrls")
+  public void checkUrlPatternSuccessfulForSiteLocalAddressInAllowList(String url) {
+    when(configuration.getStringArray(WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY)).thenReturn(new String[] {"10.15.15.15", "172.16.16.16", "192.168.0.1"});
+
+    assertThatCode(() -> underTest.checkUrlPattern(url, "msg")).doesNotThrowAnyException();
+  }
+
+  @Test
+  @UseDataProvider("siteLocalUrls")
+  public void checkUrlPatternSuccessfulForSiteLocalAddressInAllowListRange(String url) {
+    when(configuration.getStringArray(WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY)).thenReturn(new String[] {"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"});
+
+    assertThatCode(() -> underTest.checkUrlPattern(url, "msg")).doesNotThrowAnyException();
+  }
+
+  @Test
+  public void checkUrlPatternFailsForSiteLocalAddressOutsideAllowListRange() {
+    when(configuration.getStringArray(WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY)).thenReturn(new String[] {"10.15.16.0/24"});
+
+    assertThatThrownBy(() -> underTest.checkUrlPattern("https://10.15.15.15/some_webhook", "msg"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
+  }
+
+  @Test
+  public void checkUrlPatternFailsForSiteLocalAddressOutsideAllowList() {
+    when(configuration.getStringArray(WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY)).thenReturn(new String[] {"10.15.15.16"});
+
+    assertThatThrownBy(() -> underTest.checkUrlPattern("https://10.15.15.15/some_webhook", "msg"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
+  }
+
+  @DataProvider
+  public static Object[][] nonSiteLocalBlockedUrls() {
+    return Stream.of(loopbackUrls(), linkLocalAndMulticastUrls(), cloudMetadataUrls())
+      .flatMap(Arrays::stream)
+      .toArray(Object[][]::new);
+  }
+
+  @Test
+  @UseDataProvider("nonSiteLocalBlockedUrls")
+  public void checkUrlPatternFailsForNonSiteLocalBlockedAddressEvenIfInAllowList(String url) {
+    when(configuration.getStringArray(WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY)).thenReturn(new String[] {
+      "0.0.0.0", "127.0.0.1", "169.254.169.254", "169.254.0.1", "fe80::1", "224.0.0.1", "fd00:ec2::254", "100.100.100.200", "192.168.1.21",
+      "0.0.0.0/0", "::/0"});
+
+    assertThatThrownBy(() -> underTest.checkUrlPattern(url, "msg"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
   }
 
 
@@ -161,5 +216,14 @@ public class WebhookSupportTest {
       .isInstanceOf(IllegalStateException.class);
 
     verify(networkInterfaceProvider).getNetworkInterfaceAddresses();
+  }
+
+  @Test
+  public void checkUrlPatternFailsForSiteLocalAddressWithoutReadingNetworkInterfacesWhenAllowListIsEmpty() throws SocketException {
+    when(networkInterfaceProvider.getNetworkInterfaceAddresses()).thenThrow(new SocketException());
+
+    assertThatThrownBy(() -> underTest.checkUrlPattern("https://10.15.15.15/some_webhook", "msg"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
   }
 }

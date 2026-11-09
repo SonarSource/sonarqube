@@ -19,10 +19,13 @@
  */
 package org.sonar.core.config;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinition;
 
+import static java.util.Comparator.comparing;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SecurityPropertiesTest {
@@ -49,6 +52,40 @@ public class SecurityPropertiesTest {
       .get()
       .extracting(PropertyDefinition::defaultValue)
       .isEqualTo("false");
+  }
+
+  @Test
+  public void webhooks_allowed_addresses_property_is_displayed_right_after_validate_webhooks_property() {
+    List<String> displayOrder = SecurityProperties.all().stream()
+      .filter(d -> d.subCategory().equals(SecurityProperties.SUBCATEGORY_WEBHOOKS))
+      .sorted(comparing(PropertyDefinition::index).thenComparing(PropertyDefinition::name, String::compareToIgnoreCase))
+      .map(PropertyDefinition::key)
+      .toList();
+
+    int validateWebhooksPosition = displayOrder.indexOf(CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY);
+    assertThat(displayOrder.get(validateWebhooksPosition + 1)).isEqualTo(SecurityProperties.WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY);
+  }
+
+  @Test
+  public void creates_webhooks_allowed_addresses_property_as_empty_multi_valued_security_setting() {
+    Optional<PropertyDefinition> propertyDefinition = SecurityProperties.all().stream()
+      .filter(d -> d.key().equals(SecurityProperties.WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY)).findFirst();
+
+    assertThat(propertyDefinition).isNotEmpty();
+    PropertyDefinition definition = propertyDefinition.get();
+    assertThat(definition.key()).isEqualTo("sonar.validateWebhooks.allowedAddresses");
+    assertThat(definition.multiValues()).isTrue();
+    assertThat(definition.defaultValue()).isEmpty();
+    assertThat(definition.category()).isEqualTo("security");
+    assertThat(definition.global()).isTrue();
+  }
+
+  @Test
+  public void webhooks_properties_are_in_webhooks_subcategory() {
+    assertThat(SecurityProperties.all())
+      .filteredOn(d -> d.subCategory().equals(SecurityProperties.SUBCATEGORY_WEBHOOKS))
+      .extracting(PropertyDefinition::key)
+      .containsExactly(CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY, SecurityProperties.WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY);
   }
 
 }

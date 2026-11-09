@@ -64,7 +64,7 @@ public class WebhookSupport {
 
       if (configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY)
         .orElse(SONAR_VALIDATE_WEBHOOKS_DEFAULT_VALUE)
-        && WebhookAddressValidator.isBlockedAddress(address, networkInterfaceProvider)) {
+        && WebhookAddressValidator.isBlockedAddress(address, networkInterfaceProvider, configuration)) {
         throw new IllegalArgumentException(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
       }
     } catch (UnknownHostException e) {

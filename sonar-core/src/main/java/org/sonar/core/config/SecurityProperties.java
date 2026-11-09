@@ -35,6 +35,8 @@ import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
 public final class SecurityProperties {
 
   public static final String SECRET_SOURCE_REDACTION_ENABLED = "sonar.security.secretSourceRedaction.enabled";
+  public static final String WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY = "sonar.validateWebhooks.allowedAddresses";
+  public static final String SUBCATEGORY_WEBHOOKS = "webhooks";
 
   private SecurityProperties() {
     // only static stuff
@@ -65,10 +67,24 @@ public final class SecurityProperties {
         .defaultValue(Boolean.toString(SONAR_VALIDATE_WEBHOOKS_DEFAULT_VALUE))
         .name("Enable local webhooks validation")
         .description(
-          "Forcing local webhooks validation prevents the creation and triggering of local webhooks"
-            + "<br><strong>Disabling this setting can expose the instance to security risks.</strong>")
+          "Local webhooks validation blocks webhooks that send requests to local network addresses. "
+            + "Keep it enabled and add the private network addresses that your webhooks must reach to Allowed addresses. "
+            + "Disable it only if that is not enough.")
         .type(PropertyType.BOOLEAN)
         .category(CATEGORY_SECURITY)
+        .subCategory(SUBCATEGORY_WEBHOOKS)
+        .build(),
+      PropertyDefinition.builder(WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY)
+        .name("Allowed addresses")
+        .description("When local webhooks validation is enabled, webhooks can reach the private network addresses listed here. "
+          + "Enter one IP address or CIDR range per entry, for example 10.0.0.12 or 10.20.0.0/16. "
+          + "Hostnames are not supported, and an entry that is not a valid IP address or CIDR range is ignored. "
+          + "Loopback, wildcard, link-local, multicast, cloud metadata addresses and addresses of the SonarQube server itself are always blocked.")
+        .type(PropertyType.STRING)
+        .multiValues(true)
+        .index(1000)
+        .category(CATEGORY_SECURITY)
+        .subCategory(SUBCATEGORY_WEBHOOKS)
         .build(),
       PropertyDefinition.builder(SECRET_SOURCE_REDACTION_ENABLED)
         .defaultValue(Boolean.toString(false))

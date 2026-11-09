@@ -52,7 +52,7 @@ public class WebhookCustomDns implements Dns {
     InetAddress address = InetAddress.getByName(host);
     if (configuration.getBoolean(SONAR_VALIDATE_WEBHOOKS_PROPERTY).orElse(SONAR_VALIDATE_WEBHOOKS_DEFAULT_VALUE)) {
       try {
-        if (WebhookAddressValidator.isBlockedAddress(address, networkInterfaceProvider)) {
+        if (WebhookAddressValidator.isBlockedAddress(address, networkInterfaceProvider, configuration)) {
           throw new IllegalArgumentException(WebhookAddressValidator.INVALID_ADDRESS_MESSAGE);
         }
       } catch (SocketException e) {
