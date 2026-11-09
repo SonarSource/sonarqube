@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectexport.branches;
 
-import com.google.common.collect.ImmutableList;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.Date;
 import java.util.List;
@@ -60,7 +59,7 @@ public class ExportBranchesStepIT {
   private final ProjectHolder projectHolder = mock(ProjectHolder.class);
   private final FakeDumpWriter dumpWriter = new FakeDumpWriter();
   private final ExportBranchesStep underTest = new ExportBranchesStep(dumpWriter, dbTester.getDbClient(), projectHolder);
-  private final List<BranchDto> branches = ImmutableList.of(
+  private final List<BranchDto> branches = List.of(
     new BranchDto()
       .setBranchType(BranchType.BRANCH)
       .setProjectUuid(PROJECT_UUID)

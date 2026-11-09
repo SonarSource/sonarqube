@@ -276,7 +276,7 @@ public class CeQueueImplIT {
     CeTaskSubmit taskSubmit = createTaskSubmit("no_component");
     CeQueueDto dto = insertPendingInQueue(null);
 
-    List<CeTask> tasks = underTest.massSubmit(of(taskSubmit), UNIQUE_QUEUE_PER_ENTITY);
+    List<CeTask> tasks = underTest.massSubmit(List.of(taskSubmit), UNIQUE_QUEUE_PER_ENTITY);
 
     assertThat(tasks).hasSize(1);
     assertThat(db.getDbClient().ceQueueDao().selectAllInAscOrder(db.getSession()))
@@ -291,7 +291,7 @@ public class CeQueueImplIT {
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
     CeQueueDto dto = insertPendingInQueue(newComponent(otherMainComponentUuid));
 
-    List<CeTask> tasks = underTest.massSubmit(of(taskSubmit), UNIQUE_QUEUE_PER_ENTITY);
+    List<CeTask> tasks = underTest.massSubmit(List.of(taskSubmit), UNIQUE_QUEUE_PER_ENTITY);
 
     assertThat(tasks).hasSize(1);
     assertThat(db.getDbClient().ceQueueDao().selectAllInAscOrder(db.getSession()))
@@ -305,7 +305,7 @@ public class CeQueueImplIT {
     CeTaskSubmit taskSubmit = createTaskSubmit("with_component", newComponent(mainComponentUuid), null);
     CeQueueDto dto = insertPendingInQueue(newComponent(mainComponentUuid));
 
-    List<CeTask> tasks = underTest.massSubmit(of(taskSubmit), UNIQUE_QUEUE_PER_ENTITY);
+    List<CeTask> tasks = underTest.massSubmit(List.of(taskSubmit), UNIQUE_QUEUE_PER_ENTITY);
 
     assertThat(tasks).isEmpty();
     assertThat(db.getDbClient().ceQueueDao().selectAllInAscOrder(db.getSession()))
@@ -322,7 +322,7 @@ public class CeQueueImplIT {
       .map(CeQueueDto::getUuid)
       .toArray(String[]::new);
 
-    List<CeTask> tasks = underTest.massSubmit(of(taskSubmit), UNIQUE_QUEUE_PER_ENTITY);
+    List<CeTask> tasks = underTest.massSubmit(List.of(taskSubmit), UNIQUE_QUEUE_PER_ENTITY);
 
     assertThat(tasks).isEmpty();
     assertThat(db.getDbClient().ceQueueDao().selectAllInAscOrder(db.getSession()))
@@ -384,7 +384,7 @@ public class CeQueueImplIT {
     CeTaskSubmit taskSubmit5 = createTaskSubmit("with_pending_2", newComponent(mainComponentUuid5), null);
     CeQueueDto dto5 = insertPendingInQueue(newComponent(mainComponentUuid5));
 
-    List<CeTask> tasks = underTest.massSubmit(of(taskSubmit1, taskSubmit2, taskSubmit3, taskSubmit4, taskSubmit5), UNIQUE_QUEUE_PER_ENTITY);
+    List<CeTask> tasks = underTest.massSubmit(List.of(taskSubmit1, taskSubmit2, taskSubmit3, taskSubmit4, taskSubmit5), UNIQUE_QUEUE_PER_ENTITY);
 
     assertThat(tasks)
       .hasSize(2)

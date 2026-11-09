@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -99,7 +98,7 @@ public class PersistAnalysisPropertiesStepIT {
   @Test
   public void persist_filtering_of_properties_is_case_sensitive() {
     when(analysisMetadataHolder.getScmRevision()).thenReturn(Optional.of(SCM_REV_ID));
-    when(scannerReportReader.readContextProperties()).thenReturn(CloseableIterator.from(ImmutableList.of(
+    when(scannerReportReader.readContextProperties()).thenReturn(CloseableIterator.from(List.of(
       newContextProperty("sonar.ANALYSIS.foo", "foo"),
       newContextProperty("sonar.anaLysis.bar", "bar"),
       newContextProperty("sonar.anaLYSIS.doo", "doh"),

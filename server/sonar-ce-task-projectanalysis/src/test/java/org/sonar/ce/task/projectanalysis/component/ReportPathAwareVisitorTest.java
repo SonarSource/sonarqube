@@ -24,7 +24,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Test;
 
-import static com.google.common.collect.ImmutableList.of;
+import static java.util.List.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.DIRECTORY;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.FILE;
@@ -52,21 +52,21 @@ public class ReportPathAwareVisitorTest {
     CallRecorderPathAwareVisitor underTest = new CallRecorderPathAwareVisitor(CrawlerDepthLimit.FILE, PRE_ORDER);
     new PathAwareCrawler<>(underTest).visit(SOME_TREE_ROOT);
 
-    Iterator<PathAwareCallRecord> expected = of(
-      newCallRecord("visitAny", 1, null, of(1)),
-      newCallRecord("visitProject", 1, null, of(1)),
-      newCallRecord("visitAny", 11, 1, of(11, 1)),
-      newCallRecord("visitDirectory", 11, 1, of(11, 1)),
-      newCallRecord("visitAny", 111, 11, of(111, 11, 1)),
-      newCallRecord("visitFile", 111, 11, of(111, 11, 1)),
-      newCallRecord("visitAny", 112, 11, of(112, 11, 1)),
-      newCallRecord("visitFile", 112, 11, of(112, 11, 1)),
-      newCallRecord("visitAny", 12, 1, of(12, 1)),
-      newCallRecord("visitDirectory", 12, 1, of(12, 1)),
-      newCallRecord("visitAny", 121, 12, of(121, 12, 1)),
-      newCallRecord("visitDirectory", 121, 12, of(121, 12, 1)),
-      newCallRecord("visitAny", 1211, 121, of(1211, 121, 12, 1)),
-      newCallRecord("visitFile", 1211, 121, of(1211, 121, 12, 1))).iterator();
+    Iterator<PathAwareCallRecord> expected = List.of(
+      newCallRecord("visitAny", 1, null, List.of(1)),
+      newCallRecord("visitProject", 1, null, List.of(1)),
+      newCallRecord("visitAny", 11, 1, List.of(11, 1)),
+      newCallRecord("visitDirectory", 11, 1, List.of(11, 1)),
+      newCallRecord("visitAny", 111, 11, List.of(111, 11, 1)),
+      newCallRecord("visitFile", 111, 11, List.of(111, 11, 1)),
+      newCallRecord("visitAny", 112, 11, List.of(112, 11, 1)),
+      newCallRecord("visitFile", 112, 11, List.of(112, 11, 1)),
+      newCallRecord("visitAny", 12, 1, List.of(12, 1)),
+      newCallRecord("visitDirectory", 12, 1, List.of(12, 1)),
+      newCallRecord("visitAny", 121, 12, List.of(121, 12, 1)),
+      newCallRecord("visitDirectory", 121, 12, List.of(121, 12, 1)),
+      newCallRecord("visitAny", 1211, 121, List.of(1211, 121, 12, 1)),
+      newCallRecord("visitFile", 1211, 121, List.of(1211, 121, 12, 1))).iterator();
     verifyCallRecords(expected, underTest.callsRecords.iterator());
   }
 
@@ -75,15 +75,15 @@ public class ReportPathAwareVisitorTest {
     CallRecorderPathAwareVisitor underTest = new CallRecorderPathAwareVisitor(CrawlerDepthLimit.DIRECTORY, PRE_ORDER);
     new PathAwareCrawler<>(underTest).visit(SOME_TREE_ROOT);
 
-    Iterator<PathAwareCallRecord> expected = of(
-      newCallRecord("visitAny", 1, null, of(1)),
-      newCallRecord("visitProject", 1, null, of(1)),
-      newCallRecord("visitAny", 11, 1, of(11, 1)),
-      newCallRecord("visitDirectory", 11, 1, of(11, 1)),
-      newCallRecord("visitAny", 12, 1, of(12, 1)),
-      newCallRecord("visitDirectory", 12, 1, of(12, 1)),
-      newCallRecord("visitAny", 121, 12, of(121, 12, 1)),
-      newCallRecord("visitDirectory", 121, 12, of(121, 12, 1))).iterator();
+    Iterator<PathAwareCallRecord> expected = List.of(
+      newCallRecord("visitAny", 1, null, List.of(1)),
+      newCallRecord("visitProject", 1, null, List.of(1)),
+      newCallRecord("visitAny", 11, 1, List.of(11, 1)),
+      newCallRecord("visitDirectory", 11, 1, List.of(11, 1)),
+      newCallRecord("visitAny", 12, 1, List.of(12, 1)),
+      newCallRecord("visitDirectory", 12, 1, List.of(12, 1)),
+      newCallRecord("visitAny", 121, 12, List.of(121, 12, 1)),
+      newCallRecord("visitDirectory", 121, 12, List.of(121, 12, 1))).iterator();
     verifyCallRecords(expected, underTest.callsRecords.iterator());
   }
 
@@ -103,21 +103,21 @@ public class ReportPathAwareVisitorTest {
     CallRecorderPathAwareVisitor underTest = new CallRecorderPathAwareVisitor(CrawlerDepthLimit.FILE, POST_ORDER);
     new PathAwareCrawler<>(underTest).visit(SOME_TREE_ROOT);
 
-    Iterator<PathAwareCallRecord> expected = of(
-      newCallRecord("visitAny", 111, 11, of(111, 11, 1)),
-      newCallRecord("visitFile", 111, 11, of(111, 11, 1)),
-      newCallRecord("visitAny", 112, 11, of(112, 11, 1)),
-      newCallRecord("visitFile", 112, 11, of(112, 11, 1)),
-      newCallRecord("visitAny", 11, 1, of(11, 1)),
-      newCallRecord("visitDirectory", 11, 1, of(11, 1)),
-      newCallRecord("visitAny", 1211, 121, of(1211, 121, 12, 1)),
-      newCallRecord("visitFile", 1211, 121, of(1211, 121, 12, 1)),
-      newCallRecord("visitAny", 121, 12, of(121, 12, 1)),
-      newCallRecord("visitDirectory", 121, 12, of(121, 12, 1)),
-      newCallRecord("visitAny", 12, 1, of(12, 1)),
-      newCallRecord("visitDirectory", 12, 1, of(12, 1)),
-      newCallRecord("visitAny", 1, null, of(1)),
-      newCallRecord("visitProject", 1, null, of(1))).iterator();
+    Iterator<PathAwareCallRecord> expected = List.of(
+      newCallRecord("visitAny", 111, 11, List.of(111, 11, 1)),
+      newCallRecord("visitFile", 111, 11, List.of(111, 11, 1)),
+      newCallRecord("visitAny", 112, 11, List.of(112, 11, 1)),
+      newCallRecord("visitFile", 112, 11, List.of(112, 11, 1)),
+      newCallRecord("visitAny", 11, 1, List.of(11, 1)),
+      newCallRecord("visitDirectory", 11, 1, List.of(11, 1)),
+      newCallRecord("visitAny", 1211, 121, List.of(1211, 121, 12, 1)),
+      newCallRecord("visitFile", 1211, 121, List.of(1211, 121, 12, 1)),
+      newCallRecord("visitAny", 121, 12, List.of(121, 12, 1)),
+      newCallRecord("visitDirectory", 121, 12, List.of(121, 12, 1)),
+      newCallRecord("visitAny", 12, 1, List.of(12, 1)),
+      newCallRecord("visitDirectory", 12, 1, List.of(12, 1)),
+      newCallRecord("visitAny", 1, null, List.of(1)),
+      newCallRecord("visitProject", 1, null, List.of(1))).iterator();
     verifyCallRecords(expected, underTest.callsRecords.iterator());
   }
 
@@ -126,15 +126,15 @@ public class ReportPathAwareVisitorTest {
     CallRecorderPathAwareVisitor underTest = new CallRecorderPathAwareVisitor(CrawlerDepthLimit.DIRECTORY, POST_ORDER);
     new PathAwareCrawler<>(underTest).visit(SOME_TREE_ROOT);
 
-    Iterator<PathAwareCallRecord> expected = of(
-      newCallRecord("visitAny", 11, 1, of(11, 1)),
-      newCallRecord("visitDirectory", 11, 1, of(11, 1)),
-      newCallRecord("visitAny", 121, 12, of(121, 12, 1)),
-      newCallRecord("visitDirectory", 121, 12, of(121, 12, 1)),
-      newCallRecord("visitAny", 12, 1, of(12, 1)),
-      newCallRecord("visitDirectory", 12, 1, of(12, 1)),
-      newCallRecord("visitAny", 1, null, of(1)),
-      newCallRecord("visitProject", 1, null, of(1))).iterator();
+    Iterator<PathAwareCallRecord> expected = List.of(
+      newCallRecord("visitAny", 11, 1, List.of(11, 1)),
+      newCallRecord("visitDirectory", 11, 1, List.of(11, 1)),
+      newCallRecord("visitAny", 121, 12, List.of(121, 12, 1)),
+      newCallRecord("visitDirectory", 121, 12, List.of(121, 12, 1)),
+      newCallRecord("visitAny", 12, 1, List.of(12, 1)),
+      newCallRecord("visitDirectory", 12, 1, List.of(12, 1)),
+      newCallRecord("visitAny", 1, null, List.of(1)),
+      newCallRecord("visitProject", 1, null, List.of(1))).iterator();
     verifyCallRecords(expected, underTest.callsRecords.iterator());
   }
 

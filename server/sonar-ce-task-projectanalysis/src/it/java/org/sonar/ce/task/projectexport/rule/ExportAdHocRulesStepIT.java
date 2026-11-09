@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectexport.rule;
 
-import com.google.common.collect.ImmutableList;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.Date;
 import java.util.List;
@@ -61,7 +60,7 @@ import static org.mockito.Mockito.when;
 public class ExportAdHocRulesStepIT {
   private static final long NOW = 1_704_067_200_000L;
   private static final String PROJECT_UUID = "some-uuid";
-  private static final List<BranchDto> BRANCHES = ImmutableList.of(
+  private static final List<BranchDto> BRANCHES = List.of(
     new BranchDto().setBranchType(BranchType.PULL_REQUEST).setProjectUuid(PROJECT_UUID).setKey("pr-1").setUuid("pr-1-uuid").setMergeBranchUuid("master").setIsMain(false),
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(PROJECT_UUID).setKey("branch-2").setUuid("branch-2-uuid").setMergeBranchUuid("master")
       .setExcludeFromPurge(true).setIsMain(false),

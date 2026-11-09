@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectexport.steps;
 
-import com.google.common.collect.ImmutableList;
 import com.sonarsource.governance.projectdump.protobuf.ProjectDump;
 import java.util.Date;
 import java.util.List;
@@ -60,14 +59,14 @@ public class ExportNewCodePeriodsStepIT {
     .setName("another_project")
     .setKey("another_project");
 
-  private static final List<BranchDto> PROJECT_BRANCHES = ImmutableList.of(
+  private static final List<BranchDto> PROJECT_BRANCHES = List.of(
     new BranchDto().setBranchType(BranchType.PULL_REQUEST).setProjectUuid(PROJECT_UUID).setKey("pr-1").setUuid("pr-uuid-1").setMergeBranchUuid("master").setIsMain(false),
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(PROJECT_UUID).setKey("branch-1").setUuid("branch-uuid-1").setMergeBranchUuid("master")
       .setExcludeFromPurge(true).setIsMain(false),
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(PROJECT_UUID).setKey("branch-2").setUuid("branch-uuid-2").setMergeBranchUuid("master")
       .setExcludeFromPurge(false).setIsMain(false));
 
-  private static final List<BranchDto> ANOTHER_PROJECT_BRANCHES = ImmutableList.of(
+  private static final List<BranchDto> ANOTHER_PROJECT_BRANCHES = List.of(
     new BranchDto().setBranchType(BranchType.BRANCH).setProjectUuid(ANOTHER_PROJECT_UUID).setKey("branch-3").setUuid("branch-uuid-3").setMergeBranchUuid("master")
       .setExcludeFromPurge(true).setIsMain(false));
 

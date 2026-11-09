@@ -54,7 +54,6 @@ import org.sonar.ce.task.projectanalysis.qualitygate.QualityGateStatus;
 import org.sonar.db.component.BranchType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
-import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,7 +101,7 @@ public class PostProjectAnalysisTasksExecutorTest {
 
   @Before
   public void setUp() {
-    qualityGateHolder.setQualityGate(new QualityGate(QUALITY_GATE_UUID, QUALITY_GATE_NAME, of(CONDITION_1, CONDITION_2)));
+    qualityGateHolder.setQualityGate(new QualityGate(QUALITY_GATE_UUID, QUALITY_GATE_NAME, List.of(CONDITION_1, CONDITION_2)));
     qualityGateStatusHolder.setStatus(QualityGateStatus.OK, ImmutableMap.of(
       CONDITION_1, ConditionStatus.create(ConditionStatus.EvaluationStatus.OK, "value"),
       CONDITION_2, ConditionStatus.NO_VALUE_STATUS));

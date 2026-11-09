@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.issue;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
@@ -53,7 +52,7 @@ public class ClosedIssuesInputFactoryIT {
 
     verifyNoInteractions(dbClient, issuesLoader);
 
-    List<DefaultIssue> issues = ImmutableList.of(new DefaultIssue(), new DefaultIssue());
+    List<DefaultIssue> issues = List.of(new DefaultIssue(), new DefaultIssue());
     when(issuesLoader.loadClosedScannerIssues(componentUuid)).thenReturn(issues);
 
     assertThat(input.getIssues()).isSameAs(issues);
@@ -71,7 +70,7 @@ public class ClosedIssuesInputFactoryIT {
 
     verifyNoInteractions(dbClient, issuesLoader);
 
-    List<DefaultIssue> issues = ImmutableList.of();
+    List<DefaultIssue> issues = List.of();
     when(issuesLoader.loadClosedScannerIssues(originalComponentUuid)).thenReturn(issues);
 
     assertThat(input.getIssues()).isSameAs(issues);
@@ -87,7 +86,7 @@ public class ClosedIssuesInputFactoryIT {
 
     verifyNoInteractions(dbClient, issuesLoader);
 
-    List<DefaultIssue> issues = ImmutableList.of(new DefaultIssue());
+    List<DefaultIssue> issues = List.of(new DefaultIssue());
     when(issuesLoader.loadClosedScannerIssues(componentUuid)).thenReturn(issues);
 
     assertThat(input.getIssues()).isSameAs(issues);
