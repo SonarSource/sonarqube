@@ -1,0 +1,8 @@
+{
+  "project": {
+    "projectKey": "org.sonarsource.sonarqube:sonarqube-private",
+    "path": ".",
+    "region": "eu",
+    "organization": "sonarsource"
+  }
+}
