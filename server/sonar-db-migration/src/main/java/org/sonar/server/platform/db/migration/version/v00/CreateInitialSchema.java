@@ -579,7 +579,8 @@ public class CreateInitialSchema extends DdlChange {
     } else if ("postgresql".equals(dialectId) || "oracle".equals(dialectId)) {
       context.execute("CREATE INDEX components_lower_kee ON " + tableName + " (LOWER(kee))");
     }
-    // MSSQL support can be added in a future migration if needed
+    // SQL Server indexes a hash of LOWER(kee) in CreateIndexOnComponentsKeeLowerHash.
+    // LOWER(kee) itself is NVARCHAR(1000), past the 1700-byte index key limit.
   }
 
 

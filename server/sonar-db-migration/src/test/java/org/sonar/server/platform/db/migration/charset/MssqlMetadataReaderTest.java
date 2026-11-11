@@ -21,12 +21,16 @@ package org.sonar.server.platform.db.migration.charset;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MssqlMetadataReaderTest {
@@ -34,6 +38,24 @@ public class MssqlMetadataReaderTest {
   private SqlExecutor sqlExecutor = mock(SqlExecutor.class);
   private Connection connection = mock(Connection.class);
   private MssqlMetadataReader underTest = new MssqlMetadataReader(sqlExecutor);
+
+  @Test
+  public void getDependentComputedColumns_readsColumnDependencies() throws SQLException {
+    when(sqlExecutor.select(same(connection), anyString(), any())).thenReturn(List.of());
+    ColumnDef column = new ColumnDef("components", "kee", "Latin1_General", "Latin1_General_CS_AS", "nvarchar", 1000, true);
+
+    assertThat(underTest.getDependentComputedColumns(connection, column)).isEmpty();
+
+    ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+    verify(sqlExecutor).select(same(connection), sql.capture(), any());
+    assertThat(sql.getValue())
+      .contains("sys.dm_sql_referenced_entities")
+      .contains("ref.referencing_minor_id = cc.column_id")
+      .contains("ref.referenced_id = t.object_id")
+      .contains("'components'")
+      .contains("'kee'")
+      .doesNotContain("sys.sql_dependencies");
+  }
 
   @Test
   public void test_getDefaultCollation() throws SQLException {

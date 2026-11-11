@@ -23,7 +23,9 @@ import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
@@ -94,26 +96,136 @@ class MssqlCharsetHandler extends CharsetHandler {
   }
 
   private void repairColumnCollation(Connection connection, ColumnDef column, String expectedCollation) throws SQLException {
-    // 1. select the indices defined on this column
-    List<ColumnIndex> indices = metadata.getColumnIndices(connection, column);
-
-    // 2. drop indices
-    for (ColumnIndex index : indices) {
-      getSqlExecutor().executeDdl(connection, format("DROP INDEX %s.%s", column.getTable(), index.name));
+    // Computed columns that reference this column block ALTER COLUMN until they are dropped.
+    List<ComputedColumn> computedColumns = metadata.getDependentComputedColumns(connection, column);
+    List<ColumnIndex> indices = indexesToRebuild(connection, column, computedColumns);
+    // Auto-commit would persist a failure after DROP COLUMN. The next startup then skips repair
+    // because the collation is already correct, and kee_lower_hash stays missing.
+    boolean autoCommit = connection.getAutoCommit();
+    connection.setAutoCommit(false);
+    boolean committed = false;
+    Exception failure = null;
+    try {
+      dropIndexes(connection, column.getTable(), indices);
+      dropComputedColumns(connection, column.getTable(), computedColumns);
+      alterColumnCollation(connection, column, expectedCollation);
+      addComputedColumns(connection, column.getTable(), computedColumns);
+      createIndexes(connection, column.getTable(), indices);
+      connection.commit();
+      committed = true;
+    } catch (SQLException | RuntimeException e) {
+      failure = e;
+    } finally {
+      if (!committed) {
+        SQLException rollbackFailure = rollback(connection);
+        if (rollbackFailure == null) {
+          failure = restoreAutoCommit(connection, autoCommit, failure);
+        } else {
+          // setAutoCommit(true) runs COMMIT TRAN while a transaction is open.
+          failure = attach(failure, rollbackFailure);
+        }
+      } else {
+        failure = restoreAutoCommit(connection, autoCommit, failure);
+      }
     }
+    rethrow(failure);
+  }
 
-    // 3. alter collation of column
+  @Nullable
+  private static SQLException rollback(Connection connection) {
+    try {
+      connection.rollback();
+      return null;
+    } catch (SQLException e) {
+      LOGGER.warn("Failed to roll back column collation repair", e);
+      return e;
+    }
+  }
+
+  @Nullable
+  private static Exception restoreAutoCommit(Connection connection, boolean autoCommit, @Nullable Exception failure) {
+    try {
+      connection.setAutoCommit(autoCommit);
+      return failure;
+    } catch (SQLException e) {
+      return attach(failure, e);
+    }
+  }
+
+  private static Exception attach(@Nullable Exception failure, Exception extra) {
+    if (failure == null) {
+      return extra;
+    }
+    failure.addSuppressed(extra);
+    return failure;
+  }
+
+  private static void rethrow(@Nullable Exception failure) throws SQLException {
+    if (failure == null) {
+      return;
+    }
+    if (failure instanceof RuntimeException runtimeException) {
+      throw runtimeException;
+    }
+    if (failure instanceof SQLException sqlException) {
+      throw sqlException;
+    }
+    throw new IllegalStateException(failure);
+  }
+
+  private List<ColumnIndex> indexesToRebuild(Connection connection, ColumnDef column, List<ComputedColumn> computedColumns) throws SQLException {
+    List<ColumnIndex> indices = new ArrayList<>(metadata.getColumnIndices(connection, column));
+    for (ComputedColumn computedColumn : computedColumns) {
+      appendMissingIndexes(indices, metadata.getColumnIndices(connection, computedColumnDef(column, computedColumn)));
+    }
+    return indices;
+  }
+
+  private static ColumnDef computedColumnDef(ColumnDef column, ComputedColumn computedColumn) {
+    return new ColumnDef(column.getTable(), computedColumn.name, column.getCharset(), column.getCollation(),
+      column.getDataType(), column.getSize(), true);
+  }
+
+  private static void appendMissingIndexes(List<ColumnIndex> indices, List<ColumnIndex> extra) {
+    for (ColumnIndex index : extra) {
+      if (indices.stream().noneMatch(existing -> existing.name.equals(index.name))) {
+        indices.add(index);
+      }
+    }
+  }
+
+  private void dropIndexes(Connection connection, String table, List<ColumnIndex> indices) throws SQLException {
+    for (ColumnIndex index : indices) {
+      getSqlExecutor().executeDdl(connection, format("DROP INDEX %s.%s", table, index.name));
+    }
+  }
+
+  private void dropComputedColumns(Connection connection, String table, List<ComputedColumn> computedColumns) throws SQLException {
+    for (ComputedColumn computedColumn : computedColumns) {
+      getSqlExecutor().executeDdl(connection, format("ALTER TABLE %s DROP COLUMN %s", table, computedColumn.name));
+    }
+  }
+
+  private void alterColumnCollation(Connection connection, ColumnDef column, String expectedCollation) throws SQLException {
     String nullability = column.isNullable() ? "NULL" : "NOT NULL";
     String size = column.getSize() >= 0 ? String.valueOf(column.getSize()) : "max";
     String alterSql = format("ALTER TABLE %s ALTER COLUMN %s %s(%s) COLLATE %s %s",
       column.getTable(), column.getColumn(), column.getDataType(), size, expectedCollation, nullability);
-    LOGGER.info("Changing collation of column [{}.{}] from {} to {} | sql=", column.getTable(), column.getColumn(), column.getCollation(), expectedCollation, alterSql);
+    LOGGER.info("Changing collation of column [{}.{}] from {} to {} | sql={}", column.getTable(), column.getColumn(), column.getCollation(), expectedCollation, alterSql);
     getSqlExecutor().executeDdl(connection, alterSql);
+  }
 
-    // 4. re-create indices
+  private void addComputedColumns(Connection connection, String table, List<ComputedColumn> computedColumns) throws SQLException {
+    for (ComputedColumn computedColumn : computedColumns) {
+      String persisted = computedColumn.persisted ? " PERSISTED" : "";
+      getSqlExecutor().executeDdl(connection, format("ALTER TABLE %s ADD %s AS %s%s", table, computedColumn.name, computedColumn.definition, persisted));
+    }
+  }
+
+  private void createIndexes(Connection connection, String table, List<ColumnIndex> indices) throws SQLException {
     for (ColumnIndex index : indices) {
       String uniqueSql = index.unique ? "UNIQUE" : "";
-      String createIndexSql = format("CREATE %s INDEX %s ON %s (%s)", uniqueSql, index.name, column.getTable(), index.csvColumns);
+      String createIndexSql = format("CREATE %s INDEX %s ON %s (%s)", uniqueSql, index.name, table, index.csvColumns);
       getSqlExecutor().executeDdl(connection, createIndexSql);
     }
   }
@@ -125,6 +237,39 @@ class MssqlCharsetHandler extends CharsetHandler {
       .replace(CASE_INSENSITIVE_ACCENT_INSENSITIVE, CASE_SENSITIVE_ACCENT_SENSITIVE)
       .replace(CASE_INSENSITIVE_ACCENT_SENSITIVE, CASE_SENSITIVE_ACCENT_SENSITIVE)
       .replace(CASE_SENSITIVE_ACCENT_INSENSITIVE, CASE_SENSITIVE_ACCENT_SENSITIVE);
+  }
+
+  static class ComputedColumn {
+    private final String name;
+    private final String definition;
+    private final boolean persisted;
+
+    public ComputedColumn(String name, String definition) {
+      this(name, definition, false);
+    }
+
+    public ComputedColumn(String name, String definition, boolean persisted) {
+      this.name = name;
+      this.definition = definition;
+      this.persisted = persisted;
+    }
+
+    String getName() {
+      return name;
+    }
+
+    String getDefinition() {
+      return definition;
+    }
+  }
+
+  enum ComputedColumnConverter implements SqlExecutor.RowConverter<ComputedColumn> {
+    INSTANCE;
+
+    @Override
+    public ComputedColumn convert(ResultSet rs) throws SQLException {
+      return new ComputedColumn(rs.getString(1), rs.getString(2), rs.getBoolean(3));
+    }
   }
 
   @VisibleForTesting

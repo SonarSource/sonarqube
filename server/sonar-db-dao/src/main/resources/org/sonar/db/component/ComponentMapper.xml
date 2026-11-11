@@ -34,6 +34,17 @@
       and <include refid="mainBranchOrPortfolio"/>
   </select>
 
+  <select id="selectByKeyCaseInsensitive" parameterType="String" resultType="Component" databaseId="mssql">
+    SELECT
+      <include refid="componentColumns"/>
+    FROM components p
+    left outer join project_branches pb on pb.uuid = p.branch_uuid
+    where
+      p.kee_lower_hash = CONVERT(BINARY(32), HASHBYTES('SHA2_256', LOWER(CAST(#{key,jdbcType=VARCHAR} AS NVARCHAR(1000)))))
+      and lower(p.kee)=lower(#{key,jdbcType=VARCHAR})
+      and <include refid="mainBranchOrPortfolio"/>
+  </select>
+
   <select id="selectByKeyCaseInsensitive" parameterType="String" resultType="Component">
     SELECT
       <include refid="componentColumns"/>

@@ -45,6 +45,18 @@ class MssqlMetadataReader {
       ColumnDef.ColumnDefRowConverter.INSTANCE);
   }
 
+  List<MssqlCharsetHandler.ComputedColumn> getDependentComputedColumns(Connection connection, ColumnDef column) throws SQLException {
+    String sql = format("SELECT cc.name, cc.definition, cc.is_persisted " +
+      "FROM sys.tables t " +
+      "INNER JOIN sys.computed_columns cc ON cc.object_id = t.object_id " +
+      "WHERE t.name = '%s' AND EXISTS (" +
+      "SELECT 1 FROM sys.dm_sql_referenced_entities(" +
+      "QUOTENAME(SCHEMA_NAME(t.schema_id)) + N'.' + QUOTENAME(t.name), N'OBJECT') ref " +
+      "WHERE ref.referencing_minor_id = cc.column_id AND ref.referenced_minor_name = '%s' AND ref.referenced_id = t.object_id)",
+      column.getTable(), column.getColumn());
+    return sqlExecutor.select(connection, sql, MssqlCharsetHandler.ComputedColumnConverter.INSTANCE);
+  }
+
   List<MssqlCharsetHandler.ColumnIndex> getColumnIndices(Connection connection, ColumnDef column) throws SQLException {
     String selectIndicesSql = format("SELECT I.name as index_name, I.is_unique as unik, IndexedColumns " +
       "     FROM sys.indexes I " +

@@ -23,20 +23,26 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -150,6 +156,152 @@ public class MssqlCharsetHandlerTest {
       }
     }
     return res.toArray(new Object[0][]);
+  }
+
+  @Test
+  public void repair_drops_and_recreates_computed_columns_that_depend_on_the_column() throws SQLException {
+    when(connection.getAutoCommit()).thenReturn(true);
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(new ColumnDef("components", COLUMN_KEE, "Latin1_General", "Latin1_General_CI_AI", "nvarchar", 1000, true));
+    answerIndices(new MssqlCharsetHandler.ColumnIndex("components_lower_kee", false, "kee_lower_hash"));
+    when(metadata.getDependentComputedColumns(same(connection), any(ColumnDef.class))).thenReturn(asList(
+      new MssqlCharsetHandler.ComputedColumn("kee_lower_hash", "(CONVERT(binary(32),hashbytes('SHA2_256',lower([kee]))))")));
+
+    underTest.handle(connection, DatabaseCharsetChecker.State.STARTUP);
+
+    InOrder order = inOrder(connection, sqlExecutor);
+    order.verify(connection).setAutoCommit(false);
+    order.verify(sqlExecutor).executeDdl(connection, "DROP INDEX components.components_lower_kee");
+    order.verify(sqlExecutor).executeDdl(connection, "ALTER TABLE components DROP COLUMN kee_lower_hash");
+    order.verify(sqlExecutor).executeDdl(connection, "ALTER TABLE components ALTER COLUMN kee nvarchar(1000) COLLATE Latin1_General_CS_AS NULL");
+    order.verify(sqlExecutor).executeDdl(connection, "ALTER TABLE components ADD kee_lower_hash AS (CONVERT(binary(32),hashbytes('SHA2_256',lower([kee]))))");
+    order.verify(sqlExecutor).executeDdl(connection, "CREATE  INDEX components_lower_kee ON components (kee_lower_hash)");
+    order.verify(connection).commit();
+    order.verify(connection).setAutoCommit(true);
+  }
+
+  @Test
+  public void repair_rolls_back_when_a_statement_fails() throws SQLException {
+    when(connection.getAutoCommit()).thenReturn(true);
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(new ColumnDef("components", COLUMN_KEE, "Latin1_General", "Latin1_General_CI_AI", "nvarchar", 1000, true));
+    answerIndices(new MssqlCharsetHandler.ColumnIndex("components_lower_kee", false, "kee_lower_hash"));
+    when(metadata.getDependentComputedColumns(same(connection), any(ColumnDef.class))).thenReturn(asList(
+      new MssqlCharsetHandler.ComputedColumn("kee_lower_hash", "(lower([kee]))")));
+    doThrow(new SQLException("alter failed")).when(sqlExecutor).executeDdl(same(connection), contains("ALTER COLUMN"));
+
+    assertThatThrownBy(() -> underTest.handle(connection, DatabaseCharsetChecker.State.STARTUP))
+      .isInstanceOf(SQLException.class)
+      .hasMessage("alter failed");
+
+    verify(sqlExecutor).executeDdl(connection, "DROP INDEX components.components_lower_kee");
+    verify(sqlExecutor).executeDdl(connection, "ALTER TABLE components DROP COLUMN kee_lower_hash");
+    verify(connection).rollback();
+    verify(connection, never()).commit();
+    verify(connection).setAutoCommit(true);
+  }
+
+  @Test
+  public void repair_rolls_back_when_an_error_escapes() throws SQLException {
+    when(connection.getAutoCommit()).thenReturn(true);
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(new ColumnDef("components", COLUMN_KEE, "Latin1_General", "Latin1_General_CI_AI", "nvarchar", 1000, true));
+    answerIndices(new MssqlCharsetHandler.ColumnIndex("components_lower_kee", false, "kee_lower_hash"));
+    when(metadata.getDependentComputedColumns(same(connection), any(ColumnDef.class))).thenReturn(asList(
+      new MssqlCharsetHandler.ComputedColumn("kee_lower_hash", "(lower([kee]))")));
+    doThrow(new OutOfMemoryError("oom")).when(sqlExecutor).executeDdl(same(connection), contains("ALTER COLUMN"));
+
+    assertThatThrownBy(() -> underTest.handle(connection, DatabaseCharsetChecker.State.STARTUP))
+      .isInstanceOf(OutOfMemoryError.class)
+      .hasMessage("oom");
+
+    verify(connection).rollback();
+    verify(connection, never()).commit();
+    verify(connection).setAutoCommit(true);
+  }
+
+  @Test
+  public void repair_does_not_restore_auto_commit_when_rollback_fails() throws SQLException {
+    when(connection.getAutoCommit()).thenReturn(true);
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(new ColumnDef("components", COLUMN_KEE, "Latin1_General", "Latin1_General_CI_AI", "nvarchar", 1000, true));
+    answerIndices(new MssqlCharsetHandler.ColumnIndex("components_lower_kee", false, "kee_lower_hash"));
+    when(metadata.getDependentComputedColumns(same(connection), any(ColumnDef.class))).thenReturn(asList(
+      new MssqlCharsetHandler.ComputedColumn("kee_lower_hash", "(lower([kee]))")));
+    doThrow(new SQLException("alter failed")).when(sqlExecutor).executeDdl(same(connection), contains("ALTER COLUMN"));
+    doThrow(new SQLException("rollback failed")).when(connection).rollback();
+
+    assertThatThrownBy(() -> underTest.handle(connection, DatabaseCharsetChecker.State.STARTUP))
+      .isInstanceOf(SQLException.class)
+      .hasMessage("alter failed")
+      .satisfies(thrown -> assertThat(thrown.getSuppressed()).extracting(Throwable::getMessage).containsExactly("rollback failed"));
+
+    verify(connection, never()).commit();
+    verify(connection, never()).setAutoCommit(true);
+  }
+
+  @Test
+  public void repair_keeps_the_original_failure_when_restoring_auto_commit_fails() throws SQLException {
+    when(connection.getAutoCommit()).thenReturn(true);
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(new ColumnDef("components", COLUMN_KEE, "Latin1_General", "Latin1_General_CI_AI", "nvarchar", 1000, true));
+    answerIndices(new MssqlCharsetHandler.ColumnIndex("components_lower_kee", false, "kee_lower_hash"));
+    when(metadata.getDependentComputedColumns(same(connection), any(ColumnDef.class))).thenReturn(asList(
+      new MssqlCharsetHandler.ComputedColumn("kee_lower_hash", "(lower([kee]))")));
+    doThrow(new SQLException("alter failed")).when(sqlExecutor).executeDdl(same(connection), contains("ALTER COLUMN"));
+    doThrow(new SQLException("restore failed")).when(connection).setAutoCommit(true);
+
+    assertThatThrownBy(() -> underTest.handle(connection, DatabaseCharsetChecker.State.STARTUP))
+      .isInstanceOf(SQLException.class)
+      .hasMessage("alter failed")
+      .satisfies(thrown -> assertThat(thrown.getSuppressed()).extracting(Throwable::getMessage).containsExactly("restore failed"));
+  }
+
+  @Test
+  public void repair_recreates_a_persisted_computed_column() throws SQLException {
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(new ColumnDef("components", COLUMN_KEE, "Latin1_General", "Latin1_General_CI_AI", "nvarchar", 1000, true));
+    answerIndices();
+    when(metadata.getDependentComputedColumns(same(connection), any(ColumnDef.class))).thenReturn(asList(
+      new MssqlCharsetHandler.ComputedColumn("kee_lower_hash", "(CONVERT(binary(32),hashbytes('SHA2_256',lower([kee]))))", true)));
+
+    underTest.handle(connection, DatabaseCharsetChecker.State.STARTUP);
+
+    verify(sqlExecutor).executeDdl(connection, "ALTER TABLE components ADD kee_lower_hash AS (CONVERT(binary(32),hashbytes('SHA2_256',lower([kee])))) PERSISTED");
+  }
+
+  @Test
+  public void repair_drops_an_index_that_exists_only_on_the_computed_column() throws SQLException {
+    answerDefaultCollation("Latin1_General_CS_AS");
+    answerColumnDefs(new ColumnDef("components", COLUMN_KEE, "Latin1_General", "Latin1_General_CI_AI", "nvarchar", 1000, true));
+    when(metadata.getColumnIndices(same(connection), any(ColumnDef.class))).thenAnswer(invocation -> {
+      ColumnDef column = invocation.getArgument(1);
+      if ("kee_lower_hash".equals(column.getColumn())) {
+        return asList(new MssqlCharsetHandler.ColumnIndex("components_lower_kee", false, "kee_lower_hash"));
+      }
+      return asList(new MssqlCharsetHandler.ColumnIndex("components_kee", false, "kee"));
+    });
+    when(metadata.getDependentComputedColumns(same(connection), any(ColumnDef.class))).thenReturn(asList(
+      new MssqlCharsetHandler.ComputedColumn("kee_lower_hash", "(lower([kee]))")));
+
+    underTest.handle(connection, DatabaseCharsetChecker.State.STARTUP);
+
+    verify(sqlExecutor).executeDdl(connection, "DROP INDEX components.components_kee");
+    verify(sqlExecutor).executeDdl(connection, "DROP INDEX components.components_lower_kee");
+    verify(sqlExecutor).executeDdl(connection, "CREATE  INDEX components_lower_kee ON components (kee_lower_hash)");
+  }
+
+  @Test
+  public void computedColumnConverter_readsTheRow() throws SQLException {
+    ResultSet rs = mock(ResultSet.class);
+    when(rs.getString(1)).thenReturn("kee_lower_hash");
+    when(rs.getString(2)).thenReturn("(lower([kee]))");
+    when(rs.getBoolean(3)).thenReturn(false);
+
+    MssqlCharsetHandler.ComputedColumn column = MssqlCharsetHandler.ComputedColumnConverter.INSTANCE.convert(rs);
+
+    assertThat(column.getName()).isEqualTo("kee_lower_hash");
+    assertThat(column.getDefinition()).isEqualTo("(lower([kee]))");
   }
 
   @Test
