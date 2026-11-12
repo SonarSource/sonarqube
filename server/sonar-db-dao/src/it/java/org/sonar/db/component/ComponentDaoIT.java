@@ -454,7 +454,7 @@ class ComponentDaoIT {
   @Test
   void find_sub_projects_by_component_keys() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setEnabled(false));
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
@@ -520,7 +520,7 @@ class ComponentDaoIT {
   void select_uuids_by_key_from_project() {
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
     db.components().insertProjectBranch(project);
-    db.components().insertPrivateProject(p -> p.setEnabled(false)).getMainBranchComponent();
+    db.components().insertPrivateProject(p -> p.setEnabled(false));
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto removedDirectory = db.components().insertComponent(newDirectory(project, "src2").setEnabled(false));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));

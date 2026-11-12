@@ -191,7 +191,7 @@ class PortfolioDaoIT {
   @Test
   void delete() {
     ProjectDto proj1 = db.components().insertPrivateProject("proj1").getProjectDto();
-    db.components().insertPrivateApplication().getProjectDto();
+    db.components().insertPrivateApplication();
 
     PortfolioDto p1 = db.components().insertPrivatePortfolioDto("p1");
     PortfolioDto p2 = db.components().insertPrivatePortfolioDto("p2");
