@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 import org.slf4j.Logger;
@@ -116,18 +117,13 @@ public class IntegrateCrossProjectDuplications {
       .toList();
   }
 
-  private NumberOfUnitsNotLessThan getNumberOfUnitsNotLessThan(String language) {
-    NumberOfUnitsNotLessThan numberOfUnitsNotLessThan = numberOfUnitsByLanguage.get(language);
-    if (numberOfUnitsNotLessThan == null) {
-      numberOfUnitsNotLessThan = new NumberOfUnitsNotLessThan(getMinimumTokens(language));
-      numberOfUnitsByLanguage.put(language, numberOfUnitsNotLessThan);
-    }
-    return numberOfUnitsNotLessThan;
+  private NumberOfUnitsNotLessThan getNumberOfUnitsNotLessThan(@Nullable String language) {
+    return numberOfUnitsByLanguage.computeIfAbsent(language, key -> new NumberOfUnitsNotLessThan(getMinimumTokens(key)));
   }
 
-  private int getMinimumTokens(String languageKey) {
+  private int getMinimumTokens(@Nullable String languageKey) {
     // The java language is an exception : it doesn't compute tokens but statement, so the settings could not be used.
-    if (languageKey.equalsIgnoreCase(JAVA_KEY)) {
+    if (JAVA_KEY.equalsIgnoreCase(languageKey)) {
       return 0;
     }
     return config.getInt("sonar.cpd." + languageKey + ".minimumTokens").orElse(100);

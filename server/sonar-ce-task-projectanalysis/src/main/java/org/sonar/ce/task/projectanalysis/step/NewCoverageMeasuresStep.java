@@ -212,7 +212,12 @@ public class NewCoverageMeasuresStep implements ComputationStep {
       newConditions.increment(0);
       newCoveredConditions.increment(0);
 
-      try (CloseableIterator<ScannerReport.LineCoverage> lineCoverage = reportReader.readComponentCoverage(component.getReportAttributes().getRef())) {
+      Integer componentRef = component.getReportAttributes().getRef();
+      if (componentRef == null) {
+        return;
+      }
+
+      try (CloseableIterator<ScannerReport.LineCoverage> lineCoverage = reportReader.readComponentCoverage(componentRef)) {
         while (lineCoverage.hasNext()) {
           final ScannerReport.LineCoverage line = lineCoverage.next();
           int lineId = line.getLine();

@@ -66,7 +66,11 @@ public class SourceLinesHashCache {
   }
 
   private static int getId(Component component) {
-    return component.getReportAttributes().getRef();
+    Integer ref = component.getReportAttributes().getRef();
+    if (ref == null) {
+      throw new IllegalStateException(String.format("Component %s has no report ref", component));
+    }
+    return ref;
   }
 
   private void save(int fileId, List<String> hashes) {

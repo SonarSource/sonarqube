@@ -63,7 +63,11 @@ public class SourceLineReadersFactory {
     List<CloseableIterator<?>> closeables = new ArrayList<>();
     ScmLineReader scmLineReader = null;
 
-    int componentRef = component.getReportAttributes().getRef();
+    Integer ref = component.getReportAttributes().getRef();
+    if (ref == null) {
+      throw new IllegalStateException("Component '" + component.getKey() + "' has no report ref");
+    }
+    int componentRef = ref;
     CloseableIterator<ScannerReport.LineCoverage> coverageIt = reportReader.readComponentCoverage(componentRef);
     closeables.add(coverageIt);
     readers.add(new CoverageLineReader(coverageIt));

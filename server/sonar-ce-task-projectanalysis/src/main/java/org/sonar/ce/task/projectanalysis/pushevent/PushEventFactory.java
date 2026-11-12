@@ -138,7 +138,7 @@ public class PushEventFactory {
     event.setProjectKey(issue.projectKey());
     event.setCreationDate(issue.creationDate().getTime());
     event.setKey(issue.key());
-    event.setSeverity(issue.severity());
+    event.setSeverity(requireNonNull(issue.severity()));
     event.setRuleKey(issue.getRuleKey().toString());
     event.setType(issue.type().name());
     event.setBranch(analysisMetadataHolder.getBranch().getName());

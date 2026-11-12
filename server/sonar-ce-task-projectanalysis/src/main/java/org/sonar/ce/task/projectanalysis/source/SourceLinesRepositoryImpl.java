@@ -42,7 +42,8 @@ public class SourceLinesRepositoryImpl implements SourceLinesRepository {
     requireNonNull(file, "Component should not be null");
     checkArgument(file.getType() == FILE, "Component '%s' is not a file", file);
 
-    Optional<CloseableIterator<String>> linesIteratorOptional = reportReader.readFileSource(file.getReportAttributes().getRef());
+    Integer ref = requireNonNull(file.getReportAttributes().getRef(), "Component ref should not be null");
+    Optional<CloseableIterator<String>> linesIteratorOptional = reportReader.readFileSource(ref);
 
     checkState(linesIteratorOptional.isPresent(), "File '%s' has no source code", file);
     CloseableIterator<String> lineIterator = linesIteratorOptional.get();

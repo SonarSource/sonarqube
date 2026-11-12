@@ -382,12 +382,13 @@ public class TrackerRawInputFactory {
     }
 
     private RuleType determineDeprecatedType(ScannerReport.ExternalIssue reportExternalIssue, Rule rule) {
-      if (!rule.isAdHoc() && rule.getType() != null) {
-        return rule.getType();
+      RuleType ruleType = rule.getType();
+      if (!rule.isAdHoc() && ruleType != null) {
+        return ruleType;
       } else if (reportExternalIssue.getType() != ScannerReport.IssueType.UNSET) {
         return toRuleType(reportExternalIssue.getType());
-      } else if (rule.getType() != null) {
-        return rule.getType();
+      } else if (ruleType != null) {
+        return ruleType;
       } else if (!rule.getDefaultImpacts().isEmpty()) {
         SoftwareQuality impactSoftwareQuality = ImpactMapper.getBestImpactForBackmapping(rule.getDefaultImpacts()).getKey();
         return RuleTypeMapper.toRuleType(ImpactMapper.convertToRuleType(impactSoftwareQuality));

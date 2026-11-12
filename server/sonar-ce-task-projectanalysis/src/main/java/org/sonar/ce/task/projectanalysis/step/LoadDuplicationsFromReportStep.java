@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
+import java.util.Objects;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import org.sonar.ce.common.scanner.ScannerReportReader;
@@ -107,7 +108,8 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file) {
-      try (CloseableIterator<ScannerReport.Duplication> duplications = scannerReportReader.readComponentDuplications(file.getReportAttributes().getRef())) {
+      Integer fileRef = Objects.requireNonNull(file.getReportAttributes().getRef(), "File component must have a report ref");
+      try (CloseableIterator<ScannerReport.Duplication> duplications = scannerReportReader.readComponentDuplications(fileRef)) {
         int idGenerator = 1;
         while (duplications.hasNext()) {
           loadDuplications(file, duplications.next(), idGenerator);

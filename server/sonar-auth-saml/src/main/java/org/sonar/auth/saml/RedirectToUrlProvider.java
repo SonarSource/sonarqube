@@ -21,6 +21,7 @@ package org.sonar.auth.saml;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.ObjectUtils;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.server.http.JakartaHttpRequest;
@@ -44,6 +45,9 @@ public class RedirectToUrlProvider {
 
     HttpServletRequest httpServletRequest = ((JakartaHttpRequest) httpRequest).getDelegate();
     Saml2RedirectAuthenticationRequest authenticationRequest = requestResolver.resolve(httpServletRequest);
+    if (authenticationRequest == null) {
+      throw new IllegalStateException("Unable to resolve SAML authentication request");
+    }
 
     return buildSamlLoginRequest(authenticationRequest).build().toUriString();
   }
@@ -66,7 +70,7 @@ public class RedirectToUrlProvider {
     return uriBuilder;
   }
 
-  private static void addParameter(String name, String value, UriComponentsBuilder builder) {
+  private static void addParameter(String name, @Nullable String value, UriComponentsBuilder builder) {
     ObjectUtils.requireNonEmpty(name, "name cannot be null");
     if (StringUtils.hasText(value)) {
       builder.queryParam(UriUtils.encode(name, StandardCharsets.ISO_8859_1),

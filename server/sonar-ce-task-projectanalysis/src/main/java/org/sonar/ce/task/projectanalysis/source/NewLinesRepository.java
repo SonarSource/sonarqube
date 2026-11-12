@@ -79,7 +79,16 @@ public class NewLinesRepository {
     Set<Integer> lines = new HashSet<>();
 
     // in PRs, we consider changes introduced in this analysis as new, hence subtracting 1.
-    long referenceDate = useAnalysisDateAsReferenceDate() ? (analysisMetadataHolder.getAnalysisDate() - 1) : periodHolder.getPeriod().getDate();
+    long referenceDate;
+    if (useAnalysisDateAsReferenceDate()) {
+      referenceDate = analysisMetadataHolder.getAnalysisDate() - 1;
+    } else {
+      Long periodDate = periodHolder.getPeriod().getDate();
+      if (periodDate == null) {
+        return Optional.empty();
+      }
+      referenceDate = periodDate;
+    }
     for (int i = 0; i < allChangesets.length; i++) {
       if (allChangesets[i] != null && isLineInPeriod(allChangesets[i].getDate(), referenceDate)) {
         lines.add(i + 1);
@@ -113,7 +122,11 @@ public class NewLinesRepository {
   }
 
   private Optional<Set<Integer>> readFromReport(Component file) {
-    return reportReader.readComponentChangedLines(file.getReportAttributes().getRef())
+    Integer ref = file.getReportAttributes().getRef();
+    if (ref == null) {
+      return Optional.empty();
+    }
+    return reportReader.readComponentChangedLines(ref)
       .map(c -> new HashSet<>(c.getLineList()));
   }
 }

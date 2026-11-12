@@ -20,6 +20,7 @@
 package org.sonar.ce.task.projectanalysis.notification;
 
 import static java.lang.String.valueOf;
+import static java.util.Objects.requireNonNull;
 
 public class ReportAnalysisFailureNotificationSerializerImpl implements ReportAnalysisFailureNotificationSerializer {
   private static final String FIELD_PROJECT_UUID = "project.uuid";
@@ -50,12 +51,12 @@ public class ReportAnalysisFailureNotificationSerializerImpl implements ReportAn
   public ReportAnalysisFailureNotificationBuilder fromNotification(ReportAnalysisFailureNotification notification) {
     return new ReportAnalysisFailureNotificationBuilder(
       new ReportAnalysisFailureNotificationBuilder.Project(
-        notification.getFieldValue(FIELD_PROJECT_UUID),
-        notification.getFieldValue(FIELD_PROJECT_KEY),
-        notification.getFieldValue(FIELD_PROJECT_NAME),
+        requireNonNull(notification.getFieldValue(FIELD_PROJECT_UUID)),
+        requireNonNull(notification.getFieldValue(FIELD_PROJECT_KEY)),
+        requireNonNull(notification.getFieldValue(FIELD_PROJECT_NAME)),
         notification.getFieldValue(FIELD_PROJECT_BRANCH)),
       new ReportAnalysisFailureNotificationBuilder.Task(
-        notification.getFieldValue(FIELD_TASK_UUID),
+        requireNonNull(notification.getFieldValue(FIELD_TASK_UUID)),
         Long.valueOf(notification.getFieldValue(FIELD_TASK_CREATED_AT)),
         Long.valueOf(notification.getFieldValue(FIELD_TASK_FAILED_AT))),
       notification.getFieldValue(FIELD_ERROR_MESSAGE));

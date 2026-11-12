@@ -226,8 +226,9 @@ public class PersistComponentsStep implements ComputationStep {
         existingComponent.setEnabled(updateDto.isBEnabled());
         existingComponent.setUuidPath(updateDto.getBUuidPath());
         existingComponent.setLanguage(updateDto.getBLanguage());
-        existingComponent.setLongName(updateDto.getBLongName());
-        existingComponent.setName(updateDto.getBName());
+        // updateDto is copied from componentDto, so use its non-null name values directly
+        existingComponent.setLongName(componentDto.longName());
+        existingComponent.setName(componentDto.name());
         existingComponent.setPath(updateDto.getBPath());
         // We don't have a b_scope. The applyBChangesForRootComponentUuid query is using a case ... when to infer scope from the qualifier
         existingComponent.setScope(componentDto.scope());

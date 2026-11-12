@@ -34,6 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.PrIssueDto;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
 public class SiblingsIssuesLoader {
@@ -65,7 +66,7 @@ public class SiblingsIssuesLoader {
 
   private static SiblingIssue toSiblingIssue(PrIssueDto dto) {
     return new SiblingIssue(dto.getKey(), dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus(), dto.getBranchKey(),
-      dto.getBranchType(), longToDate(dto.getIssueUpdateDate()));
+      dto.getBranchType(), requireNonNull(longToDate(dto.getIssueUpdateDate()), "Issue update date must not be null"));
   }
 
   public Map<SiblingIssue, DefaultIssue> loadDefaultIssuesWithChanges(Collection<SiblingIssue> lightIssues) {

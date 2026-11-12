@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.measure;
 
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
 
@@ -60,7 +61,10 @@ public class BestValueOptimization implements Predicate<Measure> {
       && (measure.getValueType() == NO_VALUE || isBestValue(measure, metric.getBestValue()));
   }
 
-  private static boolean isBestValue(Measure measure, Double bestValue) {
+  private static boolean isBestValue(Measure measure, @Nullable Double bestValue) {
+    if (bestValue == null) {
+      return false;
+    }
     switch (measure.getValueType()) {
       case BOOLEAN:
         return (bestValue.intValue() == 1) == measure.getBooleanValue();

@@ -33,7 +33,6 @@ import static java.lang.String.format;
  * of the public API.
  */
 class ConditionToCondition implements Function<Condition, QualityGate.Condition> {
-  private final ConditionImpl.Builder builder = ConditionImpl.newBuilder();
   private final Map<Condition, ConditionStatus> statusPerConditions;
 
   public ConditionToCondition(Map<Condition, ConditionStatus> statusPerConditions) {
@@ -45,13 +44,16 @@ class ConditionToCondition implements Function<Condition, QualityGate.Condition>
     String metricKey = input.getMetric().getKey();
     ConditionStatus conditionStatus = statusPerConditions.get(input);
     checkState(conditionStatus != null, "Missing ConditionStatus for condition on metric key %s", metricKey);
-    return builder
+    ConditionImpl.Builder builder = ConditionImpl.newBuilder()
       .setStatus(convert(conditionStatus.getStatus()))
       .setMetricKey(metricKey)
       .setOperator(convert(input.getOperator()))
-      .setErrorThreshold(input.getErrorThreshold())
-      .setValue(conditionStatus.getValue())
-      .build();
+      .setErrorThreshold(input.getErrorThreshold());
+    String value = conditionStatus.getValue();
+    if (value != null) {
+      builder.setValue(value);
+    }
+    return builder.build();
   }
 
   private static QualityGate.EvaluationStatus convert(ConditionStatus.EvaluationStatus status) {

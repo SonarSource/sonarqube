@@ -36,7 +36,11 @@ public class SignificantCodeRepository {
   public Optional<LineRange[]> getRangesPerLine(Component component) {
     int numLines = component.getFileAttributes().getLines();
 
-    Optional<CloseableIterator<LineSgnificantCode>> opt = reportReader.readComponentSignificantCode(component.getReportAttributes().getRef());
+    Integer ref = component.getReportAttributes().getRef();
+    if (ref == null) {
+      return Optional.empty();
+    }
+    Optional<CloseableIterator<LineSgnificantCode>> opt = reportReader.readComponentSignificantCode(ref);
     if (!opt.isPresent()) {
       return Optional.empty();
     }

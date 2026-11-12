@@ -117,8 +117,9 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
         @Override
         public void visitAny(Component component) {
-          if (component.getReportAttributes().getRef() != null) {
-            builder.put(component.getReportAttributes().getRef(), component);
+          Integer ref = component.getReportAttributes().getRef();
+          if (ref != null) {
+            builder.put(ref, component);
           }
         }
       }).visit(this.extendedTreeRoot);
@@ -137,8 +138,9 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
         @Override
         public void visitAny(Component component) {
           size++;
-          if (component.getReportAttributes().getRef() != null) {
-            builderByRef.put(component.getReportAttributes().getRef(), component);
+          Integer ref = component.getReportAttributes().getRef();
+          if (ref != null) {
+            builderByRef.put(ref, component);
           }
           if (isNotBlank(component.getUuid())) {
             builderByUuid.put(component.getUuid(), component);

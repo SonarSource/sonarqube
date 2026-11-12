@@ -72,7 +72,8 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   }
 
   private Optional<ScmInfo> getScmInfoForComponent(Component component) {
-    ScannerReport.Changesets changesets = scannerReportReader.readChangesets(component.getReportAttributes().getRef());
+    Integer ref = requireNonNull(component.getReportAttributes().getRef(), "Component ref can't be null");
+    ScannerReport.Changesets changesets = scannerReportReader.readChangesets(ref);
 
     if (changesets == null) {
       LOGGER.trace("No SCM info for file '{}'", component.getKey());

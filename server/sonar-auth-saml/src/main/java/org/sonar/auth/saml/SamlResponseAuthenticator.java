@@ -24,8 +24,11 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.http.HttpRequest;
 import org.sonar.server.http.JakartaHttpRequest;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.saml2.core.Saml2Error;
+import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 
@@ -43,6 +46,9 @@ class SamlResponseAuthenticator {
 
   Saml2AuthenticatedPrincipal authenticate(HttpRequest request, String callbackUrl) {
     Authentication authenticationToken = processSamlResponse(request, callbackUrl);
+    if (authenticationToken == null) {
+      throw new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, "No SAML response found in the request"));
+    }
     authenticationToken = openSaml5AuthenticationProvider.authenticate(authenticationToken);
     return (Saml2AuthenticatedPrincipal) authenticationToken.getPrincipal();
   }

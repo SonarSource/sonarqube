@@ -131,11 +131,13 @@ public class CeQueueImpl implements CeQueue {
     ComponentDto component = null;
     EntityDto entity = null;
 
-    if (queueDto.getComponentUuid() != null) {
-      component = dbClient.componentDao().selectByUuid(dbSession, queueDto.getComponentUuid()).orElse(null);
+    String componentUuid = queueDto.getComponentUuid();
+    if (componentUuid != null) {
+      component = dbClient.componentDao().selectByUuid(dbSession, componentUuid).orElse(null);
     }
-    if (queueDto.getEntityUuid() != null) {
-      entity = dbClient.entityDao().selectByUuid(dbSession, queueDto.getEntityUuid()).orElse(null);
+    String entityUuid = queueDto.getEntityUuid();
+    if (entityUuid != null) {
+      entity = dbClient.entityDao().selectByUuid(dbSession, entityUuid).orElse(null);
     }
 
     return convertToTask(dbSession, queueDto, characteristicDto, component, entity);

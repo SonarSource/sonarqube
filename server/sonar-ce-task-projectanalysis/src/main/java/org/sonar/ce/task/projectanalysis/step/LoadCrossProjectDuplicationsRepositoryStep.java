@@ -22,6 +22,7 @@ package org.sonar.ce.task.projectanalysis.step;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
@@ -94,7 +95,8 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
     @Override
     public void visitFile(Component file) {
       List<CpdTextBlock> cpdTextBlocks = new ArrayList<>();
-      try (CloseableIterator<CpdTextBlock> blocksIt = reportReader.readCpdTextBlocks(file.getReportAttributes().getRef())) {
+      Integer fileRef = Objects.requireNonNull(file.getReportAttributes().getRef(), "File component must have a report reference");
+      try (CloseableIterator<CpdTextBlock> blocksIt = reportReader.readCpdTextBlocks(fileRef)) {
         while(blocksIt.hasNext()) {
           cpdTextBlocks.add(blocksIt.next());
         }
@@ -118,10 +120,14 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
     }
 
     private List<DuplicationUnitDto> selectDuplicates(Component file, Collection<String> hashes) {
+      String languageKey = file.getFileAttributes().getLanguageKey();
+      if (languageKey == null) {
+        return List.of();
+      }
       try (DbSession dbSession = dbClient.openSession(false)) {
         Analysis projectAnalysis = analysisMetadataHolder.getBaseAnalysis();
         String analysisUuid = projectAnalysis == null ? null : projectAnalysis.getUuid();
-        return dbClient.duplicationDao().selectCandidates(dbSession, analysisUuid, file.getFileAttributes().getLanguageKey(), hashes);
+        return dbClient.duplicationDao().selectCandidates(dbSession, analysisUuid, languageKey, hashes);
       }
     }
   }
