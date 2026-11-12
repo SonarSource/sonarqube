@@ -145,7 +145,7 @@ public class ListAction implements WebServicesWsAction {
   private static void writeChangelog(JsonWriter writer, WebService.Action action) {
     writer.name("changelog").beginArray();
     action.changelog().stream()
-      .sorted(Comparator.comparing((Change change) -> Version.parse(change.getVersion())).reversed())
+      .sorted(Comparator.comparing(ListAction::parsedVersion, Comparator.nullsLast(Comparator.reverseOrder())))
       .forEach(changelog -> {
         writer.beginObject();
         writer.prop("description", changelog.getDescription());
@@ -153,6 +153,14 @@ public class ListAction implements WebServicesWsAction {
         writer.endObject();
       });
     writer.endArray();
+  }
+
+  private static Version parsedVersion(Change change) {
+    try {
+      return Version.parse(change.getVersion());
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
   }
 
 }

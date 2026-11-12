@@ -304,7 +304,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setDescription("Comma-separated list of metric keys. Types %s are not allowed. For type %s only %s metrics are supported",
         join(COMMA_JOIN_SEPARATOR, UnsupportedMetrics.FORBIDDEN_METRIC_TYPES),
         DATA.name(),
-        join(COMMA_JOIN_SEPARATOR, UnsupportedMetrics.PARTIALLY_SUPPORTED_METRICS.get(DATA.name())))
+        join(COMMA_JOIN_SEPARATOR, UnsupportedMetrics.PARTIALLY_SUPPORTED_METRICS.get(DATA.name()).stream().sorted().toList()))
       .setMaxValuesAllowed(MAX_METRIC_KEYS);
     createAdditionalFieldsParameter(action);
     createQualifiersParameter(action, newQualifierParameterContext(i18n, componentTypes));

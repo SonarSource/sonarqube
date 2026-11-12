@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.TestRequest;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ListActionTest {
@@ -56,6 +57,23 @@ public class ListActionTest {
     String response = newRequest().execute().getInput();
 
     assertJson(response).withStrictArrayOrder().isSimilarTo(getClass().getResource("list-example.json"));
+  }
+
+  @Test
+  public void list_including_internals_whenChangelogVersionIsNotNumeric() {
+    WebService.NewController controller = context.createController("api/dated")
+      .setDescription("Dated")
+      .setSince("1.0");
+    controller.createAction("download")
+      .setInternal(true)
+      .setHandler((request, response) -> {
+      })
+      .setChangelog(new Change("17 Jun 2025", "Added optional param"), new Change("2026.6", "Later"));
+    controller.done();
+
+    String response = newRequest().setParam("include_internals", "true").execute().getInput();
+
+    assertThat(response).contains("17 Jun 2025").contains("2026.6");
   }
 
   @Test

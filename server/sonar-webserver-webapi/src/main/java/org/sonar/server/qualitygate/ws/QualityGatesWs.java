@@ -87,7 +87,9 @@ public class QualityGatesWs implements WebService {
   }
 
   private static String getInvalidMetrics() {
-    return INVALID_METRIC_KEYS.stream().map(s -> "<li>" + s + "</li>")
+    return INVALID_METRIC_KEYS.stream()
+      .sorted()
+      .map(key -> "<li>" + key + "</li>")
       .collect(Collectors.joining());
   }
 
