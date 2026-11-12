@@ -30,6 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
 import org.sonar.db.alm.setting.AlmSettingDto;
+import org.sonar.server.common.almsettings.DevOpsProjectCreationContext;
 import org.sonar.server.common.almsettings.DevOpsProjectCreator;
 import org.sonar.server.common.almsettings.DevOpsProjectDescriptor;
 
@@ -64,7 +65,8 @@ class GitlabProjectCreatorFactoryTest {
 
   @Test
   void getDevOpsProjectCreator_whenDevOpsPlatformIsGitlab_returnsProjectCreator() {
-    when(gitlabDevOpsProjectService.create(any(), any())).thenReturn(mock());
+    DevOpsProjectCreationContext devOpsProjectCreationContext = mock();
+    when(gitlabDevOpsProjectService.create(any(), any())).thenReturn(devOpsProjectCreationContext);
 
     AlmSettingDto almSetting = mockAlm(ALM.GITLAB);
     DevOpsProjectDescriptor devOpsProjectDescriptor = mock();

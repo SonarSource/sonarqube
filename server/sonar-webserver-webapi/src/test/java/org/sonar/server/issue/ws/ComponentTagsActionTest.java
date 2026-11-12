@@ -123,7 +123,8 @@ public class ComponentTagsActionTest {
       .put("cert", 2L)
       .build();
     ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
-    when(issueQueryFactory.create(captor.capture())).thenReturn(mock(IssueQuery.class));
+    IssueQuery issueQuery = mock(IssueQuery.class);
+    when(issueQueryFactory.create(captor.capture())).thenReturn(issueQuery);
     when(service.countTags(any(IssueQuery.class), eq(5))).thenReturn(tags);
 
     TestResponse response = tester.newRequest()
@@ -149,7 +150,8 @@ public class ComponentTagsActionTest {
       .put("cert", 2L)
       .build();
     ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
-    when(issueQueryFactory.create(captor.capture())).thenReturn(mock(IssueQuery.class));
+    IssueQuery issueQuery = mock(IssueQuery.class);
+    when(issueQueryFactory.create(captor.capture())).thenReturn(issueQuery);
     when(service.countTags(any(IssueQuery.class), eq(5))).thenReturn(tags);
 
     String componentUuid = "polop";

@@ -36,7 +36,8 @@ public class WebServerRuleFinderImplTest {
 
   @Before
   public void setUp() {
-    when(dbClient.ruleDao()).thenReturn(mock(RuleDao.class));
+    RuleDao ruleDao = mock(RuleDao.class);
+    when(dbClient.ruleDao()).thenReturn(ruleDao);
   }
 
   @Test

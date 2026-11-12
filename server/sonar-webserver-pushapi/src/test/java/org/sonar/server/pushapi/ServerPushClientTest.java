@@ -61,7 +61,8 @@ public class ServerPushClientTest {
 
     when(servletResponse.getOutputStream()).thenReturn(outputStream);
     when(asyncContext.getResponse()).thenReturn(servletResponse);
-    when(asyncContext.getRequest()).thenReturn(mock(ServletRequest.class));
+    ServletRequest servletRequest = mock(ServletRequest.class);
+    when(asyncContext.getRequest()).thenReturn(servletRequest);
   }
 
   @Test

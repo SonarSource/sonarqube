@@ -106,16 +106,26 @@ public class GroupServiceTest {
   }
 
   private void mockNeededDaos() {
-    when(dbClient.authorizationDao()).thenReturn(mock(AuthorizationDao.class));
-    when(dbClient.roleDao()).thenReturn(mock(RoleDao.class));
-    when(dbClient.permissionTemplateDao()).thenReturn(mock(PermissionTemplateDao.class));
-    when(dbClient.userGroupDao()).thenReturn(mock(UserGroupDao.class));
-    when(dbClient.qProfileEditGroupsDao()).thenReturn(mock(QProfileEditGroupsDao.class));
-    when(dbClient.qualityGateGroupPermissionsDao()).thenReturn(mock(QualityGateGroupPermissionsDao.class));
-    when(dbClient.scimGroupDao()).thenReturn(mock(ScimGroupDao.class));
-    when(dbClient.externalGroupDao()).thenReturn(mock(ExternalGroupDao.class));
-    when(dbClient.groupDao()).thenReturn(mock(GroupDao.class));
-    when(dbClient.githubOrganizationGroupDao()).thenReturn(mock(GithubOrganizationGroupDao.class));
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    when(dbClient.authorizationDao()).thenReturn(authorizationDao);
+    RoleDao roleDao = mock(RoleDao.class);
+    when(dbClient.roleDao()).thenReturn(roleDao);
+    PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
+    when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
+    UserGroupDao userGroupDao = mock(UserGroupDao.class);
+    when(dbClient.userGroupDao()).thenReturn(userGroupDao);
+    QProfileEditGroupsDao qProfileEditGroupsDao = mock(QProfileEditGroupsDao.class);
+    when(dbClient.qProfileEditGroupsDao()).thenReturn(qProfileEditGroupsDao);
+    QualityGateGroupPermissionsDao qualityGateGroupPermissionsDao = mock(QualityGateGroupPermissionsDao.class);
+    when(dbClient.qualityGateGroupPermissionsDao()).thenReturn(qualityGateGroupPermissionsDao);
+    ScimGroupDao scimGroupDao = mock(ScimGroupDao.class);
+    when(dbClient.scimGroupDao()).thenReturn(scimGroupDao);
+    ExternalGroupDao externalGroupDao = mock(ExternalGroupDao.class);
+    when(dbClient.externalGroupDao()).thenReturn(externalGroupDao);
+    GroupDao groupDao = mock(GroupDao.class);
+    when(dbClient.groupDao()).thenReturn(groupDao);
+    GithubOrganizationGroupDao githubOrganizationGroupDao = mock(GithubOrganizationGroupDao.class);
+    when(dbClient.githubOrganizationGroupDao()).thenReturn(githubOrganizationGroupDao);
     NotificationGroupSubscriptionsDao notificationGroupSubscriptionsDao = mock(NotificationGroupSubscriptionsDao.class);
     when(dbClient.notificationGroupSubscriptionsDao()).thenReturn(notificationGroupSubscriptionsDao);
   }

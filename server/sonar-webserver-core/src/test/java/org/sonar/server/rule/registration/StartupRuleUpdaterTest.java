@@ -110,7 +110,8 @@ public class StartupRuleUpdaterTest {
   private RulesDefinition.Rule getDefaultRuleDef() {
     RulesDefinition.Rule ruleDef = mock();
     when(ruleDef.scope()).thenReturn(RuleScope.TEST);
-    when(ruleDef.repository()).thenReturn(mock());
+    RulesDefinition.Repository repository = mock();
+    when(ruleDef.repository()).thenReturn(repository);
     when(ruleDef.type()).thenReturn(org.sonar.api.rules.RuleType.BUG);
     return ruleDef;
   }

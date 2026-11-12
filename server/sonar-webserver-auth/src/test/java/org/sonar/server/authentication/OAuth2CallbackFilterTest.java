@@ -73,7 +73,8 @@ public class OAuth2CallbackFilterTest {
 
   @Before
   public void setUp() {
-    when(oAuth2ContextFactory.newCallback(request, response, oAuth2IdentityProvider)).thenReturn(mock(OAuth2IdentityProvider.CallbackContext.class));
+    OAuth2IdentityProvider.CallbackContext callbackContext = mock(OAuth2IdentityProvider.CallbackContext.class);
+    when(oAuth2ContextFactory.newCallback(request, response, oAuth2IdentityProvider)).thenReturn(callbackContext);
     when(request.getContextPath()).thenReturn("");
   }
 

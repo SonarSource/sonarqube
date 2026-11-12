@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Optional;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,7 +40,8 @@ class AzureBillingResponseHandlerTest {
   void extractAccessTokenFromResponse_whenIoExceptionIsThrown_returnEmpty() throws IOException {
     Response mockResponse = mock();
 
-    when(mockResponse.body()).thenReturn(mock());
+    ResponseBody mockResponseBody = mock();
+    when(mockResponse.body()).thenReturn(mockResponseBody);
     when(mockResponse.body().string()).thenThrow(new IOException("IO Exception"));
 
     var accessToken = underTest.extractAccessTokenFromResponse(mockResponse);
@@ -83,8 +85,10 @@ class AzureBillingResponseHandlerTest {
   void extractAccessTokenFromResponse_whenIoExceptionIsThrown_returnsEmpty() throws IOException {
     Response mockResponse = mock();
 
-    when(mockResponse.body()).thenReturn(mock());
-    when(mockResponse.body().string()).thenThrow(new IOException("IO Exception"));
+    ResponseBody mockBody = mock();
+
+    when(mockResponse.body()).thenReturn(mockBody);
+    when(mockBody.string()).thenThrow(new IOException("IO Exception"));
 
     var accessToken = underTest.getErrorMessageFromResponse(mockResponse);
     assertTrue(accessToken.isEmpty());

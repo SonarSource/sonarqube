@@ -55,7 +55,8 @@ public class TomcatContextsTest {
   @Before
   public void setUp() throws Exception {
     props.setProperty(Property.PATH_DATA.getKey(), temp.newFolder("data").getAbsolutePath());
-    when(tomcat.addWebapp(anyString(), anyString())).thenReturn(mock(StandardContext.class));
+    StandardContext standardContext = mock(StandardContext.class);
+    when(tomcat.addWebapp(anyString(), anyString())).thenReturn(standardContext);
   }
 
   @Test

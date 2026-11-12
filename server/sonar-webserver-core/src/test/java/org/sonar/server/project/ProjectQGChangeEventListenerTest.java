@@ -77,7 +77,8 @@ public class ProjectQGChangeEventListenerTest {
     when(dbClient.eventDao()).thenReturn(eventDao);
     when(dbClient.snapshotDao()).thenReturn(snapshotDao);
 
-    when(dbClient.openSession(false)).thenReturn(mock(DbSession.class));
+    DbSession dbSession = mock(DbSession.class);
+    when(dbClient.openSession(false)).thenReturn(dbSession);
   }
 
   @Test

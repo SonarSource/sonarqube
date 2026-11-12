@@ -131,7 +131,8 @@ public class FPOrAcceptedNotificationHandlerTest {
       .mapToObj(i -> mock(IssuesChangesNotification.class))
       .collect(toSet());
     when(emailNotificationChannel.isActivated()).thenReturn(true);
-    when(serializerMock.from(any(IssuesChangesNotification.class))).thenReturn(mock(IssuesChangesNotificationBuilder.class));
+    IssuesChangesNotificationBuilder builder = mock(IssuesChangesNotificationBuilder.class);
+    when(serializerMock.from(any(IssuesChangesNotification.class))).thenReturn(builder);
     FPOrAcceptedNotificationHandler underTest = new FPOrAcceptedNotificationHandler(notificationManager, emailNotificationChannel, serializerMock);
 
     underTest.deliver(notifications);
@@ -146,9 +147,11 @@ public class FPOrAcceptedNotificationHandlerTest {
       .collect(toSet());
     when(emailNotificationChannel.isActivated()).thenReturn(true);
     IllegalArgumentException expected = new IllegalArgumentException("faking serializer#from throwing a IllegalArgumentException");
+    IssuesChangesNotificationBuilder builder1 = mock(IssuesChangesNotificationBuilder.class);
+    IssuesChangesNotificationBuilder builder2 = mock(IssuesChangesNotificationBuilder.class);
     when(serializerMock.from(any(IssuesChangesNotification.class)))
-      .thenReturn(mock(IssuesChangesNotificationBuilder.class))
-      .thenReturn(mock(IssuesChangesNotificationBuilder.class))
+      .thenReturn(builder1)
+      .thenReturn(builder2)
       .thenThrow(expected);
     FPOrAcceptedNotificationHandler underTest = new FPOrAcceptedNotificationHandler(notificationManager, emailNotificationChannel, serializerMock);
 

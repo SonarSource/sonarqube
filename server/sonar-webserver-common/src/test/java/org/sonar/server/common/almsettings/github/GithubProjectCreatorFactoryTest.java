@@ -33,6 +33,7 @@ import org.sonar.alm.client.github.GithubPermissionConverter;
 import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GitHubSettings;
+import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubApplicationClient;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -148,7 +149,8 @@ public class GithubProjectCreatorFactoryTest {
   public void getDevOpsProjectCreator_whenNotPossibleToGenerateToken_shouldThrow() {
     AlmSettingDto almSettingDto = mockAlmSettingDto(true);
     when(githubApplicationClient.getInstallationId(any(), eq(GITHUB_REPO_FULL_NAME))).thenReturn(Optional.of(APP_INSTALLATION_ID));
-    when(githubGlobalSettingsValidator.validate(almSettingDto)).thenReturn(mock());
+    GithubAppConfiguration githubAppConfiguration = mock();
+    when(githubGlobalSettingsValidator.validate(almSettingDto)).thenReturn(githubAppConfiguration);
     when(githubApplicationClient.createAppInstallationToken(any(), eq(APP_INSTALLATION_ID))).thenReturn(Optional.empty());
 
     assertThatIllegalStateException().isThrownBy(() -> githubProjectCreatorFactory.getDevOpsProjectCreator(dbSession, VALID_GITHUB_PROJECT_COORDINATES))

@@ -56,8 +56,9 @@ class HazelcastMemberBuilderTest {
   void add_default_port_to_member(String memberParam, String memberAddress) {
     try (MockedStatic<Hazelcast> mockedHazelcast = mockStatic(Hazelcast.class)) {
       ArgumentCaptor<Config> configCaptor = forClass(Config.class);
+      HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
       mockedHazelcast.when(() -> Hazelcast.newHazelcastInstance(configCaptor.capture()))
-        .thenReturn(mock(HazelcastInstance.class));
+        .thenReturn(hazelcastInstance);
 
       int defaultPort = Integer.parseInt(ProcessProperties.Property.CLUSTER_NODE_HZ_PORT.getDefaultValue());
       new HazelcastMemberBuilder(JoinConfigurationType.TCP_IP)
