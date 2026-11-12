@@ -110,6 +110,7 @@ public final class SonarQubeSchema {
     "jira_work_items_resources",
     "llm_providers",
     "llm_provider_mappings",
+    "mcp_cimd_clients",
     "measure_history",
     "measure_key_mapping",
     "measures",

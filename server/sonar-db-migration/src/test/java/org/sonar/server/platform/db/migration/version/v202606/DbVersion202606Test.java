@@ -21,6 +21,7 @@ package org.sonar.server.platform.db.migration.version.v202606;
 
 import org.junit.jupiter.api.Test;
 
+import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
 import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationNotEmpty;
 import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
@@ -31,6 +32,11 @@ class DbVersion202606Test {
   @Test
   void migrationNumber_starts_at_2026_06_000() {
     verifyMinimumMigrationNumber(underTest, 202606000);
+  }
+
+  @Test
+  void registers_all_migrations() {
+    verifyMigrationCount(underTest, 30);
   }
 
   @Test
