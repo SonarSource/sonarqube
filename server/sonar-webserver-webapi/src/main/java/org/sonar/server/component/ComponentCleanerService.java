@@ -31,10 +31,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.es.Indexers.BranchEvent;
 import org.sonar.server.es.Indexers.EntityEvent;
-import org.sonarsource.history.model.EntityType;
-import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
 import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
-import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;

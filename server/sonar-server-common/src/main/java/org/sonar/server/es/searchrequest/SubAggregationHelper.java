@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.es.EsUtils;
-import org.sonar.server.es.Facets;
 
 import static java.lang.Math.max;
 import static java.util.Optional.of;

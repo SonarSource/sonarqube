@@ -43,13 +43,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.db.rule.SeverityUtil;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.pushapi.issues.IssueChangeEventService;
 import org.sonar.server.user.UserSession;
-import org.sonarsource.compliancereports.dao.IssueStats;
 import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static java.lang.String.format;

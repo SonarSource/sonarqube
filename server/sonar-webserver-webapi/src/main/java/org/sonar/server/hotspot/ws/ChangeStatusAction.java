@@ -35,15 +35,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.permission.ProjectPermission;
-import org.sonar.db.report.IssueStatsByRuleKeyDaoImpl;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.workflow.securityhotspot.SecurityHotspotWorkflowTransition;
 import org.sonar.server.issue.ws.IssueUpdater;
 import org.sonar.server.pushapi.hotspots.HotspotChangeEventService;
 import org.sonar.server.pushapi.hotspots.HotspotChangedEvent;
-import org.sonarsource.compliancereports.dao.AggregationType;
-import org.sonarsource.compliancereports.dao.IssueStats;
 import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static com.google.common.base.Preconditions.checkArgument;

@@ -71,7 +71,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.server.es.ES8QueryHelper;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.Sorting;
 import org.sonar.server.es.searchrequest.RequestFiltersComputer;
