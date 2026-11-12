@@ -40,6 +40,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_MOCKS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DropIndexChangeTest {
@@ -112,7 +114,7 @@ public class DropIndexChangeTest {
     Dialect dialect = mock(Dialect.class);
     when(dialect.getId()).thenReturn(dialectId);
 
-    Database db = Mockito.mock(Database.class, Mockito.withSettings().defaultAnswer(RETURNS_MOCKS));
+    Database db = mock(Database.class, Mockito.withSettings().defaultAnswer(RETURNS_MOCKS));
     when(db.getDialect()).thenReturn(dialect);
 
     DdlChange.Context con = mock(DdlChange.Context.class);
@@ -133,10 +135,10 @@ public class DropIndexChangeTest {
 
     if (expectResult) {
       ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-      Mockito.verify(con).execute(sqlCaptor.capture());
+      verify(con).execute(sqlCaptor.capture());
       return Optional.of(sqlCaptor.getValue());
     } else {
-      Mockito.verify(con, Mockito.never()).execute(any(String.class));
+      verify(con, never()).execute(any(String.class));
       return Optional.empty();
     }
   }

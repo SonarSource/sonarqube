@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
@@ -39,6 +38,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.auth.gitlab.GitLabSettings.GITLAB_AUTH_ALLOWED_GROUPS;
@@ -271,10 +271,10 @@ public class IntegrationTest {
   }
 
   private static OAuth2IdentityProvider.CallbackContext mockCallbackContext() {
-    OAuth2IdentityProvider.CallbackContext callbackContext = Mockito.mock(OAuth2IdentityProvider.CallbackContext.class);
+    OAuth2IdentityProvider.CallbackContext callbackContext = mock(OAuth2IdentityProvider.CallbackContext.class);
     when(callbackContext.getCallbackUrl()).thenReturn("http://server/callback");
 
-    HttpRequest httpRequest = Mockito.mock(HttpRequest.class);
+    HttpRequest httpRequest = mock(HttpRequest.class);
     when(httpRequest.getParameter("code")).thenReturn(ANY_CODE_VALUE);
     when(callbackContext.getHttpRequest()).thenReturn(httpRequest);
     return callbackContext;

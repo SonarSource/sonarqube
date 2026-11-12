@@ -25,7 +25,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -66,7 +65,7 @@ public class PullRequestFixedIssuesMeasureStepTest {
   public void setUp() throws Exception {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, ROOT_REF).build());
     metricRepository.add(CoreMetrics.PULL_REQUEST_FIXED_ISSUES);
-    Mockito.when(targetBranchInputFactory.hasTargetBranchAnalysis()).thenReturn(true);
+    when(targetBranchInputFactory.hasTargetBranchAnalysis()).thenReturn(true);
   }
 
   @Test

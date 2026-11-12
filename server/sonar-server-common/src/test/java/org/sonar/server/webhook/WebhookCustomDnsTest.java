@@ -37,12 +37,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.server.network.NetworkInterfaceProvider;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.SONAR_VALIDATE_WEBHOOKS_PROPERTY;
 import static org.sonar.core.config.SecurityProperties.WEBHOOKS_ALLOWED_ADDRESSES_PROPERTY;
@@ -54,8 +54,8 @@ public class WebhookCustomDnsTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private final Configuration configuration = Mockito.mock(Configuration.class);
-  private final NetworkInterfaceProvider networkInterfaceProvider = Mockito.mock(NetworkInterfaceProvider.class);
+  private final Configuration configuration = mock(Configuration.class);
+  private final NetworkInterfaceProvider networkInterfaceProvider = mock(NetworkInterfaceProvider.class);
 
   private final WebhookCustomDns underTest = new WebhookCustomDns(configuration, networkInterfaceProvider);
 

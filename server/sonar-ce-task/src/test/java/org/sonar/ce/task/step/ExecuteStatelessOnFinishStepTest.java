@@ -20,11 +20,11 @@
 package org.sonar.ce.task.step;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class ExecuteStatelessOnFinishStepTest {
@@ -46,8 +46,8 @@ public class ExecuteStatelessOnFinishStepTest {
 
     step.execute(mock(ComputationStep.Context.class));
 
-    verify(firstMock, Mockito.times(1)).onFinish();
-    verify(secondMock, Mockito.times(1)).onFinish();
+    verify(firstMock, times(1)).onFinish();
+    verify(secondMock, times(1)).onFinish();
   }
 
   @Test
