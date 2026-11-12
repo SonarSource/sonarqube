@@ -35,6 +35,7 @@ import org.sonar.ce.task.projectanalysis.event.EventRepository;
 import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.core.platform.SonarQubeVersion;
 import org.sonar.db.DbClient;
+import org.sonar.db.event.EventDao;
 import org.sonar.db.event.EventDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +69,8 @@ public class SqUpgradeDetectionEventsStepTest {
   @Test
   public void givenNoPreviousUpgradeEvents_whenStepIsExecuted_thenANewUpgradeEventIsCreated() {
     when(sonarQubeVersion.get()).thenReturn(Version.parse("10.3"));
-    when(dbClient.eventDao()).thenReturn(mock());
+    EventDao eventDao = mock();
+    when(dbClient.eventDao()).thenReturn(eventDao);
     when(dbClient.eventDao().selectSqUpgradesByMostRecentFirst(any(), any())).thenReturn(Collections.emptyList());
 
     underTest.execute(new TestComputationStepContext());
@@ -84,8 +86,9 @@ public class SqUpgradeDetectionEventsStepTest {
   @Test
   public void givenUpgradeEventWithTheSameSqVersion_whenStepIsExecuted_thenNothingIsPersisted() {
     when(sonarQubeVersion.get()).thenReturn(Version.parse("10.3"));
-    when(dbClient.eventDao()).thenReturn(mock());
-    when(dbClient.eventDao().selectSqUpgradesByMostRecentFirst(any(), any())).thenReturn(getUpgradeEvents("10.3", "10.2"));
+    EventDao eventDao = mock();
+    when(dbClient.eventDao()).thenReturn(eventDao);
+    when(eventDao.selectSqUpgradesByMostRecentFirst(any(), any())).thenReturn(getUpgradeEvents("10.3", "10.2"));
 
     underTest.execute(new TestComputationStepContext());
 
@@ -101,7 +104,8 @@ public class SqUpgradeDetectionEventsStepTest {
   @Test
   public void givenUpgradeEventWithDifferentSqVersion_whenStepIsExecuted_thenANewUpgradeEventIsCreated() {
     when(sonarQubeVersion.get()).thenReturn(Version.parse("10.3"));
-    when(dbClient.eventDao()).thenReturn(mock());
+    EventDao eventDao = mock();
+    when(dbClient.eventDao()).thenReturn(eventDao);
     when(dbClient.eventDao().selectSqUpgradesByMostRecentFirst(any(), any())).thenReturn(getUpgradeEvents("10.2", "10.1"));
 
     underTest.execute(new TestComputationStepContext());

@@ -27,6 +27,7 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.qualityprofile.PrioritizedRulesHolderImpl;
 import org.sonar.ce.task.step.ComputationStep;
 import org.sonar.db.DbClient;
+import org.sonar.db.qualityprofile.ActiveRuleDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -43,7 +44,8 @@ class LoadPrioritizedRulesStepTest {
 
   @Test
   void execute_whenNoPrioritizedRules_shouldHaveEmptyHolder() {
-    when(dbClient.activeRuleDao()).thenReturn(mock());
+    ActiveRuleDao activeRuleDao = mock();
+    when(dbClient.activeRuleDao()).thenReturn(activeRuleDao);
     when(dbClient.activeRuleDao().selectPrioritizedRules(any(), any())).thenReturn(new HashSet<>());
     underTest.execute(mock());
     assertThat(prioritizedRulesHolder.getPrioritizedRules()).isEmpty();
@@ -51,7 +53,8 @@ class LoadPrioritizedRulesStepTest {
 
   @Test
   void execute_whenPrioritizedRules_shouldHaveNonEmptyHolder() {
-    when(dbClient.activeRuleDao()).thenReturn(mock());
+    ActiveRuleDao activeRuleDao = mock();
+    when(dbClient.activeRuleDao()).thenReturn(activeRuleDao);
     when(dbClient.activeRuleDao().selectPrioritizedRules(any(), any())).thenReturn(Set.of(RuleKey.of("repositoryKey", "ruleKey")));
     underTest.execute(mock());
     assertThat(prioritizedRulesHolder.getPrioritizedRules()).isNotEmpty();
@@ -59,7 +62,8 @@ class LoadPrioritizedRulesStepTest {
 
   @Test
   void execute_whenDBError_shouldThrow() {
-    when(dbClient.activeRuleDao()).thenReturn(mock());
+    ActiveRuleDao activeRuleDao = mock();
+    when(dbClient.activeRuleDao()).thenReturn(activeRuleDao);
     when(dbClient.activeRuleDao().selectPrioritizedRules(any(), any())).thenThrow(new RuntimeException());
 
     ComputationStep.Context context = mock();

@@ -306,7 +306,8 @@ public class GithubProvisioningConfigValidatorTest {
   private static GithubAppInstallation mockInstallation(String org) {
     GithubAppInstallation installation = mock(GithubAppInstallation.class);
     when(installation.organizationName()).thenReturn(org);
-    when(installation.permissions()).thenReturn(mock(Permissions.class));
+    Permissions permissions = mock(Permissions.class);
+    when(installation.permissions()).thenReturn(permissions);
     return installation;
   }
 
