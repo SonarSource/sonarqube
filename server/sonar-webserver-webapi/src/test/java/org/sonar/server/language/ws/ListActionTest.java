@@ -21,13 +21,13 @@ package org.sonar.server.language.ws;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ListActionTest {
   private static final String EMPTY_JSON_RESPONSE = "{\"languages\": []}";
@@ -38,7 +38,7 @@ public class ListActionTest {
 
   @Before
   public void setUp() {
-    Mockito.when(languages.all()).thenReturn(new Language[] {
+    when(languages.all()).thenReturn(new Language[] {
       new Ook(),
       new LolCode(),
       new Whitespace(),

@@ -39,7 +39,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
-import org.mockito.Mockito;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.System2;
@@ -94,6 +93,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.rule.RuleType.SECURITY_HOTSPOT;
@@ -127,7 +127,7 @@ public class ShowActionIT {
   private final AvatarResolver avatarResolver = new AvatarResolverImpl();
   private final TextRangeResponseFormatter textRangeFormatter = new TextRangeResponseFormatter();
   private final HotspotWsResponseFormatter responseFormatter = new HotspotWsResponseFormatter(textRangeFormatter);
-  private final IssueChangeWSSupport issueChangeSupport = Mockito.mock(IssueChangeWSSupport.class);
+  private final IssueChangeWSSupport issueChangeSupport = mock(IssueChangeWSSupport.class);
   private final HotspotWsSupport hotspotWsSupport = new HotspotWsSupport(dbClient, userSessionRule, System2.INSTANCE);
   private final UserResponseFormatter userFormatter = new UserResponseFormatter(new AvatarResolverImpl());
   private final ShowAction underTest = new ShowAction(dbClient, hotspotWsSupport, responseFormatter, userFormatter, issueChangeSupport);
@@ -1223,7 +1223,7 @@ public class ShowActionIT {
   }
 
   private FormattingContext mockChangelogAndCommentsFormattingContext() {
-    FormattingContext formattingContext = Mockito.mock(FormattingContext.class);
+    FormattingContext formattingContext = mock(FormattingContext.class);
     when(issueChangeSupport.newFormattingContext(any(), any(), any(), anySet(), anySet())).thenReturn(formattingContext);
     return formattingContext;
   }

@@ -34,7 +34,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
@@ -59,7 +58,10 @@ import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -78,7 +80,7 @@ public class WebhookQGChangeEventListenerIT {
   private EvaluatedQualityGate newQualityGate = mock(EvaluatedQualityGate.class);
   private WebHooks webHooks = mock(WebHooks.class);
   private WebhookPayloadFactory webhookPayloadFactory = mock(WebhookPayloadFactory.class);
-  private DbClient spiedOnDbClient = Mockito.spy(dbClient);
+  private DbClient spiedOnDbClient = spy(dbClient);
   private WebhookQGChangeEventListener underTest = new WebhookQGChangeEventListener(webHooks, webhookPayloadFactory, spiedOnDbClient);
   private DbClient mockedDbClient = mock(DbClient.class);
   private WebhookQGChangeEventListener mockedUnderTest = new WebhookQGChangeEventListener(webHooks, webhookPayloadFactory, mockedDbClient);
@@ -223,7 +225,7 @@ public class WebhookQGChangeEventListenerIT {
   }
 
   private void mockPayloadSupplierConsumedByWebhooks() {
-    Mockito.doAnswer(invocationOnMock -> {
+    doAnswer(invocationOnMock -> {
       Supplier<WebhookPayload> supplier = (Supplier<WebhookPayload>) invocationOnMock.getArguments()[1];
       supplier.get();
       return null;
@@ -262,7 +264,7 @@ public class WebhookQGChangeEventListenerIT {
 
   private List<ProjectAnalysis> extractPayloadFactoryArguments(int time) {
     ArgumentCaptor<ProjectAnalysis> projectAnalysisCaptor = ArgumentCaptor.forClass(ProjectAnalysis.class);
-    verify(webhookPayloadFactory, Mockito.times(time)).create(projectAnalysisCaptor.capture());
+    verify(webhookPayloadFactory, times(time)).create(projectAnalysisCaptor.capture());
     return projectAnalysisCaptor.getAllValues();
   }
 

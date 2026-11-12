@@ -24,7 +24,6 @@ import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
@@ -33,6 +32,7 @@ import org.sonar.server.permission.index.WebAuthorizationTypeSupport;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +42,7 @@ class ComponentIndexSearchWindowExceededTest {
   public EsTester es = EsTester.create();
 
   private final WebAuthorizationTypeSupport authorizationTypeSupport = mock(WebAuthorizationTypeSupport.class);
-  private final EsClient esClient = Mockito.spy(es.client());
+  private final EsClient esClient = spy(es.client());
   private final ComponentIndex underTest = new ComponentIndex(esClient, authorizationTypeSupport, System2.INSTANCE);
 
   @Test

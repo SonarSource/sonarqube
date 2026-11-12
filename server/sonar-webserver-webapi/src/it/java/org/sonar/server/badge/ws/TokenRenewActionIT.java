@@ -23,7 +23,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.utils.System2;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
@@ -52,7 +51,7 @@ public class TokenRenewActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private final TokenGenerator tokenGenerator = Mockito.mock(TokenGenerator.class);
+  private final TokenGenerator tokenGenerator = mock(TokenGenerator.class);
 
   private final WsActionTester ws = new WsActionTester(
     new TokenRenewAction(

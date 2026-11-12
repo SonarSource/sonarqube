@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sonar.db.DbSession;
 import org.sonar.db.alm.setting.ALM;
@@ -59,7 +58,7 @@ class GitlabProjectCreatorFactoryTest {
   @Test
   void getDevOpsProjectCreator_whenDevOpsPlatformIsNotGitlab_returnsEmpty() {
     AlmSettingDto almSetting = mockAlm(ALM.GITHUB);
-    AssertionsForClassTypes.assertThat(underTest.getDevOpsProjectCreator(almSetting, Mockito.mock(DevOpsProjectDescriptor.class))).isEmpty();
+    AssertionsForClassTypes.assertThat(underTest.getDevOpsProjectCreator(almSetting, mock(DevOpsProjectDescriptor.class))).isEmpty();
   }
 
 

@@ -28,6 +28,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -61,7 +62,7 @@ class McpProxyServletTest {
   @Test
   void propagates_io_exception_from_handler() throws Exception {
     McpRequestHandler handler = mock(McpRequestHandler.class);
-    org.mockito.Mockito.doThrow(new IOException("handler error")).when(handler).handle(
+    doThrow(new IOException("handler error")).when(handler).handle(
       org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     McpProxyServlet servlet = new McpProxyServlet(() -> Optional.of(handler));
 

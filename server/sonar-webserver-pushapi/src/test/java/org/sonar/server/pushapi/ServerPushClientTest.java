@@ -39,6 +39,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -66,7 +68,7 @@ public class ServerPushClientTest {
   public void scheduleHeartbeat_oneTaskIsScheduled() {
     underTest.scheduleHeartbeat();
 
-    verify(executorService, Mockito.times(1))
+    verify(executorService, times(1))
       .schedule(any(HeartbeatTask.class), anyLong(), any());
   }
 
@@ -74,32 +76,32 @@ public class ServerPushClientTest {
   public void writeAndFlush_payloadAlwaysEndsWithSlashNSlashN() throws IOException {
     underTest.writeAndFlush("payload");
 
-    verify(outputStream, Mockito.times(1)).flush();
-    verify(outputStream, Mockito.times(1)).write("payload\n\n".getBytes(StandardCharsets.UTF_8));
+    verify(outputStream, times(1)).flush();
+    verify(outputStream, times(1)).write("payload\n\n".getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
   public void writeAndFlush_payloadAlwaysEndsWithASingleSlashNSlashN_whenMessageAlreadyContainsIt() throws IOException {
     underTest.writeAndFlush("payload\n\n");
 
-    verify(outputStream, Mockito.times(1)).flush();
-    verify(outputStream, Mockito.times(1)).write("payload\n\n".getBytes(StandardCharsets.UTF_8));
+    verify(outputStream, times(1)).flush();
+    verify(outputStream, times(1)).write("payload\n\n".getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
   public void writeAndFlush_writeIsCalledOnceAndFlushIsCalledOnce() throws IOException {
     underTest.writeAndFlush('a');
 
-    verify(outputStream, Mockito.times(1)).flush();
-    verify(outputStream, Mockito.times(1)).write('a');
+    verify(outputStream, times(1)).flush();
+    verify(outputStream, times(1)).write('a');
   }
 
   @Test
   public void write_writeIsCalledOnceAndDoesntFlush() throws IOException {
     underTest.write('a');
 
-    verify(outputStream, Mockito.never()).flush();
-    verify(outputStream, Mockito.times(1)).write('a');
+    verify(outputStream, never()).flush();
+    verify(outputStream, times(1)).write('a');
   }
 
   @Test

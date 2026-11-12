@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.Mockito;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.impl.utils.AlwaysIncreasingSystem2;
@@ -79,6 +78,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.MAJOR;
@@ -875,7 +875,7 @@ class QProfileRuleImplIT {
 
   @Test
   void deactivate_whenRuleInheritedAndPropertyDisabled_cannotBeDeactivated() {
-    Mockito.when(configuration.getBoolean(CorePropertyDefinitions.ALLOW_DISABLE_INHERITED_RULES)).thenReturn(Optional.of(false));
+    when(configuration.getBoolean(CorePropertyDefinitions.ALLOW_DISABLE_INHERITED_RULES)).thenReturn(Optional.of(false));
 
     RuleDto rule = createRule();
     QProfileDto parentProfile = createProfile(rule);

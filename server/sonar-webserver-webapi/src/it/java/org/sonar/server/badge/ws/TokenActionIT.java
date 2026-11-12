@@ -22,7 +22,6 @@ package org.sonar.server.badge.ws;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.db.permission.ProjectPermission;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -35,6 +34,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TokenActionIT {
@@ -45,7 +45,7 @@ public class TokenActionIT {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private final TokenGenerator tokenGenerator = Mockito.mock(TokenGenerator.class);
+  private final TokenGenerator tokenGenerator = mock(TokenGenerator.class);
 
   private final WsActionTester ws = new WsActionTester(
     new TokenAction(

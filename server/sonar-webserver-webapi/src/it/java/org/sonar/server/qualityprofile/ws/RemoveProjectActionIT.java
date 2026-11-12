@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.ws;
 import java.net.HttpURLConnection;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.resources.Languages;
 import org.sonar.db.component.ComponentQualifiers;
 import org.sonar.api.server.ws.WebService;
@@ -48,6 +47,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.permission.GlobalPermission.ADMINISTER_QUALITY_PROFILES;
 
@@ -64,7 +64,7 @@ public class RemoveProjectActionIT {
   private final Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
   private final QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession);
 
-  private final QualityProfileChangeEventService qualityProfileChangeEventService = Mockito.mock(QualityProfileChangeEventService.class);
+  private final QualityProfileChangeEventService qualityProfileChangeEventService = mock(QualityProfileChangeEventService.class);
   private final RemoveProjectAction underTest = new RemoveProjectAction(dbClient, userSession, languages,
     new ComponentFinder(dbClient, new ComponentTypesRule().setRootQualifiers(ComponentQualifiers.PROJECT)), wsSupport, qualityProfileChangeEventService);
   private final WsActionTester ws = new WsActionTester(underTest);

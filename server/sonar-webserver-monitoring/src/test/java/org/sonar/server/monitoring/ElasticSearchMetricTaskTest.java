@@ -73,7 +73,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_elasticsearch_up_status_is_updated_to_green() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(HealthStatus.Green);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
@@ -106,7 +106,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_elasticsearch_yellow_status_is_updated_to_green() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(HealthStatus.Yellow);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
@@ -118,7 +118,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_elasticsearch_down_status_is_updated_to_red() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(HealthStatus.Red);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
@@ -130,7 +130,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_no_es_status_null_status_is_updated_to_red() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(null);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
@@ -168,7 +168,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_indices_are_readonly_status_is_updated_to_red() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(HealthStatus.Green);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
@@ -207,7 +207,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_disk_space_below_threshold_status_fails() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(HealthStatus.Green);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
@@ -239,7 +239,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_disk_space_above_threshold_and_no_readonly_status_good() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(HealthStatus.Green);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
@@ -271,7 +271,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_readonly_check_fails_fallback_to_cluster_health() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(HealthStatus.Green);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
@@ -288,7 +288,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_multiple_indices_are_readonly_all_are_counted() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(HealthStatus.Green);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
@@ -332,7 +332,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_some_indices_have_null_blocks_they_are_skipped() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(HealthStatus.Green);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
@@ -370,7 +370,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_multiple_nodes_have_different_disk_usage_max_is_tracked() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(HealthStatus.Green);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
@@ -422,7 +422,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_multiple_nodes_with_low_disk_space_all_are_logged_and_max_is_tracked() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(HealthStatus.Green);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 
@@ -476,7 +476,7 @@ class ElasticSearchMetricTaskTest {
 
   @Test
   void when_node_has_zero_total_bytes_it_is_skipped_from_percentage_calculation() {
-    HealthResponse healthResponse = Mockito.mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    HealthResponse healthResponse = mock(HealthResponse.class, Mockito.RETURNS_DEEP_STUBS);
     when(healthResponse.status()).thenReturn(HealthStatus.Green);
     when(esClient.clusterHealthV2(any())).thenReturn(healthResponse);
 

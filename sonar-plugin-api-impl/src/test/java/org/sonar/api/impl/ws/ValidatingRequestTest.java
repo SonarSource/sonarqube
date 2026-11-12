@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 
 public class ValidatingRequestTest {
 
-  ValidatingRequest underTest = Mockito.mock(ValidatingRequest.class, Mockito.CALLS_REAL_METHODS);
+  ValidatingRequest underTest = mock(ValidatingRequest.class, Mockito.CALLS_REAL_METHODS);
   @Test
   public void paramReturnsTheDefaultValue_whenDefaultIsSetAndValueIsNot() {
     underTest.setAction(mock(WebService.Action.class));

@@ -23,7 +23,6 @@ import co.elastic.clients.elasticsearch._types.HealthStatus;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.server.es.EsClient;
@@ -33,12 +32,13 @@ import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.process.cluster.health.NodeHealth.Status.GREEN;
 
 class EsStatusClusterCheckTest {
 
-  private final EsClient esClient = Mockito.mock(EsClient.class, RETURNS_DEEP_STUBS);
+  private final EsClient esClient = mock(EsClient.class, RETURNS_DEEP_STUBS);
   private final EsStatusClusterCheck underTest = new EsStatusClusterCheck(esClient);
 
   @Test
