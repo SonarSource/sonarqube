@@ -26,7 +26,7 @@ dependencies {
     implementation 'org.sonarsource.sonarqube:history-core'
     implementation 'org.sonarsource.sonarqube:history-server-app'
     api 'org.sonarsource.sonarqube:onboarding-unified-app'
-    api 'org.sonarsource.sonarqube:sonar-spring'
+    api 'org.sonarsource.sonarqube:sonar-spring-commons'
     api project(':server:sonar-webserver-common')
 
     testImplementation 'jakarta.servlet:jakarta.servlet-api'

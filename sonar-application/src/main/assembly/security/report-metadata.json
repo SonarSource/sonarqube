@@ -46,7 +46,7 @@
     "org.sonarsource.sonarqube:sonar-events-api",
     "org.sonarsource.sonarqube:sonar-events-server",
     "org.sonarsource.sonarqube:sonar-feature-flags-api",
-    "org.sonarsource.sonarqube:sonar-spring",
+    "org.sonarsource.sonarqube:sonar-spring-commons",
     "org.sonarsource.sonarqube:users-api",
     "org.sonarsource.sonarqube:users-server-app",
     "org.sonarsource.sonarqube:webapp-assets",

@@ -24,7 +24,7 @@ dependencies {
   api project(':server:sonar-process')
   api project(':server:sonar-server-common')
   api 'org.sonarsource.sonarqube:dashboards-api'
-  api 'org.sonarsource.sonarqube:sonar-spring'
+  api 'org.sonarsource.sonarqube:sonar-spring-commons'
   api project(':sonar-plugin-api-impl')
 
   compileOnlyApi 'com.github.spotbugs:spotbugs-annotations'
