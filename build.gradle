@@ -49,7 +49,7 @@ allprojects {
     exclude group: 'net.i2p.crypto', module: 'eddsa'
     // Temporary: sonar-spring was renamed to sonar-spring-commons; avoids duplicate classes until all libraries migrate
     resolutionStrategy.dependencySubstitution {
-      substitute module('org.sonarsource.sonarqube:sonar-spring') using module("org.sonarsource.sonarqube:sonar-spring-commons:$sonarSpringCommonsVersion")
+      substitute module('org.sonarsource.sonarqube:sonar-spring') using module("org.sonarsource.sonarqube:sonar-spring-commons:$unifiedCoreVersion")
     }
   }
 
@@ -417,7 +417,7 @@ subprojects {
         entry 'sonar-db-commons'
         entry 'sonar-db-commons-testfixtures'
       }
-      dependency "org.sonarsource.sonarqube:sonar-spring-commons:$sonarSpringCommonsVersion"
+      dependency "org.sonarsource.sonarqube:sonar-spring-commons:$unifiedCoreVersion"
       // Record generation for portable modules (e.g. security-alerts-unified-app), mirroring sonar-sca's usage.
       dependency 'io.soabase.record-builder:record-builder-core:53'
       dependency 'io.soabase.record-builder:record-builder-processor:53'

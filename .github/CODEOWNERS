@@ -2,9 +2,9 @@
 /.gitar/ @SonarSource/platform-server-squad
 /private/core-extension-securityreport/ @sonarsource/code-orchestration-organization-reporting-squad
 /private/core-extension-enterprise-server/ @sonarsource/code-orchestration-organization-reporting-squad
-/private/core-extension-jira/ @sonarsource/orchestration-integration-squad
-/private/core-extension-slack/ @sonarsource/orchestration-integration-squad
-/private/core-extension-jfrog/ @sonarsource/orchestration-integration-squad
+/private/core-extension-jira/ @SonarSource/agentic-sdlc-devops-platforms-experience-dopex-squad
+/private/core-extension-slack/ @SonarSource/agentic-sdlc-devops-platforms-experience-dopex-squad
+/private/core-extension-jfrog/ @SonarSource/agentic-sdlc-devops-platforms-experience-dopex-squad
 /private/core-extension-software-quality-reports/ @sonarsource/code-orchestration-organization-reporting-squad
 /private/it-governance/ @sonarsource/code-orchestration-organization-reporting-squad
 /private/it-architecture/ @SonarSource/quality-architecture-squad
