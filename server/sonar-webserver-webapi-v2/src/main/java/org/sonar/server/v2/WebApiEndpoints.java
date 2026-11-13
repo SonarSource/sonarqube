@@ -78,6 +78,7 @@ public class WebApiEndpoints {
   public static final String AGENTIC_JOBS_ENDPOINT = AGENTIC_DOMAIN + "/jobs";
 
   public static final String MCP_OAUTH_DOMAIN = "/mcp-oauth";
+  public static final String MCP_OAUTH_CLIENTS_ENDPOINT = MCP_OAUTH_DOMAIN + "/clients";
   public static final String MCP_OAUTH_AUTHORIZATIONS_ENDPOINT = MCP_OAUTH_DOMAIN + AUTHORIZATIONS_DOMAIN;
 
   public static final String MARKETPLACE_DOMAIN = "/marketplace";
