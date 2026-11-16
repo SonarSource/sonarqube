@@ -278,8 +278,20 @@ public class HistoryAuthUtilsTest {
   }
 
   @Test
-  public void assertUserHasPermission_whenEntityTypeIsNull_shouldOnlyCloseDatabaseSession() {
-    HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, "entity-1", null);
+  public void assertUserHasPermission_whenEntityTypeIsOrganization_shouldRejectUnsupportedEntityType() {
+    assertThatThrownBy(() -> HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, "entity-1", EntityType.ORGANIZATION))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unsupported history entity type: ORGANIZATION");
+
+    verifyNoInteractions(branchDao, portfolioDao, projectDao, userSession);
+    verify(dbSession).close();
+  }
+
+  @Test
+  public void assertUserHasPermission_whenEntityTypeIsNull_shouldRejectUnsupportedEntityType() {
+    assertThatThrownBy(() -> HistoryAuthUtils.assertUserHasPermission(userSession, dbClient, "entity-1", null))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Unsupported history entity type: null");
 
     verifyNoInteractions(branchDao, portfolioDao, projectDao, userSession);
     verify(dbSession).close();

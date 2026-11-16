@@ -39,33 +39,41 @@ public final class HistoryAuthUtils {
 
   public static void assertUserHasPermission(UserSession userSession, DbClient dbClient, String entityId, EntityType entityType) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (EntityType.PROJECT_BRANCH.equals(entityType)) {
-        BranchDto branch = checkFoundWithOptional(
-          dbClient.branchDao().selectByUuid(dbSession, entityId),
-          "Project branch with uuid '%s' not found", entityId);
-        ProjectDto project = checkFoundWithOptional(
-          dbClient.projectDao().selectByUuid(dbSession, branch.getProjectUuid()),
-          "Project with uuid '%s' not found", branch.getProjectUuid());
-        userSession.checkEntityPermission(ProjectPermission.USER, project);
-        if (ComponentQualifiers.APP.equals(project.getQualifier())) {
-          userSession.checkChildProjectsPermission(ProjectPermission.USER, project);
-        }
-      } else if (EntityType.PORTFOLIO.equals(entityType)) {
-        PortfolioDto portfolio = checkFoundWithOptional(
-          dbClient.portfolioDao().selectByUuid(dbSession, entityId),
-          "Portfolio with uuid '%s' not found", entityId);
-        userSession.checkEntityPermission(ProjectPermission.USER, portfolio);
-      } else if (EntityType.APPLICATION.equals(entityType)) {
-        BranchDto applicationBranch = checkFoundWithOptional(
-          dbClient.branchDao().selectByUuid(dbSession, entityId),
-          "Portfolio or application branch '%s' not found", entityId);
-        ProjectDto application = checkFoundWithOptional(
-          dbClient.projectDao().selectByUuid(dbSession, applicationBranch.getProjectUuid())
-            .filter(project -> ComponentQualifiers.APP.equals(project.getQualifier())),
-          "Portfolio or application branch '%s' not found", entityId);
-        userSession.checkEntityPermission(ProjectPermission.USER, application);
-        userSession.checkChildProjectsPermission(ProjectPermission.USER, application);
+      switch (entityType) {
+        case PROJECT_BRANCH -> checkProjectBranchPermission(userSession, dbClient, dbSession, entityId);
+        case PORTFOLIO -> checkPortfolioPermission(userSession, dbClient, dbSession, entityId);
+        case APPLICATION -> checkApplicationPermission(userSession, dbClient, dbSession, entityId);
+        case null, default -> throw new IllegalArgumentException("Unsupported history entity type: " + entityType);
       }
     }
+  }
+
+  private static void checkProjectBranchPermission(UserSession userSession, DbClient dbClient, DbSession dbSession, String entityId) {
+    BranchDto branch = checkFoundWithOptional(dbClient.branchDao().selectByUuid(dbSession, entityId),
+      "Project branch with uuid '%s' not found", entityId);
+    ProjectDto project = checkFoundWithOptional(dbClient.projectDao().selectByUuid(dbSession, branch.getProjectUuid()),
+      "Project with uuid '%s' not found", branch.getProjectUuid());
+    userSession.checkEntityPermission(ProjectPermission.USER, project);
+    if (ComponentQualifiers.APP.equals(project.getQualifier())) {
+      userSession.checkChildProjectsPermission(ProjectPermission.USER, project);
+    }
+  }
+
+  private static void checkPortfolioPermission(UserSession userSession, DbClient dbClient, DbSession dbSession, String entityId) {
+    PortfolioDto portfolio = checkFoundWithOptional(dbClient.portfolioDao().selectByUuid(dbSession, entityId),
+      "Portfolio with uuid '%s' not found", entityId);
+    userSession.checkEntityPermission(ProjectPermission.USER, portfolio);
+  }
+
+  private static void checkApplicationPermission(UserSession userSession, DbClient dbClient, DbSession dbSession, String entityId) {
+    BranchDto applicationBranch = checkFoundWithOptional(
+      dbClient.branchDao().selectByUuid(dbSession, entityId),
+      "Portfolio or application branch '%s' not found", entityId);
+    ProjectDto application = checkFoundWithOptional(
+      dbClient.projectDao().selectByUuid(dbSession, applicationBranch.getProjectUuid())
+        .filter(project -> ComponentQualifiers.APP.equals(project.getQualifier())),
+      "Portfolio or application branch '%s' not found", entityId);
+    userSession.checkEntityPermission(ProjectPermission.USER, application);
+    userSession.checkChildProjectsPermission(ProjectPermission.USER, application);
   }
 }
