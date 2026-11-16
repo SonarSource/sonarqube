@@ -278,17 +278,17 @@ class AuthorizationDaoIT {
     UserDto user4 = db.users().insertUser();
     UserDto user5 = db.users().insertUser();
 
-    GroupDto group1 = db.users().insertGroup("g1");
-    db.users().insertPermissionOnGroup(group1, "perm1");
-    db.users().insertPermissionOnGroup(group1, "perm2");
-    db.users().insertMember(group1, user1);
-    db.users().insertMember(group1, user2);
+    GroupDto groupG1 = db.users().insertGroup("g1");
+    db.users().insertPermissionOnGroup(groupG1, "perm1");
+    db.users().insertPermissionOnGroup(groupG1, "perm2");
+    db.users().insertMember(groupG1, user1);
+    db.users().insertMember(groupG1, user2);
 
-    GroupDto group2 = db.users().insertGroup("g2");
-    db.users().insertPermissionOnGroup(group2, "perm1");
-    db.users().insertPermissionOnGroup(group2, "perm2");
-    db.users().insertMember(group2, user1);
-    db.users().insertMember(group2, user3);
+    GroupDto groupG2 = db.users().insertGroup("g2");
+    db.users().insertPermissionOnGroup(groupG2, "perm1");
+    db.users().insertPermissionOnGroup(groupG2, "perm2");
+    db.users().insertMember(groupG2, user1);
+    db.users().insertMember(groupG2, user3);
 
     // group3 has the permission "perm1" but has no users
     GroupDto group3 = db.users().insertGroup("g3");
@@ -299,11 +299,11 @@ class AuthorizationDaoIT {
 
     // excluding group "g1" -> remain u1, u3 and u4
     assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
-      "perm1", group1.getUuid())).isEqualTo(3);
+      "perm1", groupG1.getUuid())).isEqualTo(3);
 
     // excluding group "g2" -> remain u1, u2 and u4
     assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
-      "perm1", group2.getUuid())).isEqualTo(3);
+      "perm1", groupG2.getUuid())).isEqualTo(3);
 
     // excluding group "g3" -> remain u1, u2, u3 and u4
     assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
@@ -311,7 +311,7 @@ class AuthorizationDaoIT {
 
     // nobody has the permission
     assertThat(underTest.countUsersWithGlobalPermissionExcludingGroup(db.getSession(),
-      "missingPermission", group1.getUuid())).isZero();
+      "missingPermission", groupG1.getUuid())).isZero();
   }
 
   @Test
@@ -322,11 +322,11 @@ class AuthorizationDaoIT {
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
 
-    GroupDto group1 = db.users().insertGroup("g1");
-    db.users().insertPermissionOnGroup(group1, "p1");
-    db.users().insertPermissionOnGroup(group1, "p2");
-    db.users().insertMember(group1, user1);
-    db.users().insertMember(group1, user2);
+    GroupDto groupG1 = db.users().insertGroup("g1");
+    db.users().insertPermissionOnGroup(groupG1, "p1");
+    db.users().insertPermissionOnGroup(groupG1, "p2");
+    db.users().insertMember(groupG1, user1);
+    db.users().insertMember(groupG1, user2);
     db.users().insertPermissionOnUser(user3, "p1");
 
     // excluding user1 -> remain user2 and user3
@@ -354,11 +354,11 @@ class AuthorizationDaoIT {
     UserDto user2 = db.users().insertUser();
     UserDto user3 = db.users().insertUser();
 
-    GroupDto group1 = db.users().insertGroup();
-    db.users().insertPermissionOnGroup(group1, ADMINISTER);
-    db.users().insertPermissionOnGroup(group1, PROVISION_PROJECTS);
-    db.users().insertMember(group1, user1);
-    db.users().insertMember(group1, user2);
+    GroupDto groupG1 = db.users().insertGroup();
+    db.users().insertPermissionOnGroup(groupG1, ADMINISTER);
+    db.users().insertPermissionOnGroup(groupG1, PROVISION_PROJECTS);
+    db.users().insertMember(groupG1, user1);
+    db.users().insertMember(groupG1, user2);
     db.users().insertGlobalPermissionOnUser(user3, ADMINISTER);
 
     assertThat(underTest.selectUserUuidsWithGlobalPermission(db.getSession(), ADMINISTER.getKey()))
@@ -781,14 +781,14 @@ class AuthorizationDaoIT {
     UserDto user1 = db.users().insertUser("u1");
     UserDto user2 = db.users().insertUser("u2");
     UserDto user3 = db.users().insertUser("u3");
-    GroupDto group1 = db.users().insertGroup();
-    GroupDto group2 = db.users().insertGroup();
-    db.users().insertMembers(group1, user1, user2);
-    db.users().insertMembers(group2, user3);
+    GroupDto groupG1 = db.users().insertGroup();
+    GroupDto groupG2 = db.users().insertGroup();
+    db.users().insertMembers(groupG1, user1, user2);
+    db.users().insertMembers(groupG2, user3);
     db.users().insertProjectPermissionOnUser(user1, ProjectPermission.USER, project1);
     db.users().insertProjectPermissionOnUser(user2, ProjectPermission.USER, project1);
     db.users().insertProjectPermissionOnUser(user3, ProjectPermission.USER, project1);
-    db.users().insertEntityPermissionOnGroup(group2, ProjectPermission.USER, project3);
+    db.users().insertEntityPermissionOnGroup(groupG2, ProjectPermission.USER, project3);
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndEntity(dbSession,
       // Only 100 and 101 has 'user' role on project

@@ -101,9 +101,9 @@ public class NotificationFactoryTest {
 
   @Test
   public void newMyNewIssuesNotification_DetailsSupplier_getUserNameByUuid_fails_with_NPE_if_uuid_is_null() {
-    MyNewIssuesNotification underTest = this.underTest.newMyNewIssuesNotification(emptyMap());
+    MyNewIssuesNotification notification = this.underTest.newMyNewIssuesNotification(emptyMap());
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
 
     assertThatThrownBy(() -> detailsSupplier.getUserNameByUuid(null))
       .isInstanceOf(NullPointerException.class)
@@ -112,9 +112,9 @@ public class NotificationFactoryTest {
 
   @Test
   public void newMyNewIssuesNotification_DetailsSupplier_getUserNameByUuid_always_returns_empty_if_map_argument_is_empty() {
-    MyNewIssuesNotification underTest = this.underTest.newMyNewIssuesNotification(emptyMap());
+    MyNewIssuesNotification notification = this.underTest.newMyNewIssuesNotification(emptyMap());
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
     assertThat(detailsSupplier.getUserNameByUuid("foo")).isEmpty();
   }
 
@@ -124,10 +124,10 @@ public class NotificationFactoryTest {
       .mapToObj(i -> UserTesting.newUserDto().setLogin("user" + i))
       .collect(Collectors.toSet());
 
-    MyNewIssuesNotification underTest = this.underTest.newMyNewIssuesNotification(
+    MyNewIssuesNotification notification = this.underTest.newMyNewIssuesNotification(
       users.stream().collect(Collectors.toMap(UserDto::getUuid, Function.identity())));
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
     assertThat(detailsSupplier.getUserNameByUuid("foo")).isEmpty();
     users
       .forEach(user -> assertThat(detailsSupplier.getUserNameByUuid(user.getUuid())).contains(user.getName()));
@@ -137,17 +137,17 @@ public class NotificationFactoryTest {
   public void newMyNewIssuesNotification_DetailsSupplier_getUserNameByUuid_returns_empty_if_user_has_null_name() {
     UserDto user = UserTesting.newUserDto().setLogin("user_noname").setName(null);
 
-    MyNewIssuesNotification underTest = this.underTest.newMyNewIssuesNotification(ImmutableMap.of(user.getUuid(), user));
+    MyNewIssuesNotification notification = this.underTest.newMyNewIssuesNotification(ImmutableMap.of(user.getUuid(), user));
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
     assertThat(detailsSupplier.getUserNameByUuid(user.getUuid())).isEmpty();
   }
 
   @Test
   public void newNewIssuesNotification_DetailsSupplier_getUserNameByUuid_fails_with_NPE_if_uuid_is_null() {
-    NewIssuesNotification underTest = this.underTest.newNewIssuesNotification(emptyMap());
+    NewIssuesNotification notification = this.underTest.newNewIssuesNotification(emptyMap());
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
 
     assertThatThrownBy(() -> detailsSupplier.getUserNameByUuid(null))
       .isInstanceOf(NullPointerException.class)
@@ -156,9 +156,9 @@ public class NotificationFactoryTest {
 
   @Test
   public void newNewIssuesNotification_DetailsSupplier_getUserNameByUuid_always_returns_empty_if_map_argument_is_empty() {
-    NewIssuesNotification underTest = this.underTest.newNewIssuesNotification(emptyMap());
+    NewIssuesNotification notification = this.underTest.newNewIssuesNotification(emptyMap());
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
     assertThat(detailsSupplier.getUserNameByUuid("foo")).isEmpty();
   }
 
@@ -168,10 +168,10 @@ public class NotificationFactoryTest {
       .mapToObj(i -> UserTesting.newUserDto().setLogin("user" + i))
       .collect(Collectors.toSet());
 
-    NewIssuesNotification underTest = this.underTest.newNewIssuesNotification(
+    NewIssuesNotification notification = this.underTest.newNewIssuesNotification(
       users.stream().collect(Collectors.toMap(UserDto::getUuid, Function.identity())));
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
     assertThat(detailsSupplier.getUserNameByUuid("foo")).isEmpty();
     users
       .forEach(user -> assertThat(detailsSupplier.getUserNameByUuid(user.getUuid())).contains(user.getName()));
@@ -181,17 +181,17 @@ public class NotificationFactoryTest {
   public void newNewIssuesNotification_DetailsSupplier_getUserNameByUuid_returns_empty_if_user_has_null_name() {
     UserDto user = UserTesting.newUserDto().setLogin("user_noname").setName(null);
 
-    NewIssuesNotification underTest = this.underTest.newNewIssuesNotification(ImmutableMap.of(user.getUuid(), user));
+    NewIssuesNotification notification = this.underTest.newNewIssuesNotification(ImmutableMap.of(user.getUuid(), user));
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
     assertThat(detailsSupplier.getUserNameByUuid(user.getUuid())).isEmpty();
   }
 
   @Test
   public void newMyNewIssuesNotification_DetailsSupplier_getComponentNameByUuid_fails_with_ISE_if_TreeRootHolder_is_not_initialized() {
-    MyNewIssuesNotification underTest = this.underTest.newMyNewIssuesNotification(emptyMap());
+    MyNewIssuesNotification notification = this.underTest.newMyNewIssuesNotification(emptyMap());
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
 
     assertThatThrownBy(() -> detailsSupplier.getComponentNameByUuid("foo"))
       .isInstanceOf(IllegalStateException.class)
@@ -202,9 +202,9 @@ public class NotificationFactoryTest {
   public void newMyNewIssuesNotification_DetailsSupplier_getComponentNameByUuid_fails_with_NPE_if_uuid_is_null() {
     treeRootHolder.setRoot(ReportComponent.builder(PROJECT, 1).setUuid("rootUuid").setName("root").build());
 
-    MyNewIssuesNotification underTest = this.underTest.newMyNewIssuesNotification(emptyMap());
+    MyNewIssuesNotification notification = this.underTest.newMyNewIssuesNotification(emptyMap());
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
 
     assertThatThrownBy(() -> detailsSupplier.getComponentNameByUuid(null))
       .isInstanceOf(NullPointerException.class)
@@ -215,9 +215,9 @@ public class NotificationFactoryTest {
   public void newMyNewIssuesNotification_DetailsSupplier_getComponentNameByUuid_returns_name_of_project_in_TreeRootHolder() {
     treeRootHolder.setRoot(ReportComponent.builder(PROJECT, 1).setUuid("rootUuid").setName("root").build());
 
-    MyNewIssuesNotification underTest = this.underTest.newMyNewIssuesNotification(emptyMap());
+    MyNewIssuesNotification notification = this.underTest.newMyNewIssuesNotification(emptyMap());
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
 
     assertThat(detailsSupplier.getComponentNameByUuid("rootUuid")).contains("root");
     assertThat(detailsSupplier.getComponentNameByUuid("foo")).isEmpty();
@@ -235,9 +235,9 @@ public class NotificationFactoryTest {
         .build())
       .addChildren(ReportComponent.builder(FILE, 11).setUuid("file11Uuid").setName("file11").setShortName("file11_short").build())
       .build());
-    MyNewIssuesNotification underTest = this.underTest.newMyNewIssuesNotification(emptyMap());
+    MyNewIssuesNotification notification = this.underTest.newMyNewIssuesNotification(emptyMap());
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
 
     Stream.of("dir1", "dir2", "file11", "file21", "file31", "file32")
       .forEach(name -> {
@@ -248,9 +248,9 @@ public class NotificationFactoryTest {
 
   @Test
   public void newNewIssuesNotification_DetailsSupplier_getComponentNameByUuid_fails_with_ISE_if_TreeRootHolder_is_not_initialized() {
-    NewIssuesNotification underTest = this.underTest.newNewIssuesNotification(emptyMap());
+    NewIssuesNotification notification = this.underTest.newNewIssuesNotification(emptyMap());
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
 
     assertThatThrownBy(() -> detailsSupplier.getComponentNameByUuid("foo"))
       .isInstanceOf(IllegalStateException.class)
@@ -260,9 +260,9 @@ public class NotificationFactoryTest {
   @Test
   public void newNewIssuesNotification_DetailsSupplier_getComponentNameByUuid_fails_with_NPE_if_uuid_is_null() {
     treeRootHolder.setRoot(ReportComponent.builder(PROJECT, 1).setUuid("rootUuid").setName("root").build());
-    NewIssuesNotification underTest = this.underTest.newNewIssuesNotification(emptyMap());
+    NewIssuesNotification notification = this.underTest.newNewIssuesNotification(emptyMap());
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
 
     assertThatThrownBy(() -> detailsSupplier.getComponentNameByUuid(null))
       .isInstanceOf(NullPointerException.class)
@@ -273,9 +273,9 @@ public class NotificationFactoryTest {
   public void newNewIssuesNotification_DetailsSupplier_getComponentNameByUuid_returns_name_of_project_in_TreeRootHolder() {
     treeRootHolder.setRoot(ReportComponent.builder(PROJECT, 1).setUuid("rootUuid").setName("root").build());
 
-    NewIssuesNotification underTest = this.underTest.newNewIssuesNotification(emptyMap());
+    NewIssuesNotification notification = this.underTest.newNewIssuesNotification(emptyMap());
 
-    DetailsSupplier detailsSupplier = readDetailsSupplier(underTest);
+    DetailsSupplier detailsSupplier = readDetailsSupplier(notification);
 
     assertThat(detailsSupplier.getComponentNameByUuid("rootUuid")).contains("root");
     assertThat(detailsSupplier.getComponentNameByUuid("foo")).isEmpty();

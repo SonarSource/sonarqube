@@ -101,8 +101,8 @@ public class TaintCheckerTest {
   public void test_getTaintRepositories_withExtraReposFromConfiguration() {
     when(configuration.hasKey(EXTRA_TAINT_REPOSITORIES)).thenReturn(true);
     when(configuration.getStringArray(EXTRA_TAINT_REPOSITORIES)).thenReturn(new String[]{"extra-1", "extra-2"});
-    TaintChecker underTest = new TaintChecker(configuration);
-    assertThat(underTest.getTaintRepositories())
+    TaintChecker localUnderTest = new TaintChecker(configuration);
+    assertThat(localUnderTest.getTaintRepositories())
       .hasSize(11)
       .containsExactlyInAnyOrder("gosecurity", "javasecurity", "jssecurity", "kotlinsecurity", "phpsecurity", "pythonsecurity",
         "roslyn.sonaranalyzer.security.cs", "tssecurity", "vbnetsecurity", "extra-1", "extra-2");

@@ -548,8 +548,8 @@ class IssueMapperIT {
 
   @SafeVarargs
   private IssueDto insertNewClosedIssue(ComponentDto component, RuleType ruleType, Consumer<IssueDto>... consumers) {
-    RuleDto rule = dbTester.rules().insert(t -> t.setType(ruleType));
-    return insertNewClosedIssue(component, rule, system2.now(), consumers);
+    RuleDto insertedRule = dbTester.rules().insert(t -> t.setType(ruleType));
+    return insertNewClosedIssue(component, insertedRule, system2.now(), consumers);
   }
 
   @SafeVarargs
@@ -594,10 +594,10 @@ class IssueMapperIT {
   }
 
   private ComponentDto randomComponent() {
-    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
-    ComponentDto dir = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "foo"));
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project, dir));
-    ComponentDto[] components = new ComponentDto[]{project, dir, file};
+    ComponentDto randomProject = dbTester.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto dir = dbTester.components().insertComponent(ComponentTesting.newDirectory(randomProject, "foo"));
+    ComponentDto randomFile = dbTester.components().insertComponent(ComponentTesting.newFileDto(randomProject, dir));
+    ComponentDto[] components = new ComponentDto[]{randomProject, dir, randomFile};
     return components[random.nextInt(components.length)];
   }
 

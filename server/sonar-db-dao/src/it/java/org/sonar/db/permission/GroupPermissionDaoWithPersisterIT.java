@@ -107,9 +107,9 @@ class GroupPermissionDaoWithPersisterIT {
 
   @Test
   void groupProjectPermissionDeleteByComponentWithoutAffectedRowsIsNotPersisted() {
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
+    ProjectDto privateProject = db.components().insertPrivateProject().getProjectDto();
 
-    underTest.deleteByEntityUuid(dbSession, project);
+    underTest.deleteByEntityUuid(dbSession, privateProject);
 
     verifyNoInteractions(auditPersister);
   }
@@ -139,11 +139,11 @@ class GroupPermissionDaoWithPersisterIT {
 
   @Test
   void groupProjectPermissionDeleteByComponentAndPermissionWithoutAffectedRowsIsNotPersisted() {
-    GroupDto group = db.users().insertGroup();
-    ProjectData project = db.components().insertPrivateProject();
-    GroupPermissionDto dto = getGroupPermission(group, project.getProjectDto());
+    GroupDto insertedGroup = db.users().insertGroup();
+    ProjectData insertedProject = db.components().insertPrivateProject();
+    GroupPermissionDto groupPermission = getGroupPermission(insertedGroup, insertedProject.getProjectDto());
 
-    underTest.deleteByEntityAndPermission(dbSession, dto.getRole(), project.getProjectDto());
+    underTest.deleteByEntityAndPermission(dbSession, groupPermission.getRole(), insertedProject.getProjectDto());
 
     verifyNoInteractions(auditPersister);
   }

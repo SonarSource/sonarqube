@@ -673,7 +673,6 @@ class PortfolioDaoIT {
 
   @Test
   void delete_nonexisting_branch_doesnt_fail() {
-    DbSession session = db.getSession();
     assertThatCode(() -> portfolioDao.deleteBranch(session, "nonexisting1", "nonexisting2", "branch1"))
       .doesNotThrowAnyException();
   }

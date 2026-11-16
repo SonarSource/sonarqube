@@ -141,18 +141,18 @@ public class RuleIndexerIT {
   @Test
   public void index_long_rule_description() {
     RuleDescriptionSectionDto ruleDescriptionSectionDto = createDefaultRuleDescriptionSection(uuidFactory.create(), secure().nextAlphanumeric(100000));
-    RuleDto rule = dbTester.rules().insert(newRule(ruleDescriptionSectionDto));
+    RuleDto ruleDto = dbTester.rules().insert(newRule(ruleDescriptionSectionDto));
 
-    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
+    underTest.commitAndIndex(dbTester.getSession(), ruleDto.getUuid());
 
     assertThat(es.countDocuments(TYPE_RULE)).isOne();
   }
 
   @Test
   public void index_long_rule_with_several_sections() {
-    RuleDto rule = dbTester.rules().insert(newRule(RULE_DESCRIPTION_SECTION_DTO, RULE_DESCRIPTION_SECTION_DTO2));
+    RuleDto ruleDto = dbTester.rules().insert(newRule(RULE_DESCRIPTION_SECTION_DTO, RULE_DESCRIPTION_SECTION_DTO2));
 
-    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
+    underTest.commitAndIndex(dbTester.getSession(), ruleDto.getUuid());
 
     List<RuleDoc> ruleDocs = es.getDocuments(TYPE_RULE, RuleDoc.class);
     assertThat(ruleDocs).hasSize(1);
@@ -164,9 +164,9 @@ public class RuleIndexerIT {
 
   @Test
   public void index_long_rule_with_section_in_markdown() {
-    RuleDto rule = dbTester.rules().insert(newRule(RULE_DESCRIPTION_SECTION_DTO).setDescriptionFormat(RuleDto.Format.MARKDOWN));
+    RuleDto ruleDto = dbTester.rules().insert(newRule(RULE_DESCRIPTION_SECTION_DTO).setDescriptionFormat(RuleDto.Format.MARKDOWN));
 
-    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
+    underTest.commitAndIndex(dbTester.getSession(), ruleDto.getUuid());
 
     List<RuleDoc> ruleDocs = es.getDocuments(TYPE_RULE, RuleDoc.class);
     assertThat(ruleDocs).hasSize(1);
@@ -183,15 +183,15 @@ public class RuleIndexerIT {
       .flatMap(t -> CWES_BY_SQ_CATEGORY.get(t).stream().map(e -> "cwe:" + e))
       .collect(toSet());
     SecurityStandards securityStandards = SecurityStandards.fromSecurityStandards(standards);
-    RuleDto rule = dbTester.rules().insert(newRule(RULE_DESCRIPTION_SECTION_DTO)
+    RuleDto ruleDto = dbTester.rules().insert(newRule(RULE_DESCRIPTION_SECTION_DTO)
       .setType(RuleType.SECURITY_HOTSPOT)
       .setSecurityStandards(standards));
-    underTest.commitAndIndex(dbTester.getSession(), rule.getUuid());
+    underTest.commitAndIndex(dbTester.getSession(), ruleDto.getUuid());
 
     assertThat(logTester.logs(Level.DEBUG))
       .contains(format(
         "Rule %s with CWEs '%s' maps to multiple SQ Security Categories: %s",
-        rule.getKey(),
+        ruleDto.getKey(),
         String.join(", ", securityStandards.getCwe()),
         ImmutableSet.of(sqCategory1, sqCategory2).stream()
           .map(SQCategory::getKey)

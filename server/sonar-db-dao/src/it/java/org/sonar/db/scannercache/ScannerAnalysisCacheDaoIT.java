@@ -78,16 +78,16 @@ class ScannerAnalysisCacheDaoIT {
 
   @Test
   void throw_illegalstateexception_when_sql_excpetion() throws SQLException {
-    var dbSession = mock(DbSession.class);
+    var mockDbSession = mock(DbSession.class);
     var connection = mock(Connection.class);
-    when(dbSession.getConnection()).thenReturn(connection);
+    when(mockDbSession.getConnection()).thenReturn(connection);
     when(connection.prepareStatement(anyString())).thenThrow(new SQLException());
 
-    assertThatThrownBy(() -> underTest.selectData(dbSession, "uuid"))
+    assertThatThrownBy(() -> underTest.selectData(mockDbSession, "uuid"))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Fail to select cache for branch uuid");
 
-    assertThatThrownBy(() -> underTest.insert(dbSession, "uuid", mock(InputStream.class)))
+    assertThatThrownBy(() -> underTest.insert(mockDbSession, "uuid", mock(InputStream.class)))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Fail to insert cache for branch uuid");
   }

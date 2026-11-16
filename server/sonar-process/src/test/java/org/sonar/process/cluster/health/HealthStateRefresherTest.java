@@ -97,8 +97,8 @@ class HealthStateRefresherTest {
     logging.setLevel(DEBUG);
     SharedHealthState sharedHealthStateMock = mock(SharedHealthState.class);
     doThrow(HazelcastInstanceNotActiveException.class).when(sharedHealthStateMock).clearMine();
-    HealthStateRefresher underTest = new HealthStateRefresher(executorService, nodeHealthProvider, sharedHealthStateMock);
-    underTest.stop();
+    HealthStateRefresher localUnderTest = new HealthStateRefresher(executorService, nodeHealthProvider, sharedHealthStateMock);
+    localUnderTest.stop();
 
     assertThat(logging.getLogs(ERROR)).isEmpty();
     assertThat(logging.hasLog(DEBUG, "Hazelcast is not active anymore")).isTrue();

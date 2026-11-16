@@ -61,7 +61,7 @@ public class ProjectExportComputationStepsTest {
         add(reportExtractionStep);
       }
     }.startComponents();
-    TaskContainerImpl computeEngineContainer = new TaskContainerImpl(componentContainer, container -> {
+    TaskContainerImpl computeEngineContainer = new TaskContainerImpl(componentContainer, taskContainer -> {
       // do nothing
     });
     computeEngineContainer.startComponents();
