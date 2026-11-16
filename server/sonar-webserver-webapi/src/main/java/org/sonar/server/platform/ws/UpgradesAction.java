@@ -125,7 +125,7 @@ public class UpgradesAction implements SystemWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction("upgrades")
+    controller.createAction(ARRAY_UPGRADES)
       .setDescription("Lists available upgrades for the SonarQube instance (if any) and for each one, " +
         "lists incompatible plugins and plugins requiring upgrade." +
         "<br/>" +

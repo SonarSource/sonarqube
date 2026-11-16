@@ -114,7 +114,7 @@ public class ComponentAction implements NavigationWsAction {
 
   @Override
   public void define(NewController context) {
-    NewAction action = context.createAction("component")
+    NewAction action = context.createAction(PARAM_COMPONENT)
       .setDescription("Get information concerning component navigation for the current user. " +
         "Requires the 'Browse' permission on the component's project. <br>" +
         "For applications, it also requires 'Browse' permission on its child projects.")
