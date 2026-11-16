@@ -48,6 +48,7 @@ public class UpgradesAction implements SystemWsAction {
 
   private static final boolean DO_NOT_FORCE_REFRESH = false;
 
+  private static final String ACTION_UPGRADES = "upgrades";
   private static final String ARRAY_UPGRADES = "upgrades";
   private static final String PROPERTY_UPDATE_CENTER_LTS = "latestLTS";
   private static final String PROPERTY_UPDATE_CENTER_LTA = "latestLTA";
@@ -125,7 +126,7 @@ public class UpgradesAction implements SystemWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction(ARRAY_UPGRADES)
+    controller.createAction(ACTION_UPGRADES)
       .setDescription("Lists available upgrades for the SonarQube instance (if any) and for each one, " +
         "lists incompatible plugins and plugins requiring upgrade." +
         "<br/>" +

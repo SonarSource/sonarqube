@@ -80,6 +80,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PULL_REQUEST_EXAMPLE_001;
 public class ComponentAction implements NavigationWsAction {
 
   private static final Set<String> MODULE_OR_DIR_QUALIFIERS = Set.of(ComponentQualifiers.MODULE, ComponentQualifiers.DIRECTORY);
+  private static final String ACTION_COMPONENT = "component";
   static final String PARAM_COMPONENT = "component";
   private static final String PARAM_BRANCH = "branch";
   private static final String PARAM_PULL_REQUEST = "pullRequest";
@@ -114,7 +115,7 @@ public class ComponentAction implements NavigationWsAction {
 
   @Override
   public void define(NewController context) {
-    NewAction action = context.createAction(PARAM_COMPONENT)
+    NewAction action = context.createAction(ACTION_COMPONENT)
       .setDescription("Get information concerning component navigation for the current user. " +
         "Requires the 'Browse' permission on the component's project. <br>" +
         "For applications, it also requires 'Browse' permission on its child projects.")
