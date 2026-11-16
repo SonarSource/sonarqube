@@ -60,6 +60,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_RULE;
 
 /**
  * Registers rules at server startup
@@ -132,7 +133,12 @@ public class RulesRegistrant implements Startable {
       persistRepositories(dbSession, repositories);
       // FIXME lack of resiliency, active rules index is corrupted if rule index fails
       // to be updated. Only a single DB commit should be executed.
-      ruleIndexer.commitAndIndex(dbSession, rulesRegistrationContext.getAllModified().map(RuleDto::getUuid).collect(Collectors.toSet()));
+      if (rulesRegistrationContext.hasDbRules() || metadataIndex.getInitialized(TYPE_RULE)) {
+        ruleIndexer.commitAndIndex(dbSession, rulesRegistrationContext.getAllModified().map(RuleDto::getUuid).collect(Collectors.toSet()));
+      } else {
+        // rules index is uninitialized, IndexerStartupTask indexes all rules in bulk after registration
+        dbSession.commit();
+      }
 
       List<QProfileChangeDto> qProfileChangeDtos = changes.stream()
         .map(ActiveRuleChange::toSystemChangedDto)
@@ -143,11 +149,6 @@ public class RulesRegistrant implements Startable {
       activeRuleIndexer.commitAndIndex(dbSession, changes);
       rulesRegistrationContext.getRenamed().forEach(e -> LOG.info("Rule {} re-keyed to {}", e.getValue(), e.getKey().getKey()));
       profiler.stopDebug();
-
-      if (!rulesRegistrationContext.hasDbRules()) {
-        // active rules index is left uninitialized so that IndexerStartupTask indexes built-in profiles in bulk
-        ruleIndexer.getIndexTypes().forEach(t -> metadataIndex.setInitialized(t, true));
-      }
 
       webServerRuleFinder.startCaching();
     }

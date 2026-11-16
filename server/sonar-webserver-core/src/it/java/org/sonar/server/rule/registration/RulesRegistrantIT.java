@@ -21,6 +21,7 @@ package org.sonar.server.rule.registration;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -73,6 +74,8 @@ import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.rule.SeverityUtil;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.Index;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.metadata.MetadataIndex;
@@ -102,13 +105,10 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rule.RuleStatus.READY;
 import static org.sonar.api.rule.RuleStatus.REMOVED;
@@ -153,7 +153,7 @@ class RulesRegistrantIT {
   private final QProfileRules qProfileRules = mock();
   private final WebServerRuleFinder webServerRuleFinder = mock();
   private final DbClient dbClient = db.getDbClient();
-  private final MetadataIndex metadataIndex = mock();
+  private final InMemoryMetadataIndex metadataIndex = new InMemoryMetadataIndex();
   private final UuidFactory uuidFactory = UuidFactoryFast.getInstance();
   private final SonarQubeVersion sonarQubeVersion = new SonarQubeVersion(Version.create(10, 3));
 
@@ -225,10 +225,47 @@ class RulesRegistrantIT {
     assertThat(rule2.getCleanCodeAttribute()).isEqualTo(CleanCodeAttribute.EFFICIENT);
     assertThat(rule2.getDefaultImpacts()).extracting(ImpactDto::getSoftwareQuality, ImpactDto::getSeverity).containsOnly(tuple(SoftwareQuality.MAINTAINABILITY, Severity.MEDIUM));
     assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule2.getUuid(), hotspotRule.getUuid());
-    verifyIndicesMarkedAsInitialized();
 
     // verify repositories
     assertThat(dbClient.ruleRepositoryDao().selectAll(db.getSession())).extracting(RuleRepositoryDto::getKey).containsOnly("fake");
+  }
+
+  @Test
+  void do_not_index_rules_when_db_has_no_rules_and_rule_index_is_not_initialized() {
+    registerRules(loaderOf(new FakeRepositoryV1()));
+
+    assertThat(dbClient.ruleDao().selectAll(db.getSession())).hasSize(3);
+    assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isZero();
+    assertThat(db.countRowsOfTable("es_queue")).isZero();
+    assertThat(metadataIndex.getInitialized(RuleIndexDefinition.TYPE_RULE)).isFalse();
+  }
+
+  @Test
+  void index_new_rules_when_db_has_no_rules_but_rule_index_is_already_initialized() {
+    executeWithPluginRules(context -> context.createRepository("fake", "java").done());
+    assertThat(metadataIndex.getInitialized(RuleIndexDefinition.TYPE_RULE)).isTrue();
+
+    executeWithPluginRules(new FakeRepositoryV1());
+
+    RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
+    RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY2);
+    RuleDto hotspotRule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), HOTSPOT_RULE_KEY);
+    assertThat(es.getIds(RuleIndexDefinition.TYPE_RULE)).containsOnly(rule1.getUuid(), rule2.getUuid(), hotspotRule.getUuid());
+  }
+
+  @Test
+  void index_changed_rules_when_db_already_has_rules() {
+    registerRules(loaderOf(new FakeRepositoryV1()));
+    assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isZero();
+
+    system.setNow(DATE2.getTime());
+    registerRules(loaderOf(new FakeRepositoryV2()));
+
+    RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
+    RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY2);
+    RuleDto rule3 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY3);
+    assertThat(es.getIds(RuleIndexDefinition.TYPE_RULE)).contains(rule1.getUuid(), rule2.getUuid(), rule3.getUuid());
+    assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids()).containsOnly(rule1.getUuid(), rule3.getUuid());
   }
 
   private void verifyHotspot(RuleDto hotspotRule) {
@@ -300,7 +337,6 @@ class RulesRegistrantIT {
     // verify index
     assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids())
       .containsExactly(rule.getUuid());
-    verifyIndicesMarkedAsInitialized();
 
     // register no rule
     executeWithPluginRules(context -> context.createRepository("fake", "java").done());
@@ -317,7 +353,6 @@ class RulesRegistrantIT {
     // verify index
     assertThat(ruleIndex.searchV2(new RuleQuery(), new SearchOptions()).getUuids())
       .isEmpty();
-    verifyIndicesNotMarkedAsInitialized();
   }
 
   @Test
@@ -381,7 +416,6 @@ class RulesRegistrantIT {
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY2);
     RuleDto hotspotRule = dbClient.ruleDao().selectOrFailByKey(db.getSession(), HOTSPOT_RULE_KEY);
     assertThat(es.getIds(RuleIndexDefinition.TYPE_RULE)).containsOnly(valueOf(rule1.getUuid()), valueOf(rule2.getUuid()), valueOf(hotspotRule.getUuid()));
-    verifyIndicesMarkedAsInitialized();
 
     // user adds tags and sets markdown note
     rule1.setTags(newHashSet("usertag1", "usertag2"));
@@ -393,7 +427,6 @@ class RulesRegistrantIT {
     system.setNow(DATE2.getTime());
     executeWithPluginRules(new FakeRepositoryV2());
 
-    verifyIndicesNotMarkedAsInitialized();
     // rule1 has been updated
     rule1 = dbClient.ruleDao().selectOrFailByKey(db.getSession(), RULE_KEY1);
     assertThatRule1IsV2(rule1);
@@ -1336,13 +1369,25 @@ class RulesRegistrantIT {
   }
 
   private void executeWithPluginRules(RulesDefinition... defs) {
-    ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
-    when(pluginRepository.getPluginKey(any(RulesDefinition.class))).thenReturn(FAKE_PLUGIN_KEY);
-    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(pluginRepository, defs);
-    execute(loader);
+    execute(loaderOf(defs));
   }
 
   private void execute(RuleDefinitionsLoader loader) {
+    registerRules(loader);
+    indexUninitializedRuleTypesLikeIndexerStartupTask();
+  }
+
+  private void indexUninitializedRuleTypesLikeIndexerStartupTask() {
+    Set<IndexType> uninitializedTypes = ruleIndexer.getIndexTypes().stream()
+      .filter(t -> !metadataIndex.getInitialized(t))
+      .collect(Collectors.toSet());
+    if (!uninitializedTypes.isEmpty()) {
+      ruleIndexer.indexOnStartup(uninitializedTypes);
+      uninitializedTypes.forEach(t -> metadataIndex.setInitialized(t, true));
+    }
+  }
+
+  private void registerRules(RuleDefinitionsLoader loader) {
     reset(webServerRuleFinder);
 
     RulesRegistrant task = new RulesRegistrant(loader, qProfileRules, dbClient, ruleIndexer, activeRuleIndexer, system, webServerRuleFinder, metadataIndex,
@@ -1352,6 +1397,12 @@ class RulesRegistrantIT {
     db.getSession().commit();
 
     verify(webServerRuleFinder).startCaching();
+  }
+
+  private RuleDefinitionsLoader loaderOf(RulesDefinition... defs) {
+    ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
+    when(pluginRepository.getPluginKey(any(RulesDefinition.class))).thenReturn(FAKE_PLUGIN_KEY);
+    return new RuleDefinitionsLoader(pluginRepository, defs);
   }
 
   private NewRule createRule(NewRepository repo, String key) {
@@ -1377,16 +1428,6 @@ class RulesRegistrantIT {
 
     Arrays.stream(consumers).forEach(c -> c.accept(newRule));
     repo.done();
-  }
-
-  private void verifyIndicesMarkedAsInitialized() {
-    verify(metadataIndex).setInitialized(RuleIndexDefinition.TYPE_RULE, true);
-    verify(metadataIndex, never()).setInitialized(eq(RuleIndexDefinition.TYPE_ACTIVE_RULE), anyBoolean());
-    reset(metadataIndex);
-  }
-
-  private void verifyIndicesNotMarkedAsInitialized() {
-    verifyNoInteractions(metadataIndex);
   }
 
   private RuleParamDto getParam(List<RuleParamDto> params, String key) {
@@ -1544,6 +1585,44 @@ class RulesRegistrantIT {
         .setName("Rule Two")
         .setHtmlDescription("Description of Rule Two");
       repo.done();
+    }
+  }
+
+  private static class InMemoryMetadataIndex implements MetadataIndex {
+    private final Set<IndexType> initializedTypes = new HashSet<>();
+
+    @Override
+    public Optional<String> getHash(Index index) {
+      return Optional.empty();
+    }
+
+    @Override
+    public void setHash(Index index, String hash) {
+      // not used by rule registration
+    }
+
+    @Override
+    public boolean getInitialized(IndexType indexType) {
+      return initializedTypes.contains(indexType);
+    }
+
+    @Override
+    public void setInitialized(IndexType indexType, boolean initialized) {
+      if (initialized) {
+        initializedTypes.add(indexType);
+      } else {
+        initializedTypes.remove(indexType);
+      }
+    }
+
+    @Override
+    public Optional<String> getDbVendor() {
+      return Optional.empty();
+    }
+
+    @Override
+    public void setDbMetadata(String vendor) {
+      // not used by rule registration
     }
   }
 }
