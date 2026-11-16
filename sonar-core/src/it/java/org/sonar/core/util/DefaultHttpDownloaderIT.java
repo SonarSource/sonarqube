@@ -111,7 +111,7 @@ class DefaultHttpDownloaderIT {
   @Test
   // To disable the timeout in debug mode, run the test with -Djunit.jupiter.execution.timeout.mode=disabled_on_debug
   @Timeout(10)
-  void openStream_network_errors() throws IOException, URISyntaxException {
+  void openStream_network_errors() {
     // host not accepting connections
     String url = "http://127.0.0.1:1";
 
@@ -151,7 +151,7 @@ class DefaultHttpDownloaderIT {
   }
 
   @Test
-  void downloadToFile() throws URISyntaxException, IOException {
+  void downloadToFile() throws URISyntaxException {
     File toFile = new File(temporaryFolder, "downloadToFile.txt");
 
     new DefaultHttpDownloader(mock(Server.class), new MapSettings().asConfig()).download(new URI(baseUrl), toFile);

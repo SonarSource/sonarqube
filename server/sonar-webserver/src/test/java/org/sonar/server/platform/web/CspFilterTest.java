@@ -81,7 +81,7 @@ public class CspFilterTest {
   FilterConfig config = mock(FilterConfig.class);
 
   @Before
-  public void setUp() throws ServletException {
+  public void setUp() {
     when(config.getServletContext()).thenReturn(servletContext);
     when(servletContext.getResourceAsStream("/index.html"))
       .thenAnswer(invocation -> new ByteArrayInputStream(INDEX_HTML.getBytes(StandardCharsets.UTF_8)));

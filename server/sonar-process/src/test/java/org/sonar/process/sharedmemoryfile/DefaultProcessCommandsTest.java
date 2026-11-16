@@ -166,7 +166,7 @@ public class DefaultProcessCommandsTest {
   }
 
   @Test
-  public void main_fails_if_processNumber_is_less_than_0() throws Exception {
+  public void main_fails_if_processNumber_is_less_than_0() {
     int processNumber = -2;
 
     expectProcessNumberNoValidIAE(() -> {
@@ -178,7 +178,7 @@ public class DefaultProcessCommandsTest {
   }
 
   @Test
-  public void main_fails_if_processNumber_is_higher_than_MAX_PROCESSES() throws Exception {
+  public void main_fails_if_processNumber_is_higher_than_MAX_PROCESSES() {
     int processNumber = MAX_PROCESSES + 1;
 
     expectProcessNumberNoValidIAE(() -> {
@@ -189,7 +189,7 @@ public class DefaultProcessCommandsTest {
   }
 
   @Test
-  public void main_fails_if_processNumber_is_MAX_PROCESSES() throws Exception {
+  public void main_fails_if_processNumber_is_MAX_PROCESSES() {
     int processNumber = MAX_PROCESSES;
 
     expectProcessNumberNoValidIAE(() -> {
@@ -200,14 +200,14 @@ public class DefaultProcessCommandsTest {
   }
 
   @Test
-  public void secondary_fails_if_processNumber_is_less_than_0() throws Exception {
+  public void secondary_fails_if_processNumber_is_less_than_0() {
     int processNumber = -2;
 
     expectProcessNumberNoValidIAE(() -> DefaultProcessCommands.secondary(temp.newFolder(), processNumber), processNumber);
   }
 
   @Test
-  public void secondary_fails_if_processNumber_is_higher_than_MAX_PROCESSES() throws Exception {
+  public void secondary_fails_if_processNumber_is_higher_than_MAX_PROCESSES() {
     int processNumber = MAX_PROCESSES + 1;
 
     expectProcessNumberNoValidIAE(() -> {
@@ -218,14 +218,14 @@ public class DefaultProcessCommandsTest {
   }
 
   @Test
-  public void reset_fails_if_processNumber_is_less_than_0() throws Exception {
+  public void reset_fails_if_processNumber_is_less_than_0() {
     int processNumber = -2;
 
     expectProcessNumberNoValidIAE(() -> DefaultProcessCommands.reset(temp.newFolder(), processNumber), processNumber);
   }
 
   @Test
-  public void reset_fails_if_processNumber_is_higher_than_MAX_PROCESSES() throws Exception {
+  public void reset_fails_if_processNumber_is_higher_than_MAX_PROCESSES() {
     int processNumber = MAX_PROCESSES + 1;
 
     expectProcessNumberNoValidIAE(() -> DefaultProcessCommands.reset(temp.newFolder(), processNumber), processNumber);

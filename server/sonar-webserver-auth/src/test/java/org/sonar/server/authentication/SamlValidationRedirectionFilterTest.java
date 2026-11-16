@@ -25,7 +25,6 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import jakarta.servlet.ServletException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +53,7 @@ public class SamlValidationRedirectionFilterTest {
   SamlValidationRedirectionFilter underTest;
 
   @Before
-  public void setup() throws ServletException {
+  public void setup() {
     Server server = mock(Server.class);
     doReturn("contextPath").when(server).getContextPath();
     underTest = new SamlValidationRedirectionFilter(server);

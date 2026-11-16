@@ -101,7 +101,7 @@ public class LdapCredentialsAuthenticationTest {
   private LdapCredentialsAuthentication underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     settings.setProperty(ProcessProperties.Property.SONAR_SECURITY_REALM.getKey(), "LDAP");
     settings.setProperty(ProcessProperties.Property.SONAR_AUTHENTICATOR_IGNORE_STARTUP_FAILURE.getKey(), "true");
     when(ldapRealm.getAuthenticator()).thenReturn(ldapAuthenticator);

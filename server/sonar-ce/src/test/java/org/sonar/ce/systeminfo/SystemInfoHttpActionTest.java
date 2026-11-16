@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.systeminfo;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.http.HttpException;
@@ -44,7 +43,7 @@ public class SystemInfoHttpActionTest {
   }
 
   @Test
-  public void serves_METHOD_NOT_ALLOWED_error_when_method_is_not_GET() throws HttpException, IOException {
+  public void serves_METHOD_NOT_ALLOWED_error_when_method_is_not_GET() throws HttpException {
     CeHttpUtils.testHandlerForPostWithoutResponseBody(underTest, List.of(), List.of(), HttpStatus.SC_METHOD_NOT_ALLOWED);
   }
 

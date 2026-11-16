@@ -39,7 +39,7 @@ public class ChangeLogLevelHttpActionTest {
   private ChangeLogLevelHttpAction underTest = new ChangeLogLevelHttpAction(serverLogging);
 
   @Test
-  public void serves_METHOD_NOT_ALLOWED_error_when_method_is_not_POST() throws HttpException, IOException {
+  public void serves_METHOD_NOT_ALLOWED_error_when_method_is_not_POST() throws HttpException {
     CeHttpUtils.testHandlerForGetWithoutResponseBody(underTest, HttpStatus.SC_METHOD_NOT_ALLOWED);
   }
 
@@ -57,7 +57,7 @@ public class ChangeLogLevelHttpActionTest {
   }
 
   @Test
-  public void changes_server_logging_if_level_is_ERROR() throws HttpException, IOException {
+  public void changes_server_logging_if_level_is_ERROR() throws HttpException {
     CeHttpUtils.testHandlerForPostWithoutResponseBody(
       underTest, List.of(new BasicNameValuePair("level", "ERROR")), List.of(), HttpStatus.SC_OK);
 
@@ -65,7 +65,7 @@ public class ChangeLogLevelHttpActionTest {
   }
 
   @Test
-  public void changes_server_logging_if_level_is_INFO() throws HttpException, IOException {
+  public void changes_server_logging_if_level_is_INFO() throws HttpException {
     CeHttpUtils.testHandlerForPostWithoutResponseBody(
       underTest, List.of(new BasicNameValuePair("level", "INFO")), List.of(), HttpStatus.SC_OK);
 
@@ -73,7 +73,7 @@ public class ChangeLogLevelHttpActionTest {
   }
 
   @Test
-  public void changes_server_logging_if_level_is_DEBUG() throws HttpException, IOException {
+  public void changes_server_logging_if_level_is_DEBUG() throws HttpException {
     CeHttpUtils.testHandlerForPostWithoutResponseBody(
       underTest, List.of(new BasicNameValuePair("level", "DEBUG")), List.of(), HttpStatus.SC_OK);
 
@@ -81,7 +81,7 @@ public class ChangeLogLevelHttpActionTest {
   }
 
   @Test
-  public void changes_server_logging_if_level_is_TRACE() throws HttpException, IOException {
+  public void changes_server_logging_if_level_is_TRACE() throws HttpException {
     CeHttpUtils.testHandlerForPostWithoutResponseBody(
       underTest, List.of(new BasicNameValuePair("level", "TRACE")), List.of(), HttpStatus.SC_OK);
 

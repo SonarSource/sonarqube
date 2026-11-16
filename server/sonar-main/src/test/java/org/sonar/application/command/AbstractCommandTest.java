@@ -44,7 +44,7 @@ public class AbstractCommandTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void constructor_throws_NPE_of_ProcessId_is_null() throws IOException {
+  public void constructor_throws_NPE_of_ProcessId_is_null() {
     assertThatThrownBy(() -> {
       new AbstractCommand<AbstractCommand>(null, temp.newFolder(), System2.INSTANCE) {
 

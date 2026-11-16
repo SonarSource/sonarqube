@@ -71,7 +71,7 @@ public class PushEventsPurgeSchedulerAndExecutorIT {
   }
 
   @Test
-  public void pushEventsPurgeScheduler_shouldCleanUpPeriodically() throws InterruptedException {
+  public void pushEventsPurgeScheduler_shouldCleanUpPeriodically() {
     insertOldPushEvent();
     assertThat(pushEventIsCleanedUp()).isFalse();
 

@@ -37,7 +37,7 @@ public class ListActionTest {
   private WebService.Action action;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     WebService.NewController newController = context.createController("api/webservices")
       .setDescription("Get information on the web api supported on this instance.")
       .setSince("4.2");

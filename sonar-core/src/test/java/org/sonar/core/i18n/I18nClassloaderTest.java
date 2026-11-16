@@ -58,7 +58,7 @@ public class I18nClassloaderTest {
   }
 
   @Test
-  public void not_support_lookup_of_java_classes() throws ClassNotFoundException {
+  public void not_support_lookup_of_java_classes() {
     assertThatThrownBy(() -> i18nClassloader.loadClass("java.lang.String"))
       .isInstanceOf(UnsupportedOperationException.class);
   }

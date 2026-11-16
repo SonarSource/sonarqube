@@ -72,7 +72,7 @@ public class CredentialsExternalAuthenticationTest {
     authenticationEvent);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(realm.getName()).thenReturn(REALM_NAME);
   }
 

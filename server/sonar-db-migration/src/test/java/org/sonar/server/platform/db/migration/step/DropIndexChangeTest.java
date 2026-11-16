@@ -73,7 +73,7 @@ public class DropIndexChangeTest {
   }
 
   @Test
-  public void execute_whenCalledWithWrongDbId_shouldFail() throws SQLException {
+  public void execute_whenCalledWithWrongDbId_shouldFail() {
     final String invalidDialectId = "invalid_dialect_id";
     Assertions.assertThatThrownBy(() -> runExecute(invalidDialectId, TABLE_NAME, INDEX_NAME, INDEX_NAME))
       .isInstanceOf(IllegalStateException.class)

@@ -41,7 +41,7 @@ public class DropMsSQLDefaultConstraintsBuilderTest {
   private final Database db = mock(Database.class);
 
   @Test
-  public void fail_if_oracle() throws Exception {
+  public void fail_if_oracle() {
     when(db.getDialect()).thenReturn(new Oracle());
     assertThatThrownBy(() -> {
       new DropMsSQLDefaultConstraintsBuilder(db).setTable("snapshots").setColumns("variation_value_2", "variation_value_3").build();
@@ -50,7 +50,7 @@ public class DropMsSQLDefaultConstraintsBuilderTest {
   }
 
   @Test
-  public void fail_if_h2() throws Exception {
+  public void fail_if_h2() {
     when(db.getDialect()).thenReturn(new H2());
     assertThatThrownBy(() -> {
       new DropMsSQLDefaultConstraintsBuilder(db).setTable("snapshots").setColumns("variation_value_2", "variation_value_3").build();
@@ -59,7 +59,7 @@ public class DropMsSQLDefaultConstraintsBuilderTest {
   }
 
   @Test
-  public void fail_if_postgres() throws Exception {
+  public void fail_if_postgres() {
     when(db.getDialect()).thenReturn(new PostgreSql());
     assertThatThrownBy(() -> {
       new DropMsSQLDefaultConstraintsBuilder(db).setTable("snapshots").setColumns("variation_value_2", "variation_value_3").build();

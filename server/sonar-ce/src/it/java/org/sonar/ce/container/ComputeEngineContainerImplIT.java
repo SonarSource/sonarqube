@@ -119,7 +119,7 @@ class ComputeEngineContainerImplIT {
     return StringUtils.lowerCase(StringUtils.substringBefore(db.getUrl(), "?"), Locale.ENGLISH);
   }
 
-  private Properties getProperties() throws IOException {
+  private Properties getProperties() {
     Properties properties = new Properties();
     Props props = new Props(properties);
     processProperties.completeDefaults(props);

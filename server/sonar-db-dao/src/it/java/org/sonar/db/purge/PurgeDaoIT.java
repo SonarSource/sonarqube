@@ -2035,7 +2035,7 @@ project.getProjectDto().getKey());
   }
 
   @Test
-  void deleteProject_deletes_scanner_cache() throws IOException {
+  void deleteProject_deletes_scanner_cache() {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
     BranchDto branch = db.components().insertProjectBranch(project);
     dbClient.scannerAnalysisCacheDao().insert(dbSession, branch.getUuid(), IOUtils.toInputStream("test1", UTF_8));

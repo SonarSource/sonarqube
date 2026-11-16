@@ -702,7 +702,7 @@ public class GitlabApplicationClientTest {
   }
 
   @Test
-  public void getGroups_whenCallIsInError_rethrows() throws IOException {
+  public void getGroups_whenCallIsInError_rethrows() {
     String token = "token-toto";
     GitlabToken gitlabToken = new GitlabToken(token);
     when(gitlabPaginatedHttpClient.get(eq(gitlabUrl), eq(gitlabToken), eq("/groups"), any())).thenThrow(new IllegalStateException("exception"));

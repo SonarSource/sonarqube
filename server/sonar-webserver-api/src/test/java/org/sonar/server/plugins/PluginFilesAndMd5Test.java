@@ -55,7 +55,7 @@ public class PluginFilesAndMd5Test {
   }
 
   @Test
-  public void fail_if_cant_get_md5() throws IOException {
+  public void fail_if_cant_get_md5() {
     File jarFile = new File("nonexisting");
     Assert.assertThrows("Fail to compute md5", IllegalStateException.class, () -> new PluginFilesAndMd5.FileAndMd5(jarFile));
   }

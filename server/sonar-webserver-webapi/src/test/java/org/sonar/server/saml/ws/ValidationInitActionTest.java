@@ -52,7 +52,7 @@ public class ValidationInitActionTest {
   private OAuthCsrfVerifier oAuthCsrfVerifier;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     samlAuthenticator = mock(SamlAuthenticator.class);
     oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
     oAuthCsrfVerifier = mock(OAuthCsrfVerifier.class);

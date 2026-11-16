@@ -82,7 +82,7 @@ public class ScoreMatrixDumperImplTest {
   }
 
   @Test
-  public void dumpAsCsv_creates_csv_dump_of_score_matrix_if_property_is_true() throws IOException {
+  public void dumpAsCsv_creates_csv_dump_of_score_matrix_if_property_is_true() {
     String taskUuid = "acme";
     when(ceTask.getUuid()).thenReturn(taskUuid);
     settings.setProperty("sonar.filemove.dumpCsv", "true");
@@ -95,7 +95,7 @@ public class ScoreMatrixDumperImplTest {
   }
 
   @Test
-  public void dumpAsCsv_has_no_effect_if_configuration_is_empty() throws IOException {
+  public void dumpAsCsv_has_no_effect_if_configuration_is_empty() {
     String taskUuid = secure().nextAlphabetic(6);
     when(ceTask.getUuid()).thenReturn(taskUuid);
 
@@ -106,7 +106,7 @@ public class ScoreMatrixDumperImplTest {
 
   @Test
   @UseDataProvider("notTruePropertyValues")
-  public void dumpAsCsv_has_no_effect_if_property_is_not_true(String value) throws IOException {
+  public void dumpAsCsv_has_no_effect_if_property_is_not_true(String value) {
     String taskUuid = secure().nextAlphabetic(6);
     when(ceTask.getUuid()).thenReturn(taskUuid);
     settings.setProperty("sonar.filemove.dumpCsv", value);

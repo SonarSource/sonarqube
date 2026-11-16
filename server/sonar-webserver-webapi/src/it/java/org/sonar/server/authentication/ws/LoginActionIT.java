@@ -108,7 +108,7 @@ public class LoginActionIT {
   }
 
   @Test
-  public void do_authenticate() throws Exception {
+  public void do_authenticate() {
     when(credentialsAuthentication.authenticate(new Credentials(LOGIN, PASSWORD), request, FORM)).thenReturn(user);
 
     executeRequest(LOGIN, PASSWORD);

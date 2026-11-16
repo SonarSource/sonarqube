@@ -378,7 +378,7 @@ public class WebhookCustomDnsTest {
   }
 
   @Test
-  public void lookup_fail_on_ipv6_local_case_insensitive() throws UnknownHostException, SocketException {
+  public void lookup_fail_on_ipv6_local_case_insensitive() throws SocketException {
     Optional<InetAddress> inet6Address = Collections.list(NetworkInterface.getNetworkInterfaces())
       .stream()
       .flatMap(ni -> Collections.list(ni.getInetAddresses()).stream())

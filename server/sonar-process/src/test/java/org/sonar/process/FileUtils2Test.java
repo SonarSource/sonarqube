@@ -42,7 +42,7 @@ public class FileUtils2Test {
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Test
-  public void cleanDirectory_throws_NPE_if_file_is_null() throws IOException {
+  public void cleanDirectory_throws_NPE_if_file_is_null() {
     expectDirectoryCanNotBeNullNPE(() -> FileUtils2.cleanDirectory(null));
   }
 
@@ -173,7 +173,7 @@ public class FileUtils2Test {
   }
 
   @Test
-  public void deleteDirectory_throws_NPE_if_argument_is_null() throws IOException {
+  public void deleteDirectory_throws_NPE_if_argument_is_null() {
     expectDirectoryCanNotBeNullNPE(() -> FileUtils2.deleteDirectory(null));
   }
 

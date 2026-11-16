@@ -677,7 +677,7 @@ public class GithubApplicationClientImplTest {
   }
 
   @Test
-  public void getWhitelistedGithubAppInstallations_whenWhitelistNotSpecified_doesNotFilter() throws IOException {
+  public void getWhitelistedGithubAppInstallations_whenWhitelistNotSpecified_doesNotFilter() {
     List<GithubAppInstallation> allOrgInstallations = getGithubAppInstallationsFromGithubResponse(PAYLOAD_2_ORGS);
     assertOrgDeserialization(allOrgInstallations);
   }
@@ -697,7 +697,7 @@ public class GithubApplicationClientImplTest {
   }
 
   @Test
-  public void getWhitelistedGithubAppInstallations_whenWhitelistSpecified_filtersWhitelistedOrgs() throws IOException {
+  public void getWhitelistedGithubAppInstallations_whenWhitelistSpecified_filtersWhitelistedOrgs() {
     when(gitHubSettings.getOrganizations()).thenReturn(Set.of("org2"));
     List<GithubAppInstallation> orgInstallations = getGithubAppInstallationsFromGithubResponse(PAYLOAD_2_ORGS);
     assertThat(orgInstallations)
@@ -707,13 +707,13 @@ public class GithubApplicationClientImplTest {
   }
 
   @Test
-  public void getWhitelistedGithubAppInstallations_whenEmptyResponse_shouldReturnEmpty() throws IOException {
+  public void getWhitelistedGithubAppInstallations_whenEmptyResponse_shouldReturnEmpty() {
     List<GithubAppInstallation> allOrgInstallations = getGithubAppInstallationsFromGithubResponse("[]");
     assertThat(allOrgInstallations).isEmpty();
   }
 
   @Test
-  public void getWhitelistedGithubAppInstallations_whenNoOrganization_shouldReturnEmpty() throws IOException {
+  public void getWhitelistedGithubAppInstallations_whenNoOrganization_shouldReturnEmpty() {
     List<GithubAppInstallation> allOrgInstallations = getGithubAppInstallationsFromGithubResponse("""
       [
         {
@@ -732,7 +732,7 @@ public class GithubApplicationClientImplTest {
   }
 
   @SuppressWarnings("unchecked")
-  private List<GithubAppInstallation> getGithubAppInstallationsFromGithubResponse(String content) throws IOException {
+  private List<GithubAppInstallation> getGithubAppInstallationsFromGithubResponse(String content) {
     AppToken appToken = new AppToken(APP_JWT_TOKEN);
     when(appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey())).thenReturn(appToken);
     when(githubPaginatedHttpClient.get(eq(appUrl), eq(appToken), eq("/app/installations"), any()))

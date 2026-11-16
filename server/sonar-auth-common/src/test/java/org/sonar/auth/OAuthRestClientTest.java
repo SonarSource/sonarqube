@@ -70,7 +70,7 @@ public class OAuthRestClientTest {
   }
 
   @Test
-  public void fail_to_execute_request() throws IOException {
+  public void fail_to_execute_request() {
     mockWebServer.enqueue(new MockResponse().setResponseCode(404).setBody("Error!"));
 
     assertThatThrownBy(() -> executeRequest(serverUrl + "/test", oAuth20Service, auth2AccessToken))
