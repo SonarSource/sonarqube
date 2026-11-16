@@ -112,7 +112,6 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void setAnalysisDate_throws_ISE_when_called_twice() {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setAnalysisDate(SOME_DATE);
 
     assertThatThrownBy(() -> underTest.setAnalysisDate(SOME_DATE))
@@ -134,16 +133,12 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void isFirstAnalysis_return_true() {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-
     underTest.setBaseAnalysis(null);
     assertThat(underTest.isFirstAnalysis()).isTrue();
   }
 
   @Test
   public void isFirstAnalysis_return_false() {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-
     underTest.setBaseAnalysis(baseProjectAnalysis);
     assertThat(underTest.isFirstAnalysis()).isFalse();
   }
@@ -164,7 +159,6 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void setBaseProjectSnapshot_throws_ISE_when_called_twice() {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setBaseAnalysis(baseProjectAnalysis);
 
     assertThatThrownBy(() -> underTest.setBaseAnalysis(baseProjectAnalysis))
@@ -174,8 +168,6 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void isCrossProjectDuplicationEnabled_return_true() {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-
     underTest.setCrossProjectDuplicationEnabled(true);
 
     assertThat(underTest.isCrossProjectDuplicationEnabled()).isTrue();
@@ -183,8 +175,6 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void isCrossProjectDuplicationEnabled_return_false() {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-
     underTest.setCrossProjectDuplicationEnabled(false);
 
     assertThat(underTest.isCrossProjectDuplicationEnabled()).isFalse();
@@ -199,7 +189,6 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void setIsCrossProjectDuplicationEnabled_throws_ISE_when_called_twice() {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setCrossProjectDuplicationEnabled(true);
 
     assertThatThrownBy(() -> underTest.setCrossProjectDuplicationEnabled(false))
@@ -209,8 +198,6 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void set_branch() {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-
     underTest.setBranch(new DefaultBranchImpl(DEFAULT_MAIN_BRANCH_NAME));
 
     assertThat(underTest.getBranch().getName()).isEqualTo("main");
@@ -225,7 +212,6 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void setBranch_throws_ISE_when_called_twice() {
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
     underTest.setBranch(new DefaultBranchImpl(DEFAULT_MAIN_BRANCH_NAME));
 
     assertThatThrownBy(() -> underTest.setBranch(new DefaultBranchImpl("main")))
@@ -239,8 +225,6 @@ public class AnalysisMetadataHolderImplTest {
     when(editionProvider.get()).thenReturn(Optional.ofNullable(edition));
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(true);
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-
     underTest.setBranch(branch);
 
     assertThat(underTest.getBranch()).isSameAs(branch);
@@ -252,8 +236,6 @@ public class AnalysisMetadataHolderImplTest {
     when(editionProvider.get()).thenReturn(Optional.ofNullable(edition));
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(false);
-    AnalysisMetadataHolderImpl underTest = new AnalysisMetadataHolderImpl(editionProvider);
-
     underTest.setBranch(branch);
 
     assertThat(underTest.getBranch()).isSameAs(branch);

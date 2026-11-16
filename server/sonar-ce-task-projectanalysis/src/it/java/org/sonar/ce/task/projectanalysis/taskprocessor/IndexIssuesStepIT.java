@@ -102,15 +102,15 @@ public class IndexIssuesStepIT {
 
   @Test
   public void fail_if_missing_component_in_task() {
-    CeTask ceTask = new CeTask.Builder()
+    CeTask orphanCeTask = new CeTask.Builder()
       .setType("type")
       .setUuid("uuid")
       .setComponent(null)
       .setEntity(null)
       .build();
-    IndexIssuesStep underTest = new IndexIssuesStep(ceTask, dbClient, issueIndexer);
+    IndexIssuesStep orphanStep = new IndexIssuesStep(orphanCeTask, dbClient, issueIndexer);
 
-    assertThatThrownBy(() -> underTest.execute(EMPTY_CONTEXT))
+    assertThatThrownBy(() -> orphanStep.execute(EMPTY_CONTEXT))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("component not found in task");
   }

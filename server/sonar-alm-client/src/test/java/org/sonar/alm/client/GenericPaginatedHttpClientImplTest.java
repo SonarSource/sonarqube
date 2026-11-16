@@ -225,7 +225,6 @@ public class GenericPaginatedHttpClientImplTest {
 
   @Test
   public void getRepositoryCollaborators_whenDevOpsPlatformCallThrowsIOException_shouldLogAndReThrow() throws IOException {
-    AccessToken accessToken = mock();
     when(appHttpClient.get(APP_URL, accessToken, "query?per_page=100")).thenThrow(new IOException("error"));
 
     assertThatIllegalStateException()

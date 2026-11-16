@@ -351,8 +351,8 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
           .setCreationDate(new Date(ANALYSE_DATE))))
       .collect(toList());
     shuffle(issues);
-    ProtoIssueCache protoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
-    DiskCache.CacheAppender newIssueCache = protoIssueCache.newAppender();
+    ProtoIssueCache localProtoIssueCache = new ProtoIssueCache(temp.newFile(), System2.INSTANCE);
+    DiskCache.CacheAppender newIssueCache = localProtoIssueCache.newAppender();
     issues.forEach(newIssueCache::append);
     newIssueCache.close();
     analysisMetadataHolder.setProject(new Project(PROJECT.getUuid(), PROJECT.getKey(), PROJECT.getName(), null, emptyList()));
@@ -368,7 +368,7 @@ public class SendIssueNotificationsStepIT extends BaseStepTest {
     doReturn(myNewIssuesNotificationMock1).doReturn(myNewIssuesNotificationMock2).when(notificationFactory).newMyNewIssuesNotification(any(assigneeCacheType));
 
     TestComputationStepContext context = new TestComputationStepContext();
-    new SendIssueNotificationsStep(protoIssueCache, treeRootHolder, notificationService, analysisMetadataHolder, notificationFactory, db.getDbClient())
+    new SendIssueNotificationsStep(localProtoIssueCache, treeRootHolder, notificationService, analysisMetadataHolder, notificationFactory, db.getDbClient())
       .execute(context);
 
     verify(notificationService).deliverEmails(ImmutableSet.of(myNewIssuesNotificationMock1, myNewIssuesNotificationMock2));

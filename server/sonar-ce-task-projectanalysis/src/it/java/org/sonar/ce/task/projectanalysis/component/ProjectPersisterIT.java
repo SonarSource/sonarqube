@@ -64,11 +64,11 @@ public class ProjectPersisterIT {
   @Test
   public void skip_portfolios() {
     Component root = ViewsComponent.builder(VIEW, 1).build();
-    TreeRootHolder treeRootHolder = mock(TreeRootHolder.class);
-    when(treeRootHolder.getRoot()).thenReturn(root);
-    new ProjectPersister(dbTester.getDbClient(), treeRootHolder, system2).persist(dbTester.getSession());
-    verify(treeRootHolder).getRoot();
-    verifyNoMoreInteractions(treeRootHolder);
+    TreeRootHolder mockTreeRootHolder = mock(TreeRootHolder.class);
+    when(mockTreeRootHolder.getRoot()).thenReturn(root);
+    new ProjectPersister(dbTester.getDbClient(), mockTreeRootHolder, system2).persist(dbTester.getSession());
+    verify(mockTreeRootHolder).getRoot();
+    verifyNoMoreInteractions(mockTreeRootHolder);
 
   }
 

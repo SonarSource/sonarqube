@@ -307,7 +307,7 @@ public class LoadPeriodsStepIT extends BaseStepTest {
 
   @Test
   public void throw_ISE_when_specific_analysis_is_set_but_does_not_exist_in_DB() {
-    ComponentDto project = dbTester.components().insertPublicProject().getMainBranchComponent();
+    project = dbTester.components().insertPublicProject().getMainBranchComponent();
     setProjectPeriod(project.uuid(), NewCodePeriodType.SPECIFIC_ANALYSIS, "nonexistent");
     setupRoot(project, project.uuid(), "any-string");
 
@@ -541,9 +541,9 @@ public class LoadPeriodsStepIT extends BaseStepTest {
       .setProjectVersion(version)
       .build());
 
-    Project project = mock(Project.class);
-    when(project.getUuid()).thenReturn(projectUuid);
-    when(analysisMetadataHolder.getProject()).thenReturn(project);
+    Project projectModel = mock(Project.class);
+    when(projectModel.getUuid()).thenReturn(projectUuid);
+    when(analysisMetadataHolder.getProject()).thenReturn(projectModel);
   }
 
   private void setupRoot(ComponentDto branchComponent, String version) {

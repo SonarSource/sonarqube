@@ -260,7 +260,6 @@ public class BuildComponentTreeStepIT {
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(Project.from(newPrivateProjectDto().setKey(REPORT_PROJECT_KEY)))
       .setBranch(branch);
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, FILE_1_REF));
     reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_PATH_1));
 
@@ -283,7 +282,6 @@ public class BuildComponentTreeStepIT {
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(Project.from(projectDto))
       .setBranch(branch);
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
     reportReader.putComponent(component(ROOT_REF, PROJECT, componentDto.getKey()));
 
     underTest.execute(new TestComputationStepContext());
@@ -294,7 +292,6 @@ public class BuildComponentTreeStepIT {
   @Test
   public void generate_keys_when_using_main_branch() {
     setAnalysisMetadataHolder();
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
     reportReader.putComponent(component(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, FILE_1_REF));
     reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_PATH_1));
 

@@ -113,17 +113,17 @@ class MeasureRepositoryImplIT {
     dbTester.components().insertComponent(newFileDto(project).setUuid(FILE_COMPONENT.getUuid()));
     SnapshotDto lastAnalysis = dbTester.components().insertSnapshot(project, t -> t.setLast(true));
     SnapshotDto oldAnalysis = dbTester.components().insertSnapshot(project, t -> t.setLast(false));
-    MetricDto metric1 = dbTester.measures().insertMetric(t -> t.setValueType(org.sonar.api.measures.Metric.ValueType.STRING.name()));
-    MetricDto metric2 = dbTester.measures().insertMetric(t -> t.setValueType(org.sonar.api.measures.Metric.ValueType.STRING.name()));
-    dbClient.projectMeasureDao().insert(dbSession, createMeasureDto(metric1.getUuid(), FILE_COMPONENT.getUuid(), lastAnalysis.getUuid()));
-    dbClient.projectMeasureDao().insert(dbSession, createMeasureDto(metric1.getUuid(), FILE_COMPONENT.getUuid(), oldAnalysis.getUuid()));
+    MetricDto metricDto1 = dbTester.measures().insertMetric(t -> t.setValueType(org.sonar.api.measures.Metric.ValueType.STRING.name()));
+    MetricDto metricDto2 = dbTester.measures().insertMetric(t -> t.setValueType(org.sonar.api.measures.Metric.ValueType.STRING.name()));
+    dbClient.projectMeasureDao().insert(dbSession, createMeasureDto(metricDto1.getUuid(), FILE_COMPONENT.getUuid(), lastAnalysis.getUuid()));
+    dbClient.projectMeasureDao().insert(dbSession, createMeasureDto(metricDto1.getUuid(), FILE_COMPONENT.getUuid(), oldAnalysis.getUuid()));
     dbSession.commit();
 
     // metric 1 is associated to snapshot with "last=true"
-    assertThat(underTest.getBaseMeasure(FILE_COMPONENT, metricOf(metric1)).get().getStringValue())
+    assertThat(underTest.getBaseMeasure(FILE_COMPONENT, metricOf(metricDto1)).get().getStringValue())
       .isEqualTo(SOME_DATA);
     // metric 2 is associated to snapshot with "last=false" => not retrieved
-    assertThat(underTest.getBaseMeasure(FILE_COMPONENT, metricOf(metric2))).isNotPresent();
+    assertThat(underTest.getBaseMeasure(FILE_COMPONENT, metricOf(metricDto2))).isNotPresent();
   }
 
   private Metric metricOf(MetricDto metricDto) {

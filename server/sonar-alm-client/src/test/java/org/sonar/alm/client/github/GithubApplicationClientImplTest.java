@@ -534,15 +534,15 @@ public class GithubApplicationClientImplTest {
 
   @Test
   public void listOrganizations_fail_on_failure() throws IOException {
-    String appUrl = "https://github.sonarsource.com";
+    String githubServerUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/user/installations?page=%s&per_page=%s", 1, 100)))
+    when(githubApplicationHttpClient.get(githubServerUrl, accessToken, format("/user/installations?page=%s&per_page=%s", 1, 100)))
       .thenThrow(new IOException("OOPS"));
 
-    assertThatThrownBy(() -> underTest.listOrganizations(appUrl, accessToken, 1, 100))
+    assertThatThrownBy(() -> underTest.listOrganizations(githubServerUrl, accessToken, 1, 100))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Failed to list all organizations accessible by user access token on %s", appUrl);
+      .hasMessage("Failed to list all organizations accessible by user access token on %s", githubServerUrl);
   }
 
   @Test
@@ -566,7 +566,7 @@ public class GithubApplicationClientImplTest {
 
   @Test
   public void listOrganizations_returns_no_installations() throws IOException {
-    String appUrl = "https://github.sonarsource.com";
+    String githubServerUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
     String responseJson = """
       {
@@ -574,10 +574,10 @@ public class GithubApplicationClientImplTest {
       }
       """;
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/user/installations?page=%s&per_page=%s", 1, 100)))
+    when(githubApplicationHttpClient.get(githubServerUrl, accessToken, format("/user/installations?page=%s&per_page=%s", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
 
-    GithubApplicationClient.Organizations organizations = underTest.listOrganizations(appUrl, accessToken, 1, 100);
+    GithubApplicationClient.Organizations organizations = underTest.listOrganizations(githubServerUrl, accessToken, 1, 100);
 
     assertThat(organizations.getTotal()).isZero();
     assertThat(organizations.getOrganizations()).isNull();
@@ -585,7 +585,7 @@ public class GithubApplicationClientImplTest {
 
   @Test
   public void listOrganizations_returns_pages_results() throws IOException {
-    String appUrl = "https://github.sonarsource.com";
+    String githubServerUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
     String responseJson = """
       {
@@ -667,10 +667,10 @@ public class GithubApplicationClientImplTest {
       }
       """;
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/user/installations?page=%s&per_page=%s", 1, 100)))
+    when(githubApplicationHttpClient.get(githubServerUrl, accessToken, format("/user/installations?page=%s&per_page=%s", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
 
-    GithubApplicationClient.Organizations organizations = underTest.listOrganizations(appUrl, accessToken, 1, 100);
+    GithubApplicationClient.Organizations organizations = underTest.listOrganizations(githubServerUrl, accessToken, 1, 100);
 
     assertThat(organizations.getTotal()).isEqualTo(2);
     assertThat(organizations.getOrganizations()).extracting(GithubApplicationClient.Organization::getLogin).containsOnly("github", "octocat");
@@ -961,13 +961,13 @@ public class GithubApplicationClientImplTest {
 
   @Test
   public void listRepositories_fail_on_failure() throws IOException {
-    String appUrl = "https://github.sonarsource.com";
+    String githubServerUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "org:test", 1, 100)))
+    when(githubApplicationHttpClient.get(githubServerUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "org:test", 1, 100)))
       .thenThrow(new IOException("OOPS"));
 
-    assertThatThrownBy(() -> underTest.listRepositories(appUrl, accessToken, "test", null, 1, 100))
+    assertThatThrownBy(() -> underTest.listRepositories(githubServerUrl, accessToken, "test", null, 1, 100))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Failed to list all repositories of 'test' accessible by user access token on 'https://github.sonarsource.com' using query 'fork:true+org:test'");
   }
@@ -993,17 +993,17 @@ public class GithubApplicationClientImplTest {
 
   @Test
   public void listRepositories_returns_empty_results() throws IOException {
-    String appUrl = "https://github.sonarsource.com";
+    String githubServerUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
     String responseJson = """
       {
         "total_count": 0
       }""";
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
+    when(githubApplicationHttpClient.get(githubServerUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
 
-    GithubApplicationClient.Repositories repositories = underTest.listRepositories(appUrl, accessToken, "github", null, 1, 100);
+    GithubApplicationClient.Repositories repositories = underTest.listRepositories(githubServerUrl, accessToken, "github", null, 1, 100);
 
     assertThat(repositories.getTotal()).isZero();
     assertThat(repositories.getRepositories()).isNull();
@@ -1011,7 +1011,7 @@ public class GithubApplicationClientImplTest {
 
   @Test
   public void listRepositories_returns_pages_results() throws IOException {
-    String appUrl = "https://github.sonarsource.com";
+    String githubServerUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
     String responseJson = """
       {
@@ -1089,9 +1089,9 @@ public class GithubApplicationClientImplTest {
         ]
       }""";
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
+    when(githubApplicationHttpClient.get(githubServerUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "fork:true+org:github", 1, 100)))
       .thenReturn(new OkGetResponse(responseJson));
-    GithubApplicationClient.Repositories repositories = underTest.listRepositories(appUrl, accessToken, "github", null, 1, 100);
+    GithubApplicationClient.Repositories repositories = underTest.listRepositories(githubServerUrl, accessToken, "github", null, 1, 100);
 
     assertThat(repositories.getTotal()).isEqualTo(2);
     assertThat(repositories.getRepositories())
@@ -1101,7 +1101,7 @@ public class GithubApplicationClientImplTest {
 
   @Test
   public void listRepositories_returns_search_results() throws IOException {
-    String appUrl = "https://github.sonarsource.com";
+    String githubServerUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
     String responseJson = """
       {
@@ -1145,7 +1145,7 @@ public class GithubApplicationClientImplTest {
         ]
       }""";
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "world+fork:true+org:github", 1, 100)))
+    when(githubApplicationHttpClient.get(githubServerUrl, accessToken, format("/search/repositories?q=%s&page=%s&per_page=%s", "world+fork:true+org:github", 1, 100)))
       .thenReturn(new GetResponse() {
         @Override
         public Optional<String> getNextEndPoint() {
@@ -1168,7 +1168,7 @@ public class GithubApplicationClientImplTest {
         }
       });
 
-    GithubApplicationClient.Repositories repositories = underTest.listRepositories(appUrl, accessToken, "github", "world", 1, 100);
+    GithubApplicationClient.Repositories repositories = underTest.listRepositories(githubServerUrl, accessToken, "github", "world", 1, 100);
 
     assertThat(repositories.getTotal()).isEqualTo(2);
     assertThat(repositories.getRepositories())
@@ -1201,7 +1201,7 @@ public class GithubApplicationClientImplTest {
 
   @Test
   public void getRepository_returns_repository() throws IOException {
-    String appUrl = "https://github.sonarsource.com";
+    String githubServerUrl = "https://github.sonarsource.com";
     AccessToken accessToken = new UserAccessToken(secure().nextAlphanumeric(10));
     String responseJson = """
       {
@@ -1342,7 +1342,7 @@ public class GithubApplicationClientImplTest {
         }\
       }""";
 
-    when(githubApplicationHttpClient.get(appUrl, accessToken, "/repos/octocat/Hello-World"))
+    when(githubApplicationHttpClient.get(githubServerUrl, accessToken, "/repos/octocat/Hello-World"))
       .thenReturn(new GetResponse() {
         @Override
         public Optional<String> getNextEndPoint() {
@@ -1365,7 +1365,7 @@ public class GithubApplicationClientImplTest {
         }
       });
 
-    Optional<GithubApplicationClient.Repository> repository = underTest.getRepository(appUrl, accessToken, "octocat/Hello-World");
+    Optional<GithubApplicationClient.Repository> repository = underTest.getRepository(githubServerUrl, accessToken, "octocat/Hello-World");
 
     assertThat(repository)
       .isPresent()

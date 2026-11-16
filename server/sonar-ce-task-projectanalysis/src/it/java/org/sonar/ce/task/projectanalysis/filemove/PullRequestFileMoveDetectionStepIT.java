@@ -344,8 +344,8 @@ public class PullRequestFileMoveDetectionStepIT {
   }
 
   private void mockBranchType(BranchType branchType) {
-    Branch branch = mock(Branch.class);
-    when(analysisMetadataHolder.getBranch()).thenReturn(branch);
+    Branch mockBranch = mock(Branch.class);
+    when(analysisMetadataHolder.getBranch()).thenReturn(mockBranch);
     when(analysisMetadataHolder.getBranch().getTargetBranchName()).thenReturn(TARGET_BRANCH);
     when(analysisMetadataHolder.isPullRequest()).thenReturn(branchType == PULL_REQUEST);
     when(analysisMetadataHolder.getProject()).thenReturn(Project.from(project));

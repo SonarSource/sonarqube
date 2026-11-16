@@ -138,7 +138,6 @@ public class PostProjectAnalysisTasksExecutorTest {
     inOrder.verify(postProjectAnalysisTask2).getDescription();
     inOrder.verifyNoMoreInteractions();
 
-    ArgumentCaptor<PostProjectAnalysisTask.Context> taskContextCaptor = this.taskContextCaptor;
     List<PostProjectAnalysisTask.ProjectAnalysis> allValues = getAllProjectAnalyses(taskContextCaptor);
     assertThat(allValues).hasSize(2);
     assertThat(allValues.get(0)).isSameAs(allValues.get(1));
