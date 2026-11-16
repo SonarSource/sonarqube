@@ -427,7 +427,7 @@ class StaticResourcesServletTest {
     private String pluginResource;
     @Nullable
     private InputStream coreExtensionStream;
-    private Exception coreExtensionStreamException = null;
+    private RuntimeException coreExtensionStreamException = null;
     private String coreExtensionResource;
     private boolean isCommitted = false;
     private IOException sendErrorException = null;
@@ -459,7 +459,7 @@ class StaticResourcesServletTest {
 
     @CheckForNull
     @Override
-    InputStream openCoreExtensionResourceStream(String resource) throws Exception {
+    InputStream openCoreExtensionResourceStream(String resource) {
       coreExtensionResource = resource;
       if (coreExtensionStreamException != null) {
         throw coreExtensionStreamException;

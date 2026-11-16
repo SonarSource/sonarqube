@@ -200,6 +200,11 @@ public class StaticResourcesServlet extends HttpServlet {
       return PlatformImpl.getInstance().getContainer().getComponentByType(CoreExtensionRepository.class);
     }
 
+    /**
+     * Opens a stream on a resource provided by the given plugin.
+     *
+     * @throws Exception overriding implementations may fail while opening the resource stream
+     */
     @CheckForNull
     InputStream openPluginResourceStream(String pluginKey, String resource, PluginRepository pluginRepository) throws Exception {
       ClassLoader pluginClassLoader = pluginRepository.getPluginInstance(pluginKey).getClass().getClassLoader();
@@ -207,7 +212,7 @@ public class StaticResourcesServlet extends HttpServlet {
     }
 
     @CheckForNull
-    InputStream openCoreExtensionResourceStream(String resource) throws Exception {
+    InputStream openCoreExtensionResourceStream(String resource) {
       return getClass().getClassLoader().getResourceAsStream(resource);
     }
 
