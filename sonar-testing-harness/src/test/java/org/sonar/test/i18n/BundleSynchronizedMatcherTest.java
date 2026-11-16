@@ -137,7 +137,7 @@ public class BundleSynchronizedMatcherTest {
   }
 
   @Test
-  public void shouldFailToLoadUnexistingPropertiesFile() throws Exception {
+  public void shouldFailToLoadUnexistingPropertiesFile() {
     assertThatThrownBy(() -> BundleSynchronizedMatcher.loadProperties(new FileInputStream("foo.blabla")))
       .isInstanceOf(IOException.class);
   }

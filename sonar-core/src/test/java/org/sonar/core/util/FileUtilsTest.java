@@ -39,7 +39,7 @@ public class FileUtilsTest {
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Test
-  public void cleanDirectory_throws_NPE_if_file_is_null() throws IOException {
+  public void cleanDirectory_throws_NPE_if_file_is_null() {
     assertThatThrownBy(() -> FileUtils.cleanDirectory(null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Directory can not be null");
@@ -198,7 +198,7 @@ public class FileUtilsTest {
   }
 
   @Test
-  public void deleteDirectory_throws_NPE_if_argument_is_null() throws IOException {
+  public void deleteDirectory_throws_NPE_if_argument_is_null() {
     assertThatThrownBy(() -> FileUtils.deleteDirectory((File) null))
       .isInstanceOf(NullPointerException.class)
       .hasMessage("Directory can not be null");

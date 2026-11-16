@@ -59,7 +59,7 @@ public class PostRequestTest {
   }
 
   @Test
-  public void setBody_shouldCorrectlyAddRawBodyToPostRequest() throws IOException {
+  public void setBody_shouldCorrectlyAddRawBodyToPostRequest() {
     String bodyRaw = "{\"state\":\"open\"}";
     PostRequest request = new PostRequest("api/alm_integrations/webhook_github");
     request.setBody(bodyRaw);

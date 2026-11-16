@@ -144,13 +144,13 @@ public class AesECBCipherTest {
   }
 
   @Test
-  public void loadSecretKeyFromFile_file_does_not_exist() throws Exception {
+  public void loadSecretKeyFromFile_file_does_not_exist() {
     assertThatThrownBy(() -> AesCipher.loadSecretFileFromFile("/file/does/not/exist"))
       .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
-  public void loadSecretKeyFromFile_no_property() throws Exception {
+  public void loadSecretKeyFromFile_no_property() {
     assertThatThrownBy(() -> AesCipher.loadSecretFileFromFile(null))
       .isInstanceOf(IllegalStateException.class);
   }
