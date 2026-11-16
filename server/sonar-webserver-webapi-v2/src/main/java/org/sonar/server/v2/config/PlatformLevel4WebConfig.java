@@ -66,6 +66,7 @@ import org.sonar.server.v2.api.onboarding.alm.OnboardingAlmConfiguration;
 import org.sonar.server.v2.common.WebApiV2MetricsInterceptor;
 import org.sonar.server.v2.security.WebSecurityConfig;
 import org.sonarsource.onboarding.server.config.OnboardingServerWebConfiguration;
+import org.sonarsource.sonarqube.spring.security.server.ServerPrincipalResolverConfig;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
@@ -80,6 +81,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
   ActiveRulesHandlerImpl.class,
   ActiveRuleService.class,
   ServerWebConfig.class,
+  ServerPrincipalResolverConfig.class,
   WebSecurityConfig.class,
   DatabaseMigrationsController.class,
   DefaultAgenticJobsController.class,

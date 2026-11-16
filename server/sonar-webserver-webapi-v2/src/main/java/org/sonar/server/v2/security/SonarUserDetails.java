@@ -104,12 +104,11 @@ public class SonarUserDetails implements UserDetails {
    * Returns the user's UUID as the username.
    * <p>
    * This aligns with Cloud's JWT authentication where the 'sub' claim contains the user UUID.
-   * The unified sonar-spring module's SecurityContextUtils.extractUserId() calls getUsername()
-   * to get the user ID, which should be the UUID for consistency across Server and Cloud.
+   * The unified sonar-spring module's PrincipalResolverUtils.extractUserFromAuthentication() takes getUsername()
+   * as the user ID, which should be the UUID for consistency across Server and Cloud.
    * </p>
    * <p>
-   * The login is accessed via the custom getLogin() method, which our enterprise-specific
-   * SecurityContextUtils uses when extracting from SonarUserDetails.
+   * The login is accessed via the custom getLogin() method.
    * </p>
    *
    * Service sessions have no user UUID; their authenticated key id is their stable Spring Security

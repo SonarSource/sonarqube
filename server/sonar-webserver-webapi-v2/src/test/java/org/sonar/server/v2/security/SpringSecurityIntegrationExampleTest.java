@@ -24,10 +24,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
+import org.sonarsource.sonarqube.spring.security.AuthenticatedUser;
+import org.sonarsource.sonarqube.spring.security.PrincipalResolverUtils;
+import org.sonarsource.sonarqube.spring.security.PrincipalType;
+import org.sonarsource.sonarqube.spring.security.server.ServerPrincipalResolverConfig;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -50,23 +55,28 @@ import static org.mockito.Mockito.when;
  */
 class SpringSecurityIntegrationExampleTest {
 
+  @BeforeAll
+  static void registerPrincipalResolver() {
+    new ServerPrincipalResolverConfig().serverPrincipalResolver();
+  }
+
   @AfterEach
   void tearDown() {
     SecurityContextHolder.clearContext();
   }
 
   @Test
-  void authenticatedUser_shouldBeAccessibleViaSecurityContextUtils() {
+  void authenticatedUser_shouldBeAccessibleViaPrincipalResolverUtils() {
     UserSession userSession = new MockUserSession("john.doe")
       .setUuid("user-uuid-123");
     setSecurityContext(userSession);
 
-    AuthenticatedUser authenticatedUser = org.sonar.server.v2.security.SecurityContextUtils.requireAuthenticatedUser();
+    AuthenticatedUser authenticatedUser = (AuthenticatedUser) PrincipalResolverUtils.getRequestPrincipal();
 
+    assertThat(authenticatedUser.getType()).isEqualTo(PrincipalType.USER);
     assertThat(authenticatedUser.getId()).isEqualTo("user-uuid-123");
     assertThat(authenticatedUser.getLogin()).isEqualTo("john.doe");
     assertThat(authenticatedUser.getName()).isEqualTo("john.doe");
-    assertThat(authenticatedUser.isLoggedIn()).isTrue();
   }
 
   @Test
@@ -97,7 +107,7 @@ class SpringSecurityIntegrationExampleTest {
     assertThat(authentication.getName()).isEqualTo(expectedLogin);
     assertThat(userDetails.getLogin()).isEqualTo(expectedLogin);
 
-    AuthenticatedUser authenticatedUser = org.sonar.server.v2.security.SecurityContextUtils.requireAuthenticatedUser();
+    AuthenticatedUser authenticatedUser = (AuthenticatedUser) PrincipalResolverUtils.getRequestPrincipal();
     assertThat(authenticatedUser.getId()).isEqualTo(expectedUuid);
     assertThat(authenticatedUser.getLogin()).isEqualTo(expectedLogin);
   }
