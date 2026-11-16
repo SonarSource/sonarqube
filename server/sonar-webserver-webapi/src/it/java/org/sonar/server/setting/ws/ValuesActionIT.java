@@ -691,14 +691,14 @@ public class ValuesActionIT {
 
   @Test
   public void fail_when_setting_key_is_defined_in_sonar_properties() {
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
-    userSession.logIn().addProjectPermission(ProjectPermission.USER, project);
+    ProjectDto localProject = db.components().insertPrivateProject().getProjectDto();
+    userSession.logIn().addProjectPermission(ProjectPermission.USER, localProject);
     String settingKey = ProcessProperties.Property.JDBC_URL.getKey();
 
     assertThatThrownBy(() -> {
       wsActionTester.newRequest()
         .setParam("keys", settingKey)
-        .setParam("component", project.getKey())
+        .setParam("component", localProject.getKey())
         .execute();
     })
       .isInstanceOf(IllegalArgumentException.class)

@@ -56,8 +56,8 @@ public class ListActionTest {
   @Test
   public void handle_returnsEmptyJsonWhenNoFeaturesDefined() {
     ListAction actionWithNoFeatures = new ListAction(List.of());
-    WsActionTester tester = new WsActionTester(actionWithNoFeatures);
-    TestResponse execute = tester.newRequest().execute();
+    WsActionTester localTester = new WsActionTester(actionWithNoFeatures);
+    TestResponse execute = localTester.newRequest().execute();
 
     execute.assertJson("[]");
   }

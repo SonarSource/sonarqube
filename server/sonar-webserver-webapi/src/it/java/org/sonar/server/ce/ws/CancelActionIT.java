@@ -64,38 +64,38 @@ public class CancelActionIT {
   public void cancel_pending_task_on_project() {
     logInAsSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    CeQueueDto queue = createTaskSubmit(project);
+    CeQueueDto ceQueueDto = createTaskSubmit(project);
 
     tester.newRequest()
-      .setParam("id", queue.getUuid())
+      .setParam("id", ceQueueDto.getUuid())
       .execute();
 
-    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), queue.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), ceQueueDto.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
   }
 
   @Test
   public void cancel_pending_task_having_no_component() {
     logInAsSystemAdministrator();
-    CeQueueDto queue = createTaskSubmit(null);
+    CeQueueDto ceQueueDto = createTaskSubmit(null);
 
     tester.newRequest()
-      .setParam("id", queue.getUuid())
+      .setParam("id", ceQueueDto.getUuid())
       .execute();
 
-    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), queue.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), ceQueueDto.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
   }
 
   @Test
   public void cancel_pending_task_when_system_administer() {
     logInAsSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    CeQueueDto queue = createTaskSubmit(project);
+    CeQueueDto ceQueueDto = createTaskSubmit(project);
 
     tester.newRequest()
-      .setParam("id", queue.getUuid())
+      .setParam("id", ceQueueDto.getUuid())
       .execute();
 
-    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), queue.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), ceQueueDto.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
   }
 
   @Test
@@ -105,13 +105,13 @@ public class CancelActionIT {
     ComponentDto mainBranchComponent = project.getMainBranchComponent();
     userSession.addProjectPermission(ProjectPermission.ADMIN, projectDto);
     userSession.addProjectBranchMapping(projectDto.getUuid(), mainBranchComponent);
-    CeQueueDto queue = createTaskSubmit(mainBranchComponent);
+    CeQueueDto ceQueueDto = createTaskSubmit(mainBranchComponent);
 
     tester.newRequest()
-      .setParam("id", queue.getUuid())
+      .setParam("id", ceQueueDto.getUuid())
       .execute();
 
-    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), queue.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), ceQueueDto.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
   }
 
   @Test
@@ -136,11 +136,11 @@ public class CancelActionIT {
   public void throw_ForbiddenException_if_not_enough_permission_when_canceling_task_on_project() {
     userSession.logIn().setNonSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    CeQueueDto queue = createTaskSubmit(project);
+    CeQueueDto ceQueueDto = createTaskSubmit(project);
 
     assertThatThrownBy(() -> {
       tester.newRequest()
-        .setParam("id", queue.getUuid())
+        .setParam("id", ceQueueDto.getUuid())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class)
@@ -150,11 +150,11 @@ public class CancelActionIT {
   @Test
   public void throw_ForbiddenException_if_not_enough_permission_when_canceling_task_without_project() {
     userSession.logIn().setNonSystemAdministrator();
-    CeQueueDto queue = createTaskSubmit(null);
+    CeQueueDto ceQueueDto = createTaskSubmit(null);
 
     assertThatThrownBy(() -> {
       tester.newRequest()
-        .setParam("id", queue.getUuid())
+        .setParam("id", ceQueueDto.getUuid())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class)
@@ -164,11 +164,11 @@ public class CancelActionIT {
   @Test
   public void throw_ForbiddenException_if_not_enough_permission_when_canceling_task_when_project_does_not_exist() {
     userSession.logIn().setNonSystemAdministrator();
-    CeQueueDto queue = createTaskSubmit(nonExistentComponentDot());
+    CeQueueDto ceQueueDto = createTaskSubmit(nonExistentComponentDot());
 
     assertThatThrownBy(() -> {
       tester.newRequest()
-        .setParam("id", queue.getUuid())
+        .setParam("id", ceQueueDto.getUuid())
         .execute();
     })
       .isInstanceOf(ForbiddenException.class)

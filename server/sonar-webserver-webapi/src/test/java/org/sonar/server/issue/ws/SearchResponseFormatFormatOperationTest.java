@@ -372,14 +372,14 @@ class SearchResponseFormatFormatOperationTest {
       .setIssueUpdateDate(new Date(currentTimeMillis() - 1_000))
       .setIssueCloseDate(new Date(currentTimeMillis()));
 
-    SearchResponseData searchResponseData = new SearchResponseData(issueDto);
-    searchResponseData.addComponents(List.of(component));
-    searchResponseData.addRules(List.of(ruleDto));
-    searchResponseData.addUsers(List.of(userDto));
-    searchResponseData.addBranches(List.of(branch));
+    SearchResponseData localSearchResponseData = new SearchResponseData(issueDto);
+    localSearchResponseData.addComponents(List.of(component));
+    localSearchResponseData.addRules(List.of(ruleDto));
+    localSearchResponseData.addUsers(List.of(userDto));
+    localSearchResponseData.addBranches(List.of(branch));
 
     when(userResponseFormatter.formatUser(any(Common.User.Builder.class), eq(userDto))).thenReturn(user);
 
-    return searchResponseData;
+    return localSearchResponseData;
   }
 }

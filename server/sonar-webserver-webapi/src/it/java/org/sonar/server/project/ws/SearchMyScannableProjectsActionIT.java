@@ -113,10 +113,10 @@ public class SearchMyScannableProjectsActionIT {
     ProjectDto project4 = db.components().insertPublicProject(p -> p.setKey("project:four").setName("Project Four")).getProjectDto();
     userSession.addProjectPermission(SCAN, project1, project2, project3, project4);
 
-    WsActionTester ws = new WsActionTester(
+    WsActionTester anonymousWs = new WsActionTester(
       new SearchMyScannableProjectsAction(db.getDbClient(), new ProjectFinder(db.getDbClient(), userSession.anonymous())));
 
-    List<Project> result = ws.newRequest()
+    List<Project> result = anonymousWs.newRequest()
       .executeProtobuf(SearchMyScannableProjectsResponse.class)
       .getProjectsList();
 

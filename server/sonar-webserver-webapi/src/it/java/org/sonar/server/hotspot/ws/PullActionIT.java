@@ -226,11 +226,11 @@ public class PullActionIT {
   @Test
   public void wsExecution_whenHotspotOnAnotherBranchThanMain_shouldReturnOneIssue() throws IOException {
     ProjectData projectData = db.components().insertPrivateProjectWithCustomBranch("develop");
-    ProjectDto project = projectData.getProjectDto();
+    ProjectDto projectDto = projectData.getProjectDto();
     ComponentDto developBranch = projectData.getMainBranchComponent();
     ComponentDto developFile = db.components().insertComponent(newFileDto(developBranch));
     List<String> hotspotKeys = generateHotspots(developBranch, developFile, 1);
-    loginWithBrowsePermission(project);
+    loginWithBrowsePermission(projectDto);
 
     TestRequest request = tester.newRequest()
       .setParam("projectKey", developBranch.getKey())

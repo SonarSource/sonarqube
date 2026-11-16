@@ -169,8 +169,6 @@ class GetBindingActionIT {
   @MethodSource("gitlabBindingParameters")
   void get_gitlab_project_binding(String testName, String gitlabUrl, String expectedRepositoryUrl) {
     var projectId = "12345";
-    UserDto user = db.users().insertUser();
-    ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     userSession.logIn(user).addProjectPermission(USER, project);
 
     AlmSettingDto almSetting = db.almSettings().insertGitlabAlmSetting(setting -> setting.setUrl(gitlabUrl).setPersonalAccessToken("token"));

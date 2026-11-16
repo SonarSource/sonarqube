@@ -121,7 +121,7 @@ public class ValidateActionIT {
 
   @Test
   public void github_validation_checks() {
-    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(settings -> settings.setClientId("clientId")
+    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(setting -> setting.setClientId("clientId")
       .setClientSecret("clientSecret")));
     when(encryption.isEncrypted(any())).thenReturn(false);
 
@@ -142,7 +142,7 @@ public class ValidateActionIT {
   public void github_validation_checks_with_encrypted_secret() {
     String secret = "encrypted-secret";
     String decryptedSecret = "decrypted-secret";
-    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(settings -> settings.setClientId("clientId")
+    AlmSettingDto almSetting = insertAlmSetting(db.almSettings().insertGitHubAlmSetting(setting -> setting.setClientId("clientId")
       .setClientSecret(secret)));
     when(encryption.isEncrypted(secret)).thenReturn(true);
     when(encryption.decrypt(secret)).thenReturn(decryptedSecret);

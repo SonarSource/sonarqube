@@ -292,11 +292,11 @@ public class BulkDeleteActionIT {
     ProjectData project1 = db.components().insertPrivateProject();
     ProjectData project2 = db.components().insertPrivateProject();
     ProjectData project3 = db.components().insertPrivateProject();
-    ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
+    ComponentCleanerService failingComponentCleanerService = mock(ComponentCleanerService.class);
     RuntimeException expectedException = new RuntimeException("Faking delete failing on 2nd project");
     doNothing()
       .doThrow(expectedException)
-      .when(componentCleanerService)
+      .when(failingComponentCleanerService)
       .deleteEntity(any(), any(ProjectDto.class));
 
     try {

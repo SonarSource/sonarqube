@@ -149,8 +149,8 @@ class RemoveActionIT {
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
 
-    RemoveRequest request = this.request.setProject(project.getKey());
-    assertThatThrownBy(() -> call(request))
+    RemoveRequest removeRequest = this.request.setProject(project.getKey());
+    assertThatThrownBy(() -> call(removeRequest))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Notification doesn't exist");
   }
@@ -233,8 +233,8 @@ class RemoveActionIT {
     userSession.logIn(user).setSystemAdministrator();
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    RemoveRequest request = this.request.setLogin("LOGIN 404");
-    assertThatThrownBy(() -> call(request))
+    RemoveRequest removeRequest = this.request.setLogin("LOGIN 404");
+    assertThatThrownBy(() -> call(removeRequest))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("User 'LOGIN 404' not found");
   }
@@ -247,8 +247,8 @@ class RemoveActionIT {
     notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
 
-    RemoveRequest request = this.request.setLogin(user.getLogin());
-    assertThatThrownBy(() -> call(request))
+    RemoveRequest removeRequest = this.request.setLogin(user.getLogin());
+    assertThatThrownBy(() -> call(removeRequest))
       .isInstanceOf(ForbiddenException.class);
   }
 
@@ -269,8 +269,8 @@ class RemoveActionIT {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    RemoveRequest request = this.request.setChannel("Channel42");
-    assertThatThrownBy(() -> call(request))
+    RemoveRequest removeRequest = this.request.setChannel("Channel42");
+    assertThatThrownBy(() -> call(removeRequest))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -280,8 +280,8 @@ class RemoveActionIT {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
 
-    RemoveRequest request = this.request.setType("Dispatcher42");
-    assertThatThrownBy(() -> call(request))
+    RemoveRequest removeRequest = this.request.setType("Dispatcher42");
+    assertThatThrownBy(() -> call(removeRequest))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher2, Dispatcher3]");
   }
@@ -294,8 +294,8 @@ class RemoveActionIT {
     when(dispatchers.getProjectDispatchers()).thenReturn(asList(NOTIF_MY_NEW_ISSUES, NOTIF_NEW_QUALITY_GATE_STATUS));
     ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
 
-    RemoveRequest request = this.request.setType("Dispatcher42").setProject(project.getKey());
-    assertThatThrownBy(() -> call(request))
+    RemoveRequest removeRequest = this.request.setType("Dispatcher42").setProject(project.getKey());
+    assertThatThrownBy(() -> call(removeRequest))
       .isInstanceOf(BadRequestException.class)
       .hasMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");
   }
@@ -306,8 +306,8 @@ class RemoveActionIT {
     userSession.logIn(user);
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    TestRequest request = ws.newRequest();
-    assertThatThrownBy(request::execute)
+    TestRequest testRequest = ws.newRequest();
+    assertThatThrownBy(testRequest::execute)
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("The 'type' parameter is missing");
   }
@@ -319,8 +319,8 @@ class RemoveActionIT {
     when(dispatchers.getGlobalDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
 
-    RemoveRequest request = this.request.setProject("Project-42");
-    assertThatThrownBy(() -> call(request))
+    RemoveRequest removeRequest = this.request.setProject("Project-42");
+    assertThatThrownBy(() -> call(removeRequest))
       .isInstanceOf(NotFoundException.class);
   }
 
@@ -332,8 +332,8 @@ class RemoveActionIT {
     when(dispatchers.getProjectDispatchers()).thenReturn(singletonList(NOTIF_MY_NEW_ISSUES));
     db.components().insertPortfolioAndSnapshot(newPortfolio().setKey("VIEW_1"));
 
-    RemoveRequest request = this.request.setProject("VIEW_1");
-    assertThatThrownBy(() -> call(request))
+    RemoveRequest removeRequest = this.request.setProject("VIEW_1");
+    assertThatThrownBy(() -> call(removeRequest))
       .isInstanceOf(NotFoundException.class)
       .hasMessage("Project 'VIEW_1' not found");
   }
@@ -376,12 +376,12 @@ class RemoveActionIT {
   }
 
   private TestResponse call(RemoveRequest remove) {
-    TestRequest request = ws.newRequest();
-    request.setParam(PARAM_TYPE, remove.getType());
-    ofNullable(remove.getChannel()).ifPresent(channel -> request.setParam(PARAM_CHANNEL, channel));
-    ofNullable(remove.getProject()).ifPresent(project -> request.setParam(PARAM_PROJECT, project));
-    ofNullable(remove.getLogin()).ifPresent(login -> request.setParam(PARAM_LOGIN, login));
-    return request.execute();
+    TestRequest testRequest = ws.newRequest();
+    testRequest.setParam(PARAM_TYPE, remove.getType());
+    ofNullable(remove.getChannel()).ifPresent(channel -> testRequest.setParam(PARAM_CHANNEL, channel));
+    ofNullable(remove.getProject()).ifPresent(project -> testRequest.setParam(PARAM_PROJECT, project));
+    ofNullable(remove.getLogin()).ifPresent(login -> testRequest.setParam(PARAM_LOGIN, login));
+    return testRequest.execute();
   }
 
   private static class FakeNotificationChannel extends NotificationChannel {

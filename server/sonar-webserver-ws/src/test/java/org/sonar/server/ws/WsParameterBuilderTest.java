@@ -130,7 +130,7 @@ public class WsParameterBuilderTest {
     when(newAction.createParam(PARAM_QUALIFIERS)).thenReturn(newParam);
     when(newParam.setPossibleValues(any(Collection.class))).thenReturn(newParam);
     when(newParam.setDescription(any())).thenReturn(newParam);
-    NewParam newParam = WsParameterBuilder
+    WsParameterBuilder
       .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, componentTypes));
 
     verify(newParam).setPossibleValues(Sets.newHashSet(Q1.getQualifier(), Q2.getQualifier()));
@@ -143,7 +143,7 @@ public class WsParameterBuilderTest {
     when(newAction.createParam(PARAM_QUALIFIERS)).thenReturn(newParam);
     when(newParam.setPossibleValues(any(Collection.class))).thenReturn(newParam);
     when(newParam.setDescription(any())).thenReturn(newParam);
-    NewParam newParam = WsParameterBuilder
+    WsParameterBuilder
       .createQualifiersParameter(newAction, newQualifierParameterContext(i18n, componentTypes));
 
     verify(newParam).setPossibleValues(Sets.newHashSet(Q1.getQualifier(), Q2.getQualifier(), q3Qualifier.getQualifier()));

@@ -125,11 +125,11 @@ public class CredentialsLocalAuthenticationIT {
     assertThat(user.getCryptedPassword()).startsWith("1$");
 
     settings.setProperty("sonar.internal.pbkdf2.iterations", 3);
-    CredentialsLocalAuthentication underTest = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
+    CredentialsLocalAuthentication updatedAuthentication = new CredentialsLocalAuthentication(db.getDbClient(), settings.asConfig());
 
-    underTest.authenticate(db.getSession(), user, password, AuthenticationEvent.Method.BASIC);
+    updatedAuthentication.authenticate(db.getSession(), user, password, AuthenticationEvent.Method.BASIC);
     assertThat(user.getCryptedPassword()).startsWith("3$");
-    underTest.authenticate(db.getSession(), user, password, AuthenticationEvent.Method.BASIC);
+    updatedAuthentication.authenticate(db.getSession(), user, password, AuthenticationEvent.Method.BASIC);
   }
 
   @Test

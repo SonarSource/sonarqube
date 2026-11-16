@@ -87,10 +87,10 @@ public class SearchActionIT {
 
   @Test
   public void empty_when_no_language_installed() {
-    WsActionTester ws = new WsActionTester(new SearchAction(userSession, new Languages(), dbClient, new ComponentFinder(dbClient, null)));
+    WsActionTester localWs = new WsActionTester(new SearchAction(userSession, new Languages(), dbClient, new ComponentFinder(dbClient, null)));
     db.qualityProfiles().insert();
 
-    SearchWsResponse result = call(ws.newRequest());
+    SearchWsResponse result = call(localWs.newRequest());
 
     assertThat(result.getProfilesList()).isEmpty();
   }
@@ -258,13 +258,13 @@ public class SearchActionIT {
 
   @Test
   public void empty_when_filtering_on_project_and_no_language_installed() {
-    WsActionTester ws = new WsActionTester(new SearchAction(userSession, new Languages(), dbClient, new ComponentFinder(dbClient, null)));
+    WsActionTester localWs = new WsActionTester(new SearchAction(userSession, new Languages(), dbClient, new ComponentFinder(dbClient, null)));
     db.qualityProfiles().insert();
     ProjectDto project = db.components().insertPrivateProject().getProjectDto();
     QProfileDto profileOnXoo1 = db.qualityProfiles().insert(q -> q.setLanguage(XOO1.getKey()));
     db.qualityProfiles().associateWithProject(project, profileOnXoo1);
 
-    SearchWsResponse result = call(ws.newRequest()
+    SearchWsResponse result = call(localWs.newRequest()
       .setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_DEFAULTS, "true"));
 

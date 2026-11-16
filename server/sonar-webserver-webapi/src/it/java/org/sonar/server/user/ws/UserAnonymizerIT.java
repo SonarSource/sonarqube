@@ -53,13 +53,13 @@ public class UserAnonymizerIT {
   public void try_avoid_login_collisions() {
     List<String> logins = List.of("login1", "login2", "login3");
     Iterator<String> randomGeneratorIt = logins.iterator();
-    UserAnonymizer userAnonymizer = new UserAnonymizer(db.getDbClient(), randomGeneratorIt::next);
+    UserAnonymizer localUserAnonymizer = new UserAnonymizer(db.getDbClient(), randomGeneratorIt::next);
 
     UserDto user1 = db.users().insertUser(u -> u.setLogin("login1"));
     UserDto user2 = db.users().insertUser(u -> u.setLogin("login2"));
     UserDto userToAnonymize = db.users().insertUser(u -> u.setLogin("toAnonymize").setActive(false));
 
-    userAnonymizer.anonymize(db.getSession(), userToAnonymize);
+    localUserAnonymizer.anonymize(db.getSession(), userToAnonymize);
     assertThat(userToAnonymize.getLogin()).isEqualTo("login3");
   }
 
