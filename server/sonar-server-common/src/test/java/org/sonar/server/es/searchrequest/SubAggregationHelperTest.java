@@ -31,7 +31,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.server.es.searchrequest.TopAggregationHelperTest.DEFAULT_BUCKET_SIZE;
 
 public class SubAggregationHelperTest {
 
