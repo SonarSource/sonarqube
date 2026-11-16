@@ -135,7 +135,7 @@ public class EsLoggingTest {
       for (int i = 0; i < expectedPropertyKeysAndValuesOrdered.length; i++) {
         String key = expectedPropertyKeysAndValuesOrdered[i++];
         String value = expectedPropertyKeysAndValuesOrdered[i];
-        assertThat(properties.get(key)).describedAs("Unexpected value for property " + key).isEqualTo(value);
+        assertThat(properties).describedAs("Unexpected value for property " + key).containsEntry(key, value);
         keys.add(key);
       }
       assertThat(properties).containsOnlyKeys(keys.toArray());

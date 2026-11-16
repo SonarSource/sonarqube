@@ -71,8 +71,7 @@ public class SharedHealthStateImplTest {
 
     underTest.writeMine(nodeHealth);
 
-    assertThat(map).hasSize(1);
-    assertThat(map.get(uuid)).isEqualTo(new TimestampedNodeHealth(nodeHealth, clusterTime));
+    assertThat(map).hasSize(1).containsEntry(uuid, new TimestampedNodeHealth(nodeHealth, clusterTime));
     assertThat(logging.getLogs()).isEmpty();
   }
 

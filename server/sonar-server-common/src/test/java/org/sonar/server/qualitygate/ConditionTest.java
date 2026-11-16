@@ -62,8 +62,8 @@ public class ConditionTest {
 
   @Test
   public void toString_is_override() {
-    assertThat(underTest.toString())
-      .isEqualTo("Condition{metricKey='metric_key', operator=GREATER_THAN, errorThreshold='2'}");
+    assertThat(underTest)
+      .hasToString("Condition{metricKey='metric_key', operator=GREATER_THAN, errorThreshold='2'}");
   }
 
   @Test

@@ -128,8 +128,8 @@ public class NodeHealthTest {
 
     NodeHealth underTest = builder.build();
 
-    assertThat(builder.build().hashCode())
-      .isEqualTo(underTest.hashCode());
+    assertThat(builder.build())
+      .hasSameHashCodeAs(underTest);
   }
 
   @Test
@@ -166,8 +166,8 @@ public class NodeHealthTest {
 
     NodeHealth underTest = builder.build();
 
-    assertThat(underTest.toString())
-      .isEqualTo("NodeHealth{status=" + randomStatus + ", causes=[" + cause + "], details=" + nodeDetails + "}");
+    assertThat(underTest)
+      .hasToString("NodeHealth{status=" + randomStatus + ", causes=[" + cause + "], details=" + nodeDetails + "}");
   }
 
   @Test

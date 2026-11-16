@@ -303,7 +303,7 @@ class IssueFieldsSetterTest {
 
     FieldDiffs.Diff diff = issue.currentChange().diffs().get("line");
     assertThat(diff.oldValue()).isEqualTo(line);
-    assertThat(diff.newValue()).isEqualTo("");
+    assertThat((String) diff.newValue()).isEmpty();
   }
 
   @Test
@@ -485,7 +485,7 @@ class IssueFieldsSetterTest {
     issue.setLocations(null);
     boolean updated = underTest.setLocations(issue, "[1-4]");
     assertThat(updated).isTrue();
-    assertThat(issue.getLocations().toString()).isEqualTo("[1-4]");
+    assertThat((Object) issue.getLocations()).hasToString("[1-4]");
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
     assertThat(issue.locationsChanged()).isTrue();

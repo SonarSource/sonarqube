@@ -114,13 +114,12 @@ class AnalysisPropertyDtoTest {
       .setKey(secure().nextAlphanumeric(512))
       .setValue(secure().nextAlphanumeric(10000));
 
-    assertThat(underTest.hashCode()).isEqualTo(
+    assertThat(underTest).hasSameHashCodeAs(
       new AnalysisPropertyDto()
         .setUuid(underTest.getUuid())
         .setAnalysisUuid(underTest.getAnalysisUuid())
         .setKey(underTest.getKey())
-        .setValue(underTest.getValue())
-        .hashCode());
+        .setValue(underTest.getValue()));
 
     assertThat(underTest.hashCode()).isNotEqualTo(
       new AnalysisPropertyDto()

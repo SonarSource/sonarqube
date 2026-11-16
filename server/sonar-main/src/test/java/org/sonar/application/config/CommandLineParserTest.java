@@ -35,7 +35,7 @@ public class CommandLineParserTest {
 
     // test environment can already declare some system properties prefixed by "sonar."
     // so we can't test the exact number "2"
-    assertThat(p.size()).isGreaterThanOrEqualTo(2);
+    assertThat(p).hasSizeGreaterThanOrEqualTo(2);
     assertThat(p.getProperty("sonar.foo")).isEqualTo("bar");
     assertThat(p.getProperty("sonar.CommandLineParserTest.used")).isEqualTo("used");
 

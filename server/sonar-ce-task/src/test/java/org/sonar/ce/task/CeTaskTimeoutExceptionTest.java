@@ -47,7 +47,7 @@ public class CeTaskTimeoutExceptionTest {
   public void noStacktrace() {
     StringWriter stacktrace = new StringWriter();
     underTest.printStackTrace(new PrintWriter(stacktrace));
-    assertThat(stacktrace.toString())
-      .isEqualTo(CeTaskTimeoutException.class.getCanonicalName() + ": " + message + System.lineSeparator());
+    assertThat(stacktrace)
+      .hasToString(CeTaskTimeoutException.class.getCanonicalName() + ": " + message + System.lineSeparator());
   }
 }

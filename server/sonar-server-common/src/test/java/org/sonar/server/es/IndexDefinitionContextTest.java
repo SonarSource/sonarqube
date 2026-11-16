@@ -44,8 +44,8 @@ public class IndexDefinitionContextTest {
 
     context.create(Index.withRelations("issues"), emptySettingsConfiguration);
     context.create(Index.simple("users"), emptySettingsConfiguration);
-    assertThat(context.getIndices().keySet())
-      .containsOnly("issues", "users");
+    assertThat(context.getIndices())
+      .containsOnlyKeys("issues", "users");
   }
 
   @Test

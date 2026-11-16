@@ -357,7 +357,7 @@ class NewIssuesStatisticsTest {
 
   private void assertStats(DistributedMetricStatsInt distribution, String label, int onCurrentAnalysis, int total) {
     Optional<MetricStatsInt> statsOption = distribution.getForLabel(label);
-    assertThat(statsOption.isPresent()).describedAs("distribution for label %s not found", label).isTrue();
+    assertThat(statsOption).describedAs("distribution for label %s not found", label).isPresent();
     MetricStatsInt stats = statsOption.get();
     assertThat(stats.getOnCurrentAnalysis()).isEqualTo(onCurrentAnalysis);
     assertThat(stats.getTotal()).isEqualTo(total);

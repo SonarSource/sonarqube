@@ -174,8 +174,8 @@ public class NodeDetailsTest {
 
     NodeDetails underTest = builder.build();
 
-    assertThat(builder.build().hashCode())
-      .isEqualTo(underTest.hashCode());
+    assertThat(builder.build())
+      .hasSameHashCodeAs(underTest);
   }
 
   @Test
@@ -203,8 +203,8 @@ public class NodeDetailsTest {
       .setStartedAt(startedAt)
       .build();
 
-    assertThat(underTest.toString())
-      .isEqualTo("NodeDetails{type=" + randomType + ", name='" + name + "', host='" + host + "', port=" + port + ", startedAt=" + startedAt + "}");
+    assertThat(underTest)
+      .hasToString("NodeDetails{type=" + randomType + ", name='" + name + "', host='" + host + "', port=" + port + ", startedAt=" + startedAt + "}");
   }
 
   @Test

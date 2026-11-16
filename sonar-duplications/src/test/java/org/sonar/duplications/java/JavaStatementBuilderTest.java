@@ -364,8 +364,8 @@ public class JavaStatementBuilderTest {
 
   @Test
   public void realExamples() {
-    assertThat(chunk(DuplicationsTestUtil.findFile("/java/MessageResources.java")).size()).isPositive();
-    assertThat(chunk(DuplicationsTestUtil.findFile("/java/RequestUtils.java")).size()).isPositive();
+    assertThat(chunk(DuplicationsTestUtil.findFile("/java/MessageResources.java"))).isNotEmpty();
+    assertThat(chunk(DuplicationsTestUtil.findFile("/java/RequestUtils.java"))).isNotEmpty();
   }
 
   private List<Statement> chunk(File file) {

@@ -112,7 +112,7 @@ public class PluginDownloaderTest {
 
     File[] files = downloadDir.listFiles();
     assertThat(files).hasSize(1);
-    assertThat(files[0].getName()).isEqualTo("sonar-php.jar");
+    assertThat(files[0]).hasName("sonar-php.jar");
   }
 
   @Test

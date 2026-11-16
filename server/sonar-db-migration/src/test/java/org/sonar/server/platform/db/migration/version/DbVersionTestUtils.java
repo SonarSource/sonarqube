@@ -43,7 +43,7 @@ public class DbVersionTestUtils {
     underTest.addSteps(registry);
 
     assertThat(registry.migrationNumbers).describedAs("No migration added to registry").isNotEmpty();
-    assertThat(registry.migrationNumbers.stream().sorted().findFirst().get()).isEqualTo(minimumMigrationNumber);
+    assertThat(registry.migrationNumbers.stream().sorted().findFirst()).contains((long) minimumMigrationNumber);
   }
 
   public static void verifyMigrationCount(DbVersion underTest, int migrationCount) {

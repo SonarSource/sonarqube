@@ -60,11 +60,11 @@ public class DefaultI18nTest {
 
   @Test
   public void introspect_all_available_properties() {
-    assertThat(underTest.getPropertyKeys().contains("any")).isTrue();
-    // Only in english
-    assertThat(underTest.getPropertyKeys().contains("assignee")).isTrue();
-    assertThat(underTest.getPropertyKeys().contains("sqale.page")).isTrue();
-    assertThat(underTest.getPropertyKeys().contains("bla_bla_bla")).isFalse();
+    assertThat(underTest.getPropertyKeys())
+      .contains("any")
+      // Only in english
+      .contains("assignee", "sqale.page")
+      .doesNotContain("bla_bla_bla");
   }
 
   @Test

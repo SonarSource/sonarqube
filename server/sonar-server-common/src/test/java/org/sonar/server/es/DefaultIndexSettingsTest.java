@@ -34,8 +34,9 @@ public class DefaultIndexSettingsTest {
     Map<String, Object> settings = DefaultIndexSettings.defaults();
 
     // test some values
-    assertThat(settings.get("index.number_of_shards")).isEqualTo("1");
-    assertThat(settings.get("index.analysis.analyzer." + SORTABLE_ANALYZER.getName() + ".tokenizer")).isEqualTo("keyword");
+    assertThat(settings)
+      .containsEntry("index.number_of_shards", "1")
+      .containsEntry("index.analysis.analyzer." + SORTABLE_ANALYZER.getName() + ".tokenizer", "keyword");
   }
 
   @Test

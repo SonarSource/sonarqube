@@ -713,7 +713,7 @@ public class SuggestionsActionIT {
       response.getResultsList().stream()
         .filter(c -> !"TRK".equals(c.getQ()))
         .map(Category::getMore)
-        .forEach(m -> assertThat(m).isEqualTo(0L));
+        .forEach(m -> assertThat(m).isZero());
     }
   }
 }

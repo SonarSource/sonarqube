@@ -169,10 +169,10 @@ public class AuthenticationEventSourceTest {
 
   @Test
   public void toString_displays_all_fields() {
-    assertThat(Source.sso().toString())
-      .isEqualTo("Source{method=SSO, provider=SSO, providerName='sso'}");
-    assertThat(Source.oauth2(newOauth2IdentityProvider("bou")).toString())
-      .isEqualTo("Source{method=OAUTH2, provider=EXTERNAL, providerName='bou'}");
+    assertThat(Source.sso())
+      .hasToString("Source{method=SSO, provider=SSO, providerName='sso'}");
+    assertThat(Source.oauth2(newOauth2IdentityProvider("bou")))
+      .hasToString("Source{method=OAUTH2, provider=EXTERNAL, providerName='bou'}");
   }
 
   @Test

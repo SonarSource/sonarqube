@@ -72,12 +72,13 @@ public class NewIndexTest {
     assertThat(underTest.get("index.number_of_shards")).asString().isNotEmpty();
     // index.mapper.dynamic is deprecated and should not be set anymore
     assertThat(underTest.get("index.mapper.dynamic")).isNull();
-    assertThat(underTest.get("index.refresh_interval")).isEqualTo("30s");
     // setting "mapping.single_type" has been dropped in 6.X because multi type indices are not supported anymore
     assertThat(underTest.get("mapping.single_type")).isNull();
-    assertThat(underTest.get("index.number_of_shards")).isEqualTo("1");
-    assertThat(underTest.get("index.number_of_replicas")).isEqualTo("0");
-    assertThat(underTest.get("index.max_ngram_diff")).isEqualTo("13");
+    assertThat(underTest)
+      .containsEntry("index.refresh_interval", "30s")
+      .containsEntry("index.number_of_shards", "1")
+      .containsEntry("index.number_of_replicas", "0")
+      .containsEntry("index.max_ngram_diff", "13");
   }
 
   @Test
@@ -89,12 +90,13 @@ public class NewIndexTest {
     // _all field is deprecated in ES 6.X and will be removed in 7.X
     assertThat(underTest.get("_all")).isNull();
     assertThat(underTest.get("index.number_of_shards")).asString().isNotEmpty();
-    assertThat(underTest.get("index.refresh_interval")).isEqualTo("30s");
     // setting "mapping.single_type" has been dropped in 6.X because multi type indices are not supported anymore
     assertThat(underTest.get("mapping.single_type")).isNull();
-    assertThat(underTest.get("index.number_of_shards")).isEqualTo("1");
-    assertThat(underTest.get("index.number_of_replicas")).isEqualTo("1");
-    assertThat(underTest.get("index.max_ngram_diff")).isEqualTo("13");
+    assertThat(underTest)
+      .containsEntry("index.refresh_interval", "30s")
+      .containsEntry("index.number_of_shards", "1")
+      .containsEntry("index.number_of_replicas", "1")
+      .containsEntry("index.max_ngram_diff", "13");
   }
 
   @Test
@@ -317,7 +319,7 @@ public class NewIndexTest {
     settings.setProperty(SEARCH_REPLICAS.getKey(), "5");
     NewIndex newIndex = new SimplestNewIndex(IndexType.main(index, "foo"), defaultSettingsConfiguration);
 
-    assertThat(newIndex.getSettings().get("index.number_of_replicas")).isEqualTo("0");
+    assertThat(newIndex.getSettings()).containsEntry("index.number_of_replicas", "0");
   }
 
   @Test
