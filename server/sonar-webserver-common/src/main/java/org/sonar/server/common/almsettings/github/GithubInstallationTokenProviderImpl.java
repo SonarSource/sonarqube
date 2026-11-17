@@ -87,8 +87,11 @@ public class GithubInstallationTokenProviderImpl implements GithubInstallationTo
       }
 
       Optional<AlmSettingDto> almSetting = dbClient.almSettingDao().selectByUuid(dbSession, projectAlmSetting.get().getAlmSettingUuid());
-      if (almSetting.isEmpty() || almSetting.get().getAlm() != ALM.GITHUB) {
+      if (almSetting.isEmpty()) {
         LOG.warn("Cannot mint a GitHub installation token: project '{}' is not bound to a GitHub App", safeProjectKey);
+        return Optional.empty();
+      }
+      if (almSetting.get().getAlm() != ALM.GITHUB) {
         return Optional.empty();
       }
 

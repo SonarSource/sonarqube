@@ -21,6 +21,7 @@ package org.sonar.server.common.almsettings.github;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -32,6 +33,7 @@ import org.sonar.alm.client.github.GithubGlobalSettingsValidator;
 import org.sonar.auth.github.ExpiringAppInstallationToken;
 import org.sonar.auth.github.GithubAppConfiguration;
 import org.sonar.auth.github.GithubAppPermissions;
+import org.sonar.api.testfixtures.log.LogTester;
 import org.sonar.core.scm.github.GithubInstallationToken;
 import org.sonar.db.DbClient;
 import org.sonar.db.alm.setting.ALM;
@@ -49,10 +51,15 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.slf4j.event.Level.WARN;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GithubInstallationTokenProviderImplTest {
+
+  @Rule
+  public LogTester logs = new LogTester();
 
   private static final String PROJECT_KEY = "my-project";
   private static final String ALM_SETTING_UUID = "almSettingUuid";
@@ -93,6 +100,34 @@ public class GithubInstallationTokenProviderImplTest {
     when(dbClient.almSettingDao().selectByUuid(any(), eq(ALM_SETTING_UUID))).thenReturn(Optional.of(almSetting));
 
     assertThat(underTest.mint(PROJECT_KEY)).isEmpty();
+    assertThat(logs.logs(WARN)).isEmpty();
+    verifyNoInteractions(githubGlobalSettingsValidator, githubApplicationClient);
+  }
+
+  @Test
+  public void mint_whenAlmSettingMissing_shouldWarnAndReturnEmpty() {
+    mockProjectAlmSetting();
+
+    assertThat(underTest.mint(PROJECT_KEY)).isEmpty();
+
+    assertThat(logs.logs(WARN))
+      .containsExactly("Cannot mint a GitHub installation token: project 'my-project' is not bound to a GitHub App");
+    verifyNoInteractions(githubGlobalSettingsValidator, githubApplicationClient);
+  }
+
+  @Test
+  public void mint_whenBitbucket_shouldReturnEmptyWithoutWarning() {
+    mockProjectAlmSetting();
+    AlmSettingDto almSetting = mock();
+    when(dbClient.almSettingDao().selectByUuid(any(), eq(ALM_SETTING_UUID))).thenReturn(Optional.of(almSetting));
+
+    for (ALM platform : new ALM[] {ALM.BITBUCKET, ALM.BITBUCKET_CLOUD}) {
+      when(almSetting.getAlm()).thenReturn(platform);
+
+      assertThat(underTest.mint(PROJECT_KEY)).isEmpty();
+      assertThat(logs.logs(WARN)).isEmpty();
+    }
+    verifyNoInteractions(githubGlobalSettingsValidator, githubApplicationClient);
   }
 
   @Test
