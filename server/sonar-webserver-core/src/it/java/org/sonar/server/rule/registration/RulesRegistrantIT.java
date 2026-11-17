@@ -238,6 +238,7 @@ class RulesRegistrantIT {
     assertThat(es.countDocuments(RuleIndexDefinition.TYPE_RULE)).isZero();
     assertThat(db.countRowsOfTable("es_queue")).isZero();
     assertThat(metadataIndex.getInitialized(RuleIndexDefinition.TYPE_RULE)).isFalse();
+    assertThat(metadataIndex.getInitialized(RuleIndexDefinition.TYPE_ACTIVE_RULE)).isFalse();
   }
 
   @Test
