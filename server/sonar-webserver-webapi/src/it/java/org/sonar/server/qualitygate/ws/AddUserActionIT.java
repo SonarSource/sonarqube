@@ -29,10 +29,13 @@ import org.sonar.db.DbTester;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.tester.TokenUserSessionTesting;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
@@ -74,6 +77,37 @@ public class AddUserActionIT {
 
     assertThat(response.getStatus()).isEqualTo(204);
     assertThat(dbClient.qualityGateUserPermissionDao().exists(db.getSession(), qualityGateDto, user)).isTrue();
+  }
+
+  @Test
+  public void delegated_editor_authenticated_with_user_token_can_delegate_to_another_user() {
+    QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate();
+    UserDto delegatedEditor = db.users().insertUser();
+    UserDto newEditor = db.users().insertUser();
+    db.qualityGates().addUserPermission(qualityGateDto, delegatedEditor);
+
+    TestResponse response = newTokenWs(delegatedEditor, db.users().insertToken(delegatedEditor)).newRequest()
+      .setParam(PARAM_GATE_NAME, qualityGateDto.getName())
+      .setParam(PARAM_LOGIN, newEditor.getLogin())
+      .execute();
+
+    assertThat(response.getStatus()).isEqualTo(204);
+    assertThat(dbClient.qualityGateUserPermissionDao().exists(db.getSession(), qualityGateDto, newEditor)).isTrue();
+  }
+
+  @Test
+  public void fail_if_delegated_editor_is_authenticated_with_project_analysis_token() {
+    QualityGateDto qualityGateDto = db.qualityGates().insertQualityGate();
+    UserDto delegatedEditor = db.users().insertUser();
+    UserDto attacker = db.users().insertUser();
+    db.qualityGates().addUserPermission(qualityGateDto, delegatedEditor);
+    TestRequest request = newTokenWs(delegatedEditor, db.users().insertProjectAnalysisToken(delegatedEditor)).newRequest()
+      .setParam(PARAM_GATE_NAME, qualityGateDto.getName())
+      .setParam(PARAM_LOGIN, attacker.getLogin());
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class);
+    assertThat(dbClient.qualityGateUserPermissionDao().exists(db.getSession(), qualityGateDto, attacker)).isFalse();
   }
 
   @Test
@@ -161,5 +195,10 @@ public class AddUserActionIT {
       .setParam(PARAM_LOGIN, user.getLogin());
 
     assertThatThrownBy(request::execute).isInstanceOf(ForbiddenException.class);
+  }
+
+  private WsActionTester newTokenWs(UserDto user, UserTokenDto token) {
+    UserSession tokenSession = TokenUserSessionTesting.newTokenSession(dbClient, user, token);
+    return new WsActionTester(new AddUserAction(dbClient, uuidFactory, new QualityGatesWsSupport(dbClient, tokenSession, TestComponentFinder.from(db))));
   }
 }

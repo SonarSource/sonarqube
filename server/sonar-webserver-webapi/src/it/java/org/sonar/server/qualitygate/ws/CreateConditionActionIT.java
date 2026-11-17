@@ -35,12 +35,16 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.qualitygate.ValidQualityGateRatingMetricKeysProvider;
+import org.sonar.server.tester.TokenUserSessionTesting;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
@@ -213,6 +217,41 @@ public class CreateConditionActionIT {
   }
 
   @Test
+  public void delegated_editor_authenticated_with_user_token_can_call_endpoint() {
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = insertMetric();
+    UserDto user = db.users().insertUser();
+    db.qualityGates().addUserPermission(qualityGate, user);
+
+    TestResponse response = newTokenWs(user, db.users().insertToken(user)).newRequest()
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
+      .setParam(PARAM_METRIC, metric.getKey())
+      .setParam(PARAM_OPERATOR, "LT")
+      .setParam(PARAM_ERROR, "90")
+      .execute();
+
+    assertThat(response.getStatus()).isEqualTo(200);
+    assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getUuid())).hasSize(1);
+  }
+
+  @Test
+  public void fail_if_delegated_editor_is_authenticated_with_project_analysis_token() {
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = insertMetric();
+    UserDto user = db.users().insertUser();
+    db.qualityGates().addUserPermission(qualityGate, user);
+    TestRequest request = newTokenWs(user, db.users().insertProjectAnalysisToken(user)).newRequest()
+      .setParam(PARAM_GATE_NAME, qualityGate.getName())
+      .setParam(PARAM_METRIC, metric.getKey())
+      .setParam(PARAM_OPERATOR, "LT")
+      .setParam(PARAM_ERROR, "90");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class);
+    assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getUuid())).isEmpty();
+  }
+
+  @Test
   public void throw_ForbiddenException_if_not_gate_administrator() {
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
     MetricDto metric = insertMetric();
@@ -261,6 +300,13 @@ public class CreateConditionActionIT {
 
   private void logInAsQualityGateAdmin() {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES);
+  }
+
+  private WsActionTester newTokenWs(UserDto user, UserTokenDto token) {
+    UserSession tokenSession = TokenUserSessionTesting.newTokenSession(dbClient, user, token);
+    return new WsActionTester(new CreateConditionAction(dbClient,
+      new QualityGateConditionsUpdater(dbClient, validQualityGateRatingMetricKeysProvider),
+      new QualityGatesWsSupport(dbClient, tokenSession, TestComponentFinder.from(db))));
   }
 
   private MetricDto insertMetric() {

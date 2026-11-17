@@ -25,6 +25,7 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -82,11 +83,15 @@ public class QualityGatesWsSupport {
   }
 
   boolean userHasGroupPermission(DbSession dbSession, QualityGateDto qualityGate) {
-    return userSession.isLoggedIn() && dbClient.qualityGateGroupPermissionsDao().exists(dbSession, qualityGate, userSession.getGroups());
+    return isDelegationAllowed() && dbClient.qualityGateGroupPermissionsDao().exists(dbSession, qualityGate, userSession.getGroups());
   }
 
   boolean userHasPermission(DbSession dbSession, QualityGateDto qualityGate) {
-    return userSession.isLoggedIn() && dbClient.qualityGateUserPermissionDao().exists(dbSession, qualityGate.getUuid(), userSession.getUuid());
+    return isDelegationAllowed() && dbClient.qualityGateUserPermissionDao().exists(dbSession, qualityGate.getUuid(), userSession.getUuid());
+  }
+
+  private boolean isDelegationAllowed() {
+    return userSession.isLoggedIn() && !TokenUserSession.isRestrictedToken(userSession);
   }
 
 

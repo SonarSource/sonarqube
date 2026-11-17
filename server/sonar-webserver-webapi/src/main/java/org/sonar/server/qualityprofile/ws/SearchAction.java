@@ -49,6 +49,7 @@ import org.sonar.server.language.LanguageParamUtils;
 import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
 import org.sonar.server.qualityprofile.builtin.sonarwayvariants.SonarWayCoreProfileDefinition;
 import org.sonar.server.qualityprofile.builtin.sonarwayvariants.SonarWayExtendedProfileDefinition;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
@@ -179,7 +180,7 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private List<String> searchEditableProfiles(DbSession dbSession) {
-    if (!userSession.isLoggedIn()) {
+    if (!userSession.isLoggedIn() || TokenUserSession.isRestrictedToken(userSession)) {
       return emptyList();
     }
 

@@ -39,7 +39,9 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.tester.TokenUserSessionTesting;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -313,6 +315,41 @@ public class SearchActionIT {
         tuple(profile3.getKee(), true, false, false, false, false),
         tuple(builtInProfile.getKee(), false, false, false, false, false));
     assertThat(result.getActions().getCreate()).isFalse();
+  }
+
+  @Test
+  public void actions_when_delegated_editor_is_authenticated_with_user_token() {
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup();
+    db.users().insertMember(group, user);
+    db.qualityProfiles().addGroupPermission(profile, group);
+    UserSession tokenSession = TokenUserSessionTesting.newTokenSession(dbClient, user, db.users().insertToken(user));
+    WsActionTester tokenWs = new WsActionTester(new SearchAction(tokenSession, LANGUAGES, dbClient, new ComponentFinder(dbClient, null)));
+
+    SearchWsResponse result = call(tokenWs.newRequest());
+
+    assertThat(result.getProfilesList())
+      .extracting(QualityProfile::getKey, qp -> qp.getActions().getEdit())
+      .containsExactly(tuple(profile.getKee(), true));
+  }
+
+  @Test
+  public void actions_when_delegated_editor_is_authenticated_with_analysis_token() {
+    QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO1.getKey()));
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup();
+    db.users().insertMember(group, user);
+    db.qualityProfiles().addUserPermission(profile, user);
+    db.qualityProfiles().addGroupPermission(profile, group);
+    UserSession tokenSession = TokenUserSessionTesting.newTokenSession(dbClient, user, db.users().insertProjectAnalysisToken(user));
+    WsActionTester tokenWs = new WsActionTester(new SearchAction(tokenSession, LANGUAGES, dbClient, new ComponentFinder(dbClient, null)));
+
+    SearchWsResponse result = call(tokenWs.newRequest());
+
+    assertThat(result.getProfilesList())
+      .extracting(QualityProfile::getKey, qp -> qp.getActions().getEdit())
+      .containsExactly(tuple(profile.getKee(), false));
   }
 
   @Test

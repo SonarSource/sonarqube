@@ -126,6 +126,15 @@ public class TokenUserSession extends ServerUserSession {
       && (super.hasEntityUuidPermission(permission, projectUuid) || super.hasPermissionImpl(GlobalPermission.SCAN));
   }
 
+  /**
+   * Tokens other than user tokens (e.g. analysis tokens) must not benefit from rights that are granted to the identity of
+   * their creator, such as being a delegated editor of a quality gate or a quality profile.
+   */
+  public static boolean isRestrictedToken(UserSession userSession) {
+    UserSession effectiveSession = userSession instanceof ThreadLocalUserSession threadLocalUserSession ? threadLocalUserSession.get() : userSession;
+    return effectiveSession instanceof TokenUserSession tokenUserSession && tokenUserSession.getTokenType() != TokenType.USER_TOKEN;
+  }
+
   public UserTokenDto getUserToken() {
     return userToken;
   }

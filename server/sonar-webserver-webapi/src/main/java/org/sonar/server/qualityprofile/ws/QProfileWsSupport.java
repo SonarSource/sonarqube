@@ -31,6 +31,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.qualityprofile.QualityProfileDisplayNames;
+import org.sonar.server.user.TokenUserSession;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -96,6 +97,9 @@ public class QProfileWsSupport {
   boolean canEdit(DbSession dbSession, QProfileDto profile) {
     if (canAdministrate(profile)) {
       return true;
+    }
+    if (TokenUserSession.isRestrictedToken(userSession)) {
+      return false;
     }
     UserDto user = dbClient.userDao().selectByLogin(dbSession, userSession.getLogin());
     checkState(user != null, "User from session does not exist");

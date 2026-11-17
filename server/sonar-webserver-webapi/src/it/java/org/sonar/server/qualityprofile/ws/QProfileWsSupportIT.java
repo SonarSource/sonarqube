@@ -21,13 +21,20 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.TokenType;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.tester.TokenUserSessionTesting;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,5 +105,68 @@ public class QProfileWsSupportIT {
     assertThatThrownBy(() -> underTest.getRule(db.getSession(), rule.getKey()))
       .isInstanceOf(BadRequestException.class)
       .hasMessage(format("Operation forbidden for rule '%s' imported from an external rule engine.", rule.getKey()));
+  }
+
+  @Test
+  public void canEdit_returns_true_for_delegated_user_authenticated_with_user_token() {
+    QProfileDto profile = db.qualityProfiles().insert();
+    UserDto user = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(profile, user);
+    QProfileWsSupport support = newSupport(user, db.users().insertToken(user));
+
+    assertThat(support.canEdit(db.getSession(), profile)).isTrue();
+  }
+
+  @Test
+  public void canEdit_returns_true_for_delegated_group_member_authenticated_with_user_token() {
+    QProfileDto profile = db.qualityProfiles().insert();
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup();
+    db.users().insertMember(group, user);
+    db.qualityProfiles().addGroupPermission(profile, group);
+    QProfileWsSupport support = newSupport(user, db.users().insertToken(user));
+
+    assertThat(support.canEdit(db.getSession(), profile)).isTrue();
+  }
+
+  @Test
+  public void canEdit_returns_false_for_delegated_user_authenticated_with_project_analysis_token() {
+    QProfileDto profile = db.qualityProfiles().insert();
+    UserDto user = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(profile, user);
+    QProfileWsSupport support = newSupport(user, db.users().insertProjectAnalysisToken(user));
+
+    DbSession dbSession = db.getSession();
+
+    assertThat(support.canEdit(dbSession, profile)).isFalse();
+    assertThatThrownBy(() -> support.checkCanEdit(dbSession, profile))
+      .isInstanceOf(ForbiddenException.class);
+  }
+
+  @Test
+  public void canEdit_returns_false_for_delegated_user_authenticated_with_global_analysis_token() {
+    QProfileDto profile = db.qualityProfiles().insert();
+    UserDto user = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(profile, user);
+    UserTokenDto token = db.users().insertToken(user, t -> t.setType(TokenType.GLOBAL_ANALYSIS_TOKEN.name()));
+    QProfileWsSupport support = newSupport(user, token);
+
+    assertThat(support.canEdit(db.getSession(), profile)).isFalse();
+  }
+
+  @Test
+  public void canEdit_returns_false_for_delegated_group_member_authenticated_with_project_analysis_token() {
+    QProfileDto profile = db.qualityProfiles().insert();
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup();
+    db.users().insertMember(group, user);
+    db.qualityProfiles().addGroupPermission(profile, group);
+    QProfileWsSupport support = newSupport(user, db.users().insertProjectAnalysisToken(user));
+
+    assertThat(support.canEdit(db.getSession(), profile)).isFalse();
+  }
+
+  private QProfileWsSupport newSupport(UserDto user, UserTokenDto token) {
+    return new QProfileWsSupport(db.getDbClient(), TokenUserSessionTesting.newTokenSession(db.getDbClient(), user, token));
   }
 }

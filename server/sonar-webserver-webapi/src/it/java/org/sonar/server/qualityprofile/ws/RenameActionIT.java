@@ -31,11 +31,14 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.tester.TokenUserSessionTesting;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
@@ -122,6 +125,38 @@ public class RenameActionIT {
 
     QProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByUuid(db.getSession(), qualityProfile.getKee());
     assertThat(reloaded.getName()).isEqualTo("the new name");
+  }
+
+  @Test
+  public void as_qprofile_editor_authenticated_with_user_token() {
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
+    UserDto user = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(qualityProfile, user);
+
+    newTokenWs(user, db.users().insertToken(user)).newRequest()
+      .setMethod("POST")
+      .setParam("key", qualityProfile.getKee())
+      .setParam("name", "the new name")
+      .execute();
+
+    QProfileDto reloaded = dbClient.qualityProfileDao().selectByUuid(db.getSession(), qualityProfile.getKee());
+    assertThat(reloaded.getName()).isEqualTo("the new name");
+  }
+
+  @Test
+  public void fail_if_qprofile_editor_is_authenticated_with_project_analysis_token() {
+    QProfileDto qualityProfile = db.qualityProfiles().insert();
+    UserDto user = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(qualityProfile, user);
+    TestRequest request = newTokenWs(user, db.users().insertProjectAnalysisToken(user)).newRequest()
+      .setMethod("POST")
+      .setParam("key", qualityProfile.getKee())
+      .setParam("name", "the new name");
+
+    assertThatThrownBy(request::execute)
+      .isInstanceOf(ForbiddenException.class);
+    QProfileDto reloaded = dbClient.qualityProfileDao().selectByUuid(db.getSession(), qualityProfile.getKee());
+    assertThat(reloaded.getName()).isEqualTo(qualityProfile.getName());
   }
 
   @Test
@@ -238,6 +273,11 @@ public class RenameActionIT {
     QProfileDto parentXoo2 = db.qualityProfiles().insert(p -> p.setKee("sonar-way-xoo2-23456").setLanguage(xoo2Key).setName("Sonar way"));
 
     db.qualityProfiles().insert(p -> p.setKee("my-sonar-way-xoo2-34567").setLanguage(xoo2Key).setName("My Sonar way").setParentKee(parentXoo2.getKee()));
+  }
+
+  private WsActionTester newTokenWs(UserDto user, UserTokenDto token) {
+    UserSession tokenSession = TokenUserSessionTesting.newTokenSession(dbClient, user, token);
+    return new WsActionTester(new RenameAction(dbClient, tokenSession, new QProfileWsSupport(dbClient, tokenSession)));
   }
 
   private void logInAsQProfileAdministrator() {
