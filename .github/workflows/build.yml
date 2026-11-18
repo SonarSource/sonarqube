@@ -48,7 +48,7 @@ jobs:
           --health-retries 30
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+      - uses: step-security/mise-action@a225bbd7c202ddf57dd76dff22bb7992f6314173 # v5.1.2
         with:
           version: 2026.3.13
           mise_toml: |
