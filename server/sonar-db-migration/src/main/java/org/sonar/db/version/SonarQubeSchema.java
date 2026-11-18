@@ -96,6 +96,7 @@ public final class SonarQubeSchema {
     "internal_properties",
     "issue_count_dimensions",
     "issue_count_history",
+    "issue_introduction_history",
     "issue_stats_by_rule_key",
     "issue_ttr_history",
     "issues",
