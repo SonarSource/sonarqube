@@ -170,10 +170,10 @@ class ComponentTreeActionIT {
     db.measures().insertMeasure(dir, m -> m.addValue(newViolations.getKey(), 25.0d));
     db.measures().insertMeasure(mainBranch, m -> m.addValue(newViolations.getKey(), 255.0d));
 
-    MetricDto accepted_issues = insertAcceptedIssuesMetric();
-    db.measures().insertMeasure(file1, m -> m.addValue(accepted_issues.getKey(), 10d));
-    db.measures().insertMeasure(dir, m -> m.addValue(accepted_issues.getKey(), 10d));
-    db.measures().insertMeasure(mainBranch, m -> m.addValue(accepted_issues.getKey(), 10d));
+    MetricDto acceptedIssues = insertAcceptedIssuesMetric();
+    db.measures().insertMeasure(file1, m -> m.addValue(acceptedIssues.getKey(), 10d));
+    db.measures().insertMeasure(dir, m -> m.addValue(acceptedIssues.getKey(), 10d));
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(acceptedIssues.getKey(), 10d));
 
     db.commit();
 
@@ -203,8 +203,8 @@ class ComponentTreeActionIT {
         .setPeriodMode("previous_version")
         .setPeriodParam("1.0-SNAPSHOT"));
 
-    MetricDto accepted_issues = insertAcceptedIssuesMetric();
-    db.measures().insertMeasure(mainBranch, m -> m.addValue(accepted_issues.getKey(), 10d));
+    MetricDto acceptedIssues = insertAcceptedIssuesMetric();
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(acceptedIssues.getKey(), 10d));
 
     db.commit();
 
@@ -822,10 +822,10 @@ class ComponentTreeActionIT {
 
   @Test
   void application_local_reference_in_portfolio() {
-    ComponentDto apache_projects = ComponentTesting.newPortfolio("VIEW1-UUID")
+    ComponentDto apacheProjects = ComponentTesting.newPortfolio("VIEW1-UUID")
       .setKey("Apache-Projects").setName("Apache Projects").setPrivate(true);
-    userSession.addPortfolioPermission(USER, apache_projects);
-    ComponentDto view = db.components().insertComponent(apache_projects);
+    userSession.addPortfolioPermission(USER, apacheProjects);
+    ComponentDto view = db.components().insertComponent(apacheProjects);
     ProjectData applicationData = db.components().insertPrivateApplication();
     ComponentDto application = applicationData.getMainBranchComponent();
     userSession.addProjectPermission(USER, applicationData.getProjectDto()).registerBranches(applicationData.getMainBranchDto());

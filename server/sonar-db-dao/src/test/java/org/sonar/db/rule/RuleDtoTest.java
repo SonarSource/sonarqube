@@ -245,17 +245,17 @@ class RuleDtoTest {
   }
 
   @NotNull
-  private static RuleDescriptionSectionDto createSection(String section_key, String contextKey, String contextDisplayName) {
+  private static RuleDescriptionSectionDto createSection(String sectionKey, String contextKey, String contextDisplayName) {
     return RuleDescriptionSectionDto.builder()
-      .key(section_key)
+      .key(sectionKey)
       .context(RuleDescriptionSectionContextDto.of(contextKey, contextDisplayName))
       .build();
   }
 
   @NotNull
-  private static RuleDescriptionSectionDto createSection(String section_key) {
+  private static RuleDescriptionSectionDto createSection(String sectionKey) {
     return RuleDescriptionSectionDto.builder()
-      .key(section_key)
+      .key(sectionKey)
       .build();
   }
 

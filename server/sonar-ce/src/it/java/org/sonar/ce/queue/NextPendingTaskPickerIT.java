@@ -269,11 +269,11 @@ public class NextPendingTaskPickerIT {
       .setTaskType(CeTaskTypes.BRANCH_ISSUE_SYNC)
       .setCreatedAt(100_000L));
 
-    String view_uuid = "view_uuid";
-    insertView(view_uuid);
+    String viewUuid = "view_uuid";
+    insertView(viewUuid);
     insertPending(taskUuid2, dto -> dto
-      .setComponentUuid(view_uuid)
-      .setEntityUuid(view_uuid)
+      .setComponentUuid(viewUuid)
+      .setEntityUuid(viewUuid)
       .setStatus(PENDING)
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
@@ -358,14 +358,14 @@ public class NextPendingTaskPickerIT {
     return dto;
   }
 
-  private void insertView(String view_uuid) {
+  private void insertView(String viewUuid) {
     ComponentDto view = new ComponentDto();
     view.setQualifier("VW");
-    view.setKey(view_uuid + "_key");
-    view.setUuid(view_uuid);
+    view.setKey(viewUuid + "_key");
+    view.setUuid(viewUuid);
     view.setPrivate(false);
     view.setUuidPath("uuid_path");
-    view.setBranchUuid(view_uuid);
+    view.setBranchUuid(viewUuid);
     db.components().insertPortfolioAndSnapshot(view);
     db.commit();
   }

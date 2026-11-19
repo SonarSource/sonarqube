@@ -43,19 +43,19 @@ public class LanguagesProviderTest {
 
   @Test
   public void should_provide_instance_when_languages() {
-    Language A = mock(Language.class);
-    when(A.getKey()).thenReturn("a");
-    Language B = mock(Language.class);
-    when(B.getKey()).thenReturn("b");
+    Language a = mock(Language.class);
+    when(a.getKey()).thenReturn("a");
+    Language b = mock(Language.class);
+    when(b.getKey()).thenReturn("b");
 
     LanguagesProvider provider = new LanguagesProvider();
-    List<Language> languageList = Arrays.asList(A, B);
+    List<Language> languageList = Arrays.asList(a, b);
     Languages languages = provider.provide(Optional.of(languageList));
 
     assertThat(languages).isNotNull();
     assertThat(languages.all())
       .hasSize(2)
-      .contains(A, B);
+      .contains(a, b);
   }
 
 }

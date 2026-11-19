@@ -96,11 +96,11 @@ public class IssuesChangesNotificationBuilderTest {
   @Test
   public void UserChange_equals() {
     long now = System2.INSTANCE.now();
-    String uuid_1 = "uuid-1";
-    String login_1 = "login-1";
-    String name_1 = "name-1";
-    UserChange userChange1 = new UserChange(now, new User(uuid_1, login_1, name_1));
-    UserChange userChange2 = new UserChange(now, new User(uuid_1, login_1, name_1));
+    String uuid1 = "uuid-1";
+    String login1 = "login-1";
+    String name1 = "name-1";
+    UserChange userChange1 = new UserChange(now, new User(uuid1, login1, name1));
+    UserChange userChange2 = new UserChange(now, new User(uuid1, login1, name1));
 
     assertThat(userChange1)
       .isEqualTo(userChange2)
@@ -128,10 +128,10 @@ public class IssuesChangesNotificationBuilderTest {
   @UseDataProvider("userData")
   public void UserChange_not_equal(Object object) {
     long now = System2.INSTANCE.now();
-    String uuid_1 = "uuid-1";
-    String login_1 = "login-1";
-    String name_1 = "name-1";
-    UserChange userChange1 = new UserChange(now, new User(uuid_1, login_1, name_1));
+    String uuid1 = "uuid-1";
+    String login1 = "login-1";
+    String name1 = "name-1";
+    UserChange userChange1 = new UserChange(now, new User(uuid1, login1, name1));
 
     assertThat(userChange1).isNotEqualTo(object);
   }

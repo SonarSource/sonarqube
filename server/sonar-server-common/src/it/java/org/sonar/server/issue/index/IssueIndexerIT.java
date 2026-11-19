@@ -711,10 +711,10 @@ public class IssueIndexerIT {
     ComponentDto mainBranchComponent = db.components().insertPrivateProject().getMainBranchComponent();
     ComponentDto changedComponent1 = db.components().insertComponent(newFileDto(mainBranchComponent));
     ComponentDto unchangedComponent = db.components().insertComponent(newFileDto(mainBranchComponent));
-    ComponentDto ChangedComponent2 = db.components().insertComponent(newFileDto(mainBranchComponent));
+    ComponentDto changedComponent2 = db.components().insertComponent(newFileDto(mainBranchComponent));
     IssueDto changedIssue1 = db.issues().insert(rule, mainBranchComponent, changedComponent1);
     IssueDto changedIssue2 = db.issues().insert(rule, mainBranchComponent, changedComponent1);
-    IssueDto changedIssue3 = db.issues().insert(rule, mainBranchComponent, ChangedComponent2);
+    IssueDto changedIssue3 = db.issues().insert(rule, mainBranchComponent, changedComponent2);
     db.issues().insert(rule, mainBranchComponent, unchangedComponent);
     db.issues().insert(rule, mainBranchComponent, unchangedComponent);
 

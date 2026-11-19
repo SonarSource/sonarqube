@@ -622,8 +622,8 @@ public class ComponentActionIT {
       .setPeriodMode("previous_version")
       .setPeriodParam("1.0-SNAPSHOT"));
 
-    MetricDto accepted_issues = insertAcceptedIssuesMetric();
-    db.measures().insertMeasure(mainBranch, m -> m.addValue(accepted_issues.getKey(), 10d));
+    MetricDto acceptedIssues = insertAcceptedIssuesMetric();
+    db.measures().insertMeasure(mainBranch, m -> m.addValue(acceptedIssues.getKey(), 10d));
 
     db.commit();
 

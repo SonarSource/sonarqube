@@ -36,8 +36,8 @@ class GlobalPermissionTest {
 
   @Test
   void fromKey_throws_exception_for_non_existing_keys() {
-    String non_existing_permission = "non_existing";
-    assertThatThrownBy(() -> GlobalPermission.fromKey(non_existing_permission))
+    String nonExistingPermission = "non_existing";
+    assertThatThrownBy(() -> GlobalPermission.fromKey(nonExistingPermission))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -50,8 +50,8 @@ class GlobalPermissionTest {
 
   @Test
   void contains_returns_false_for_non_existing_permissions() {
-    String non_existing_permission = "non_existing";
-    assertThat(GlobalPermission.contains(non_existing_permission)).isFalse();
+    String nonExistingPermission = "non_existing";
+    assertThat(GlobalPermission.contains(nonExistingPermission)).isFalse();
   }
 
 }

@@ -135,28 +135,28 @@ public class StatusActionIT {
 
   @Test
   public void fails_with_NFE_if_component_with_uuid_does_not_exist() {
-    String UNKOWN_UUID = "UNKOWN_UUID";
+    String unknownUuid = "UNKOWN_UUID";
 
     assertThatThrownBy(() -> {
       underTest.newRequest()
-        .setParam(ID_PARAM, UNKOWN_UUID)
+        .setParam(ID_PARAM, unknownUuid)
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Project '" + UNKOWN_UUID + "' not found");
+      .hasMessage("Project '" + unknownUuid + "' not found");
   }
 
   @Test
   public void fails_with_NFE_if_component_with_key_does_not_exist() {
-    String UNKNOWN_KEY = "UNKNOWN_KEY";
+    String unknownKey = "UNKNOWN_KEY";
 
     assertThatThrownBy(() -> {
       underTest.newRequest()
-        .setParam(KEY_PARAM, UNKNOWN_KEY)
+        .setParam(KEY_PARAM, unknownKey)
         .execute();
     })
       .isInstanceOf(NotFoundException.class)
-      .hasMessage("Project '" + UNKNOWN_KEY + "' not found");
+      .hasMessage("Project '" + unknownKey + "' not found");
   }
 
   @Test

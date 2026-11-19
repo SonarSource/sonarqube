@@ -218,34 +218,34 @@ public class RequestFiltersComputerTest {
   public void filters_on_nestedField_of_sticky_TopAggregation_go_to_PostFilters_and_TopAgg_Filters_on_other_values_of_same_nestField() {
     String field1 = "field";
     String nestField = "nestedField";
-    String nestField_value1 = "nestedField_value1";
-    String nestField_value2 = "nestedField_value2";
-    String nestField_value3 = "nestedField_value3";
-    String nestField_value4 = "nestedField_value4";
-    String nestField_value5 = "nestedField_value5";
+    String nestFieldValue1 = "nestedField_value1";
+    String nestFieldValue2 = "nestedField_value2";
+    String nestFieldValue3 = "nestedField_value3";
+    String nestFieldValue4 = "nestedField_value4";
+    String nestFieldValue5 = "nestedField_value5";
 
     AllFilters allFilters = newAllFilters();
-    NestedFieldFilterScope<String> filterScopeNestField_value1 = new NestedFieldFilterScope<>(field1, nestField, nestField_value1);
-    NestedFieldTopAggregationDefinition<String> stickyTopAggField1 = newNestedFieldTopAggDef(field1, nestField, nestField_value1, STICKY);
-    NestedFieldTopAggregationDefinition<String> nonStickyTopAggField1 = newNestedFieldTopAggDef(field1, nestField, nestField_value1, NON_STICKY);
+    NestedFieldFilterScope<String> filterScopeNestFieldValue1 = new NestedFieldFilterScope<>(field1, nestField, nestFieldValue1);
+    NestedFieldTopAggregationDefinition<String> stickyTopAggField1 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue1, STICKY);
+    NestedFieldTopAggregationDefinition<String> nonStickyTopAggField1 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue1, NON_STICKY);
     Query filterField1A = newQuery();
     Query filterField1B = newQuery();
-    allFilters.addFilterV2("filter_field1_1", filterScopeNestField_value1, filterField1A);
-    allFilters.addFilterV2("filter_field1_2", filterScopeNestField_value1, filterField1B);
-    NestedFieldFilterScope<String> filterScopeNestField_value2 = new NestedFieldFilterScope<>(field1, nestField, nestField_value2);
-    NestedFieldTopAggregationDefinition<String> stickyTopAggField2 = newNestedFieldTopAggDef(field1, nestField, nestField_value2, STICKY);
-    NestedFieldTopAggregationDefinition<String> nonStickyTopAggField2 = newNestedFieldTopAggDef(field1, nestField, nestField_value2, NON_STICKY);
+    allFilters.addFilterV2("filter_field1_1", filterScopeNestFieldValue1, filterField1A);
+    allFilters.addFilterV2("filter_field1_2", filterScopeNestFieldValue1, filterField1B);
+    NestedFieldFilterScope<String> filterScopeNestFieldValue2 = new NestedFieldFilterScope<>(field1, nestField, nestFieldValue2);
+    NestedFieldTopAggregationDefinition<String> stickyTopAggField2 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue2, STICKY);
+    NestedFieldTopAggregationDefinition<String> nonStickyTopAggField2 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue2, NON_STICKY);
     Query filterField2 = newQuery();
-    allFilters.addFilterV2("filter_field2", filterScopeNestField_value2, filterField2);
-    NestedFieldFilterScope<String> filterScopeField3 = new NestedFieldFilterScope<>(field1, nestField, nestField_value3);
-    NestedFieldTopAggregationDefinition<String> nonStickyTopAggField3 = newNestedFieldTopAggDef(field1, nestField, nestField_value3, NON_STICKY);
+    allFilters.addFilterV2("filter_field2", filterScopeNestFieldValue2, filterField2);
+    NestedFieldFilterScope<String> filterScopeField3 = new NestedFieldFilterScope<>(field1, nestField, nestFieldValue3);
+    NestedFieldTopAggregationDefinition<String> nonStickyTopAggField3 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue3, NON_STICKY);
     Query filterField3 = newQuery();
     allFilters.addFilterV2("filter_field3", filterScopeField3, filterField3);
-    NestedFieldFilterScope<String> filterScopeField4 = new NestedFieldFilterScope<>(field1, nestField, nestField_value4);
+    NestedFieldFilterScope<String> filterScopeField4 = new NestedFieldFilterScope<>(field1, nestField, nestFieldValue4);
     Query filterField4 = newQuery();
     allFilters.addFilterV2("filter_field4", filterScopeField4, filterField4);
-    NestedFieldTopAggregationDefinition<String> stickyTopAggField5 = newNestedFieldTopAggDef(field1, nestField, nestField_value5, STICKY);
-    NestedFieldTopAggregationDefinition<String> nonStickyTopAggField5 = newNestedFieldTopAggDef(field1, nestField, nestField_value5, NON_STICKY);
+    NestedFieldTopAggregationDefinition<String> stickyTopAggField5 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue5, STICKY);
+    NestedFieldTopAggregationDefinition<String> nonStickyTopAggField5 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue5, NON_STICKY);
     Set<TopAggregationDefinition<?>> declaredTopAggregations = ImmutableSet.of(
       stickyTopAggField1, nonStickyTopAggField1,
       stickyTopAggField2, nonStickyTopAggField2,
@@ -272,26 +272,26 @@ public class RequestFiltersComputerTest {
     String field2 = "field2";
     String field3 = "field3";
     String nestField = "nestedField";
-    String nestField_value1 = "nestedField_value1";
-    String nestField_value2 = "nestedField_value2";
+    String nestFieldValue1 = "nestedField_value1";
+    String nestFieldValue2 = "nestedField_value2";
 
     AllFilters allFilters = newAllFilters();
     Query queryFilter = newQuery("query_filter");
     allFilters.addFilterV2("query_filter", new SimpleFieldFilterScope("text"), queryFilter);
-    NestedFieldFilterScope<String> filterScopeNestField1_value1 = new NestedFieldFilterScope<>(field1, nestField, nestField_value1);
-    NestedFieldTopAggregationDefinition<String> stickyTopAggNestedField1_value1 = newNestedFieldTopAggDef(field1, nestField, nestField_value1, STICKY);
-    NestedFieldTopAggregationDefinition<String> nonStickyTopAggNestedField1_value1 = newNestedFieldTopAggDef(field1, nestField, nestField_value1, NON_STICKY);
+    NestedFieldFilterScope<String> filterScopeNestField1Value1 = new NestedFieldFilterScope<>(field1, nestField, nestFieldValue1);
+    NestedFieldTopAggregationDefinition<String> stickyTopAggNestedField1Value1 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue1, STICKY);
+    NestedFieldTopAggregationDefinition<String> nonStickyTopAggNestedField1Value1 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue1, NON_STICKY);
     Query filterNestedField1Value1A = newQuery("filterNestedField1Value1A");
     Query filterNestedField1Value1B = newQuery("filterNestedField1Value1B");
-    allFilters.addFilterV2("filter_nested_field1_value1_1", filterScopeNestField1_value1, filterNestedField1Value1A);
-    allFilters.addFilterV2("filter_nested_field1_value1_2", filterScopeNestField1_value1, filterNestedField1Value1B);
-    NestedFieldFilterScope<String> filterScopeNestField1_value2 = new NestedFieldFilterScope<>(field1, nestField, nestField_value2);
-    NestedFieldTopAggregationDefinition<String> stickyTopAggNestedField1_value2 = newNestedFieldTopAggDef(field1, nestField, nestField_value2, STICKY);
-    NestedFieldTopAggregationDefinition<String> nonStickyTopAggNestedField1_value2 = newNestedFieldTopAggDef(field1, nestField, nestField_value2, NON_STICKY);
+    allFilters.addFilterV2("filter_nested_field1_value1_1", filterScopeNestField1Value1, filterNestedField1Value1A);
+    allFilters.addFilterV2("filter_nested_field1_value1_2", filterScopeNestField1Value1, filterNestedField1Value1B);
+    NestedFieldFilterScope<String> filterScopeNestField1Value2 = new NestedFieldFilterScope<>(field1, nestField, nestFieldValue2);
+    NestedFieldTopAggregationDefinition<String> stickyTopAggNestedField1Value2 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue2, STICKY);
+    NestedFieldTopAggregationDefinition<String> nonStickyTopAggNestedField1Value2 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue2, NON_STICKY);
     Query filterNestedField1Value2A = newQuery("filterNestedField1Value2A");
     Query filterNestedField1Value2B = newQuery("filterNestedField1Value2B");
-    allFilters.addFilterV2("filter_nested_field1_value2_1", filterScopeNestField1_value2, filterNestedField1Value2A);
-    allFilters.addFilterV2("filter_nested_field1_value2_2", filterScopeNestField1_value2, filterNestedField1Value2B);
+    allFilters.addFilterV2("filter_nested_field1_value2_1", filterScopeNestField1Value2, filterNestedField1Value2A);
+    allFilters.addFilterV2("filter_nested_field1_value2_2", filterScopeNestField1Value2, filterNestedField1Value2B);
     SimpleFieldFilterScope filterScopeField1 = new SimpleFieldFilterScope(field1);
     SimpleFieldTopAggregationDefinition stickyTopAggField1 = new SimpleFieldTopAggregationDefinition(field1, STICKY);
     SimpleFieldTopAggregationDefinition nonStickyTopAggField1 = new SimpleFieldTopAggregationDefinition(field1, NON_STICKY);
@@ -306,16 +306,16 @@ public class RequestFiltersComputerTest {
     Query filterField2B = newQuery("filterField2B");
     allFilters.addFilterV2("filter_field2_1", filterScopeField2, filterField2A);
     allFilters.addFilterV2("filter_field2_2", filterScopeField2, filterField2B);
-    NestedFieldFilterScope<String> filterScopeNestField3_value = new NestedFieldFilterScope<>(field3, nestField, nestField_value1);
-    NestedFieldTopAggregationDefinition<String> stickyTopAggNestedField3 = newNestedFieldTopAggDef(field3, nestField, nestField_value1, STICKY);
-    NestedFieldTopAggregationDefinition<String> nonStickyTopAggNestedField3 = newNestedFieldTopAggDef(field3, nestField, nestField_value1, NON_STICKY);
+    NestedFieldFilterScope<String> filterScopeNestField3Value = new NestedFieldFilterScope<>(field3, nestField, nestFieldValue1);
+    NestedFieldTopAggregationDefinition<String> stickyTopAggNestedField3 = newNestedFieldTopAggDef(field3, nestField, nestFieldValue1, STICKY);
+    NestedFieldTopAggregationDefinition<String> nonStickyTopAggNestedField3 = newNestedFieldTopAggDef(field3, nestField, nestFieldValue1, NON_STICKY);
     Query filterNestedField3A = newQuery("filterNestedField3A");
     Query filterNestedField3B = newQuery("filterNestedField3B");
-    allFilters.addFilterV2("filter_nested_field3_1", filterScopeNestField3_value, filterNestedField3A);
-    allFilters.addFilterV2("filter_nested_field3_2", filterScopeNestField3_value, filterNestedField3B);
+    allFilters.addFilterV2("filter_nested_field3_1", filterScopeNestField3Value, filterNestedField3A);
+    allFilters.addFilterV2("filter_nested_field3_2", filterScopeNestField3Value, filterNestedField3B);
     Set<TopAggregationDefinition<?>> declaredTopAggregations = ImmutableSet.of(
-      stickyTopAggNestedField1_value1, nonStickyTopAggNestedField1_value1,
-      stickyTopAggNestedField1_value2, nonStickyTopAggNestedField1_value2,
+      stickyTopAggNestedField1Value1, nonStickyTopAggNestedField1Value1,
+      stickyTopAggNestedField1Value2, nonStickyTopAggNestedField1Value2,
       stickyTopAggField1, nonStickyTopAggField1,
       stickyTopAggField2, nonStickyTopAggField2,
       stickyTopAggNestedField3, nonStickyTopAggNestedField3);
@@ -330,18 +330,18 @@ public class RequestFiltersComputerTest {
       filterField2A, filterField2B,
       filterNestedField3A, filterNestedField3B};
     assertQueryEquals(underTest.getPostFiltersV2(), toBoolQuery(postFilters));
-    assertTopAggregationFilter(underTest, stickyTopAggNestedField1_value1,
+    assertTopAggregationFilter(underTest, stickyTopAggNestedField1Value1,
       filterNestedField1Value2A, filterNestedField1Value2B,
       filterField1A, filterField1B,
       filterField2A, filterField2B,
       filterNestedField3A, filterNestedField3B);
-    assertTopAggregationFilter(underTest, nonStickyTopAggNestedField1_value1, postFilters);
-    assertTopAggregationFilter(underTest, stickyTopAggNestedField1_value2,
+    assertTopAggregationFilter(underTest, nonStickyTopAggNestedField1Value1, postFilters);
+    assertTopAggregationFilter(underTest, stickyTopAggNestedField1Value2,
       filterNestedField1Value1A, filterNestedField1Value1B,
       filterField1A, filterField1B,
       filterField2A, filterField2B,
       filterNestedField3A, filterNestedField3B);
-    assertTopAggregationFilter(underTest, nonStickyTopAggNestedField1_value2, postFilters);
+    assertTopAggregationFilter(underTest, nonStickyTopAggNestedField1Value2, postFilters);
     assertTopAggregationFilter(underTest, stickyTopAggField1,
       filterField2A, filterField2B,
       filterNestedField3A, filterNestedField3B);
@@ -364,19 +364,19 @@ public class RequestFiltersComputerTest {
   public void getTopAggregationFiltersV2_returns_empty_on_sticky_nestedField_TopAgg_when_no_other_sticky_TopAgg() {
     String field1 = "field";
     String nestField = "nestedField";
-    String nestField_value1 = "nestedField_value1";
-    String nestField_value2 = "nestedField_value2";
+    String nestFieldValue1 = "nestedField_value1";
+    String nestFieldValue2 = "nestedField_value2";
 
     AllFilters allFilters = newAllFilters();
-    NestedFieldFilterScope<String> filterScopeField1 = new NestedFieldFilterScope<>(field1, nestField, nestField_value1);
-    NestedFieldTopAggregationDefinition<String> stickyTopAggField1 = newNestedFieldTopAggDef(field1, nestField, nestField_value1, STICKY);
-    NestedFieldTopAggregationDefinition<String> nonStickyTopAggField1 = newNestedFieldTopAggDef(field1, nestField, nestField_value1, NON_STICKY);
+    NestedFieldFilterScope<String> filterScopeField1 = new NestedFieldFilterScope<>(field1, nestField, nestFieldValue1);
+    NestedFieldTopAggregationDefinition<String> stickyTopAggField1 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue1, STICKY);
+    NestedFieldTopAggregationDefinition<String> nonStickyTopAggField1 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue1, NON_STICKY);
     Query filterField1A = newQuery();
     Query filterField1B = newQuery();
     allFilters.addFilterV2("filter_field1_1", filterScopeField1, filterField1A);
     allFilters.addFilterV2("filter_field1_2", filterScopeField1, filterField1B);
-    NestedFieldFilterScope<String> filterScopeField2 = new NestedFieldFilterScope<>(field1, nestField, nestField_value2);
-    NestedFieldTopAggregationDefinition<String> nonStickyTopAggField2 = newNestedFieldTopAggDef(field1, nestField, nestField_value2, NON_STICKY);
+    NestedFieldFilterScope<String> filterScopeField2 = new NestedFieldFilterScope<>(field1, nestField, nestFieldValue2);
+    NestedFieldTopAggregationDefinition<String> nonStickyTopAggField2 = newNestedFieldTopAggDef(field1, nestField, nestFieldValue2, NON_STICKY);
     Query filterField2 = newQuery();
     allFilters.addFilterV2("filter_field2", filterScopeField2, filterField2);
     Set<TopAggregationDefinition<?>> declaredTopAggregations = ImmutableSet.of(
@@ -453,8 +453,8 @@ public class RequestFiltersComputerTest {
     return res;
   }
 
-  private static NestedFieldTopAggregationDefinition<String> newNestedFieldTopAggDef(String field1, String nestField, String nestField_value1, boolean sticky) {
-    return new NestedFieldTopAggregationDefinition<>(field1 + "." + nestField, nestField_value1, sticky);
+  private static NestedFieldTopAggregationDefinition<String> newNestedFieldTopAggDef(String field1, String nestField, String nestFieldValue1, boolean sticky) {
+    return new NestedFieldTopAggregationDefinition<>(field1 + "." + nestField, nestFieldValue1, sticky);
   }
 
   private static int queryCounter = 0;

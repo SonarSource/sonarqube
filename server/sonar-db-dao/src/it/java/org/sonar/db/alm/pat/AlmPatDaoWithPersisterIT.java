@@ -75,8 +75,8 @@ class AlmPatDaoWithPersisterIT {
         "user-login", "alm-key");
     assertThat(newValue.toString()).contains("userLogin");
 
-    String updated_pat = "updated pat";
-    almPatDto.setPersonalAccessToken(updated_pat);
+    String updatedPat = "updated pat";
+    almPatDto.setPersonalAccessToken(updatedPat);
     system2.setNow(NOW + 1);
     underTest.update(dbSession, almPatDto, null, null);
 

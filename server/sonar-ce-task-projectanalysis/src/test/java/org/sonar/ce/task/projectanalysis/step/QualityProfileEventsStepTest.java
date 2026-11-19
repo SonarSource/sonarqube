@@ -316,20 +316,20 @@ public class QualityProfileEventsStepTest {
     QualityProfile qp1 = qp(QP_NAME_2, LANGUAGE_KEY_1, date);
     QualityProfile qp2 = qp(QP_NAME_2, LANGUAGE_KEY_2, date);
     QualityProfile qp3 = qp(QP_NAME_1, LANGUAGE_KEY_1, BEFORE_DATE);
-    QualityProfile qp3_updated = qp(QP_NAME_1, LANGUAGE_KEY_1, AFTER_DATE);
+    QualityProfile qp3Updated = qp(QP_NAME_1, LANGUAGE_KEY_1, AFTER_DATE);
     QualityProfile qp4 = qp(QP_NAME_2, LANGUAGE_KEY_3, date);
 
     mockQualityProfileMeasures(
       treeRootHolder.getRoot(),
       arrayOf(qp1, qp2, qp3),
-      arrayOf(qp3_updated, qp2, qp4));
+      arrayOf(qp3Updated, qp2, qp4));
     mockNoLanguageInRepository();
     qProfileStatusRepository.register(qp1.getQpKey(), REMOVED);
     qProfileStatusRepository.register(qp2.getQpKey(), UNCHANGED);
     qProfileStatusRepository.register(qp3.getQpKey(), UPDATED);
     qProfileStatusRepository.register(qp4.getQpKey(), ADDED);
 
-    when(qualityProfileRuleChangeTextResolver.mapChangeToNumberOfRules(qp3_updated, treeRootHolder.getRoot().getUuid())).thenReturn(CHANGE_TO_NUMBER_OF_RULES_MAP);
+    when(qualityProfileRuleChangeTextResolver.mapChangeToNumberOfRules(qp3Updated, treeRootHolder.getRoot().getUuid())).thenReturn(CHANGE_TO_NUMBER_OF_RULES_MAP);
 
     underTest.execute(new TestComputationStepContext());
 

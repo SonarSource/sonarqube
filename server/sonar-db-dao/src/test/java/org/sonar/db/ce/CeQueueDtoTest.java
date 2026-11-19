@@ -41,11 +41,11 @@ class CeQueueDtoTest {
 
   @Test
   void setComponentUuid_throws_IAE_if_value_is_41_chars() {
-    String str_41_chars = STR_40_CHARS + "a";
+    String str41Chars = STR_40_CHARS + "a";
 
-    assertThatThrownBy(() -> underTest.setComponentUuid(str_41_chars))
+    assertThatThrownBy(() -> underTest.setComponentUuid(str41Chars))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value is too long for column CE_QUEUE.COMPONENT_UUID: " + str_41_chars);
+      .hasMessage("Value is too long for column CE_QUEUE.COMPONENT_UUID: " + str41Chars);
   }
 
   @Test
@@ -58,11 +58,11 @@ class CeQueueDtoTest {
 
   @Test
   void setEntityUuid_throws_IAE_if_value_is_41_chars() {
-    String str_41_chars = STR_40_CHARS + "a";
+    String str41Chars = STR_40_CHARS + "a";
 
-    assertThatThrownBy(() -> underTest.setEntityUuid(str_41_chars))
+    assertThatThrownBy(() -> underTest.setEntityUuid(str41Chars))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value is too long for column CE_QUEUE.ENTITY_UUID: " + str_41_chars);
+      .hasMessage("Value is too long for column CE_QUEUE.ENTITY_UUID: " + str41Chars);
   }
 
   @Test
@@ -80,11 +80,11 @@ class CeQueueDtoTest {
 
   @Test
   void setTaskType_throws_IAE_if_value_is_41_chars() {
-    String str_41_chars = STR_40_CHARS + "a";
+    String str41Chars = STR_40_CHARS + "a";
 
-    assertThatThrownBy(() -> underTest.setTaskType(str_41_chars))
+    assertThatThrownBy(() -> underTest.setTaskType(str41Chars))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Value of task type is too long: " + str_41_chars);
+      .hasMessage("Value of task type is too long: " + str41Chars);
   }
 
   @Test
