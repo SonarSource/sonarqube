@@ -94,11 +94,13 @@ class HazelcastMemberBuilderIT {
 
   @Test
   void build_kubernetes_member() {
+    int port = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
     HazelcastMember member = new HazelcastMemberBuilder(JoinConfigurationType.KUBERNETES)
       .setMembers(loopback.getHostAddress())
       .setProcessId(ProcessId.COMPUTE_ENGINE)
       .setNodeName("bar")
-      .setPort(NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort())
+      .setPort(port)
+      .setDiscoveryPort(port)
       .setNetworkInterface(loopback.getHostAddress())
       .build();
 

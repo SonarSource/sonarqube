@@ -39,6 +39,7 @@ import static org.sonar.process.cluster.hz.JoinConfigurationType.KUBERNETES;
 public class HazelcastMemberBuilder {
   private String nodeName;
   private int port;
+  private Integer discoveryPort;
   private ProcessId processId;
   private String networkInterface;
   private String members;
@@ -63,6 +64,15 @@ public class HazelcastMemberBuilder {
 
   public HazelcastMemberBuilder setPort(int i) {
     this.port = i;
+    return this;
+  }
+
+  /**
+   * Port used to find other members. It can differ from {@link #setPort(int)} when this process
+   * listens on its own port but joins through the application node port.
+   */
+  public HazelcastMemberBuilder setDiscoveryPort(int discoveryPort) {
+    this.discoveryPort = discoveryPort;
     return this;
   }
 
@@ -101,17 +111,17 @@ public class HazelcastMemberBuilder {
     joinConfig.getAwsConfig().setEnabled(false);
     joinConfig.getMulticastConfig().setEnabled(false);
 
-    final int defaultHzNodePort = Integer.parseInt(CLUSTER_NODE_HZ_PORT.getDefaultValue());
+    int peerPort = resolveDiscoveryPort();
     if (KUBERNETES.equals(type)) {
       joinConfig.getKubernetesConfig().setEnabled(true)
         .setProperty("service-dns", requireNonNull(members, "Service DNS is missing"))
-        .setProperty("service-port", String.valueOf(defaultHzNodePort));
+        .setProperty("service-port", String.valueOf(peerPort));
     } else {
       List<String> addressesWithDefaultPorts = Stream.of(this.members.split(","))
         .filter(host -> !host.isBlank())
         .map(String::trim)
         .map(HostAndPort::fromString)
-        .map(parsedHost -> parsedHost.withDefaultPort(defaultHzNodePort))
+        .map(parsedHost -> parsedHost.withDefaultPort(peerPort))
         .map(HostAndPort::toString)
         .toList();
       joinConfig.getTcpIpConfig().setEnabled(true);
@@ -140,6 +150,19 @@ public class HazelcastMemberBuilder {
     attributes.setAttribute(Attribute.PROCESS_KEY.getKey(), requireNonNull(processId, "Process key is missing").getKey());
 
     return new HazelcastMemberImpl(Hazelcast.newHazelcastInstance(config));
+  }
+
+  private int resolveDiscoveryPort() {
+    if (discoveryPort != null) {
+      return discoveryPort;
+    }
+    if (KUBERNETES.equals(type)) {
+      if (processId == ProcessId.WEB_SERVER || processId == ProcessId.COMPUTE_ENGINE) {
+        throw new IllegalArgumentException("Discovery port is required for " + processId.getHumanReadableName() + " members");
+      }
+      return port;
+    }
+    return Integer.parseInt(CLUSTER_NODE_HZ_PORT.getDefaultValue());
   }
 
   /**

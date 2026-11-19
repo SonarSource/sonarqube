@@ -68,11 +68,13 @@ public class AppStateFactory {
 
   private static HazelcastMember createHzMember(Props props) {
     boolean isRunningOnKubernetes = props.valueAsBoolean(CLUSTER_KUBERNETES.getKey(), Boolean.parseBoolean(CLUSTER_KUBERNETES.getDefaultValue()));
+    int hzPort = Integer.parseInt(props.nonNullValue(CLUSTER_NODE_HZ_PORT.getKey()));
     HazelcastMemberBuilder builder = new HazelcastMemberBuilder(isRunningOnKubernetes ? KUBERNETES : TCP_IP)
       .setNetworkInterface(props.nonNullValue(CLUSTER_NODE_HOST.getKey()))
       .setMembers(props.nonNullValue(CLUSTER_HZ_HOSTS.getKey()))
       .setNodeName(props.nonNullValue(CLUSTER_NODE_NAME.getKey()))
-      .setPort(Integer.parseInt(props.nonNullValue(CLUSTER_NODE_HZ_PORT.getKey())))
+      .setPort(hzPort)
+      .setDiscoveryPort(hzPort)
       .setProcessId(ProcessId.APP);
     return builder.build();
   }

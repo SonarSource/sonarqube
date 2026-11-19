@@ -27,9 +27,11 @@ import com.hazelcast.config.TcpIpConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.assertj.core.api.InstanceOfAssertFactories;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 import org.sonar.process.ProcessId;
@@ -37,6 +39,7 @@ import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -89,5 +92,117 @@ class HazelcastMemberBuilderTest {
         .hasSize(1).element(0)
         .isEqualTo(memberAddress);
     }
+  }
+
+  @Test
+  void kubernetes_join_uses_configured_port() {
+    try (MockedStatic<Hazelcast> mockedHazelcast = mockStatic(Hazelcast.class)) {
+      ArgumentCaptor<Config> configCaptor = forClass(Config.class);
+      HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
+      mockedHazelcast.when(() -> Hazelcast.newHazelcastInstance(configCaptor.capture()))
+        .thenReturn(hazelcastInstance);
+
+      int configuredPort = 19003;
+      new HazelcastMemberBuilder(JoinConfigurationType.KUBERNETES)
+        .setMembers("sonarqube-dce-app.default.svc.cluster.local")
+        .setProcessId(ProcessId.APP)
+        .setNodeName("app-1")
+        .setPort(configuredPort)
+        .setNetworkInterface("127.0.0.1")
+        .build();
+
+      Config config = configCaptor.getValue();
+
+      assertThat(config.getNetworkConfig())
+        .extracting(NetworkConfig::getPort)
+        .isEqualTo(configuredPort);
+
+      assertThat(config.getNetworkConfig())
+        .extracting(NetworkConfig::getJoin)
+        .extracting(JoinConfig::getKubernetesConfig)
+        .satisfies(kubernetesConfig -> {
+          assertThat(kubernetesConfig.isEnabled()).isTrue();
+          assertThat(kubernetesConfig.getProperty("service-dns")).isEqualTo("sonarqube-dce-app.default.svc.cluster.local");
+          assertThat(kubernetesConfig.getProperty("service-port")).isEqualTo(String.valueOf(configuredPort));
+        });
+    }
+  }
+
+  @Test
+  void kubernetes_join_discovers_peers_on_application_port() {
+    try (MockedStatic<Hazelcast> mockedHazelcast = mockStatic(Hazelcast.class)) {
+      ArgumentCaptor<Config> configCaptor = forClass(Config.class);
+      HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
+      mockedHazelcast.when(() -> Hazelcast.newHazelcastInstance(configCaptor.capture()))
+        .thenReturn(hazelcastInstance);
+
+      int bindPort = 4023;
+      int applicationPort = 19003;
+      new HazelcastMemberBuilder(JoinConfigurationType.KUBERNETES)
+        .setMembers("sonarqube-dce-app.default.svc.cluster.local")
+        .setProcessId(ProcessId.WEB_SERVER)
+        .setNodeName("web-1")
+        .setPort(bindPort)
+        .setDiscoveryPort(applicationPort)
+        .setNetworkInterface("127.0.0.1")
+        .build();
+
+      Config config = configCaptor.getValue();
+
+      assertThat(config.getNetworkConfig())
+        .extracting(NetworkConfig::getPort)
+        .isEqualTo(bindPort);
+      assertThat(config.getNetworkConfig())
+        .extracting(NetworkConfig::getJoin)
+        .extracting(JoinConfig::getKubernetesConfig)
+        .extracting(kubernetesConfig -> kubernetesConfig.getProperty("service-port"))
+        .isEqualTo(String.valueOf(applicationPort));
+    }
+  }
+
+  @Test
+  void tcp_ip_join_uses_discovery_port_when_member_has_no_port() {
+    try (MockedStatic<Hazelcast> mockedHazelcast = mockStatic(Hazelcast.class)) {
+      ArgumentCaptor<Config> configCaptor = forClass(Config.class);
+      HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
+      mockedHazelcast.when(() -> Hazelcast.newHazelcastInstance(configCaptor.capture()))
+        .thenReturn(hazelcastInstance);
+
+      new HazelcastMemberBuilder(JoinConfigurationType.TCP_IP)
+        .setMembers("127.0.0.1")
+        .setProcessId(ProcessId.WEB_SERVER)
+        .setNodeName("web-1")
+        .setPort(4023)
+        .setDiscoveryPort(19003)
+        .setNetworkInterface("127.0.0.1")
+        .build();
+
+      Config config = configCaptor.getValue();
+
+      assertThat(config.getNetworkConfig())
+        .extracting(NetworkConfig::getPort)
+        .isEqualTo(4023);
+      assertThat(config.getNetworkConfig())
+        .extracting(NetworkConfig::getJoin)
+        .extracting(JoinConfig::getTcpIpConfig)
+        .extracting(TcpIpConfig::getMembers)
+        .asInstanceOf(InstanceOfAssertFactories.LIST)
+        .containsExactly("127.0.0.1:19003");
+    }
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ProcessId.class, names = {"WEB_SERVER", "COMPUTE_ENGINE"})
+  void kubernetes_join_requires_discovery_port_for_child_process(ProcessId processId) {
+    HazelcastMemberBuilder builder = new HazelcastMemberBuilder(JoinConfigurationType.KUBERNETES)
+      .setMembers("sonarqube-dce-app.default.svc.cluster.local")
+      .setProcessId(processId)
+      .setNodeName("node-1")
+      .setPort(4023)
+      .setNetworkInterface("127.0.0.1");
+
+    assertThatThrownBy(builder::build)
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessage("Discovery port is required for " + processId.getHumanReadableName() + " members");
   }
 }
