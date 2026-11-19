@@ -19,7 +19,6 @@
  */
 package org.sonar.db.source;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +39,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 
-import static com.google.common.collect.ImmutableList.of;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
@@ -85,7 +83,7 @@ class FileSourceDaoIT {
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
       .setDataHash("FILE2_DATA_HASH")
-      .setLineHashes(of("LINE1_HASH", "LINE2_HASH"))
+      .setLineHashes(List.of("LINE1_HASH", "LINE2_HASH"))
       .setSrcHash("FILE2_HASH")
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L)
@@ -361,7 +359,7 @@ class FileSourceDaoIT {
 
   @Test
   void update_to_no_line_hashes() {
-    ImmutableList<String> lineHashes = of("a", "b", "c");
+    List<String> lineHashes = List.of("a", "b", "c");
     FileSourceDto fileSourceDto = new FileSourceDto()
       .setUuid(Uuids.createFast())
       .setProjectUuid("Foo")

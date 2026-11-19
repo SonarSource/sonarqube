@@ -19,7 +19,6 @@
  */
 package org.sonar.server.webhook;
 
-import com.google.common.collect.ImmutableList;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Optional;
@@ -344,7 +343,7 @@ public class WebhookCallerImplTest {
     InetAddress inetAddress = InetAddress.getByName(HttpUrl.parse(url).host());
 
     when(networkInterfaceProvider.getNetworkInterfaceAddresses())
-      .thenReturn(ImmutableList.of(inetAddress));
+      .thenReturn(List.of(inetAddress));
 
     Webhook webhook = new Webhook(WEBHOOK_UUID, PROJECT_UUID, CE_TASK_UUID,
       secure().nextAlphanumeric(40), "my-webhook", url, null);

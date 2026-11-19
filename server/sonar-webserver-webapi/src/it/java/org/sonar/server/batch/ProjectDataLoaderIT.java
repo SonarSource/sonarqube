@@ -19,6 +19,7 @@
  */
 package org.sonar.server.batch;
 
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.util.Uuids;
@@ -39,7 +40,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 
-import static com.google.common.collect.ImmutableList.of;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -166,7 +166,7 @@ public class ProjectDataLoaderIT {
       .setFileUuid(file.uuid())
       .setProjectUuid(file.branchUuid())
       .setDataHash("0263047cd758c68c27683625f072f010")
-      .setLineHashes(of("8d7b3d6b83c0a517eac07e1aac94b773"))
+      .setLineHashes(List.of("8d7b3d6b83c0a517eac07e1aac94b773"))
       .setCreatedAt(1_704_067_200_000L)
       .setUpdatedAt(1_704_067_200_000L)
       .setRevision("123456789")

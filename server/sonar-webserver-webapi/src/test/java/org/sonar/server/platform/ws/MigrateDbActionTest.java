@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.ws;
 
-import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -27,6 +26,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -122,7 +122,7 @@ public class MigrateDbActionTest {
   // this test will raise a IllegalArgumentException when an unsupported value is added to the Status enum
   @Test
   public void defensive_test_all_values_of_migration_Status_must_be_supported() {
-    for (Status status : filter(Arrays.asList(DatabaseMigrationState.Status.values()), not(in(ImmutableList.of(NONE, RUNNING, FAILED, SUCCEEDED))))) {
+    for (Status status : filter(Arrays.asList(DatabaseMigrationState.Status.values()), not(in(List.of(NONE, RUNNING, FAILED, SUCCEEDED))))) {
       when(migrationState.getStatus()).thenReturn(status);
 
       tester.newRequest().execute();

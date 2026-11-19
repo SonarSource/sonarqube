@@ -19,7 +19,6 @@
  */
 package org.sonar.server.webhook;
 
-import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -72,7 +71,7 @@ public class WebhookCustomDnsTest {
       .thenReturn(Optional.of(true));
 
     when(networkInterfaceProvider.getNetworkInterfaceAddresses())
-      .thenReturn(ImmutableList.of(inetAddress));
+      .thenReturn(List.of(inetAddress));
 
     Assertions.assertThatThrownBy(() -> underTest.lookup("192.168.1.21"))
       .hasMessageContaining(INVALID_URL)
@@ -394,7 +393,7 @@ public class WebhookCustomDnsTest {
       .thenReturn(Optional.of(true));
 
     when(networkInterfaceProvider.getNetworkInterfaceAddresses())
-      .thenReturn(ImmutableList.of(inet6Address.get()));
+      .thenReturn(List.of(inet6Address.get()));
 
     Assertions.assertThatThrownBy(() -> underTest.lookup(differentCaseAddress))
       .hasMessageContaining(INVALID_URL)

@@ -33,7 +33,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbTester;
 
-import static com.google.common.collect.ImmutableList.of;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
@@ -225,18 +224,18 @@ class IssueChangeDaoIT {
     db.issues().insertChange(issue3, t -> t.setChangeType(TYPE_COMMENT));
     RecordingIssueChangeDtoResultHandler recordingHandler = new RecordingIssueChangeDtoResultHandler();
 
-    underTest.scrollDiffChangesOfIssues(db.getSession(), of(), recordingHandler.clear());
+    underTest.scrollDiffChangesOfIssues(db.getSession(), List.of(), recordingHandler.clear());
     assertThat(recordingHandler.getDtoKeys()).isEmpty();
-    underTest.scrollDiffChangesOfIssues(db.getSession(), of("fooBarCacahuete"), recordingHandler.clear());
+    underTest.scrollDiffChangesOfIssues(db.getSession(), List.of("fooBarCacahuete"), recordingHandler.clear());
     assertThat(recordingHandler.getDtoKeys()).isEmpty();
 
-    underTest.scrollDiffChangesOfIssues(db.getSession(), of(issue1.getKee()), recordingHandler.clear());
+    underTest.scrollDiffChangesOfIssues(db.getSession(), List.of(issue1.getKee()), recordingHandler.clear());
     assertThat(recordingHandler.getDtoKeys()).containsOnly(diffChange1.getKey());
 
-    underTest.scrollDiffChangesOfIssues(db.getSession(), of(issue2.getKee()), recordingHandler.clear());
+    underTest.scrollDiffChangesOfIssues(db.getSession(), List.of(issue2.getKee()), recordingHandler.clear());
     assertThat(recordingHandler.getDtoKeys()).containsOnly(diffChange2.getKey());
 
-    underTest.scrollDiffChangesOfIssues(db.getSession(), of(issue1.getKee(), issue3.getKee()), recordingHandler.clear());
+    underTest.scrollDiffChangesOfIssues(db.getSession(), List.of(issue1.getKee(), issue3.getKee()), recordingHandler.clear());
     assertThat(recordingHandler.getDtoKeys()).containsOnly(diffChange1.getKey(), diffChange31.getKey(), diffChange32.getKey());
   }
 
@@ -251,7 +250,7 @@ class IssueChangeDaoIT {
       db.issues().insertChange(issue1, t -> t.setChangeType(TYPE_FIELD_CHANGE).setCreatedAt(5L).setIssueChangeCreationDate(10L)),
     };
     RecordingIssueChangeDtoResultHandler recordingHandler = new RecordingIssueChangeDtoResultHandler();
-    underTest.scrollDiffChangesOfIssues(db.getSession(), of(issue1.getKee()), recordingHandler.clear());
+    underTest.scrollDiffChangesOfIssues(db.getSession(), List.of(issue1.getKee()), recordingHandler.clear());
     assertThat(recordingHandler.getDtoKeys()).containsExactly(
       diffChanges[3].getKey(),
       diffChanges[0].getKey(),

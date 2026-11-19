@@ -39,7 +39,6 @@ import org.sonar.updatecenter.common.SonarUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
-import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -181,7 +180,7 @@ class UpgradesActionTest {
     when(sonarQubeVersion.get()).thenReturn(parse("8.9.0"));
     when(sonar.getLtsRelease()).thenReturn(new Release(sonar, Version.create("8.9.2")));
     when(sonar.getLtaVersion()).thenReturn(new Release(sonar, Version.create("8.9.2")));
-    when(updateCenter.findSonarUpdates()).thenReturn(of(sonarUpdate));
+    when(updateCenter.findSonarUpdates()).thenReturn(List.of(sonarUpdate));
     when(updateCenter.getSonar().getAllReleases()).thenReturn(getReleases());
 
     TestResponse response = tester.newRequest().execute();

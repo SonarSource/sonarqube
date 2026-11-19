@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,7 +33,6 @@ import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
 
-import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -79,7 +79,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   @Test
   public void verify_example() {
     logInAsSystemAdministrator();
-    when(updateCenter.findAvailablePlugins()).thenReturn(of(
+    when(updateCenter.findAvailablePlugins()).thenReturn(List.of(
       pluginUpdate(release(Plugin.factory("abap")
             .setName("ABAP")
             .setCategory("Languages")
@@ -144,7 +144,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   @Test
   public void verify_properties_displayed_in_json_per_plugin() {
     logInAsSystemAdministrator();
-    when(updateCenter.findAvailablePlugins()).thenReturn(of(
+    when(updateCenter.findAvailablePlugins()).thenReturn(List.of(
       pluginUpdate(FULL_PROPERTIES_PLUGIN_RELEASE, COMPATIBLE)));
 
     TestResponse response = tester.newRequest().execute();
@@ -212,7 +212,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   }
 
   private void checkStatusDisplayedInJson(PluginUpdate.Status status, String expectedValue) {
-    when(updateCenter.findAvailablePlugins()).thenReturn(of(
+    when(updateCenter.findAvailablePlugins()).thenReturn(List.of(
       pluginUpdate(release(PLUGIN_1, "1.0.0"), status)));
 
     TestResponse response = tester.newRequest().execute();

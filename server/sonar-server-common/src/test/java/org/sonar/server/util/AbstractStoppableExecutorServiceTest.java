@@ -19,7 +19,7 @@
  */
 package org.sonar.server.util;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -47,7 +47,7 @@ public class AbstractStoppableExecutorServiceTest {
   private InOrder inOrder = Mockito.inOrder(executorService);
   private AbstractStoppableExecutorService underTest = new AbstractStoppableExecutorService(executorService) {
   };
-  public static final ImmutableList<Callable<String>> CALLABLES = ImmutableList.of(SOME_CALLABLE);
+  public static final List<Callable<String>> CALLABLES = List.of(SOME_CALLABLE);
 
   @Test
   public void stop_calls_shutdown_and_verify_termination() throws InterruptedException {

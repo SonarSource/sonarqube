@@ -19,10 +19,10 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -138,7 +138,7 @@ public class InstallActionTest {
   public void IAE_is_raised_when_plugin_is_edition_bundled(String organization, String license) {
     logInAsSystemAdministrator();
     Version version = Version.create("1.0");
-    when(updateCenter.findAvailablePlugins()).thenReturn(ImmutableList.of(
+    when(updateCenter.findAvailablePlugins()).thenReturn(List.of(
       PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY)
         .setLicense(license)
         .setOrganization(organization), version), PluginUpdate.Status.COMPATIBLE)));
@@ -163,7 +163,7 @@ public class InstallActionTest {
   public void IAE_is_raised_when_WS_used_on_commercial_edition() {
     logInAsSystemAdministrator();
     Version version = Version.create("1.0");
-    when(updateCenter.findAvailablePlugins()).thenReturn(ImmutableList.of(
+    when(updateCenter.findAvailablePlugins()).thenReturn(List.of(
       PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY), version), PluginUpdate.Status.COMPATIBLE)));
 
     when(editionProvider.get()).thenReturn(Optional.of(Edition.DEVELOPER));
@@ -191,7 +191,7 @@ public class InstallActionTest {
   public void if_plugin_is_found_available_download_is_triggered_with_latest_version_from_updatecenter() {
     logInAsSystemAdministrator();
     Version version = Version.create("1.0");
-    when(updateCenter.findAvailablePlugins()).thenReturn(ImmutableList.of(
+    when(updateCenter.findAvailablePlugins()).thenReturn(List.of(
       PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY), version), PluginUpdate.Status.COMPATIBLE)));
 
     TestResponse response = tester.newRequest()

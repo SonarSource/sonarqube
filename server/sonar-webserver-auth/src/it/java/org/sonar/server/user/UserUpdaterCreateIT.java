@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -89,7 +88,7 @@ public class UserUpdaterCreateIT {
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("Str0ng!Passw0rd")
-      .setScmAccounts(ImmutableList.of("u1", "u_1", "User 1"))
+      .setScmAccounts(List.of("u1", "u_1", "User 1"))
       .build(), u -> {
     });
 

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.almintegration.ws.azure;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Rule;
@@ -68,7 +68,7 @@ public class SearchAzureReposActionIT {
 
   @Before
   public void before() {
-    mockClient(new GsonAzureRepoList(ImmutableList.of(getGsonAzureRepo("project-1", "repoName-1"),
+    mockClient(new GsonAzureRepoList(List.of(getGsonAzureRepo("project-1", "repoName-1"),
       getGsonAzureRepo("project-2", "repoName-2"))));
   }
 
@@ -103,7 +103,7 @@ public class SearchAzureReposActionIT {
 
   @Test
   public void search_repos_alphabetically_sorted() {
-    mockClient(new GsonAzureRepoList(ImmutableList.of(getGsonAzureRepo("project-1", "Z-repo"),
+    mockClient(new GsonAzureRepoList(List.of(getGsonAzureRepo("project-1", "Z-repo"),
       getGsonAzureRepo("project-1", "A-repo-1"), getGsonAzureRepo("project-1", "a-repo"),
       getGsonAzureRepo("project-1", "b-repo"))));
 
@@ -163,7 +163,7 @@ public class SearchAzureReposActionIT {
 
   @Test
   public void search_repos_with_projects_already_set_up_and_no_collision() {
-    mockClient(new GsonAzureRepoList(ImmutableList.of(getGsonAzureRepo("project-1", "repoName-1"),
+    mockClient(new GsonAzureRepoList(List.of(getGsonAzureRepo("project-1", "repoName-1"),
       getGsonAzureRepo("project", "1-repoName-1"))));
     AlmSettingDto almSetting = insertAlmSetting();
 
@@ -186,7 +186,7 @@ public class SearchAzureReposActionIT {
 
   @Test
   public void search_repos_with_same_name_and_different_project() {
-    mockClient(new GsonAzureRepoList(ImmutableList.of(getGsonAzureRepo("project-1", "repoName-1"),
+    mockClient(new GsonAzureRepoList(List.of(getGsonAzureRepo("project-1", "repoName-1"),
       getGsonAzureRepo("project-2", "repoName-1"))));
     AlmSettingDto almSetting = insertAlmSetting();
 
@@ -254,7 +254,7 @@ public class SearchAzureReposActionIT {
 
   @Test
   public void search_and_filter_repos_with_matching_repo_and_project_name() {
-    mockClient(new GsonAzureRepoList(ImmutableList.of(getGsonAzureRepo("big-project", "repo-1"),
+    mockClient(new GsonAzureRepoList(List.of(getGsonAzureRepo("big-project", "repo-1"),
       getGsonAzureRepo("big-project", "repo-2"),
       getGsonAzureRepo("big-project", "big-repo"),
       getGsonAzureRepo("project", "big-repo"),

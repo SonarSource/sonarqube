@@ -39,7 +39,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.project.ProjectDto;
 import org.sonar.db.rule.RuleDto;
 
-import static com.google.common.collect.ImmutableList.of;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -356,8 +355,8 @@ class QualityProfileDaoIT {
     assertThat(java).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
 
     assertThat(underTest.selectDefaultProfiles(dbSession, singletonList("js"))).isEmpty();
-    assertThat(underTest.selectDefaultProfiles(dbSession, of("java", "js"))).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
-    assertThat(underTest.selectDefaultProfiles(dbSession, of("js", "java"))).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
+    assertThat(underTest.selectDefaultProfiles(dbSession, List.of("java", "js"))).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
+    assertThat(underTest.selectDefaultProfiles(dbSession, List.of("js", "java"))).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
     assertThat(underTest.selectDefaultProfiles(dbSession, Collections.emptyList())).isEmpty();
   }
 
@@ -387,7 +386,7 @@ class QualityProfileDaoIT {
     assertThat(dto.getParentKee()).isNull();
 
     assertThat(underTest.selectByNameAndLanguages(dbSession, "Sonar Way", singletonList("unknown"))).isEmpty();
-    assertThat(underTest.selectByNameAndLanguages(dbSession, "Sonar Way", of("java", "unknown")))
+    assertThat(underTest.selectByNameAndLanguages(dbSession, "Sonar Way", List.of("java", "unknown")))
       .extracting(QProfileDto::getKee).containsOnly(dto.getKee());
   }
 
@@ -678,9 +677,9 @@ class QualityProfileDaoIT {
       .extracting(QProfileDto::getKee).containsOnly(javaProfile.getKee());
     assertThat(underTest.selectAssociatedToProjectAndLanguages(dbSession, project1, singletonList("unknown")))
       .isEmpty();
-    assertThat(underTest.selectAssociatedToProjectAndLanguages(dbSession, project1, of("java", "unknown")))
+    assertThat(underTest.selectAssociatedToProjectAndLanguages(dbSession, project1, List.of("java", "unknown")))
       .extracting(QProfileDto::getKee).containsExactly(javaProfile.getKee());
-    assertThat(underTest.selectAssociatedToProjectAndLanguages(dbSession, project1, of("java", "js")))
+    assertThat(underTest.selectAssociatedToProjectAndLanguages(dbSession, project1, List.of("java", "js")))
       .extracting(QProfileDto::getKee).containsExactlyInAnyOrder(javaProfile.getKee(), jsProfile.getKee());
     assertThat(underTest.selectAssociatedToProjectAndLanguages(dbSession, project2, singletonList("java")))
       .isEmpty();

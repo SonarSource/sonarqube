@@ -19,7 +19,6 @@
  */
 package org.sonar.application.config;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -28,6 +27,7 @@ import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -365,16 +365,16 @@ public class ClusterSettingsTest {
       .put("sonar.auth.jwtBase64Hs256Secret", "abcde")
       .build());
 
-    verifyHostIsChecked(settings, ImmutableList.of("hz_host"), "Address in property sonar.cluster.node.host is not a valid address: hz_host");
-    verifyHostIsChecked(settings, ImmutableList.of("remote_hz_host_1"), "Address in property sonar.cluster.hosts is not a valid address: remote_hz_host_1");
-    verifyHostIsChecked(settings, ImmutableList.of("remote_hz_host_2"), "Address in property sonar.cluster.hosts is not a valid address: remote_hz_host_2");
+    verifyHostIsChecked(settings, List.of("hz_host"), "Address in property sonar.cluster.node.host is not a valid address: hz_host");
+    verifyHostIsChecked(settings, List.of("remote_hz_host_1"), "Address in property sonar.cluster.hosts is not a valid address: remote_hz_host_1");
+    verifyHostIsChecked(settings, List.of("remote_hz_host_2"), "Address in property sonar.cluster.hosts is not a valid address: remote_hz_host_2");
     verifyHostIsChecked(settings,
-      ImmutableList.of("remote_hz_host_1", "remote_hz_host_2"),
+      List.of("remote_hz_host_1", "remote_hz_host_2"),
       "Address in property sonar.cluster.hosts is not a valid address: remote_hz_host_1, remote_hz_host_2");
-    verifyHostIsChecked(settings, ImmutableList.of("remote_search_host_1"), "Address in property sonar.cluster.search.hosts is not a valid address: remote_search_host_1");
-    verifyHostIsChecked(settings, ImmutableList.of("remote_search_host_2"), "Address in property sonar.cluster.search.hosts is not a valid address: remote_search_host_2");
+    verifyHostIsChecked(settings, List.of("remote_search_host_1"), "Address in property sonar.cluster.search.hosts is not a valid address: remote_search_host_1");
+    verifyHostIsChecked(settings, List.of("remote_search_host_2"), "Address in property sonar.cluster.search.hosts is not a valid address: remote_search_host_2");
     verifyHostIsChecked(settings,
-      ImmutableList.of("remote_search_host_1", "remote_search_host_2"),
+      List.of("remote_search_host_1", "remote_search_host_2"),
       "Address in property sonar.cluster.search.hosts is not a valid address: remote_search_host_1, remote_search_host_2");
   }
 
@@ -387,7 +387,7 @@ public class ClusterSettingsTest {
       .put(CLUSTER_NODE_SEARCH_HOST.getKey(), "search_host")
       .put(CLUSTER_NODE_ES_HOST.getKey(), "search_host").build());
 
-    verifyHostIsChecked(settings, ImmutableList.of("search_host"), "Address in property sonar.cluster.node.search.host is not a valid address: search_host");
+    verifyHostIsChecked(settings, List.of("search_host"), "Address in property sonar.cluster.node.search.host is not a valid address: search_host");
   }
 
   private void verifyHostIsChecked(TestAppSettings settings, Collection<String> invalidHosts, String expectedMessage) {
@@ -413,16 +413,16 @@ public class ClusterSettingsTest {
       .put("sonar.auth.jwtBase64Hs256Secret", "abcde")
       .build());
 
-    verifyLoopbackChecked(settings, ImmutableList.of("hz_host"), "Property sonar.cluster.node.host must be a local non-loopback address: hz_host");
-    verifyLoopbackChecked(settings, ImmutableList.of("remote_search_host_1"), "Property sonar.cluster.search.hosts must not contain a loopback address: remote_search_host_1");
-    verifyLoopbackChecked(settings, ImmutableList.of("remote_search_host_2"), "Property sonar.cluster.search.hosts must not contain a loopback address: remote_search_host_2");
+    verifyLoopbackChecked(settings, List.of("hz_host"), "Property sonar.cluster.node.host must be a local non-loopback address: hz_host");
+    verifyLoopbackChecked(settings, List.of("remote_search_host_1"), "Property sonar.cluster.search.hosts must not contain a loopback address: remote_search_host_1");
+    verifyLoopbackChecked(settings, List.of("remote_search_host_2"), "Property sonar.cluster.search.hosts must not contain a loopback address: remote_search_host_2");
     verifyLoopbackChecked(settings,
-      ImmutableList.of("remote_search_host_1", "remote_search_host_2"),
+      List.of("remote_search_host_1", "remote_search_host_2"),
       "Property sonar.cluster.search.hosts must not contain a loopback address: remote_search_host_1, remote_search_host_2");
-    verifyLoopbackChecked(settings, ImmutableList.of("remote_hz_host_1"), "Property sonar.cluster.hosts must not contain a loopback address: remote_hz_host_1");
-    verifyLoopbackChecked(settings, ImmutableList.of("remote_hz_host_2"), "Property sonar.cluster.hosts must not contain a loopback address: remote_hz_host_2");
+    verifyLoopbackChecked(settings, List.of("remote_hz_host_1"), "Property sonar.cluster.hosts must not contain a loopback address: remote_hz_host_1");
+    verifyLoopbackChecked(settings, List.of("remote_hz_host_2"), "Property sonar.cluster.hosts must not contain a loopback address: remote_hz_host_2");
     verifyLoopbackChecked(settings,
-      ImmutableList.of("remote_hz_host_1", "remote_hz_host_2"),
+      List.of("remote_hz_host_1", "remote_hz_host_2"),
       "Property sonar.cluster.hosts must not contain a loopback address: remote_hz_host_1, remote_hz_host_2");
   }
 
@@ -436,12 +436,12 @@ public class ClusterSettingsTest {
       .put(CLUSTER_NODE_ES_HOST.getKey(), "transport_host")
       .build());
 
-    verifyLoopbackChecked(settings, ImmutableList.of("search_host"), "Property sonar.cluster.node.search.host must be a local non-loopback address: search_host");
-    verifyLoopbackChecked(settings, ImmutableList.of("transport_host"), "Property sonar.cluster.node.es.host must be a local non-loopback address: transport_host");
-    verifyLoopbackChecked(settings, ImmutableList.of("remote_search_host_1"), "Property sonar.cluster.es.hosts must not contain a loopback address: remote_search_host_1");
-    verifyLoopbackChecked(settings, ImmutableList.of("remote_search_host_2"), "Property sonar.cluster.es.hosts must not contain a loopback address: remote_search_host_2");
+    verifyLoopbackChecked(settings, List.of("search_host"), "Property sonar.cluster.node.search.host must be a local non-loopback address: search_host");
+    verifyLoopbackChecked(settings, List.of("transport_host"), "Property sonar.cluster.node.es.host must be a local non-loopback address: transport_host");
+    verifyLoopbackChecked(settings, List.of("remote_search_host_1"), "Property sonar.cluster.es.hosts must not contain a loopback address: remote_search_host_1");
+    verifyLoopbackChecked(settings, List.of("remote_search_host_2"), "Property sonar.cluster.es.hosts must not contain a loopback address: remote_search_host_2");
     verifyLoopbackChecked(settings,
-      ImmutableList.of("remote_search_host_1", "remote_search_host_2"),
+      List.of("remote_search_host_1", "remote_search_host_2"),
       "Property sonar.cluster.es.hosts must not contain a loopback address: remote_search_host_1, remote_search_host_2");
   }
 

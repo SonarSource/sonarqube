@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.ws;
 
-import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -27,6 +26,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -111,7 +111,7 @@ public class DbMigrationStatusActionTest {
   @UseDataProvider("statusRequiringDbMigration")
   public void defensive_test_all_values_of_Status_must_be_supported(DatabaseVersion.Status status) {
     when(databaseVersion.getStatus()).thenReturn(status);
-    for (Status migrationStatus : filter(Arrays.asList(DatabaseMigrationState.Status.values()), not(in(ImmutableList.of(NONE, RUNNING, FAILED, SUCCEEDED))))) {
+    for (Status migrationStatus : filter(Arrays.asList(DatabaseMigrationState.Status.values()), not(in(List.of(NONE, RUNNING, FAILED, SUCCEEDED))))) {
       when(migrationState.getStatus()).thenReturn(migrationStatus);
 
       tester.newRequest().execute();

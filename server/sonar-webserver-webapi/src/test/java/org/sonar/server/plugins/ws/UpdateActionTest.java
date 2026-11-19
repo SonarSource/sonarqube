@@ -19,7 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -127,7 +127,7 @@ public class UpdateActionTest {
   public void if_plugin_has_an_update_download_is_triggered_with_latest_version_from_updatecenter() {
     logInAsSystemAdministrator();
     Version version = Version.create("1.0");
-    when(updateCenter.findPluginUpdates()).thenReturn(ImmutableList.of(
+    when(updateCenter.findPluginUpdates()).thenReturn(List.of(
       PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY), version), Status.COMPATIBLE)));
 
     TestResponse response = tester.newRequest()

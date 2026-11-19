@@ -19,7 +19,6 @@
  */
 package org.sonar.core.extension;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -81,7 +80,7 @@ public class CoreExtensionsInstallerTest {
     CoreExtension coreExtension2 = newCoreExtension();
     CoreExtension coreExtension3 = newCoreExtension();
     CoreExtension coreExtension4 = newCoreExtension();
-    List<CoreExtension> coreExtensions = ImmutableList.of(coreExtension1, coreExtension2, coreExtension3, coreExtension4);
+    List<CoreExtension> coreExtensions = List.of(coreExtension1, coreExtension2, coreExtension3, coreExtension4);
     InOrder inOrder = Mockito.inOrder(coreExtension1, coreExtension2, coreExtension3, coreExtension4);
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(coreExtensions.stream());
     ListContainer container = new ListContainer();
@@ -149,7 +148,7 @@ public class CoreExtensionsInstallerTest {
   @Test
   @UseDataProvider("allMethodsToAddExtension")
   public void install_installs_extensions_annotated_with_expected_annotation(BiConsumer<CoreExtension.Context, Collection<Object>> extensionAdder) {
-    List<Object> extensions = ImmutableList.of(WestSideClass.class, EastSideClass.class, OtherSideClass.class, Latitude.class);
+    List<Object> extensions = List.of(WestSideClass.class, EastSideClass.class, OtherSideClass.class, Latitude.class);
     CoreExtension coreExtension = newCoreExtension(context -> extensionAdder.accept(context, extensions));
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
     ExtensionContainer container = mock(ExtensionContainer.class);
@@ -166,7 +165,7 @@ public class CoreExtensionsInstallerTest {
   @Test
   @UseDataProvider("allMethodsToAddExtension")
   public void install_does_not_install_extensions_annotated_with_expected_annotation_but_filtered_out(BiConsumer<CoreExtension.Context, Collection<Object>> extensionAdder) {
-    List<Object> extensions = ImmutableList.of(WestSideClass.class, EastSideClass.class, OtherSideClass.class, Latitude.class);
+    List<Object> extensions = List.of(WestSideClass.class, EastSideClass.class, OtherSideClass.class, Latitude.class);
     CoreExtension coreExtension = newCoreExtension(context -> extensionAdder.accept(context, extensions));
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
     ExtensionContainer container = mock(ExtensionContainer.class);
@@ -185,7 +184,7 @@ public class CoreExtensionsInstallerTest {
   public void install_adds_PropertyDefinition_with_extension_name_as_default_category(BiConsumer<CoreExtension.Context, Collection<Object>> extensionAdder) {
     PropertyDefinition propertyDefinitionNoCategory = PropertyDefinition.builder("fooKey").build();
     PropertyDefinition propertyDefinitionWithCategory = PropertyDefinition.builder("barKey").category("donut").build();
-    List<Object> extensions = ImmutableList.of(propertyDefinitionNoCategory, propertyDefinitionWithCategory);
+    List<Object> extensions = List.of(propertyDefinitionNoCategory, propertyDefinitionWithCategory);
     CoreExtension coreExtension = newCoreExtension(context -> extensionAdder.accept(context, extensions));
     when(coreExtensionRepository.loadedCoreExtensions()).thenReturn(Stream.of(coreExtension));
     ExtensionContainer container = mock(ExtensionContainer.class);

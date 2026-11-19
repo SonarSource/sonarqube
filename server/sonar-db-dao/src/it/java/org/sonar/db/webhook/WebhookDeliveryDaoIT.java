@@ -30,7 +30,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.Pagination;
 
-import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.webhook.WebhookTesting.newProjectWebhook;
 
@@ -159,7 +158,7 @@ class WebhookDeliveryDaoIT {
     underTest.insert(dbSession,
       WebhookDeliveryTesting.newDto("WH2-DELIVERY-2-UUID", webhook2.getUuid(), "PROJECT_1", "TASK_2").setCreatedAt(NOW));
 
-    Map<String, WebhookDeliveryLiteDto> map = underTest.selectLatestDeliveries(dbSession, of(webhook1, webhook2));
+    Map<String, WebhookDeliveryLiteDto> map = underTest.selectLatestDeliveries(dbSession, List.of(webhook1, webhook2));
 
     assertThat(map).containsKeys(webhook1.getUuid());
     assertThat(map.get(webhook1.getUuid())).extracting(WebhookDeliveryLiteDto::getUuid).isEqualTo("WH1-DELIVERY-2-UUID");

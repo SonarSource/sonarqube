@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -116,7 +115,7 @@ public class RegisterQualityProfileStatusStepTest {
     QualityProfile qp2 = qp(QP_NAME_2, LANGUAGE_KEY_2, new Date(1000L));
 
     mockBaseQPMeasures(treeRootHolder.getRoot(), arrayOf(qp1));
-    mockRawQProfiles(ImmutableList.of(qp1, qp2));
+    mockRawQProfiles(List.of(qp1, qp2));
     underTest.execute(new TestComputationStepContext());
 
     verify(qProfileStatusRepository).register(qp1.getQpKey(), UNCHANGED);
@@ -130,7 +129,7 @@ public class RegisterQualityProfileStatusStepTest {
     QualityProfile qp2 = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date(1200L));
 
     mockBaseQPMeasures(treeRootHolder.getRoot(), arrayOf(qp1));
-    mockRawQProfiles(ImmutableList.of(qp2));
+    mockRawQProfiles(List.of(qp2));
     underTest.execute(new TestComputationStepContext());
 
     verify(qProfileStatusRepository).register(qp2.getQpKey(), UPDATED);
@@ -142,7 +141,7 @@ public class RegisterQualityProfileStatusStepTest {
     QualityProfile qp1 = qp(QP_NAME_1, LANGUAGE_KEY_1, new Date(1000L));
 
     mockBaseQPMeasures(treeRootHolder.getRoot(), arrayOf(qp1));
-    mockRawQProfiles(ImmutableList.of(qp1));
+    mockRawQProfiles(List.of(qp1));
     underTest.execute(new TestComputationStepContext());
 
     verify(qProfileStatusRepository).register(qp1.getQpKey(), UNCHANGED);

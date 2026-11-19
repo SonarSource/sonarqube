@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -30,7 +31,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 
-import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
@@ -116,7 +116,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
   @Test
   public void verify_response_against_example() {
     logInAsSystemAdministrator();
-    when(updateCenter.findPluginUpdates()).thenReturn(of(
+    when(updateCenter.findPluginUpdates()).thenReturn(List.of(
       pluginUpdate(ABAP_32, COMPATIBLE),
       pluginUpdate(ABAP_31, INCOMPATIBLE),
       pluginUpdate(ANDROID_10, COMPATIBLE)));
@@ -130,7 +130,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
   @Test
   public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() {
     logInAsSystemAdministrator();
-    when(updateCenter.findPluginUpdates()).thenReturn(of(
+    when(updateCenter.findPluginUpdates()).thenReturn(List.of(
       pluginUpdate(release(PLUGIN_1, "1.0.0"), COMPATIBLE)));
 
     TestResponse response = tester.newRequest().execute();
@@ -152,7 +152,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
   @Test
   public void plugins_are_sorted_by_name_and_made_unique() {
     logInAsSystemAdministrator();
-    when(updateCenter.findPluginUpdates()).thenReturn(of(
+    when(updateCenter.findPluginUpdates()).thenReturn(List.of(
       pluginUpdate("key2", "name2"),
       pluginUpdate("key2", "name2"),
       pluginUpdate("key0", "name0"),

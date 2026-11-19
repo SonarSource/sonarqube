@@ -19,10 +19,10 @@
  */
 package org.sonar.server.common.health;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -84,7 +84,7 @@ final class HealthAssert extends AbstractAssert<HealthAssert, Health> {
       // sort by type then status for debugging convenience
       .sorted(Comparator.<NodeHealth>comparingInt(s1 -> s1.getDetails().getType().ordinal())
         .thenComparingInt(s -> s.getStatus().ordinal()))
-      .map(s -> ImmutableList.of(s.getDetails().getType().name(), s.getStatus().name()))
+      .map(s -> List.of(s.getDetails().getType().name(), s.getStatus().name()))
       .map(String::valueOf)
       .collect(Collectors.joining(","));
   }

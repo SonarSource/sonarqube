@@ -38,7 +38,6 @@ import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
-import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -114,7 +113,7 @@ public class PendingActionTest {
   public void verify_properties_displayed_in_json_per_installing_plugin() {
     logInAsSystemAdministrator();
     newUpdateCenter("scmgit");
-    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newScmGitPluginInfo()));
+    when(pluginDownloader.getDownloadedPlugins()).thenReturn(List.of(newScmGitPluginInfo()));
 
     TestResponse response = tester.newRequest().execute();
 
@@ -144,7 +143,7 @@ public class PendingActionTest {
   @Test
   public void verify_properties_displayed_in_json_per_removing_plugin() {
     logInAsSystemAdministrator();
-    when(pluginUninstaller.getUninstalledPlugins()).thenReturn(of(newScmGitPluginInfo()));
+    when(pluginUninstaller.getUninstalledPlugins()).thenReturn(List.of(newScmGitPluginInfo()));
 
     TestResponse response = tester.newRequest().execute();
 
@@ -174,8 +173,8 @@ public class PendingActionTest {
   public void verify_properties_displayed_in_json_per_updating_plugin() {
     logInAsSystemAdministrator();
     newUpdateCenter("scmgit");
-    when(serverPluginRepository.getPluginInfos()).thenReturn(of(newScmGitPluginInfo()));
-    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newScmGitPluginInfo()));
+    when(serverPluginRepository.getPluginInfos()).thenReturn(List.of(newScmGitPluginInfo()));
+    when(pluginDownloader.getDownloadedPlugins()).thenReturn(List.of(newScmGitPluginInfo()));
 
     TestResponse response = tester.newRequest().execute();
 
@@ -200,9 +199,9 @@ public class PendingActionTest {
     PluginInfo newPlugin = newPluginInfo("php");
 
     newUpdateCenter("scmgit");
-    when(serverPluginRepository.getPluginInfos()).thenReturn(of(installed));
-    when(pluginUninstaller.getUninstalledPlugins()).thenReturn(of(removedPlugin));
-    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newPlugin, installed));
+    when(serverPluginRepository.getPluginInfos()).thenReturn(List.of(installed));
+    when(pluginUninstaller.getUninstalledPlugins()).thenReturn(List.of(removedPlugin));
+    when(pluginDownloader.getDownloadedPlugins()).thenReturn(List.of(newPlugin, installed));
 
     TestResponse response = tester.newRequest().execute();
 
@@ -232,7 +231,7 @@ public class PendingActionTest {
   @Test
   public void installing_plugins_are_sorted_by_name_then_key_and_are_unique() {
     logInAsSystemAdministrator();
-    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(
+    when(pluginDownloader.getDownloadedPlugins()).thenReturn(List.of(
       newPluginInfo(0).setName("Foo"),
       newPluginInfo(3).setName("Bar"),
       newPluginInfo(2).setName("Bar")));
@@ -264,7 +263,7 @@ public class PendingActionTest {
   @Test
   public void removing_plugins_are_sorted_and_unique() {
     logInAsSystemAdministrator();
-    when(pluginUninstaller.getUninstalledPlugins()).thenReturn(of(
+    when(pluginUninstaller.getUninstalledPlugins()).thenReturn(List.of(
       newPluginInfo(0).setName("Foo"),
       newPluginInfo(3).setName("Bar"),
       newPluginInfo(2).setName("Bar")));

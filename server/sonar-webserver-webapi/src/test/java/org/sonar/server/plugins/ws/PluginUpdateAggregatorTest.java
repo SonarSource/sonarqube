@@ -19,9 +19,9 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
@@ -48,7 +48,7 @@ public class PluginUpdateAggregatorTest {
 
   @Test
   public void aggregates_groups_pluginUpdate_per_plugin_key() {
-    Collection<PluginUpdateAggregator.PluginUpdateAggregate> aggregates = underTest.aggregate(ImmutableList.of(
+    Collection<PluginUpdateAggregator.PluginUpdateAggregate> aggregates = underTest.aggregate(List.of(
       createPluginUpdate("key1"),
       createPluginUpdate("key1"),
       createPluginUpdate("key0"),
@@ -64,7 +64,7 @@ public class PluginUpdateAggregatorTest {
     PluginUpdate pluginUpdate1 = createPluginUpdate("key1");
     PluginUpdate pluginUpdate2 = createPluginUpdate("key1");
     PluginUpdate pluginUpdate3 = createPluginUpdate("key1");
-    Collection<PluginUpdateAggregator.PluginUpdateAggregate> aggregates = underTest.aggregate(ImmutableList.of(
+    Collection<PluginUpdateAggregator.PluginUpdateAggregate> aggregates = underTest.aggregate(List.of(
       pluginUpdate1,
       pluginUpdate2,
       pluginUpdate3));

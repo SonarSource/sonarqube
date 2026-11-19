@@ -19,7 +19,6 @@
  */
 package org.sonar.db.purge.period;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -56,9 +55,9 @@ class DefaultPeriodCleanerTest {
 
     InOrder inOrder = Mockito.inOrder(dao, filter1, filter2);
     inOrder.verify(filter1).log();
-    inOrder.verify(dao, times(1)).deleteAnalyses(session, profiler, ImmutableList.of("u999"));
+    inOrder.verify(dao, times(1)).deleteAnalyses(session, profiler, List.of("u999"));
     inOrder.verify(filter2).log();
-    inOrder.verify(dao, times(1)).deleteAnalyses(session, profiler, ImmutableList.of("u456"));
+    inOrder.verify(dao, times(1)).deleteAnalyses(session, profiler, List.of("u456"));
     inOrder.verifyNoMoreInteractions();
   }
 

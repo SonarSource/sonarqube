@@ -19,7 +19,6 @@
  */
 package org.sonar.server.almintegration.ws.azure;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -61,7 +60,7 @@ public class ListAzureProjectsActionIT {
 
   @Before
   public void before() {
-    mockClient(ImmutableList.of(new GsonAzureProject("name", "description"),
+    mockClient(List.of(new GsonAzureProject("name", "description"),
       new GsonAzureProject("name", null)));
   }
 
@@ -87,7 +86,7 @@ public class ListAzureProjectsActionIT {
 
   @Test
   public void list_projects_alphabetically_sorted() {
-    mockClient(ImmutableList.of(new GsonAzureProject("BBB project", "BBB project description"),
+    mockClient(List.of(new GsonAzureProject("BBB project", "BBB project description"),
       new GsonAzureProject("AAA project 1", "AAA project description"),
       new GsonAzureProject("zzz project", "zzz project description"),
       new GsonAzureProject("aaa project", "aaa project description")));
