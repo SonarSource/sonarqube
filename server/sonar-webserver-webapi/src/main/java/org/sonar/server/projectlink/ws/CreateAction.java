@@ -19,6 +19,8 @@
  */
 package org.sonar.server.projectlink.ws;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,6 +35,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectLinks;
 import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.ACTION_CREATE;
@@ -122,9 +125,10 @@ public class CreateAction implements ProjectLinksWsAction {
   }
 
   private static CreateWsResponse buildResponse(ProjectLinkDto link) {
+    String name = requireNonNull(link.getName(), "Link name should not be null");
     return CreateWsResponse.newBuilder().setLink(ProjectLinks.Link.newBuilder()
       .setId(String.valueOf(link.getUuid()))
-      .setName(link.getName())
+      .setName(name)
       .setType(link.getType())
       .setUrl(link.getHref()))
       .build();
@@ -167,20 +171,22 @@ public class CreateAction implements ProjectLinksWsAction {
       return name;
     }
 
-    public CreateRequest setProjectId(String projectId) {
+    public CreateRequest setProjectId(@Nullable String projectId) {
       this.projectId = projectId;
       return this;
     }
 
+    @CheckForNull
     public String getProjectId() {
       return projectId;
     }
 
-    public CreateRequest setProjectKey(String projectKey) {
+    public CreateRequest setProjectKey(@Nullable String projectKey) {
       this.projectKey = projectKey;
       return this;
     }
 
+    @CheckForNull
     public String getProjectKey() {
       return projectKey;
     }

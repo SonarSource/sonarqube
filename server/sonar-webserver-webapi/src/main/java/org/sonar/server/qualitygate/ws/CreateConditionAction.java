@@ -30,6 +30,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_CREATE_CONDITION;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
@@ -88,9 +89,10 @@ public class CreateConditionAction implements QualityGatesWsAction {
 
       wsSupport.checkCanLimitedEdit(dbSession, qualityGate);
       QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, error);
+      String metricKey = requireNonNull(condition.getMetricKey(), "Metric key should not be null");
       CreateConditionResponse.Builder createConditionResponse = CreateConditionResponse.newBuilder()
         .setId(condition.getUuid())
-        .setMetric(condition.getMetricKey())
+        .setMetric(metricKey)
         .setError(condition.getErrorThreshold())
         .setOp(condition.getOperator());
       writeProtobuf(createConditionResponse.build(), request, response);

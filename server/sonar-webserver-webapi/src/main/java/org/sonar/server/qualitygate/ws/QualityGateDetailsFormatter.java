@@ -84,11 +84,12 @@ public class QualityGateDetailsFormatter {
 
     SnapshotDto snapshot = this.optionalSnapshot.get();
 
-    if (isNullOrEmpty(snapshot.getPeriodMode())) {
+    String periodMode = snapshot.getPeriodMode();
+    if (isNullOrEmpty(periodMode)) {
       return;
     }
 
-    periodBuilder.setMode(snapshot.getPeriodMode());
+    periodBuilder.setMode(periodMode);
     Long periodDate = snapshot.getPeriodDate();
     if (periodDate != null) {
       String formattedDateTime = formatDateTime(periodDate);

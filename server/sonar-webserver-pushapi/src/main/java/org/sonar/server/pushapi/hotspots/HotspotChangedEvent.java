@@ -22,6 +22,7 @@ package org.sonar.server.pushapi.hotspots;
 import java.io.Serializable;
 import java.util.Date;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class HotspotChangedEvent implements Serializable {
 
@@ -92,7 +93,7 @@ public class HotspotChangedEvent implements Serializable {
       return this;
     }
 
-    public Builder setUpdateDate(Date updateDate) {
+    public Builder setUpdateDate(@Nullable Date updateDate) {
       this.updateDate = updateDate;
       return this;
     }
@@ -102,12 +103,12 @@ public class HotspotChangedEvent implements Serializable {
       return this;
     }
 
-    public Builder setAssignee(String assignee) {
+    public Builder setAssignee(@Nullable String assignee) {
       this.assignee = assignee;
       return this;
     }
 
-    public Builder setResolution(String resolution) {
+    public Builder setResolution(@Nullable String resolution) {
       this.resolution = resolution;
       return this;
     }

@@ -44,6 +44,7 @@ import org.sonar.server.pushapi.hotspots.HotspotChangedEvent;
 import org.sonarsource.compliancereports.ingestion.IssueIngestionService;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.sonar.api.issue.Issue.RESOLUTION_ACKNOWLEDGED;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
@@ -192,15 +193,15 @@ public class ChangeStatusAction implements HotspotsWsAction {
   }
 
   private static HotspotChangedEvent buildEventData(DefaultIssue defaultIssue, IssueDto issueDto) {
-    return new HotspotChangedEvent.Builder()
+    HotspotChangedEvent.Builder builder = new HotspotChangedEvent.Builder()
       .setKey(defaultIssue.key())
       .setProjectKey(defaultIssue.projectKey())
       .setStatus(defaultIssue.status())
-      .setResolution(defaultIssue.resolution())
-      .setUpdateDate(defaultIssue.updateDate())
-      .setAssignee(issueDto.getAssigneeLogin())
-      .setFilePath(issueDto.getFilePath())
-      .build();
+      .setFilePath(issueDto.getFilePath());
+    ofNullable(defaultIssue.resolution()).ifPresent(builder::setResolution);
+    ofNullable(defaultIssue.updateDate()).ifPresent(builder::setUpdateDate);
+    ofNullable(issueDto.getAssigneeLogin()).ifPresent(builder::setAssignee);
+    return builder.build();
   }
 
   private void updateIssueStatsByRuleKey(BranchDto branchDto, RuleKey ruleKey, String transitionKey) {

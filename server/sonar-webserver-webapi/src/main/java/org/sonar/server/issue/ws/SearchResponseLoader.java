@@ -216,7 +216,7 @@ public class SearchResponseLoader {
   private void loadComment(Collector collector, SearchResponseData result, IssueChangeDto comment) {
     collector.addUserUuids(singletonList(comment.getUserUuid()));
     if (canEditOrDelete(comment)) {
-      result.addUpdatableComment(comment.getKey());
+      result.addUpdatableComment(requireNonNull(comment.getKey(), "Comment key cannot be null"));
     }
   }
 

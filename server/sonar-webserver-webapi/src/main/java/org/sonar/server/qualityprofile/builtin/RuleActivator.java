@@ -414,7 +414,8 @@ public class RuleActivator {
     List<ActiveRuleParamDto> params = new ArrayList<>();
     for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
       if (param.getValue() != null) {
-        ActiveRuleParamDto paramDto = ActiveRuleParamDto.createFor(rule.getParam(param.getKey()));
+        RuleParamDto ruleParam = Objects.requireNonNull(rule.getParam(param.getKey()), () -> "Rule parameter does not exist: " + param.getKey());
+        ActiveRuleParamDto paramDto = ActiveRuleParamDto.createFor(ruleParam);
         paramDto.setValue(param.getValue());
         params.add(paramDto);
         dao.insertParam(dbSession, activeRule, paramDto);
@@ -452,7 +453,8 @@ public class RuleActivator {
       if (activeRuleParamDto == null) {
         // did not exist
         if (param.getValue() != null) {
-          activeRuleParamDto = ActiveRuleParamDto.createFor(context.getRule().getParam(param.getKey()));
+          RuleParamDto ruleParam = Objects.requireNonNull(context.getRule().getParam(param.getKey()), () -> "Rule parameter does not exist: " + param.getKey());
+          activeRuleParamDto = ActiveRuleParamDto.createFor(ruleParam);
           activeRuleParamDto.setValue(param.getValue());
           dao.insertParam(dbSession, ruleDto, activeRuleParamDto);
         }
@@ -551,8 +553,9 @@ public class RuleActivator {
     // load profiles
     List<QProfileDto> profiles = new ArrayList<>();
     profiles.add(profile);
-    if (profile.getParentKee() != null) {
-      profiles.add(db.qualityProfileDao().selectByUuid(dbSession, profile.getParentKee()));
+    String parentKee = profile.getParentKee();
+    if (parentKee != null) {
+      profiles.add(db.qualityProfileDao().selectByUuid(dbSession, parentKee));
     }
     builder.setProfiles(profiles);
     builder.setBaseProfile(RulesProfileDto.from(profile));

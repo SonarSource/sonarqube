@@ -28,6 +28,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -71,7 +72,7 @@ public class ComponentTreeSort {
     if (sortParameters == null || sortParameters.isEmpty()) {
       return components;
     }
-    boolean isAscending = wsRequest.getAsc();
+    boolean isAscending = Objects.requireNonNull(wsRequest.getAsc());
     Map<String, Ordering<ComponentDto>> orderingsBySortField = ImmutableMap.<String, Ordering<ComponentDto>>builder()
       .put(NAME_SORT, componentNameOrdering(isAscending))
       .put(QUALIFIER_SORT, componentQualifierOrdering(isAscending))

@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -94,7 +95,7 @@ public class ProjectsAction implements QProfileWsAction {
     String profileKey = request.mandatoryParam(PARAM_KEY);
 
     try (DbSession session = dbClient.openSession(false)) {
-      String selected = request.param(Param.SELECTED);
+      String selected = request.mandatoryParam(Param.SELECTED);
       String query = request.param(Param.TEXT_QUERY);
       int page = request.mandatoryParamAsInt(Param.PAGE);
       int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
@@ -121,7 +122,7 @@ public class ProjectsAction implements QProfileWsAction {
     }
   }
 
-  private List<ProjectQprofileAssociationDto> loadAllProjects(String profileKey, DbSession session, String selected, String query) {
+  private List<ProjectQprofileAssociationDto> loadAllProjects(String profileKey, DbSession session, String selected, @Nullable String query) {
     QProfileDto profile = dbClient.qualityProfileDao().selectByUuid(session, profileKey);
     if (profile == null) {
       throw new NotFoundException("Quality profile not found: " + profileKey);

@@ -101,7 +101,8 @@ public class QProfileWsSupport {
     if (TokenUserSession.isRestrictedToken(userSession)) {
       return false;
     }
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, userSession.getLogin());
+    String login = Objects.requireNonNull(userSession.getLogin(), "User from session does not exist");
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
     checkState(user != null, "User from session does not exist");
     return dbClient.qProfileEditUsersDao().exists(dbSession, profile, user)
       || dbClient.qProfileEditGroupsDao().exists(dbSession, profile, userSession.getGroups());

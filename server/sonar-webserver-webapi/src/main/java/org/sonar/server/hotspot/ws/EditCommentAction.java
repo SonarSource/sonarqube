@@ -22,6 +22,7 @@ package org.sonar.server.hotspot.ws;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -39,6 +40,7 @@ import org.sonarqube.ws.Common.Comment;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -121,7 +123,7 @@ public class EditCommentAction implements HotspotsWsAction {
   private Comment prepareResponse(DbSession dbSession, IssueChangeDto hotspotComment) {
     Comment.Builder commentBuilder = Comment.newBuilder();
     commentBuilder.clear()
-      .setKey(hotspotComment.getKey())
+      .setKey(requireNonNull(hotspotComment.getKey(), "Comment key cannot be null"))
       .setUpdatable(true)
       .setCreatedAt(DateUtils.formatDateTime(new Date(hotspotComment.getIssueChangeCreationDate())));
     getUserByUuid(dbSession, hotspotComment.getUserUuid()).ifPresent(user -> commentBuilder.setLogin(user.getLogin()));
@@ -132,7 +134,10 @@ public class EditCommentAction implements HotspotsWsAction {
     return commentBuilder.build();
   }
 
-  private Optional<UserDto> getUserByUuid(DbSession dbSession, String userUuid) {
+  private Optional<UserDto> getUserByUuid(DbSession dbSession, @Nullable String userUuid) {
+    if (userUuid == null) {
+      return Optional.empty();
+    }
     return Optional.ofNullable(dbClient.userDao().selectByUuid(dbSession, userUuid));
   }
 }

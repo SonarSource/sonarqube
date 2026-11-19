@@ -149,7 +149,8 @@ public class QProfileParser {
     } catch (XMLStreamException e) {
       throw new IllegalArgumentException("Fail to restore Quality profile backup, XML document is not well formed", e);
     }
-    return new ImportedQProfile(profileName, profileLang, rules);
+    return new ImportedQProfile(Objects.requireNonNull(profileName, "Profile name should not be empty!"),
+      Objects.requireNonNull(profileLang, "Profile language should not be empty!"), rules);
   }
 
   private static SMInputFactory initStax() {

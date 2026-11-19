@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -284,7 +285,7 @@ public class SearchAction implements MeasuresWsAction {
       return this;
     }
 
-    public Builder setProjectKeys(List<String> projectKeys) {
+    public Builder setProjectKeys(@Nullable List<String> projectKeys) {
       this.projectKeys = projectKeys;
       return this;
     }

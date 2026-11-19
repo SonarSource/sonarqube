@@ -78,6 +78,7 @@ import static java.lang.String.format;
 import static java.lang.String.join;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
@@ -337,8 +338,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       request,
       data,
       Paging.forPageIndex(
-        request.getPage())
-        .withPageSize(request.getPageSize())
+        requireNonNull(request.getPage()))
+        .withPageSize(requireNonNull(request.getPageSize()))
         .andTotal(data.getComponentCount()),
       request.getMetricKeys());
   }
@@ -398,8 +399,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
     ComponentTreeRequest request) {
     ComponentTreeWsResponse.Builder response = ComponentTreeWsResponse.newBuilder();
     response.getPagingBuilder()
-      .setPageIndex(request.getPage())
-      .setPageSize(request.getPageSize())
+      .setPageIndex(requireNonNull(request.getPage()))
+      .setPageSize(requireNonNull(request.getPageSize()))
       .setTotal(0);
     if (baseComponent != null) {
       boolean isMainBranch = branch == null || branch.isMain();
@@ -586,11 +587,14 @@ public class ComponentTreeAction implements MeasuresWsAction {
     ComponentTreeQuery componentTreeQuery, List<ComponentDto> components, List<MetricDto> metrics) {
 
     Map<String, MetricDto> metricsByKeys = Maps.uniqueIndex(metrics, MetricDto::getKey);
-    MeasureTreeQuery measureQuery = MeasureTreeQuery.builder()
+    MeasureTreeQuery.Builder measureQueryBuilder = MeasureTreeQuery.builder()
       .setStrategy(MeasureTreeQuery.Strategy.valueOf(componentTreeQuery.getStrategy().name()))
-      .setNameOrKeyQuery(componentTreeQuery.getNameOrKeyQuery())
-      .setQualifiers(componentTreeQuery.getQualifiers())
-      .build();
+      .setNameOrKeyQuery(componentTreeQuery.getNameOrKeyQuery());
+    Collection<String> qualifiers = componentTreeQuery.getQualifiers();
+    if (qualifiers != null) {
+      measureQueryBuilder.setQualifiers(qualifiers);
+    }
+    MeasureTreeQuery measureQuery = measureQueryBuilder.build();
 
     Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(),
       metrics.size());
@@ -676,9 +680,10 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private static List<ComponentDto> paginateComponents(List<ComponentDto> components, ComponentTreeRequest wsRequest) {
+    int pageSize = requireNonNull(wsRequest.getPageSize());
     return components.stream()
-      .skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
-      .limit(wsRequest.getPageSize())
+      .skip(offset(requireNonNull(wsRequest.getPage()), pageSize))
+      .limit(pageSize)
       .toList();
   }
 

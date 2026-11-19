@@ -20,6 +20,8 @@
 package org.sonar.server.projectlink.ws;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -136,20 +138,22 @@ public class SearchAction implements ProjectLinksWsAction {
     private String projectId;
     private String projectKey;
 
-    public SearchRequest setProjectId(String projectId) {
+    public SearchRequest setProjectId(@Nullable String projectId) {
       this.projectId = projectId;
       return this;
     }
 
+    @CheckForNull
     public String getProjectId() {
       return projectId;
     }
 
-    public SearchRequest setProjectKey(String projectKey) {
+    public SearchRequest setProjectKey(@Nullable String projectKey) {
       this.projectKey = projectKey;
       return this;
     }
 
+    @CheckForNull
     public String getProjectKey() {
       return projectKey;
     }

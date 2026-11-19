@@ -103,7 +103,8 @@ public class InheritanceAction implements QProfileWsAction {
   }
 
   private QProfileDto getParent(DbSession dbSession, QProfileDto profile) {
-    QProfileDto parent = dbClient.qualityProfileDao().selectByUuid(dbSession, profile.getParentKee());
+    String parentKee = Objects.requireNonNull(profile.getParentKee(), () -> "Profile has no parent: " + profile.getKee());
+    QProfileDto parent = dbClient.qualityProfileDao().selectByUuid(dbSession, parentKee);
     if (parent == null) {
       throw new IllegalStateException("Cannot find parent of profile: " + profile.getKee());
     }

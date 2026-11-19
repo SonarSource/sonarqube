@@ -69,7 +69,10 @@ class MeasureDtoToWsMeasure {
     }
 
     if (!onNewCode) {
-      measureBuilder.setValue(formatMeasureValue(doubleValue, stringValue, metric));
+      String formattedValue = formatMeasureValue(doubleValue, stringValue, metric);
+      if (formattedValue != null) {
+        measureBuilder.setValue(formattedValue);
+      }
       ofNullable(bestValue).ifPresent(v -> measureBuilder.setBestValue(compare(doubleValue, v) == 0));
     } else {
       Measures.PeriodValue.Builder periodBuilder = Measures.PeriodValue.newBuilder();

@@ -45,6 +45,7 @@ import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.SearchWsResponse;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -232,8 +233,10 @@ public class SearchAction implements ProjectsWsAction {
 
   private Paging buildPaging(DbSession dbSession, SearchRequest request, ComponentQuery query) {
     int total = dbClient.componentDao().countByQuery(dbSession, query);
-    return Paging.forPageIndex(request.getPage())
-      .withPageSize(request.getPageSize())
+    int pageIndex = requireNonNull(request.getPage(), "Page index cannot be null");
+    int pageSize = requireNonNull(request.getPageSize(), "Page size cannot be null");
+    return Paging.forPageIndex(pageIndex)
+      .withPageSize(pageSize)
       .andTotal(total);
   }
 

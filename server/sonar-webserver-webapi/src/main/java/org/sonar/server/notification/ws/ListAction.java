@@ -167,7 +167,8 @@ public class ListAction implements NotificationsWsAction {
   }
 
   private UserDto getUser(DbSession dbSession, Request request) {
-    String login = request.param(PARAM_LOGIN) == null ? userSession.getLogin() : request.param(PARAM_LOGIN);
+    String paramLogin = request.param(PARAM_LOGIN);
+    String login = paramLogin == null ? Objects.requireNonNull(userSession.getLogin()) : paramLogin;
     return checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' not found", login);
   }
 

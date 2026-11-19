@@ -158,11 +158,13 @@ public class ShowAction implements NewCodePeriodsWsAction {
       .setUpdatedAt(dto.getUpdatedAt())
       .setInherited(inherited);
 
-    if (dto.getValue() != null) {
-      builder.setValue(dto.getValue());
+    String value = dto.getValue();
+    if (value != null) {
+      builder.setValue(value);
     }
-    if (dto.getPreviousNonCompliantValue() != null) {
-      builder.setPreviousNonCompliantValue(dto.getPreviousNonCompliantValue());
+    String previousNonCompliantValue = dto.getPreviousNonCompliantValue();
+    if (previousNonCompliantValue != null) {
+      builder.setPreviousNonCompliantValue(previousNonCompliantValue);
     }
     return builder;
   }

@@ -298,10 +298,11 @@ public class SearchResponseFormat {
       Comment.Builder wsComment = Comment.newBuilder();
       for (IssueChangeDto comment : comments) {
         String markdown = comment.getChangeData();
+        String commentKey = requireNonNull(comment.getKey(), "Comment key cannot be null");
         wsComment
           .clear()
-          .setKey(comment.getKey())
-          .setUpdatable(data.isUpdatableComment(comment.getKey()))
+          .setKey(commentKey)
+          .setUpdatable(data.isUpdatableComment(commentKey))
           .setCreatedAt(DateUtils.formatDateTime(new Date(comment.getIssueChangeCreationDate())));
         ofNullable(data.getUserByUuid(comment.getUserUuid())).ifPresent(user -> wsComment.setLogin(user.getLogin()));
         if (markdown != null) {

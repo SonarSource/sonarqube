@@ -20,6 +20,7 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -112,7 +113,7 @@ public class ApplyTemplateAction implements PermissionsWsAction {
   }
 
   private EntityDto getEntityByKeyOrUuid(@Nullable String uuid, @Nullable String key, DbSession dbSession) {
-    Optional<EntityDto> entityDto = uuid != null ? dbClient.entityDao().selectByUuid(dbSession, uuid) : dbClient.entityDao().selectByKey(dbSession, key);
+    Optional<EntityDto> entityDto = uuid != null ? dbClient.entityDao().selectByUuid(dbSession, uuid) : dbClient.entityDao().selectByKey(dbSession, Objects.requireNonNull(key));
     if (entityDto.isPresent() && !ComponentQualifiers.SUBVIEW.equals(entityDto.get().getQualifier())) {
       return entityDto.get();
     } else {

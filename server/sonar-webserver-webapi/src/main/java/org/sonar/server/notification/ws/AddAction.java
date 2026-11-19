@@ -20,6 +20,7 @@
 package org.sonar.server.notification.ws;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -122,7 +123,7 @@ public class AddAction implements NotificationsWsAction {
   }
 
   private UserDto getUser(DbSession dbSession, AddRequest request) {
-    String login = request.getLogin() == null ? userSession.getLogin() : request.getLogin();
+    String login = request.getLogin() == null ? Objects.requireNonNull(userSession.getLogin()) : request.getLogin();
     return checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' not found", login);
   }
 

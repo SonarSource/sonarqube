@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
@@ -45,6 +46,7 @@ import org.sonar.server.rule.ServerRuleFinder;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Save issues into database. It is executed :
@@ -125,7 +127,10 @@ public class WebIssueStorage extends IssueStorage {
     ComponentDto project = project(session, issue);
     RuleDto ruleDto = getRule(issue).orElseThrow(() -> new IllegalStateException("Rule not found: " + issue.ruleKey()));
     IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleDto.getUuid(), now);
-    dto.setCleanCodeAttribute(ruleDto.getCleanCodeAttribute());
+    CleanCodeAttribute cleanCodeAttribute = ruleDto.getCleanCodeAttribute();
+    if (cleanCodeAttribute != null) {
+      dto.setCleanCodeAttribute(cleanCodeAttribute);
+    }
     dto.setRuleDefaultImpacts(ruleDto.getDefaultImpacts());
 
     getDbClient().issueDao().insertWithoutImpacts(session, dto);
@@ -133,7 +138,7 @@ public class WebIssueStorage extends IssueStorage {
   }
 
   ComponentDto component(DbSession session, DefaultIssue issue) {
-    return getDbClient().componentDao().selectOrFailByUuid(session, issue.componentUuid());
+    return getDbClient().componentDao().selectOrFailByUuid(session, requireNonNull(issue.componentUuid(), "Component uuid cannot be null"));
   }
 
   ComponentDto project(DbSession session, DefaultIssue issue) {

@@ -184,7 +184,7 @@ public class SearchAction implements QProfileWsAction {
       return emptyList();
     }
 
-    String login = userSession.getLogin();
+    String login = Objects.requireNonNull(userSession.getLogin(), "User must be logged in");
     UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
     checkState(user != null, "User with login '%s' is not found'", login);
 
@@ -327,8 +327,8 @@ public class SearchAction implements QProfileWsAction {
       return defaults;
     }
 
-    public SearchRequest setDefaults(boolean defaults) {
-      this.defaults = defaults;
+    public SearchRequest setDefaults(@Nullable Boolean defaults) {
+      this.defaults = defaults != null && defaults;
       return this;
     }
 

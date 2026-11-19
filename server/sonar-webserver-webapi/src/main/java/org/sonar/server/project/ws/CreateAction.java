@@ -144,10 +144,11 @@ public class CreateAction implements ProjectsWsAction {
       ProjectDto projectDto = Optional.ofNullable(componentData.projectDto()).orElseThrow();
       BranchDto mainBranchDto = Optional.ofNullable(componentData.mainBranchDto()).orElseThrow();
 
-      if (request.getNewCodeDefinitionType() != null) {
+      String newCodeDefinitionType = request.getNewCodeDefinitionType();
+      if (newCodeDefinitionType != null) {
         String defaultBranchName = Optional.ofNullable(request.getMainBranchKey()).orElse(defaultBranchNameResolver.getEffectiveMainBranchName());
         newCodeDefinitionResolver.createNewCodeDefinition(dbSession, projectDto.getUuid(),
-          mainBranchDto.getUuid(), defaultBranchName, request.getNewCodeDefinitionType(),
+          mainBranchDto.getUuid(), defaultBranchName, newCodeDefinitionType,
           request.getNewCodeDefinitionValue());
       }
       componentUpdater.commitAndIndex(dbSession, componentData);

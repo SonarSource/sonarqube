@@ -31,6 +31,7 @@ import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonarqube.ws.Qualitygates.UpdateConditionResponse;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_UPDATE_CONDITION;
@@ -88,9 +89,10 @@ public class UpdateConditionAction implements QualityGatesWsAction {
       checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", id, condition.getQualityGateUuid());
       wsSupport.checkCanLimitedEdit(dbSession, qualityGateDto);
       QualityGateConditionDto updatedCondition = qualityGateConditionsUpdater.updateCondition(dbSession, condition, metric, operator, error);
+      String metricKey = requireNonNull(updatedCondition.getMetricKey(), "Metric key should not be null");
       UpdateConditionResponse.Builder updateConditionResponse = UpdateConditionResponse.newBuilder()
         .setId(updatedCondition.getUuid())
-        .setMetric(updatedCondition.getMetricKey())
+        .setMetric(metricKey)
         .setError(updatedCondition.getErrorThreshold())
         .setOp(updatedCondition.getOperator());
       writeProtobuf(updateConditionResponse.build(), request, response);

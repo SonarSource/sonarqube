@@ -103,9 +103,11 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
       .map(projectDtoToWs)
       .forEach(response::addProjects);
 
+    int page = requireNonNull(request.getPage(), "Page cannot be null");
+    int pageSize = requireNonNull(request.getPageSize(), "Page size cannot be null");
     response.getPagingBuilder()
-      .setPageIndex(request.getPage())
-      .setPageSize(request.getPageSize())
+      .setPageIndex(page)
+      .setPageSize(pageSize)
       .setTotal(data.totalNbOfProjects())
       .build();
 
@@ -161,8 +163,9 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
       Link.Builder link = Link.newBuilder();
       link.setHref(dto.getHref());
 
-      if (!isNullOrEmpty(dto.getName())) {
-        link.setName(dto.getName());
+      String name = dto.getName();
+      if (!isNullOrEmpty(name)) {
+        link.setName(name);
       }
       if (!isNullOrEmpty(dto.getType())) {
         link.setType(dto.getType());

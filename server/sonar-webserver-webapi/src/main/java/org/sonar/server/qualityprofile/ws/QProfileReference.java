@@ -121,7 +121,7 @@ public class QProfileReference {
 
   public static QProfileReference fromName(Request request) {
     String lang = request.mandatoryParam(PARAM_LANGUAGE);
-    String name = QualityProfileDisplayNames.toInternalName(request.mandatoryParam(PARAM_QUALITY_PROFILE));
+    String name = requireNonNull(QualityProfileDisplayNames.toInternalName(request.mandatoryParam(PARAM_QUALITY_PROFILE)));
     return fromName(lang, name);
   }
 
