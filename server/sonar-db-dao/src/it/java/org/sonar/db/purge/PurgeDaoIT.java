@@ -2816,6 +2816,7 @@ oldCreationDate));
     assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isEqualTo(2);
     assertThat(db.countRowsOfTable(dbSession, "sca_ttr_history")).isEqualTo(2);
     assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isEqualTo(2);
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_latest")).isEqualTo(2);
 
     underTest.deleteBranch(dbSession, branch1.getUuid());
 
@@ -2823,6 +2824,7 @@ oldCreationDate));
     assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isEqualTo(1);
     assertThat(db.countRowsOfTable(dbSession, "sca_ttr_history")).isEqualTo(1);
     assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_latest")).isEqualTo(1);
   }
 
   @Test
@@ -2839,6 +2841,7 @@ oldCreationDate));
     assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isEqualTo(1);
     assertThat(db.countRowsOfTable(dbSession, "sca_ttr_history")).isEqualTo(1);
     assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_latest")).isEqualTo(1);
   }
 
   @Test
@@ -2856,6 +2859,7 @@ oldCreationDate));
     assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isEqualTo(1);
     assertThat(db.countRowsOfTable(dbSession, "sca_ttr_history")).isEqualTo(1);
     assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_latest")).isEqualTo(1);
   }
 
   @Test
@@ -2873,6 +2877,7 @@ oldCreationDate));
     assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "sca_ttr_history")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_latest")).isZero();
   }
 
   private void insertDashboardHistory(String entityType, String entityId) {
@@ -2900,6 +2905,12 @@ oldCreationDate));
       "total_minutes_to_resolution", 1,
       "sca_issues_resolved", 1);
     db.executeInsert("issue_count_history",
+      "entity_id", entityId,
+      "entity_type", entityType,
+      "dimension_id", 1,
+      "recorded_at_epoch", recordedAt,
+      "issue_count", 1);
+    db.executeInsert("issue_count_latest",
       "entity_id", entityId,
       "entity_type", entityType,
       "dimension_id", 1,

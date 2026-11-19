@@ -58,7 +58,9 @@ public class DbVersion202606 implements DbVersion {
       .add(2026_06_027, "Add hash index for case-insensitive component keys on MSSQL", CreateIndexOnComponentsKeeLowerHash.class)
       .add(2026_06_028, "Create table 'mcp_cimd_clients'", CreateMcpCimdClientsTable.class)
       .add(2026_06_029, "Create index on 'oauth2_authorization.registered_client_id'", CreateIndexOnOAuth2AuthorizationRegisteredClientId.class)
-      .add(2026_06_030, "Create table 'issue_introduction_history'", CreateIssueIntroductionHistoryTable.class);
+      .add(2026_06_030, "Create table 'issue_introduction_history'", CreateIssueIntroductionHistoryTable.class)
+      .add(2026_06_031, "Create table 'issue_count_latest'", CreateIssueCountLatestTable.class)
+      .add(2026_06_032, "Populate 'issue_count_latest' from 'issue_count_history'", PopulateIssueCountLatest.class);
   }
 }
 

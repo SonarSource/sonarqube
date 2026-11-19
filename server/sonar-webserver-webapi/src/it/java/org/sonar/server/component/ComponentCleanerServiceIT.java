@@ -41,12 +41,10 @@ import org.sonar.db.webhook.WebhookDto;
 import org.sonar.server.es.Indexers;
 import org.sonar.server.es.Indexers.BranchEvent;
 import org.sonarsource.history.model.EntityType;
-import org.sonarsource.history.model.IssueCountHistoryRow;
 import org.sonarsource.history.model.IssueTtrHistory;
 import org.sonarsource.history.model.MeasureHistoryRow;
 import org.sonarsource.history.server.db.HistoryMyBatisConfExtension;
 import org.sonarsource.history.server.db.mapper.IssueTtrHistoryMapperFragments;
-import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
 import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 
@@ -71,7 +69,6 @@ public class ComponentCleanerServiceIT {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
   private final Indexers indexers = mock(Indexers.class);
-  private final IssueCountHistoryRepository issueCountHistoryRepository = new IssueCountHistoryRepository();
   private final MeasureHistoryRepository measureHistoryRepository = new MeasureHistoryRepository();
   private final IssueTtrHistoryRepository issueTtrHistoryRepository = new IssueTtrHistoryRepository();
   private final ComponentCleanerService underTest = new ComponentCleanerService(dbClient, indexers);
@@ -95,6 +92,8 @@ public class ComponentCleanerServiceIT {
     BranchDto branch = db.components().insertProjectBranch(data.project);
     insertHistory(data.mainBranch);
     insertHistory(branch);
+
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_latest")).isEqualTo(2);
     insertScaHistory(data.mainBranch.getUuid());
     insertScaHistory(branch.getUuid());
 
@@ -102,6 +101,8 @@ public class ComponentCleanerServiceIT {
     dbSession.commit();
 
     assertThat(db.countRowsOfTable(dbSession, "issue_count_history")).isZero();
+
+    assertThat(db.countRowsOfTable(dbSession, "issue_count_latest")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "measure_history")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "issue_ttr_history")).isZero();
     assertThat(db.countRowsOfTable(dbSession, "sca_ttr_history")).isZero();
@@ -305,7 +306,18 @@ public class ComponentCleanerServiceIT {
 
   private void insertHistory(BranchDto branch) {
     Instant recordedAt = Instant.now();
-    issueCountHistoryRepository.upsert(dbSession, new IssueCountHistoryRow(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1));
+    db.executeInsert("issue_count_history",
+      "entity_id", branch.getUuid(),
+      "entity_type", "PROJECT_BRANCH",
+      "dimension_id", 1,
+      "recorded_at_epoch", recordedAt.toEpochMilli(),
+      "issue_count", 1);
+    db.executeInsert("issue_count_latest",
+      "entity_id", branch.getUuid(),
+      "entity_type", "PROJECT_BRANCH",
+      "dimension_id", 1,
+      "recorded_at_epoch", recordedAt.toEpochMilli(),
+      "issue_count", 1);
     measureHistoryRepository.upsert(dbSession, new MeasureHistoryRow(1, branch.getUuid(), EntityType.PROJECT_BRANCH, recordedAt, "1"));
     issueTtrHistoryRepository.upsert(dbSession, new IssueTtrHistory(branch.getUuid(), EntityType.PROJECT_BRANCH, 1, recordedAt, 1L, 1));
   }
