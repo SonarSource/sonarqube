@@ -55,8 +55,8 @@ public class UserAnonymizerIT {
     Iterator<String> randomGeneratorIt = logins.iterator();
     UserAnonymizer localUserAnonymizer = new UserAnonymizer(db.getDbClient(), randomGeneratorIt::next);
 
-    UserDto user1 = db.users().insertUser(u -> u.setLogin("login1"));
-    UserDto user2 = db.users().insertUser(u -> u.setLogin("login2"));
+    db.users().insertUser(u -> u.setLogin("login1"));
+    db.users().insertUser(u -> u.setLogin("login2"));
     UserDto userToAnonymize = db.users().insertUser(u -> u.setLogin("toAnonymize").setActive(false));
 
     localUserAnonymizer.anonymize(db.getSession(), userToAnonymize);

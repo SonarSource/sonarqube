@@ -130,7 +130,7 @@ public class UsersActionIT {
   public void references_group_by_its_name() {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace"));
-    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, lovelace);
     loginAsAdmin();
 
@@ -193,7 +193,7 @@ public class UsersActionIT {
   public void selected_users() {
     GroupDto group = db.users().insertGroup("a group");
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
-    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, lovelace);
     loginAsAdmin();
 
@@ -223,7 +223,7 @@ public class UsersActionIT {
   public void deselected_users() {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
-    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, lovelace);
     loginAsAdmin();
 
@@ -245,7 +245,7 @@ public class UsersActionIT {
   public void paging() {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada").setName("Ada Lovelace"));
-    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
+    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper"));
     db.users().insertMember(group, lovelace);
     loginAsAdmin();
 
@@ -293,7 +293,7 @@ public class UsersActionIT {
   public void filtering_by_name_email_and_login() {
     GroupDto group = db.users().insertGroup();
     UserDto lovelace = db.users().insertUser(newUserDto().setLogin("ada.login").setName("Ada Lovelace").setEmail("ada@email.com"));
-    UserDto hopper = db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper").setEmail("grace@hopper.com"));
+    db.users().insertUser(newUserDto().setLogin("grace").setName("Grace Hopper").setEmail("grace@hopper.com"));
     db.users().insertMember(group, lovelace);
     loginAsAdmin();
 

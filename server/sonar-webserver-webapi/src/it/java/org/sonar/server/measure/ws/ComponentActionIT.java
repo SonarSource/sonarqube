@@ -30,7 +30,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.PortfolioData;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.permission.GlobalPermission;
@@ -186,7 +185,7 @@ public class ComponentActionIT {
     userSession.addProjectPermission(USER, projectData.getProjectDto())
       .registerBranches(projectData.getMainBranchDto());
     ComponentDto file = db.components().insertComponent(newFileDto(mainBranch));
-    MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
+    db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
 
     ComponentWsResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, file.getKey())
@@ -205,7 +204,7 @@ public class ComponentActionIT {
     userSession.addProjectPermission(USER, projectData.getProjectDto());
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     userSession.addProjectBranchMapping(projectData.projectUuid(), branch);
-    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
     MetricDto complexity = db.measures().insertMetric(m1 -> m1.setKey("complexity").setValueType("INT"));
     MeasureDto measure = db.measures().insertMeasure(file, m -> m.addValue(complexity.getKey(), 12.0d));

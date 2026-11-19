@@ -97,7 +97,7 @@ public class SearchActionIT {
   public void search_for_all_active_users() {
     UserDto user1 = db.users().insertUser();
     UserDto user2 = db.users().insertUser();
-    UserDto user3 = db.users().insertUser(u -> u.setActive(false));
+    db.users().insertUser(u -> u.setActive(false));
 
     userSession.logIn();
 
@@ -114,7 +114,7 @@ public class SearchActionIT {
   @Test
   public void search_deactivated_users() {
     UserDto user1 = db.users().insertUser(u -> u.setActive(false));
-    UserDto user2 = db.users().insertUser(u -> u.setActive(true));
+    db.users().insertUser(u -> u.setActive(true));
     userSession.logIn();
 
     SearchWsResponse response = ws.newRequest()
@@ -321,7 +321,7 @@ public class SearchActionIT {
     UserDto user = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup("group1");
     GroupDto group2 = db.users().insertGroup("group2");
-    GroupDto group3 = db.users().insertGroup("group3");
+    db.users().insertGroup("group3");
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
 

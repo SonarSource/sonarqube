@@ -78,7 +78,7 @@ public class SearchGroupsActionIT {
   public void test_example() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     GroupDto group1 = db.users().insertGroup(newGroupDto().setName("users").setDescription("Users"));
-    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("administrators").setDescription("Administrators"));
+    db.users().insertGroup(newGroupDto().setName("administrators").setDescription("Administrators"));
     db.qualityProfiles().addGroupPermission(profile, group1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -117,7 +117,7 @@ public class SearchGroupsActionIT {
   public void search_selected_groups() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     GroupDto group1 = db.users().insertGroup();
-    GroupDto group2 = db.users().insertGroup();
+    db.users().insertGroup();
     db.qualityProfiles().addGroupPermission(profile, group1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 

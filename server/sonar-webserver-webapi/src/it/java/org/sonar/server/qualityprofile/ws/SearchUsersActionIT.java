@@ -83,7 +83,7 @@ public class SearchUsersActionIT {
     ws = new WsActionTester(new SearchUsersAction(db.getDbClient(), wsSupport, LANGUAGES, avatarResolver));
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser(u -> u.setLogin("admin").setName("Administrator").setEmail("admin@email.com"));
-    UserDto user2 = db.users().insertUser(u -> u.setLogin("george.orwell").setName("George Orwell").setEmail("george@orwell.com"));
+    db.users().insertUser(u -> u.setLogin("george.orwell").setName("George Orwell").setEmail("george@orwell.com"));
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -123,7 +123,7 @@ public class SearchUsersActionIT {
   public void search_selected_users() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser();
-    UserDto user2 = db.users().insertUser();
+    db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -161,7 +161,7 @@ public class SearchUsersActionIT {
   public void search_by_login() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser();
-    UserDto user2 = db.users().insertUser();
+    db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
 
@@ -180,7 +180,7 @@ public class SearchUsersActionIT {
   public void search_by_name() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
     UserDto user1 = db.users().insertUser(u -> u.setName("John Doe"));
-    UserDto user2 = db.users().insertUser(u -> u.setName("Jane Doe"));
+    db.users().insertUser(u -> u.setName("Jane Doe"));
     UserDto user3 = db.users().insertUser(u -> u.setName("John Smith"));
     db.qualityProfiles().addUserPermission(profile, user1);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES);
@@ -304,7 +304,7 @@ public class SearchUsersActionIT {
 
   @Test
   public void fail_when_qprofile_does_not_exist() {
-    UserDto user = db.users().insertUser();
+    db.users().insertUser();
     userSession.logIn().addPermission(GlobalPermission.ADMINISTER_QUALITY_PROFILES);
 
     assertThatThrownBy(() -> {
@@ -337,7 +337,7 @@ public class SearchUsersActionIT {
   @Test
   public void fail_when_not_enough_permission() {
     QProfileDto profile = db.qualityProfiles().insert(p -> p.setLanguage(XOO));
-    UserDto user = db.users().insertUser();
+    db.users().insertUser();
     userSession.logIn(db.users().insertUser()).addPermission(GlobalPermission.ADMINISTER_QUALITY_GATES);
 
     assertThatThrownBy(() -> ws.newRequest()

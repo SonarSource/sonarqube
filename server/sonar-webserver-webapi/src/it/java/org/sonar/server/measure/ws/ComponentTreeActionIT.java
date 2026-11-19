@@ -36,7 +36,6 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ProjectData;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
@@ -694,7 +693,7 @@ class ComponentTreeActionIT {
     addProjectPermission(projectData);
     ComponentDto branch = db.components().insertProjectBranch(mainBranch, b -> b.setKey("pr-123").setBranchType(PULL_REQUEST));
     userSession.addProjectBranchMapping(projectData.projectUuid(), branch);
-    SnapshotDto analysis = db.components().insertSnapshot(branch);
+    db.components().insertSnapshot(branch);
     ComponentDto file = db.components().insertComponent(newFileDto(branch, mainBranch.uuid()));
     MetricDto complexity = db.measures().insertMetric(m -> m.setValueType(INT.name()));
     MeasureDto measure = db.measures().insertMeasure(file, m -> m.addValue(complexity.getKey(), 12.0d));
@@ -742,7 +741,7 @@ class ComponentTreeActionIT {
     addProjectPermission(projectData);
     ComponentDto view = db.components().insertPrivatePortfolio();
     userSession.addPortfolioPermission(USER, view);
-    SnapshotDto viewAnalysis = db.components().insertSnapshot(view);
+    db.components().insertSnapshot(view);
     ComponentDto projectCopy = db.components().insertComponent(newProjectCopy(mainBranch, view));
     MetricDto ncloc = insertNclocMetric();
     db.measures().insertMeasure(projectCopy, m -> m.addValue(ncloc.getKey(), 5d));
@@ -864,7 +863,7 @@ class ComponentTreeActionIT {
     ComponentDto techProjectBranch = db.components().insertComponent(newProjectCopy(projectBranch, applicationBranch)
       .setKey(applicationBranch.getKey() + branchName + projectBranch.getKey()));
 
-    SnapshotDto applicationBranchAnalysis = db.components().insertSnapshot(applicationBranch);
+    db.components().insertSnapshot(applicationBranch);
     db.measures().insertMeasure(applicationBranch, m -> m.addValue(ncloc.getKey(), 5d));
     db.measures().insertMeasure(techProjectBranch, m -> m.addValue(ncloc.getKey(), 1d));
 

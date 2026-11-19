@@ -116,7 +116,7 @@ public class SetDefaultActionIT {
     logInAsQProfileAdministrator();
 
     try {
-      TestResponse response = ws.newRequest().setMethod("POST")
+      ws.newRequest().setMethod("POST")
         .setParam("language", XOO_2_KEY)
         .setParam("qualityProfile", "Unknown")
         .execute();
