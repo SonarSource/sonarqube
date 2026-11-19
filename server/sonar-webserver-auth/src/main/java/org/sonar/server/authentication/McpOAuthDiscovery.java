@@ -28,8 +28,8 @@ public interface McpOAuthDiscovery {
   String AUTHORIZATION_METADATA_PATH = "/.well-known/oauth-authorization-server";
   String AUTHORIZATION_PATH = "/oauth2/authorize";
   String TOKEN_PATH = "/oauth2/token";
-  String CONSENT_PATH = "/oauth2/consent";
-  Set<String> AUTHORIZATION_SERVER_PATHS = Set.of(AUTHORIZATION_PATH, TOKEN_PATH, CONSENT_PATH);
+  String CONSENT_PATH = "/oauth/consent";
+  Set<String> AUTHORIZATION_SERVER_PATHS = Set.of(AUTHORIZATION_PATH, TOKEN_PATH);
 
   boolean isEnabled();
 
