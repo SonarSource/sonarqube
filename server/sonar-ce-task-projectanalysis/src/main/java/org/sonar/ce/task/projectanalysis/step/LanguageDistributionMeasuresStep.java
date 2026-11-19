@@ -19,14 +19,11 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.ce.task.projectanalysis.component.Component;
@@ -84,27 +81,12 @@ public class LanguageDistributionMeasuresStep implements ComputationStep {
       if (counter.multiset.isEmpty()) {
         return Optional.empty();
       }
-      return Optional.of(newMeasureBuilder().create(format(asMap(counter.multiset.elementSet(), new LanguageToTotalCount(counter.multiset)))));
+      return Optional.of(newMeasureBuilder().create(format(asMap(counter.multiset.elementSet(), counter.multiset::count))));
     }
 
     @Override
     public String[] getOutputMetricKeys() {
       return LANGUAGE_DISTRIBUTION_FORMULA_METRICS;
-    }
-  }
-
-  private static class LanguageToTotalCount implements Function<String, Integer> {
-
-    private final Multiset<String> multiset;
-
-    public LanguageToTotalCount(Multiset<String> multiset) {
-      this.multiset = multiset;
-    }
-
-    @Nullable
-    @Override
-    public Integer apply(@Nonnull String language) {
-      return multiset.count(language);
     }
   }
 
