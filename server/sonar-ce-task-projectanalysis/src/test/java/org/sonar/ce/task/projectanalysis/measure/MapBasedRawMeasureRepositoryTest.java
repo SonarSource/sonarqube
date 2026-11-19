@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.measure;
 
-import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -139,7 +138,7 @@ public class MapBasedRawMeasureRepositoryTest {
       .isInstanceOf(UnsupportedOperationException.class);
   }
 
-  private static final List<Measure> MEASURES = ImmutableList.of(
+  private static final List<Measure> MEASURES = List.of(
     Measure.newMeasureBuilder().create(1),
     Measure.newMeasureBuilder().create(1L),
     Measure.newMeasureBuilder().create(1d, 1),

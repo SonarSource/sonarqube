@@ -25,7 +25,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Test;
 
-import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.ce.task.projectanalysis.component.Component.Type.SUBVIEW;
@@ -68,29 +67,29 @@ public class ViewsVisitorsCrawlerWithPathAwareVisitorTest {
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
-    Iterator<PathAwareCallRecord> expected = of(
-      viewsCallRecord("visitAny", 1, null, of(1)),
-      viewsCallRecord("visitView", 1, null, of(1)),
-      viewsCallRecord("visitAny", 11, 1, of(11, 1)),
-      viewsCallRecord("visitSubView", 11, 1, of(11, 1)),
-      viewsCallRecord("visitAny", 111, 11, of(111, 11, 1)),
-      viewsCallRecord("visitSubView", 111, 11, of(111, 11, 1)),
-      viewsCallRecord("visitAny", 1111, 111, of(1111, 111, 11, 1)),
-      viewsCallRecord("visitProjectView", 1111, 111, of(1111, 111, 11, 1)),
-      viewsCallRecord("visitAny", 1112, 111, of(1112, 111, 11, 1)),
-      viewsCallRecord("visitProjectView", 1112, 111, of(1112, 111, 11, 1)),
-      viewsCallRecord("visitAny", 112, 11, of(112, 11, 1)),
-      viewsCallRecord("visitSubView", 112, 11, of(112, 11, 1)),
-      viewsCallRecord("visitAny", 1121, 112, of(1121, 112, 11, 1)),
-      viewsCallRecord("visitProjectView", 1121, 112, of(1121, 112, 11, 1)),
-      viewsCallRecord("visitAny", 12, 1, of(12, 1)),
-      viewsCallRecord("visitSubView", 12, 1, of(12, 1)),
-      viewsCallRecord("visitAny", 121, 12, of(121, 12, 1)),
-      viewsCallRecord("visitSubView", 121, 12, of(121, 12, 1)),
-      viewsCallRecord("visitAny", 1211, 121, of(1211, 121, 12, 1)),
-      viewsCallRecord("visitSubView", 1211, 121, of(1211, 121, 12, 1)),
-      viewsCallRecord("visitAny", 12111, 1211, of(12111, 1211, 121, 12, 1)),
-      viewsCallRecord("visitProjectView", 12111, 1211, of(12111, 1211, 121, 12, 1))).iterator();
+    Iterator<PathAwareCallRecord> expected = List.of(
+      viewsCallRecord("visitAny", 1, null, List.of(1)),
+      viewsCallRecord("visitView", 1, null, List.of(1)),
+      viewsCallRecord("visitAny", 11, 1, List.of(11, 1)),
+      viewsCallRecord("visitSubView", 11, 1, List.of(11, 1)),
+      viewsCallRecord("visitAny", 111, 11, List.of(111, 11, 1)),
+      viewsCallRecord("visitSubView", 111, 11, List.of(111, 11, 1)),
+      viewsCallRecord("visitAny", 1111, 111, List.of(1111, 111, 11, 1)),
+      viewsCallRecord("visitProjectView", 1111, 111, List.of(1111, 111, 11, 1)),
+      viewsCallRecord("visitAny", 1112, 111, List.of(1112, 111, 11, 1)),
+      viewsCallRecord("visitProjectView", 1112, 111, List.of(1112, 111, 11, 1)),
+      viewsCallRecord("visitAny", 112, 11, List.of(112, 11, 1)),
+      viewsCallRecord("visitSubView", 112, 11, List.of(112, 11, 1)),
+      viewsCallRecord("visitAny", 1121, 112, List.of(1121, 112, 11, 1)),
+      viewsCallRecord("visitProjectView", 1121, 112, List.of(1121, 112, 11, 1)),
+      viewsCallRecord("visitAny", 12, 1, List.of(12, 1)),
+      viewsCallRecord("visitSubView", 12, 1, List.of(12, 1)),
+      viewsCallRecord("visitAny", 121, 12, List.of(121, 12, 1)),
+      viewsCallRecord("visitSubView", 121, 12, List.of(121, 12, 1)),
+      viewsCallRecord("visitAny", 1211, 121, List.of(1211, 121, 12, 1)),
+      viewsCallRecord("visitSubView", 1211, 121, List.of(1211, 121, 12, 1)),
+      viewsCallRecord("visitAny", 12111, 1211, List.of(12111, 1211, 121, 12, 1)),
+      viewsCallRecord("visitProjectView", 12111, 1211, List.of(12111, 1211, 121, 12, 1))).iterator();
     verifyCallRecords(expected, visitor.callsRecords.iterator());
   }
 
@@ -100,21 +99,21 @@ public class ViewsVisitorsCrawlerWithPathAwareVisitorTest {
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
-    Iterator<PathAwareCallRecord> expected = of(
-      viewsCallRecord("visitAny", 1, null, of(1)),
-      viewsCallRecord("visitView", 1, null, of(1)),
-      viewsCallRecord("visitAny", 11, 1, of(11, 1)),
-      viewsCallRecord("visitSubView", 11, 1, of(11, 1)),
-      viewsCallRecord("visitAny", 111, 11, of(111, 11, 1)),
-      viewsCallRecord("visitSubView", 111, 11, of(111, 11, 1)),
-      viewsCallRecord("visitAny", 112, 11, of(112, 11, 1)),
-      viewsCallRecord("visitSubView", 112, 11, of(112, 11, 1)),
-      viewsCallRecord("visitAny", 12, 1, of(12, 1)),
-      viewsCallRecord("visitSubView", 12, 1, of(12, 1)),
-      viewsCallRecord("visitAny", 121, 12, of(121, 12, 1)),
-      viewsCallRecord("visitSubView", 121, 12, of(121, 12, 1)),
-      viewsCallRecord("visitAny", 1211, 121, of(1211, 121, 12, 1)),
-      viewsCallRecord("visitSubView", 1211, 121, of(1211, 121, 12, 1))).iterator();
+    Iterator<PathAwareCallRecord> expected = List.of(
+      viewsCallRecord("visitAny", 1, null, List.of(1)),
+      viewsCallRecord("visitView", 1, null, List.of(1)),
+      viewsCallRecord("visitAny", 11, 1, List.of(11, 1)),
+      viewsCallRecord("visitSubView", 11, 1, List.of(11, 1)),
+      viewsCallRecord("visitAny", 111, 11, List.of(111, 11, 1)),
+      viewsCallRecord("visitSubView", 111, 11, List.of(111, 11, 1)),
+      viewsCallRecord("visitAny", 112, 11, List.of(112, 11, 1)),
+      viewsCallRecord("visitSubView", 112, 11, List.of(112, 11, 1)),
+      viewsCallRecord("visitAny", 12, 1, List.of(12, 1)),
+      viewsCallRecord("visitSubView", 12, 1, List.of(12, 1)),
+      viewsCallRecord("visitAny", 121, 12, List.of(121, 12, 1)),
+      viewsCallRecord("visitSubView", 121, 12, List.of(121, 12, 1)),
+      viewsCallRecord("visitAny", 1211, 121, List.of(1211, 121, 12, 1)),
+      viewsCallRecord("visitSubView", 1211, 121, List.of(1211, 121, 12, 1))).iterator();
     verifyCallRecords(expected, visitor.callsRecords.iterator());
   }
 
@@ -124,9 +123,9 @@ public class ViewsVisitorsCrawlerWithPathAwareVisitorTest {
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
-    Iterator<PathAwareCallRecord> expected = of(
-      viewsCallRecord("visitAny", 1, null, of(1)),
-      viewsCallRecord("visitView", 1, null, of(1))).iterator();
+    Iterator<PathAwareCallRecord> expected = List.of(
+      viewsCallRecord("visitAny", 1, null, List.of(1)),
+      viewsCallRecord("visitView", 1, null, List.of(1))).iterator();
     verifyCallRecords(expected, visitor.callsRecords.iterator());
   }
 
@@ -136,29 +135,29 @@ public class ViewsVisitorsCrawlerWithPathAwareVisitorTest {
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
-    Iterator<PathAwareCallRecord> expected = of(
-      viewsCallRecord("visitAny", 1111, 111, of(1111, 111, 11, 1)),
-      viewsCallRecord("visitProjectView", 1111, 111, of(1111, 111, 11, 1)),
-      viewsCallRecord("visitAny", 1112, 111, of(1112, 111, 11, 1)),
-      viewsCallRecord("visitProjectView", 1112, 111, of(1112, 111, 11, 1)),
-      viewsCallRecord("visitAny", 111, 11, of(111, 11, 1)),
-      viewsCallRecord("visitSubView", 111, 11, of(111, 11, 1)),
-      viewsCallRecord("visitAny", 1121, 112, of(1121, 112, 11, 1)),
-      viewsCallRecord("visitProjectView", 1121, 112, of(1121, 112, 11, 1)),
-      viewsCallRecord("visitAny", 112, 11, of(112, 11, 1)),
-      viewsCallRecord("visitSubView", 112, 11, of(112, 11, 1)),
-      viewsCallRecord("visitAny", 11, 1, of(11, 1)),
-      viewsCallRecord("visitSubView", 11, 1, of(11, 1)),
-      viewsCallRecord("visitAny", 12111, 1211, of(12111, 1211, 121, 12, 1)),
-      viewsCallRecord("visitProjectView", 12111, 1211, of(12111, 1211, 121, 12, 1)),
-      viewsCallRecord("visitAny", 1211, 121, of(1211, 121, 12, 1)),
-      viewsCallRecord("visitSubView", 1211, 121, of(1211, 121, 12, 1)),
-      viewsCallRecord("visitAny", 121, 12, of(121, 12, 1)),
-      viewsCallRecord("visitSubView", 121, 12, of(121, 12, 1)),
-      viewsCallRecord("visitAny", 12, 1, of(12, 1)),
-      viewsCallRecord("visitSubView", 12, 1, of(12, 1)),
-      viewsCallRecord("visitAny", 1, null, of(1)),
-      viewsCallRecord("visitView", 1, null, of(1))).iterator();
+    Iterator<PathAwareCallRecord> expected = List.of(
+      viewsCallRecord("visitAny", 1111, 111, List.of(1111, 111, 11, 1)),
+      viewsCallRecord("visitProjectView", 1111, 111, List.of(1111, 111, 11, 1)),
+      viewsCallRecord("visitAny", 1112, 111, List.of(1112, 111, 11, 1)),
+      viewsCallRecord("visitProjectView", 1112, 111, List.of(1112, 111, 11, 1)),
+      viewsCallRecord("visitAny", 111, 11, List.of(111, 11, 1)),
+      viewsCallRecord("visitSubView", 111, 11, List.of(111, 11, 1)),
+      viewsCallRecord("visitAny", 1121, 112, List.of(1121, 112, 11, 1)),
+      viewsCallRecord("visitProjectView", 1121, 112, List.of(1121, 112, 11, 1)),
+      viewsCallRecord("visitAny", 112, 11, List.of(112, 11, 1)),
+      viewsCallRecord("visitSubView", 112, 11, List.of(112, 11, 1)),
+      viewsCallRecord("visitAny", 11, 1, List.of(11, 1)),
+      viewsCallRecord("visitSubView", 11, 1, List.of(11, 1)),
+      viewsCallRecord("visitAny", 12111, 1211, List.of(12111, 1211, 121, 12, 1)),
+      viewsCallRecord("visitProjectView", 12111, 1211, List.of(12111, 1211, 121, 12, 1)),
+      viewsCallRecord("visitAny", 1211, 121, List.of(1211, 121, 12, 1)),
+      viewsCallRecord("visitSubView", 1211, 121, List.of(1211, 121, 12, 1)),
+      viewsCallRecord("visitAny", 121, 12, List.of(121, 12, 1)),
+      viewsCallRecord("visitSubView", 121, 12, List.of(121, 12, 1)),
+      viewsCallRecord("visitAny", 12, 1, List.of(12, 1)),
+      viewsCallRecord("visitSubView", 12, 1, List.of(12, 1)),
+      viewsCallRecord("visitAny", 1, null, List.of(1)),
+      viewsCallRecord("visitView", 1, null, List.of(1))).iterator();
     verifyCallRecords(expected, visitor.callsRecords.iterator());
   }
 
@@ -168,21 +167,21 @@ public class ViewsVisitorsCrawlerWithPathAwareVisitorTest {
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
-    Iterator<PathAwareCallRecord> expected = of(
-      viewsCallRecord("visitAny", 111, 11, of(111, 11, 1)),
-      viewsCallRecord("visitSubView", 111, 11, of(111, 11, 1)),
-      viewsCallRecord("visitAny", 112, 11, of(112, 11, 1)),
-      viewsCallRecord("visitSubView", 112, 11, of(112, 11, 1)),
-      viewsCallRecord("visitAny", 11, 1, of(11, 1)),
-      viewsCallRecord("visitSubView", 11, 1, of(11, 1)),
-      viewsCallRecord("visitAny", 1211, 121, of(1211, 121, 12, 1)),
-      viewsCallRecord("visitSubView", 1211, 121, of(1211, 121, 12, 1)),
-      viewsCallRecord("visitAny", 121, 12, of(121, 12, 1)),
-      viewsCallRecord("visitSubView", 121, 12, of(121, 12, 1)),
-      viewsCallRecord("visitAny", 12, 1, of(12, 1)),
-      viewsCallRecord("visitSubView", 12, 1, of(12, 1)),
-      viewsCallRecord("visitAny", 1, null, of(1)),
-      viewsCallRecord("visitView", 1, null, of(1))).iterator();
+    Iterator<PathAwareCallRecord> expected = List.of(
+      viewsCallRecord("visitAny", 111, 11, List.of(111, 11, 1)),
+      viewsCallRecord("visitSubView", 111, 11, List.of(111, 11, 1)),
+      viewsCallRecord("visitAny", 112, 11, List.of(112, 11, 1)),
+      viewsCallRecord("visitSubView", 112, 11, List.of(112, 11, 1)),
+      viewsCallRecord("visitAny", 11, 1, List.of(11, 1)),
+      viewsCallRecord("visitSubView", 11, 1, List.of(11, 1)),
+      viewsCallRecord("visitAny", 1211, 121, List.of(1211, 121, 12, 1)),
+      viewsCallRecord("visitSubView", 1211, 121, List.of(1211, 121, 12, 1)),
+      viewsCallRecord("visitAny", 121, 12, List.of(121, 12, 1)),
+      viewsCallRecord("visitSubView", 121, 12, List.of(121, 12, 1)),
+      viewsCallRecord("visitAny", 12, 1, List.of(12, 1)),
+      viewsCallRecord("visitSubView", 12, 1, List.of(12, 1)),
+      viewsCallRecord("visitAny", 1, null, List.of(1)),
+      viewsCallRecord("visitView", 1, null, List.of(1))).iterator();
     verifyCallRecords(expected, visitor.callsRecords.iterator());
   }
 
@@ -192,9 +191,9 @@ public class ViewsVisitorsCrawlerWithPathAwareVisitorTest {
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
-    Iterator<PathAwareCallRecord> expected = of(
-      viewsCallRecord("visitAny", 1, null, of(1)),
-      viewsCallRecord("visitView", 1, null, of(1))).iterator();
+    Iterator<PathAwareCallRecord> expected = List.of(
+      viewsCallRecord("visitAny", 1, null, List.of(1)),
+      viewsCallRecord("visitView", 1, null, List.of(1))).iterator();
     verifyCallRecords(expected, visitor.callsRecords.iterator());
   }
 

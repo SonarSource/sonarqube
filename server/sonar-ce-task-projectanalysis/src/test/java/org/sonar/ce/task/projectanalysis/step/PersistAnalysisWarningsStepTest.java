@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.task.projectanalysis.step;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,7 +32,6 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.db.dismissmessage.MessageType;
 import org.sonar.scanner.protocol.output.ScannerReport;
 
-import static com.google.common.collect.ImmutableList.of;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -63,7 +61,7 @@ public class PersistAnalysisWarningsStepTest {
   public void execute_persists_warnings_from_reportReader() {
     ScannerReport.AnalysisWarning warning1 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 1").build();
     ScannerReport.AnalysisWarning warning2 = ScannerReport.AnalysisWarning.newBuilder().setText("warning 2").build();
-    ImmutableList<ScannerReport.AnalysisWarning> warnings = of(warning1, warning2);
+    List<ScannerReport.AnalysisWarning> warnings = List.of(warning1, warning2);
     reportReader.setAnalysisWarnings(warnings);
 
     underTest.execute(new TestComputationStepContext());

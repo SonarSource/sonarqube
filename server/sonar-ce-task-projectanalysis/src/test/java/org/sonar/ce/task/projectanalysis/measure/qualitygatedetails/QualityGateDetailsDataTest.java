@@ -19,8 +19,8 @@
  */
 package org.sonar.ce.task.projectanalysis.measure.qualitygatedetails;
 
-import com.google.common.collect.ImmutableList;
 import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.measure.Measure;
 import org.sonar.ce.task.projectanalysis.metric.Metric;
@@ -57,7 +57,7 @@ public class QualityGateDetailsDataTest {
   public void verify_json_for_each_type_of_condition() {
     String value = "actualValue";
     Condition condition = new Condition(new MetricImpl("1", "key1", "name1", Metric.MetricType.STRING), Condition.Operator.GREATER_THAN.getDbValue(), "errorTh");
-    ImmutableList<EvaluatedCondition> evaluatedConditions = ImmutableList.of(
+    List<EvaluatedCondition> evaluatedConditions = List.of(
       new EvaluatedCondition(condition, Measure.Level.OK, value),
       new EvaluatedCondition(condition, Measure.Level.ERROR, value));
     String actualJson = new QualityGateDetailsData(Measure.Level.OK, evaluatedConditions, false).toJson();
@@ -87,7 +87,7 @@ public class QualityGateDetailsDataTest {
   public void verify_json_for_condition_on_leak_metric() {
     String value = "actualValue";
     Condition condition = new Condition(new MetricImpl("1", "new_key1", "name1", Metric.MetricType.STRING), Condition.Operator.GREATER_THAN.getDbValue(), "errorTh");
-    ImmutableList<EvaluatedCondition> evaluatedConditions = ImmutableList.of(
+    List<EvaluatedCondition> evaluatedConditions = List.of(
       new EvaluatedCondition(condition, Measure.Level.OK, value),
       new EvaluatedCondition(condition, Measure.Level.ERROR, value));
     String actualJson = new QualityGateDetailsData(Measure.Level.OK, evaluatedConditions, false).toJson();

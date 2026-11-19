@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.task.projectanalysis.qualitygate;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +79,7 @@ public class QualityGateServiceImplTest {
     qualityGateDto.setName(QUALITY_GATE_DTO.getName());
 
     when(qualityGateDao.selectDefault(any())).thenReturn(qualityGateDto);
-    when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_UUID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
+    when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_UUID))).thenReturn(List.of(CONDITION_1, CONDITION_2));
     when(metricRepository.getOptionalByUuid(METRIC_UUID_1)).thenReturn(Optional.empty());
     when(metricRepository.getOptionalByUuid(METRIC_UUID_2)).thenReturn(Optional.of(METRIC_2));
 
@@ -97,7 +97,7 @@ public class QualityGateServiceImplTest {
     qualityGateDto.setName(QUALITY_GATE_DTO.getName());
 
     when(qualityGateDao.selectByProjectUuid(any(), any())).thenReturn(qualityGateDto);
-    when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_UUID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
+    when(qualityGateConditionDao.selectForQualityGate(any(), eq(SOME_UUID))).thenReturn(List.of(CONDITION_1, CONDITION_2));
     when(metricRepository.getOptionalByUuid(METRIC_UUID_1)).thenReturn(Optional.empty());
     when(metricRepository.getOptionalByUuid(METRIC_UUID_2)).thenReturn(Optional.of(METRIC_2));
 
