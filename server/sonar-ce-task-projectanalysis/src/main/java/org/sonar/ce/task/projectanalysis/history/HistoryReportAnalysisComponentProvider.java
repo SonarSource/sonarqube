@@ -25,6 +25,7 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.ce.task.projectanalysis.container.ReportAnalysisComponentProvider;
 import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueForHistoryRepository;
 import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueVisitor;
+import org.sonar.ce.task.projectanalysis.issue.introducedissues.IntroducedIssueVisitor;
 import org.sonarsource.history.server.HistoryServerComponents;
 
 /** Provides history recording components to the CE project analysis container. */
@@ -37,7 +38,9 @@ public class HistoryReportAnalysisComponentProvider implements ReportAnalysisCom
     components.add(RecordHistoryDelegateImpl.class);
     components.addAll(HistoryServerComponents.recordingComponents());
     components.addAll(HistoryServerComponents.pullRequestResolutionComponents());
+    components.addAll(HistoryServerComponents.issueIntroductionComponents());
     components.add(FixedIssueVisitor.class);
+    components.add(IntroducedIssueVisitor.class);
     components.add(FixedIssueForHistoryRepository.class);
     components.add(ProjectIssueTtrHistoryRecorder.class);
     return components;

@@ -22,15 +22,19 @@ package org.sonar.ce.task.projectanalysis.history;
 import org.junit.jupiter.api.Test;
 import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueForHistoryRepository;
 import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueVisitor;
+import org.sonar.ce.task.projectanalysis.issue.introducedissues.IntroducedIssueVisitor;
 import org.sonarsource.history.server.db.HistoryDbClient;
 import org.sonarsource.history.server.db.repository.IssueCountDimensionsRepository;
 import org.sonarsource.history.server.db.repository.IssueCountHistoryRepository;
+import org.sonarsource.history.server.db.repository.IssueIntroductionHistoryRepository;
 import org.sonarsource.history.server.db.repository.IssueTtrHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureKeyMappingRepository;
 import org.sonarsource.history.server.db.repository.PrResolutionHistoryRepository;
 import org.sonarsource.history.server.service.HistoryPurgeService;
 import org.sonarsource.history.server.service.IssueCountHistoryRecordingService;
+import org.sonarsource.history.server.service.IssueIntroductionHistoryPurgeExtension;
+import org.sonarsource.history.server.service.IssueIntroductionHistoryRecordingService;
 import org.sonarsource.history.server.service.IssueResolutionHistoryRecordingService;
 import org.sonarsource.history.server.service.IssueTtrHistoryRecordingService;
 import org.sonarsource.history.server.service.MeasuresHistoryRecordingService;
@@ -64,7 +68,11 @@ class HistoryReportAnalysisComponentProviderTest {
         PrResolutionHistoryRecordingService.class,
         IssueResolutionHistoryRecordingService.class,
         PrResolutionHistoryPurgeExtension.class,
+        IssueIntroductionHistoryRepository.class,
+        IssueIntroductionHistoryRecordingService.class,
+        IssueIntroductionHistoryPurgeExtension.class,
         FixedIssueVisitor.class,
+        IntroducedIssueVisitor.class,
         FixedIssueForHistoryRepository.class,
         ProjectIssueTtrHistoryRecorder.class);
   }

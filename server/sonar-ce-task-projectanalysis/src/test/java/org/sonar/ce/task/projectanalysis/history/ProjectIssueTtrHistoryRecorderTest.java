@@ -19,11 +19,15 @@
  */
 package org.sonar.ce.task.projectanalysis.history;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueForHistoryRepository;
+import org.sonar.ce.task.projectanalysis.issue.introducedissues.IntroducedIssueVisitor;
 import org.sonarsource.history.model.FixedIssueForHistory;
+import org.sonarsource.history.model.IntroducedIssueForHistory;
+import org.sonarsource.history.server.service.IssueIntroductionHistoryRecordingService;
 import org.sonarsource.history.server.service.IssueResolutionHistoryRecordingService;
 
 import static org.mockito.Mockito.mock;
@@ -34,8 +38,11 @@ class ProjectIssueTtrHistoryRecorderTest {
 
   private final FixedIssueForHistoryRepository fixedIssueForHistoryRepository = mock();
   private final IssueResolutionHistoryRecordingService issueResolutionHistoryRecordingService = mock();
+  private final IntroducedIssueVisitor introducedIssueVisitor = mock();
+  private final IssueIntroductionHistoryRecordingService issueIntroductionHistoryRecordingService = mock();
 
-  private final ProjectIssueTtrHistoryRecorder underTest = new ProjectIssueTtrHistoryRecorder(fixedIssueForHistoryRepository, issueResolutionHistoryRecordingService);
+  private final ProjectIssueTtrHistoryRecorder underTest = new ProjectIssueTtrHistoryRecorder(fixedIssueForHistoryRepository,
+    issueResolutionHistoryRecordingService, introducedIssueVisitor, issueIntroductionHistoryRecordingService);
 
   @Test
   void recordTtrHistory_shouldPassFixedIssuesToHistoryRecordingService() {
@@ -60,4 +67,14 @@ class ProjectIssueTtrHistoryRecorderTest {
     verify(issueResolutionHistoryRecordingService).recordFixedIssues(fixedIssues);
   }
 
+  @Test
+  void recordTtrHistory_shouldPassIntroducedIssuesToIntroductionRecordingService() {
+    List<IntroducedIssueForHistory> introducedIssues = List.of(
+      new IntroducedIssueForHistory("issueUuid", "branchUuid", 123L, "BUG", "MAJOR", Map.of("RELIABILITY", "HIGH")));
+    when(introducedIssueVisitor.getIntroducedIssues()).thenReturn(introducedIssues);
+
+    underTest.recordTtrHistory("entityUuid");
+
+    verify(issueIntroductionHistoryRecordingService).recordIntroducedIssues(introducedIssues);
+  }
 }

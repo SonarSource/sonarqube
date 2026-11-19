@@ -78,7 +78,7 @@ public class FixedIssueVisitor extends IssueVisitor {
     );
   }
 
-  private static Map<String, String> effectiveImpacts(DefaultIssue issue) {
+  public static Map<String, String> effectiveImpacts(DefaultIssue issue) {
     final Map<SoftwareQuality, Severity> impacts = new EnumMap<>(SoftwareQuality.class);
     impacts.putAll(issue.defaultRuleImpacts());
     impacts.putAll(issue.overriddenImpacts());

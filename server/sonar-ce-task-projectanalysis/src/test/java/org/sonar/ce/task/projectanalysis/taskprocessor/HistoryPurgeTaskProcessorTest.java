@@ -68,6 +68,7 @@ public class HistoryPurgeTaskProcessorTest {
 
     verify(container, times(4)).add(any());
     verify(container).add(HistoryServerComponents.pullRequestResolutionComponents().toArray());
+    verify(container).add(HistoryServerComponents.issueIntroductionComponents().toArray());
   }
 
   @Test

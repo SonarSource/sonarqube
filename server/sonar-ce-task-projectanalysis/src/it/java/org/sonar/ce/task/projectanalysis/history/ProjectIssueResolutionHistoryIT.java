@@ -31,6 +31,7 @@ import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueForHistoryRepository;
 import org.sonar.ce.task.projectanalysis.issue.fixedissues.FixedIssueVisitor;
+import org.sonar.ce.task.projectanalysis.issue.introducedissues.IntroducedIssueVisitor;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.rule.RuleType;
 import org.sonar.db.DBSessionsImpl;
@@ -46,6 +47,7 @@ import org.sonarsource.history.server.db.repository.MeasureHistoryRepository;
 import org.sonarsource.history.server.db.repository.MeasureKeyMappingRepository;
 import org.sonarsource.history.server.db.repository.PrResolutionHistoryRepository;
 import org.sonarsource.history.server.service.HistoryPurgeService;
+import org.sonarsource.history.server.service.IssueIntroductionHistoryRecordingService;
 import org.sonarsource.history.server.service.IssueResolutionHistoryRecordingService;
 import org.sonarsource.history.server.service.IssueTtrHistoryRecordingService;
 import org.sonarsource.history.server.service.PrResolutionHistoryPurgeExtension;
@@ -204,7 +206,7 @@ class ProjectIssueResolutionHistoryIT {
     var writer = new RetryableOrderedBatchWriter();
     var service = new IssueResolutionHistoryRecordingService(historyDb,
       new IssueTtrHistoryRecordingService(historyDb, writer), new PrResolutionHistoryRecordingService(historyDb, writer, prRepository));
-    return new ProjectIssueTtrHistoryRecorder(issues, service);
+    return new ProjectIssueTtrHistoryRecorder(issues, service, mock(IntroducedIssueVisitor.class), mock(IssueIntroductionHistoryRecordingService.class));
   }
 
   private static DefaultIssue closedIssue(String key, @Nullable String branchUuid) {

@@ -71,6 +71,7 @@ public class HistoryPurgeTaskProcessor implements CeTaskProcessor {
       taskContainer.add(task);
       taskContainer.add(HistoryServerComponents.recordingComponents().toArray());
       taskContainer.add(HistoryServerComponents.pullRequestResolutionComponents().toArray());
+      taskContainer.add(HistoryServerComponents.issueIntroductionComponents().toArray());
       for (HistoryPurgeTaskComponentProvider componentProvider : componentProviders) {
         taskContainer.add(componentProvider.getComponents().toArray());
       }
