@@ -36,11 +36,11 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSect
   private final CeWorkerFactory ceWorkerFactory;
   private final CeWorkerController ceWorkerController;
 
-  public CeTasksMBeanImpl(CEQueueStatus queueStatus, CeConfiguration ceConfiguration, CeWorkerFactory ceWorkerFactory, CeWorkerController CeWorkerController) {
+  public CeTasksMBeanImpl(CEQueueStatus queueStatus, CeConfiguration ceConfiguration, CeWorkerFactory ceWorkerFactory, CeWorkerController ceWorkerController) {
     this.queueStatus = queueStatus;
     this.ceConfiguration = ceConfiguration;
     this.ceWorkerFactory = ceWorkerFactory;
-    this.ceWorkerController = CeWorkerController;
+    this.ceWorkerController = ceWorkerController;
   }
 
   @Override
