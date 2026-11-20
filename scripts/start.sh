@@ -48,25 +48,48 @@ EDITION=$(resolveAliases "$EDITION")
 checkEdition "$EDITION"
 checkLogArgument "$LOG"
 
-OSS_ZIP="$(distributionDirOf "community")/$(baseFileNameOf "community")-*.zip"
-if ! ls ${OSS_ZIP} &> /dev/null; then
+# Picks the exact distribution to run instead of matching a loose "sonarqube-*" glob, so a
+# leftover build from a previous checkout/version is never mistaken for the current one.
+latestZipOf() {
+  # shellcheck disable=SC2012
+  ls -t "$1/$2"-*.zip 2>/dev/null | head -1
+}
+
+unpackedDirNameOf() {
+  unzip -Z1 "$1" | awk -F/ 'NR==1{print $1}'
+}
+
+EDITION_DIR="$(distributionDirOf "$EDITION")"
+EDITION_BASE="$(baseFileNameOf "$EDITION")"
+
+LATEST_ZIP="$(latestZipOf "$EDITION_DIR" "$EDITION_BASE")"
+if [ -z "$LATEST_ZIP" ]; then
   echo 'Sources are not built'
   "$ROOT"/build.sh
+  LATEST_ZIP="$(latestZipOf "$EDITION_DIR" "$EDITION_BASE")"
 fi
 
 # stop SQ running in any instance
 stopAny
 
-cd "$(distributionDirOf "$EDITION")"
+cd "$EDITION_DIR"
+EDITION_ZIP="$(basename "$LATEST_ZIP")"
+UNPACKED_DIR="$(unpackedDirNameOf "$EDITION_ZIP")"
 
-SH_FILE_DIR="sonarqube-*/bin/$OS_DIR/"
-if ! ls $SH_FILE_DIR &> /dev/null; then
-  BASE_FILE_NAME="$(baseFileNameOf "$EDITION")"
-  echo "Unpacking ${BASE_FILE_NAME}..."
-  ZIP_FILE="${BASE_FILE_NAME}-*.zip"
-  unzip -qq ${ZIP_FILE}
+# Remove any other build's zip/unpacked dir so stale versions never accumulate or get picked by mistake.
+for path in "$EDITION_BASE"-*.zip sonarqube-*/; do
+  [ -e "$path" ] || continue
+  case "$path" in
+    "$EDITION_ZIP"|"$UNPACKED_DIR"/) ;;
+    *) rm -rf -- "$path" ;;
+  esac
+done
+
+if [ ! -d "$UNPACKED_DIR" ]; then
+  echo "Unpacking ${EDITION_BASE}..."
+  unzip -qq "$EDITION_ZIP"
 fi
-cd $(find sonarqube-* -type d | head -1)
+cd "$UNPACKED_DIR"
 
 SQ_HOME=$(pwd)
 cd "$ROOT"
