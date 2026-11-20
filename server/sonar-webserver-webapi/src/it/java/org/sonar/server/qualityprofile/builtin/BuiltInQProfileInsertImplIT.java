@@ -82,7 +82,7 @@ class BuiltInQProfileInsertImplIT {
     sonarQubeVersion);
 
   @AfterAll
-  public static void tearDown() {
+  static void tearDown() {
     batchDbSession.close();
   }
 

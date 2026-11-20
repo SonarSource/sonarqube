@@ -52,7 +52,7 @@ class DataChangeIT {
   public final H2DbTester db = H2DbTester.createForSchema(DataChangeIT.class, "schema.sql");
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     db.executeUpdateSql("truncate table persons");
   }
 

@@ -53,7 +53,7 @@ class ScannerEngineHandlerImplTest {
   private Path scannerDir;
 
   @BeforeEach
-  public void setup() throws IOException {
+  void setup() throws IOException {
     when(serverFileSystem.getHomeDir()).thenReturn(tempDir);
     scannerDir = createDirectories(Path.of(tempDir.getAbsolutePath(), "lib/scanner"));
   }

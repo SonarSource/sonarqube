@@ -120,7 +120,7 @@ class MaintainabilityMeasuresVisitorTest {
   private VisitorsCrawler underTest;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     // assumes rating configuration is consistent
     when(ratingSettings.getDebtRatingGrid()).thenReturn(new DebtRatingGrid(RATING_GRID));
     when(ratingSettings.getDevCost()).thenReturn(DEV_COST);

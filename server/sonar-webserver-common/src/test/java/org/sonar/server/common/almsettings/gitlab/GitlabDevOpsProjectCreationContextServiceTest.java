@@ -72,7 +72,7 @@ class GitlabDevOpsProjectCreationContextServiceTest {
   private GitlabDevOpsProjectCreationContextService gitlabDevOpsProjectService;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     when(ALM_SETTING_DTO.getUrl()).thenReturn(GITLAB_COM);
     lenient().when(ALM_SETTING_DTO.getKey()).thenReturn("almKey");
   }

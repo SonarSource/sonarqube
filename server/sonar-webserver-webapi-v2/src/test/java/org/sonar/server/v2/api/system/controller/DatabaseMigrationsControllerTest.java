@@ -56,7 +56,7 @@ class DatabaseMigrationsControllerTest {
   private final MockMvc mockMvc = ControllerTester.getMockMvc(new DatabaseMigrationsController(databaseVersion, migrationState, database));
 
   @BeforeEach
-  public void before() {
+  void before() {
     when(database.getDialect()).thenReturn(dialect);
     when(databaseVersion.getVersion()).thenReturn(Optional.of(1L));
   }

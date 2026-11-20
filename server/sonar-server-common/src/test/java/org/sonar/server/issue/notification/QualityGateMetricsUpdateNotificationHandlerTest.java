@@ -49,7 +49,7 @@ class QualityGateMetricsUpdateNotificationHandlerTest {
     emailNotificationChannel);
 
   @BeforeEach
-  public void wire_mocks() {
+  void wire_mocks() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.authorizationDao()).thenReturn(authorizationDao);
     when(dbClient.propertiesDao()).thenReturn(propertiesDao);

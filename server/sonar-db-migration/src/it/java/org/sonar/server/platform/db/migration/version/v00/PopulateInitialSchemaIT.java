@@ -60,7 +60,7 @@ class PopulateInitialSchemaIT {
     migrationHistory);
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     when(sonarQubeVersion.get()).thenReturn(version);
     when(migrationHistory.getInitialDbVersion()).thenReturn(-1L);
   }

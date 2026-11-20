@@ -43,7 +43,7 @@ class MQRAndStandardModesExistNotificationHandlerTest {
   private final MQRAndStandardModesExistNotificationHandler underTest = new MQRAndStandardModesExistNotificationHandler(dbClient, emailNotificationChannel);
 
   @BeforeEach
-  public void wire_mocks() {
+  void wire_mocks() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.authorizationDao()).thenReturn(authorizationDao);
   }

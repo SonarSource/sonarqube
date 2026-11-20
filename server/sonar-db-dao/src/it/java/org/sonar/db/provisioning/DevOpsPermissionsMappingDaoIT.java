@@ -55,7 +55,7 @@ class DevOpsPermissionsMappingDaoIT {
   private final DevOpsPermissionsMappingDao underTest = db.getDbClient().githubPermissionsMappingDao();
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     List<DevOpsPermissionsMappingDto> role1Mappings = List.of(
       new DevOpsPermissionsMappingDto("otherDop1", DEV_OPS_PLATFORM + "2", "GH_role_1", "SQ_role_1"),
       new DevOpsPermissionsMappingDto("otherDop2", DEV_OPS_PLATFORM + "2", "GH_role_2", "SQ_role_2"),

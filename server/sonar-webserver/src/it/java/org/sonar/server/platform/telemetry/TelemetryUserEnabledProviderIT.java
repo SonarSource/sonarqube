@@ -42,7 +42,7 @@ class TelemetryUserEnabledProviderIT {
   private final TelemetryUserEnabledProvider underTest = new TelemetryUserEnabledProvider(db.getDbClient());
 
   @BeforeEach
-  public void beforeEach() {
+  void beforeEach() {
     db.executeUpdateSql("delete from users");
   }
 

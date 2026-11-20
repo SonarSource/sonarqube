@@ -57,7 +57,7 @@ class MasterServletFilterTest {
   private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @BeforeEach
-  public void resetSingleton() {
+  void resetSingleton() {
     MasterServletFilter.setInstance(null);
   }
 

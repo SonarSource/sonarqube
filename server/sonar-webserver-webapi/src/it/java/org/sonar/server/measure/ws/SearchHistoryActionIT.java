@@ -107,7 +107,7 @@ class SearchHistoryActionIT {
   private MetricDto acceptedIssuesMetric;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     project = db.components().insertPrivateProject();
     analysis = db.components().insertSnapshot(project.getProjectDto());
     userSession.addProjectPermission(ProjectPermission.USER, project.getProjectDto())

@@ -94,7 +94,7 @@ class MeasureActionIT {
       new SvgGenerator(), telemetryBadgeProvider));
 
   @BeforeAll
-  public static void before() {
+  static void before() {
     mapSettings.setProperty(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY, false);
   }
 

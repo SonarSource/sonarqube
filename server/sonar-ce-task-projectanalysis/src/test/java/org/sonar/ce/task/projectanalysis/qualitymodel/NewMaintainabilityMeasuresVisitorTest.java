@@ -76,7 +76,7 @@ import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALIT
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT;
 import static org.sonar.core.metric.SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT_KEY;
 
-public class NewMaintainabilityMeasuresVisitorTest {
+class NewMaintainabilityMeasuresVisitorTest {
 
   private static final double[] RATING_GRID = new double[] {0.1, 0.2, 0.5, 1};
 
@@ -108,7 +108,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
   private VisitorsCrawler underTest;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     when(ratingSettings.getDebtRatingGrid()).thenReturn(new DebtRatingGrid(RATING_GRID));
     when(ratingSettings.getDevCost()).thenReturn(DEV_COST);
     underTest = new VisitorsCrawler(Arrays.asList(new NewMaintainabilityMeasuresVisitor(metricRepository, measureRepository, newLinesRepository, ratingSettings)));

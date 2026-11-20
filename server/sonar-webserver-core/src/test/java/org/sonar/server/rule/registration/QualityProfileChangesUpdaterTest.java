@@ -63,7 +63,7 @@ class QualityProfileChangesUpdaterTest {
   private final QualityProfileChangesUpdater underTest = new QualityProfileChangesUpdater(dbClient, UuidFactoryImpl.INSTANCE, sonarQubeVersion);
 
   @BeforeEach
-  public void before() {
+  void before() {
     when(dbClient.ruleChangeDao()).thenReturn(ruleChangeDao);
     when(dbClient.qProfileChangeDao()).thenReturn(qualityProfileChangeDao);
     when(dbClient.activeRuleDao()).thenReturn(activeRuleDao);

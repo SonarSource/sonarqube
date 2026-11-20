@@ -49,7 +49,7 @@ class PrincipalToUserIdentityConverterTest {
   private PrincipalToUserIdentityConverter converter;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     lenient().when(samlSettings.getUserLogin()).thenReturn("login");
     lenient().when(samlSettings.getUserName()).thenReturn("name");
     lenient().when(samlSettings.getUserEmail()).thenReturn(Optional.of("email"));
