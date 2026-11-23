@@ -1,49 +1,49 @@
 [
     {
-        "id": "f4e17091-1dca-4306-8447-a68248805664",
-        "filename": "OpenJDK21U-jre_x64_linux_hotspot_21.0.13_9.tar.gz",
-        "sha256": "a535a1df9c6284d9618872984e026ae0352d1f7e9e0605425c0e6114f47351dd",
-        "javaPath": "jdk-21.0.13+9-jre/bin/java",
+        "id": "4ad7d57f-488b-40ad-8300-a73dac2ed9e5",
+        "filename": "OpenJDK21U-jre_x64_linux_hotspot_21.0.13.1_2.tar.gz",
+        "sha256": "18f44fab9065217f3ba61d0eef8a7b5f3c3713aa7293001b0d4ac10ede3850f0",
+        "javaPath": "jdk-21.0.13.1+2-jre/bin/java",
         "os": "linux",
         "arch": "x64"
     },
     {
-        "id": "0144aac3-c5d7-47f1-8635-70f3630089f6",
-        "filename": "OpenJDK21U-jre_aarch64_linux_hotspot_21.0.13_9.tar.gz",
-        "sha256": "b1734db7ade49c3f6acc6ae06233b8c2dd90e3e2f00f67000ae1c972aaa64d8c",
-        "javaPath": "jdk-21.0.13+9-jre/bin/java",
+        "id": "07e6e22b-47b4-4686-96b0-303a898f322f",
+        "filename": "OpenJDK21U-jre_aarch64_linux_hotspot_21.0.13.1_2.tar.gz",
+        "sha256": "52bc58323d9266538a6361a3cf8365fc1186dd9510d7f33f623681c4aabb7e72",
+        "javaPath": "jdk-21.0.13.1+2-jre/bin/java",
         "os": "linux",
         "arch": "aarch64"
     },
     {
-        "id": "641319c9-4a91-4c9b-9ee6-95d38e64f287",
-        "filename": "OpenJDK21U-jre_x64_alpine-linux_hotspot_21.0.13_9.tar.gz",
-        "sha256": "9138eab0f7d230e17163953f015ec9ae2431dbc49069c658b7f991e45b54fb9b",
-        "javaPath": "jdk-21.0.13+9-jre/bin/java",
+        "id": "52cdff62-ab73-4c8c-8613-26296666dae3",
+        "filename": "OpenJDK21U-jre_x64_alpine-linux_hotspot_21.0.13.1_2.tar.gz",
+        "sha256": "72835f41a468ae949fc058f8ec6a73d303ca3e5ea165621e08aacb36bb537bba",
+        "javaPath": "jdk-21.0.13.1+2-jre/bin/java",
         "os": "alpine",
         "arch": "x64"
     },
     {
-        "id": "1162f961-bcb4-4a69-85f5-b96e4f0c7383",
-        "filename": "OpenJDK21U-jre_x64_windows_hotspot_21.0.13_9.zip",
-        "sha256": "2332c0b4cff6bed722da3567c91d5e47568bcba863fa4945d0a8d6fc76158628",
-        "javaPath": "jdk-21.0.13+9-jre/bin/java.exe",
+        "id": "a713054f-265d-4f39-a646-51fee3c23477",
+        "filename": "OpenJDK21U-jre_x64_windows_hotspot_21.0.13.1_2.zip",
+        "sha256": "e15ee1e54a5a3b38027a09cedfa87bc3348d7dd3ce50866dd3d9671d7fffc6c1",
+        "javaPath": "jdk-21.0.13.1+2-jre/bin/java.exe",
         "os": "windows",
         "arch": "x64"
     },
     {
-        "id": "e0736d80-5282-4425-b93b-94342bf8e71d",
-        "filename": "OpenJDK21U-jre_x64_mac_hotspot_21.0.13_9.tar.gz",
-        "sha256": "c909674b1c10c261b9a3fb7e9c0efebd303e33f88a4fe84be7135b5e2d711f89",
-        "javaPath": "jdk-21.0.13+9-jre/Contents/Home/bin/java",
+        "id": "69cd4ab3-82a9-4e76-9b85-64d0cd15abd6",
+        "filename": "OpenJDK21U-jre_x64_mac_hotspot_21.0.13.1_2.tar.gz",
+        "sha256": "10cee6ba4cd83fd4613a3f0bb3ef9dddd68c68d5f3ccfcc7e456707c9e1eafe0",
+        "javaPath": "jdk-21.0.13.1+2-jre/Contents/Home/bin/java",
         "os": "mac",
         "arch": "x64"
     },
     {
-        "id": "d04c4fba-717e-484c-9ed2-2b1b039d991e",
-        "filename": "OpenJDK21U-jre_aarch64_mac_hotspot_21.0.13_9.tar.gz",
-        "sha256": "225bab0a09491ef06835488cd942f5d2befa9a0410a2484f0c8bbcf7506ec09a",
-        "javaPath": "jdk-21.0.13+9-jre/Contents/Home/bin/java",
+        "id": "a963ab73-197d-47a2-9285-a1c728d21df6",
+        "filename": "OpenJDK21U-jre_aarch64_mac_hotspot_21.0.13.1_2.tar.gz",
+        "sha256": "848feb1906c7de79de4f8391636042193fbd46eff86e26299506c4656f62c260",
+        "javaPath": "jdk-21.0.13.1+2-jre/Contents/Home/bin/java",
         "os": "mac",
         "arch": "aarch64"
     }
