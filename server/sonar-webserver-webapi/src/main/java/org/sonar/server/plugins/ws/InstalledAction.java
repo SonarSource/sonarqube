@@ -88,6 +88,7 @@ public class InstalledAction implements PluginsWsAction {
         "Requires authentication.")
       .setSince("5.2")
       .setChangelog(
+        new Change("2026.6", "The field 'documentationPath' is no longer returned"),
         new Change("2026.6", "The fields 'staticResourceFolder' and 'staticResources' are added. Both are omitted for a plugin that ships no static resource"),
         new Change("10.4", "The response field 'requiredForLanguages' is added for plugins that support it"),
         new Change("9.8", "The 'documentationPath' field is deprecated"),

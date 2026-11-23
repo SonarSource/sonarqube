@@ -28,9 +28,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
-import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
@@ -97,9 +95,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
   @CheckForNull
   private boolean sonarLintSupported;
-
-  @CheckForNull
-  private String documentationPath;
 
   private final Set<RequiredPlugin> requiredPlugins = new HashSet<>();
 
@@ -197,10 +192,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
     return sonarLintSupported;
   }
 
-  public String getDocumentationPath() {
-    return documentationPath;
-  }
-
   /**
    * The on-disk packaging of this plugin, derived from the extension of {@link #getNonNullJarFile()}.
    */
@@ -242,11 +233,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
   public PluginInfo setMinimalSonarPluginApiVersion(@Nullable Version v) {
     this.minimalSonarPluginApiVersion = v;
-    return this;
-  }
-
-  public PluginInfo setDocumentationPath(@Nullable String documentationPath) {
-    this.documentationPath = documentationPath;
     return this;
   }
 
@@ -430,7 +416,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
     setName(manifest.getName());
     setMainClass(manifest.getMainClass());
     setVersion(Version.create(manifest.getVersion()));
-    setDocumentationPath(getDocumentationPath(jarFile));
 
     // optional fields
     setDescription(manifest.getDescription());
@@ -461,18 +446,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
       Arrays.stream(requiredForLanguagesFromManifest)
         .forEach(this::addRequiredForLanguage);
     }
-  }
-
-  private static String getDocumentationPath(File file) {
-    String entryName = detectPackaging(file) == PluginPackaging.ZIP ? "resources/documentation.md" : "static/documentation.md";
-    try (JarFile jarFile = new JarFile(file)) {
-      return Optional.ofNullable(jarFile.getEntry(entryName))
-        .map(ZipEntry::getName)
-        .orElse(null);
-    } catch (IOException e) {
-      LOGGER.warn("Could not retrieve documentation path from " + file, e);
-    }
-    return null;
   }
 
   public static class RequiredPlugin {

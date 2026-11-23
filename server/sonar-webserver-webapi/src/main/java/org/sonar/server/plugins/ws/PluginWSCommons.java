@@ -101,7 +101,6 @@ public class PluginWSCommons {
     ofNullable(pluginInfo.getHomepageUrl()).ifPresent(builder::setHomepageUrl);
     ofNullable(pluginInfo.getIssueTrackerUrl()).ifPresent(builder::setIssueTrackerUrl);
     ofNullable(pluginInfo.getImplementationBuild()).ifPresent(builder::setImplementationBuild);
-    ofNullable(pluginInfo.getDocumentationPath()).ifPresent(builder::setDocumentationPath);
     builder.addAllRequiredForLanguages(pluginInfo.getRequiredForLanguages());
     setStaticResources(builder, pluginInfo, staticResources);
 

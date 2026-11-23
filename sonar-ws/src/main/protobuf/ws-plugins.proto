@@ -121,7 +121,7 @@ message PluginDetails {
   optional string filename = 13;
   optional string hash = 14;
   optional bool sonarLintSupported = 15;
-  optional string documentationPath = 16;
+  reserved 16;
   optional int64 updatedAt = 17;
   optional string type = 18;
   repeated string requiredForLanguages = 19;

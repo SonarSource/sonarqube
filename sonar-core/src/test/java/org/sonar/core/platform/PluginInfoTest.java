@@ -281,17 +281,7 @@ public class PluginInfoTest {
     PluginInfo checkstyleInfo = PluginInfo.create(checkstyleJar);
 
     assertThat(checkstyleInfo.getName()).isEqualTo("Checkstyle");
-    assertThat(checkstyleInfo.getDocumentationPath()).isNull();
     assertThat(checkstyleInfo.getMinimalSonarPluginApiVersion()).isEqualTo(Version.create("2.8"));
-  }
-
-  @Test
-  public void create_from_file_with_documentation() {
-    File jarWithDocs = FileUtils.toFile(getClass().getResource("/org/sonar/core/platform/jar_with_documentation.jar"));
-    PluginInfo checkstyleInfo = PluginInfo.create(jarWithDocs);
-
-    assertThat(checkstyleInfo.getDocumentationPath()).isNotBlank();
-    assertThat(checkstyleInfo.getDocumentationPath()).isEqualTo("static/documentation.md");
   }
 
   @Test
@@ -336,7 +326,7 @@ public class PluginInfoTest {
 
   @Test
   public void create_from_zip_packaged_plugin() throws Exception {
-    File zip = createZip(null);
+    File zip = createZip();
     PluginInfo pluginInfo = PluginInfo.create(zip);
 
     assertThat(pluginInfo.getKey()).isEqualTo("zipplugin");
@@ -353,22 +343,6 @@ public class PluginInfoTest {
 
     assertThat(pluginInfo.getPackaging()).isEqualTo(PluginPackaging.JAR);
     assertThat(pluginInfo.isZipPackaging()).isFalse();
-  }
-
-  @Test
-  public void getDocumentationPath_resolves_resources_documentation_for_zip_packaging() throws Exception {
-    File zip = createZip("# doc");
-    PluginInfo pluginInfo = PluginInfo.create(zip);
-
-    assertThat(pluginInfo.getDocumentationPath()).isEqualTo("resources/documentation.md");
-  }
-
-  @Test
-  public void getDocumentationPath_is_null_when_zip_packaged_plugin_has_no_documentation() throws Exception {
-    File zip = createZip(null);
-    PluginInfo pluginInfo = PluginInfo.create(zip);
-
-    assertThat(pluginInfo.getDocumentationPath()).isNull();
   }
 
   @Test
@@ -402,17 +376,12 @@ public class PluginInfoTest {
       .hasMessageContaining("found 2");
   }
 
-  private File createZip(@Nullable String documentationContent) throws IOException {
+  private File createZip() throws IOException {
     File zipFile = temp.newFile("zip-plugin-1.0.zip");
     try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
       zos.putNextEntry(new ZipEntry("plugin/zip-plugin-1.0.jar"));
       zos.write(createInnerJarBytes());
       zos.closeEntry();
-      if (documentationContent != null) {
-        zos.putNextEntry(new ZipEntry("resources/documentation.md"));
-        zos.write(documentationContent.getBytes(StandardCharsets.UTF_8));
-        zos.closeEntry();
-      }
     }
     return zipFile;
   }

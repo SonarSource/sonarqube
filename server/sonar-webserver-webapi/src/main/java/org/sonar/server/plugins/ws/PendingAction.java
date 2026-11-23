@@ -72,6 +72,7 @@ public class PendingAction implements PluginsWsAction {
         "Require 'Administer System' permission.")
       .setSince("5.2")
       .setChangelog(
+        new Change("2026.6", "The field 'documentationPath' is no longer returned"),
         new Change("9.8", "The 'documentationPath' field is deprecated"),
         new Change("8.0", "The 'documentationPath' field is added")
       )
