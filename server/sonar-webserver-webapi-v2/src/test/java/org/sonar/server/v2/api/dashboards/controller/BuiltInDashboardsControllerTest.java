@@ -55,7 +55,7 @@ class BuiltInDashboardsControllerTest {
   private final MockMvc mockMvc = ControllerTester.getMockMvc(underTest);
 
   @Test
-  void getBuiltInDashboard_withRealProjectHealth_countsIssuesWithoutStatusFilter() throws Exception {
+  void getBuiltInDashboard_withRealProjectHealth_countsOpenAndConfirmedIssues() throws Exception {
     when(editionProvider.get()).thenReturn(Optional.of(Edition.COMMUNITY));
     var controller = new BuiltInDashboardsController(new BuiltInDashboardService(), editionProvider, builtInDashboardViewCountProvider);
 
@@ -68,7 +68,7 @@ class BuiltInDashboardsControllerTest {
     var metric = layout.path("children").get(0).path("children").get(1).path("props").path("metric");
 
     assertThat(metric).isEqualTo(objectMapper.readTree("""
-      {"metricKey":"issueCount","type":"rich"}
+      {"metricKey":"issueCount","type":"rich","measureFilters":{"issueStatuses":["OPEN","CONFIRMED"]}}
       """));
   }
 
