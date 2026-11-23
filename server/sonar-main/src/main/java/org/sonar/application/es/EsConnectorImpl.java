@@ -45,6 +45,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
+import org.apache.hc.client5.http.ConnectionKeepAliveStrategy;
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
@@ -52,13 +54,21 @@ import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBu
 import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.util.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.es.EsConnectionReusePolicy;
 
 public class EsConnectorImpl implements EsConnector {
   private static final String ES_USERNAME = "elastic";
   private static final Time HEALTH_TIMEOUT = Time.of(t -> t.time("30s"));
+  /**
+   * Elasticsearch sends no {@code Keep-Alive} header, so cap the idle time of pooled connections ourselves
+   * (see {@link EsConnectionReusePolicy}).
+   */
+  static final ConnectionKeepAliveStrategy KEEP_ALIVE_STRATEGY = (response, context) -> TimeValue.ofSeconds(EsConnectionReusePolicy.MAX_IDLE_REUSE_SECONDS);
 
   private static final Logger LOG = LoggerFactory.getLogger(EsConnectorImpl.class);
 
@@ -135,7 +145,9 @@ public class EsConnectorImpl implements EsConnector {
       .setResponseTimeout(60_000, TimeUnit.MILLISECONDS)
       .build();
     var builder = HttpAsyncClients.custom()
-      .setDefaultRequestConfig(requestConfig);
+      .setDefaultRequestConfig(requestConfig)
+      .setIOReactorConfig(ioReactorConfig())
+      .setKeepAliveStrategy(KEEP_ALIVE_STRATEGY);
     if (searchPassword != null) {
       String encoded = Base64.getEncoder().encodeToString((ES_USERNAME + ":" + searchPassword).getBytes(StandardCharsets.UTF_8));
       String headerValue = "Basic " + encoded;
@@ -145,16 +157,38 @@ public class EsConnectorImpl implements EsConnector {
         }
       });
     }
+    var connectionManagerBuilder = PoolingAsyncClientConnectionManagerBuilder.create()
+      .setDefaultConnectionConfig(connectionConfig());
     if (keyStorePath != null) {
-      builder.setConnectionManager(
-        PoolingAsyncClientConnectionManagerBuilder.create()
-          .setTlsStrategy(
-            ClientTlsStrategyBuilder.create()
-              .setSslContext(getSSLContext(keyStorePath, keyStorePassword))
-              .build())
+      connectionManagerBuilder.setTlsStrategy(
+        ClientTlsStrategyBuilder.create()
+          .setSslContext(getSSLContext(keyStorePath, keyStorePassword))
           .build());
     }
+    builder.setConnectionManager(connectionManagerBuilder.build());
     return builder.build();
+  }
+
+  /**
+   * TCP keep-alive with explicit timings, see {@link EsConnectionReusePolicy}.
+   */
+  static IOReactorConfig ioReactorConfig() {
+    return IOReactorConfig.custom()
+      .setSoKeepAlive(true)
+      .setTcpKeepIdle(EsConnectionReusePolicy.TCP_KEEP_IDLE_SECONDS)
+      .setTcpKeepInterval(EsConnectionReusePolicy.TCP_KEEP_INTERVAL_SECONDS)
+      .setTcpKeepCount(EsConnectionReusePolicy.TCP_KEEP_COUNT)
+      .build();
+  }
+
+  /**
+   * Stale-check of pooled connections before reuse, see {@link EsConnectionReusePolicy}. Unlike the classic pool,
+   * the async pool does not validate idle connections at all unless told to.
+   */
+  static ConnectionConfig connectionConfig() {
+    return ConnectionConfig.custom()
+      .setValidateAfterInactivity(TimeValue.ofSeconds(EsConnectionReusePolicy.VALIDATE_AFTER_INACTIVITY_SECONDS))
+      .build();
   }
 
   private HttpHost toHttpHost(HostAndPort host) {

@@ -36,6 +36,11 @@ import okhttp3.mockwebserver.RecordedRequest;
 import co.elastic.clients.elasticsearch._types.HealthStatus;
 import okhttp3.tls.HandshakeCertificates;
 import okhttp3.tls.HeldCertificate;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.util.TimeValue;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -97,6 +102,42 @@ public class EsConnectorImplTest {
   @After
   public void after() {
     underTest.stop();
+  }
+
+  @Test
+  public void ioReactorConfig_enables_tcp_keep_alive_with_explicit_timings() {
+    IOReactorConfig config = EsConnectorImpl.ioReactorConfig();
+
+    assertThat(config.isSoKeepAlive()).isTrue();
+    assertThat(config.getTcpKeepIdle()).isEqualTo(30);
+    assertThat(config.getTcpKeepInterval()).isEqualTo(10);
+    assertThat(config.getTcpKeepCount()).isEqualTo(3);
+  }
+
+  @Test
+  public void connectionConfig_validates_idle_connections_before_reuse() {
+    assertThat(EsConnectorImpl.connectionConfig().getValidateAfterInactivity()).isEqualTo(TimeValue.ofSeconds(2));
+  }
+
+  @Test
+  public void keepAliveStrategy_caps_idle_reuse_regardless_of_response() {
+    HttpResponse response = new BasicHttpResponse(200);
+    response.addHeader("Keep-Alive", "timeout=3600");
+
+    assertThat(EsConnectorImpl.KEEP_ALIVE_STRATEGY.getKeepAliveDuration(response, HttpClientContext.create())).isEqualTo(TimeValue.ofSeconds(60));
+  }
+
+  @Test
+  public void should_reuse_pooled_connection_across_health_checks() throws InterruptedException {
+    mockServerResponse(200, JSON_SUCCESS_RESPONSE);
+
+    assertThat(underTest.getClusterHealthStatus()).hasValue(HealthStatus.Yellow);
+    assertThat(underTest.getClusterHealthStatus()).hasValue(HealthStatus.Yellow);
+
+    RecordedRequest first = mockWebServer.takeRequest();
+    RecordedRequest second = mockWebServer.takeRequest();
+    // sequence number is the index of the request on its connection: > 0 means the connection was reused
+    assertThat(second.getSequenceNumber()).isGreaterThan(first.getSequenceNumber());
   }
 
   @Test

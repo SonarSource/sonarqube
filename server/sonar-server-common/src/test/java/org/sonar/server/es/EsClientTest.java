@@ -32,7 +32,12 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.tls.HandshakeCertificates;
 import okhttp3.tls.HeldCertificate;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.util.TimeValue;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -165,6 +170,30 @@ public class EsClientTest {
   SynchronousEsHttpClient httpClient = mock(SynchronousEsHttpClient.class);
 
   EsClient underTest = new EsClient(httpClient);
+
+  @Test
+  public void socketConfig_enables_tcp_keep_alive_with_explicit_timings() {
+    SocketConfig socketConfig = EsClient.socketConfig();
+
+    assertThat(socketConfig.isSoKeepAlive()).isTrue();
+    assertThat(socketConfig.getTcpKeepIdle()).isEqualTo(30);
+    assertThat(socketConfig.getTcpKeepInterval()).isEqualTo(10);
+    assertThat(socketConfig.getTcpKeepCount()).isEqualTo(3);
+  }
+
+  @Test
+  public void connectionConfig_validates_idle_connections_before_reuse() {
+    assertThat(EsClient.connectionConfig().getValidateAfterInactivity()).isEqualTo(TimeValue.ofSeconds(2));
+  }
+
+  @Test
+  public void keepAliveStrategy_caps_idle_reuse_regardless_of_response() {
+    HttpResponse response = new BasicHttpResponse(200);
+    response.addHeader("Keep-Alive", "timeout=3600");
+
+    assertThat(EsClient.KEEP_ALIVE_STRATEGY.getKeepAliveDuration(response, HttpClientContext.create())).isEqualTo(TimeValue.ofSeconds(60));
+    assertThat(EsClient.KEEP_ALIVE_STRATEGY.getKeepAliveDuration(new BasicHttpResponse(200), HttpClientContext.create())).isEqualTo(TimeValue.ofSeconds(60));
+  }
 
   @Test
   public void should_close_client() throws IOException {

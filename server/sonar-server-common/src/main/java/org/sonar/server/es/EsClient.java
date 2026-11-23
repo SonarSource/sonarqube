@@ -88,6 +88,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
+import org.apache.hc.client5.http.ConnectionKeepAliveStrategy;
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -95,12 +97,15 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.process.es.EsConnectionReusePolicy;
 import org.sonar.server.es.response.ClusterStatsResponse;
 import org.sonar.server.es.response.IndicesStatsResponse;
 import org.sonar.server.es.response.NodeStatsResponse;
@@ -115,6 +120,11 @@ public class EsClient implements Closeable {
   private static final String CLUSTER_HEALTH_STATUS_FIELD = "status";
   private static final int MAX_CONN_PER_ROUTE = 20;
   private static final int MAX_CONN_TOTAL = 60;
+  /**
+   * Elasticsearch sends no {@code Keep-Alive} header, so cap the idle time of pooled connections ourselves
+   * (see {@link EsConnectionReusePolicy}).
+   */
+  static final ConnectionKeepAliveStrategy KEEP_ALIVE_STRATEGY = (response, context) -> TimeValue.ofSeconds(EsConnectionReusePolicy.MAX_IDLE_REUSE_SECONDS);
 
   private final ElasticsearchClient elasticsearchClient;
   private final SynchronousEsHttpClient httpClient;
@@ -341,7 +351,9 @@ public class EsClient implements Closeable {
       .build();
     PoolingHttpClientConnectionManagerBuilder connectionManagerBuilder = PoolingHttpClientConnectionManagerBuilder.create()
       .setMaxConnPerRoute(MAX_CONN_PER_ROUTE)
-      .setMaxConnTotal(MAX_CONN_TOTAL);
+      .setMaxConnTotal(MAX_CONN_TOTAL)
+      .setDefaultSocketConfig(socketConfig())
+      .setDefaultConnectionConfig(connectionConfig());
     if (keyStorePath != null) {
       connectionManagerBuilder.setSSLSocketFactory(
         SSLConnectionSocketFactoryBuilder.create()
@@ -350,7 +362,8 @@ public class EsClient implements Closeable {
     }
     HttpClientBuilder clientBuilder = HttpClients.custom()
       .setDefaultRequestConfig(requestConfig)
-      .setConnectionManager(connectionManagerBuilder.build());
+      .setConnectionManager(connectionManagerBuilder.build())
+      .setKeepAliveStrategy(KEEP_ALIVE_STRATEGY);
     if (searchPassword != null) {
       String encoded = Base64.getEncoder().encodeToString((ES_USERNAME + ":" + searchPassword).getBytes(StandardCharsets.UTF_8));
       String headerValue = "Basic " + encoded;
@@ -361,6 +374,27 @@ public class EsClient implements Closeable {
       });
     }
     return clientBuilder.build();
+  }
+
+  /**
+   * TCP keep-alive with explicit timings, see {@link EsConnectionReusePolicy}.
+   */
+  static SocketConfig socketConfig() {
+    return SocketConfig.custom()
+      .setSoKeepAlive(true)
+      .setTcpKeepIdle(EsConnectionReusePolicy.TCP_KEEP_IDLE_SECONDS)
+      .setTcpKeepInterval(EsConnectionReusePolicy.TCP_KEEP_INTERVAL_SECONDS)
+      .setTcpKeepCount(EsConnectionReusePolicy.TCP_KEEP_COUNT)
+      .build();
+  }
+
+  /**
+   * Stale-check of pooled connections before reuse, see {@link EsConnectionReusePolicy}.
+   */
+  static ConnectionConfig connectionConfig() {
+    return ConnectionConfig.custom()
+      .setValidateAfterInactivity(TimeValue.ofSeconds(EsConnectionReusePolicy.VALIDATE_AFTER_INACTIVITY_SECONDS))
+      .build();
   }
 
   private static SSLContext buildSslContext(String keyStorePath, @Nullable String keyStorePassword) {
