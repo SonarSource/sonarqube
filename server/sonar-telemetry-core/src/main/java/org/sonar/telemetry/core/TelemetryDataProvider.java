@@ -59,6 +59,12 @@ public interface TelemetryDataProvider<T> {
   /**
    * The implementation of this method might often need to make a call to a database.
    * For each metric either this method or {@link TelemetryDataProvider#getValues()} should be used. Not both at once.
+   * <p>
+   * Only taken into account for {@link Dimension#INSTALLATION}, and only when {@link #getValues()} is empty. It is ignored for
+   * all other dimensions.
+   * <p>
+   * When neither this method nor {@link #getValues()} returns a value, nothing is sent for {@link Granularity#ADHOC} metrics,
+   * and a {@code null} value is sent for the other granularities.
    *
    * @return the value of the data provided by this instance.
    */
@@ -70,6 +76,19 @@ public interface TelemetryDataProvider<T> {
    * The implementation of this method might often need to make a call to a database.
    * Similar as {@link TelemetryDataProvider#getValue()} this method returns values of the metric. Some of the metrics
    * associate a key with a value. This method is used to return all the values associated with the keys.
+   * <p>
+   * The meaning of the keys depends on the {@link #getDimension() dimension}:
+   * <ul>
+   *   <li>{@link Dimension#USER}: user UUID</li>
+   *   <li>{@link Dimension#PROJECT}: project UUID</li>
+   *   <li>{@link Dimension#LANGUAGE}: language key</li>
+   *   <li>{@link Dimension#INSTALLATION}: sub-key of the metric. There is only one installation, identified in the header of the
+   *   telemetry payload, so each entry is sent as a separate installation metric whose key is
+   *   {@code <metric key>.<entry key>}. This allows a single provider to send several related metrics, whatever the
+   *   {@link #getGranularity() granularity}. For example, with metric key {@code issue_count} and entries {@code bug -> 3}
+   *   and {@code vulnerability -> 1}, the metrics {@code issue_count.bug} and {@code issue_count.vulnerability} are sent.
+   *   When non-empty, it takes precedence over {@link #getValue()}.</li>
+   * </ul>
    *
    * @return map of keys and their values.
    */
