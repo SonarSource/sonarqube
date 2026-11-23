@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.ProjectViewAttributes;
 import org.sonar.ce.task.projectanalysis.component.SubViewAttributes;
@@ -44,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatException;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -53,12 +55,13 @@ class RecordHistoryStepTest {
 
   private final TreeRootHolder treeRootHolder = mock();
   private final Component root = mock();
+  private final AnalysisMetadataHolder analysisMetadataHolder = mock();
   private final RecordHistoryDelegate delegate = mock();
 
   @RegisterExtension
   private final LogTesterJUnit5 logs = new LogTesterJUnit5();
 
-  private final RecordHistoryStep underTest = new RecordHistoryStep(treeRootHolder, delegate);
+  private final RecordHistoryStep underTest = new RecordHistoryStep(treeRootHolder, analysisMetadataHolder, delegate);
 
   @BeforeEach
   void setUp() {
@@ -66,6 +69,15 @@ class RecordHistoryStepTest {
     when(root.getUuid()).thenReturn(ENTITY_UUID);
     when(root.getType()).thenReturn(Component.Type.PROJECT);
     when(root.getChildren()).thenReturn(List.of());
+  }
+
+  @Test
+  void execute_whenAnalyzingAPullRequest_recordsNothing() {
+    when(analysisMetadataHolder.isPullRequest()).thenReturn(true);
+
+    underTest.execute(new TestComputationStepContext());
+
+    verifyNoInteractions(delegate, treeRootHolder);
   }
 
   @Test

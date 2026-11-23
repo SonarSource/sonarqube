@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.component.SubViewAttributes;
 import org.sonar.ce.task.projectanalysis.component.TreeRootHolder;
@@ -43,15 +44,21 @@ public class RecordHistoryStep implements ComputationStep {
   private static final Logger LOGGER = LoggerFactory.getLogger(RecordHistoryStep.class);
 
   private final TreeRootHolder treeRootHolder;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final RecordHistoryDelegate delegate;
 
-  public RecordHistoryStep(TreeRootHolder treeRootHolder, RecordHistoryDelegate delegate) {
+  public RecordHistoryStep(TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder, RecordHistoryDelegate delegate) {
     this.treeRootHolder = treeRootHolder;
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.delegate = delegate;
   }
 
   @Override
   public void execute(ComputationStep.Context context) {
+    // A pull request is purged with its analysis data: its history would only add write volume.
+    if (analysisMetadataHolder.isPullRequest()) {
+      return;
+    }
     Component root = treeRootHolder.getRoot();
     EntityType entityType = getEntityType(root);
 
