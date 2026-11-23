@@ -61,7 +61,7 @@ public interface TelemetryDataProvider<T> {
    * For each metric either this method or {@link TelemetryDataProvider#getValues()} should be used. Not both at once.
    * <p>
    * Only taken into account for {@link Dimension#INSTALLATION}, and only when {@link #getValues()} is empty. It is ignored for
-   * all other dimensions.
+   * {@link Dimension#USER}, {@link Dimension#PROJECT} and {@link Dimension#LANGUAGE}.
    * <p>
    * When neither this method nor {@link #getValues()} returns a value, nothing is sent for {@link Granularity#ADHOC} metrics,
    * and a {@code null} value is sent for the other granularities.
@@ -89,6 +89,8 @@ public interface TelemetryDataProvider<T> {
    *   and {@code vulnerability -> 1}, the metrics {@code issue_count.bug} and {@code issue_count.vulnerability} are sent.
    *   When non-empty, it takes precedence over {@link #getValue()}.</li>
    * </ul>
+   * Providers support only the dimensions listed above. The other dimensions ({@link Dimension#ANALYSIS},
+   * {@link Dimension#FIX_SUGGESTION}) are sent through dedicated messages, and a provider declaring one of them is rejected.
    *
    * @return map of keys and their values.
    */
