@@ -13,6 +13,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Fails the build when a dependency is not available from the public repositories declared in
+  # build.gradle, i.e. when an external contributor could not build the project. It runs on a
+  # GitHub-hosted runner, without Repox, like a contributor's fork would: Maven Central rate-limits
+  # (HTTP 429) the shared egress IP of the self-hosted runners, which made this check fail on
+  # every run there.
+  public-dependencies:
+    runs-on: ubuntu-24.04
+    name: Resolve all dependencies from public repositories
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+        with:
+          version: 2026.3.13
+          mise_toml: |
+            [tools]
+            java = "temurin-21"
+      # The org.gradle.internal.repository.* properties make Gradle retry rate-limited requests
+      # longer (backoff 5s, 10s, 20s, 40s, 80s) before disabling the repository for the whole build.
+      - name: Resolve all dependencies from public repositories
+        run: >-
+          ./gradlew cacheDependencies --parallel --continue --no-build-cache --no-daemon --console plain
+          -Dorg.gradle.internal.repository.max.tentatives=6
+          -Dorg.gradle.internal.repository.initial.backoff=5000
+
   build:
     # EsTester-based tests connect to a live Elasticsearch at localhost:9200 (see
     # org.sonar.test.tags.ElasticsearchTest). To run them here (instead of excluding them, which
@@ -54,12 +80,6 @@ jobs:
           mise_toml: |
             [tools]
             java = "temurin-21"
-      # Runs before build-gradle sets up Repox (token + init script rerouting all repositories), so
-      # build.gradle resolves from its public repositories only, as for an external contributor.
-      - name: Resolve all dependencies from public repositories
-        env:
-          GRADLE_USER_HOME: ${{ runner.temp }}/gradle-public
-        run: ./gradlew cacheDependencies --parallel --continue --no-build-cache --no-daemon --console plain
       - uses: SonarSource/ci-github-actions/build-gradle@148774f456203f228b7bd1bd68ed0c22254d9cd1 # v1.3.24
         with:
           deploy: false
