@@ -80,6 +80,14 @@ jobs:
           mise_toml: |
             [tools]
             java = "temurin-21"
+      # Repox takes up to ~30s to answer 404 for an artifact missing from every member of its
+      # 'sonarsource' virtual repository (its jboss-3rd-party remote times out upstream), which is
+      # exactly Gradle's default HTTP read timeout: Gradle then disables Repox and the build fails.
+      # Written to the Gradle user home so it applies to every Gradle invocation of build-gradle.
+      - name: Raise Gradle HTTP read timeout
+        run: |
+          mkdir -p "${GRADLE_USER_HOME:-$HOME/.gradle}"
+          echo "systemProp.org.gradle.internal.http.socketTimeout=120000" >> "${GRADLE_USER_HOME:-$HOME/.gradle}/gradle.properties"
       - uses: SonarSource/ci-github-actions/build-gradle@148774f456203f228b7bd1bd68ed0c22254d9cd1 # v1.3.24
         with:
           deploy: false
