@@ -70,6 +70,15 @@
       </foreach>
   </select>
 
+  <select id="selectByAlmSettingAndRepoIgnoringCase" parameterType="string" resultType="org.sonar.db.alm.setting.ProjectAlmSettingDto">
+    select <include refid="sqlColumns"/>
+    from
+      project_alm_settings p
+    where
+      alm_setting_uuid=#{almSettingUuid, jdbcType=VARCHAR}
+    and lower(alm_repo) = lower(#{repo, jdbcType=VARCHAR})
+  </select>
+
   <sql id="selectByAlmSql">
     select <include refid="sqlColumns"/>
     from

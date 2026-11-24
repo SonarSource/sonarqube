@@ -181,6 +181,20 @@ class ProjectAlmSettingDaoIT {
   }
 
   @Test
+  void selectByAlmSettingAndRepoIgnoringCase_returns_only_the_binding_of_that_setting_whatever_the_case() {
+    AlmSettingDto almSettingsDto = db.almSettings().insertGitHubAlmSetting();
+    AlmSettingDto otherAlmSettingsDto = db.almSettings().insertGitHubAlmSetting();
+    ProjectAlmSettingDto matching = createAlmProject(almSettingsDto, dto -> dto.setAlmRepo("Owner/Repo"));
+    createAlmProject(almSettingsDto, dto -> dto.setAlmRepo("owner/other"));
+    createAlmProject(otherAlmSettingsDto, dto -> dto.setAlmRepo("Owner/Repo"));
+
+    assertThat(underTest.selectByAlmSettingAndRepoIgnoringCase(dbSession, almSettingsDto, "oWNER/rEPO"))
+      .extracting(ProjectAlmSettingDto::getProjectUuid)
+      .containsExactly(matching.getProjectUuid());
+    assertThat(underTest.selectByAlmSettingAndRepoIgnoringCase(dbSession, almSettingsDto, "owner/missing")).isEmpty();
+  }
+
+  @Test
   void select_with_no_repos_return_empty() {
     when(uuidFactory.create()).thenReturn(A_UUID);
     AlmSettingDto almSettingsDto = db.almSettings().insertGitHubAlmSetting();

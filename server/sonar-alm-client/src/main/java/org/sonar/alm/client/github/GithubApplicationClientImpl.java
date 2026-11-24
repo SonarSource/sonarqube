@@ -27,12 +27,14 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -111,10 +113,14 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     checkArgument(pageSize > 0 && pageSize <= 100, "'pageSize' must be a value larger than 0 and smaller or equal to 100.");
   }
 
+  private static String accessTokensEndpoint(long installationId) {
+    return "/app/installations/" + installationId + "/access_tokens";
+  }
+
   @Override
   public Optional<ExpiringAppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId) {
     AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
-    String endPoint = "/app/installations/" + installationId + "/access_tokens";
+    String endPoint = accessTokensEndpoint(installationId);
     return post(githubAppConfiguration.getApiEndpoint(), appToken, endPoint, STATELESS_TOKEN_HEADER, GithubBinding.GsonInstallationToken.class)
       .filter(token -> token.getToken() != null)
       .map(appInstallToken -> new ExpiringAppInstallationToken(clock, Long.toString(installationId), appInstallToken.getToken(), appInstallToken.getExpiresAt()));
@@ -123,8 +129,22 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
   @Override
   public Optional<ExpiringAppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId, String repositoryName) {
     AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
-    String endPoint = "/app/installations/" + installationId + "/access_tokens";
+    String endPoint = accessTokensEndpoint(installationId);
     String json = GSON.toJson(Map.of("repositories", List.of(repositoryName)));
+    return postWithBody(githubAppConfiguration.getApiEndpoint(), appToken, endPoint, json, STATELESS_TOKEN_HEADER, GithubBinding.GsonInstallationToken.class)
+      .filter(token -> token.getToken() != null)
+      .map(appInstallToken -> new ExpiringAppInstallationToken(clock, Long.toString(installationId), appInstallToken.getToken(), appInstallToken.getExpiresAt()));
+  }
+
+  @Override
+  public Optional<ExpiringAppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId, String repositoryName,
+    Map<String, String> permissions) {
+    AppToken appToken = appSecurity.createAppToken(githubAppConfiguration.getId(), githubAppConfiguration.getPrivateKey());
+    String endPoint = accessTokensEndpoint(installationId);
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("repositories", List.of(repositoryName));
+    body.put("permissions", new TreeMap<>(permissions));
+    String json = GSON.toJson(body);
     return postWithBody(githubAppConfiguration.getApiEndpoint(), appToken, endPoint, json, STATELESS_TOKEN_HEADER, GithubBinding.GsonInstallationToken.class)
       .filter(token -> token.getToken() != null)
       .map(appInstallToken -> new ExpiringAppInstallationToken(clock, Long.toString(installationId), appInstallToken.getToken(), appInstallToken.getExpiresAt()));

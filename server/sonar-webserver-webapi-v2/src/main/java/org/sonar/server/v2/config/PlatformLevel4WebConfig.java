@@ -63,6 +63,7 @@ import org.sonar.server.v2.api.user.controller.DefaultUserController;
 import org.sonar.server.v2.api.user.converter.UsersSearchRestResponseGenerator;
 import org.sonar.server.v2.common.DeprecatedHandler;
 import org.sonar.server.v2.api.onboarding.alm.OnboardingAlmConfiguration;
+import org.sonar.server.v2.api.onboarding.host.OnboardingHostConfiguration;
 import org.sonar.server.v2.common.WebApiV2MetricsInterceptor;
 import org.sonar.server.v2.security.WebSecurityConfig;
 import org.sonarsource.onboarding.server.config.OnboardingServerWebConfiguration;
@@ -109,6 +110,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
   DefaultVersionController.class,
   OnboardingServerWebConfiguration.class,
   OnboardingAlmConfiguration.class,
+  OnboardingHostConfiguration.class,
   HealthController.class,
   JresHandlerImpl.class,
   ScannerEngineHandlerImpl.class,

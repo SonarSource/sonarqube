@@ -1436,6 +1436,20 @@ public class GithubApplicationClientImplTest {
   }
 
   @Test
+  public void createAppInstallationToken_withRepositoryNameAndPermissions_scopes_the_request_body_to_that_repository_and_permissions() throws IOException {
+    AppToken appToken = mockAppToken();
+    ExpiringAppInstallationToken installToken = mockCreateAccessTokenCallingGithubWithBody();
+
+    Optional<ExpiringAppInstallationToken> accessToken = underTest.createAppInstallationToken(githubAppConfiguration, INSTALLATION_ID, "Hello-World",
+      Map.of("pull_requests", "read"));
+
+    assertThat(accessToken).hasValue(installToken);
+    verify(githubApplicationHttpClient).post(appUrl, appToken, "/app/installations/" + INSTALLATION_ID + "/access_tokens",
+      "{\"repositories\":[\"Hello-World\"],\"permissions\":{\"pull_requests\":\"read\"}}",
+      Map.of(GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER, GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER_VALUE));
+  }
+
+  @Test
   public void createAppInstallationToken_withRepositoryName_returns_empty_if_access_token_cant_be_created() throws IOException {
     AppToken appToken = mockAppToken();
     Response response = mock(Response.class);

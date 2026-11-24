@@ -82,6 +82,16 @@ public interface GithubApplicationClient {
    */
   Optional<ExpiringAppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId, String repositoryName);
 
+  /**
+   * Same as {@link #createAppInstallationToken(GithubAppConfiguration, long, String)}, but the resulting token is also
+   * down-scoped to {@code permissions} (GitHub permission name to {@code read}/{@code write}), which must not exceed
+   * what the App itself was granted.
+   *
+   * @param repositoryName bare repository name (no {@code owner/} prefix), e.g. {@code "widgets"}
+   */
+  Optional<ExpiringAppInstallationToken> createAppInstallationToken(GithubAppConfiguration githubAppConfiguration, long installationId, String repositoryName,
+    Map<String, String> permissions);
+
   GithubBinding.GsonApp getApp(GithubAppConfiguration githubAppConfiguration);
 
   /**
