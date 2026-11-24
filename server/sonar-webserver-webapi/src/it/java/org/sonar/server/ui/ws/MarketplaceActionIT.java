@@ -115,9 +115,9 @@ public class MarketplaceActionIT {
     assertThat(result).isEqualTo(expectedResponse);
   }
 
-  private void setNcloc(double ncloc) {
+  private void setNcloc(long ncloc) {
     ProjectDto project = db.components().insertPublicProject().getProjectDto();
-    db.getDbClient().projectDao().updateNcloc(db.getSession(), project.getUuid(), (long) ncloc);
+    db.getDbClient().projectDao().updateNcloc(db.getSession(), project.getUuid(), ncloc);
     db.commit();
   }
 }

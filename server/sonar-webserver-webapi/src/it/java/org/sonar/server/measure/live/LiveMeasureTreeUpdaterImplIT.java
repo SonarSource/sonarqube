@@ -395,7 +395,7 @@ public class LiveMeasureTreeUpdaterImplIT {
     @Override
     public List<MeasureUpdateFormula> getFormulas() {
       return List.of(new MeasureUpdateFormula(metric, true, (c, m) -> {
-      }, (c, i) -> c.setValue(i.countUnresolved(true))));
+      }, (c, i) -> c.setValue((double) i.countUnresolved(true))));
     }
 
     @Override
