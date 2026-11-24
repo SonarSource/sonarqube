@@ -33,16 +33,26 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.servlet.support.ExtendedServletRequestDataBinder;
 
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE - 1)
 public class ServerRestResponseEntityExceptionHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ServerRestResponseEntityExceptionHandler.class);
+
+  @InitBinder
+  void disableHeaderBinding(WebDataBinder binder) {
+    if (binder instanceof ExtendedServletRequestDataBinder requestDataBinder) {
+      requestDataBinder.setHeaderPredicate(name -> false);
+    }
+  }
 
   @ExceptionHandler(HandlerMethodValidationException.class)
   protected ResponseEntity<RestError> handleHandlerMethodValidationException(HandlerMethodValidationException exception) {
