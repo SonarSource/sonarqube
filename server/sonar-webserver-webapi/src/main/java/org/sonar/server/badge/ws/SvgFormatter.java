@@ -51,7 +51,7 @@ class SvgFormatter {
     }
     NumberFormat numericFormatter = DecimalFormat.getInstance(Locale.ENGLISH);
     numericFormatter.setMaximumFractionDigits(1);
-    int power = (int) StrictMath.log10(value);
+    int power = (int) StrictMath.log10((double) value);
     double valueToFormat = value / (Math.pow(10, Math.floorDiv(power, 3) * 3D));
     String formattedNumber = numericFormatter.format(valueToFormat);
     formattedNumber = formattedNumber + NUMERIC_SUFFIX_LIST.charAt(power / 3);

@@ -427,7 +427,7 @@ public interface Measure {
     }
 
     public Measure create(long value, @Nullable String data) {
-      return createInternal(LONG, value, data);
+      return createInternal(LONG, (double) value, data);
     }
 
     public Measure create(long value) {

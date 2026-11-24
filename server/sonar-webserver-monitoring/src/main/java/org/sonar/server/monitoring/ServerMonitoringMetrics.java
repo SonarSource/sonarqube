@@ -217,11 +217,11 @@ public class ServerMonitoringMetrics {
   }
 
   public void observeComputeEngineTaskDuration(long durationInSeconds, String taskType, String label) {
-    ceTasksRunningDuration.labels(taskType, label).observe(durationInSeconds);
+    ceTasksRunningDuration.labels(taskType, label).observe((double) durationInSeconds);
   }
 
   public void observeComputeEngineSystemTaskDuration(long durationInSeconds, String taskType) {
-    ceSystemTasksRunningDuration.labels(taskType).observe(durationInSeconds);
+    ceSystemTasksRunningDuration.labels(taskType).observe((double) durationInSeconds);
   }
 
   public void setComputeEngineStatusToGreen() {
@@ -241,27 +241,27 @@ public class ServerMonitoringMetrics {
   }
 
   public void setLicenseDayUntilExpire(long days) {
-    licenseDaysBeforeExpiration.set(days);
+    licenseDaysBeforeExpiration.set((double) days);
   }
 
   public void setLinesOfCodeRemaining(long loc) {
-    linesOfCodeRemaining.set(loc);
+    linesOfCodeRemaining.set((double) loc);
   }
 
   public void setLinesOfCodeAnalyzed(long loc) {
-    linesOfCodeAnalyzed.set(loc);
+    linesOfCodeAnalyzed.set((double) loc);
   }
 
   public void setElasticSearchDiskSpaceFreeBytes(String name, long diskAvailableBytes) {
-    elasticsearchDiskSpaceFreeBytesGauge.labels(name).set(diskAvailableBytes);
+    elasticsearchDiskSpaceFreeBytesGauge.labels(name).set((double) diskAvailableBytes);
   }
 
   public void setElasticSearchDiskSpaceTotalBytes(String name, long diskTotalBytes) {
-    elasticSearchDiskSpaceTotalBytes.labels(name).set(diskTotalBytes);
+    elasticSearchDiskSpaceTotalBytes.labels(name).set((double) diskTotalBytes);
   }
 
   public void setElasticSearchReadOnlyIndicesCount(long count) {
-    elasticsearchReadOnlyIndicesGauge.set(count);
+    elasticsearchReadOnlyIndicesGauge.set((double) count);
   }
 
   public void setElasticSearchDiskUsagePercent(double percent) {
@@ -269,11 +269,11 @@ public class ServerMonitoringMetrics {
   }
 
   public void setWebUptimeMinutes(long minutes) {
-    webUptimeMinutes.set(minutes);
+    webUptimeMinutes.set((double) minutes);
   }
 
   public void setNumberOfConnectedSonarLintClients(long noOfClients) {
-    numberOfConnectedSonarLintClients.set(noOfClients);
+    numberOfConnectedSonarLintClients.set((double) noOfClients);
   }
 
   public void observeWebApiV1RequestDuration(double durationSeconds, String endpoint) {

@@ -83,19 +83,19 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
 
   private static final List<MeasureUpdateFormula> FORMULAS = asList(
     new MeasureUpdateFormula(CODE_SMELLS, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.CODE_SMELL, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByType(RuleType.CODE_SMELL, false))),
 
     new MeasureUpdateFormula(CoreMetrics.BUGS, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.BUG, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByType(RuleType.BUG, false))),
 
     new MeasureUpdateFormula(CoreMetrics.VULNERABILITIES, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.VULNERABILITY, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByType(RuleType.VULNERABILITY, false))),
 
     new MeasureUpdateFormula(PRIORITIZED_RULE_ISSUES, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countPrioritizedRuleIssues())),
+      (context, issues) -> context.setValue((double) issues.countPrioritizedRuleIssues())),
 
     new MeasureUpdateFormula(CoreMetrics.SECURITY_HOTSPOTS, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, false))),
 
     new MeasureUpdateFormula(CoreMetrics.RELIABILITY_ISSUES, false, true, new ImpactAddChildren(),
       (context, issues) -> context.setValue(issues.getImpactJsonBySoftwareQuality(SoftwareQuality.RELIABILITY, false))),
@@ -116,43 +116,43 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
       (context, issues) -> context.setValue(issues.getImpactJsonBySoftwareQuality(SoftwareQuality.SECURITY, true))),
 
     new MeasureUpdateFormula(CoreMetrics.VIOLATIONS, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolved(false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolved(false))),
 
     new MeasureUpdateFormula(CoreMetrics.BLOCKER_VIOLATIONS, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.BLOCKER, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedBySeverity(Severity.BLOCKER, false))),
 
     new MeasureUpdateFormula(CoreMetrics.CRITICAL_VIOLATIONS, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.CRITICAL, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedBySeverity(Severity.CRITICAL, false))),
 
     new MeasureUpdateFormula(CoreMetrics.MAJOR_VIOLATIONS, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.MAJOR, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedBySeverity(Severity.MAJOR, false))),
 
     new MeasureUpdateFormula(CoreMetrics.MINOR_VIOLATIONS, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.MINOR, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedBySeverity(Severity.MINOR, false))),
 
     new MeasureUpdateFormula(CoreMetrics.INFO_VIOLATIONS, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.INFO, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedBySeverity(Severity.INFO, false))),
 
     new MeasureUpdateFormula(CoreMetrics.FALSE_POSITIVE_ISSUES, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countByResolution(Issue.RESOLUTION_FALSE_POSITIVE, false))),
+      (context, issues) -> context.setValue((double) issues.countByResolution(Issue.RESOLUTION_FALSE_POSITIVE, false))),
 
     new MeasureUpdateFormula(CoreMetrics.ACCEPTED_ISSUES, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countByResolution(Issue.RESOLUTION_WONT_FIX, false))),
+      (context, issues) -> context.setValue((double) issues.countByResolution(Issue.RESOLUTION_WONT_FIX, false))),
 
     new MeasureUpdateFormula(CoreMetrics.HIGH_IMPACT_ACCEPTED_ISSUES, false, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countHighImpactAccepted(false))),
+      (context, issues) -> context.setValue((double) issues.countHighImpactAccepted(false))),
 
     new MeasureUpdateFormula(ISSUES_IN_SANDBOX, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countInSandbox(false))),
+      (context, issues) -> context.setValue((double) issues.countInSandbox(false))),
 
     new MeasureUpdateFormula(CoreMetrics.OPEN_ISSUES, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countByStatus(Issue.STATUS_OPEN, false))),
+      (context, issues) -> context.setValue((double) issues.countByStatus(Issue.STATUS_OPEN, false))),
 
     new MeasureUpdateFormula(CoreMetrics.REOPENED_ISSUES, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countByStatus(Issue.STATUS_REOPENED, false))),
+      (context, issues) -> context.setValue((double) issues.countByStatus(Issue.STATUS_REOPENED, false))),
 
     new MeasureUpdateFormula(CoreMetrics.CONFIRMED_ISSUES, false, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countByStatus(Issue.STATUS_CONFIRMED, false))),
+      (context, issues) -> context.setValue((double) issues.countByStatus(Issue.STATUS_CONFIRMED, false))),
 
     new MeasureUpdateFormula(CoreMetrics.TECHNICAL_DEBT, false, new AddChildren(),
       (context, issues) -> context.setValue(issues.sumEffortOfUnresolved(RuleType.CODE_SMELL, false))),
@@ -186,11 +186,11 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
 
     new MeasureUpdateFormula(SECURITY_HOTSPOTS_REVIEWED_STATUS, false,
       (context, formula) -> context.setValue(context.getValue(SECURITY_HOTSPOTS_REVIEWED_STATUS).orElse(0D) + context.getChildrenHotspotsReviewed()),
-      (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false))),
+      (context, issues) -> context.setValue((double) issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, false))),
 
     new MeasureUpdateFormula(SECURITY_HOTSPOTS_TO_REVIEW_STATUS, false,
       (context, formula) -> context.setValue(context.getValue(SECURITY_HOTSPOTS_TO_REVIEW_STATUS).orElse(0D) + context.getChildrenHotspotsToReview()),
-      (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false))),
+      (context, issues) -> context.setValue((double) issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, false))),
 
     new MeasureUpdateFormula(CoreMetrics.SECURITY_HOTSPOTS_REVIEWED, false, false,
       (context, formula) -> setOrUnsetHotspotsReviewed(context, SECURITY_HOTSPOTS_TO_REVIEW_STATUS, SECURITY_HOTSPOTS_REVIEWED_STATUS),
@@ -208,40 +208,40 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
       asList(SECURITY_HOTSPOTS_TO_REVIEW_STATUS, SECURITY_HOTSPOTS_REVIEWED_STATUS)),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_CODE_SMELLS, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.CODE_SMELL, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByType(RuleType.CODE_SMELL, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_BUGS, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.BUG, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByType(RuleType.BUG, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_VULNERABILITIES, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.VULNERABILITY, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByType(RuleType.VULNERABILITY, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_SECURITY_HOTSPOTS, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByType(RuleType.SECURITY_HOTSPOT, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_VIOLATIONS, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolved(true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolved(true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_BLOCKER_VIOLATIONS, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.BLOCKER, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedBySeverity(Severity.BLOCKER, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_CRITICAL_VIOLATIONS, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.CRITICAL, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedBySeverity(Severity.CRITICAL, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_MAJOR_VIOLATIONS, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.MAJOR, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedBySeverity(Severity.MAJOR, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_MINOR_VIOLATIONS, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.MINOR, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedBySeverity(Severity.MINOR, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_INFO_VIOLATIONS, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedBySeverity(Severity.INFO, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedBySeverity(Severity.INFO, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_ACCEPTED_ISSUES, true, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countByResolution(Issue.RESOLUTION_WONT_FIX, true))),
+      (context, issues) -> context.setValue((double) issues.countByResolution(Issue.RESOLUTION_WONT_FIX, true))),
 
     new MeasureUpdateFormula(NEW_ISSUES_IN_SANDBOX, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countInSandbox(true))),
+      (context, issues) -> context.setValue((double) issues.countInSandbox(true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_TECHNICAL_DEBT, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.sumEffortOfUnresolved(RuleType.CODE_SMELL, true))),
@@ -266,11 +266,11 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
 
     new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS, true,
       (context, formula) -> context.setValue(context.getValue(NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS).orElse(0D) + context.getChildrenNewHotspotsReviewed()),
-      (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true))),
+      (context, issues) -> context.setValue((double) issues.countHotspotsByStatus(Issue.STATUS_REVIEWED, true))),
 
     new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, true,
       (context, formula) -> context.setValue(context.getValue(NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS).orElse(0D) + context.getChildrenNewHotspotsToReview()),
-      (context, issues) -> context.setValue(issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true))),
+      (context, issues) -> context.setValue((double) issues.countHotspotsByStatus(Issue.STATUS_TO_REVIEW, true))),
 
     new MeasureUpdateFormula(NEW_SECURITY_HOTSPOTS_REVIEWED, true, false,
       (context, formula) -> setOrUnsetHotspotsReviewed(context, NEW_SECURITY_HOTSPOTS_TO_REVIEW_STATUS, NEW_SECURITY_HOTSPOTS_REVIEWED_STATUS),
@@ -299,52 +299,52 @@ public class MeasureUpdateFormulaFactoryImpl implements MeasureUpdateFormulaFact
 
     // Metrics based on Software Qualities
     new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_BLOCKER_ISSUES, false, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.BLOCKER, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.BLOCKER, false))),
 
     new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_HIGH_ISSUES, false, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.HIGH, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.HIGH, false))),
 
     new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_MEDIUM_ISSUES, false, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.MEDIUM, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.MEDIUM, false))),
 
     new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_LOW_ISSUES, false, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.LOW, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.LOW, false))),
 
     new MeasureUpdateFormula(SoftwareQualitiesMetrics.SOFTWARE_QUALITY_INFO_ISSUES, false, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.INFO, false))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.INFO, false))),
 
     new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_BLOCKER_ISSUES, true, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.BLOCKER, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.BLOCKER, true))),
 
     new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_HIGH_ISSUES, true, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.HIGH, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.HIGH, true))),
 
     new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_MEDIUM_ISSUES, true, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.MEDIUM, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.MEDIUM, true))),
 
     new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_LOW_ISSUES, true, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.LOW, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.LOW, true))),
 
     new MeasureUpdateFormula(SoftwareQualitiesMetrics.NEW_SOFTWARE_QUALITY_INFO_ISSUES, true, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.INFO, true))),
+      (context, issues) -> context.setValue((double) issues.countUnresolvedByImpactSeverity(org.sonar.api.issue.impact.Severity.INFO, true))),
 
     new MeasureUpdateFormula(CoreMetrics.SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, false, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, false))),
+      (context, issues) -> context.setValue((double) issues.countBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, false))),
 
     new MeasureUpdateFormula(CoreMetrics.SOFTWARE_QUALITY_RELIABILITY_ISSUES, false, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.RELIABILITY, false))),
+      (context, issues) -> context.setValue((double) issues.countBySoftwareQuality(SoftwareQuality.RELIABILITY, false))),
 
     new MeasureUpdateFormula(CoreMetrics.SOFTWARE_QUALITY_SECURITY_ISSUES, false, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.SECURITY, false))),
+      (context, issues) -> context.setValue((double) issues.countBySoftwareQuality(SoftwareQuality.SECURITY, false))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_SOFTWARE_QUALITY_MAINTAINABILITY_ISSUES, true, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, true))),
+      (context, issues) -> context.setValue((double) issues.countBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_SOFTWARE_QUALITY_RELIABILITY_ISSUES, true, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.RELIABILITY, true))),
+      (context, issues) -> context.setValue((double) issues.countBySoftwareQuality(SoftwareQuality.RELIABILITY, true))),
 
     new MeasureUpdateFormula(CoreMetrics.NEW_SOFTWARE_QUALITY_SECURITY_ISSUES, true, true, new AddChildren(),
-      (context, issues) -> context.setValue(issues.countBySoftwareQuality(SoftwareQuality.SECURITY, true))),
+      (context, issues) -> context.setValue((double) issues.countBySoftwareQuality(SoftwareQuality.SECURITY, true))),
 
     new MeasureUpdateFormula(SOFTWARE_QUALITY_MAINTAINABILITY_REMEDIATION_EFFORT, false, true, new AddChildren(),
       (context, issues) -> context.setValue(issues.sumEffortOfUnresolvedBySoftwareQuality(SoftwareQuality.MAINTAINABILITY, false))),

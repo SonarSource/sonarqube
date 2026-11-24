@@ -120,7 +120,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
       return;
     }
 
-    float newDevelopmentCost = path.current().getDevCost().getValue();
+    float newDevelopmentCost = (float) path.current().getDevCost().getValue();
     measureRepository.add(component, this.newDevelopmentCostMetric, newMeasureBuilder().create(newDevelopmentCost));
 
     double density = computeDensity(path.current().getNewDebt(), path.current().getDevCost());
