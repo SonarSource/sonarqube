@@ -7,6 +7,7 @@ sonar {
 dependencies {
   // please keep the list grouped by configuration and ordered by name
   api 'com.google.guava:guava'
+  implementation 'com.sonarsource.sonarqube:group-notifications-unified-app'
 
   api project(':server:sonar-db-dao')
   api project(':server:sonar-webserver-auth')

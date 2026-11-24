@@ -21,6 +21,7 @@ package org.sonar.server.notification.ws;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -45,7 +46,8 @@ class ListGroupsActionIT {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
 
-  private final WsActionTester ws = new WsActionTester(new ListGroupsAction(dbClient, userSession));
+  private final WsActionTester ws = new WsActionTester(new ListGroupsAction(dbClient, userSession,
+    GroupNotificationSubscriptionsTestSupport.service(dbClient, List.of())));
 
   @Test
   void fails_when_not_system_admin() {

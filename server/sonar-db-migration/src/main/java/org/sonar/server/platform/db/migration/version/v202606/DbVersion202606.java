@@ -61,6 +61,7 @@ public class DbVersion202606 implements DbVersion {
       .add(2026_06_030, "Create table 'issue_introduction_history'", CreateIssueIntroductionHistoryTable.class)
       .add(2026_06_031, "Create table 'issue_count_latest'", CreateIssueCountLatestTable.class)
       .add(2026_06_032, "Populate 'issue_count_latest' from 'issue_count_history'", PopulateIssueCountLatest.class)
-      .add(2026_06_033, "Change 'sca_ref_kev_vulns' calendar date columns to DATE type", ChangeScaRefdbKevVulnerabilitiesDateColumnsToDateType.class);
+      .add(2026_06_033, "Change 'sca_ref_kev_vulns' calendar date columns to DATE type", ChangeScaRefdbKevVulnerabilitiesDateColumnsToDateType.class)
+      .add(2026_06_034, "Rename the group-notification banner channel key", UpdateNotificationGroupSubscriptionsBannerChannel.class);
   }
 }

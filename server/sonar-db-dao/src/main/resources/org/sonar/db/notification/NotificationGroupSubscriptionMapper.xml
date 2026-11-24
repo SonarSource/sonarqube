@@ -59,4 +59,13 @@
     ORDER BY created_at ASC
   </select>
 
+  <select id="selectByGroupUuids" resultMap="notifGroupSubMap">
+    <include refid="selectFromNotifGroupSubscriptions"/>
+    WHERE group_uuid IN
+    <foreach collection="groupUuids" item="groupUuid" open="(" separator="," close=")">
+      #{groupUuid}
+    </foreach>
+    ORDER BY created_at ASC
+  </select>
+
 </mapper>

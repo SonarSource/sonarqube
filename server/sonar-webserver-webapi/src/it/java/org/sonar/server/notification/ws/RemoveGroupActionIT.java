@@ -35,9 +35,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.server.notification.ws.AbstractGroupNotificationAction.CHANNEL_KEY;
+import static org.sonar.server.notification.ws.AbstractGroupNotificationAction.PARAM_CHANNEL;
 import static org.sonar.server.notification.ws.AbstractGroupNotificationAction.PARAM_GROUP_UUID;
 import static org.sonar.server.notification.ws.AbstractGroupNotificationAction.PARAM_TYPE;
 
@@ -56,9 +55,8 @@ class RemoveGroupActionIT {
   private final WsActionTester ws = newWs(List.of(TYPE));
 
   private WsActionTester newWs(List<String> groupSubscriptionDispatchers) {
-    Dispatchers dispatchers = mock(Dispatchers.class);
-    when(dispatchers.getGroupSubscriptionDispatchers()).thenReturn(groupSubscriptionDispatchers);
-    return new WsActionTester(new RemoveGroupAction(dbClient, userSession, dispatchers));
+    return new WsActionTester(new RemoveGroupAction(userSession,
+      GroupNotificationSubscriptionsTestSupport.service(dbClient, groupSubscriptionDispatchers)));
   }
 
   @Test
@@ -69,7 +67,7 @@ class RemoveGroupActionIT {
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.params()).extracting(WebService.Param::key)
-      .containsExactlyInAnyOrder(PARAM_GROUP_UUID, PARAM_TYPE);
+      .containsExactlyInAnyOrder(PARAM_GROUP_UUID, PARAM_TYPE, PARAM_CHANNEL);
   }
 
   @Test
@@ -130,6 +128,6 @@ class RemoveGroupActionIT {
 
     assertThatThrownBy(request::execute)
       .isInstanceOf(BadRequestException.class)
-      .hasMessage("Value of parameter 'type' (TestType) must be one of: []");
+      .hasMessage("Unsupported notification type 'TestType' for channel 'EmailNotificationChannel'");
   }
 }

@@ -1,0 +1,44 @@
+/*
+ * SonarQube
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.platform.db.migration.version.v202606;
+
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+
+public class UpdateNotificationGroupSubscriptionsBannerChannel extends DataChange {
+
+  private static final String TABLE_NAME = "notif_group_subscriptions";
+  private static final String LEGACY_CHANNEL_KEY = "SecurityAlertBannerChannel";
+  private static final String BANNER_CHANNEL_KEY = "BannerChannel";
+
+  public UpdateNotificationGroupSubscriptionsBannerChannel(Database db) {
+    super(db);
+  }
+
+  @Override
+  protected void execute(Context context) throws SQLException {
+    context.prepareUpsert("UPDATE " + TABLE_NAME + " SET channel_key = ? WHERE channel_key = ?")
+      .setString(1, BANNER_CHANNEL_KEY)
+      .setString(2, LEGACY_CHANNEL_KEY)
+      .execute()
+      .commit();
+  }
+}

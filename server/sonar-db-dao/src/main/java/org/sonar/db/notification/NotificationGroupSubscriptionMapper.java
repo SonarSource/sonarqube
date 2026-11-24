@@ -40,4 +40,6 @@ public interface NotificationGroupSubscriptionMapper {
   List<NotificationGroupSubscriptionDto> selectByUserUuidWithGroupName(@Param("userUuid") String userUuid);
 
   List<NotificationGroupSubscriptionDto> selectAll();
+
+  List<NotificationGroupSubscriptionDto> selectByGroupUuids(@Param("groupUuids") List<String> groupUuids);
 }

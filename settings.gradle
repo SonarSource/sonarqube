@@ -177,6 +177,10 @@ useLocalUnificationModule('useLocalSecurityAlerts', 'security-alerts',
     ]
   ]
 )
+useLocalUnificationModule('useLocalGroupNotifications', 'notifications/group-notifications',
+  ['group-notifications-unified-app'],
+  [autoSubstitution: true]
+)
 
 useLocalUnificationModule('useLocalHistory', 'reporting/history', ['history-api', 'history-server-app', 'history-core', 'history-sca'], [
   groups: [

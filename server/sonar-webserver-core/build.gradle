@@ -16,6 +16,8 @@ processResources {
 }
 
 dependencies {
+  implementation 'com.sonarsource.sonarqube:group-notifications-unified-app'
+
   // please keep the list grouped by configuration and ordered by name
 
   api 'ch.qos.logback.access:logback-access-common'

@@ -21,11 +21,15 @@ package org.sonar.server.notification.ws;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.user.UserSession;
+import com.sonarsource.groupnotifications.api.GroupNotificationSubscriptionsService;
+import com.sonarsource.groupnotifications.api.model.GroupNotificationSubscription;
+import com.sonarsource.groupnotifications.api.model.GroupNotificationType;
 
 import static org.sonar.server.exceptions.BadRequestException.checkRequest;
 
@@ -33,20 +37,18 @@ public abstract class AbstractGroupNotificationAction implements NotificationsWs
 
   static final String PARAM_GROUP_UUID = "groupUuid";
   static final String PARAM_TYPE = "type";
-  // Group subscriptions are delivered by email only, so the channel is not a request parameter.
+  static final String PARAM_CHANNEL = "channel";
   static final String CHANNEL_KEY = EmailNotificationChannel.class.getSimpleName();
+  static final String BANNER_CHANNEL_KEY = "BannerChannel";
 
-  protected final DbClient dbClient;
   protected final UserSession userSession;
-  private final Dispatchers dispatchers;
+  protected final GroupNotificationSubscriptionsService subscriptionsService;
 
   AbstractGroupNotificationAction(
-    DbClient dbClient,
     UserSession userSession,
-    Dispatchers dispatchers) {
-    this.dbClient = Objects.requireNonNull(dbClient);
+    GroupNotificationSubscriptionsService subscriptionsService) {
     this.userSession = Objects.requireNonNull(userSession);
-    this.dispatchers = Objects.requireNonNull(dispatchers);
+    this.subscriptionsService = Objects.requireNonNull(subscriptionsService);
   }
 
   protected void defineGroupAndTypeParams(WebService.NewAction action) {
@@ -58,7 +60,27 @@ public abstract class AbstractGroupNotificationAction implements NotificationsWs
     action.createParam(PARAM_TYPE)
       .setDescription("Notification type")
       .setRequired(true)
-      .setPossibleValues(dispatchers.getGroupSubscriptionDispatchers());
+      .setPossibleValues(availableTypeKeys());
+
+    action.createParam(PARAM_CHANNEL)
+      .setDescription("Delivery channel. Defaults to email for compatibility.")
+      .setPossibleValues(availableChannelKeys());
+  }
+
+  protected void defineAction(WebService.NewController context, String actionKey, String description) {
+    WebService.NewAction action = context.createAction(actionKey)
+      .setDescription(description)
+      .setSince("2026.5")
+      .setInternal(true)
+      .setPost(true)
+      .setHandler(this);
+    defineGroupAndTypeParams(action);
+  }
+
+  protected void handleSubscription(Request request, Response response, Consumer<GroupNotificationSubscription> operation) {
+    GroupTypeChannel groupTypeChannel = validateAndExtract(request);
+    operation.accept(new GroupNotificationSubscription(null, groupTypeChannel.groupUuid, groupTypeChannel.type, groupTypeChannel.channel));
+    response.noContent();
   }
 
   protected GroupTypeChannel validateAndExtract(Request request) {
@@ -66,12 +88,29 @@ public abstract class AbstractGroupNotificationAction implements NotificationsWs
 
     String groupUuid = request.mandatoryParam(PARAM_GROUP_UUID);
     String type = request.mandatoryParam(PARAM_TYPE);
-    // Only types whose dispatcher is actually registered on this instance are accepted: a type
-    // advertised by neither api/notifications/list nor any handler could never be delivered.
-    List<String> supportedTypes = dispatchers.getGroupSubscriptionDispatchers();
-    checkRequest(supportedTypes.contains(type), "Value of parameter '%s' (%s) must be one of: %s", PARAM_TYPE, type, supportedTypes);
+    String channel = request.param(PARAM_CHANNEL);
+    if (channel == null || channel.isBlank()) {
+      channel = CHANNEL_KEY;
+    }
+    GroupNotificationType requestedType = new GroupNotificationType(type, channel);
+    List<GroupNotificationType> supportedTypes = subscriptionsService.selectAvailableTypes();
+    checkRequest(supportedTypes.contains(requestedType), "Unsupported notification type '%s' for channel '%s'", type, channel);
 
-    return new GroupTypeChannel(groupUuid, type, CHANNEL_KEY);
+    return new GroupTypeChannel(groupUuid, type, channel);
+  }
+
+  private List<String> availableTypeKeys() {
+    return subscriptionsService.selectAvailableTypes().stream()
+      .map(GroupNotificationType::notificationType)
+      .distinct()
+      .toList();
+  }
+
+  private List<String> availableChannelKeys() {
+    return subscriptionsService.selectAvailableTypes().stream()
+      .map(GroupNotificationType::channelKey)
+      .distinct()
+      .toList();
   }
 
   public static class GroupTypeChannel {

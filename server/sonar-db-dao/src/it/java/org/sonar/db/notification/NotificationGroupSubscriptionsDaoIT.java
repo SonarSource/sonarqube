@@ -35,6 +35,14 @@ import static org.assertj.core.groups.Tuple.tuple;
 
 class NotificationGroupSubscriptionsDaoIT {
 
+  private static final String TYPE_A = "TypeA";
+  private static final String TYPE_B = "TypeB";
+  private static final String TYPE_Z = "TypeZ";
+  private static final String CHANNEL_X = "ChannelX";
+  private static final String CHANNEL_Y = "ChannelY";
+  private static final String GROUP_ALPHA = "alpha";
+  private static final String GROUP_BETA = "beta";
+
   @RegisterExtension
   private final DbTester db = DbTester.create(System2.INSTANCE);
   private final DbSession dbSession = db.getSession();
@@ -45,14 +53,14 @@ class NotificationGroupSubscriptionsDaoIT {
   void insert_and_selectAll() {
     GroupDto group = db.users().insertGroup();
 
-    underTest.insert(dbSession, group.getUuid(), "TypeA", "ChannelX");
+    underTest.insert(dbSession, group.getUuid(), TYPE_A, CHANNEL_X);
     dbSession.commit();
 
     List<NotificationGroupSubscriptionDto> results = underTest.selectAll(dbSession);
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getGroupUuid()).isEqualTo(group.getUuid());
-    assertThat(results.get(0).getNotificationType()).isEqualTo("TypeA");
-    assertThat(results.get(0).getChannelKey()).isEqualTo("ChannelX");
+    assertThat(results.get(0).getNotificationType()).isEqualTo(TYPE_A);
+    assertThat(results.get(0).getChannelKey()).isEqualTo(CHANNEL_X);
   }
 
   @Nested
@@ -64,18 +72,27 @@ class NotificationGroupSubscriptionsDaoIT {
     void setUp() {
       group1 = db.users().insertGroup();
       group2 = db.users().insertGroup();
-      underTest.insert(dbSession, group1.getUuid(), "TypeA", "ChannelX");
-      underTest.insert(dbSession, group1.getUuid(), "TypeB", "ChannelY");
-      underTest.insert(dbSession, group2.getUuid(), "TypeA", "ChannelX");
+      underTest.insert(dbSession, group1.getUuid(), TYPE_A, CHANNEL_X);
+      underTest.insert(dbSession, group1.getUuid(), TYPE_B, CHANNEL_Y);
+      underTest.insert(dbSession, group2.getUuid(), TYPE_A, CHANNEL_X);
       dbSession.commit();
     }
 
     @Test
     void selectByTypeAndChannel_returns_matching_subscriptions() {
-      List<NotificationGroupSubscriptionDto> results = underTest.selectByTypeAndChannel(dbSession, "TypeA", "ChannelX");
+      List<NotificationGroupSubscriptionDto> results = underTest.selectByTypeAndChannel(dbSession, TYPE_A, CHANNEL_X);
       assertThat(results).hasSize(2);
       assertThat(results).extracting(NotificationGroupSubscriptionDto::getGroupUuid)
         .containsExactlyInAnyOrder(group1.getUuid(), group2.getUuid());
+    }
+
+    @Test
+    void selectByGroupUuids_returns_only_matching_subscriptions() {
+      List<NotificationGroupSubscriptionDto> results = underTest.selectByGroupUuids(dbSession, List.of(group2.getUuid()));
+
+      assertThat(results)
+        .extracting(NotificationGroupSubscriptionDto::getGroupUuid, NotificationGroupSubscriptionDto::getNotificationType)
+        .containsExactly(tuple(group2.getUuid(), TYPE_A));
     }
 
     @Test
@@ -94,22 +111,22 @@ class NotificationGroupSubscriptionsDaoIT {
   void deleteByGroupAndTypeAndChannel_removes_matching_row() {
     GroupDto group = db.users().insertGroup();
 
-    underTest.insert(dbSession, group.getUuid(), "TypeA", "ChannelX");
-    underTest.insert(dbSession, group.getUuid(), "TypeB", "ChannelX");
+      underTest.insert(dbSession, group.getUuid(), TYPE_A, CHANNEL_X);
+      underTest.insert(dbSession, group.getUuid(), TYPE_B, CHANNEL_X);
     dbSession.commit();
 
-    int deleted = underTest.deleteByGroupAndTypeAndChannel(dbSession, group.getUuid(), "TypeA", "ChannelX");
+      int deleted = underTest.deleteByGroupAndTypeAndChannel(dbSession, group.getUuid(), TYPE_A, CHANNEL_X);
     dbSession.commit();
 
     assertThat(deleted).isEqualTo(1);
     List<NotificationGroupSubscriptionDto> remaining = underTest.selectAll(dbSession);
     assertThat(remaining).hasSize(1);
-    assertThat(remaining.get(0).getNotificationType()).isEqualTo("TypeB");
+      assertThat(remaining.get(0).getNotificationType()).isEqualTo(TYPE_B);
   }
 
   @Test
   void deleteByGroupAndTypeAndChannel_is_noop_when_not_found() {
-    int deleted = underTest.deleteByGroupAndTypeAndChannel(dbSession, "unknown-uuid", "TypeA", "ChannelX");
+      int deleted = underTest.deleteByGroupAndTypeAndChannel(dbSession, "unknown-uuid", TYPE_A, CHANNEL_X);
     dbSession.commit();
 
     assertThat(deleted).isZero();
@@ -126,36 +143,39 @@ class NotificationGroupSubscriptionsDaoIT {
       user = db.users().insertUser();
     }
 
+    private List<NotificationGroupSubscriptionDto> selectByUser() {
+      dbSession.commit();
+      return underTest.selectByUserUuidWithGroupName(dbSession, user.getUuid());
+    }
+
     @Test
     void returns_group_and_type_for_member() {
-      GroupDto group = db.users().insertGroup("alpha");
+      GroupDto group = db.users().insertGroup(GROUP_ALPHA);
       db.users().insertMember(group, user);
-      underTest.insert(dbSession, group.getUuid(), "TypeA", "ChannelX");
-      dbSession.commit();
+      underTest.insert(dbSession, group.getUuid(), TYPE_A, CHANNEL_X);
 
-      List<NotificationGroupSubscriptionDto> results = underTest.selectByUserUuidWithGroupName(dbSession, user.getUuid());
+      List<NotificationGroupSubscriptionDto> results = selectByUser();
 
       assertThat(results)
         .extracting(NotificationGroupSubscriptionDto::getGroupName, NotificationGroupSubscriptionDto::getNotificationType)
-        .containsExactly(tuple("alpha", "TypeA"));
+        .containsExactly(tuple(GROUP_ALPHA, TYPE_A));
     }
 
     @Test
     void returns_results_ordered_by_group_name_then_notification_type() {
-      GroupDto groupBeta = db.users().insertGroup("beta");
-      GroupDto groupAlpha = db.users().insertGroup("alpha");
+      GroupDto groupBeta = db.users().insertGroup(GROUP_BETA);
+      GroupDto groupAlpha = db.users().insertGroup(GROUP_ALPHA);
       db.users().insertMember(groupBeta, user);
       db.users().insertMember(groupAlpha, user);
-      underTest.insert(dbSession, groupBeta.getUuid(), "TypeB", "ChannelX");
-      underTest.insert(dbSession, groupAlpha.getUuid(), "TypeZ", "ChannelX");
-      underTest.insert(dbSession, groupAlpha.getUuid(), "TypeA", "ChannelX");
-      dbSession.commit();
+      underTest.insert(dbSession, groupBeta.getUuid(), TYPE_B, CHANNEL_X);
+      underTest.insert(dbSession, groupAlpha.getUuid(), TYPE_Z, CHANNEL_X);
+      underTest.insert(dbSession, groupAlpha.getUuid(), TYPE_A, CHANNEL_X);
 
-      List<NotificationGroupSubscriptionDto> results = underTest.selectByUserUuidWithGroupName(dbSession, user.getUuid());
+      List<NotificationGroupSubscriptionDto> results = selectByUser();
 
       assertThat(results)
         .extracting(NotificationGroupSubscriptionDto::getGroupName, NotificationGroupSubscriptionDto::getNotificationType)
-        .containsExactly(tuple("alpha", "TypeA"), tuple("alpha", "TypeZ"), tuple("beta", "TypeB"));
+        .containsExactly(tuple(GROUP_ALPHA, TYPE_A), tuple(GROUP_ALPHA, TYPE_Z), tuple(GROUP_BETA, TYPE_B));
     }
 
     @Test
@@ -163,36 +183,36 @@ class NotificationGroupSubscriptionsDaoIT {
       GroupDto memberGroup = db.users().insertGroup("member-group");
       GroupDto otherGroup = db.users().insertGroup("other-group");
       db.users().insertMember(memberGroup, user);
-      underTest.insert(dbSession, memberGroup.getUuid(), "TypeA", "ChannelX");
-      underTest.insert(dbSession, otherGroup.getUuid(), "TypeB", "ChannelX");
+      underTest.insert(dbSession, memberGroup.getUuid(), TYPE_A, CHANNEL_X);
+      underTest.insert(dbSession, otherGroup.getUuid(), TYPE_B, CHANNEL_X);
       dbSession.commit();
 
       List<NotificationGroupSubscriptionDto> results = underTest.selectByUserUuidWithGroupName(dbSession, user.getUuid());
 
       assertThat(results)
         .extracting(NotificationGroupSubscriptionDto::getGroupName, NotificationGroupSubscriptionDto::getNotificationType)
-        .containsExactly(tuple("member-group", "TypeA"));
+        .containsExactly(tuple("member-group", TYPE_A));
     }
 
     @Test
     void deduplicates_when_same_type_subscribed_on_multiple_channels() {
       GroupDto group = db.users().insertGroup("mygroup");
       db.users().insertMember(group, user);
-      underTest.insert(dbSession, group.getUuid(), "TypeA", "ChannelX");
-      underTest.insert(dbSession, group.getUuid(), "TypeA", "ChannelY");
+      underTest.insert(dbSession, group.getUuid(), TYPE_A, CHANNEL_X);
+      underTest.insert(dbSession, group.getUuid(), TYPE_A, CHANNEL_Y);
       dbSession.commit();
 
       List<NotificationGroupSubscriptionDto> results = underTest.selectByUserUuidWithGroupName(dbSession, user.getUuid());
 
       assertThat(results)
         .extracting(NotificationGroupSubscriptionDto::getGroupName, NotificationGroupSubscriptionDto::getNotificationType)
-        .containsExactly(tuple("mygroup", "TypeA"));
+        .containsExactly(tuple("mygroup", TYPE_A));
     }
 
     @Test
     void returns_empty_when_user_has_no_group_memberships() {
       GroupDto group = db.users().insertGroup("unused-group");
-      underTest.insert(dbSession, group.getUuid(), "TypeA", "ChannelX");
+      underTest.insert(dbSession, group.getUuid(), TYPE_A, CHANNEL_X);
       dbSession.commit();
 
       List<NotificationGroupSubscriptionDto> results = underTest.selectByUserUuidWithGroupName(dbSession, user.getUuid());

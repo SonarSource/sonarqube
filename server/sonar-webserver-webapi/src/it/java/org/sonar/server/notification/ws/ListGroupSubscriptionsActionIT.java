@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -40,6 +41,8 @@ import static org.assertj.core.api.Assertions.tuple;
 
 class ListGroupSubscriptionsActionIT {
 
+  private static final String NOTIFICATION_TYPE = "security-alert-raised";
+
   @RegisterExtension
   public final UserSessionRule userSession = UserSessionRule.standalone();
   @RegisterExtension
@@ -48,7 +51,8 @@ class ListGroupSubscriptionsActionIT {
   private final DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
 
-  private final WsActionTester ws = new WsActionTester(new ListGroupSubscriptionsAction(dbClient, userSession));
+  private final WsActionTester ws = new WsActionTester(new ListGroupSubscriptionsAction(dbClient, userSession,
+    GroupNotificationSubscriptionsTestSupport.service(dbClient, List.of())));
 
   @Test
   void fails_when_anonymous() {
@@ -99,8 +103,8 @@ class ListGroupSubscriptionsActionIT {
       @Test
       void returns_subscriptions_for_user_groups_only() {
         GroupDto otherGroup = db.users().insertGroup("other-group");
-        dbClient.notificationGroupSubscriptionsDao().insert(dbSession, group.getUuid(), "security-alert-raised", "email");
-        dbClient.notificationGroupSubscriptionsDao().insert(dbSession, otherGroup.getUuid(), "security-alert-raised", "email");
+        dbClient.notificationGroupSubscriptionsDao().insert(dbSession, group.getUuid(), NOTIFICATION_TYPE, "email");
+        dbClient.notificationGroupSubscriptionsDao().insert(dbSession, otherGroup.getUuid(), NOTIFICATION_TYPE, "email");
         dbSession.commit();
 
         Notifications.ListGroupSubscriptionsResponse response = ws.newRequest()
@@ -108,14 +112,15 @@ class ListGroupSubscriptionsActionIT {
 
         assertThat(response.getGroupSubscriptionsList())
           .extracting(
+            Notifications.UserGroupSubscription::getGroupUuid,
             Notifications.UserGroupSubscription::getGroupName,
             Notifications.UserGroupSubscription::getNotificationType)
-          .containsExactly(tuple("my-group", "security-alert-raised"));
+          .containsExactly(tuple(group.getUuid(), "my-group", NOTIFICATION_TYPE));
       }
 
       @Test
       void does_not_require_admin_permission() {
-        dbClient.notificationGroupSubscriptionsDao().insert(dbSession, group.getUuid(), "security-alert-raised", "email");
+        dbClient.notificationGroupSubscriptionsDao().insert(dbSession, group.getUuid(), NOTIFICATION_TYPE, "email");
         dbSession.commit();
         userSession.logIn(user).setNonSystemAdministrator();
 

@@ -2,7 +2,8 @@
   "groupSubscriptions": [
     {
       "groupName": "security-team",
-      "notificationType": "security-alert-raised"
+      "notificationType": "security-alert-raised",
+      "channelKey": "BannerChannel"
     }
   ]
 }

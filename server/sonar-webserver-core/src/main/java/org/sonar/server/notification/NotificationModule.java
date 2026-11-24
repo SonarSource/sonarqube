@@ -23,12 +23,17 @@ import org.sonar.core.platform.Module;
 import org.sonar.server.email.EmailSmtpConfiguration;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.oauth.OAuthMicrosoftRestClient;
+import com.sonarsource.groupnotifications.shared.DefaultGroupNotificationSubscriptionsService;
 
 public class NotificationModule extends Module {
   @Override
   protected void configureModule() {
     add(
       EmailSmtpConfiguration.class,
+      DbGroupNotificationMembershipProvider.class,
+      DbGroupNotificationSubscriptionsStore.class,
+      DefaultGroupNotificationSubscriptionsService.class,
+      DispatchersGroupNotificationTypeProvider.class,
       NotificationService.class,
       DefaultNotificationManager.class,
       NotificationDaemon.class,

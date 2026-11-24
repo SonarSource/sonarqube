@@ -19,10 +19,13 @@
  */
 package org.sonar.db.notification;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 public class NotificationGroupSubscriptionsDao implements Dao {
@@ -62,6 +65,19 @@ public class NotificationGroupSubscriptionsDao implements Dao {
 
   public List<NotificationGroupSubscriptionDto> selectAll(DbSession session) {
     return mapper(session).selectAll();
+  }
+
+  public List<NotificationGroupSubscriptionDto> selectByGroupUuids(DbSession session, Collection<String> groupUuids) {
+    if (groupUuids.isEmpty()) {
+      return List.of();
+    }
+    List<NotificationGroupSubscriptionDto> result = new ArrayList<>();
+    DatabaseUtils.executeLargeInputs(groupUuids, input -> {
+      List<NotificationGroupSubscriptionDto> rows = mapper(session).selectByGroupUuids(input);
+      result.addAll(rows);
+      return rows;
+    });
+    return result;
   }
 
   private static NotificationGroupSubscriptionMapper mapper(DbSession session) {

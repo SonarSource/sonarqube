@@ -22,41 +22,22 @@ package org.sonar.server.notification.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.server.user.UserSession;
-
-import static org.sonar.server.exceptions.NotFoundException.checkFound;
+import com.sonarsource.groupnotifications.api.GroupNotificationSubscriptionsService;
 
 public class AddGroupAction extends AbstractGroupNotificationAction {
 
-  public AddGroupAction(DbClient dbClient, UserSession userSession, Dispatchers dispatchers) {
-    super(dbClient, userSession, dispatchers);
+  public AddGroupAction(UserSession userSession, GroupNotificationSubscriptionsService subscriptionsService) {
+    super(userSession, subscriptionsService);
   }
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("add_group")
-      .setDescription("Subscribe a group to a notification type. Requires system administration permission.")
-      .setSince("2026.5")
-      .setInternal(true)
-      .setPost(true)
-      .setHandler(this);
-
-    defineGroupAndTypeParams(action);
+    defineAction(context, "add_group", "Subscribe a group to a notification type. Requires system administration permission.");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    GroupTypeChannel groupTypeChannel = validateAndExtract(request);
-
-    try (DbSession session = dbClient.openSession(false)) {
-      checkFound(dbClient.groupDao().selectByUuid(session, groupTypeChannel.groupUuid), "Group '%s' not found", groupTypeChannel.groupUuid);
-      dbClient.notificationGroupSubscriptionsDao().deleteByGroupAndTypeAndChannel(session, groupTypeChannel.groupUuid, groupTypeChannel.type, groupTypeChannel.channel);
-      dbClient.notificationGroupSubscriptionsDao().insert(session, groupTypeChannel.groupUuid, groupTypeChannel.type, groupTypeChannel.channel);
-      session.commit();
-    }
-
-    response.noContent();
+    handleSubscription(request, response, subscriptionsService::add);
   }
 }

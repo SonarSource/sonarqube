@@ -44,10 +44,10 @@ import org.sonar.db.permission.AuthorizationDao;
 import org.sonar.db.permission.GlobalPermission;
 import org.sonar.db.permission.template.PermissionTemplateDao;
 import org.sonar.db.provisioning.GithubOrganizationGroupDao;
+import org.sonar.db.notification.NotificationGroupSubscriptionsDao;
 import org.sonar.db.qualitygate.QualityGateGroupPermissionsDao;
 import org.sonar.db.qualityprofile.QProfileEditGroupsDao;
 import org.sonar.db.scim.ScimGroupDao;
-import org.sonar.db.notification.NotificationGroupSubscriptionsDao;
 import org.sonar.db.user.ExternalGroupDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
@@ -107,26 +107,27 @@ public class GroupServiceTest {
 
   private void mockNeededDaos() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
-    when(dbClient.authorizationDao()).thenReturn(authorizationDao);
     RoleDao roleDao = mock(RoleDao.class);
-    when(dbClient.roleDao()).thenReturn(roleDao);
     PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
-    when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
     UserGroupDao userGroupDao = mock(UserGroupDao.class);
-    when(dbClient.userGroupDao()).thenReturn(userGroupDao);
     QProfileEditGroupsDao qProfileEditGroupsDao = mock(QProfileEditGroupsDao.class);
-    when(dbClient.qProfileEditGroupsDao()).thenReturn(qProfileEditGroupsDao);
     QualityGateGroupPermissionsDao qualityGateGroupPermissionsDao = mock(QualityGateGroupPermissionsDao.class);
-    when(dbClient.qualityGateGroupPermissionsDao()).thenReturn(qualityGateGroupPermissionsDao);
     ScimGroupDao scimGroupDao = mock(ScimGroupDao.class);
-    when(dbClient.scimGroupDao()).thenReturn(scimGroupDao);
     ExternalGroupDao externalGroupDao = mock(ExternalGroupDao.class);
-    when(dbClient.externalGroupDao()).thenReturn(externalGroupDao);
     GroupDao groupDao = mock(GroupDao.class);
-    when(dbClient.groupDao()).thenReturn(groupDao);
     GithubOrganizationGroupDao githubOrganizationGroupDao = mock(GithubOrganizationGroupDao.class);
-    when(dbClient.githubOrganizationGroupDao()).thenReturn(githubOrganizationGroupDao);
     NotificationGroupSubscriptionsDao notificationGroupSubscriptionsDao = mock(NotificationGroupSubscriptionsDao.class);
+
+    when(dbClient.authorizationDao()).thenReturn(authorizationDao);
+    when(dbClient.roleDao()).thenReturn(roleDao);
+    when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
+    when(dbClient.userGroupDao()).thenReturn(userGroupDao);
+    when(dbClient.qProfileEditGroupsDao()).thenReturn(qProfileEditGroupsDao);
+    when(dbClient.qualityGateGroupPermissionsDao()).thenReturn(qualityGateGroupPermissionsDao);
+    when(dbClient.scimGroupDao()).thenReturn(scimGroupDao);
+    when(dbClient.externalGroupDao()).thenReturn(externalGroupDao);
+    when(dbClient.groupDao()).thenReturn(groupDao);
+    when(dbClient.githubOrganizationGroupDao()).thenReturn(githubOrganizationGroupDao);
     when(dbClient.notificationGroupSubscriptionsDao()).thenReturn(notificationGroupSubscriptionsDao);
   }
 
@@ -506,6 +507,7 @@ public class GroupServiceTest {
     verify(dbClient.scimGroupDao(), never()).deleteByGroupUuid(dbSession, groupDto.getUuid());
     verify(dbClient.groupDao(), never()).deleteByUuid(dbSession, groupDto.getUuid(), groupDto.getName());
     verify(dbClient.githubOrganizationGroupDao(), never()).deleteByGroupUuid(dbSession, groupDto.getUuid());
+    verify(dbClient.notificationGroupSubscriptionsDao(), never()).deleteByGroupUuid(dbSession, groupDto.getUuid());
   }
 
   private void verifyGroupDelete(DbSession dbSession, GroupDto groupDto) {
@@ -518,5 +520,6 @@ public class GroupServiceTest {
     verify(dbClient.externalGroupDao()).deleteByGroupUuid(dbSession, groupDto.getUuid());
     verify(dbClient.groupDao()).deleteByUuid(dbSession, groupDto.getUuid(), groupDto.getName());
     verify(dbClient.githubOrganizationGroupDao()).deleteByGroupUuid(dbSession, groupDto.getUuid());
+    verify(dbClient.notificationGroupSubscriptionsDao()).deleteByGroupUuid(dbSession, groupDto.getUuid());
   }
 }

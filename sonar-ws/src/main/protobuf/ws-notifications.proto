@@ -27,6 +27,12 @@ option optimize_for = SPEED;
 // WS api/notifications/list_groups
 message ListGroupsResponse {
   repeated GroupSubscription subscriptions = 1;
+  repeated GroupNotificationType availableTypes = 2;
+}
+
+message GroupNotificationType {
+  optional string notificationType = 1;
+  optional string channelKey = 2;
 }
 
 message GroupSubscription {
@@ -44,6 +50,8 @@ message ListGroupSubscriptionsResponse {
 message UserGroupSubscription {
   optional string groupName = 1;
   optional string notificationType = 2;
+  optional string channelKey = 3;
+  optional string groupUuid = 4;
 }
 
 // WS api/notifications/list

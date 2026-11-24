@@ -27,9 +27,10 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.notification.NotificationGroupSubscriptionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
+import com.sonarsource.groupnotifications.api.GroupNotificationSubscriptionsService;
+import com.sonarsource.groupnotifications.api.model.GroupNotificationSubscription;
 import org.sonarqube.ws.Notifications;
 
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -38,10 +39,12 @@ public class ListGroupsAction implements NotificationsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final GroupNotificationSubscriptionsService subscriptionsService;
 
-  public ListGroupsAction(DbClient dbClient, UserSession userSession) {
+  public ListGroupsAction(DbClient dbClient, UserSession userSession, GroupNotificationSubscriptionsService subscriptionsService) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.subscriptionsService = subscriptionsService;
   }
 
   @Override
@@ -58,20 +61,26 @@ public class ListGroupsAction implements NotificationsWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkIsSystemAdministrator();
 
+    List<GroupNotificationSubscription> subscriptions = subscriptionsService.selectByOrganization(null);
     try (DbSession session = dbClient.openSession(false)) {
-      List<NotificationGroupSubscriptionDto> subscriptions = dbClient.notificationGroupSubscriptionsDao().selectAll(session);
-      List<String> groupUuids = subscriptions.stream().map(NotificationGroupSubscriptionDto::getGroupUuid).distinct().toList();
-      Map<String, String> namesByUuid = dbClient.groupDao().selectByUuids(session, groupUuids)
-        .stream()
-        .collect(Collectors.toMap(GroupDto::getUuid, GroupDto::getName));
+      List<String> groupUuids = subscriptions.stream().map(GroupNotificationSubscription::groupUuid).distinct().toList();
+      Map<String, String> namesByUuid = groupUuids.isEmpty()
+        ? Map.of()
+        : dbClient.groupDao().selectByUuids(session, groupUuids).stream()
+          .collect(Collectors.toMap(GroupDto::getUuid, GroupDto::getName));
 
       Notifications.ListGroupsResponse.Builder responseBuilder = Notifications.ListGroupsResponse.newBuilder();
-      for (NotificationGroupSubscriptionDto sub : subscriptions) {
+      subscriptionsService.selectAvailableTypes().forEach(type -> responseBuilder.addAvailableTypes(
+        Notifications.GroupNotificationType.newBuilder()
+          .setNotificationType(type.notificationType())
+          .setChannelKey(type.channelKey())));
+      for (GroupNotificationSubscription sub : subscriptions) {
+        GroupNotificationSubscriptionView view = GroupNotificationSubscriptionView.from(sub, namesByUuid);
         responseBuilder.addSubscriptions(Notifications.GroupSubscription.newBuilder()
-          .setGroupUuid(sub.getGroupUuid())
-          .setGroupName(namesByUuid.getOrDefault(sub.getGroupUuid(), sub.getGroupUuid()))
-          .setNotificationType(sub.getNotificationType())
-          .setChannelKey(sub.getChannelKey()));
+          .setGroupUuid(view.groupUuid())
+          .setGroupName(view.groupName())
+          .setNotificationType(view.notificationType())
+          .setChannelKey(view.channelKey()));
       }
       writeProtobuf(responseBuilder.build(), request, response);
     }
