@@ -237,6 +237,7 @@ task zip(type: ParallelZip, dependsOn: [configurations.compileClasspath]) {
       exclude 'bin/linux-x86-64/sonar.sh'
       exclude 'bin/macosx-universal-64/sonar.sh'
       exclude 'security/report-metadata.json'
+      exclude 'security/*vex.json'
       rename { fileName ->
         if (fileName == 'CVE-review-and-treatment-status-sqcb.csv') {
           return "CVE-review-and-treatment-status-sqcb-${version}.csv"
@@ -254,6 +255,18 @@ task zip(type: ParallelZip, dependsOn: [configurations.compileClasspath]) {
             'generated_at': new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC")),
             'sqcbVersion': version
     ])
+  }
+
+  def vexReports = fileTree(file('src/main/assembly/security')) {
+    include '*vex.json'
+  }
+  def vexFiles = vexReports.files
+  if (vexFiles.size() != 1) {
+    throw new GradleException("Expected exactly one *vex.json in src/main/assembly/security but found ${vexFiles.size()}")
+  }
+  into("${archiveDir}/security/") {
+    from vexFiles
+    rename { "sonarqube-community-zip-${version}-vex.json" }
   }
 
   into("${archiveDir}/licenses") {
