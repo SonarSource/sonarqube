@@ -92,6 +92,7 @@ public class DefaultIssue implements Issue, Trackable {
   private Object locations = null;
 
   private boolean isFromExternalRuleEngine = false;
+  private IssueProducer issueProducer = IssueProducer.SCANNER;
 
   // FUNCTIONAL DATES
   private Date creationDate = null;
@@ -312,6 +313,15 @@ public class DefaultIssue implements Issue, Trackable {
 
   public DefaultIssue setIsFromExternalRuleEngine(boolean isFromExternalRuleEngine) {
     this.isFromExternalRuleEngine = isFromExternalRuleEngine;
+    return this;
+  }
+
+  public IssueProducer getIssueProducer() {
+    return issueProducer;
+  }
+
+  public DefaultIssue setIssueProducer(IssueProducer issueProducer) {
+    this.issueProducer = issueProducer;
     return this;
   }
 

@@ -26,6 +26,7 @@ import org.sonar.ce.task.projectanalysis.component.Component;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolder;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 
 public class NewIssueClassifier {
@@ -55,6 +56,9 @@ public class NewIssueClassifier {
       }
 
       if (isOnBranchUsingReferenceBranch()) {
+        if (issue.getIssueProducer() == IssueProducer.HUNTER_AGENT) {
+          return issue.isNewCodeReferenceIssue();
+        }
         return hasAtLeastOneLocationOnChangedLines(component, issue);
       }
     }

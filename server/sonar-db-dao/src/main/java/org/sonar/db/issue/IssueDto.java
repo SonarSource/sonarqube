@@ -631,6 +631,7 @@ public class IssueDto extends IssueWithoutRuleInfoDto {
     issue.setSelectedAt(selectedAt);
     issue.setLocations(parseLocations());
     issue.setIsFromExternalRuleEngine(isExternal);
+    issue.setIssueProducer(getIssueProducer());
     issue.setQuickFixAvailable(quickFixAvailable);
     issue.setIsNewCodeReferenceIssue(isNewCodeReferenceIssue);
     issue.setCodeVariants(getCodeVariants());

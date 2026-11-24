@@ -462,6 +462,7 @@ public class ComponentIssuesLoader {
     issue.setSelectedAt(source.getSelectedAt());
     issue.setLocations(source.parseLocations());
     issue.setIsFromExternalRuleEngine(rule.isExternal());
+    issue.setIssueProducer(source.getIssueProducer());
     issue.setQuickFixAvailable(source.isQuickFixAvailable());
     issue.setIsNewCodeReferenceIssue(source.isNewCodeReferenceIssue());
     issue.setCodeVariants(source.getCodeVariants());

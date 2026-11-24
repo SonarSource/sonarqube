@@ -36,6 +36,7 @@ import org.sonar.api.rules.CleanCodeAttribute;
 import org.sonar.core.rule.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 
@@ -67,6 +68,7 @@ class IssueDtoTest {
 
     IssueDto dto = new IssueDto()
       .setKee("100")
+      .setIssueProducer(IssueProducer.HUNTER_AGENT)
       .setType(RuleType.VULNERABILITY)
       .setRuleUuid("rule-uuid-1")
       .setRuleKey("java", "AvoidCycle")
@@ -102,6 +104,7 @@ class IssueDtoTest {
 
     DefaultIssue expected = new DefaultIssue()
       .setKey("100")
+      .setIssueProducer(IssueProducer.HUNTER_AGENT)
       .setType(RuleType.VULNERABILITY)
       .setRuleKey(RuleKey.of("java", "AvoidCycle"))
       .setLanguage("xoo")

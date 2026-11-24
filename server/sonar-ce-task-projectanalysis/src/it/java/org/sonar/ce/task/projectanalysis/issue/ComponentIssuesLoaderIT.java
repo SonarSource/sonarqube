@@ -56,6 +56,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -291,8 +292,8 @@ public class ComponentIssuesLoaderIT {
     List<DefaultIssue> defaultIssues = newComponentIssuesLoaderWithActiveRules().loadOpenIssues(file.uuid());
 
     assertThat(defaultIssues)
-      .extracting(DefaultIssue::key)
-      .containsExactlyInAnyOrder(scannerIssue.getKey(), hunterAgentIssue.getKey());
+      .extracting(DefaultIssue::key, DefaultIssue::getIssueProducer)
+      .containsExactlyInAnyOrder(tuple(scannerIssue.getKey(), IssueProducer.SCANNER), tuple(hunterAgentIssue.getKey(), IssueProducer.HUNTER_AGENT));
   }
 
   @Test
@@ -343,6 +344,27 @@ public class ComponentIssuesLoaderIT {
     assertThat(defaultIssues)
       .extracting(DefaultIssue::key)
       .containsExactly(hunterAgentIssue.getKey());
+  }
+
+  @Test
+  public void loadAllOpenHunterIssuesForBranch_preserves_producer_and_reference_markers() {
+    ComponentDto project = db.components().insertPublicProject().getMainBranchComponent();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDto rule = db.rules().insert(t -> t.setType(CODE_SMELL));
+    ruleRepositoryRule.add(rule);
+    db.issues().insert(rule, project, file, t -> t.setType(CODE_SMELL).setIssueProducer(IssueProducer.SCANNER));
+    IssueDto unmarkedIssue = db.issues().insert(rule, project, file, t -> t.setType(CODE_SMELL).setIssueProducer(IssueProducer.HUNTER_AGENT));
+    IssueDto markedIssue = db.issues().insert(rule, project, file, t -> t.setType(CODE_SMELL).setIssueProducer(IssueProducer.HUNTER_AGENT));
+    db.issues().insertNewCodeReferenceIssue(markedIssue);
+
+    var issuesByComponent = newComponentIssuesLoaderWithActiveRules().loadAllOpenHunterIssuesForBranch(project.uuid());
+
+    assertThat(issuesByComponent).containsOnlyKeys(file.uuid());
+    assertThat(issuesByComponent.get(file.uuid()))
+      .extracting(DefaultIssue::key, DefaultIssue::getIssueProducer, DefaultIssue::isNewCodeReferenceIssue)
+      .containsExactlyInAnyOrder(
+        tuple(unmarkedIssue.getKey(), IssueProducer.HUNTER_AGENT, false),
+        tuple(markedIssue.getKey(), IssueProducer.HUNTER_AGENT, true));
   }
 
   @Test

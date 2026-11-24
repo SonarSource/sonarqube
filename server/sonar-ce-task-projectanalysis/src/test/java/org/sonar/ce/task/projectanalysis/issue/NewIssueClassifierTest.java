@@ -31,6 +31,7 @@ import org.sonar.ce.task.projectanalysis.period.Period;
 import org.sonar.ce.task.projectanalysis.period.PeriodHolderRule;
 import org.sonar.ce.task.projectanalysis.source.NewLinesRepository;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueProducer;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.newcodeperiod.NewCodePeriodType;
 import org.sonar.db.protobuf.DbCommons;
@@ -186,6 +187,61 @@ public class NewIssueClassifierTest {
     assertThat(newIssueClassifier.isNew(mock(Component.class), issue)).isFalse();
     verify(issue).creationDate();
     verifyNoMoreInteractions(issue);
+  }
+
+  @Test
+  public void isNew_returns_false_for_unmarked_hunter_issue_on_changed_lines() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
+    Component file = mock(Component.class);
+    when(file.getType()).thenReturn(Component.Type.FILE);
+    when(newLinesRepository.getNewLines(file)).thenReturn(Optional.of(Set.of(2)));
+    DefaultIssue issue = new DefaultIssue()
+      .setIssueProducer(IssueProducer.HUNTER_AGENT)
+      .setLocations(DbIssues.Locations.newBuilder()
+        .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(2).setEndLine(2))
+        .build());
+
+    assertThat(newIssueClassifier.hasAtLeastOneLocationOnChangedLines(file, issue)).isTrue();
+    assertThat(newIssueClassifier.isNew(file, issue)).isFalse();
+  }
+
+  @Test
+  public void isNew_returns_true_for_marked_hunter_issue_outside_changed_lines() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.REFERENCE_BRANCH.name(), "master", null));
+    Component file = mock(Component.class);
+    when(file.getType()).thenReturn(Component.Type.FILE);
+    when(newLinesRepository.getNewLines(file)).thenReturn(Optional.of(Set.of(2)));
+    DefaultIssue issue = new DefaultIssue()
+      .setIssueProducer(IssueProducer.HUNTER_AGENT)
+      .setIsNewCodeReferenceIssue(true)
+      .setLocations(DbIssues.Locations.newBuilder()
+        .setTextRange(DbCommons.TextRange.newBuilder().setStartLine(10).setEndLine(10))
+        .build());
+
+    assertThat(newIssueClassifier.hasAtLeastOneLocationOnChangedLines(file, issue)).isFalse();
+    assertThat(newIssueClassifier.isNew(file, issue)).isTrue();
+  }
+
+  @Test
+  public void isNew_returns_true_for_unmarked_hunter_issue_in_pull_request() {
+    periodHolder.setPeriod(null);
+    analysisMetadataHolder.setBranch(newPr());
+    DefaultIssue issue = new DefaultIssue().setIssueProducer(IssueProducer.HUNTER_AGENT);
+
+    assertThat(newIssueClassifier.isNew(mock(Component.class), issue)).isTrue();
+  }
+
+  @Test
+  public void isNew_uses_creation_date_for_hunter_issues_with_date_based_period() {
+    periodHolder.setPeriod(new Period(NewCodePeriodType.NUMBER_OF_DAYS.name(), "10", 1000L));
+    Component file = mock(Component.class);
+    DefaultIssue issue = new DefaultIssue().setIssueProducer(IssueProducer.HUNTER_AGENT).setCreationDate(new Date(2000L));
+
+    assertThat(newIssueClassifier.isNew(file, issue)).isTrue();
+
+    issue.setCreationDate(new Date(0L)).setIsNewCodeReferenceIssue(true);
+
+    assertThat(newIssueClassifier.isNew(file, issue)).isFalse();
   }
 
   @Test
