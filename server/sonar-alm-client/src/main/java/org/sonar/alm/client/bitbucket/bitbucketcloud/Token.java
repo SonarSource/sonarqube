@@ -26,7 +26,7 @@ public class Token {
   private String scope;
   @SerializedName("access_token")
   private String accessToken;
-  @SerializedName("exires_in")
+  @SerializedName("expires_in")
   private long expiresIn;
   @SerializedName("token_type")
   private String tokenType;

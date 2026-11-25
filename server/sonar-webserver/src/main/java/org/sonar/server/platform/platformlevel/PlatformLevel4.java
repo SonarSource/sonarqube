@@ -94,6 +94,7 @@ import org.sonar.server.common.almsettings.DelegatingScmAccessTokenProvider;
 import org.sonar.server.common.almsettings.azuredevops.AzureDevOpsProjectCreatorFactory;
 import org.sonar.server.common.almsettings.azuredevops.AzureDevOpsScmAccessTokenProvider;
 import org.sonar.server.common.almsettings.bitbucketcloud.BitbucketCloudProjectCreatorFactory;
+import org.sonar.server.common.almsettings.bitbucketcloud.BitbucketCloudScmAccessTokenProvider;
 import org.sonar.server.common.almsettings.bitbucketserver.BitbucketServerProjectCreatorFactory;
 import org.sonar.server.common.almsettings.github.GithubDevOpsProjectCreationContextService;
 import org.sonar.server.common.almsettings.github.GithubInstallationTokenProviderImpl;
@@ -735,6 +736,7 @@ public class PlatformLevel4 extends PlatformLevel {
       GithubScmAccessTokenProviderAdapter.class,
       GitlabScmAccessTokenProvider.class,
       AzureDevOpsScmAccessTokenProvider.class,
+      BitbucketCloudScmAccessTokenProvider.class,
       DelegatingScmAccessTokenProvider.class,
 
       // ALM settings

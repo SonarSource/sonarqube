@@ -26,6 +26,7 @@ import java.util.Base64;
 import java.util.List;
 import javax.net.ssl.SSLHandshakeException;
 import okhttp3.Call;
+import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.Request;
@@ -240,6 +241,34 @@ class BitbucketCloudRestClientTest {
 
     assertThatIllegalArgumentException()
       .isThrownBy(() -> underTest.validate("clientId", "clientSecret", "workspace"));
+  }
+
+  @Test
+  void createToken_returnsAccessTokenAndLifetime() throws Exception {
+    server.enqueue(new MockResponse()
+      .setHeader("Content-Type", "application/json;charset=UTF-8")
+      .setBody("{\"scope\": \"repository pullrequest\", \"access_token\": \"token\", \"expires_in\": 7200, "
+        + "\"token_type\": \"bearer\", \"state\": \"client_credentials\", \"refresh_token\": \"abc\"}"));
+
+    Token token = underTest.createToken("clientId", "clientSecret");
+
+    assertThat(token.getAccessToken()).isEqualTo("token");
+    assertThat(token.getExpiresIn()).isEqualTo(7200);
+    RecordedRequest request = server.takeRequest();
+    assertThat(request.getMethod()).isEqualTo("POST");
+    assertThat(request.getHeader("Authorization")).isEqualTo(Credentials.basic("clientId", "clientSecret"));
+    assertThat(request.getBody().readUtf8()).isEqualTo("grant_type=client_credentials");
+  }
+
+  @Test
+  void createToken_withError_throwsBitbucketCloudException() {
+    String response = "{\"error_description\": \"Invalid OAuth client credentials\", \"error\": \"unauthorized_client\"}";
+    server.enqueue(new MockResponse().setBody(response).setResponseCode(400).setHeader("Content-Type", JSON_MEDIA_TYPE));
+
+    assertThatExceptionOfType(BitbucketCloudRestClient.BitbucketCloudException.class)
+      .isThrownBy(() -> underTest.createToken("clientId", "clientSecret"))
+      .withMessage("Error returned by Bitbucket Cloud: Invalid OAuth client credentials [HTTP 400]")
+      .satisfies(e -> assertThat(e.getHttpCode()).isEqualTo(400));
   }
 
   @Test

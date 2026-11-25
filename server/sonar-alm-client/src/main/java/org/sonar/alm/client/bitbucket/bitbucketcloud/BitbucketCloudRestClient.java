@@ -190,8 +190,16 @@ public class BitbucketCloudRestClient {
   }
 
   public String createAccessToken(String clientId, String clientSecret) {
+    return createToken(clientId, clientSecret).getAccessToken();
+  }
+
+  /**
+   * Same as {@link #createAccessToken(String, String)}, but returns the whole OAuth token response,
+   * including its lifetime ({@link Token#getExpiresIn()}, in seconds).
+   */
+  public Token createToken(String clientId, String clientSecret) {
     Request request = createAccessTokenRequest(clientId, clientSecret);
-    return doCall(request, r -> buildGson().fromJson(r.body().charStream(), Token.class)).getAccessToken();
+    return doCall(request, response -> buildGson().fromJson(response.body().charStream(), Token.class), BitbucketCloudRestClient::getTokenError);
   }
 
   private Request createAccessTokenRequest(String clientId, String clientSecret) {
@@ -223,9 +231,13 @@ public class BitbucketCloudRestClient {
   }
 
   protected <G> G doCall(Request request, Function<Response, G> handler) {
+    return doCall(request, handler, BitbucketCloudRestClient::getError);
+  }
+
+  private <G> G doCall(Request request, Function<Response, G> handler, ErrorParser errorParser) {
     try (Response response = client.newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        handleError(response);
+        handleError(response, errorParser.parse(response.body(), response.message()));
       }
       return handler.apply(response);
     } catch (IOException e) {
@@ -234,8 +246,7 @@ public class BitbucketCloudRestClient {
     }
   }
 
-  private static void handleError(Response response) throws IOException {
-    ErrorDetails error = getError(response.body(), response.message());
+  private static void handleError(Response response, ErrorDetails error) {
     int statusCode = response.code();
     LOG.atInfo().log(() -> String.format(BBC_FAIL_WITH_RESPONSE, response.request().url(), statusCode, error.body));
     String errorMessage;
@@ -277,6 +288,11 @@ public class BitbucketCloudRestClient {
     }
 
     return new ErrorDetails(bodyStr, null);
+  }
+
+  @FunctionalInterface
+  private interface ErrorParser {
+    ErrorDetails parse(@Nullable ResponseBody body, @Nullable String fallbackMessage) throws IOException;
   }
 
   private static class ErrorDetails {
