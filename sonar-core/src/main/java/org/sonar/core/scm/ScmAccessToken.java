@@ -22,13 +22,14 @@ package org.sonar.core.scm;
 import javax.annotation.Nullable;
 
 /**
- * A short-lived, DOP-agnostic git credential minted for a single project's bound repository.
+ * A DOP-agnostic git credential provided for a single project's bound repository.
  *
  * @param alm       lowercase wire identifier of the DevOps Platform this credential was minted for
  *                  (e.g. {@code "github"}, {@code "gitlab"}) — deliberately a plain string, not the
  *                  {@code ALM} enum, so this sonar-core type never needs a dependency on sonar-db-dao
  * @param username  how to embed {@code secret} in a git remote URL ({@code https://username:secret@host}),
  *                  e.g. {@code "x-access-token"} for GitHub, the token's own name for GitLab
+ *                  — empty for Bitbucket Data Center ({@code "bitbucket"}), whose stored PAT is sent as a Bearer token (no expiry reported)
  * @param secret    the minted token
  * @param expiresAt ISO-8601 expiry timestamp of {@code secret}, or {@code null} for a platform (e.g.
  *                  Azure DevOps) whose credential has no per-request expiry to report

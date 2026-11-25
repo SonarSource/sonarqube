@@ -48,8 +48,10 @@ public interface ScmAccessTokenController {
 
   @PostMapping(produces = APPLICATION_JSON_VALUE)
   @Operation(operationId = "generateScmAccessToken", summary = "Provide a scoped SCM access token", description = """
-    Provide a scoped git credential for the given project's bound DevOps Platform (GitHub or GitLab).
-    GitHub credentials are short-lived and minted per call; GitLab credentials are cached in memory per
+    Provide a scoped git credential for the given project's bound DevOps Platform (GitHub, GitLab,
+    Azure DevOps, Bitbucket Cloud or Bitbucket Data Center). Azure DevOps and Bitbucket Data Center
+    credentials are the stored personal access token; GitHub and Bitbucket Cloud credentials are
+    short-lived and minted per call; GitLab credentials are cached in memory per
     SonarQube Server node and refreshed before expiry. Internal endpoint used by the agentic-workflows
     remediation orchestrator (SONAR-31165).
     Requires the 'Administer System' permission or trusted privileged-service authentication.
