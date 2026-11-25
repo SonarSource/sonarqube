@@ -56,3 +56,15 @@ sonarqube_agent_queue_jobs{agent="hunter",state="unfinished",} 3.0
 sonarqube_agent_queue_jobs{agent="remediation",state="pending",} 0.0
 sonarqube_agent_queue_jobs{agent="remediation",state="running",} 1.0
 sonarqube_agent_queue_jobs{agent="remediation",state="unfinished",} 1.0
+# HELP sonarqube_health_agent_orchestrator_status Tells whether the Agent Orchestrator is up or down. 1 for up, 0 for down
+# TYPE sonarqube_health_agent_orchestrator_status gauge
+sonarqube_health_agent_orchestrator_status 1.0
+# HELP sonarqube_health_vortex_status Tells whether Vortex analysis is up or down. 1 for up, 0 for down
+# TYPE sonarqube_health_vortex_status gauge
+sonarqube_health_vortex_status 1.0
+# HELP sonarqube_health_hunter_agent_status Tells whether the Hunter Agent is healthy, as reported by the Agent Orchestrator. 1 for healthy, 0 for unhealthy or unknown
+# TYPE sonarqube_health_hunter_agent_status gauge
+sonarqube_health_hunter_agent_status 1.0
+# HELP sonarqube_health_remediation_agent_status Tells whether the Remediation Agent is healthy, as reported by the Agent Orchestrator. 1 for healthy, 0 for unhealthy or unknown
+# TYPE sonarqube_health_remediation_agent_status gauge
+sonarqube_health_remediation_agent_status 0.0
