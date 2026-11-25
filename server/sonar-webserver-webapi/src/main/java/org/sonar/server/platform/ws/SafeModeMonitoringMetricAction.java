@@ -60,7 +60,9 @@ public class SafeModeMonitoringMetricAction implements MonitoringWsAction {
         This endpoint can be accessed using a Bearer token, which needs to be defined in sonar.properties with the 'sonar.web.systemPasscode' key.""")
       .setChangelog(
         new Change("2026.3", "Added 'sonarqube_elasticsearch_read_only_indices_total' and 'sonarqube_elasticsearch_disk_usage_percent' metrics"),
-        new Change("2026.6", "Added the 'sonarqube_agent_queue_jobs' metric for Hunter Agent and Remediation Agent, and the 'sonarqube_health_agent_orchestrator_status', 'sonarqube_health_vortex_status', 'sonarqube_health_hunter_agent_status' and 'sonarqube_health_remediation_agent_status' metrics"))
+        new Change("2026.6", "Added the 'sonarqube_agent_queue_jobs' metric for Hunter Agent and Remediation Agent, and the "
+          + "'sonarqube_health_agent_orchestrator_status', 'sonarqube_health_vortex_status', 'sonarqube_health_hunter_agent_status' "
+          + "and 'sonarqube_health_remediation_agent_status' metrics"))
       .setResponseExample(Resources.getResource(SafeModeMonitoringMetricAction.class, "monitoring-metrics.txt"))
       .setHandler(this);
     isWebUpGauge.set(1D);
