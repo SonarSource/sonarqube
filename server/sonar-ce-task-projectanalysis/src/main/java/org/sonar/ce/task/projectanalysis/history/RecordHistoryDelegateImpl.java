@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,39 +76,78 @@ public class RecordHistoryDelegateImpl implements RecordHistoryDelegate {
   @Override
   public void recordHistory(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids) {
     LocalDate today = LocalDate.now(ZoneOffset.UTC);
+    long startNanos = System.nanoTime();
+    PhaseDurations durations = new PhaseDurations();
 
     LOG.info("Recording History for {} {} on {}", entityType, entityUuid, today);
     if (entityType == EntityType.PROJECT_BRANCH) {
       LOG.info("Waiting for lock on project_branch [{}]", entityUuid);
       try (DbSession session = dbClient.openSession(false)) {
-        if (!dbClient.branchDao().acquireLockForProjectBranch(session, entityUuid)) {
+        long lockStartNanos = System.nanoTime();
+        boolean locked = dbClient.branchDao().acquireLockForProjectBranch(session, entityUuid);
+        durations.lockMs = elapsedMillis(lockStartNanos);
+        if (!locked) {
           return;
         }
         LOG.info("Acquired lock on project_branch [{}]", entityUuid);
-        recordHistoryCore(entityUuid, entityType, issueSourceBranchUuids, today);
+        recordHistoryCore(entityUuid, entityType, issueSourceBranchUuids, today, durations);
       }
     } else {
-      recordHistoryCore(entityUuid, entityType, issueSourceBranchUuids, today);
+      recordHistoryCore(entityUuid, entityType, issueSourceBranchUuids, today, durations);
     }
-    LOG.info("History recording complete for {} {}", entityType, entityUuid);
+    LOG.info("History recording complete for {} {} | branches={} dimensions={} lock={}ms issueQuery={}ms issueHistory={}ms measures={}ms issueTtr={}ms scaTtr={}ms total={}ms",
+      entityType, entityUuid, issueSourceBranchUuids.size(), durations.dimensions, durations.lockMs, durations.issueQueryMs, durations.issueHistoryMs,
+      durations.measuresMs, durations.issueTtrMs, durations.scaTtrMs, elapsedMillis(startNanos));
   }
 
-  private void recordHistoryCore(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids, LocalDate today) {
-    recordIssueHistory(entityUuid, entityType, issueSourceBranchUuids, today);
+  private void recordHistoryCore(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids, LocalDate today,
+    PhaseDurations durations) {
+    recordIssueHistory(entityUuid, entityType, issueSourceBranchUuids, today, durations);
+
+    long measuresStartNanos = System.nanoTime();
     recordMeasureHistory(entityUuid, entityType, today);
+    durations.measuresMs = elapsedMillis(measuresStartNanos);
+
+    long issueTtrStartNanos = System.nanoTime();
     issueTtrHistoryRecorder.recordTtrHistory(entityUuid);
+    durations.issueTtrMs = elapsedMillis(issueTtrStartNanos);
+
+    long scaTtrStartNanos = System.nanoTime();
     scaTtrHistoryRecorder.recordTtrHistory(entityUuid, entityType);
+    durations.scaTtrMs = elapsedMillis(scaTtrStartNanos);
   }
 
   // -------------------------------------------------------------------------
   // Issue history
   // -------------------------------------------------------------------------
 
-  private void recordIssueHistory(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids, LocalDate today) {
+  private void recordIssueHistory(String entityUuid, EntityType entityType, Collection<String> issueSourceBranchUuids, LocalDate today,
+    PhaseDurations durations) {
     try (DbSession session = dbClient.openSession(false)) {
+      long queryStartNanos = System.nanoTime();
       Map<IssueCountDimensionKey, Integer> issueCounts = dbClient.issueDao().selectIssueCountDimensionsForBranches(session, issueSourceBranchUuids);
+      durations.issueQueryMs = elapsedMillis(queryStartNanos);
+      durations.dimensions = issueCounts.size();
+
+      long historyStartNanos = System.nanoTime();
       issueHistoryService.recordIssueHistory(entityUuid, entityType, issueCounts, today);
+      durations.issueHistoryMs = elapsedMillis(historyStartNanos);
     }
+  }
+
+  private static long elapsedMillis(long startNanos) {
+    return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos);
+  }
+
+  /** How long each phase of one recording took, for the completion log. */
+  private static final class PhaseDurations {
+    private long lockMs = 0;
+    private long issueQueryMs = 0;
+    private long issueHistoryMs = 0;
+    private long measuresMs = 0;
+    private long issueTtrMs = 0;
+    private long scaTtrMs = 0;
+    private int dimensions = 0;
   }
 
   // -------------------------------------------------------------------------

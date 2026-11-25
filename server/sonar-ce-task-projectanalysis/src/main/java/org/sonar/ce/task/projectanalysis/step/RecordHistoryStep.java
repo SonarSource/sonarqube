@@ -21,6 +21,7 @@ package org.sonar.ce.task.projectanalysis.step;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.ce.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -113,10 +114,12 @@ public class RecordHistoryStep implements ComputationStep {
 
   private void recordHistoryForEntity(Component component, EntityType entityType, Set<String> issueSourceBranchUuids) {
     String entityUuid = component.getUuid();
+    long startNanos = System.nanoTime();
     try {
       delegate.recordHistory(entityUuid, entityType, issueSourceBranchUuids);
     } catch (Exception e) {
-      LOGGER.warn("Failed to record issue count and measures history for entity {}", entityUuid, e);
+      LOGGER.warn("Failed to record issue count and measures history for entity {} after {}ms", entityUuid,
+        TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNanos), e);
     }
   }
 

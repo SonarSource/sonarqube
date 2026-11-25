@@ -169,7 +169,8 @@ class RecordHistoryStepTest {
     assertThatCode(() -> underTest.execute(new TestComputationStepContext())).doesNotThrowAnyException();
 
     assertThat(logs.getLogs(Level.WARN)).extracting(LogAndArguments::getFormattedMsg)
-      .containsExactly("Failed to record issue count and measures history for entity entity-uuid");
+      .hasSize(1)
+      .allSatisfy(message -> assertThat(message).matches("Failed to record issue count and measures history for entity entity-uuid after \\d+ms"));
     assertThat(logs.getLogs(Level.WARN)).extracting(LogAndArguments::getThrowable).containsExactly(exception);
   }
 
@@ -185,7 +186,8 @@ class RecordHistoryStepTest {
     verify(delegate).recordHistory("subportfolio-uuid", EntityType.PORTFOLIO, Set.of("branch-2"));
     verify(delegate).recordHistory(ENTITY_UUID, EntityType.PORTFOLIO, Set.of("branch-1", "branch-2"));
     assertThat(logs.getLogs(Level.WARN)).extracting(LogAndArguments::getFormattedMsg)
-      .containsExactly("Failed to record issue count and measures history for entity subportfolio-uuid");
+      .hasSize(1)
+      .allSatisfy(message -> assertThat(message).matches("Failed to record issue count and measures history for entity subportfolio-uuid after \\d+ms"));
     assertThat(logs.getLogs(Level.WARN)).extracting(LogAndArguments::getThrowable).containsExactly(exception);
   }
 

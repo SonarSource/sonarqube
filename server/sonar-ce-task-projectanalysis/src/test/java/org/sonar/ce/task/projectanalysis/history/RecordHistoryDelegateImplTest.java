@@ -27,9 +27,13 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogAndArguments;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDao;
@@ -59,6 +63,9 @@ class RecordHistoryDelegateImplTest {
   private static final String ENTITY_UUID = "entity-uuid";
   private static final IssueCountDimensionKey DIMENSION = new IssueCountDimensionKey(null, "MAIN", "MAJOR", "OPEN", "OPEN", 1, "java:S1234", Map.of());
 
+  @RegisterExtension
+  private final LogTesterJUnit5 logs = new LogTesterJUnit5();
+
   private final DbClient dbClient = mock(DbClient.class);
   private final DbSession dbSession = mock(DbSession.class);
   private final BranchDao branchDao = mock(BranchDao.class);
@@ -74,6 +81,7 @@ class RecordHistoryDelegateImplTest {
 
   @BeforeEach
   void setUp() {
+    logs.setLevel(Level.INFO);
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.branchDao()).thenReturn(branchDao);
     when(branchDao.acquireLockForProjectBranch(dbSession, ENTITY_UUID)).thenReturn(true);
@@ -224,6 +232,33 @@ class RecordHistoryDelegateImplTest {
     underTest.recordHistory(ENTITY_UUID, EntityType.PROJECT_BRANCH, List.of(ENTITY_UUID));
 
     verify(issueTtrHistoryRecorder).recordTtrHistory(ENTITY_UUID);
+  }
+
+  @Test
+  void recordHistory_whenPortfolio_shouldLogTheDurationOfEachPhaseInTheCompletionLine() {
+    givenDimensionCounts(List.of("branch-1", "branch-2"), Map.of(DIMENSION, 5));
+
+    underTest.recordHistory(ENTITY_UUID, EntityType.PORTFOLIO, List.of("branch-1", "branch-2"));
+
+    assertThat(logs.getLogs(Level.INFO)).extracting(LogAndArguments::getFormattedMsg)
+      .filteredOn(message -> message.startsWith("History recording complete"))
+      .hasSize(1)
+      .allSatisfy(message -> assertThat(message).matches(
+        "History recording complete for PORTFOLIO entity-uuid \\| branches=2 dimensions=1 lock=0ms issueQuery=\\d+ms issueHistory=\\d+ms "
+          + "measures=\\d+ms issueTtr=\\d+ms scaTtr=\\d+ms total=\\d+ms"));
+  }
+
+  @Test
+  void recordHistory_whenProjectBranch_shouldLogTheLockWaitInTheCompletionLine() {
+    givenDimensionCounts(List.of(ENTITY_UUID), Map.of(DIMENSION, 1));
+
+    recordBranchHistory();
+
+    assertThat(logs.getLogs(Level.INFO)).extracting(LogAndArguments::getFormattedMsg)
+      .filteredOn(message -> message.startsWith("History recording complete"))
+      .hasSize(1)
+      .allSatisfy(message -> assertThat(message).matches(
+        "History recording complete for PROJECT_BRANCH entity-uuid \\| branches=1 dimensions=1 lock=\\d+ms issueQuery=\\d+ms .*total=\\d+ms"));
   }
 
   private void recordBranchHistory() {
