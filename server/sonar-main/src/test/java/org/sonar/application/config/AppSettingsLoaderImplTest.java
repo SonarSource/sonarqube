@@ -96,6 +96,24 @@ public class AppSettingsLoaderImplTest {
   }
 
   @Test
+  public void load_agentic_properties_from_env_when_absent_from_properties_file() throws Exception {
+    when(system.envVariable("SONAR_AGENTIC_STORAGE_TYPE")).thenReturn("S3");
+    when(system.envVariable("SONAR_AGENTIC_ORCHESTRATOR_STORAGE_PRESIGN_TTL_SECONDS")).thenReturn("3600");
+    when(system.envVariable("SONAR_HUNTERAGENT_ORCHESTRATOR_URL")).thenReturn("http://orchestrator:8080");
+    when(system.envVariable("SONAR_VORTEX_ENABLED")).thenReturn("true");
+    File homeDir = temp.newFolder();
+    AppSettingsLoaderImpl underTest = new AppSettingsLoaderImpl(system, new String[0], homeDir, serviceLoaderWrapper);
+
+    AppSettings settings = underTest.load();
+
+    assertThat(settings.getProps().rawProperties()).contains(
+      entry("sonar.agentic.storage.type", "S3"),
+      entry("sonar.agentic.orchestrator.storage.presign-ttl-seconds", "3600"),
+      entry("sonar.hunteragent.orchestrator.url", "http://orchestrator:8080"),
+      entry("sonar.vortex.enabled", "true"));
+  }
+
+  @Test
   public void load_multi_ldap_settings() throws IOException {
     when(system.envVariables()).thenReturn(ImmutableMap.of(
       "LDAP_FOO_URL", "url1",

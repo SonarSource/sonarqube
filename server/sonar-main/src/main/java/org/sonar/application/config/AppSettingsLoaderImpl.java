@@ -127,6 +127,7 @@ public class AppSettingsLoaderImpl implements AppSettingsLoader {
     warnOnNonSystemProperties(p);
     Set<String> keysOverridableFromEnv = stream(ProcessProperties.Property.values()).map(ProcessProperties.Property::getKey)
       .collect(Collectors.toSet());
+    keysOverridableFromEnv.addAll(ADDITIONAL_SYSTEM_KEYS);
     keysOverridableFromEnv.addAll(p.stringPropertyNames());
 
     // 1st pass to load static properties
