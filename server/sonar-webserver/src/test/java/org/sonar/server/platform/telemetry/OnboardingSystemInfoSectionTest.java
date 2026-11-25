@@ -35,8 +35,13 @@ class OnboardingSystemInfoSectionTest {
   private final TelemetryOnboardingBoundProjectsByAlmProvider boundProjectsByAlmProvider = mock(TelemetryOnboardingBoundProjectsByAlmProvider.class);
   private final TelemetryOnboardingLastAnalysisBucketProvider lastAnalysisBucketProvider = mock(TelemetryOnboardingLastAnalysisBucketProvider.class);
 
+  private final TelemetryOnboardingBoundUnanalysedByAlmProvider boundUnanalysedByAlmProvider = mock(TelemetryOnboardingBoundUnanalysedByAlmProvider.class);
+  private final TelemetryOnboardingProjectsByAnalysisModeProvider projectsByAnalysisModeProvider = mock(TelemetryOnboardingProjectsByAnalysisModeProvider.class);
+  private final TelemetryOnboardingConfiguredSettingsByAlmProvider configuredSettingsByAlmProvider = mock(TelemetryOnboardingConfiguredSettingsByAlmProvider.class);
+
   private final OnboardingSystemInfoSection underTest = new OnboardingSystemInfoSection(
-    countsProvider, boundProjectsByAlmProvider, lastAnalysisBucketProvider);
+    countsProvider, boundProjectsByAlmProvider, lastAnalysisBucketProvider,
+    boundUnanalysedByAlmProvider, projectsByAnalysisModeProvider, configuredSettingsByAlmProvider);
 
   @Test
   void toProtobuf_shouldReturnSectionNamedOnboarding() {
@@ -56,7 +61,7 @@ class OnboardingSystemInfoSectionTest {
     assertThat(section.getAttributesList())
       .extracting(Attribute::getLongValue)
       .containsOnly(0L);
-    assertThat(section.getAttributesList()).hasSize(16);
+    assertThat(section.getAttributesList()).hasSize(28);
   }
 
   @Test
@@ -73,6 +78,11 @@ class OnboardingSystemInfoSectionTest {
     when(lastAnalysisBucketProvider.getValues()).thenReturn(Map.of(
       TelemetryOnboardingLastAnalysisBucketProvider.BUCKET_LE_7D, 1,
       TelemetryOnboardingLastAnalysisBucketProvider.BUCKET_NEVER, 3));
+    when(boundUnanalysedByAlmProvider.getValues()).thenReturn(Map.of("github", 1, "gitlab", 2));
+    when(projectsByAnalysisModeProvider.getValues()).thenReturn(Map.of(
+      TelemetryOnboardingProjectsByAnalysisModeProvider.KEY_CI_DETECTED, 4,
+      TelemetryOnboardingProjectsByAnalysisModeProvider.KEY_CI_UNDETECTED, 3));
+    when(configuredSettingsByAlmProvider.getValues()).thenReturn(Map.of("github", 2));
 
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
@@ -89,12 +99,22 @@ class OnboardingSystemInfoSectionTest {
         tuple("Not Bound but Analysed Projects", 2L),
         tuple("Projects Analysed - Last 7 Days", 1L),
         tuple("Projects Analysed - Last 30 Days", 0L),
-        tuple("Projects Never Analysed", 3L));
+        tuple("Projects Never Analysed", 3L),
+        tuple("Bound Projects Never Analysed (github)", 1L),
+        tuple("Bound Projects Never Analysed (gitlab)", 2L),
+        tuple("Bound Projects Never Analysed (azure_devops)", 0L),
+        tuple("Projects Analysed - CI Detected", 4L),
+        tuple("Projects Analysed - CI Undetected", 3L),
+        tuple("Configured Settings (github)", 2L),
+        tuple("Configured Settings (gitlab)", 0L));
   }
 
   private void stubEmptyValues() {
     when(countsProvider.getValues()).thenReturn(Map.of());
     when(boundProjectsByAlmProvider.getValues()).thenReturn(Map.of());
     when(lastAnalysisBucketProvider.getValues()).thenReturn(Map.of());
+    when(boundUnanalysedByAlmProvider.getValues()).thenReturn(Map.of());
+    when(projectsByAnalysisModeProvider.getValues()).thenReturn(Map.of());
+    when(configuredSettingsByAlmProvider.getValues()).thenReturn(Map.of());
   }
 }

@@ -49,13 +49,22 @@ public class OnboardingSystemInfoSection implements SystemInfoSection, Global {
   private final TelemetryOnboardingCountsProvider countsProvider;
   private final TelemetryOnboardingBoundProjectsByAlmProvider boundProjectsByAlmProvider;
   private final TelemetryOnboardingLastAnalysisBucketProvider lastAnalysisBucketProvider;
+  private final TelemetryOnboardingBoundUnanalysedByAlmProvider boundUnanalysedByAlmProvider;
+  private final TelemetryOnboardingProjectsByAnalysisModeProvider projectsByAnalysisModeProvider;
+  private final TelemetryOnboardingConfiguredSettingsByAlmProvider configuredSettingsByAlmProvider;
 
   public OnboardingSystemInfoSection(TelemetryOnboardingCountsProvider countsProvider,
     TelemetryOnboardingBoundProjectsByAlmProvider boundProjectsByAlmProvider,
-    TelemetryOnboardingLastAnalysisBucketProvider lastAnalysisBucketProvider) {
+    TelemetryOnboardingLastAnalysisBucketProvider lastAnalysisBucketProvider,
+    TelemetryOnboardingBoundUnanalysedByAlmProvider boundUnanalysedByAlmProvider,
+    TelemetryOnboardingProjectsByAnalysisModeProvider projectsByAnalysisModeProvider,
+    TelemetryOnboardingConfiguredSettingsByAlmProvider configuredSettingsByAlmProvider) {
     this.countsProvider = countsProvider;
     this.boundProjectsByAlmProvider = boundProjectsByAlmProvider;
     this.lastAnalysisBucketProvider = lastAnalysisBucketProvider;
+    this.boundUnanalysedByAlmProvider = boundUnanalysedByAlmProvider;
+    this.projectsByAnalysisModeProvider = projectsByAnalysisModeProvider;
+    this.configuredSettingsByAlmProvider = configuredSettingsByAlmProvider;
   }
 
   @Override
@@ -88,6 +97,22 @@ public class OnboardingSystemInfoSection implements SystemInfoSection, Global {
       valueOf(lastAnalysisBuckets, TelemetryOnboardingLastAnalysisBucketProvider.BUCKET_GT_180D));
     setAttribute(section, "Projects Never Analysed",
       valueOf(lastAnalysisBuckets, TelemetryOnboardingLastAnalysisBucketProvider.BUCKET_NEVER));
+
+    Map<String, Integer> boundUnanalysedByAlm = boundUnanalysedByAlmProvider.getValues();
+    for (ALM alm : ALM.values()) {
+      setAttribute(section, "Bound Projects Never Analysed (" + alm.getId() + ")", valueOf(boundUnanalysedByAlm, alm.getId()));
+    }
+
+    Map<String, Integer> projectsByAnalysisMode = projectsByAnalysisModeProvider.getValues();
+    setAttribute(section, "Projects Analysed - CI Detected",
+      valueOf(projectsByAnalysisMode, TelemetryOnboardingProjectsByAnalysisModeProvider.KEY_CI_DETECTED));
+    setAttribute(section, "Projects Analysed - CI Undetected",
+      valueOf(projectsByAnalysisMode, TelemetryOnboardingProjectsByAnalysisModeProvider.KEY_CI_UNDETECTED));
+
+    Map<String, Integer> configuredSettingsByAlm = configuredSettingsByAlmProvider.getValues();
+    for (ALM alm : ALM.values()) {
+      setAttribute(section, "Configured Settings (" + alm.getId() + ")", valueOf(configuredSettingsByAlm, alm.getId()));
+    }
 
     return section.build();
   }

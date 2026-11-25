@@ -243,9 +243,12 @@ import org.sonar.server.platform.telemetry.TelemetryIssueCountsPerStatusProvider
 import org.sonar.server.platform.telemetry.TelemetryMQRModePropertyProvider;
 import org.sonar.server.platform.telemetry.TelemetryNclocProvider;
 import org.sonar.server.platform.telemetry.TelemetryOnboardingBoundProjectsByAlmProvider;
+import org.sonar.server.platform.telemetry.TelemetryOnboardingBoundUnanalysedByAlmProvider;
+import org.sonar.server.platform.telemetry.TelemetryOnboardingConfiguredSettingsByAlmProvider;
 import org.sonar.server.platform.telemetry.TelemetryOnboardingCountsProvider;
 import org.sonar.server.platform.telemetry.TelemetryOnboardingDiscoveredRepoCountByAlmProvider;
 import org.sonar.server.platform.telemetry.TelemetryOnboardingLastAnalysisBucketProvider;
+import org.sonar.server.platform.telemetry.TelemetryOnboardingProjectsByAnalysisModeProvider;
 import org.sonar.server.platform.telemetry.TelemetryPortfolioSelectionModeProvider;
 import org.sonar.server.platform.telemetry.TelemetrySubportfolioSelectionModeProvider;
 import org.sonar.server.platform.telemetry.TelemetryUserEnabledProvider;
@@ -830,6 +833,9 @@ public class PlatformLevel4 extends PlatformLevel {
       TelemetryOnboardingBoundProjectsByAlmProvider.class,
       TelemetryOnboardingLastAnalysisBucketProvider.class,
       TelemetryOnboardingDiscoveredRepoCountByAlmProvider.class,
+      TelemetryOnboardingBoundUnanalysedByAlmProvider.class,
+      TelemetryOnboardingProjectsByAnalysisModeProvider.class,
+      TelemetryOnboardingConfiguredSettingsByAlmProvider.class,
       OnboardingSystemInfoSection.class,
 
       // Reports telemetry
