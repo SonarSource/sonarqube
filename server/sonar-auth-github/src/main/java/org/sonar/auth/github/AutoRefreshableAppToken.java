@@ -42,6 +42,11 @@ public class AutoRefreshableAppToken implements AppInstallationToken {
   }
 
   @Override
+  public String getInstallationId() {
+    return githubAppInstallation.installationId();
+  }
+
+  @Override
   public String getAuthorizationHeaderPrefix() {
     return getAppToken().getAuthorizationHeaderPrefix();
   }

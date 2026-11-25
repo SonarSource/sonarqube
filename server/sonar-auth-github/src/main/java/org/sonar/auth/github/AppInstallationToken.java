@@ -26,6 +26,8 @@ public interface AppInstallationToken extends AccessToken {
   @Override
   String getValue();
 
+  String getInstallationId();
+
   @Override
   default String getAuthorizationHeaderPrefix() {
     return "Token";

@@ -49,11 +49,13 @@ import static java.util.Objects.requireNonNull;
 public class ExpiringAppInstallationToken implements AppInstallationToken {
 
   private final Clock clock;
+  private final String installationId;
   private final String token;
   private final OffsetDateTime expiresAt;
 
-  public ExpiringAppInstallationToken(Clock clock, String token, String expiresAt) {
+  public ExpiringAppInstallationToken(Clock clock, String installationId, String token, String expiresAt) {
     this.clock = clock;
+    this.installationId = requireNonNull(installationId, "installationId can't be null");
     this.token = requireNonNull(token, "token can't be null");
     this.expiresAt = OffsetDateTime.parse(expiresAt, DateTimeFormatter.ISO_DATE_TIME);
   }
@@ -61,6 +63,11 @@ public class ExpiringAppInstallationToken implements AppInstallationToken {
   @Override
   public String getValue() {
     return token;
+  }
+
+  @Override
+  public String getInstallationId() {
+    return installationId;
   }
 
   @Override

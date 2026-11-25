@@ -117,7 +117,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     String endPoint = "/app/installations/" + installationId + "/access_tokens";
     return post(githubAppConfiguration.getApiEndpoint(), appToken, endPoint, STATELESS_TOKEN_HEADER, GithubBinding.GsonInstallationToken.class)
       .filter(token -> token.getToken() != null)
-      .map(appInstallToken -> new ExpiringAppInstallationToken(clock, appInstallToken.getToken(), appInstallToken.getExpiresAt()));
+      .map(appInstallToken -> new ExpiringAppInstallationToken(clock, Long.toString(installationId), appInstallToken.getToken(), appInstallToken.getExpiresAt()));
   }
 
   @Override
@@ -127,7 +127,7 @@ public class GithubApplicationClientImpl implements GithubApplicationClient {
     String json = GSON.toJson(Map.of("repositories", List.of(repositoryName)));
     return postWithBody(githubAppConfiguration.getApiEndpoint(), appToken, endPoint, json, STATELESS_TOKEN_HEADER, GithubBinding.GsonInstallationToken.class)
       .filter(token -> token.getToken() != null)
-      .map(appInstallToken -> new ExpiringAppInstallationToken(clock, appInstallToken.getToken(), appInstallToken.getExpiresAt()));
+      .map(appInstallToken -> new ExpiringAppInstallationToken(clock, Long.toString(installationId), appInstallToken.getToken(), appInstallToken.getExpiresAt()));
   }
 
   private <T> Optional<T> postWithBody(String baseUrl, AccessToken token, String endPoint, String json, Map<String, String> extraHeaders, Class<T> gsonClass) {

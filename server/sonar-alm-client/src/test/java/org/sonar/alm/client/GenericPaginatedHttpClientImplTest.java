@@ -34,6 +34,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTester;
+import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.security.AccessToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,6 +46,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.alm.client.ApplicationHttpClient.GetResponse;
 
@@ -65,6 +67,9 @@ public class GenericPaginatedHttpClientImplTest {
 
   @Mock
   private AccessToken accessToken;
+
+  @Mock
+  private AppInstallationToken installationToken;
 
   @Mock
   RatioBasedRateLimitChecker rateLimitChecker;
@@ -184,6 +189,118 @@ public class GenericPaginatedHttpClientImplTest {
     when(response.getCode()).thenReturn(200);
     when(response.getNextEndPoint()).thenReturn(Optional.of(nextEndpoint));
     when(response.getRateLimit()).thenReturn(new ApplicationHttpClient.RateLimit(1, 10, 0L));
+    return response;
+  }
+
+  @Test
+  public void get_withInstallationToken_checksFirstRequestOfNextCallAgainstLastObservedRateLimit() throws IOException, InterruptedException {
+    long futureReset = futureReset();
+    when(installationToken.getInstallationId()).thenReturn("installation-1");
+    GetResponse first = mockResponseWithRateLimit("[\"result1\"]", new ApplicationHttpClient.RateLimit(100, 1000, futureReset));
+    GetResponse second = mockResponseWithRateLimit("[\"result2\"]", new ApplicationHttpClient.RateLimit(99, 1000, futureReset));
+    when(appHttpClient.get(APP_URL, installationToken, ENDPOINT + "?per_page=100")).thenReturn(first, second);
+
+    underTest.get(APP_URL, installationToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+    verifyNoInteractions(rateLimitChecker);
+    underTest.get(APP_URL, installationToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+
+    ArgumentCaptor<GHRateLimit.Record> recordCaptor = ArgumentCaptor.forClass(GHRateLimit.Record.class);
+    verify(rateLimitChecker).checkRateLimit(recordCaptor.capture(), anyLong());
+    assertThat(recordCaptor.getValue().getRemaining()).isEqualTo(100);
+    assertThat(recordCaptor.getValue().getLimit()).isEqualTo(1000);
+    assertThat(recordCaptor.getValue().getResetEpochSeconds()).isEqualTo(futureReset);
+  }
+
+  @Test
+  public void get_withInstallationToken_ignoresRateLimitWhoseWindowAlreadyReset() throws IOException {
+    long pastReset = System.currentTimeMillis() / 1000 - 10;
+    when(installationToken.getInstallationId()).thenReturn("installation-1");
+    GetResponse first = mockResponseWithRateLimit("[\"result1\"]", new ApplicationHttpClient.RateLimit(0, 1000, pastReset));
+    GetResponse second = mockResponseWithRateLimit("[\"result2\"]", new ApplicationHttpClient.RateLimit(999, 1000, futureReset()));
+    when(appHttpClient.get(APP_URL, installationToken, ENDPOINT + "?per_page=100")).thenReturn(first, second);
+
+    underTest.get(APP_URL, installationToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+    underTest.get(APP_URL, installationToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+
+    verifyNoInteractions(rateLimitChecker);
+  }
+
+  @Test
+  public void get_withInstallationToken_tracksTokensSeparately() throws IOException {
+    AppInstallationToken otherToken = mock(AppInstallationToken.class);
+    when(installationToken.getInstallationId()).thenReturn("installation-1");
+    when(otherToken.getInstallationId()).thenReturn("installation-2");
+    GetResponse first = mockResponseWithRateLimit("[\"result1\"]", new ApplicationHttpClient.RateLimit(1, 1000, futureReset()));
+    GetResponse second = mockResponseWithRateLimit("[\"result2\"]", new ApplicationHttpClient.RateLimit(500, 1000, futureReset()));
+    when(appHttpClient.get(APP_URL, installationToken, ENDPOINT + "?per_page=100")).thenReturn(first);
+    when(appHttpClient.get(APP_URL, otherToken, ENDPOINT + "?per_page=100")).thenReturn(second);
+
+    underTest.get(APP_URL, installationToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+    underTest.get(APP_URL, otherToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+
+    verifyNoInteractions(rateLimitChecker);
+  }
+
+  @Test
+  public void get_withInstallationToken_keepsRateLimitAcrossTokenRefresh() throws IOException, InterruptedException {
+    AppInstallationToken refreshedToken = mock(AppInstallationToken.class);
+    when(installationToken.getInstallationId()).thenReturn("installation-1");
+    when(refreshedToken.getInstallationId()).thenReturn("installation-1");
+    GetResponse first = mockResponseWithRateLimit("[\"result1\"]", new ApplicationHttpClient.RateLimit(1, 1000, futureReset()));
+    GetResponse second = mockResponseWithRateLimit("[\"result2\"]", new ApplicationHttpClient.RateLimit(0, 1000, futureReset()));
+    when(appHttpClient.get(APP_URL, installationToken, ENDPOINT + "?per_page=100")).thenReturn(first);
+    when(appHttpClient.get(APP_URL, refreshedToken, ENDPOINT + "?per_page=100")).thenReturn(second);
+
+    underTest.get(APP_URL, installationToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+    underTest.get(APP_URL, refreshedToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+
+    verify(rateLimitChecker).checkRateLimit(any(GHRateLimit.Record.class), anyLong());
+  }
+
+  @Test
+  public void get_withInstallationToken_tracksSameInstallationIdOnDifferentUrlsSeparately() throws IOException {
+    when(installationToken.getInstallationId()).thenReturn("installation-1");
+    GetResponse first = mockResponseWithRateLimit("[\"result1\"]", new ApplicationHttpClient.RateLimit(1, 1000, futureReset()));
+    GetResponse second = mockResponseWithRateLimit("[\"result2\"]", new ApplicationHttpClient.RateLimit(500, 1000, futureReset()));
+    when(appHttpClient.get(APP_URL, installationToken, ENDPOINT + "?per_page=100")).thenReturn(first);
+    when(appHttpClient.get("https://other-github.com/", installationToken, ENDPOINT + "?per_page=100")).thenReturn(second);
+
+    underTest.get(APP_URL, installationToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+    underTest.get("https://other-github.com/", installationToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+
+    verifyNoInteractions(rateLimitChecker);
+  }
+
+  @Test
+  public void get_withInstallationToken_whenResponseHasNoRateLimit_doesNotCheckNextCall() throws IOException {
+    when(installationToken.getInstallationId()).thenReturn("installation-1");
+    GetResponse response = mockResponseWithoutPagination("[\"result1\"]");
+    when(appHttpClient.get(APP_URL, installationToken, ENDPOINT + "?per_page=100")).thenReturn(response);
+
+    underTest.get(APP_URL, installationToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+    underTest.get(APP_URL, installationToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+
+    verifyNoInteractions(rateLimitChecker);
+  }
+
+  @Test
+  public void get_withTokenThatIsNotAnInstallationToken_doesNotShareRateLimitBetweenCalls() throws IOException {
+    GetResponse response = mockResponseWithRateLimit("[\"result1\"]", new ApplicationHttpClient.RateLimit(1, 1000, futureReset()));
+    when(appHttpClient.get(APP_URL, accessToken, ENDPOINT + "?per_page=100")).thenReturn(response);
+
+    underTest.get(APP_URL, accessToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+    underTest.get(APP_URL, accessToken, ENDPOINT, result -> gson.fromJson(result, STRING_LIST_TYPE));
+
+    verifyNoInteractions(rateLimitChecker);
+  }
+
+  private static long futureReset() {
+    return System.currentTimeMillis() / 1000 + 3600;
+  }
+
+  private static GetResponse mockResponseWithRateLimit(String content, ApplicationHttpClient.RateLimit rateLimit) {
+    GetResponse response = mockResponseWithoutPagination(content);
+    when(response.getRateLimit()).thenReturn(rateLimit);
     return response;
   }
 

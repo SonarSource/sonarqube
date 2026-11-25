@@ -29,6 +29,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,6 +39,16 @@ class AutoRefreshableAppTokenTest {
   private AppInstallationTokenGenerator appInstallationTokenGenerator;
   @Mock
   private GithubAppInstallation githubAppInstallation;
+
+  @Test
+  void getInstallationId_shouldReturnTheInstallationIdWithoutGeneratingAToken() {
+    when(githubAppInstallation.installationId()).thenReturn("42");
+
+    AutoRefreshableAppToken autoRefreshableAppToken = new AutoRefreshableAppToken(appInstallationTokenGenerator, githubAppInstallation);
+
+    assertThat(autoRefreshableAppToken.getInstallationId()).isEqualTo("42");
+    verifyNoInteractions(appInstallationTokenGenerator);
+  }
 
   @Test
   void getValue_ifTokenNull_shouldCreateAndDelegate() {

@@ -39,33 +39,34 @@ public class ExpiringAppInstallationTokenTest {
 
   @Test
   void test_value() {
-    ExpiringAppInstallationToken underTest = new ExpiringAppInstallationToken(CLOCK, "foo", DATE);
+    ExpiringAppInstallationToken underTest = new ExpiringAppInstallationToken(CLOCK, "42", "foo", DATE);
 
     assertThat(underTest.toString())
       .isEqualTo(underTest.getValue())
       .isEqualTo("foo");
     assertThat(underTest.getAuthorizationHeaderPrefix()).isEqualTo("Token");
+    assertThat(underTest.getInstallationId()).isEqualTo("42");
     assertThat(underTest.getExpiresAt()).isEqualTo(OffsetDateTime.parse(DATE));
   }
 
   @Test
   void test_equals_hashCode() {
-    AppInstallationToken foo = new ExpiringAppInstallationToken(CLOCK, "foo", DATE);
+    AppInstallationToken foo = new ExpiringAppInstallationToken(CLOCK, "42", "foo", DATE);
 
     assertThat(foo.equals(foo)).isTrue();
     assertThat(foo.equals(null)).isFalse();
-    assertThat(foo.equals(new ExpiringAppInstallationToken(CLOCK, "foo", DATE))).isTrue();
-    assertThat(foo.equals(new ExpiringAppInstallationToken(CLOCK, "bar", DATE))).isFalse();
+    assertThat(foo.equals(new ExpiringAppInstallationToken(CLOCK, "42", "foo", DATE))).isTrue();
+    assertThat(foo.equals(new ExpiringAppInstallationToken(CLOCK, "42", "bar", DATE))).isFalse();
     assertThat(foo.equals("foo")).isFalse();
 
-    assertThat(foo).hasSameHashCodeAs(new ExpiringAppInstallationToken(CLOCK, "foo", DATE));
+    assertThat(foo).hasSameHashCodeAs(new ExpiringAppInstallationToken(CLOCK, "42", "foo", DATE));
   }
 
   @ParameterizedTest
   @MethodSource("dateAndExpiredProvider")
   void isExpired(String expirationDate, boolean expectedExpired) {
     System.out.println(ZonedDateTime.ofInstant(CLOCK.instant(), CLOCK.getZone()));
-    ExpiringAppInstallationToken appInstallationToken = new ExpiringAppInstallationToken(CLOCK, "foo", expirationDate);
+    ExpiringAppInstallationToken appInstallationToken = new ExpiringAppInstallationToken(CLOCK, "42", "foo", expirationDate);
 
     assertThat(appInstallationToken.isExpired()).isEqualTo(expectedExpired);
   }

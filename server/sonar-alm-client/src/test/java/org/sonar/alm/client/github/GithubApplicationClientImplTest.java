@@ -1546,7 +1546,7 @@ public class GithubApplicationClientImplTest {
     when(response.getCode()).thenReturn(HTTP_CREATED);
     when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"),
       eq(Map.of(GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER, GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER_VALUE)))).thenReturn(response);
-    return new ExpiringAppInstallationToken(clock, token, "2024-08-28T10:44:51Z");
+    return new ExpiringAppInstallationToken(clock, "42", token, "2024-08-28T10:44:51Z");
   }
 
   private ExpiringAppInstallationToken mockCreateAccessTokenCallingGithubWithBody() throws IOException {
@@ -1562,7 +1562,7 @@ public class GithubApplicationClientImplTest {
     when(response.getCode()).thenReturn(HTTP_CREATED);
     when(githubApplicationHttpClient.post(eq(appUrl), any(AppToken.class), eq("/app/installations/" + INSTALLATION_ID + "/access_tokens"), anyString(),
       eq(Map.of(GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER, GithubHeaders.STATELESS_INSTALLATION_TOKEN_HEADER_VALUE)))).thenReturn(response);
-    return new ExpiringAppInstallationToken(clock, token, "2024-08-28T10:44:51Z");
+    return new ExpiringAppInstallationToken(clock, "42", token, "2024-08-28T10:44:51Z");
   }
 
   private static class OkGetResponse extends Response {

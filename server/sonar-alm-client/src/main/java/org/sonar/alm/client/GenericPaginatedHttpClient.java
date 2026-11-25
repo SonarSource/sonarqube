@@ -19,15 +19,20 @@
  */
 package org.sonar.alm.client;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.kohsuke.github.GHRateLimit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.alm.client.ApplicationHttpClient.GetResponse;
+import org.sonar.auth.github.AppInstallationToken;
 import org.sonar.auth.github.security.AccessToken;
 
 import static java.lang.String.format;
@@ -35,8 +40,12 @@ import static java.lang.String.format;
 public abstract class GenericPaginatedHttpClient implements PaginatedHttpClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(GenericPaginatedHttpClient.class);
+  private static final long RATE_LIMIT_WINDOW_HOURS = 1;
   private final ApplicationHttpClient appHttpClient;
   private final RatioBasedRateLimitChecker rateLimitChecker;
+  private final Cache<String, ApplicationHttpClient.RateLimit> lastKnownRateLimitByInstallation = CacheBuilder.newBuilder()
+    .expireAfterWrite(RATE_LIMIT_WINDOW_HOURS, TimeUnit.HOURS)
+    .build();
 
   protected GenericPaginatedHttpClient(ApplicationHttpClient appHttpClient, RatioBasedRateLimitChecker rateLimitChecker) {
     this.appHttpClient = appHttpClient;
@@ -69,7 +78,7 @@ public abstract class GenericPaginatedHttpClient implements PaginatedHttpClient 
     if (query.contains("?")) {
       nextEndpoint = query + "&per_page=100";
     }
-    ApplicationHttpClient.RateLimit rateLimit = null;
+    ApplicationHttpClient.RateLimit rateLimit = lastKnownRateLimit(appUrl, token);
     while (nextEndpoint != null) {
       checkRateLimit(rateLimit);
       GetResponse response = executeCall(appUrl, token, nextEndpoint);
@@ -82,8 +91,37 @@ public abstract class GenericPaginatedHttpClient implements PaginatedHttpClient 
       }
       nextEndpoint = response.getNextEndPoint().orElse(null);
       rateLimit = response.getRateLimit();
+      rememberRateLimit(appUrl, token, rateLimit);
     }
     return results;
+  }
+
+  @CheckForNull
+  private ApplicationHttpClient.RateLimit lastKnownRateLimit(String appUrl, AccessToken token) {
+    if (!(token instanceof AppInstallationToken installationToken)) {
+      return null;
+    }
+    String key = cacheKey(appUrl, installationToken);
+    ApplicationHttpClient.RateLimit lastKnown = lastKnownRateLimitByInstallation.getIfPresent(key);
+    if (lastKnown != null && isExpired(lastKnown)) {
+      lastKnownRateLimitByInstallation.invalidate(key);
+      return null;
+    }
+    return lastKnown;
+  }
+
+  private void rememberRateLimit(String appUrl, AccessToken token, @Nullable ApplicationHttpClient.RateLimit rateLimit) {
+    if (token instanceof AppInstallationToken installationToken && rateLimit != null) {
+      lastKnownRateLimitByInstallation.put(cacheKey(appUrl, installationToken), rateLimit);
+    }
+  }
+
+  private static String cacheKey(String appUrl, AppInstallationToken token) {
+    return appUrl + "|" + token.getInstallationId();
+  }
+
+  private static boolean isExpired(ApplicationHttpClient.RateLimit rateLimit) {
+    return new GHRateLimit.Record(rateLimit.limit(), rateLimit.remaining(), rateLimit.reset()).isExpired();
   }
 
   private void checkRateLimit(@Nullable ApplicationHttpClient.RateLimit rateLimit) {
