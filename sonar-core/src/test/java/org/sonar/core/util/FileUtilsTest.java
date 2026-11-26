@@ -47,7 +47,11 @@ public class FileUtilsTest {
 
   @Test
   public void cleanDirectory_does_nothing_if_argument_does_not_exist() throws IOException {
-    FileUtils.cleanDirectory(new File("/a/b/ToDoSSS"));
+    File directory = new File("/a/b/ToDoSSS");
+
+    FileUtils.cleanDirectory(directory);
+
+    assertThat(directory).doesNotExist();
   }
 
   @Test
@@ -121,8 +125,8 @@ public class FileUtilsTest {
 
   @Test
   public void deleteQuietly_does_not_fail_if_argument_is_null() {
-    FileUtils.deleteQuietly((File) null);
-    FileUtils.deleteQuietly((Path) null);
+    assertThat(FileUtils.deleteQuietly((File) null)).isFalse();
+    assertThat(FileUtils.deleteQuietly((Path) null)).isFalse();
   }
 
   @Test
@@ -209,6 +213,8 @@ public class FileUtilsTest {
     File file = new File(temporaryFolder.newFolder(), "foo.d");
 
     FileUtils.deleteDirectory(file);
+
+    assertThat(file).doesNotExist();
   }
 
   @Test
@@ -249,7 +255,7 @@ public class FileUtilsTest {
     assertThat(childFile2).isRegularFile();
     assertThat(childDir2).isDirectory();
 
-    FileUtils.deleteQuietly(target.toFile());
+    FileUtils.deleteDirectory(target.toFile());
 
     assertThat(target).doesNotExist();
     assertThat(childFile1).doesNotExist();
