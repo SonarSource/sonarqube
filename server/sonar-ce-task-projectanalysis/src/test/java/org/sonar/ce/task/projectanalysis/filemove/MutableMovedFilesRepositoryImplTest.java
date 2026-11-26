@@ -87,12 +87,19 @@ public class MutableMovedFilesRepositoryImplTest {
     for (int i = 0; i < 1 + Math.abs(new Random().nextInt(10)); i++) {
       underTest.setOriginalFile(SOME_FILE, SOME_ORIGINAL_FILE);
     }
+
+    assertThat(underTest.getOriginalFile(SOME_FILE)).contains(SOME_ORIGINAL_FILE);
   }
 
   @Test
   public void setOriginalFile_does_not_fail_when_originalFile_is_added_twice_for_different_files() {
+    Component otherFile = builder(Component.Type.FILE, 2).build();
+
     underTest.setOriginalFile(SOME_FILE, SOME_ORIGINAL_FILE);
-    underTest.setOriginalFile(builder(Component.Type.FILE, 2).build(), SOME_ORIGINAL_FILE);
+    underTest.setOriginalFile(otherFile, SOME_ORIGINAL_FILE);
+
+    assertThat(underTest.getOriginalFile(SOME_FILE)).contains(SOME_ORIGINAL_FILE);
+    assertThat(underTest.getOriginalFile(otherFile)).contains(SOME_ORIGINAL_FILE);
   }
 
   @Test

@@ -34,6 +34,7 @@ import org.sonar.ce.task.step.TestComputationStepContext;
 import org.sonar.server.project.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -121,8 +122,7 @@ public class PostMeasuresComputationChecksStepTest {
 
   @Test
   public void do_nothing_if_no_extensions() {
-    // no failure
-    newStep().execute(new TestComputationStepContext());
+    assertThatCode(() -> newStep().execute(new TestComputationStepContext())).doesNotThrowAnyException();
   }
 
   @Test
