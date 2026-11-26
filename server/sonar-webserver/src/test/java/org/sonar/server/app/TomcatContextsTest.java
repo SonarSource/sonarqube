@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -117,6 +118,25 @@ public class TomcatContextsTest {
   }
 
   @Test
+  public void context_path_ignores_trailing_slashes() {
+    props.setProperty("sonar.web.context", "/sonarqube//");
+
+    assertThat(TomcatContexts.getContextPath(new Props(props))).isEqualTo("/sonarqube");
+  }
+
+  @Test
+  public void configure_passes_web_context_without_trailing_slash_to_root_context() throws Exception {
+    props.setProperty("sonar.web.context", "/sonarqube/");
+
+    underTest.configure(tomcat, new Props(props));
+
+    File webXml = new File(props.getProperty(Property.PATH_DATA.getKey()), "web/root/WEB-INF/web.xml");
+    assertThat(FileUtils.readFileToString(webXml, "UTF-8")).contains("<param-value>/sonarqube</param-value>");
+    verify(tomcat).addWebapp(eq("/sonarqube"), anyString());
+    verify(tomcat).addWebapp(eq("/sonarqube/deploy"), anyString());
+  }
+
+  @Test
   public void context_path_must_start_with_slash() {
     props.setProperty("sonar.web.context", "foo");
     Props propsToTest = new Props(props);
@@ -147,6 +167,17 @@ public class TomcatContextsTest {
 
     // Verify root context was created at "" path
     verify(tomcat).addWebapp("", new File(props.getProperty(Property.PATH_DATA.getKey()), "web/root").getAbsolutePath());
+  }
+
+  @Test
+  public void configure_allows_root_context_to_forward_to_web_context() {
+    props.setProperty("sonar.web.context", "/sonarqube");
+    StandardContext rootContext = mock(StandardContext.class);
+    when(tomcat.addWebapp("", new File(props.getProperty(Property.PATH_DATA.getKey()), "web/root").getAbsolutePath())).thenReturn(rootContext);
+
+    underTest.configure(tomcat, new Props(props));
+
+    verify(rootContext).setCrossContext(true);
   }
 
   @Test

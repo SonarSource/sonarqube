@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.process.Props;
 
@@ -77,12 +78,10 @@ public class TomcatContexts {
 
   static String getContextPath(Props props) {
     String context = props.value(WEB_CONTEXT.getKey(), "");
-    if ("/".equals(context)) {
-      context = "";
-    } else if (!"".equals(context) && context != null && !context.startsWith("/")) {
+    if (!context.isEmpty() && !context.startsWith("/")) {
       throw MessageException.of(format("Value of '%s' must start with a forward slash: '%s'", WEB_CONTEXT.getKey(), context));
     }
-    return context;
+    return StringUtils.stripEnd(context, "/");
   }
 
   @VisibleForTesting
@@ -208,7 +207,7 @@ public class TomcatContexts {
         </web-app>""".formatted(webContext);
       FileUtils.writeStringToFile(webXmlDest, webXml, StandardCharsets.UTF_8);
 
-      addContext(tomcat, "", rootDir);
+      addContext(tomcat, "", rootDir).setCrossContext(true);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to configure ROOT context", e);
     }
