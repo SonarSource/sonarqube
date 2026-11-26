@@ -19,10 +19,12 @@
  */
 package org.sonar.ce.task.projectanalysis.source;
 
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.component.Component;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
@@ -42,8 +44,9 @@ public class SourceLinesHashImplTest {
   public void should_generate_correct_version_of_line_hashes() {
     Component component = createComponent(1);
 
-    underTest.getLineHashesMatchingDBVersion(component);
+    List<String> lineHashes = underTest.getLineHashesMatchingDBVersion(component);
 
+    assertThat(lineHashes).isEmpty();
   }
 
   private static Component createComponent(int ref) {
