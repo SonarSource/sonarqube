@@ -42,12 +42,20 @@ public class McpOAuthNewValue extends NewValue {
   @Nullable
   private final Long expiresAt;
 
+  private final boolean systemTriggered;
+
   public McpOAuthNewValue(@Nullable String userUuid, @Nullable String userLogin, @Nullable String clientId, Set<String> scopes, @Nullable Long expiresAt) {
+    this(userUuid, userLogin, clientId, scopes, expiresAt, false);
+  }
+
+  public McpOAuthNewValue(@Nullable String userUuid, @Nullable String userLogin, @Nullable String clientId, Set<String> scopes, @Nullable Long expiresAt,
+    boolean systemTriggered) {
     this.userUuid = userUuid;
     this.userLogin = userLogin;
     this.clientId = clientId;
     this.scopes = scopes.isEmpty() ? null : String.join(" ", new TreeSet<>(scopes));
     this.expiresAt = expiresAt;
+    this.systemTriggered = systemTriggered;
   }
 
   @CheckForNull
@@ -58,6 +66,10 @@ public class McpOAuthNewValue extends NewValue {
   @CheckForNull
   public String getUserLogin() {
     return userLogin;
+  }
+
+  public boolean isSystemTriggered() {
+    return systemTriggered;
   }
 
   @Override

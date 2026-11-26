@@ -46,6 +46,19 @@ class McpOAuthNewValueTest {
   }
 
   @Test
+  void is_not_system_triggered_by_default() {
+    assertThat(new McpOAuthNewValue("user-uuid", "jdoe", "client", Set.of("read"), 42L).isSystemTriggered()).isFalse();
+  }
+
+  @Test
+  void is_system_triggered_when_requested_and_still_records_the_user() {
+    var newValue = new McpOAuthNewValue("user-uuid", "jdoe", "client", Set.of("read"), null, true);
+
+    assertThat(newValue.isSystemTriggered()).isTrue();
+    assertThat(newValue).hasToString("{\"userLogin\": \"jdoe\", \"clientId\": \"client\", \"scopes\": \"read\" }");
+  }
+
+  @Test
   void toString_omits_the_fields_that_are_not_set_and_never_the_user_uuid() {
     var result = new McpOAuthNewValue("user-uuid", "jdoe", null, Set.of(), null).toString();
 
