@@ -5,7 +5,10 @@ Enable auto-merge only for a PR that meets all of these conditions:
 - Its author is the SonarQube Remediation Agent (GitHub account `sonarqube-agent[bot]`).
 - Gitar's whole-PR risk assessment of the current head is **Low risk**. If no risk
   assessment is available, this condition is not met.
-- It has no unresolved review threads or comments.
+- It has no unresolved review threads or comments on GitHub. Inline comments and threads
+  always block until they are resolved, including Gitar's own. Only Gitar's suggestions that
+  appear solely in its review summary, and not as an inline comment or thread, do not block
+  auto-merge.
 - Gitar has approved it.
 - It does not modify any file under `.gitar/` or `.github/`.
 - It is not a draft.
