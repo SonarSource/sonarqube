@@ -363,7 +363,7 @@ subprojects {
       dependency 'com.sonarsource.dre:sonar-dre-ruby-plugin:2.18.0.25612'
       dependency 'com.sonarsource.dre:sonar-dre-scala-plugin:2.18.0.25612'
       dependency 'com.sonarsource.go:sonar-go-enterprise-plugin:1.49.0.9582'
-      dependency 'com.sonarsource.java:java-a3s-context-collector:2.10.0.10670'
+      dependency 'com.sonarsource.java:java-a3s-context-collector:2.11.0.10806'
       dependency 'com.sonarsource.pli:sonar-pli-plugin:2.0.0.8787'
       dependency 'com.sonarsource.plsql:sonar-plsql-plugin:3.24.1.9832'
       dependency 'com.sonarsource.plugins.vb:sonar-vb-plugin:2.19.0.7510'
