@@ -94,8 +94,8 @@ public class CreateTableBuilderTest {
 
   @Test
   public void constructor_does_not_fail_if_table_name_contains_ascii_letters() {
-    new CreateTableBuilder(mock(Dialect.class), "abcdefghijklmnopqrstuvwxy");
-    new CreateTableBuilder(mock(Dialect.class), "z");
+    assertThatNoException().isThrownBy(() -> new CreateTableBuilder(mock(Dialect.class), "abcdefghijklmnopqrstuvwxy"));
+    assertThatNoException().isThrownBy(() -> new CreateTableBuilder(mock(Dialect.class), "z"));
   }
 
   @Test
@@ -131,8 +131,8 @@ public class CreateTableBuilderTest {
 
   @Test
   public void constructor_does_not_fail_if_table_name_contains_underscore_or_numbers() {
-    new CreateTableBuilder(mock(Dialect.class), "a1234567890");
-    new CreateTableBuilder(mock(Dialect.class), "a_");
+    assertThatNoException().isThrownBy(() -> new CreateTableBuilder(mock(Dialect.class), "a1234567890"));
+    assertThatNoException().isThrownBy(() -> new CreateTableBuilder(mock(Dialect.class), "a_"));
   }
 
   @Test
@@ -325,22 +325,22 @@ public class CreateTableBuilderTest {
 
   @Test
   public void withPkConstraintName_does_not_fail_if_name_is_30_char_long() {
-    underTest.withPkConstraintName("abcdefghijklmnopqrstuvwxyzabcd");
+    assertThatNoException().isThrownBy(() -> underTest.withPkConstraintName("abcdefghijklmnopqrstuvwxyzabcd"));
   }
 
   @Test
   public void withPkConstraintName_does_not_fail_if_name_contains_ascii_letters() {
-    underTest.withPkConstraintName("abcdefghijklmnopqrstuvwxyz");
+    assertThatNoException().isThrownBy(() -> underTest.withPkConstraintName("abcdefghijklmnopqrstuvwxyz"));
   }
 
   @Test
   public void withPkConstraintName_does_not_fail_if_name_contains_underscore() {
-    underTest.withPkConstraintName("a_");
+    assertThatNoException().isThrownBy(() -> underTest.withPkConstraintName("a_"));
   }
 
   @Test
   public void withPkConstraintName_does_not_fail_if_name_contains_numbers() {
-    underTest.withPkConstraintName("a0123456789");
+    assertThatNoException().isThrownBy(() -> underTest.withPkConstraintName("a0123456789"));
   }
 
   @Test

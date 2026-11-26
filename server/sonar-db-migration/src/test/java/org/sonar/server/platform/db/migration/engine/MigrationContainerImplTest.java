@@ -33,6 +33,7 @@ import org.sonar.server.platform.db.migration.step.MigrationStepsExecutor;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class MigrationContainerImplTest {
   private final SpringComponentContainer parent = new SpringComponentContainer();
@@ -92,7 +93,7 @@ public class MigrationContainerImplTest {
     parent.add(StopFailing.class);
     MigrationContainerImpl localUnderTest = new MigrationContainerImpl(parent, NoOpExecutor.class);
 
-    localUnderTest.cleanup();
+    assertThatCode(localUnderTest::cleanup).doesNotThrowAnyException();
   }
 
   private static class NoOpExecutor implements MigrationStepsExecutor {
