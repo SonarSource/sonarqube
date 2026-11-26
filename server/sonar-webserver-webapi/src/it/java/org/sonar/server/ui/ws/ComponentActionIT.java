@@ -676,7 +676,9 @@ public class ComponentActionIT {
       .registerBranches(project.getMainBranchDto());
     init(createPages());
 
-    execute(project.projectKey());
+    String json = execute(project.projectKey());
+
+    assertThat(json).contains("\"configuration\"");
   }
 
   @Test

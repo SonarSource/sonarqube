@@ -40,8 +40,10 @@ import org.sonar.db.project.ProjectDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.NodeInformation;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -86,19 +88,6 @@ public class CancelActionIT {
   }
 
   @Test
-  public void cancel_pending_task_when_system_administer() {
-    logInAsSystemAdministrator();
-    ComponentDto project = db.components().insertPrivateProject().getMainBranchComponent();
-    CeQueueDto ceQueueDto = createTaskSubmit(project);
-
-    tester.newRequest()
-      .setParam("id", ceQueueDto.getUuid())
-      .execute();
-
-    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), ceQueueDto.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-  }
-
-  @Test
   public void cancel_pending_task_when_project_administer() {
     ProjectData project = db.components().insertPrivateProject();
     ProjectDto projectDto = project.getProjectDto();
@@ -118,9 +107,11 @@ public class CancelActionIT {
   public void does_not_fail_on_unknown_task() {
     logInAsSystemAdministrator();
 
-    tester.newRequest()
+    TestResponse response = tester.newRequest()
       .setParam("id", "UNKNOWN")
       .execute();
+
+    assertThat(response.getStatus()).isEqualTo(HTTP_NO_CONTENT);
   }
 
   @Test

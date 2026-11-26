@@ -320,9 +320,11 @@ public class ProjectStatusActionIT {
     dbSession.commit();
     userSession.addProjectPermission(ProjectPermission.ADMIN, projectData.getProjectDto());
 
-    ws.newRequest()
+    ProjectStatusResponse result = ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
       .executeProtobuf(ProjectStatusResponse.class);
+
+    assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
   }
 
   @Test
@@ -333,9 +335,11 @@ public class ProjectStatusActionIT {
     dbSession.commit();
     userSession.addProjectPermission(ProjectPermission.USER, projectData.getProjectDto());
 
-    ws.newRequest()
+    ProjectStatusResponse result = ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
       .executeProtobuf(ProjectStatusResponse.class);
+
+    assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
   }
 
   @Test
