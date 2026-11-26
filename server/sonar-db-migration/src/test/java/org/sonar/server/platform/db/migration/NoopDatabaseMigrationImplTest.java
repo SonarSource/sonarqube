@@ -21,9 +21,11 @@ package org.sonar.server.platform.db.migration;
 
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 public class NoopDatabaseMigrationImplTest {
   @Test
   public void startIt_does_nothing() {
-    new NoopDatabaseMigrationImpl().startIt();
+    assertThatCode(() -> new NoopDatabaseMigrationImpl().startIt()).doesNotThrowAnyException();
   }
 }
