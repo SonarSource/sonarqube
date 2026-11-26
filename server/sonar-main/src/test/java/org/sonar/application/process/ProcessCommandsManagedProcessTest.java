@@ -28,6 +28,7 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -90,8 +91,7 @@ public class ProcessCommandsManagedProcessTest {
 
     ProcessCommandsManagedProcess underTest = new ProcessCommandsManagedProcess(process, null, commands);
 
-    // no failures
-    underTest.closeStreams();
+    assertThatCode(underTest::closeStreams).doesNotThrowAnyException();
   }
 
   @Test
@@ -103,7 +103,6 @@ public class ProcessCommandsManagedProcessTest {
 
     ProcessCommandsManagedProcess underTest = new ProcessCommandsManagedProcess(process, null, mock(ProcessCommands.class, Mockito.RETURNS_MOCKS));
 
-    // no failures
-    underTest.closeStreams();
+    assertThatCode(underTest::closeStreams).doesNotThrowAnyException();
   }
 }

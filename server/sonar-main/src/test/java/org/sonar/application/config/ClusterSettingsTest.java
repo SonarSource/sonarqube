@@ -149,7 +149,10 @@ public class ClusterSettingsTest {
       CLUSTER_ENABLED.getKey(), "false",
       // this property is supposed to fail if cluster is enabled
       "sonar.cluster.web.startupLeader", "true"));
-    new ClusterSettings(network).accept(settings.getProps());
+    Props props = settings.getProps();
+
+    assertThatCode(() -> new ClusterSettings(network).accept(props))
+      .doesNotThrowAnyException();
   }
 
   @Test
@@ -184,9 +187,10 @@ public class ClusterSettingsTest {
     mockValidHost(host);
     mockLocalNonLoopback(host);
     TestAppSettings settings = newSettingsForSearchNode(host, of("sonar.jdbc.url", "jdbc:h2:mem"));
+    Props props = settings.getProps();
 
-    // do not fail
-    new ClusterSettings(network).accept(settings.getProps());
+    assertThatCode(() -> new ClusterSettings(network).accept(props))
+      .doesNotThrowAnyException();
   }
 
   @Test

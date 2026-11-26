@@ -129,7 +129,9 @@ public class JvmOptionsTest {
         Stream.of(new Option("-prefix", emptyString)))
         .flatMap(s -> s));
 
-    new JvmOptions(mandatoryJvmOptions);
+    JvmOptions<JvmOptions> testJvmOptions = new JvmOptions<>(mandatoryJvmOptions);
+
+    assertThat(testJvmOptions.getAll()).contains("-prefix");
   }
 
   @Test
@@ -198,7 +200,10 @@ public class JvmOptionsTest {
     JvmOptions underTest = new JvmOptions(ImmutableMap.of(randomPrefix, randomValue));
 
     for (String optionOverride : optionOverrides) {
-      underTest.add(optionOverride.toUpperCase(Locale.ENGLISH));
+      String upperCaseOptionOverride = optionOverride.toUpperCase(Locale.ENGLISH);
+      underTest.add(upperCaseOptionOverride);
+
+      assertThat(underTest.getAll()).contains(upperCaseOptionOverride);
     }
   }
 
@@ -304,8 +309,11 @@ public class JvmOptionsTest {
     JvmOptions underTest = new JvmOptions(ImmutableMap.of(randomPrefix, randomValue));
 
     for (String optionOverride : optionOverrides) {
-      properties.setProperty(randomPropertyName, optionOverride.toUpperCase(Locale.ENGLISH));
+      String upperCaseOptionOverride = optionOverride.toUpperCase(Locale.ENGLISH);
+      properties.setProperty(randomPropertyName, upperCaseOptionOverride);
       underTest.addFromMandatoryProperty(new Props(properties), randomPropertyName);
+
+      assertThat(underTest.getAll()).contains(upperCaseOptionOverride);
     }
   }
 
