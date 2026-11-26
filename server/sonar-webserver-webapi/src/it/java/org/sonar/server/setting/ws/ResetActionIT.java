@@ -196,6 +196,7 @@ public class ResetActionIT {
     logInAsSystemAdministrator();
 
     executeRequestOnGlobalSetting("unknown");
+    assertGlobalPropertyDoesNotExist("unknown");
   }
 
   @Test
@@ -336,11 +337,13 @@ public class ResetActionIT {
   private void succeedForPropertyWithoutDefinitionAndValidComponent(ProjectDto project) {
     logInAsProjectAdmin(project);
     executeRequestOnComponentSetting("foo", project);
+    assertProjectPropertyDoesNotExist(project, "foo");
   }
 
   private void succeedForPropertyWithoutDefinitionAndValidComponent(PortfolioDto project) {
     logInAsProjectAdmin(project);
     executeRequestOnComponentSetting("foo", project);
+    assertProjectPropertyDoesNotExist(project, "foo");
   }
 
   private void executeRequestOnGlobalSetting(String key) {

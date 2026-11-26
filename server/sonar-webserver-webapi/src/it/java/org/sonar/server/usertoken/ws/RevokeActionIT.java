@@ -103,11 +103,16 @@ public class RevokeActionIT {
   @Test
   public void does_not_fail_when_incorrect_login_or_name() {
     UserDto user = db.users().insertUser();
-    db.users().insertToken(user);
+    UserTokenDto token = db.users().insertToken(user);
 
     logInAsSystemAdministrator();
 
-    newRequest(user.getLogin(), "another-token-name");
+    String response = newRequest(user.getLogin(), "another-token-name");
+
+    assertThat(response).isEmpty();
+    assertThat(dbClient.userTokenDao().selectByUser(dbSession, user))
+      .extracting(UserTokenDto::getName)
+      .containsExactly(token.getName());
   }
 
   @Test

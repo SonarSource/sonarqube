@@ -365,7 +365,9 @@ public class SearchActionIT {
       .toList();
     MetricDto metric = db.measures().insertMetric();
 
-    call(keys, singletonList(metric.getKey()));
+    SearchWsResponse result = call(keys, singletonList(metric.getKey()));
+
+    assertThat(result.getMeasuresList()).isEmpty();
   }
 
   @Test
