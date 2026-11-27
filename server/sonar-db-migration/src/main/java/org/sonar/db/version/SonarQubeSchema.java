@@ -46,6 +46,7 @@ public final class SonarQubeSchema {
     "anticipated_transitions",
     "app_branch_project_branch",
     "app_projects",
+    "arch_assertions",
     "arch_boundaries",
     "arch_boundary_descriptors",
     "arch_directives",

@@ -36,7 +36,7 @@ class DbVersion202606Test {
 
   @Test
   void registers_all_migrations() {
-    verifyMigrationCount(underTest, 35);
+    verifyMigrationCount(underTest, 36);
   }
 
   @Test
