@@ -91,7 +91,7 @@ public class GetAction implements AnalysisCacheWsAction {
       checkPermission(project);
       BranchDto branchDto = componentFinder.getBranchOrPullRequest(dbSession, project, branchKey, null);
 
-      try (DbInputStream dbInputStream = cache.get(branchDto.getUuid())) {
+      try (DbInputStream dbInputStream = cache.get(dbSession, branchDto.getUuid())) {
         if (dbInputStream == null) {
           throw new NotFoundException("No cache for given branch or pull request");
         }

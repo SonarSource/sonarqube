@@ -72,6 +72,12 @@ public class ScannerReportReaderImpl implements ScannerReportReader {
   }
 
   @Override
+  public long getAnalysisCacheSize() {
+    ensureInitialized();
+    return delegate.getFileStructure().analysisCache().length();
+  }
+
+  @Override
   public CloseableIterator<String> readScannerLogs() {
     ensureInitialized();
     File file = delegate.getFileStructure().analysisLog();

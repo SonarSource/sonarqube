@@ -48,10 +48,8 @@ public class ScannerCache {
   }
 
   @CheckForNull
-  public DbInputStream get(String branchUuid) {
-    try (DbSession session = dbClient.openSession(false)) {
-      return dao.selectData(session, branchUuid);
-    }
+  public DbInputStream get(DbSession dbSession, String branchUuid) {
+    return dao.selectData(dbSession, branchUuid);
   }
 
   /**

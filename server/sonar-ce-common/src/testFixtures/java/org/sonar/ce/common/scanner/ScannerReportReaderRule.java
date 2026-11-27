@@ -124,6 +124,11 @@ public class ScannerReportReaderRule implements TestRule, ScannerReportReader, A
     return new ByteArrayInputStream(analysisCache);
   }
 
+  @Override
+  public long getAnalysisCacheSize() {
+    return analysisCache == null ? 0 : analysisCache.length;
+  }
+
   public void setAnalysisCache(byte[] cache) {
     this.analysisCache = cache;
   }

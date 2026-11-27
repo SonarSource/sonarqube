@@ -32,6 +32,11 @@ public interface ScannerReportReader {
   @CheckForNull
   InputStream getAnalysisCache();
 
+  /**
+   * @return size in bytes of the analysis cache, or 0 if there is none
+   */
+  long getAnalysisCacheSize();
+
   CloseableIterator<String> readScannerLogs();
 
   CloseableIterator<ScannerReport.ActiveRule> readActiveRules();

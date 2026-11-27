@@ -52,8 +52,9 @@ public class PersistScannerAnalysisCacheStep implements ComputationStep {
       try (var dataStream = scannerAnalysisCacheStream;
         var dbSession = dbClient.openSession(false)) {
         String branchUuid = treeRootHolder.getRoot().getUuid();
+        long cacheSize = reportReader.getAnalysisCacheSize();
         dbClient.scannerAnalysisCacheDao().remove(dbSession, branchUuid);
-        dbClient.scannerAnalysisCacheDao().insert(dbSession, branchUuid, dataStream);
+        dbClient.scannerAnalysisCacheDao().insert(dbSession, branchUuid, dataStream, cacheSize);
         dbSession.commit();
       } catch (IOException e) {
         LOGGER.error("Error in reading plugin cache", e);

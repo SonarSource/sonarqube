@@ -24,12 +24,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import org.apache.commons.io.IOUtils;
+import org.apache.ibatis.session.Configuration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
 import org.sonar.core.util.UuidFactory;
@@ -37,19 +45,29 @@ import org.sonar.db.DbInputStream;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ScannerAnalysisCacheDaoIT {
   @RegisterExtension
   private final DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @RegisterExtension
+  private final LogTesterJUnit5 logTester = new LogTesterJUnit5();
   private static final UuidFactory uuidFactory = new SequenceUuidFactory();
   private final DbSession dbSession = dbTester.getSession();
   private final ScannerAnalysisCacheDao underTest = dbTester.getDbClient().scannerAnalysisCacheDao();
+  private final ScannerAnalysisCacheDao slicedDao = new ScannerAnalysisCacheDao(3, 0, 10);
 
   @Test
   void insert_should_insert_in_db() throws IOException {
@@ -76,20 +94,192 @@ class ScannerAnalysisCacheDaoIT {
     assertThat(dbTester.countRowsOfTable("scanner_analysis_cache")).isZero();
   }
 
-  @Test
-  void throw_illegalstateexception_when_sql_excpetion() throws SQLException {
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = PostgreSql.ID)
+  void throw_illegalstateexception_when_sql_exception(String databaseId) throws SQLException {
     var mockDbSession = mock(DbSession.class);
     var connection = mock(Connection.class);
+    var configuration = new Configuration();
+    configuration.setDatabaseId(databaseId);
     when(mockDbSession.getConnection()).thenReturn(connection);
+    when(mockDbSession.getConfiguration()).thenReturn(configuration);
     when(connection.prepareStatement(anyString())).thenThrow(new SQLException());
 
     assertThatThrownBy(() -> underTest.selectData(mockDbSession, "uuid"))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Fail to select cache for branch uuid");
+      .hasMessage("Fail to select cache for branch uuid")
+      .hasCauseInstanceOf(SQLException.class);
 
     assertThatThrownBy(() -> underTest.insert(mockDbSession, "uuid", mock(InputStream.class)))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Fail to insert cache for branch uuid");
+      .hasMessage("Fail to insert cache for branch uuid")
+      .hasCauseInstanceOf(SQLException.class);
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = {0, 1, 3, 6, 7, 8})
+  void select_on_postgresql_reads_value_in_slices(int length) throws IOException {
+    assumeTrue(isPostgreSql());
+    String value = "abcdefgh".substring(0, length);
+    slicedDao.insert(dbSession, "branch1", stringToInputStream(value));
+
+    assertThat(dataStreamToString(slicedDao.selectData(dbSession, "branch1"))).isEqualTo(value);
+  }
+
+  @Test
+  void select_on_postgresql_returns_null_if_entry_doesnt_exist() {
+    assumeTrue(isPostgreSql());
+    slicedDao.insert(dbSession, "branch1", stringToInputStream("test data"));
+
+    assertThat(slicedDao.selectData(dbSession, "branch2")).isNull();
+  }
+
+  @Test
+  void select_on_postgresql_supports_reads_crossing_slices() throws IOException {
+    assumeTrue(isPostgreSql());
+    slicedDao.insert(dbSession, "branch1", stringToInputStream("abcdefgh"));
+
+    try (DbInputStream data = slicedDao.selectData(dbSession, "branch1")) {
+      byte[] buffer = new byte[2];
+      StringBuilder result = new StringBuilder();
+      int count;
+      while ((count = data.read(buffer, 0, buffer.length)) != -1) {
+        result.append(new String(buffer, 0, count, StandardCharsets.UTF_8));
+      }
+      assertThat(result).hasToString("abcdefgh");
+    }
+  }
+
+  @Test
+  void select_on_postgresql_fails_if_entry_is_removed_while_reading() throws IOException {
+    assumeTrue(isPostgreSql());
+    slicedDao.insert(dbSession, "branch1", stringToInputStream("abcdefgh"));
+
+    try (DbInputStream data = slicedDao.selectData(dbSession, "branch1")) {
+      assertThat(data.read()).isEqualTo('a');
+      slicedDao.remove(dbSession, "branch1");
+
+      assertThatThrownBy(data::readAllBytes)
+        .isInstanceOf(IOException.class)
+        .hasMessageContaining("branch1");
+    }
+  }
+
+  @Test
+  void select_on_postgresql_fails_if_entry_is_replaced_by_same_size_value_while_reading() throws IOException {
+    assumeTrue(isPostgreSql());
+    slicedDao.insert(dbSession, "branch1", stringToInputStream("abcdefgh"));
+
+    try (DbInputStream data = slicedDao.selectData(dbSession, "branch1")) {
+      assertThat(data.read()).isEqualTo('a');
+      slicedDao.remove(dbSession, "branch1");
+      slicedDao.insert(dbSession, "branch1", stringToInputStream("ABCDEFGH"));
+
+      assertThatThrownBy(data::readAllBytes)
+        .isInstanceOf(IOException.class)
+        .hasMessageContaining("branch1");
+    }
+  }
+
+  @Test
+  void select_on_postgresql_reads_value_up_to_single_read_size_atomically() throws IOException {
+    assumeTrue(isPostgreSql());
+    // 8 bytes fit the single-read limit (8), so the whole value is fetched by one statement even though slices would be 3 bytes
+    var singleReadDao = new ScannerAnalysisCacheDao(3, 8, 10);
+    singleReadDao.insert(dbSession, "branch1", stringToInputStream("abcdefgh"));
+
+    try (DbInputStream data = singleReadDao.selectData(dbSession, "branch1")) {
+      assertThat(data.read()).isEqualTo('a');
+      // One statement is one snapshot: replacing the row after the first read cannot leak into the stream.
+      // A sliced read would instead fail here, see select_on_postgresql_fails_if_entry_is_replaced_by_same_size_value_while_reading
+      singleReadDao.remove(dbSession, "branch1");
+      singleReadDao.insert(dbSession, "branch1", stringToInputStream("ABCDEFGH"));
+
+      // The remaining bytes still come from the original value, never from the replacement
+      assertThat(new String(data.readAllBytes(), StandardCharsets.UTF_8)).isEqualTo("bcdefgh");
+    }
+  }
+
+  @Test
+  void select_on_postgresql_reads_slice_by_slice_and_fails_if_row_version_changes() throws SQLException, IOException {
+    ResultSet sizeRs = sizeResult(4, "100");
+    // 4 bytes in slices of 3: "abc" at the pinned version, then "d" from a replaced row
+    ResultSet sliceRs = mock(ResultSet.class);
+    when(sliceRs.next()).thenReturn(true);
+    when(sliceRs.getBytes(1)).thenReturn("abc".getBytes(StandardCharsets.UTF_8), "d".getBytes(StandardCharsets.UTF_8));
+    when(sliceRs.getString(2)).thenReturn("100", "101");
+    PreparedStatement sliceStmt = mock(PreparedStatement.class);
+    when(sliceStmt.executeQuery()).thenReturn(sliceRs);
+
+    try (DbInputStream data = slicedDaoOn(sizeRs, sliceStmt)) {
+      assertThat(data.read()).isEqualTo('a');
+      assertThat(data.read(new byte[1], 0, 0)).isZero();
+      assertThatThrownBy(() -> data.read(new byte[1], 0, 2)).isInstanceOf(IndexOutOfBoundsException.class);
+      // a range read never spans two slices
+      byte[] buffer = new byte[5];
+      assertThat(data.read(buffer, 0, 5)).isEqualTo(2);
+      assertThat(new String(buffer, 0, 2, StandardCharsets.UTF_8)).isEqualTo("bc");
+
+      assertThatThrownBy(data::read)
+        .isInstanceOf(IOException.class)
+        .hasMessage("Cache of branch branch1 changed while being read, at offset 3");
+    }
+
+    verify(sliceStmt, times(2)).executeQuery();
+    verify(sliceStmt).close();
+  }
+
+  @Test
+  void select_on_postgresql_wraps_sql_failure_when_reading_slice() throws SQLException {
+    ResultSet sizeRs = sizeResult(4, "100");
+    PreparedStatement sliceStmt = mock(PreparedStatement.class);
+    doThrow(new SQLException("boom")).when(sliceStmt).executeQuery();
+
+    try (DbInputStream data = slicedDaoOn(sizeRs, sliceStmt)) {
+      assertThatThrownBy(data::read)
+        .isInstanceOf(IOException.class)
+        .hasMessage("Fail to read cache of branch branch1 at offset 0")
+        .hasCauseInstanceOf(SQLException.class);
+    }
+  }
+
+  @Test
+  void insert_on_postgresql_warns_without_touching_connection_above_storable_size() {
+    var session = mock(DbSession.class);
+    var configuration = new Configuration();
+    configuration.setDatabaseId(PostgreSql.ID);
+    when(session.getConfiguration()).thenReturn(configuration);
+
+    assertThat(slicedDao.insert(session, "branch1", mock(InputStream.class), 11)).isFalse();
+
+    verify(session, never()).getConnection();
+    assertThat(logTester.logs(Level.WARN))
+      .containsExactly("Analysis cache of branch branch1 (11 bytes) is too large for the database and was not saved. The next analysis of this branch will run without cache.");
+  }
+
+  @Test
+  void insert_on_postgresql_skips_value_above_storable_size() throws IOException {
+    assumeTrue(isPostgreSql());
+
+    assertThat(slicedDao.insert(dbSession, "branch1", stringToInputStream("test data"), 11)).isFalse();
+    assertThat(slicedDao.insert(dbSession, "branch2", stringToInputStream("test data"), 10)).isTrue();
+
+    assertThat(logTester.logs(Level.WARN))
+      .containsExactly("Analysis cache of branch branch1 (11 bytes) is too large for the database and was not saved. The next analysis of this branch will run without cache.");
+
+    assertThat(slicedDao.selectData(dbSession, "branch1")).isNull();
+    assertThat(dataStreamToString(slicedDao.selectData(dbSession, "branch2"))).isEqualTo("test data");
+  }
+
+  @Test
+  void insert_on_other_databases_ignores_storable_size() throws IOException {
+    assumeFalse(isPostgreSql());
+
+    assertThat(slicedDao.insert(dbSession, "branch1", stringToInputStream("test data"), 11)).isTrue();
+
+    assertThat(logTester.logs(Level.WARN)).isEmpty();
+    assertThat(dataStreamToString(slicedDao.selectData(dbSession, "branch1"))).isEqualTo("test data");
   }
 
   @Test
@@ -118,6 +308,31 @@ class ScannerAnalysisCacheDaoIT {
     assertThat(underTest.selectData(dbSession, snapshot2.getRootComponentUuid())).isNotNull();
     assertThat(underTest.selectData(dbSession, snapshot3.getRootComponentUuid())).isNull();
     assertThat(underTest.selectData(dbSession, snapshot4.getRootComponentUuid())).isNull();
+  }
+
+  private boolean isPostgreSql() {
+    return PostgreSql.ID.equals(dbTester.database().getDialect().getId());
+  }
+
+  private static ResultSet sizeResult(long size, String version) throws SQLException {
+    ResultSet rs = mock(ResultSet.class);
+    when(rs.next()).thenReturn(true);
+    when(rs.getLong(1)).thenReturn(size);
+    when(rs.getString(2)).thenReturn(version);
+    return rs;
+  }
+
+  private DbInputStream slicedDaoOn(ResultSet sizeRs, PreparedStatement sliceStmt) throws SQLException {
+    var session = mock(DbSession.class);
+    var connection = mock(Connection.class);
+    var sizeStmt = mock(PreparedStatement.class);
+    var configuration = new Configuration();
+    configuration.setDatabaseId(PostgreSql.ID);
+    when(session.getConnection()).thenReturn(connection);
+    when(session.getConfiguration()).thenReturn(configuration);
+    when(sizeStmt.executeQuery()).thenReturn(sizeRs);
+    when(connection.prepareStatement(anyString())).thenReturn(sizeStmt, sliceStmt);
+    return slicedDao.selectData(session, "branch1");
   }
 
   private static String dataStreamToString(DbInputStream dbInputStream) throws IOException {

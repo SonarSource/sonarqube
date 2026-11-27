@@ -94,9 +94,9 @@ public class ClearActionIT {
       .execute();
 
     response.assertNoContent();
-    assertThat(cache.get(branch11.getUuid())).isNull();
-    assertThat(cache.get(branch12.getUuid())).isNull();
-    assertThat(cache.get(branch21.getUuid())).isNotNull();
+    assertThat(cache.get(dbTester.getSession(), branch11.getUuid())).isNull();
+    assertThat(cache.get(dbTester.getSession(), branch12.getUuid())).isNull();
+    assertThat(cache.get(dbTester.getSession(), branch21.getUuid())).isNotNull();
   }
 
   @Test
@@ -118,9 +118,9 @@ public class ClearActionIT {
       .execute();
 
     response.assertNoContent();
-    assertThat(cache.get(branch11.getUuid())).isNull();
-    assertThat(cache.get(branch12.getUuid())).isNotNull();
-    assertThat(cache.get(branch21.getUuid())).isNotNull();
+    assertThat(cache.get(dbTester.getSession(), branch11.getUuid())).isNull();
+    assertThat(cache.get(dbTester.getSession(), branch12.getUuid())).isNotNull();
+    assertThat(cache.get(dbTester.getSession(), branch21.getUuid())).isNotNull();
   }
 
   @Test
