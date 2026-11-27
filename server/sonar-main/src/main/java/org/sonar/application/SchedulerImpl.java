@@ -54,6 +54,9 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
   private static final Logger LOG = LoggerFactory.getLogger(SchedulerImpl.class);
   private static final ManagedProcessHandler.Timeout HARD_STOP_TIMEOUT = newTimeout(1, TimeUnit.MINUTES);
+  private static final long ORPHAN_LEADER_WARNING_DELAY_MS = 30_000L;
+  private static final String ORPHAN_LEADER_WEB =
+    "Web process of node {} is still running without its main process. Stop it to let startup continue on the other nodes.";
   private static int hardStopperThreadIndex = 0;
   private static int restartStopperThreadIndex = 0;
 
@@ -66,13 +69,17 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
   private final CountDownLatch awaitTermination = new CountDownLatch(1);
   private final AtomicBoolean firstWaitingEsLog = new AtomicBoolean(true);
+  private final AtomicBoolean orphanLeaderWarning = new AtomicBoolean(false);
   private final EnumMap<ProcessId, ManagedProcessHandler> processesById = new EnumMap<>(ProcessId.class);
   private final AtomicInteger operationalCountDown = new AtomicInteger();
   private final AtomicInteger stopCountDown = new AtomicInteger(0);
   private RestartStopperThread restartStopperThread;
   private HardStopperThread hardStopperThread;
   private RestarterThread restarterThread;
+  @Nullable
+  private Thread orphanLeaderWarningThread;
   private long processWatcherDelayMs = ManagedProcessHandler.DEFAULT_WATCHER_DELAY_MS;
+  private long orphanLeaderWarningDelayMs = ORPHAN_LEADER_WARNING_DELAY_MS;
 
   public SchedulerImpl(AppSettings settings, AppReloader appReloader, CommandFactory commandFactory,
     ProcessLauncher processLauncher, AppState appState) {
@@ -86,6 +93,11 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
 
   SchedulerImpl setProcessWatcherDelayMs(long l) {
     this.processWatcherDelayMs = l;
+    return this;
+  }
+
+  SchedulerImpl setOrphanLeaderWarningDelayMs(long delayMs) {
+    this.orphanLeaderWarningDelayMs = delayMs;
     return this;
   }
 
@@ -154,17 +166,65 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
       }
       return;
     }
+    // Already launched. A running web does not run startup, so it must not take a free leader lock.
+    if (process.getState() != ManagedProcessLifecycle.State.INIT) {
+      return;
+    }
+    // Lock first. A node that starts while the lock is free becomes the startup leader, including when other webs are already up.
     if (appState.tryToLockWebLeader()) {
       tryToStartWebLeader(process);
     } else if (appState.isOperational(ProcessId.WEB_SERVER, false)) {
       tryToStartProcess(process, () -> commandFactory.createWebCommand(false));
     } else {
-      Optional<String> leader = appState.getLeaderHostName();
-      if (leader.isPresent()) {
-        LOG.info("Waiting for initialization from {}", leader.get());
+      Optional<String> leaderWebWithoutMainProcess = appState.getLeaderNodeNameWithoutMainProcess();
+      if (leaderWebWithoutMainProcess.isPresent()) {
+        warnLeaderWebWithoutMainProcess(leaderWebWithoutMainProcess.get());
       } else {
-        LOG.error("Initialization failed. All nodes must be restarted");
+        Optional<String> leader = appState.getLeaderHostName();
+        if (leader.isPresent()) {
+          LOG.info("Waiting for initialization from {}", leader.get());
+        } else {
+          LOG.error("Initialization failed. All nodes must be restarted");
+        }
       }
+    }
+  }
+
+  private void warnLeaderWebWithoutMainProcess(String nodeName) {
+    LOG.warn(ORPHAN_LEADER_WEB, nodeName);
+    if (orphanLeaderWarning.compareAndSet(false, true)) {
+      orphanLeaderWarningThread = new Thread(this::repeatOrphanLeaderWarning, "OrphanLeaderWarning");
+      orphanLeaderWarningThread.start();
+    }
+  }
+
+  private void repeatOrphanLeaderWarning() {
+    try {
+      while (nodeLifecycle.getState() == NodeLifecycle.State.STARTING && !Thread.currentThread().isInterrupted()) {
+        if (!sleepOrphanLeaderWarningDelay()) {
+          return;
+        }
+        if (nodeLifecycle.getState() != NodeLifecycle.State.STARTING) {
+          return;
+        }
+        Optional<String> nodeName = appState.getLeaderNodeNameWithoutMainProcess();
+        if (nodeName.isEmpty()) {
+          return;
+        }
+        LOG.warn(ORPHAN_LEADER_WEB, nodeName.get());
+      }
+    } finally {
+      orphanLeaderWarning.set(false);
+    }
+  }
+
+  private boolean sleepOrphanLeaderWarningDelay() {
+    try {
+      Thread.sleep(orphanLeaderWarningDelayMs);
+      return true;
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return false;
     }
   }
 
@@ -204,7 +264,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     }
 
     try {
-      processHandler.start(() -> {
+      return processHandler.start(() -> {
         AbstractCommand command = commandSupplier.get();
         return processLauncher.launch(command);
       });
@@ -212,7 +272,6 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
       logProcessStartFailure(processHandler, e);
       return false;
     }
-    return true;
   }
 
   private static void logProcessStartFailure(ManagedProcessHandler processHandler, Exception e) {
@@ -276,7 +335,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     ManagedProcessHandler process = processesById.get(processId);
     if (process != null) {
       LOG.info("Stopping [{}] process...", process.getProcessId().getHumanReadableName());
-      process.stop();
+      invokeAndContinue(process::stop, process);
     }
   }
 
@@ -321,6 +380,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
       interrupt(restartStopperThread);
       interrupt(hardStopperThread);
       interrupt(restarterThread);
+      interrupt(orphanLeaderWarningThread);
       if (nodeLifecycle.tryToMoveTo(STOPPED)) {
         LOG.info("SonarQube is stopped");
       }
@@ -346,8 +406,23 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   private void hardStopProcess(ProcessId processId) throws InterruptedException {
     ManagedProcessHandler process = processesById.get(processId);
     if (process != null) {
-      process.hardStop();
+      invokeAndContinue(process::hardStop, process);
     }
+  }
+
+  // An InternalError from the mapped commands file must not skip the remaining processes.
+  @SuppressWarnings("java:S1181")
+  private static void invokeAndContinue(InterruptibleAction action, ManagedProcessHandler process) throws InterruptedException {
+    try {
+      action.run();
+    } catch (Error e) {
+      LOG.error("Failed to stop process [{}]", process.getProcessId().getHumanReadableName(), e);
+    }
+  }
+
+  @FunctionalInterface
+  private interface InterruptibleAction {
+    void run() throws InterruptedException;
   }
 
   @Override
@@ -379,16 +454,29 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   }
 
   @Override
-  public void onAppStateOperational(ProcessId processId) {
+  public void accept(ProcessId processId) {
+    retryStartupDuringStart("notification that process [" + processId.getHumanReadableName() + "] was operational");
+  }
+
+  @Override
+  public void onClusterMemberLeft() {
     if (nodeLifecycle.getState() == NodeLifecycle.State.STARTING) {
-      try {
-        tryToStartAll();
-      } catch (InterruptedException e) {
-        // startup process was interrupted, let's assume it means shutdown was requested
-        LOG.debug("Startup process was interrupted on notification that process [{}] was operational", processId.getHumanReadableName(), e);
-        hardStopAsync();
-        Thread.currentThread().interrupt();
-      }
+      LOG.info("Cluster member left, retrying startup");
+    }
+    retryStartupDuringStart("a cluster member leaving");
+  }
+
+  private void retryStartupDuringStart(String reason) {
+    if (nodeLifecycle.getState() != NodeLifecycle.State.STARTING) {
+      return;
+    }
+    try {
+      tryToStartAll();
+    } catch (InterruptedException e) {
+      // startup process was interrupted, let's assume it means shutdown was requested
+      LOG.debug("Startup process was interrupted on {}", reason, e);
+      hardStopAsync();
+      Thread.currentThread().interrupt();
     }
   }
 

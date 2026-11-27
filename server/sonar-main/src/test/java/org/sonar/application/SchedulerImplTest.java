@@ -21,6 +21,7 @@ package org.sonar.application;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +49,7 @@ import org.sonar.application.command.CommandFactory;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.TestAppSettings;
+import org.sonar.application.logging.ListAppender;
 import org.sonar.application.process.ManagedProcess;
 import org.sonar.process.ProcessId;
 import org.sonar.process.cluster.hz.HazelcastMember;
@@ -54,7 +57,9 @@ import org.sonar.process.cluster.hz.HazelcastMember;
 import static com.google.common.collect.ImmutableMap.of;
 import static java.util.Collections.synchronizedList;
 import static org.apache.commons.lang3.RandomStringUtils.secure;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
@@ -167,6 +172,54 @@ public class SchedulerImplTest {
 
     // does nothing because scheduler is already terminated
     underTest.awaitTermination();
+  }
+
+  @Test
+  public void stop_stopsAllChildProcesses_evenIfOneAskForStopFailsWithAnError() throws Exception {
+    TestAppSettings settings = new TestAppSettings();
+    SchedulerImpl underTest = newScheduler(settings, false);
+    underTest.schedule();
+    processLauncher.waitForProcessAlive(ELASTICSEARCH).signalAsOperational();
+    processLauncher.waitForProcessAlive(WEB_SERVER).signalAsOperational();
+    processLauncher.waitForProcessAlive(COMPUTE_ENGINE).signalAsOperational();
+    processLauncher.failAskForStop = COMPUTE_ENGINE;
+
+    underTest.stop();
+
+    assertThat(orderedStops).containsExactly(COMPUTE_ENGINE, WEB_SERVER, ELASTICSEARCH);
+    processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isFalse());
+    underTest.awaitTermination();
+  }
+
+  @Test
+  public void waiting_node_warns_repeatedly_when_leader_web_has_no_main_process() throws Exception {
+    try (OrphanWarningLogs logs = new OrphanWarningLogs()) {
+      AppState state = new TestAppState() {
+        @Override
+        public boolean isOperational(ProcessId processId, boolean local) {
+          return processId == ELASTICSEARCH;
+        }
+
+        @Override
+        public boolean tryToLockWebLeader() {
+          return false;
+        }
+
+        @Override
+        public Optional<String> getLeaderNodeNameWithoutMainProcess() {
+          return Optional.of("App-1");
+        }
+      };
+      SchedulerImpl underTest = new SchedulerImpl(new TestAppSettings(), appReloader, javaCommandFactory, processLauncher, state)
+        .setProcessWatcherDelayMs(1L)
+        .setOrphanLeaderWarningDelayMs(50L);
+      try {
+        underTest.schedule();
+        await().atMost(5, SECONDS).until(() -> logs.orphanWarnings() >= 2);
+      } finally {
+        underTest.hardStop();
+      }
+    }
   }
 
   @Test
@@ -285,6 +338,9 @@ public class SchedulerImplTest {
     processLauncher.waitForProcessDown(COMPUTE_ENGINE);
     processLauncher.waitForProcessDown(WEB_SERVER);
     processLauncher.waitForProcessDown(ELASTICSEARCH);
+    assertThat(processLauncher.processes.get(COMPUTE_ENGINE).isAlive()).isFalse();
+    assertThat(processLauncher.processes.get(WEB_SERVER).isAlive()).isFalse();
+    assertThat(processLauncher.processes.get(ELASTICSEARCH).isAlive()).isFalse();
 
     // verify that awaitTermination() does not block
     underTest.awaitTermination();
@@ -368,6 +424,106 @@ public class SchedulerImplTest {
   }
 
   @Test
+  public void waiting_follower_becomes_leader_when_leader_leaves_before_becoming_operational() throws Exception {
+    AppSettings settings = new TestAppSettings(
+      addRequiredNodeProperties(ImmutableMap.<String, String>builder()
+        .put(CLUSTER_ENABLED.getKey(), "true")
+        .put(CLUSTER_NODE_TYPE.getKey(), "application")).build());
+
+    assertThat(clusterAppState.tryToLockWebLeader()).isTrue();
+    clusterAppState.setOperational(ProcessId.ELASTICSEARCH);
+
+    SchedulerImpl underTest = newScheduler(settings, true);
+    underTest.schedule();
+
+    assertThat(processLauncher.processes).isEmpty();
+
+    clusterAppState.clusterMemberLeft();
+
+    processLauncher.waitForProcessAlive(WEB_SERVER);
+    assertThat(processLauncher.commands).containsExactly(webLeaderCommand);
+    assertThat(clusterAppState.getWebLeaderLocked().get()).isTrue();
+
+    underTest.hardStop();
+  }
+
+  @Test
+  public void follower_does_not_take_leadership_when_leader_leaves_after_web_has_started() throws Exception {
+    AppSettings settings = new TestAppSettings(
+      addRequiredNodeProperties(ImmutableMap.<String, String>builder()
+        .put(CLUSTER_ENABLED.getKey(), "true")
+        .put(CLUSTER_NODE_TYPE.getKey(), "application")).build());
+
+    assertThat(clusterAppState.tryToLockWebLeader()).isTrue();
+    clusterAppState.setOperational(ProcessId.ELASTICSEARCH);
+
+    SchedulerImpl underTest = newScheduler(settings, true);
+    underTest.schedule();
+    assertThat(processLauncher.processes).isEmpty();
+
+    clusterAppState.setOperational(WEB_SERVER);
+    processLauncher.waitForProcessAlive(WEB_SERVER);
+
+    int lockAttemptsBeforeLeave = clusterAppState.getWebLeaderLockAttempts();
+    clusterAppState.clusterMemberLeft();
+
+    assertThat(clusterAppState.getWebLeaderLockAttempts()).isEqualTo(lockAttemptsBeforeLeave);
+    assertThat(clusterAppState.getWebLeaderLocked().get()).isFalse();
+    assertThat(processLauncher.commands).doesNotContain(webLeaderCommand);
+
+    underTest.hardStop();
+  }
+
+  @Test
+  public void node_becomes_leader_when_web_is_already_operational_and_leader_lock_is_free() throws Exception {
+    AppSettings settings = new TestAppSettings(
+      addRequiredNodeProperties(ImmutableMap.<String, String>builder()
+        .put(CLUSTER_ENABLED.getKey(), "true")
+        .put(CLUSTER_NODE_TYPE.getKey(), "application")).build());
+    clusterAppState.setOperational(ProcessId.ELASTICSEARCH);
+    clusterAppState.setRemoteOperational(WEB_SERVER);
+
+    SchedulerImpl underTest = newScheduler(settings, true);
+    underTest.schedule();
+
+    processLauncher.waitForProcessAlive(WEB_SERVER);
+    assertThat(processLauncher.commands).containsExactly(webLeaderCommand);
+    assertThat(clusterAppState.getWebLeaderLocked().get()).isTrue();
+
+    underTest.hardStop();
+  }
+
+  @Test
+  public void restarted_node_becomes_leader_when_lock_is_free() throws Exception {
+    AppSettings settings = new TestAppSettings(
+      addRequiredNodeProperties(ImmutableMap.<String, String>builder()
+        .put(CLUSTER_ENABLED.getKey(), "true")
+        .put(CLUSTER_NODE_TYPE.getKey(), "application")).build());
+    assertThat(clusterAppState.tryToLockWebLeader()).isTrue();
+    clusterAppState.setOperational(ProcessId.ELASTICSEARCH);
+    clusterAppState.setRemoteOperational(WEB_SERVER);
+
+    SchedulerImpl firstStart = newScheduler(settings, true);
+    firstStart.schedule();
+    processLauncher.waitForProcessAlive(WEB_SERVER);
+    assertThat(processLauncher.commands).containsExactly(webFollowerCommand);
+    firstStart.hardStop();
+
+    // The node is down. The previous leader has left and the lock is free, while another web is still operational.
+    clusterAppState.tryToReleaseWebLeaderLock();
+    processLauncher.reset();
+
+    SchedulerImpl restarted = newScheduler(settings, true);
+    restarted.schedule();
+
+    processLauncher.waitForProcessAlive(WEB_SERVER);
+    assertThat(processLauncher.commands).containsExactly(webLeaderCommand);
+    assertThat(clusterAppState.getWebLeaderLocked().get()).isTrue();
+
+    restarted.hardStop();
+  }
+
+  @Test
   public void web_server_waits_for_remote_elasticsearch_to_be_started_if_local_es_is_disabled() throws Exception {
     AppSettings settings = new TestAppSettings(
       addRequiredNodeProperties(ImmutableMap.<String, String>builder()
@@ -387,7 +543,7 @@ public class SchedulerImplTest {
     underTest.hardStop();
   }
 
-  private void playAndVerifyStartupSequence() throws InterruptedException {
+  private void playAndVerifyStartupSequence() {
     // elasticsearch does not have preconditions to start
     TestManagedProcess es = processLauncher.waitForProcess(ELASTICSEARCH);
     assertThat(es.isAlive()).isTrue();
@@ -428,13 +584,8 @@ public class SchedulerImplTest {
     return scheduler;
   }
 
-  private static void waitForAppStateOperational(AppState appState, ProcessId id) throws InterruptedException {
-    while (true) {
-      if (appState.isOperational(id, true)) {
-        return;
-      }
-      Thread.sleep(1L);
-    }
+  private static void waitForAppStateOperational(AppState appState, ProcessId id) {
+    await().pollInSameThread().atMost(30, SECONDS).until(() -> appState.isOperational(id, true));
   }
 
   private ImmutableMap.Builder<String, String> addRequiredNodeProperties(ImmutableMap.Builder<String, String> builder) {
@@ -442,6 +593,27 @@ public class SchedulerImplTest {
     builder.put(CLUSTER_NODE_HOST.getKey(), secure().nextAlphanumeric(4));
     builder.put(CLUSTER_NODE_HZ_PORT.getKey(), String.valueOf(1 + new Random().nextInt(999)));
     return builder;
+  }
+
+  private static final class OrphanWarningLogs implements AutoCloseable {
+    private final ListAppender appender = ListAppender.attachMemoryAppenderToLoggerOf(SchedulerImpl.class);
+
+    private long orphanWarnings() {
+      List<ILoggingEvent> snapshot;
+      synchronized (appender) {
+        snapshot = new ArrayList<>(appender.getLogs());
+      }
+      return snapshot.stream()
+        .filter(event -> event.getLevel().equals(Level.WARN))
+        .map(ILoggingEvent::getFormattedMessage)
+        .filter(message -> message.contains("App-1") && message.contains("without its main process"))
+        .count();
+    }
+
+    @Override
+    public void close() {
+      ListAppender.detachMemoryAppenderToLoggerOf(SchedulerImpl.class, appender);
+    }
   }
 
   private class TestCommandFactory implements CommandFactory {
@@ -465,6 +637,7 @@ public class SchedulerImplTest {
     private EnumMap<ProcessId, TestManagedProcess> processes;
     private List<AbstractCommand<?>> commands;
     private ProcessId makeStartupFail;
+    private ProcessId failAskForStop;
 
     public TestProcessLauncher() {
       reset();
@@ -474,6 +647,7 @@ public class SchedulerImplTest {
       processes = new EnumMap<>(ProcessId.class);
       commands = synchronizedList(new ArrayList<>());
       makeStartupFail = null;
+      failAskForStop = null;
       return this;
     }
 
@@ -492,34 +666,25 @@ public class SchedulerImplTest {
       return process;
     }
 
-    private TestManagedProcess waitForProcess(ProcessId id) throws InterruptedException {
-      while (true) {
-        TestManagedProcess p = processes.get(id);
-        if (p != null) {
-          return p;
-        }
-        Thread.sleep(1L);
-      }
+    private TestManagedProcess waitForProcess(ProcessId id) {
+      await().pollInSameThread().atMost(30, SECONDS).until(() -> processes.get(id) != null);
+      return processes.get(id);
     }
 
-    private TestManagedProcess waitForProcessAlive(ProcessId id) throws InterruptedException {
-      while (true) {
+    private TestManagedProcess waitForProcessAlive(ProcessId id) {
+      await().pollInSameThread().atMost(30, SECONDS).until(() -> {
         TestManagedProcess p = processes.get(id);
-        if (p != null && p.isAlive()) {
-          return p;
-        }
-        Thread.sleep(1L);
-      }
+        return p != null && p.isAlive();
+      });
+      return processes.get(id);
     }
 
-    private TestManagedProcess waitForProcessDown(ProcessId id) throws InterruptedException {
-      while (true) {
+    private TestManagedProcess waitForProcessDown(ProcessId id) {
+      await().pollInSameThread().atMost(30, SECONDS).until(() -> {
         TestManagedProcess p = processes.get(id);
-        if (p != null && !p.isAlive()) {
-          return p;
-        }
-        Thread.sleep(1L);
-      }
+        return p != null && !p.isAlive();
+      });
+      return processes.get(id);
     }
 
     @Override
@@ -564,6 +729,7 @@ public class SchedulerImplTest {
 
     @Override
     public void closeStreams() {
+      // The test process does not open streams.
     }
 
     @Override
@@ -573,6 +739,9 @@ public class SchedulerImplTest {
 
     @Override
     public void askForStop() {
+      if (processId == processLauncher.failAskForStop) {
+        throw new InternalError("mapped commands file");
+      }
       destroyForcibly();
     }
 

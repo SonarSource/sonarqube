@@ -23,7 +23,10 @@ import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.ErrorResponse;
 import co.elastic.clients.elasticsearch._types.HealthStatus;
 import java.net.InetAddress;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -39,13 +42,17 @@ import org.sonar.process.cluster.hz.HazelcastMember;
 import org.sonar.process.cluster.hz.HazelcastMemberBuilder;
 import org.sonar.process.cluster.hz.JoinConfigurationType;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.Property.CLUSTER_NODE_TYPE;
 import static org.sonar.process.cluster.hz.HazelcastObjects.CLUSTER_NAME;
 import static org.sonar.process.cluster.hz.HazelcastObjects.SONARQUBE_VERSION;
 
@@ -70,7 +77,7 @@ public class ClusterAppStateImplTest {
       underTest.addListener(listener);
 
       underTest.setOperational(ProcessId.ELASTICSEARCH);
-      verify(listener, timeout(20_000)).onAppStateOperational(ProcessId.ELASTICSEARCH);
+      verify(listener, timeout(20_000)).accept(ProcessId.ELASTICSEARCH);
 
       assertThat(underTest.isOperational(ProcessId.ELASTICSEARCH, true)).isTrue();
       assertThat(underTest.isOperational(ProcessId.APP, true)).isFalse();
@@ -104,7 +111,7 @@ public class ClusterAppStateImplTest {
       underTest.isOperational(ProcessId.ELASTICSEARCH, false);
 
       //wait until undergoing thread marks ES as operational
-      verify(listener, timeout(20_000)).onAppStateOperational(ProcessId.ELASTICSEARCH);
+      verify(listener, timeout(20_000)).accept(ProcessId.ELASTICSEARCH);
     }
   }
 
@@ -206,12 +213,124 @@ public class ClusterAppStateImplTest {
     }
   }
 
+  @Test
+  public void memberRemoved_releases_leader_lock_clears_operational_state_and_notifies_listeners() {
+    int leaderPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
+    int followerPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
+    HazelcastMember leaderHz = newHzMember(leaderPort, followerPort);
+    HazelcastMember followerHz = newHzMember(followerPort, leaderPort);
+    AppStateListener listener = mock(AppStateListener.class);
+    ClusterAppStateImpl leader = null;
+    ClusterAppStateImpl follower = null;
+    try {
+      leader = createClusterAppState(leaderHz);
+      follower = createClusterAppState(followerHz);
+      follower.addListener(listener);
+      await().atMost(20, SECONDS).until(() -> followerHz.getCluster().getMembers().size() == 2);
+
+      assertThat(leader.tryToLockWebLeader()).isTrue();
+      leader.setOperational(ProcessId.WEB_SERVER);
+      ClusterAppStateImpl followerState = follower;
+      await().atMost(20, SECONDS).until(() -> followerState.isOperational(ProcessId.WEB_SERVER, false));
+
+      // Crash the member. ClusterAppStateImpl.close() would delete operational entries before Hazelcast stops.
+      leaderHz.close();
+
+      verify(listener, timeout(30_000).atLeastOnce()).onClusterMemberLeft();
+      assertThat(follower.getLeaderHostName()).isEmpty();
+      assertThat(follower.isOperational(ProcessId.WEB_SERVER, false)).isFalse();
+      assertThat(follower.tryToLockWebLeader()).isTrue();
+    } finally {
+      if (leader != null) {
+        leader.close();
+      }
+      if (follower != null) {
+        follower.close();
+      }
+    }
+  }
+
+  @Test
+  public void memberRemoved_keeps_leader_lock_while_that_nodes_web_process_is_still_in_the_cluster() {
+    int appPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
+    int webPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
+    int followerPort = NetworkUtilsImpl.INSTANCE.getNextLoopbackAvailablePort();
+    HazelcastMember leaderAppHz = newHzMember(appPort, ProcessId.APP, "leader-node", webPort, followerPort);
+    HazelcastMember leaderWebHz = newHzMember(webPort, ProcessId.WEB_SERVER, "leader-node", appPort, followerPort);
+    HazelcastMember followerHz = newHzMember(followerPort, ProcessId.APP, "follower-node", appPort, webPort);
+    AppStateListener listener = mock(AppStateListener.class);
+    ClusterAppStateImpl leader = null;
+    ClusterAppStateImpl follower = null;
+    try {
+      leader = createClusterAppState(leaderAppHz);
+      follower = createClusterAppState(followerHz);
+      follower.addListener(listener);
+      await().atMost(20, SECONDS).until(() -> followerHz.getCluster().getMembers().size() == 3);
+
+      assertThat(leader.tryToLockWebLeader()).isTrue();
+      leader.setOperational(ProcessId.WEB_SERVER);
+      ClusterAppStateImpl followerState = follower;
+      await().atMost(20, SECONDS).until(() -> followerState.isOperational(ProcessId.WEB_SERVER, false));
+
+      // Kill the app process only. Its web child stays in the cluster and may still be running startup.
+      leaderAppHz.close();
+
+      await().atMost(20, SECONDS).until(() -> !followerState.isOperational(ProcessId.WEB_SERVER, false));
+      assertThat(follower.tryToLockWebLeader()).isFalse();
+      assertThat(follower.getLeaderHostName()).isPresent();
+      assertThat(follower.getLeaderNodeNameWithoutMainProcess()).contains("leader-node");
+
+      leaderWebHz.close();
+
+      verify(listener, timeout(30_000).times(2)).onClusterMemberLeft();
+      assertThat(follower.getLeaderHostName()).isEmpty();
+      assertThat(follower.getLeaderNodeNameWithoutMainProcess()).isEmpty();
+      assertThat(follower.tryToLockWebLeader()).isTrue();
+    } finally {
+      if (leader != null) {
+        leader.close();
+      }
+      if (follower != null) {
+        follower.close();
+      }
+      leaderAppHz.close();
+      leaderWebHz.close();
+      followerHz.close();
+    }
+  }
+
   private ClusterAppStateImpl createClusterAppState() {
     return createClusterAppState(mock(EsConnector.class));
   }
 
   private ClusterAppStateImpl createClusterAppState(EsConnector esConnector) {
     return new ClusterAppStateImpl(new TestAppSettings(), newHzMember(), esConnector, mock(AppNodesClusterHostsConsistency.class));
+  }
+
+  private static ClusterAppStateImpl createClusterAppState(HazelcastMember hzMember) {
+    // Application node: no local Elasticsearch, so no health-sharing thread keeps using Hazelcast after the member is killed.
+    TestAppSettings settings = new TestAppSettings(Map.of(
+      CLUSTER_ENABLED.getKey(), "true",
+      CLUSTER_NODE_TYPE.getKey(), "application"));
+    return new ClusterAppStateImpl(settings, hzMember, mock(EsConnector.class), mock(AppNodesClusterHostsConsistency.class));
+  }
+
+  private static HazelcastMember newHzMember(int port, int... otherPorts) {
+    return newHzMember(port, ProcessId.WEB_SERVER, "node-" + port, otherPorts);
+  }
+
+  private static HazelcastMember newHzMember(int port, ProcessId processId, String nodeName, int... otherPorts) {
+    InetAddress loopback = InetAddress.getLoopbackAddress();
+    String members = Arrays.stream(otherPorts)
+      .mapToObj(otherPort -> loopback.getHostAddress() + ":" + otherPort)
+      .collect(Collectors.joining(","));
+    return new HazelcastMemberBuilder(JoinConfigurationType.TCP_IP)
+      .setProcessId(processId)
+      .setNodeName(nodeName)
+      .setPort(port)
+      .setNetworkInterface(loopback.getHostAddress())
+      .setMembers(members)
+      .build();
   }
 
   private static HazelcastMember newHzMember() {

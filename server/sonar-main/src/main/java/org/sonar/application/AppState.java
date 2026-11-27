@@ -58,6 +58,14 @@ public interface AppState extends AutoCloseable {
 
   Optional<String> getLeaderHostName();
 
+  /**
+   * Node name of a leader whose app process has left while its web process is still in the cluster.
+   * Empty outside cluster mode, and when that web process is gone.
+   */
+  default Optional<String> getLeaderNodeNameWithoutMainProcess() {
+    return Optional.empty();
+  }
+
   @Override
   void close();
 }

@@ -19,16 +19,22 @@
  */
 package org.sonar.application;
 
+import java.util.function.Consumer;
 import org.sonar.process.ProcessId;
 
+/**
+ * Called when a process becomes operational. In cluster mode the event may come from another node.
+ * Subscribe through {@link AppState#addListener(AppStateListener)}. The process id is passed to {@link #accept}.
+ */
 @FunctionalInterface
-public interface AppStateListener {
+public interface AppStateListener extends Consumer<ProcessId> {
 
   /**
-   * The method is called when the state is changed. When cluster
-   * mode is enabled, the event may be raised from another node.
-   *
-   * Listener must subscribe to {@link AppState#addListener(AppStateListener)}.
+   * Called on this node when another cluster member leaves.
+   * Nodes that are still starting re-evaluate leadership, so a web leader that
+   * disappears before becoming operational does not leave the others waiting.
    */
-  void onAppStateOperational(ProcessId processId);
+  default void onClusterMemberLeft() {
+    // Listeners that only react to operational processes ignore membership changes.
+  }
 }

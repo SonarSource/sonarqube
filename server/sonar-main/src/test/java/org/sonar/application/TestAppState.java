@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
@@ -35,6 +36,7 @@ public class TestAppState implements AppState {
   private final Map<ProcessId, Boolean> remoteProcesses = new EnumMap<>(ProcessId.class);
   private final List<AppStateListener> listeners = new ArrayList<>();
   private final AtomicBoolean webLeaderLocked = new AtomicBoolean(false);
+  private final AtomicInteger webLeaderLockAttempts = new AtomicInteger();
 
   @Override
   public void addListener(@Nonnull AppStateListener listener) {
@@ -53,16 +55,17 @@ public class TestAppState implements AppState {
   public void setOperational(ProcessId processId) {
     localProcesses.put(processId, true);
     remoteProcesses.put(processId, true);
-    listeners.forEach(l -> l.onAppStateOperational(processId));
+    listeners.forEach(l -> l.accept(processId));
   }
 
   public void setRemoteOperational(ProcessId processId) {
     remoteProcesses.put(processId, true);
-    listeners.forEach(l -> l.onAppStateOperational(processId));
+    listeners.forEach(l -> l.accept(processId));
   }
 
   @Override
   public boolean tryToLockWebLeader() {
+    webLeaderLockAttempts.incrementAndGet();
     return webLeaderLocked.compareAndSet(false, true);
   }
 
@@ -100,5 +103,20 @@ public class TestAppState implements AppState {
 
   public AtomicBoolean getWebLeaderLocked() {
     return webLeaderLocked;
+  }
+
+  public int getWebLeaderLockAttempts() {
+    return webLeaderLockAttempts.get();
+  }
+
+  /**
+   * The departed member may have held the web leader lock. Release it, drop that member's remote
+   * operational flags, then let listeners retry startup.
+   */
+  public void clusterMemberLeft() {
+    webLeaderLocked.set(false);
+    remoteProcesses.put(ProcessId.WEB_SERVER, false);
+    remoteProcesses.put(ProcessId.COMPUTE_ENGINE, false);
+    listeners.forEach(AppStateListener::onClusterMemberLeft);
   }
 }

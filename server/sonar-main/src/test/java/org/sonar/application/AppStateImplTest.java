@@ -56,7 +56,7 @@ public class AppStateImplTest {
 
     underTest.setOperational(ProcessId.ELASTICSEARCH);
 
-    verify(listener).onAppStateOperational(ProcessId.ELASTICSEARCH);
+    verify(listener).accept(ProcessId.ELASTICSEARCH);
     verifyNoMoreInteractions(listener);
   }
 

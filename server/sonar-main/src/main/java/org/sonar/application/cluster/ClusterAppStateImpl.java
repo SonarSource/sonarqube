@@ -52,8 +52,11 @@ import org.sonar.process.cluster.hz.DistributedReference;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static java.lang.String.format;
+import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.NODE_NAME;
+import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.PROCESS_KEY;
 import static org.sonar.process.cluster.hz.HazelcastObjects.CLUSTER_NAME;
 import static org.sonar.process.cluster.hz.HazelcastObjects.LEADER;
+import static org.sonar.process.cluster.hz.HazelcastObjects.LEADER_NODE_NAME;
 import static org.sonar.process.cluster.hz.HazelcastObjects.OPERATIONAL_PROCESSES;
 import static org.sonar.process.cluster.hz.HazelcastObjects.SONARQUBE_VERSION;
 
@@ -113,7 +116,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
     }
 
     for (Map.Entry<ClusterProcess, Boolean> entry : operationalProcesses.entrySet()) {
-      if (entry.getKey().getProcessId().equals(processId) && entry.getValue()) {
+      if (entry.getKey().getProcessId().equals(processId) && Boolean.TRUE.equals(entry.getValue())) {
         return true;
       }
     }
@@ -129,7 +132,11 @@ public class ClusterAppStateImpl implements ClusterAppState {
   @Override
   public boolean tryToLockWebLeader() {
     DistributedReference<UUID> leader = hzMember.getAtomicReference(LEADER);
-    return leader.compareAndSet(null, hzMember.getUuid());
+    boolean locked = leader.compareAndSet(null, hzMember.getUuid());
+    if (locked) {
+      hzMember.getAtomicReference(LEADER_NODE_NAME).set(localNodeName());
+    }
+    return locked;
   }
 
   @Override
@@ -141,11 +148,19 @@ public class ClusterAppStateImpl implements ClusterAppState {
    * Tries to release the lock of the cluster leader. It is safe to call this method even if one is not sure about the UUID of the leader.
    * If all nodes call this method then we can be confident that the lock is released.
    *
-   * @param uuidOfLeader - the UUID of the leader to release the lock. In case the UUID is not the leader's uuid this method has no effect.
+   * @param uuidOfLeader the UUID of the leader to release the lock. When the UUID is not the leader's uuid this method has no effect.
+   * @return true when {@code uuidOfLeader} held the lock and this call released it
    */
-  private void tryToReleaseWebLeaderLock(UUID uuidOfLeader) {
+  private boolean tryToReleaseWebLeaderLock(UUID uuidOfLeader) {
     DistributedReference<UUID> leader = hzMember.getAtomicReference(LEADER);
-    leader.compareAndSet(uuidOfLeader, null);
+    DistributedReference<String> leaderNodeName = hzMember.getAtomicReference(LEADER_NODE_NAME);
+    String expectedNodeName = leaderNodeName.get();
+    boolean released = leader.compareAndSet(uuidOfLeader, null);
+    if (released && expectedNodeName != null) {
+      // Only clear the name still owned by this lock. A newer leader may have published its own name.
+      leaderNodeName.compareAndSet(expectedNodeName, null);
+    }
+    return released;
   }
 
   @Override
@@ -184,13 +199,33 @@ public class ClusterAppStateImpl implements ClusterAppState {
   @Override
   public Optional<String> getLeaderHostName() {
     UUID leaderUuid = (UUID) hzMember.getAtomicReference(LEADER).get();
-    if (leaderUuid != null) {
-      Optional<Member> leader = hzMember.getCluster().getMembers().stream().filter(m -> m.getUuid().equals(leaderUuid)).findFirst();
-      if (leader.isPresent()) {
-        return Optional.of(leader.get().getAddress().getHost());
-      }
+    if (leaderUuid == null) {
+      return Optional.empty();
     }
-    return Optional.empty();
+    Optional<Member> leader = memberByUuid(leaderUuid);
+    if (leader.isPresent()) {
+      return Optional.of(leader.get().getAddress().getHost());
+    }
+    // The app process that owns the lock has left, but its web process may still be running startup.
+    String leaderNodeName = leaderNodeName();
+    if (leaderNodeName == null) {
+      return Optional.empty();
+    }
+    return webMember(leaderNodeName, leaderUuid)
+      .map(member -> member.getAddress().getHost());
+  }
+
+  @Override
+  public Optional<String> getLeaderNodeNameWithoutMainProcess() {
+    UUID leaderUuid = (UUID) hzMember.getAtomicReference(LEADER).get();
+    if (leaderUuid == null || memberByUuid(leaderUuid).isPresent()) {
+      return Optional.empty();
+    }
+    String nodeName = leaderNodeName();
+    if (nodeName == null || webMember(nodeName, leaderUuid).isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(nodeName);
   }
 
   @Override
@@ -251,7 +286,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
       while (true) {
         if (isElasticSearchOperational()) {
           esPoolingThreadRunning.set(false);
-          listeners.forEach(l -> l.onAppStateOperational(ProcessId.ELASTICSEARCH));
+          listeners.forEach(l -> l.accept(ProcessId.ELASTICSEARCH));
           return;
         }
 
@@ -269,27 +304,81 @@ public class ClusterAppStateImpl implements ClusterAppState {
   private class OperationalProcessListener extends EntryAdapter<ClusterProcess, Boolean> {
     @Override
     public void entryAdded(EntryEvent<ClusterProcess, Boolean> event) {
-      if (event.getValue()) {
-        listeners.forEach(appStateListener -> appStateListener.onAppStateOperational(event.getKey().getProcessId()));
+      if (Boolean.TRUE.equals(event.getValue())) {
+        listeners.forEach(appStateListener -> appStateListener.accept(event.getKey().getProcessId()));
       }
     }
 
     @Override
     public void entryUpdated(EntryEvent<ClusterProcess, Boolean> event) {
-      if (event.getValue()) {
-        listeners.forEach(appStateListener -> appStateListener.onAppStateOperational(event.getKey().getProcessId()));
+      if (Boolean.TRUE.equals(event.getValue())) {
+        listeners.forEach(appStateListener -> appStateListener.accept(event.getKey().getProcessId()));
       }
     }
+  }
+
+  private String localNodeName() {
+    return hzMember.getCluster().getLocalMember().getAttribute(NODE_NAME.getKey());
+  }
+
+  private String leaderNodeName() {
+    return (String) hzMember.getAtomicReference(LEADER_NODE_NAME).get();
+  }
+
+  private Optional<Member> memberByUuid(UUID uuid) {
+    return hzMember.getCluster().getMembers().stream()
+      .filter(member -> uuid.equals(member.getUuid()))
+      .findFirst();
+  }
+
+  /**
+   * Web process of {@code nodeName}, other than {@code excludedUuid}. The excluded id is the member that just left,
+   * which Hazelcast can still report until the membership event is fully applied.
+   */
+  private Optional<Member> webMember(String nodeName, UUID excludedUuid) {
+    return hzMember.getCluster().getMembers().stream()
+      .filter(member -> !excludedUuid.equals(member.getUuid()))
+      .filter(member -> nodeName.equals(member.getAttribute(NODE_NAME.getKey())))
+      .filter(member -> ProcessId.WEB_SERVER.getKey().equals(member.getAttribute(PROCESS_KEY.getKey())))
+      .findFirst();
   }
 
   private class NodeDisconnectedListener extends MembershipAdapter {
     @Override
     public void memberRemoved(MembershipEvent membershipEvent) {
-      removeOperationalProcess(membershipEvent.getMember().getUuid());
+      Member member = membershipEvent.getMember();
+      releaseLeaderLock(member);
+      clearOperationalProcess(member.getUuid());
+      // Wake nodes still waiting on startup. Operational events never arrive for a leader that died first.
+      listeners.forEach(AppStateListener::onClusterMemberLeft);
     }
 
-    private void removeOperationalProcess(UUID uuid) {
-      tryToReleaseWebLeaderLock(uuid);
+    private void releaseLeaderLock(Member removedMember) {
+      UUID leaderUuid = (UUID) hzMember.getAtomicReference(LEADER).get();
+      if (leaderUuid == null) {
+        return;
+      }
+      String nodeName = leaderNodeName();
+      if (leaderUuid.equals(removedMember.getUuid())) {
+        if (nodeName != null && webMember(nodeName, removedMember.getUuid()).isPresent()) {
+          LOGGER.info("Keeping web leader lock of node {} because its web process is still in the cluster", nodeName);
+          return;
+        }
+        if (tryToReleaseWebLeaderLock(leaderUuid)) {
+          LOGGER.info("Released web leader lock held by {} because it left the cluster", removedMember.getAddress());
+        }
+        return;
+      }
+      boolean removedWebOfLeader = nodeName != null
+        && nodeName.equals(removedMember.getAttribute(NODE_NAME.getKey()))
+        && ProcessId.WEB_SERVER.getKey().equals(removedMember.getAttribute(PROCESS_KEY.getKey()))
+        && memberByUuid(leaderUuid).isEmpty();
+      if (removedWebOfLeader && tryToReleaseWebLeaderLock(leaderUuid)) {
+        LOGGER.info("Released web leader lock of node {} because its web process left the cluster", nodeName);
+      }
+    }
+
+    private void clearOperationalProcess(UUID uuid) {
       for (ClusterProcess clusterProcess : operationalProcesses.keySet()) {
         if (clusterProcess.getNodeUuid().equals(uuid)) {
           LOGGER.debug("Set node process off for [{}:{}] : ", clusterProcess.getNodeUuid(), clusterProcess.getProcessId());

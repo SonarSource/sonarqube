@@ -47,7 +47,7 @@ public class AppStateImpl implements AppState {
   @Override
   public void setOperational(ProcessId processId) {
     processes.put(processId, true);
-    listeners.forEach(l -> l.onAppStateOperational(processId));
+    listeners.forEach(l -> l.accept(processId));
   }
 
   @Override

@@ -32,6 +32,11 @@ public final class HazelcastObjects {
    */
   public static final String LEADER = "LEADER";
   /**
+   * The key of atomic reference holding the node name of the process that owns {@link #LEADER}.
+   * Kept after that process leaves so another node can see whether its web process is still in the cluster.
+   */
+  public static final String LEADER_NODE_NAME = "LEADER_NODE_NAME";
+  /**
    * The key of atomic reference holding the SonarQube version of the cluster
    */
   public static final String SONARQUBE_VERSION = "SONARQUBE_VERSION";

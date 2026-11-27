@@ -75,7 +75,6 @@ public class ManagedProcessHandler {
     try {
       this.process = commandLauncher.get();
     } catch (RuntimeException e) {
-      LOG.error("Failed to launch process [{}]", processId.getHumanReadableName(), e);
       lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPING);
       finalizeStop();
       throw e;
@@ -96,13 +95,20 @@ public class ManagedProcessHandler {
     return processId;
   }
 
-  ManagedProcessLifecycle.State getState() {
+  public ManagedProcessLifecycle.State getState() {
     return lifecycle.getState();
   }
 
   public void stop() throws InterruptedException {
-    if (lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPING)) {
+    if (!lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.STOPPING)) {
+      // already stopping or stopped
+      waitForDown();
+      return;
+    }
+    try {
       stopImpl();
+    } finally {
+      // askForStop can fail with an InternalError from the mapped commands file. Cleanup still has to run.
       if (process != null && process.isAlive()) {
         LOG.info("{} failed to stop in a graceful fashion. Hard stopping it.", processId.getHumanReadableName());
         hardStop();
@@ -110,9 +116,6 @@ public class ManagedProcessHandler {
         // enforce stop and clean-up even if process has been quickly stopped
         finalizeStop();
       }
-    } else {
-      // already stopping or stopped
-      waitForDown();
     }
   }
 
@@ -121,16 +124,19 @@ public class ManagedProcessHandler {
    * executed). It depends on OS.
    */
   public void hardStop() throws InterruptedException {
-    if (lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.HARD_STOPPING)) {
+    if (!lifecycle.tryToMoveTo(ManagedProcessLifecycle.State.HARD_STOPPING)) {
+      // already stopping or stopped
+      waitForDown();
+      return;
+    }
+    try {
       hardStopImpl();
       if (process != null && process.isAlive()) {
         LOG.info("{} failed to stop in a quick fashion. Killing it.", processId.getHumanReadableName());
       }
-      // enforce stop and clean-up even if process has been quickly stopped
+    } finally {
+      // enforce stop and clean-up even if asking for the hard stop failed with an Error
       finalizeStop();
-    } else {
-      // already stopping or stopped
-      waitForDown();
     }
   }
 
@@ -155,7 +161,7 @@ public class ManagedProcessHandler {
     } catch (InterruptedException e) {
       // can't wait for the termination of process. Let's assume it's down.
       throw rethrowWithWarn(e, format("Interrupted while stopping process %s", processId));
-    } catch (Throwable e) {
+    } catch (Exception e) {
       LOG.error("Failed asking for graceful stop of process {}", processId, e);
     }
   }
@@ -171,7 +177,7 @@ public class ManagedProcessHandler {
       // can't wait for the termination of process. Let's assume it's down.
       throw rethrowWithWarn(e,
         format("Interrupted while hard stopping process %s (currentThread=%s)", processId, Thread.currentThread().getName()));
-    } catch (Throwable e) {
+    } catch (Exception e) {
       LOG.error("Failed while asking for hard stop of process {}", processId, e);
     }
   }
