@@ -91,7 +91,9 @@ jobs:
       - uses: SonarSource/ci-github-actions/build-gradle@148774f456203f228b7bd1bd68ed0c22254d9cd1 # v1.3.24
         with:
           deploy: false
-          artifactory-reader-role: private-reader
+          # public-reader only sees the public repositories of Repox, so a dependency available only
+          # internally fails this build too, as it would for an external contributor.
+          artifactory-reader-role: public-reader
           artifactory-deployer-role: qa-deployer
           sonar-platform: next
           run-shadow-scans: true
