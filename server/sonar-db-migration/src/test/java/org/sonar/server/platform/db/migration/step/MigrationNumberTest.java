@@ -23,13 +23,14 @@ import java.util.Random;
 import org.junit.Test;
 import org.sonar.test.TestUtils;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MigrationNumberTest {
 
   @Test
   public void constructor_is_private() {
-    TestUtils.hasOnlyPrivateConstructors(MigrationNumber.class);
+    assertThat(TestUtils.hasOnlyPrivateConstructors(MigrationNumber.class)).isTrue();
   }
 
   @Test

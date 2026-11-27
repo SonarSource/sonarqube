@@ -51,6 +51,7 @@ import org.sonar.server.project.Project;
 
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -283,7 +284,7 @@ public class LoadReportAnalysisMetadataHolderStepIT {
 
     ComputationStep step = createStep(createCeTask(projectComponent.getKey()));
 
-    step.execute(new TestComputationStepContext());
+    assertThatCode(() -> step.execute(new TestComputationStepContext())).doesNotThrowAnyException();
   }
 
   @Test

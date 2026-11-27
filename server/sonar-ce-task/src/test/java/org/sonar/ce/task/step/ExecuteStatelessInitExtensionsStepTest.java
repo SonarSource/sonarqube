@@ -23,7 +23,8 @@ import org.junit.Test;
 import org.mockito.InOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -44,8 +45,7 @@ public class ExecuteStatelessInitExtensionsStepTest {
   public void do_nothing_if_no_extensions() {
     ExecuteStatelessInitExtensionsStep underTest = new ExecuteStatelessInitExtensionsStep();
 
-    // no failure
-    underTest.execute(new TestComputationStepContext());
+    assertThatCode(() -> underTest.execute(new TestComputationStepContext())).doesNotThrowAnyException();
   }
 
   @Test
@@ -71,15 +71,13 @@ public class ExecuteStatelessInitExtensionsStepTest {
 
     ExecuteStatelessInitExtensionsStep underTest = new ExecuteStatelessInitExtensionsStep(
       new StatelessInitExtension[] {ext1, ext2, ext3});
+    TestComputationStepContext stepContext = new TestComputationStepContext();
 
-    try {
-      underTest.execute(new TestComputationStepContext());
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("BOOM");
-      verify(ext1).onInit();
-      verify(ext3, never()).onInit();
-    }
+    assertThatThrownBy(() -> underTest.execute(stepContext))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("BOOM");
+    verify(ext1).onInit();
+    verify(ext3, never()).onInit();
   }
 
 }

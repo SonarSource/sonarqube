@@ -25,6 +25,7 @@ import java.util.UUID;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -93,16 +94,14 @@ public class DistributedAnswerTest {
 
   @Test
   public void propagateExceptions_does_nothing_if_no_members() {
-    // no errors
-    underTest.propagateExceptions();
+    assertThatCode(underTest::propagateExceptions).doesNotThrowAnyException();
   }
 
   @Test
   public void propagateExceptions_does_nothing_if_no_errors() {
     underTest.setAnswer(newMember(uuidFromInt(3)), "bar");
 
-    // no errors
-    underTest.propagateExceptions();
+    assertThatCode(underTest::propagateExceptions).doesNotThrowAnyException();
   }
 
   @Test

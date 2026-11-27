@@ -19,11 +19,20 @@
  */
 package org.sonar.ce.task.projectanalysis.source;
 
+import java.util.List;
+import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.ce.task.projectanalysis.component.Component;
+import org.sonar.core.hash.SourceLineHashesComputer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.ce.task.projectanalysis.component.ReportComponent.builder;
 
 public class SourceLinesHashImplTest {
@@ -41,9 +50,19 @@ public class SourceLinesHashImplTest {
   @Test
   public void should_generate_correct_version_of_line_hashes() {
     Component component = createComponent(1);
+    when(cache.computeIfAbsent(eq(component), any()))
+      .thenAnswer(invocation -> invocation.<Function<Component, List<String>>>getArgument(1).apply(component));
+    when(dbLineHashVersion.hasLineHashesWithoutSignificantCode(component)).thenReturn(true);
+    sourceLinesRepository.addLines(1, "line1", "line2");
 
-    underTest.getLineHashesMatchingDBVersion(component);
+    List<String> lineHashes = underTest.getLineHashesMatchingDBVersion(component);
 
+    SourceLineHashesComputer expectedHashesComputer = new SourceLineHashesComputer();
+    expectedHashesComputer.addLine("line1");
+    expectedHashesComputer.addLine("line2");
+    assertThat(lineHashes).containsExactlyElementsOf(expectedHashesComputer.getLineHashes());
+    verify(cache).computeIfAbsent(eq(component), any());
+    verify(significantCodeRepository, never()).getRangesPerLine(component);
   }
 
   private static Component createComponent(int ref) {

@@ -41,6 +41,6 @@ public class UuidsTest {
 
   @Test
   public void constructor_is_private() {
-    TestUtils.hasOnlyPrivateConstructors(Uuids.class);
+    assertThat(TestUtils.hasOnlyPrivateConstructors(Uuids.class)).isTrue();
   }
 }
