@@ -50,6 +50,8 @@ public class AgentJobQuery {
   private Long minCreatedAt;
   @Nullable
   private Long maxCreatedAt;
+  @Nullable
+  private Long minFinishedAt;
 
   public AgentJobQuery() {
     // no-op: all filters are optional and set via the fluent setters below
@@ -112,6 +114,16 @@ public class AgentJobQuery {
 
   public AgentJobQuery setMaxCreatedAt(@Nullable Long maxCreatedAt) {
     this.maxCreatedAt = maxCreatedAt;
+    return this;
+  }
+
+  @CheckForNull
+  public Long getMinFinishedAt() {
+    return minFinishedAt;
+  }
+
+  public AgentJobQuery setMinFinishedAt(@Nullable Long minFinishedAt) {
+    this.minFinishedAt = minFinishedAt;
     return this;
   }
 }

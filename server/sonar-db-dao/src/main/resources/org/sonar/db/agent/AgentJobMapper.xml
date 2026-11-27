@@ -54,6 +54,9 @@
       <if test="query.maxCreatedAt != null">
         and aj.created_at &lt;= #{query.maxCreatedAt,jdbcType=BIGINT}
       </if>
+      <if test="query.minFinishedAt != null">
+        and aj.finished_at &gt;= #{query.minFinishedAt,jdbcType=BIGINT}
+      </if>
     </where>
   </sql>
 
@@ -70,6 +73,13 @@
   <select id="countByQuery" parameterType="map" resultType="int">
     select
       count(1)
+    from agent_jobs aj
+    <include refid="whereClause"/>
+  </select>
+
+  <select id="selectMinCreatedAt" parameterType="map" resultType="Long">
+    select
+      min(aj.created_at)
     from agent_jobs aj
     <include refid="whereClause"/>
   </select>

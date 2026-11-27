@@ -28,4 +28,6 @@ public interface AgentJobMapper {
   List<AgentJobDto> selectByQuery(@Param("query") AgentJobQuery query, @Param("pagination") Pagination pagination);
 
   int countByQuery(@Param("query") AgentJobQuery query);
+
+  Long selectMinCreatedAt(@Param("query") AgentJobQuery query);
 }

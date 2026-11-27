@@ -330,6 +330,55 @@ class AgentJobDaoTest {
     assertThat(count).isZero();
   }
 
+  @Test
+  void selectMinCreatedAt_returnsOldestMatchingCreatedAt() {
+    insertAgentJob("job-1", "HUNTER", "PENDING", 5_000L);
+    insertAgentJob("job-2", "HUNTER", "PENDING", 1_000L);
+    insertAgentJob("job-3", "HUNTER", "RUNNING", 100L);
+    insertAgentJob("job-4", "REMEDIATION", "PENDING", 50L);
+
+    var oldest = underTest.selectMinCreatedAt(db.getSession(), new AgentJobQuery()
+      .setAgentTypes(List.of("HUNTER"))
+      .setStatuses(List.of("PENDING")));
+
+    assertThat(oldest).contains(1_000L);
+  }
+
+  @Test
+  void selectMinCreatedAt_whenNoMatch_returnsEmpty() {
+    insertAgentJob("job-1", "HUNTER", "RUNNING", 1_000L);
+
+    assertThat(underTest.selectMinCreatedAt(db.getSession(), new AgentJobQuery()
+      .setStatuses(List.of("PENDING")))).isEmpty();
+  }
+
+  @Test
+  void selectMinCreatedAt_whenJobIdsExceedsOracleBindLimit_returnsEmpty() {
+    insertAgentJob("job-1", "HUNTER", "PENDING", 1_000L);
+    List<String> tooManyIds = new ArrayList<>(List.of("job-1"));
+    for (int i = 0; i < AgentJobQuery.MAX_JOB_IDS; i++) {
+      tooManyIds.add("job-id-" + i);
+    }
+
+    assertThat(underTest.selectMinCreatedAt(db.getSession(), new AgentJobQuery().setJobIds(tooManyIds))).isEmpty();
+  }
+
+  @Test
+  void countByQuery_whenFilteringByMinFinishedAt_countsOnlyFinishedJobsInWindow() {
+    insertFinishedAgentJob("job-1", "HUNTER", "FAILED", 1_000L);
+    insertFinishedAgentJob("job-2", "HUNTER", "SUCCEEDED", 2_000L);
+    insertFinishedAgentJob("job-3", "HUNTER", "FAILED", 500L);
+    insertAgentJob("job-4", "HUNTER", "FAILED", 3_000L);
+    insertFinishedAgentJob("job-5", "REMEDIATION", "FAILED", 3_000L);
+
+    int count = underTest.countByQuery(db.getSession(), new AgentJobQuery()
+      .setAgentTypes(List.of("HUNTER"))
+      .setStatuses(List.of("FAILED", "SUCCEEDED"))
+      .setMinFinishedAt(1_000L));
+
+    assertThat(count).isEqualTo(2);
+  }
+
   private void insertAgentJob(String id, String agentType, String status, long createdAt) {
     db.executeInsert("agent_jobs",
       "id", id,
@@ -340,5 +389,18 @@ class AgentJobDaoTest {
       "status", status,
       "created_at", createdAt,
       "updated_at", createdAt);
+  }
+
+  private void insertFinishedAgentJob(String id, String agentType, String status, long finishedAt) {
+    db.executeInsert("agent_jobs",
+      "id", id,
+      "project_id", "project-" + id,
+      "repository_url", "https://example.com/" + id + ".git",
+      "agent_type", agentType,
+      "analysis_type", "FULL",
+      "status", status,
+      "created_at", finishedAt,
+      "updated_at", finishedAt,
+      "finished_at", finishedAt);
   }
 }

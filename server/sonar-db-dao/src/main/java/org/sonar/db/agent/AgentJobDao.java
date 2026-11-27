@@ -21,6 +21,7 @@ package org.sonar.db.agent;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
@@ -42,6 +43,16 @@ public class AgentJobDao implements Dao {
       return 0;
     }
     return mapper(dbSession).countByQuery(query);
+  }
+
+  /**
+   * Smallest {@code created_at} matching the query, or empty when no row matches.
+   */
+  public Optional<Long> selectMinCreatedAt(DbSession dbSession, AgentJobQuery query) {
+    if (query.isShortCircuitedByJobIds()) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(mapper(dbSession).selectMinCreatedAt(query));
   }
 
   private static AgentJobMapper mapper(DbSession dbSession) {
