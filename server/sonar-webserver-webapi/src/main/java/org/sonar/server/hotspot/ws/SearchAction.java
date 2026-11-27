@@ -244,7 +244,7 @@ public class SearchAction implements HotspotsWsAction {
       .setSince("8.1")
       .setDeprecatedSince("2026.4")
       .setChangelog(
-        new Change("2026.5", "Parameter 'projectKey' is removed. Use 'project' instead."),
+        new Change("2026.6", "Parameter 'projectKey' is removed. Use 'project' instead."),
         new Change("2026.4", "Hotspots are deprecated and replaced by security issues (software quality) and vulnerabilities (type). " +
         "Please use the API of security issues / vulnerabilities instead."),
         new Change(V_2025_6, format(NEW_PARAM_ADDED_MESSAGE, PARAM_COMPLIANCE_STANDARDS)),
