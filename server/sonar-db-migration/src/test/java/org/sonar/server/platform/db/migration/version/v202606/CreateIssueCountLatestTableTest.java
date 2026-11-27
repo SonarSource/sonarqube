@@ -20,17 +20,10 @@
 package org.sonar.server.platform.db.migration.version.v202606;
 
 import java.sql.SQLException;
-import java.sql.Types;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.db.MigrationDbTester;
 
-import static org.sonar.server.platform.db.migration.version.v202606.CreateIssueCountLatestTable.COLUMN_DIMENSION_ID;
-import static org.sonar.server.platform.db.migration.version.v202606.CreateIssueCountLatestTable.COLUMN_ENTITY_ID;
-import static org.sonar.server.platform.db.migration.version.v202606.CreateIssueCountLatestTable.COLUMN_ENTITY_TYPE;
-import static org.sonar.server.platform.db.migration.version.v202606.CreateIssueCountLatestTable.COLUMN_ISSUE_COUNT;
-import static org.sonar.server.platform.db.migration.version.v202606.CreateIssueCountLatestTable.COLUMN_RECORDED_AT_EPOCH;
-import static org.sonar.server.platform.db.migration.version.v202606.CreateIssueCountLatestTable.PK_CONSTRAINT;
 import static org.sonar.server.platform.db.migration.version.v202606.CreateIssueCountLatestTable.TABLE_NAME;
 
 class CreateIssueCountLatestTableTest {
@@ -41,18 +34,10 @@ class CreateIssueCountLatestTableTest {
   private final CreateIssueCountLatestTable underTest = new CreateIssueCountLatestTable(db.database());
 
   @Test
-  void migration_should_create_table() throws SQLException {
-    db.assertTableDoesNotExist(TABLE_NAME);
-
+  void migration_should_not_create_the_table() throws SQLException {
     underTest.execute();
 
-    db.assertTableExists(TABLE_NAME);
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_ENTITY_ID, Types.VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_ENTITY_TYPE, Types.VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_DIMENSION_ID, Types.INTEGER, null, false);
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_RECORDED_AT_EPOCH, Types.BIGINT, null, false);
-    db.assertColumnDefinition(TABLE_NAME, COLUMN_ISSUE_COUNT, Types.INTEGER, null, false);
-    db.assertPrimaryKey(TABLE_NAME, PK_CONSTRAINT, COLUMN_ENTITY_ID, COLUMN_ENTITY_TYPE, COLUMN_DIMENSION_ID);
+    db.assertTableDoesNotExist(TABLE_NAME);
   }
 
   @Test
@@ -61,6 +46,6 @@ class CreateIssueCountLatestTableTest {
 
     underTest.execute();
 
-    db.assertTableExists(TABLE_NAME);
+    db.assertTableDoesNotExist(TABLE_NAME);
   }
 }

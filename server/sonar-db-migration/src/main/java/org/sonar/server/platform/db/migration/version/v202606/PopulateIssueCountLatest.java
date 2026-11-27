@@ -24,9 +24,8 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 /**
- * Fills {@code issue_count_latest} with the newest row of each (entity, entity type, dimension) of {@code issue_count_history}.
- * A single statement, written with the ranking function every supported database has. A key that already has a latest row is left
- * alone, so running the step again changes nothing.
+ * No-op. This step used to fill {@code issue_count_latest}, which is not used by Server anymore. It stays registered so that
+ * the migration history of the databases that already ran it remains consistent.
  */
 public class PopulateIssueCountLatest extends DataChange {
 
@@ -36,22 +35,6 @@ public class PopulateIssueCountLatest extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
-    context.prepareUpsert("""
-      INSERT INTO issue_count_latest (entity_id, entity_type, dimension_id, recorded_at_epoch, issue_count)
-      SELECT ranked.entity_id, ranked.entity_type, ranked.dimension_id, ranked.recorded_at_epoch, ranked.issue_count
-      FROM (
-        SELECT entity_id, entity_type, dimension_id, recorded_at_epoch, issue_count,
-          ROW_NUMBER() OVER (PARTITION BY entity_id, entity_type, dimension_id ORDER BY recorded_at_epoch DESC) AS rank_in_key
-        FROM issue_count_history
-      ) ranked
-      WHERE ranked.rank_in_key = 1
-        AND NOT EXISTS (
-          SELECT 1 FROM issue_count_latest latest
-          WHERE latest.entity_id = ranked.entity_id
-            AND latest.entity_type = ranked.entity_type
-            AND latest.dimension_id = ranked.dimension_id)
-      """)
-      .execute()
-      .commit();
+    // Intentionally empty, see the class comment.
   }
 }

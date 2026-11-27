@@ -262,6 +262,4 @@ public interface PurgeMapper {
 
   void deleteIssueCountHistoryByEntityUuid(@Param("entityUuid") String entityUuid);
 
-  void deleteIssueCountLatestByEntityUuid(@Param("entityUuid") String entityUuid);
-
 }

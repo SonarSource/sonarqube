@@ -527,7 +527,6 @@ class PurgeCommands {
     purgeMapper.deleteIssueTtrHistoryByEntityUuid(entityUuid);
     purgeMapper.deleteScaTtrHistoryByEntityUuid(entityUuid);
     purgeMapper.deleteIssueCountHistoryByEntityUuid(entityUuid);
-    purgeMapper.deleteIssueCountLatestByEntityUuid(entityUuid);
   }
 
   void deleteNewCodePeriodsForBranch(String branchUuid) {

@@ -906,7 +906,4 @@
   <delete id="deleteIssueCountHistoryByEntityUuid">
     delete from issue_count_history where entity_id = #{entityUuid,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteIssueCountLatestByEntityUuid">
-    delete from issue_count_latest where entity_id = #{entityUuid,jdbcType=VARCHAR}
-  </delete>
 </mapper>
